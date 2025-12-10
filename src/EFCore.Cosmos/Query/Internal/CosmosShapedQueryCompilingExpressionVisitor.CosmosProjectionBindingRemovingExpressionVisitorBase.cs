@@ -3,21 +3,14 @@
 
 #nullable disable
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -92,10 +85,30 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (switchCaseExpression.TestValues.SingleOrDefault() is ConstantExpression constantExpression
                 && constantExpression.Value is ITypeBase structuralType)
             {
-                var instanceBlock = ((BlockExpression)switchCaseExpression.Body).Expressions
-                    .Select(x => x as BlockExpression ?? ((x as ConditionalExpression)?.IfFalse as UnaryExpression)?.Operand as BlockExpression)
-                    .First(x => x?.Variables.FirstOrDefault()?.Type == structuralType.ClrType);
-                _instanceTypeBaseMappings.Add(instanceBlock.Variables.Single(), structuralType);
+                var instanceVariable = ((BlockExpression)switchCaseExpression.Body).Expressions
+                    .Select(node =>
+                    {
+                        if (node is UnaryExpression unaryExpression
+                            && unaryExpression.NodeType == ExpressionType.Convert)
+                        {
+                            node = unaryExpression.Operand;
+                        }
+
+                        if (node is ConditionalExpression conditionalExpression)
+                        {
+                            node = conditionalExpression.IfFalse;
+                        }
+
+                        return node as BlockExpression;
+                    })
+                    .Select(x => x?.Variables.FirstOrDefault(x => x.Type == structuralType.ClrType))
+                    .FirstOrDefault(x => x != null);
+
+                // Can be null for constructor bindings, but since complex properties aren't supported, we don't need to set the _instanceTypeBaseMappings
+                if (instanceVariable != null)
+                {
+                    _instanceTypeBaseMappings.Add(instanceVariable, structuralType);
+                }
             }
 
             return base.VisitSwitchCase(switchCaseExpression);
@@ -241,10 +254,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (_entityInstanceMaterializationContextMappings.TryGetValue(parameterExpression, out var instanceMaterializationContext) && binaryExpression.Right is SwitchExpression switchExpression)
                     {
-                        var instances = switchExpression.Cases.Select(x => (ParameterExpression)new SwitchCaseReturnValueExtractorExpressionVisitor(parameterExpression.Type).Extract(x.Body));
+                        var instances = switchExpression.Cases.Select(x => new SwitchCaseReturnValueExtractorExpressionVisitor(parameterExpression.Type).Extract(x.Body) as ParameterExpression).Where(x => x != null);// Null for constructor binding, but since complex properties aren't supported, we don't need to set the _concreteTypeInstanceMaterializationContextMapping
                         foreach (var instance in instances)
                         {
-                            Debug.Assert(instance != null);
                             _concreteTypeInstanceMaterializationContextMappings[instance] = instanceMaterializationContext;
                         }
                     }

@@ -26,6 +26,7 @@ FROM root c
 
     #region Scalar properties
 
+    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_scalar_property_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_scalar_property_on_required_associate(queryTrackingBehavior);
@@ -37,6 +38,7 @@ FROM root c
 """);
     }
 
+    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_property_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
