@@ -416,8 +416,10 @@ public class ParametersCounter(
                 ReferenceEquals(lhs, rhs)
                 || (lhs is not null && rhs is not null
                     && lhs.InvariantName == rhs.InvariantName
+                    && lhs.Type == rhs.Type
+                    && lhs.TypeMapping == rhs.TypeMapping
                     && lhs.TranslationMode == rhs.TranslationMode),
-            x => HashCode.Combine(x.InvariantName, x.TranslationMode)));
+            x => HashCode.Combine(x.InvariantName, x.Type, x.TypeMapping, x.TranslationMode)));
 
     private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
         new(EqualityComparer<QueryParameterExpression>.Create(
