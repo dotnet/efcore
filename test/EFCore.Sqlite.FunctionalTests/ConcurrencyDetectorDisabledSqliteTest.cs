@@ -18,6 +18,7 @@ public class ConcurrencyDetectorDisabledSqliteTest(ConcurrencyDetectorDisabledSq
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.EnableThreadSafetyChecks(enableChecks: false);
+            => base.AddOptions(builder)
+                .EnableThreadSafetyChecks(enableChecks: false);
     }
 }

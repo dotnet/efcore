@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NameSpace1;
@@ -186,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal([nameof(Order), nameof(OrderDetails)], ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
                 [
-                    nameof(OrderDetails.Active), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id),
+                    nameof(OrderDetails.Active), nameof(Order.AlternateId), nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number), nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value), nameof(Order.CustomerId), nameof(Order.Id),
                     nameof(OrderDetails.OrderDate), nameof(OrderDetails.OrderId)
                 ],
                 ordersTable.Columns.Select(m => m.Name));
@@ -323,6 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 [
                     nameof(Order.AlternateId),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value),
                     nameof(Order.CustomerId),
                     "Details_Active",
                     "Details_BillingAddress_City",
@@ -565,6 +568,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 [
                     nameof(Order.Id),
                     nameof(Order.AlternateId),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value),
                     nameof(Order.CustomerId),
                     "Details_Active",
                     "Details_BillingAddress_City",
@@ -2250,6 +2255,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .HasForeignKey<Order>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date)
                     .HasConstraintName("FK_DateDetails");
 
+                ob.ComplexProperty(c => c.ComplexProperty, b =>
+                {
+                    b.Property(c => c.Number).HasColumnName("ComplexProperty_Number");
+                    b.Property(c => c.Value).HasColumnName("ComplexProperty_Value");
+                });
+
                 ob.HasIndex(o => o.OrderDate).HasDatabaseName("IX_OrderDate");
 
                 if (mapToSprocs)
@@ -3279,6 +3290,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public Customer Customer { get; set; }
 
             public OrderDetails Details { get; set; }
+
+            public ComplexData ComplexProperty { get; set; }
         }
 
         private class OrderDetails
@@ -3318,6 +3331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public List<ComplexData> ComplexCollection { get; set; }
         }
 
+        [ComplexType]
         private class ComplexData
         {
             public string Value { get; set; }

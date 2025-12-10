@@ -22,7 +22,6 @@ public class StructuralTypeProjectionExpression : Expression
 
     private static readonly bool UseOldBehavior37205 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37205", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -202,15 +201,13 @@ public class StructuralTypeProjectionExpression : Expression
             complexPropertyCache = new Dictionary<IComplexProperty, Expression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
-                if (complexShaper is StructuralTypeShaperExpression nonCollectionComplexShaper)
+                complexPropertyCache[complexProperty] = complexShaper switch
                 {
-                    complexPropertyCache[complexProperty] = nonCollectionComplexShaper.MakeNullable();
-                }
+                    StructuralTypeShaperExpression s => s.MakeNullable(),
+                    CollectionResultExpression c => c,
 
-                if (!UseOldBehavior37205 && complexShaper is CollectionResultExpression collectionComplexShaper)
-                {
-                    complexPropertyCache[complexProperty] = collectionComplexShaper;
-                }
+                    _ => throw new UnreachableException()
+                };
             }
         }
 

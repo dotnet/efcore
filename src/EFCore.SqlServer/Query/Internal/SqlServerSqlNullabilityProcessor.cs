@@ -16,16 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
-    private int MaxParameterCount => UseOldBehavior37336 ? 2100 : 2100 - 2;
-
-    private static readonly bool UseOldBehavior37151 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37151", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37185 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37185", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37336 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37336", out var enabled) && enabled;
+    private int MaxParameterCount => 2100 - 2;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,17 +53,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
-        if (!UseOldBehavior37185)
-        {
-            var parametersCounter = new ParametersCounter(
-                parametersDecorator,
-                CollectionParameterTranslationMode,
+        var parametersCounter = new ParametersCounter(
+            parametersDecorator,
+            CollectionParameterTranslationMode,
 #pragma warning disable EF1001
-                (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
+            (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
 #pragma warning restore EF1001
-            parametersCounter.Visit(queryExpression);
-            _totalParameterCount = parametersCounter.Count;
-        }
+        parametersCounter.Visit(queryExpression);
+        _totalParameterCount = parametersCounter.Count;
 
         var result = base.Process(queryExpression, parametersDecorator);
         _openJsonAliasCounter = 0;
@@ -312,7 +300,6 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         if (count <= 750) return 50;
         if (count <= 2000) return 100;
         if (count <= 2070) return 10; // try not to over-pad as we approach that limit
-        if (count <= MaxParameterCount && UseOldBehavior37151) return 0;
         if (count <= MaxParameterCount) return 1; // just don't pad between 2070 and 2100, to minimize the crazy
         return 200;
     }
@@ -325,16 +312,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         out List<SqlExpression>? constantsResult,
         out bool? containsNulls)
     {
-        var parameters = ParametersDecorator.GetAndDisableCaching();
-        var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
-
         // SQL Server has limit on number of parameters in a query.
         // If we're over that limit, we switch to using single parameter
         // and processing it through JSON functions.
-        if (UseOldBehavior37185
-            ? values.Count > MaxParameterCount
-            : _totalParameterCount > MaxParameterCount)
+        if (_totalParameterCount > MaxParameterCount)
         {
+            var parameters = ParametersDecorator.GetAndDisableCaching();
+            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
+
             if (_sqlServerSingletonOptions.SupportsJsonFunctions)
             {
                 var openJsonExpression = new SqlServerOpenJsonExpression(
