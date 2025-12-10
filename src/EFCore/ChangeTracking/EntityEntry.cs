@@ -603,7 +603,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = Finder.GetDatabaseValues(InternalEntry);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
     }
 
     /// <summary>
@@ -634,7 +634,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
     }
 
     /// <summary>

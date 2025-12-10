@@ -145,6 +145,13 @@ public abstract class SnapshotFactoryFactory
                 case var _ when propertyBase.IsShadowProperty():
                     arguments[i] = CreateSnapshotValueExpression(CreateReadShadowValueExpression(parameter, propertyBase), propertyBase);
                     continue;
+
+                case IComplexProperty { IsCollection: false, IsNullable: true }:
+                    // For nullable non-collection complex properties, convert to object to store the null reference
+                    arguments[i] = Expression.Convert(
+                        CreateSnapshotValueExpression(CreateReadValueExpression(parameter, propertyBase), propertyBase),
+                        typeof(object));
+                    continue;
             }
 
             arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, propertyBase), propertyBase);

@@ -2055,6 +2055,18 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     ("Building.Milk#Milk.Manufacturer#Manufacturer", "Rating"),
                     ("Building.Milk#Milk.Manufacturer#Manufacturer.Tag#Tag", "Text"),
                     ("Building.Milk#Milk.Manufacturer#Manufacturer.Tog#Tog", "Text"),
+                    ("Building.OptionalMilk#Milk", "Rating"),
+                    ("Building.OptionalMilk#Milk", "Species"),
+                    ("Building.OptionalMilk#Milk", "Subspecies"),
+                    ("Building.OptionalMilk#Milk", "Validation"),
+                    ("Building.OptionalMilk#Milk.License#License", "Charge"),
+                    ("Building.OptionalMilk#Milk.License#License", "Title"),
+                    ("Building.OptionalMilk#Milk.License#License.Tag#Tag", "Text"),
+                    ("Building.OptionalMilk#Milk.License#License.Tog#Tog", "Text"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer", "Name"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer", "Rating"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer.Tag#Tag", "Text"),
+                    ("Building.OptionalMilk#Milk.Manufacturer#Manufacturer.Tog#Tog", "Text"),
                 ],
                 properties);
         }
@@ -3168,6 +3180,48 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
+    public virtual void Nullable_complex_property_with_null_value_returns_null_when_using_ToObject()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        Assert.NotNull(building.OptionalMilk);
+        building.OptionalMilk = null;
+
+        var currentBuilding = (Building)context.Entry(building).CurrentValues.ToObject();
+        Assert.Null(currentBuilding.OptionalMilk);
+
+        var originalBuilding = (Building)context.Entry(building).OriginalValues.ToObject();
+        Assert.NotNull(originalBuilding.OptionalMilk);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_current_values_from_cloned_values_sets_nullable_complex_property_to_null()
+    {
+        using var context = CreateContext();
+        var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+        Assert.NotNull(building.OptionalMilk);
+        building.OptionalMilk = null;
+
+        var clonedValues = context.Entry(building).CurrentValues.Clone();
+        Assert.Null(((Building)clonedValues.ToObject()).OptionalMilk);
+
+        building.OptionalMilk = new Milk
+        {
+            License = new License { Charge = 1.0m, Tag = new Tag { Text = "Ta1" }, Title = "Ti1", Tog = new Tog { Text = "To1" } },
+            Manufacturer = new Manufacturer { Name = "M1", Rating = 7, Tag = new Tag { Text = "Ta2" }, Tog = new Tog { Text = "To2" } },
+            Rating = 8,
+            Species = "S1",
+            Validation = false
+        };
+        Assert.NotNull(building.OptionalMilk);
+
+        context.Entry(building).CurrentValues.SetValues(clonedValues);
+        Assert.Null(building.OptionalMilk);
+    }
+
+    [ConditionalFact]
     public virtual void Current_values_can_be_copied_to_object_using_ToObject()
     {
         using var context = CreateContext();
@@ -3558,6 +3612,26 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
                     Rating = 8 + (tag ?? 0),
                     Species = "S1" + tag,
                     Validation = false
+                },
+                OptionalMilk = new Milk
+                {
+                    License = new License
+                    {
+                        Charge = 2.0m + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta3" + tag },
+                        Title = "Ti2" + tag,
+                        Tog = new Tog { Text = "To3" + tag }
+                    },
+                    Manufacturer = new Manufacturer
+                    {
+                        Name = "M2" + tag,
+                        Rating = 9 + (tag ?? 0),
+                        Tag = new Tag { Text = "Ta4" + tag },
+                        Tog = new Tog { Text = "To4" + tag }
+                    },
+                    Rating = 10 + (tag ?? 0),
+                    Species = "S2" + tag,
+                    Validation = true
                 }
             };
 
@@ -3587,6 +3661,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         public Culture Culture { get; set; }
         public required Milk Milk { get; set; }
+        public Milk? OptionalMilk { get; set; }
     }
 
     [ComplexType]
@@ -3903,6 +3978,7 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
                 b.ComplexProperty(e => e.Culture);
                 b.ComplexProperty(e => e.Milk);
+                b.ComplexProperty(e => e.OptionalMilk);
             });
 
             modelBuilder.Entity<Contact33307>();
