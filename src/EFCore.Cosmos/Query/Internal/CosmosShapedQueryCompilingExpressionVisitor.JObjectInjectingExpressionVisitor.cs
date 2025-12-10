@@ -15,22 +15,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
         private int _currentEntityIndex;
 
-        protected override Expression VisitExtension(Expression extensionExpression)
+        public static List<Expression> AssignJObject(StructuralTypeShaperExpression shaperExpression, ParameterExpression jObjectVariable)
         {
-            switch (extensionExpression)
-            {
-                case StructuralTypeShaperExpression shaperExpression:
-                {
-                    _currentEntityIndex++;
+            var valueBufferExpression = shaperExpression.ValueBufferExpression;
 
-                    var valueBufferExpression = shaperExpression.ValueBufferExpression;
-
-                    var jObjectVariable = Variable(
-                        typeof(JObject),
-                        "jObject" + _currentEntityIndex);
-                    var variables = new List<ParameterExpression> { jObjectVariable };
-
-                    var expressions = new List<Expression>
+            var expressions = new List<Expression>
                     {
                         Assign(
                             jObjectVariable,
@@ -43,9 +32,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             shaperExpression)
                     };
 
+            return expressions;
+        }
+
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            switch (extensionExpression)
+            {
+                case StructuralTypeShaperExpression shaperExpression:
+                {
+                    _currentEntityIndex++;
+
+                    var jObjectVariable = Variable(
+                        typeof(JObject),
+                        "jObject" + _currentEntityIndex);
+
+                    var expressions = AssignJObject(shaperExpression, jObjectVariable);
+
                     return Block(
                         shaperExpression.Type,
-                        variables,
+                        [jObjectVariable],
                         expressions);
                 }
 
