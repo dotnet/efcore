@@ -7,11 +7,14 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 using static System.Net.Mime.MediaTypeNames;
@@ -89,7 +92,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (switchCaseExpression.TestValues.SingleOrDefault() is ConstantExpression constantExpression
                 && constantExpression.Value is ITypeBase structuralType)
             {
-                var instanceBlock = (BlockExpression)((BlockExpression)switchCaseExpression.Body).Expressions.First(x => x is BlockExpression b && b.Variables.FirstOrDefault()?.Type == structuralType.ClrType);
+                var instanceBlock = ((BlockExpression)switchCaseExpression.Body).Expressions
+                    .Select(x => x as BlockExpression ?? ((x as ConditionalExpression)?.IfFalse as UnaryExpression)?.Operand as BlockExpression)
+                    .First(x => x?.Variables.FirstOrDefault()?.Type == structuralType.ClrType);
                 _instanceTypeBaseMappings.Add(instanceBlock.Variables.Single(), structuralType);
             }
 
@@ -202,23 +207,29 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var newExpression = (NewExpression)binaryExpression.Right;
 
-                        EntityProjectionExpression entityProjectionExpression;
-                        if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
+                        if (newExpression.Arguments[0] is ComplexPropertyValueBufferExpression temp)
                         {
-                            var projection = GetProjection(projectionBindingExpression);
-                            entityProjectionExpression = (EntityProjectionExpression)projection.Expression;
-                        }
-                        else if ()
-                        {
-
+                            _materializationContextBindings[parameterExpression] = temp;
+                            _projectionBindings[temp] = jTokenParameter;
+                            Debug.Assert(!_materializationContextCompexPropertyJObjectMappings.ContainsKey(parameterExpression), "Should never overwrite");
+                            _materializationContextCompexPropertyJObjectMappings[parameterExpression] = new() { { temp.ComplexProperty, jTokenParameter } };
                         }
                         else
                         {
-                            var projection = ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
-                            entityProjectionExpression = (EntityProjectionExpression)projection;
-                        }
+                            EntityProjectionExpression entityProjectionExpression;
+                            if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
+                            {
+                                var projection = GetProjection(projectionBindingExpression);
+                                entityProjectionExpression = (EntityProjectionExpression)projection.Expression;
+                            }
+                            else
+                            {
+                                var projection = ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
+                                entityProjectionExpression = (EntityProjectionExpression)projection;
+                            }
 
-                        _materializationContextBindings[parameterExpression] = entityProjectionExpression.Object;
+                            _materializationContextBindings[parameterExpression] = entityProjectionExpression.Object;
+                        }
 
                         var updatedExpression = New(
                             newExpression.Constructor,
@@ -230,9 +241,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (_entityInstanceMaterializationContextMappings.TryGetValue(parameterExpression, out var instanceMaterializationContext) && binaryExpression.Right is SwitchExpression switchExpression)
                     {
-                        var instances = switchExpression.Cases.Select(x => (ParameterExpression)new SwitchCaseReturnValueExtractorExpressionVisitor().Visit(x.Body));
+                        var instances = switchExpression.Cases.Select(x => (ParameterExpression)new SwitchCaseReturnValueExtractorExpressionVisitor(parameterExpression.Type).Extract(x.Body));
                         foreach (var instance in instances)
                         {
+                            Debug.Assert(instance != null);
                             _concreteTypeInstanceMaterializationContextMappings[instance] = instanceMaterializationContext;
                         }
                     }
@@ -268,26 +280,41 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitBinary(binaryExpression);
         }
 
-        private class SwitchCaseReturnValueExtractorExpressionVisitor : ExpressionVisitor
+        private class SwitchCaseReturnValueExtractorExpressionVisitor(Type clrType) : ExpressionVisitor
         {
+            private ParameterExpression _result;
+
             public Expression Extract(Expression expression)
             {
-                return Visit(expression);
+                _result = null;
+                Visit(expression);
+                return _result;
             }
 
-            [return: NotNullIfNotNull("node")]
-            public override Expression Visit(Expression node)
+            protected override Expression VisitBinary(BinaryExpression node)   
             {
-                if (node is not BlockExpression)
+                if (node.NodeType == ExpressionType.Assign && node.Type.IsAssignableTo(clrType))
                 {
+                    _result = (ParameterExpression)node.Left;
                     return node;
                 }
 
-                return base.Visit(node);
+                return base.VisitBinary(node);
+            }
+        }
+
+        private class ComplexPropertyValueBufferExpression : Expression
+        {
+            public ComplexPropertyValueBufferExpression(IComplexProperty complexProperty)
+            {
+                ComplexProperty = complexProperty;
             }
 
-            protected override Expression VisitBlock(BlockExpression blockExpression)
-                => Visit(blockExpression.Expressions.Last());
+            public override Type Type => typeof(ValueBuffer);
+
+            public override ExpressionType NodeType => ExpressionType.Extension;
+
+            public IComplexProperty ComplexProperty { get; }
         }
 
         private BlockExpression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty, ParameterExpression materializationContext, Expression parentJObject)
@@ -305,21 +332,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 )
             );
 
-            var tempValueBuffer = new ProjectionBindingExpression(); // VAR1
+            var tempValueBuffer = new ComplexPropertyValueBufferExpression(complexProperty);
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
                 complexProperty.ComplexType,
                 tempValueBuffer,
                 complexProperty.ClrType.IsNullableType()); // @TODO: Can collection items be null?
-            // inject Jobject..?
-            var jObjectParameter = Parameter(typeof(JObject), "complexArrayItem" + _currentComplexIndex);
-            //var assingment = JObjectInjectingExpressionVisitor.AssignJObject(structuralTypeShaperExpression, jObjectParameter);
-
-            //var injectedJobject = Block(
-
-            //);
-
+            
             var rawMaterializeExpression = parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression); // @TODO: We could also use entityMaterializerSource directly here..
 
+            var jObjectParameter = Parameter(typeof(JObject), "complexArrayItem" + _currentComplexIndex);
             var oldJTokenParametr = jTokenParameter;
             jTokenParameter = jObjectParameter;
             var materializeExpression = Visit(rawMaterializeExpression);
@@ -382,11 +403,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             BlockExpression materializationBlock;
             if (materializationExpression is ConditionalExpression condition)
             {
-                materializationBlock = (BlockExpression)((UnaryExpression)condition.IfFalse).Operand;
+                materializationBlock = (condition.IfFalse as BlockExpression ?? (BlockExpression)(condition.IfFalse as UnaryExpression).Operand);
                 materializationExpression = Condition(
                     Equal(complexJObjectVariable, Constant(null)),
                     condition.IfTrue,
-                    materializationBlock);
+                    Convert(materializationBlock, condition.Type));
             }
             else
             {
@@ -395,6 +416,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var instanceParameter = materializationBlock.Variables.First(v => v.Type == complexProperty.ComplexType.ClrType);
             _instanceTypeBaseMappings.Add(instanceParameter, complexProperty.ComplexType);
+            _concreteTypeInstanceMaterializationContextMappings.Add(instanceParameter, materializationContext);
 
             materializationExpression = Visit(materializationExpression);
 
