@@ -2091,12 +2091,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 parameterName = parameterName.Substring("$VB$Local_".Length);
             }
 
-            // Uniquify the parameter name
-            var originalParameterName = parameterName;
-            for (var i = 0; _parameterNames.Contains(parameterName); i++)
-            {
-                parameterName = originalParameterName + i;
-            }
+            parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
 
             _parameterNames.Add(parameterName);
         }

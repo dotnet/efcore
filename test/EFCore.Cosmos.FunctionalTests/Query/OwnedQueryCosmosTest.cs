@@ -987,13 +987,13 @@ WHERE c["Terminator"] IN ("HeliumBalloon", "HydrogenBalloon")
                 AssertSql(
                     """
 @p='1'
-@p0='2'
+@p1='2'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
             });
 
@@ -1006,13 +1006,13 @@ OFFSET @p LIMIT @p0
                 AssertSql(
                     """
 @p='1'
-@p0='2'
+@p1='2'
 
 SELECT VALUE c
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
             });
 

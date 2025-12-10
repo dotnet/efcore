@@ -566,12 +566,12 @@ ORDER BY ((c["UnitsInStock"] > 10) ? (c["ProductID"] > 40) : (c["ProductID"] <= 
                 AssertSql(
                     """
 @p='5'
-@p0='10'
+@p1='10'
 
 SELECT VALUE c
 FROM root c
 ORDER BY c["ContactName"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
             });
 
@@ -1307,13 +1307,13 @@ SELECT VALUE EXISTS (
             AssertSql(
                 """
 @p='5'
-@p0='10'
+@p1='10'
 
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
     ORDER BY c["ContactName"]
-    OFFSET @p LIMIT @p0)
+    OFFSET @p LIMIT @p1)
 """);
         }
     }
@@ -2307,12 +2307,12 @@ WHERE (((c["$type"] = "Order") AND (c["OrderDate"] != null)) AND (DateTimePart("
             AssertSql(
                 """
 @p='5'
-@p0='8'
+@p1='8'
 
 SELECT VALUE c
 FROM root c
 ORDER BY c["ContactTitle"], c["ContactName"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
         }
     }
@@ -3034,12 +3034,12 @@ ORDER BY c["id"] DESC
                 AssertSql(
                     """
 @p='5'
-@p0='10'
+@p1='10'
 
 SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
-OFFSET @p LIMIT @p0
+OFFSET @p LIMIT @p1
 """);
             });
 
