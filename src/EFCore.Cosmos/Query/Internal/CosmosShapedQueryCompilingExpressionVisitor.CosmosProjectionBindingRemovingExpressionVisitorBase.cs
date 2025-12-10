@@ -97,6 +97,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         if (node is ConditionalExpression conditionalExpression)
                         {
                             node = conditionalExpression.IfFalse;
+                            if (node is UnaryExpression unaryExpression2
+                                && unaryExpression2.NodeType == ExpressionType.Convert)
+                            {
+                                node = unaryExpression2.Operand;
+                            }
                         }
 
                         return node as BlockExpression;
@@ -292,43 +297,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitBinary(binaryExpression);
         }
 
-        private class SwitchCaseReturnValueExtractorExpressionVisitor(Type clrType) : ExpressionVisitor
-        {
-            private ParameterExpression _result;
-
-            public Expression Extract(Expression expression)
-            {
-                _result = null;
-                Visit(expression);
-                return _result;
-            }
-
-            protected override Expression VisitBinary(BinaryExpression node)   
-            {
-                if (node.NodeType == ExpressionType.Assign && node.Type.IsAssignableTo(clrType))
-                {
-                    _result = (ParameterExpression)node.Left;
-                    return node;
-                }
-
-                return base.VisitBinary(node);
-            }
-        }
-
-        private class ComplexPropertyValueBufferExpression : Expression
-        {
-            public ComplexPropertyValueBufferExpression(IComplexProperty complexProperty)
-            {
-                ComplexProperty = complexProperty;
-            }
-
-            public override Type Type => typeof(ValueBuffer);
-
-            public override ExpressionType NodeType => ExpressionType.Extension;
-
-            public IComplexProperty ComplexProperty { get; }
-        }
-
         private BlockExpression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty, ParameterExpression materializationContext, Expression parentJObject)
         {
             var complexJArrayVariable = Variable(
@@ -357,8 +325,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             jTokenParameter = jObjectParameter;
             var materializeExpression = Visit(rawMaterializeExpression);
             jTokenParameter = oldJTokenParametr;
-
-            // We need to inject a jObject first..
 
             var select = Call(
                         EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
@@ -437,46 +403,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 assignComplexJObjectVariable,
                 memberExpression.Assign(materializationExpression)
             );
-        }
-
-        private class ComplexPropertyMaterializationContextExtractorExpressionVisitor : ExpressionVisitor
-        {
-            private IComplexProperty _complexProperty;
-            private ParameterExpression _materializationContext;
-            public ParameterExpression Extract(Expression expression, IComplexProperty complexProperty)
-            {
-                _complexProperty = complexProperty;
-                _materializationContext = null;
-                Visit(expression);
-                return _materializationContext;
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                var method = methodCallExpression.Method;
-                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-                if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
-                {
-                    var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
-
-                    var declaringType = property.DeclaringType;
-                    while (declaringType is IComplexType c)
-                    {
-                        if (c.ComplexProperty == _complexProperty)
-                        {
-                            var param = (methodCallExpression.Arguments[0] as MethodCallExpression)?.Object as ParameterExpression;
-                            if (param.Type == typeof(MaterializationContext))
-                            {
-                                _materializationContext = param;
-                                return methodCallExpression;
-                            }
-                        }
-
-                        declaringType = c.ComplexProperty.DeclaringType;
-                    }
-                }
-                return base.VisitMethodCall(methodCallExpression);
-            }
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -1129,5 +1055,42 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
+
+        private sealed class SwitchCaseReturnValueExtractorExpressionVisitor(Type clrType) : ExpressionVisitor
+        {
+            private ParameterExpression _result;
+
+            public Expression Extract(Expression expression)
+            {
+                _result = null;
+                Visit(expression);
+                return _result;
+            }
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (node.NodeType == ExpressionType.Assign && node.Type.IsAssignableTo(clrType))
+                {
+                    _result = (ParameterExpression)node.Left;
+                    return node;
+                }
+
+                return base.VisitBinary(node);
+            }
+        }
+
+        private sealed class ComplexPropertyValueBufferExpression : Expression
+        {
+            public ComplexPropertyValueBufferExpression(IComplexProperty complexProperty)
+            {
+                ComplexProperty = complexProperty;
+            }
+
+            public override Type Type => typeof(ValueBuffer);
+
+            public override ExpressionType NodeType => ExpressionType.Extension;
+
+            public IComplexProperty ComplexProperty { get; }
+        }
     }
 }
