@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
-    private const int MaxParameterCount = 2100;
+    private const int MaxParameterCount = 2100 - 2;
 
     private static readonly bool UseOldBehavior37151 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37151", out var enabled) && enabled;
