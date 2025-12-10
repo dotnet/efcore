@@ -2435,6 +2435,30 @@ WHERE (
         Assert.Contains("@ints2071)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
+    [ConditionalTheory]
+    [InlineData(2098)]
+    [InlineData(2099)]
+    [InlineData(2100)]
+    public virtual Task Parameter_collection_of_ints_Contains_int_parameters_limit(int count)
+    {
+        var ints = Enumerable.Range(10, count);
+
+        // no exception from SQL Server is a pass
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+    }
+
+    [ConditionalTheory]
+    [InlineData(2098)]
+    [InlineData(2099)]
+    [InlineData(2100)]
+    public virtual Task Parameter_collection_Count_parameters_limit(int count)
+    {
+        var ids = Enumerable.Range(1000, count);
+
+        // no exception from SQL Server is a pass
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) > 0));
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
