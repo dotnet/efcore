@@ -917,6 +917,13 @@ WHERE (
         Assert.Contains("@ids2=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
+    public override async Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    {
+        await base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+        Assert.Contains("OPENJSON(@ids) WITH ([value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants();
@@ -956,6 +963,14 @@ WHERE (
         Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
         Assert.Contains("@ints1=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
         Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+        Assert.Contains("OPENJSON(@ints) WITH ([value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("OPENJSON(@ints) WITH ([value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
     public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
@@ -2496,6 +2511,30 @@ WHERE (
 
         // check that 2071 parameter is the last one (and no error happened)
         Assert.Contains("@ints2071)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    [ConditionalTheory]
+    [InlineData(2098)]
+    [InlineData(2099)]
+    [InlineData(2100)]
+    public virtual Task Parameter_collection_of_ints_Contains_int_parameters_limit(int count)
+    {
+        var ints = Enumerable.Range(10, count);
+
+        // no exception from SQL Server is a pass
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+    }
+
+    [ConditionalTheory]
+    [InlineData(2098)]
+    [InlineData(2099)]
+    [InlineData(2100)]
+    public virtual Task Parameter_collection_Count_parameters_limit(int count)
+    {
+        var ids = Enumerable.Range(1000, count);
+
+        // no exception from SQL Server is a pass
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) > 0));
     }
 
     [ConditionalFact]

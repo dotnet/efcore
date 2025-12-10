@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
-    private const int MaxParameterCount = 2100;
+    private int MaxParameterCount => 2100 - 2;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -294,16 +294,15 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 
     /// <inheritdoc />
     protected override int CalculateParameterBucketSize(int count, RelationalTypeMapping elementTypeMapping)
-        => count switch
-        {
-            <= 5 => 1,
-            <= 150 => 10,
-            <= 750 => 50,
-            <= 2000 => 100,
-            <= 2070 => 10, // try not to over-pad as we approach that limit
-            <= MaxParameterCount => 1, // just don't pad between 2070 and 2100, to minimize the crazy
-            _ => 200,
-        };
+    {
+        if (count <= 5) return 1;
+        if (count <= 150) return 10;
+        if (count <= 750) return 50;
+        if (count <= 2000) return 100;
+        if (count <= 2070) return 10; // try not to over-pad as we approach that limit
+        if (count <= MaxParameterCount) return 1; // just don't pad between 2070 and 2100, to minimize the crazy
+        return 200;
+    }
 
     private bool TryHandleOverLimitParameters(
         SqlParameterExpression valuesParameter,
@@ -404,8 +403,10 @@ public class ParametersCounter(
                 ReferenceEquals(lhs, rhs)
                 || (lhs is not null && rhs is not null
                     && lhs.InvariantName == rhs.InvariantName
+                    && lhs.Type == rhs.Type
+                    && lhs.TypeMapping == rhs.TypeMapping
                     && lhs.TranslationMode == rhs.TranslationMode),
-            x => HashCode.Combine(x.InvariantName, x.TranslationMode)));
+            x => HashCode.Combine(x.InvariantName, x.Type, x.TypeMapping, x.TranslationMode)));
 
     private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
         new(EqualityComparer<QueryParameterExpression>.Create(
