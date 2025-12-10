@@ -66,7 +66,11 @@ internal class RootCommand : CommandBase
         Reporter.WriteVerbose(Resources.UsingProject(projectFile));
         Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
-        var project = Project.FromFile(projectFile);
+        var project = Project.FromFile(
+            projectFile,
+            _framework!.Value(),
+            _configuration!.Value(),
+            _runtime!.Value());
         var startupProject = Project.FromFile(
             startupProjectFile,
             _framework!.Value(),
