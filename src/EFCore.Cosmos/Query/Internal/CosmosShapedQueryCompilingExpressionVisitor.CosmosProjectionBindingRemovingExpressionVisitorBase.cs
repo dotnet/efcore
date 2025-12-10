@@ -67,7 +67,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (switchCaseExpression.TestValues.SingleOrDefault() is ConstantExpression constantExpression
                 && constantExpression.Value is ITypeBase structuralType)
             {
-                // @TODO: Maybe use visitor? Does this work if tracking is off?
                 var instanceBlock = (BlockExpression)((BlockExpression)switchCaseExpression.Body).Expressions.First(x => x is BlockExpression b && b.Variables.FirstOrDefault()?.Type == structuralType.ClrType);
                 _instanceTypeBaseMappings.Add(instanceBlock.Variables.Single(), structuralType);
             }
@@ -252,7 +251,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 "complexJObject" + ++_currentComplexIndex);
             var assignComplexJObjectVariableExpression = Assign(complexJObjectVariableExpression, Call( // @TODO: Can we reuse get property value?
                                     ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
-                                    Call(parentJObject, GetItemMethodInfo, // @TODO: Which jobject........
+                                    Call(parentJObject, GetItemMethodInfo,
                                         Constant(complexProperty.Name)
                                     )
                                 ));
