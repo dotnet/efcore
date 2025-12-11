@@ -25,29 +25,40 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_reads_latest_values()
     {
         using var ctx = _fx.CreateContext();
+        
         var cust = await ctx.Customers.FirstAsync();
         var oldContactName = cust.ContactName;
         var newContactName = $"Alex {DateTime.Now:MM-dd-HH-mm}";
-        // simuliraj vanjsku promjenu u bazi
-        await ctx.Database.ExecuteSqlRawAsync(
-            "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
-            newContactName,
-            cust.CustomerID);
+        
+        try
+        {
+            // Make actual database change (not in transaction)
+            await ctx.Database.ExecuteSqlRawAsync(
+                "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
+                newContactName,
+                cust.CustomerID);
 
-        await ctx.Entry(cust).ReloadAsync();
-        var readedNewContactName = cust.ContactName;
+            await ctx.Entry(cust).ReloadAsync();
+            var readedNewContactName = cust.ContactName;
 
-        cust.ContactName = oldContactName;
-        await ctx.SaveChangesAsync();
-
-        // Assert
-        Assert.Equal(newContactName, readedNewContactName);
+            // Assert
+            Assert.Equal(newContactName, readedNewContactName);
+        }
+        finally
+        {
+            // Cleanup - restore original value
+            await ctx.Database.ExecuteSqlRawAsync(
+                "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
+                oldContactName,
+                cust.CustomerID);
+        }
     }
 
     [Fact]
     public async Task Refresh_in_collection()
     {
         using var ctx = _fx.CreateContext();
+        
         var productName = "Tofu";
         var orderID = 10249;
 
@@ -58,69 +69,86 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         var productID = orderDetail.ProductID;
         var randomQuantity = (short)new Random().Next(1, 100);
 
-        await ctx.Database.ExecuteSqlRawAsync(
-            @"UPDATE [dbo].[Order Details]
+        try
+        {
+            await ctx.Database.ExecuteSqlRawAsync(
+                @"UPDATE [dbo].[Order Details]
                SET 
                   [Quantity] = {0}
              WHERE OrderID = {1} and ProductID = {2}",
-            randomQuantity,
-            orderID,
-            orderDetail.ProductID);
+                randomQuantity,
+                orderID,
+                orderDetail.ProductID);
 
 
-        foreach (var item in order.OrderDetails)
-        {
-            await ctx.Entry(item).ReloadAsync();
+            foreach (var item in order.OrderDetails)
+            {
+                await ctx.Entry(item).ReloadAsync();
+            }
+
+            var newReadedQuantity = orderDetail.Quantity;
+
+            // Assert
+            Assert.Equal(newReadedQuantity, randomQuantity);
         }
-
-        var newReadedQuantity = orderDetail.Quantity;
-
-        orderDetail.Quantity = originalQuantity;
-        await ctx.SaveChangesAsync();
-
-        // Assert
-        Assert.Equal(newReadedQuantity, randomQuantity);
+        finally
+        {
+            // Cleanup - restore original value
+            await ctx.Database.ExecuteSqlRawAsync(
+                @"UPDATE [dbo].[Order Details]
+               SET 
+                  [Quantity] = {0}
+             WHERE OrderID = {1} and ProductID = {2}",
+                originalQuantity,
+                orderID,
+                productID);
+        }
     }
 
     [Fact]
     public async Task TestChangeTracker()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var queryCustomers = ctx.Customers.Where(c => c.CustomerID.StartsWith("A"));
 
         var cust = await queryCustomers.FirstAsync();
         var contactName = cust.ContactName;
         var newContactName = $"Alex {DateTime.Now:MM-dd-HH-mm}";
 
-        await ctx.Database.ExecuteSqlRawAsync(
-           @"UPDATE [dbo].[Customers]
+        try
+        {
+            await ctx.Database.ExecuteSqlRawAsync(
+               @"UPDATE [dbo].[Customers]
                SET 
                   [ContactName] = {0}
              WHERE CustomerID = {1}",
-           newContactName,
-           cust.CustomerID);
+               newContactName,
+               cust.CustomerID);
 
-        //  var queryCustomers2 = ctx.Customers.Where(c => c.CustomerID.StartsWith("A"));
-        queryCustomers = queryCustomers.Refresh(MergeOption.OverwriteChanges);
-        cust = await queryCustomers.FirstAsync();
+            queryCustomers = queryCustomers.Refresh(MergeOption.OverwriteChanges);
+            cust = await queryCustomers.FirstAsync();
 
-        await ctx.Database.ExecuteSqlRawAsync(
-           @"UPDATE [dbo].[Customers]
+            Assert.Equal(newContactName, cust.ContactName);
+        }
+        finally
+        {
+            // Cleanup - restore original value
+            await ctx.Database.ExecuteSqlRawAsync(
+               @"UPDATE [dbo].[Customers]
                SET 
                   [ContactName] = {0}
              WHERE CustomerID = {1}",
-           contactName,
-           cust.CustomerID);
-
-        Assert.Equal(newContactName, cust.ContactName);
+               contactName,
+               cust.CustomerID);
+        }
     }
 
     [Fact]
     public async Task TestChangeTracker2()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var query = ctx.Customers.OrderBy(c => c.CustomerID);
 
         var customers = await query.Take(3).ToArrayAsync();
@@ -382,6 +410,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_ExistingEntriesInAllStates()
     {
         using var ctx = _fx.CreateContext();
+        
         var originalQuery = ctx.Customers.Where(c => c.CustomerID.StartsWith("A"));
 
         // Get existing customers to work with
@@ -395,27 +424,28 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         var originalContactName2 = customer2.ContactName;
         var originalContactName3 = customer3.ContactName;
 
+        // Create entity in Added state
+        var newCustomer = new Customer
+        {
+            CustomerID = "TEST1",
+            CompanyName = "Test Company",
+            ContactName = "Test Contact"
+        };
+        ctx.Customers.Add(newCustomer); // Added state
+
+        // Modify existing entity 
+        customer1.ContactName = $"Mod{DateTime.Now:HHmmss}"; // Modified state
+
+        // Delete existing entity
+        ctx.Customers.Remove(customer2); // Deleted state
+
+        // customer3 remains Unchanged
+
+        // Update database directly for customer3
+        var newContactName3 = $"DB{DateTime.Now:HHmmss}";
+        
         try
         {
-            // Create entity in Added state
-            var newCustomer = new Customer
-            {
-                CustomerID = "TEST1",
-                CompanyName = "Test Company",
-                ContactName = "Test Contact"
-            };
-            ctx.Customers.Add(newCustomer); // Added state
-
-            // Modify existing entity 
-            customer1.ContactName = $"Mod{DateTime.Now:HHmmss}"; // Modified state
-
-            // Delete existing entity
-            ctx.Customers.Remove(customer2); // Deleted state
-
-            // customer3 remains Unchanged
-
-            // Update database directly for customer3
-            var newContactName3 = $"DB{DateTime.Now:HHmmss}";
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 newContactName3,
@@ -427,8 +457,6 @@ public class RefreshFromDb_Northwind_SqlServer_Test
             customer1 = customers[0];
             customer2 = customers[1];
             customer3 = customers[2];
-
-            // Store values for assertions
 
             // Check after refresh
             // customer 1
@@ -442,7 +470,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         }
         finally
         {
-            // Restore customer3 original value
+            // Cleanup - restore original value
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 originalContactName3,
@@ -459,14 +487,15 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_UnchangedEntriesWithMismatchedOriginalValues()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var customer = await ctx.Customers.FirstAsync();
         var originalContactName = customer.ContactName;
 
+        // Simulate another process changing the database value
+        var externallyModifiedValue = $"Ext{DateTime.Now:HHmmss}";
+        
         try
         {
-            // Simulate another process changing the database value
-            var externallyModifiedValue = $"Ext{DateTime.Now:HHmmss}";
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 externallyModifiedValue,
@@ -486,7 +515,6 @@ public class RefreshFromDb_Northwind_SqlServer_Test
 
             // Assertions
             Assert.Equal(EntityState.Unchanged, customerState);
-            Assert.Equal(originalContactName, customerContactName);
             Assert.Equal(externallyModifiedValue, refreshedContactName);
         }
         finally
@@ -507,40 +535,32 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_ModifiedEntriesWithMatchingOriginalValues()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var customer = await ctx.Customers.FirstAsync();
         var originalContactName = customer.ContactName;
 
-        try
-        {
-            // Modify the entity to put it in Modified state
-            customer.ContactName = "Temporarily Modified";
-            var stateAfterModify = ctx.Entry(customer).State;
+        // Modify the entity to put it in Modified state
+        customer.ContactName = "Temporarily Modified";
+        var stateAfterModify = ctx.Entry(customer).State;
 
-            // Revert the change but keep it marked as modified
-            customer.ContactName = originalContactName;
+        // Revert the change but keep it marked as modified
+        customer.ContactName = originalContactName;
 
-            // At this point, current value matches original/database value but entity is still Modified
-            var stateAfterRevert = ctx.Entry(customer).State;
+        // At this point, current value matches original/database value but entity is still Modified
+        var stateAfterRevert = ctx.Entry(customer).State;
 
-            // Refresh should handle this scenario correctly
-            var query = ctx.Customers.Where(c => c.CustomerID == customer.CustomerID);
-            var refreshedQuery = query.Refresh(MergeOption.OverwriteChanges);
-            var refreshedCustomer = await refreshedQuery.FirstAsync();
+        // Refresh should handle this scenario correctly
+        var query = ctx.Customers.Where(c => c.CustomerID == customer.CustomerID);
+        var refreshedQuery = query.Refresh(MergeOption.OverwriteChanges);
+        var refreshedCustomer = await refreshedQuery.FirstAsync();
 
-            // Store values for assertions
-            var refreshedContactName = refreshedCustomer.ContactName;
+        // Store values for assertions
+        var refreshedContactName = refreshedCustomer.ContactName;
 
-            // Assertions
-            Assert.Equal(EntityState.Modified, stateAfterModify);
-            Assert.Equal(EntityState.Modified, stateAfterRevert);
-            Assert.Equal(originalContactName, refreshedContactName);
-        }
-        finally
-        {
-            // After refresh, entity should be in proper state
-            ctx.Entry(customer).State = EntityState.Unchanged;
-        }
+        // Assertions
+        Assert.Equal(EntityState.Modified, stateAfterModify);
+        Assert.Equal(EntityState.Modified, stateAfterRevert);
+        Assert.Equal(originalContactName, refreshedContactName);
     }
 
     /// <summary>
@@ -552,30 +572,30 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_OwnedEntityReplacedWithDifferentInstance()
     {
         using var ctx = _fx.CreateContext();
-
+        
         // Note: Northwind model doesn't have owned entities, so this test simulates the scenario
         // by using OrderDetails as a proxy for owned entity behavior
         var order = await ctx.Orders.Include(o => o.OrderDetails).FirstAsync(o => o.OrderDetails.Any());
         var originalOrderDetail = order.OrderDetails.First();
         var originalQuantity = originalOrderDetail.Quantity;
 
+        // Simulate replacing an owned entity by removing and adding a "new" one
+        // This creates the Added/Deleted state scenario for the same conceptual entity
+        order.OrderDetails.Remove(originalOrderDetail);
+
+        var replacementOrderDetail = new OrderDetail
+        {
+            OrderID = originalOrderDetail.OrderID,
+            ProductID = originalOrderDetail.ProductID,
+            UnitPrice = originalOrderDetail.UnitPrice,
+            Quantity = (short)(originalOrderDetail.Quantity + 10),
+            Discount = originalOrderDetail.Discount
+        };
+        order.OrderDetails.Add(replacementOrderDetail);
+
+        // Update database directly to simulate external change
         try
         {
-            // Simulate replacing an owned entity by removing and adding a "new" one
-            // This creates the Added/Deleted state scenario for the same conceptual entity
-            order.OrderDetails.Remove(originalOrderDetail);
-
-            var replacementOrderDetail = new OrderDetail
-            {
-                OrderID = originalOrderDetail.OrderID,
-                ProductID = originalOrderDetail.ProductID,
-                UnitPrice = originalOrderDetail.UnitPrice,
-                Quantity = (short)(originalOrderDetail.Quantity + 10),
-                Discount = originalOrderDetail.Discount
-            };
-            order.OrderDetails.Add(replacementOrderDetail);
-
-            // Update database directly to simulate external change
             await ctx.Database.ExecuteSqlRawAsync(
                 @"UPDATE [Order Details] SET [Quantity] = {0} 
                   WHERE [OrderID] = {1} AND [ProductID] = {2}",
@@ -599,16 +619,13 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         }
         finally
         {
-            // Cleanup - restore original state
-            var currentOrderDetail = await ctx.OrderDetails.FirstOrDefaultAsync(od =>
-                od.OrderID == originalOrderDetail.OrderID &&
-                od.ProductID == originalOrderDetail.ProductID);
-
-            if (currentOrderDetail != null)
-            {
-                currentOrderDetail.Quantity = originalQuantity;
-                await ctx.SaveChangesAsync();
-            }
+            // Cleanup
+            await ctx.Database.ExecuteSqlRawAsync(
+                @"UPDATE [Order Details] SET [Quantity] = {0} 
+                  WHERE [OrderID] = {1} AND [ProductID] = {2}",
+                originalQuantity,
+                originalOrderDetail.OrderID,
+                originalOrderDetail.ProductID);
         }
     }
 
@@ -621,7 +638,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_DerivedEntityReplacedByBaseEntity()
     {
         using var ctx = _fx.CreateContext();
-
+        
         // Note: Northwind doesn't have TPH inheritance, so we simulate this with different entity types
         // that could conceptually represent base/derived relationship through CustomerID linkage
         var customer = await ctx.Customers.FirstAsync();
@@ -631,13 +648,14 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         var order = await ctx.Orders.FirstAsync(o => o.CustomerID == customerID);
         var originalOrderDate = order.OrderDate;
 
+        // Modify the "derived" entity
+        order.OrderDate = DateTime.Now;
+
+        // Update database to simulate external change that affects the relationship
+        var newOrderDate = DateTime.Now.AddDays(1);
+        
         try
         {
-            // Modify the "derived" entity
-            order.OrderDate = DateTime.Now;
-
-            // Update database to simulate external change that affects the relationship
-            var newOrderDate = DateTime.Now.AddDays(1);
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
                 newOrderDate,
@@ -660,7 +678,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
             // Cleanup
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
-                originalOrderDate ?? DateTime.Now, // Fix null reference
+                originalOrderDate,
                 order.OrderID);
         }
     }
@@ -674,15 +692,16 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_DifferentTerminatingOperators()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var customers = await ctx.Customers.Take(3).ToArrayAsync();
         var customer = customers[0];
         var originalContactName = customer.ContactName;
 
+        // Update database
+        var newContactName = $"Upd{DateTime.Now:HHmmss}";
+        
         try
         {
-            // Update database
-            var newContactName = $"Upd{DateTime.Now:HHmmss}";
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 newContactName,
@@ -742,9 +761,9 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_StreamingQueryConsumedOneByOne()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var customers = await ctx.Customers.Take(5).ToArrayAsync();
-        var originalContactNames = customers.Select(c => c.ContactName).ToArray();
+        var originalContactNames = customers.Select(c => new { c.CustomerID, c.ContactName }).ToList();
 
         try
         {
@@ -777,13 +796,13 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         }
         finally
         {
-            // Cleanup
-            for (var i = 0; i < customers.Length; i++)
+            // Cleanup - restore original values
+            foreach (var original in originalContactNames)
             {
                 await ctx.Database.ExecuteSqlRawAsync(
                     "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
-                    originalContactNames[i],
-                    customers[i].CustomerID);
+                    original.ContactName,
+                    original.CustomerID);
             }
         }
     }
@@ -797,31 +816,30 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_QueriesWithIncludeAndThenInclude()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var customer = await ctx.Customers
             .Include(c => c.Orders.Where(o => o.OrderDate.HasValue))
             .ThenInclude(o => o.OrderDetails)
             .ThenInclude(od => od.Product)
             .FirstAsync(c => c.Orders.Any());
 
-        var originalContactName = customer.ContactName;
-        var originalOrdersCount = customer.Orders.Count;
-
         // Get first order for testing
         var firstOrder = customer.Orders.First();
         var originalOrderDate = firstOrder.OrderDate;
+        var originalContactName = customer.ContactName;
+
+        // Update database - modify customer and related data
+        var newContactName = $"Inc{DateTime.Now:HHmmss}";
+        var newOrderDate = DateTime.Now.AddDays(10);
 
         try
         {
-            // Update database - modify customer and related data
-            var newContactName = $"Inc{DateTime.Now:HHmmss}";
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 newContactName,
                 customer.CustomerID);
 
             // Also modify an order
-            var newOrderDate = DateTime.Now.AddDays(10);
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
                 newOrderDate,
@@ -857,10 +875,10 @@ public class RefreshFromDb_Northwind_SqlServer_Test
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 originalContactName,
                 customer.CustomerID);
-
+            
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
-                originalOrderDate ?? DateTime.Now,
+                originalOrderDate,
                 firstOrder.OrderID);
         }
     }
@@ -874,7 +892,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_ProjectingRelatedEntityInSelect()
     {
         using var ctx = _fx.CreateContext();
-
+        
         // Project related entity without explicit Include
         var customerOrder = await ctx.Customers
             .Where(c => c.Orders.Any())
@@ -889,12 +907,12 @@ public class RefreshFromDb_Northwind_SqlServer_Test
         var originalContactName = customerOrder.Customer.ContactName;
         var originalOrderDate = customerOrder.LastOrder.OrderDate;
 
+        // Update both customer and order in database
+        var newContactName = $"Prj{DateTime.Now:HHmmss}";
+        var newOrderDate = DateTime.Now.AddDays(5);
+
         try
         {
-            // Update both customer and order in database
-            var newContactName = $"Prj{DateTime.Now:HHmmss}";
-            var newOrderDate = DateTime.Now.AddDays(5);
-
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 newContactName,
@@ -923,7 +941,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
             var refreshedOrderDate = refreshedResult.LastOrder.OrderDate?.Date;
             var expectedOrderDate = newOrderDate.Date;
 
-            // Verify projected entities are refreshed
+            // Verify the calculated value reflects the database change
             Assert.Equal(newContactName, refreshedContactName);
             Assert.Equal(expectedOrderDate, refreshedOrderDate);
         }
@@ -934,10 +952,10 @@ public class RefreshFromDb_Northwind_SqlServer_Test
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 originalContactName,
                 customerOrder.Customer.CustomerID);
-
+            
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
-                originalOrderDate ?? DateTime.Now,
+                originalOrderDate,
                 customerOrder.LastOrder.OrderID);
         }
     }
@@ -951,7 +969,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_SelectWithClientEvaluatedCalculatedValues()
     {
         using var ctx = _fx.CreateContext();
-
+        
         // Select with client-evaluated calculated values
         var customersWithCalculated = await ctx.Customers
             .Take(3)
@@ -973,13 +991,17 @@ public class RefreshFromDb_Northwind_SqlServer_Test
             .ToArrayAsync();
 
         var customer = customersWithCalculated[0];
-        var originalContactName = customer.ContactName;
-        var baseContactName = originalContactName.Split(" - Calc")[0];
+        var baseContactName = customer.ContactName.Split(" - Calc")[0];
+        
+        // Get original value from database
+        var originalCustomer = await ctx.Customers.AsNoTracking().FirstAsync(c => c.CustomerID == customer.CustomerID);
+        var originalContactName = originalCustomer.ContactName;
 
+        // Update database
+        var newContactName = $"CE{DateTime.Now:HHmmss}";
+        
         try
         {
-            // Update database
-            var newContactName = $"CE{DateTime.Now:HHmmss}";
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 newContactName,
@@ -1020,7 +1042,7 @@ public class RefreshFromDb_Northwind_SqlServer_Test
             // Cleanup
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
-                baseContactName,
+                originalContactName,
                 customer.CustomerID);
         }
     }
@@ -1034,33 +1056,33 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_ProjectingEntityMultipleTimesWithSameKey()
     {
         using var ctx = _fx.CreateContext();
-
+        
         var customer = await ctx.Customers.FirstAsync();
         var originalContactName = customer.ContactName;
         var originalCompanyName = customer.CompanyName;
 
+        // Project the same entity multiple times with different property combinations
+        var multiProjection = await ctx.Customers
+            .Where(c => c.CustomerID == customer.CustomerID)
+            .Select(c => new
+            {
+                FullCustomer = c,
+                NameOnly = new { c.CustomerID, c.ContactName },
+                CompanyOnly = new { c.CustomerID, c.CompanyName },
+                CombinedInfo = new
+                {
+                    ID = c.CustomerID,
+                    DisplayName = c.ContactName + " @ " + c.CompanyName
+                }
+            })
+            .FirstAsync();
+
+        // Update database
+        var newContactName = $"MP{DateTime.Now:HHmm}";
+        var newCompanyName = $"UpdCo{DateTime.Now:HHmm}";
+
         try
         {
-            // Project the same entity multiple times with different property combinations
-            var multiProjection = await ctx.Customers
-                .Where(c => c.CustomerID == customer.CustomerID)
-                .Select(c => new
-                {
-                    FullCustomer = c,
-                    NameOnly = new { c.CustomerID, c.ContactName },
-                    CompanyOnly = new { c.CustomerID, c.CompanyName },
-                    CombinedInfo = new
-                    {
-                        ID = c.CustomerID,
-                        DisplayName = c.ContactName + " @ " + c.CompanyName
-                    }
-                })
-                .FirstAsync();
-
-            // Update database
-            var newContactName = $"MP{DateTime.Now:HHmm}";
-            var newCompanyName = $"UpdCo{DateTime.Now:HHmm}";
-
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0}, [CompanyName] = {1} WHERE [CustomerID] = {2}",
                 newContactName,
@@ -1122,28 +1144,28 @@ public class RefreshFromDb_Northwind_SqlServer_Test
     public async Task Refresh_LazyLoadingProxiesWithNavigationStates()
     {
         using var ctx = _fx.CreateContext();
-
+        
         // Enable lazy loading for this test
         var originalLazyLoadingEnabled = ctx.ChangeTracker.LazyLoadingEnabled;
         ctx.ChangeTracker.LazyLoadingEnabled = true;
 
+        var customer = await ctx.Customers.FirstAsync(c => c.Orders.Any());
+        var originalContactName = customer.ContactName;
+
+        // Access navigation to trigger lazy loading
+        await ctx.Entry(customer).Collection(c => c.Orders).LoadAsync();
+        var orderCount = customer.Orders.Count; // This should trigger lazy loading
+
+        // Modify some orders to create mixed loading states
+        var firstOrder = customer.Orders.First();
+        var originalOrderDate = firstOrder.OrderDate;
+
+        // Update database
+        var newContactName = $"LL{DateTime.Now:HHmmss}";
+        var newOrderDate = DateTime.Now.AddDays(7);
+
         try
         {
-            var customer = await ctx.Customers.FirstAsync(c => c.Orders.Any());
-            var originalContactName = customer.ContactName;
-
-            // Access navigation to trigger lazy loading
-            await ctx.Entry(customer).Collection(c => c.Orders).LoadAsync();
-            var orderCount = customer.Orders.Count; // This should trigger lazy loading
-
-            // Modify some orders to create mixed loading states
-            var firstOrder = customer.Orders.First();
-            var originalOrderDate = firstOrder.OrderDate;
-
-            // Update database
-            var newContactName = $"LL{DateTime.Now:HHmmss}";
-            var newOrderDate = DateTime.Now.AddDays(7);
-
             await ctx.Database.ExecuteSqlRawAsync(
                 "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
                 newContactName,
@@ -1169,28 +1191,30 @@ public class RefreshFromDb_Northwind_SqlServer_Test
             var refreshedOrderDate = refreshedFirstOrder.OrderDate?.Date;
             var expectedOrderDate = newOrderDate.Date;
 
-            // Store values for cleanup
+            // Store values for assertions
             var refreshedContactName = refreshedCustomer.ContactName;
-
-            // Cleanup
-            await ctx.Database.ExecuteSqlRawAsync(
-                "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
-                originalContactName,
-                customer.CustomerID);
-
-            await ctx.Database.ExecuteSqlRawAsync(
-                "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
-                originalOrderDate ?? DateTime.Now, // Fix null reference
-                firstOrder.OrderID);
 
             // Verify refresh worked with lazy-loaded data
             Assert.Equal(newContactName, refreshedContactName);
             Assert.Equal(orderCount, refreshedOrderCount);
             Assert.Equal(expectedOrderDate, refreshedOrderDate);
+
+            ctx.ChangeTracker.LazyLoadingEnabled = originalLazyLoadingEnabled; // Reset to original value
         }
         finally
         {
-            ctx.ChangeTracker.LazyLoadingEnabled = originalLazyLoadingEnabled; // Reset to original value
+            // Cleanup
+            await ctx.Database.ExecuteSqlRawAsync(
+                "UPDATE [Customers] SET [ContactName] = {0} WHERE [CustomerID] = {1}",
+                originalContactName,
+                customer.CustomerID);
+            
+            await ctx.Database.ExecuteSqlRawAsync(
+                "UPDATE [Orders] SET [OrderDate] = {0} WHERE [OrderID] = {1}",
+                originalOrderDate,
+                firstOrder.OrderID);
+            
+            ctx.ChangeTracker.LazyLoadingEnabled = originalLazyLoadingEnabled;
         }
     }
 
