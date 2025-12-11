@@ -951,6 +951,20 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 : _sqlExpressionFactory.AndAlso(result, joinPredicate);
         }
 
+        // In LINQ equijoins, null is not equal null, just like in SQL
+        // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator)
+        // As a result, in SqlNullabilityProcessor.ProcessJoinPredicate(), we have special handling for an equality
+        // immediately inside a join predicate - we bypass null compensation for that, to make sure the SQL behavior
+        // matches the LINQ behavior.
+        // However, when two anonymous types are being compared, the LINQ behavior *does* treat nulls as equal; as a result, in
+        // SqlNullabilityProcessor.ProcessJoinPredicate() we differentiate between a single top-level comparison
+        // and multiple comparisons with ANDs.
+        // Unfortunately, when we have a an anonymous type with a single property (on new { Foo = x } equals new { Foo = y }),
+        // we produce the same predicate as the single comparison case (without an anonymous type), bypassing the null
+        // compensation and generating incorrect results.
+        // To work around this, we add an always-true predicate here, and the AND will cause
+        // SqlNullabilityProcessor.ProcessJoinPredicate() to go into the multiple-property anonymous type logic,
+        // and not bypass null compensation.
         if (outerNew.Arguments.Count == 1)
         {
             result = _sqlExpressionFactory.AndAlso(
@@ -958,11 +972,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
         }
 
-        return result!;
-    }
+        return result ?? _sqlExpressionFactory.Constant(true);
 
-    private SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
-        => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
+        SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
+            => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateLastOrDefault(
