@@ -36,7 +36,7 @@ For EF 11 daily builds, `NuGet.config` should contain:
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet10" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json" />
+        <add key="dotnet11" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
