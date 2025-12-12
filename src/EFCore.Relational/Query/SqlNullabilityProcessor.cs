@@ -222,6 +222,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         SqlExpression ProcessJoinPredicate(SqlExpression predicate)
         {
+            // In LINQ equijoins, null is not equal null, just like in SQL
+            // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator).
+            // As a result, we handle top-level join predicate equality in a special way, not using the generic Visit logic
+            // (which would add null compensation).
+            // However, when two anonymous types are being compared, the LINQ behavior *does* treat nulls as equal.
+            // As a result, we differentiate between a single top-level comparison and multiple comparisons with ANDs.
+            // See additional notes in RelationalQueryableMethodTranslatingExpressionVisitor.CreateJoinPredicate().
             switch (predicate)
             {
                 case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
@@ -249,6 +256,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     or ExpressionType.LessThanOrEqual
                 } binary:
                     return Visit(binary, allowOptimizedExpansion: true, out _);
+
+                case SqlConstantExpression { Value: bool }:
+                    return predicate;
 
                 default:
                     throw new InvalidOperationException(
