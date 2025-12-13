@@ -635,27 +635,22 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                 });
         });
 
-        // TODO: Complex collections not supported. Issue #31253
-        modelBuilder.Ignore<PrincipalDerived<DependentBase<byte?>>>();
-
-        //modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-        //    eb =>
-        //    {
-        //        eb.ComplexCollection<IList<OwnedType>, OwnedType>(
-        //            "ManyOwned", "OwnedCollection", ob =>
-        //            {
-        //                ob.Ignore(e => e.RefTypeArray);
-        //                ob.Ignore(e => e.RefTypeList);
-        //                ob.ComplexProperty(
-        //                    o => o.Principal, cb =>
-        //                    {
-        //                        cb.Ignore(e => e.RefTypeList);
-        //                        cb.Ignore(e => e.RefTypeArray);
-        //                    });
-        //            });
-        //        eb.Ignore(p => p.Dependent);
-        //        eb.Ignore(p => p.Principals);
-        //    });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+            eb =>
+            {
+                eb.ComplexCollection<IList<OwnedType>, OwnedType>(
+                    "ManyOwned", "OwnedCollection", ob =>
+                    {
+                        ob.Ignore(e => e.RefTypeArray);
+                        ob.Ignore(e => e.RefTypeList);
+                        ob.ComplexProperty(
+                            o => o.Principal, cb =>
+                            {
+                                cb.Ignore(e => e.RefTypeList);
+                                cb.Ignore(e => e.RefTypeArray);
+                            });
+                    });
+            });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -703,7 +698,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             b =>
             {
                 onConfiguring?.Invoke(b);
-                b.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+                b.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedComplexPropertyIgnoredWarning));
             },
             options,
             addServices,

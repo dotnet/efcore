@@ -36,8 +36,28 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
             ?? throw new InvalidOperationException(
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
+        PropertyBase = navigation;
+        Object = @object;
+        InnerProjection = innerProjection
+            ?? new EntityProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
+    }
 
-        Navigation = navigation;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ObjectArrayAccessExpression(
+        Expression @object,
+        IComplexProperty complexProperty,
+        EntityProjectionExpression? innerProjection = null)
+    {
+        var targetType = complexProperty.ComplexType;
+        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
+
+        PropertyName = complexProperty.Name;
+        PropertyBase = complexProperty;
         Object = @object;
         InnerProjection = innerProjection
             ?? new EntityProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
@@ -82,7 +102,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigation Navigation { get; }
+    public virtual IPropertyBase PropertyBase { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,7 +136,9 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
         Expression accessExpression,
         EntityProjectionExpression innerProjection)
         => accessExpression != Object || innerProjection != InnerProjection
-            ? new ObjectArrayAccessExpression(accessExpression, Navigation, innerProjection)
+            ? PropertyBase is INavigation navigation
+                ? new ObjectArrayAccessExpression(accessExpression, navigation, innerProjection)
+                : new ObjectArrayAccessExpression(accessExpression, (IComplexProperty)PropertyBase, innerProjection)
             : this;
 
     /// <summary>

@@ -34,6 +34,7 @@ namespace TestNamespace
                 baseEntityType,
                 discriminatorProperty: "$type",
                 discriminatorValue: "PrincipalBase",
+                derivedTypesCount: 1,
                 propertyCount: 15,
                 complexPropertyCount: 1,
                 navigationCount: 1,
