@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class CosmosDatabaseWrapper : Database, IResettableService
 {
-    private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
+    private readonly Dictionary<ITypeBase, DocumentSource> _documentCollections = new();
 
     private readonly ICosmosClientWrapper _cosmosClient;
     private readonly bool _sensitiveLoggingEnabled;
@@ -245,7 +245,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 SingleUpdateEntries = []
             };
         }
-        
+
         var batches = CreateBatches(batchableEntries);
 
         // For bulk it is important that single writes are always classified as singleUpdateEntries so that they will be executed in parallel
@@ -295,7 +295,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     {
         var entityType = entry.EntityType;
         var documentSource = GetDocumentSource(entityType);
-        var collectionId = documentSource.GetContainerId();
+        var collectionId = entry.EntityType.GetContainer()!;
         var operation = entry.EntityState switch
         {
             EntityState.Added => CosmosCudOperation.Create,
@@ -546,12 +546,12 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual DocumentSource GetDocumentSource(IEntityType entityType)
+    public virtual DocumentSource GetDocumentSource(ITypeBase structuralType)
     {
-        if (!_documentCollections.TryGetValue(entityType, out var documentSource))
+        if (!_documentCollections.TryGetValue(structuralType, out var documentSource))
         {
             _documentCollections.Add(
-                entityType, documentSource = new DocumentSource(entityType, this));
+                structuralType, documentSource = new DocumentSource(structuralType, this));
         }
 
         return documentSource;
