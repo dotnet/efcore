@@ -1487,6 +1487,9 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    [Obsolete(
+        "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information.",
+        DiagnosticId = "EF8001")]
     public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
@@ -1505,6 +1508,9 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    [Obsolete(
+        "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information.",
+        DiagnosticId = "EF8001")]
     public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? jsonColumnName)

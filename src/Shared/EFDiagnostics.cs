@@ -13,6 +13,9 @@ internal static class EFDiagnostics
     public const string StringConcatenationUsageInRawQueries = "EF1003";
     public const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
+    // Diagnostics for [Obsolete]
+    public const string OwnedJsonObsolete = "EF8001";
+
     // Diagnostics for [Experimental]
     public const string ExperimentalApi = "EF9001";
     public const string ProviderExperimentalApi = "EF9002";

@@ -22,6 +22,9 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// </remarks>
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete(
+        "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information.",
+        DiagnosticId = "EF8001")]
     public static OwnedNavigationBuilder ToJson(this OwnedNavigationBuilder builder)
         => builder.ToJson(builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name);
 
@@ -36,6 +39,9 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// </remarks>
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete(
+        "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information.",
+        DiagnosticId = "EF8001")]
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
@@ -53,6 +59,9 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <param name="jsonColumnName">JSON column name to use.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete(
+        "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information.",
+        DiagnosticId = "EF8001")]
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? jsonColumnName)
@@ -71,6 +80,9 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <param name="jsonColumnName">JSON column name to use.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete(
+        "ToJson() on owned entities has been obsoleted, please switch to using complex types instead for mapping to JSON. See https://aka.ms/efcore-docs-json-owned-entities for more information.",
+        DiagnosticId = "EF8001")]
     public static OwnedNavigationBuilder ToJson(
         this OwnedNavigationBuilder builder,
         string? jsonColumnName)
