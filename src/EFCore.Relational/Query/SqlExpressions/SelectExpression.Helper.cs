@@ -190,7 +190,7 @@ public sealed partial class SelectExpression
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
-                if (expression is SqlExpression sqlExpression)
+                if (expression is SqlExpression sqlExpression and not SqlFragmentExpression)
                 {
                     if (correlatedTerms.Contains(sqlExpression)
                         || sqlExpression is SqlConstantExpression or SqlParameterExpression)
