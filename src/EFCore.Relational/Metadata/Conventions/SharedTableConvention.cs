@@ -823,7 +823,7 @@ public class SharedTableConvention : IModelFinalizingConvention
     {
         if (trigger.Builder.CanSetDatabaseName(null))
         {
-            triggerName = Uniquifier.Uniquify(triggerName, triggers, n => n, maxLength);
+            triggerName = Uniquifier.Uniquify(triggerName, triggers, maxLength);
             trigger.Builder.HasDatabaseName(triggerName);
             return triggerName;
         }
