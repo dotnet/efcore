@@ -775,8 +775,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         write: true,
                         key: false,
                         condition: false,
-                        _sensitiveLoggingEnabled)
-                    { GenerateParameterName = _generateParameterName };
+                        _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName };
 
                     ProcessSinglePropertyJsonUpdate(ref columnModificationParameters);
 
@@ -839,8 +838,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 write: true,
                                 key: false,
                                 condition: false,
-                                _sensitiveLoggingEnabled)
-                            { GenerateParameterName = _generateParameterName }));
+                                _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName }));
                 }
             }
         }
