@@ -67,7 +67,7 @@ public class ChangeDetector : IChangeDetector
             if (entry.EntityState is not EntityState.Deleted && setModified && entry is InternalEntryBase entryBase)
             {
                 var currentValue = entry[complexProperty];
-                var hasOriginalValues = entryBase.HasOriginalValuesSnapshot 
+                var hasOriginalValues = entryBase.HasOriginalValuesSnapshot
                     && complexProperty.GetOriginalValueIndex() >= 0;
                 var originalValue = hasOriginalValues ? entry.GetOriginalValue(complexProperty) : null;
                 

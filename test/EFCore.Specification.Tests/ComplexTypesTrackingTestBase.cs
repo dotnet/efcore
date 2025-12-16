@@ -4432,12 +4432,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Assert.Null(entity.LockInfo);
 
             // Set the complex property with a default DateTimeOffset value
-            entity.LockInfo = new LockInfo(default(DateTimeOffset));
+            entity.LockInfo = new LockInfo(default);
 
             _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
 
             Assert.NotNull(entity.LockInfo);
-            Assert.Equal(default(DateTimeOffset), entity.LockInfo.LockedUntil);
+            Assert.Equal(default, entity.LockInfo.LockedUntil);
         });
 
         await ExecuteWithStrategyInTransactionAsync(async context =>
@@ -4448,7 +4448,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
             // Verify the default value was saved to the database
             Assert.NotNull(entity.LockInfo);
-            Assert.Equal(default(DateTimeOffset), entity.LockInfo.LockedUntil);
+            Assert.Equal(default, entity.LockInfo.LockedUntil);
         });
     }
 
@@ -4530,7 +4530,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             {
                 IntValue = 0,
                 BoolValue = false,
-                DateValue = default(DateTimeOffset)
+                DateValue = default
             };
 
             _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
@@ -4538,7 +4538,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Assert.NotNull(entity.ComplexProp);
             Assert.Equal(0, entity.ComplexProp.IntValue);
             Assert.False(entity.ComplexProp.BoolValue);
-            Assert.Equal(default(DateTimeOffset), entity.ComplexProp.DateValue);
+            Assert.Equal(default, entity.ComplexProp.DateValue);
         });
 
         await ExecuteWithStrategyInTransactionAsync(async context =>
@@ -4551,7 +4551,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Assert.NotNull(entity.ComplexProp);
             Assert.Equal(0, entity.ComplexProp.IntValue);
             Assert.False(entity.ComplexProp.BoolValue);
-            Assert.Equal(default(DateTimeOffset), entity.ComplexProp.DateValue);
+            Assert.Equal(default, entity.ComplexProp.DateValue);
         });
     }
 
