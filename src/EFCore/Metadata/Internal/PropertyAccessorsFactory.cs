@@ -302,6 +302,14 @@ public class PropertyAccessorsFactory
                     break;
             }
         }
+        else if (fromDeclaringType
+                 && property is IComplexProperty
+                 && !instanceExpression.Type.IsValueType)
+        {
+            // When accessing complex properties from declaring type, we still need null checks
+            // for nullable reference type instances (e.g., when the complex property itself is null)
+            addNullCheck = true;
+        }
         else
         {
             addNullCheck = false;
