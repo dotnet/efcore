@@ -2413,6 +2413,21 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                             });
                     });
             });
+
+            modelBuilder.Entity<UserWithOptionalLockInfo>(b =>
+            {
+                b.ComplexProperty(e => e.LockInfo);
+            });
+
+            modelBuilder.Entity<EntityWithOptionalBoolComplex>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProp);
+            });
+
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProp);
+            });
         }
     }
 
@@ -4389,4 +4404,186 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             ],
             FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"])
         };
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task Can_save_default_values_in_optional_complex_property(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = Fixture.UseProxies
+                ? context.CreateProxy<UserWithOptionalLockInfo>()
+                : new UserWithOptionalLockInfo();
+
+            entity.Id = Guid.NewGuid();
+            entity.LockInfo = null;
+
+            _ = async ? await context.AddAsync(entity) : context.Add(entity);
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+            Assert.Null(entity.LockInfo);
+        });
+
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = async
+                ? await context.Set<UserWithOptionalLockInfo>().SingleAsync()
+                : context.Set<UserWithOptionalLockInfo>().Single();
+
+            Assert.Null(entity.LockInfo);
+
+            // Set the complex property with a default DateTimeOffset value
+            entity.LockInfo = new LockInfo(default(DateTimeOffset));
+
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+            Assert.NotNull(entity.LockInfo);
+            Assert.Equal(default(DateTimeOffset), entity.LockInfo.LockedUntil);
+        });
+
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = async
+                ? await context.Set<UserWithOptionalLockInfo>().SingleAsync()
+                : context.Set<UserWithOptionalLockInfo>().Single();
+
+            // Verify the default value was saved to the database
+            Assert.NotNull(entity.LockInfo);
+            Assert.Equal(default(DateTimeOffset), entity.LockInfo.LockedUntil);
+        });
+    }
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task Can_save_default_bool_values_in_optional_complex_property(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = Fixture.UseProxies
+                ? context.CreateProxy<EntityWithOptionalBoolComplex>()
+                : new EntityWithOptionalBoolComplex();
+
+            entity.Id = Guid.NewGuid();
+            entity.ComplexProp = null;
+
+            _ = async ? await context.AddAsync(entity) : context.Add(entity);
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+            Assert.Null(entity.ComplexProp);
+        });
+
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = async
+                ? await context.Set<EntityWithOptionalBoolComplex>().SingleAsync()
+                : context.Set<EntityWithOptionalBoolComplex>().Single();
+
+            Assert.Null(entity.ComplexProp);
+
+            // Set the complex property with default bool values (false)
+            entity.ComplexProp = new BoolComplex { IsEnabled = false };
+
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+            Assert.NotNull(entity.ComplexProp);
+            Assert.False(entity.ComplexProp.IsEnabled);
+        });
+
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = async
+                ? await context.Set<EntityWithOptionalBoolComplex>().SingleAsync()
+                : context.Set<EntityWithOptionalBoolComplex>().Single();
+
+            // Verify the default value was saved to the database
+            Assert.NotNull(entity.ComplexProp);
+            Assert.False(entity.ComplexProp.IsEnabled);
+        });
+    }
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = Fixture.UseProxies
+                ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                : new EntityWithOptionalMultiPropComplex();
+
+            entity.Id = Guid.NewGuid();
+            entity.ComplexProp = null;
+
+            _ = async ? await context.AddAsync(entity) : context.Add(entity);
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+            Assert.Null(entity.ComplexProp);
+        });
+
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = async
+                ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+            Assert.Null(entity.ComplexProp);
+
+            // Set the complex property with default values
+            entity.ComplexProp = new MultiPropComplex
+            {
+                IntValue = 0,
+                BoolValue = false,
+                DateValue = default(DateTimeOffset)
+            };
+
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+            Assert.NotNull(entity.ComplexProp);
+            Assert.Equal(0, entity.ComplexProp.IntValue);
+            Assert.False(entity.ComplexProp.BoolValue);
+            Assert.Equal(default(DateTimeOffset), entity.ComplexProp.DateValue);
+        });
+
+        await ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var entity = async
+                ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+            // Verify the default values were saved to the database
+            Assert.NotNull(entity.ComplexProp);
+            Assert.Equal(0, entity.ComplexProp.IntValue);
+            Assert.False(entity.ComplexProp.BoolValue);
+            Assert.Equal(default(DateTimeOffset), entity.ComplexProp.DateValue);
+        });
+    }
+
+    public class UserWithOptionalLockInfo
+    {
+        public virtual Guid Id { get; set; }
+        public virtual LockInfo? LockInfo { get; set; }
+    }
+
+    public record LockInfo(DateTimeOffset LockedUntil);
+
+    public class EntityWithOptionalBoolComplex
+    {
+        public virtual Guid Id { get; set; }
+        public virtual BoolComplex? ComplexProp { get; set; }
+    }
+
+    public class BoolComplex
+    {
+        public bool IsEnabled { get; set; }
+    }
+
+    public class EntityWithOptionalMultiPropComplex
+    {
+        public virtual Guid Id { get; set; }
+        public virtual MultiPropComplex? ComplexProp { get; set; }
+    }
+
+    public class MultiPropComplex
+    {
+        public int IntValue { get; set; }
+        public bool BoolValue { get; set; }
+        public DateTimeOffset DateValue { get; set; }
+    }
 }
