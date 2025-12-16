@@ -2069,10 +2069,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task>? nestedTestOperation1 = null,
-        Func<DbContext, Task>? nestedTestOperation2 = null)
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
+            testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
@@ -4452,6 +4453,19 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
                 Assert.NotNull(entity.LockInfo);
                 Assert.Equal(new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero), entity.LockInfo.LockedUntil);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<UserWithOptionalLockInfo>().SingleAsync()
+                    : context.Set<UserWithOptionalLockInfo>().Single();
+
+                // Set the complex property back to null
+                entity.LockInfo = null;
+                
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.LockInfo);
             });
     }
 
@@ -4502,6 +4516,19 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
                 Assert.NotNull(entity.ComplexProp);
                 Assert.True(entity.ComplexProp.IsEnabled);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalBoolComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalBoolComplex>().Single();
+
+                // Set the complex property back to null
+                entity.ComplexProp = null;
+                
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
             });
     }
 
