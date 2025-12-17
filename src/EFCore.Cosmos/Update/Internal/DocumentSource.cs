@@ -318,7 +318,7 @@ public class DocumentSource
                 {
                     var embeddedEntry = entry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
 
-                    var embeddedDocument = embeddedCollection?[embeddedEntry.OriginalOrdinal] as JObject;
+                    var embeddedDocument = embeddedEntry.OriginalOrdinal != -1 ? embeddedCollection?[embeddedEntry.OriginalOrdinal] as JObject : null;
                     embeddedDocument = embeddedDocument != null
                         ? UpdateDocument(embeddedDocument, embeddedEntry, complexProperty.ComplexType, null) ?? embeddedDocument
                         : CreateDocument(embeddedEntry, complexProperty.ComplexType, null);
