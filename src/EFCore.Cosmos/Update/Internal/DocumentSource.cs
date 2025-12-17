@@ -81,7 +81,7 @@ public class DocumentSource
     public virtual JObject CreateDocument(IUpdateEntry entry, int? ordinal)
         => CreateDocument((IInternalEntry)entry, entry.EntityType, ordinal);
 
-    private static JObject CreateDocument(IInternalEntry entry, ITypeBase structuralType, int? ordinal)
+    private JObject CreateDocument(IInternalEntry entry, ITypeBase structuralType, int? ordinal)
     {
         var document = new JObject();
         foreach (var property in structuralType.GetProperties())
@@ -122,7 +122,7 @@ public class DocumentSource
                 else if (fk.IsUnique)
                 {
                     var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
-                    document[embeddedPropertyName] = CreateDocument(dependentEntry, dependentEntry.StructuralType, null);
+                    document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
                 }
                 else
                 {
@@ -135,7 +135,7 @@ public class DocumentSource
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
                         var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
-                        array.Add(CreateDocument(dependentEntry, dependentEntry.EntityType, embeddedOrdinal));
+                        array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
                         embeddedOrdinal++;
                     }
 
@@ -248,8 +248,8 @@ public class DocumentSource
 
                     var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                     embeddedDocument = embeddedDocument != null
-                        ? UpdateDocument(embeddedDocument, embeddedEntry, embeddedEntry.StructuralType, null)
-                        : CreateDocument(embeddedEntry, embeddedEntry.StructuralType, null);
+                        ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, null)
+                        : embeddedDocumentSource.CreateDocument(embeddedEntry, null);
 
                     if (embeddedDocument != null)
                     {
@@ -271,8 +271,8 @@ public class DocumentSource
 
                         var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                         embeddedDocument = embeddedDocument != null
-                            ? UpdateDocument(embeddedDocument, embeddedEntry, embeddedEntry.EntityType, embeddedOrdinal) ?? embeddedDocument
-                            : CreateDocument(embeddedEntry, embeddedEntry.EntityType, embeddedOrdinal);
+                            ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, embeddedOrdinal) ?? embeddedDocument
+                            : embeddedDocumentSource.CreateDocument(embeddedEntry, embeddedOrdinal);
 
                         array.Add(embeddedDocument);
                         embeddedOrdinal++;
