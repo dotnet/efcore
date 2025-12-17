@@ -348,7 +348,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 );
             }
 
-
             return Block(
                 [complexJArrayVariable],
                 [
@@ -363,7 +362,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var complexJObjectVariable = Variable(
                                 typeof(JObject),
                                 "complexJObject" + ++_currentComplexIndex);
-            var assignComplexJObjectVariable = Assign(complexJObjectVariable, Call( // @TODO: Can we reuse get property value?
+            var assignComplexJObjectVariable = Assign(complexJObjectVariable, Call(
                                     ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
                                     Call(parentJObject, GetItemMethodInfo,
                                         Constant(complexProperty.Name)
