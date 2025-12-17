@@ -369,17 +369,17 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
             debugInfo["EngineType"] = Extension.EngineType.ToString();
             debugInfo["UseRetryingStrategyByDefault"] = Extension.UseRetryingStrategyByDefault.ToString();
 
-            if (Extension.SqlServerCompatibilityLevel is int sqlServerCompatibilityLevel)
+            if (Extension.SqlServerCompatibilityLevel is var sqlServerCompatibilityLevel)
             {
                 debugInfo["SqlServerCompatibilityLevel"] = sqlServerCompatibilityLevel.ToString();
             }
 
-            if (Extension.AzureSqlCompatibilityLevel is int azureSqlCompatibilityLevel)
+            if (Extension.AzureSqlCompatibilityLevel is var azureSqlCompatibilityLevel)
             {
                 debugInfo["AzureSqlCompatibilityLevel"] = azureSqlCompatibilityLevel.ToString();
             }
 
-            if (Extension.AzureSynapseCompatibilityLevel is int azureSynapseCompatibilityLevel)
+            if (Extension.AzureSynapseCompatibilityLevel is var azureSynapseCompatibilityLevel)
             {
                 debugInfo["AzureSynapseCompatibilityLevel"] = azureSynapseCompatibilityLevel.ToString();
             }

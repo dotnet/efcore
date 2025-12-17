@@ -69,21 +69,21 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(string value, bool redact = false)
+    public virtual IRelationalCommandBuilder Append(string value, bool sensitive = false)
     {
-        InitializeLogCommandTextBuilderIfNeeded(redact);
+        InitializeLogCommandTextBuilderIfNeeded(sensitive);
         _commandTextBuilder.Append(value);
-        _logCommandTextBuilder?.Append(redact ? "?" : value);
+        _logCommandTextBuilder?.Append(sensitive ? "?" : value);
 
         return this;
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(FormattableString value, bool redact = false)
+    public virtual IRelationalCommandBuilder Append(FormattableString value, bool sensitive = false)
     {
-        InitializeLogCommandTextBuilderIfNeeded(redact);
+        InitializeLogCommandTextBuilderIfNeeded(sensitive);
         _commandTextBuilder.Append(value);
-        _logCommandTextBuilder?.Append(redact ? $"?" : value);
+        _logCommandTextBuilder?.Append(sensitive ? $"?" : value);
 
         return this;
     }
@@ -119,9 +119,9 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual int CommandTextLength
         => _commandTextBuilder.Length;
 
-    private void InitializeLogCommandTextBuilderIfNeeded(bool redact)
+    private void InitializeLogCommandTextBuilderIfNeeded(bool sensitive)
     {
-        if (redact
+        if (sensitive
             && _logCommandTextBuilder is null
             && !Dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
         {

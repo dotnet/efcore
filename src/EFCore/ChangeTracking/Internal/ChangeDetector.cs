@@ -62,7 +62,8 @@ public class ChangeDetector : IChangeDetector
         else if (propertyBase.GetRelationshipIndex() != -1
                  && propertyBase is INavigationBase navigation)
         {
-            DetectNavigationChange(entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
+            DetectNavigationChange(
+                entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
         }
     }
 
@@ -282,7 +283,7 @@ public class ChangeDetector : IChangeDetector
             }
         }
 
-        foreach (var complexProperty in entry.StructuralType.GetComplexProperties())
+        foreach (var complexProperty in entry.StructuralType.GetFlattenedComplexProperties())
         {
             if (complexProperty.IsCollection)
             {
@@ -319,14 +320,17 @@ public class ChangeDetector : IChangeDetector
             return false;
         }
 
-        Check.DebugAssert(!complexProperty.ComplexType.ClrType.IsValueType, $"Expected {complexProperty.Name} to be a collection of reference types.");
+        Check.DebugAssert(
+            !complexProperty.ComplexType.ClrType.IsValueType, $"Expected {complexProperty.Name} to be a collection of reference types.");
 
-        var changesFound = false;
         var originalEntries = new Dictionary<object, InternalComplexEntry>(ReferenceEqualityComparer.Instance);
         var currentCollection = (IList?)entry[complexProperty];
+        // The elements in the original collection might be the same instances as in the current collection, so their properties shouldn't be used for comparison.
         var originalCollection = (IList?)entry.GetOriginalValue(complexProperty);
+        var changesFound = (currentCollection == null) != (originalCollection == null);
 
-        entry.EnsureComplexCollectionEntriesCapacity(complexProperty, currentCollection?.Count ?? 0, originalCollection?.Count ?? 0, trim: false);
+        entry.EnsureComplexCollectionEntriesCapacity(
+            complexProperty, currentCollection?.Count ?? 0, originalCollection?.Count ?? 0, trim: false);
         var originalNulls = new HashSet<int>();
         var removed = new Dictionary<object, int>(ReferenceEqualityComparer.Instance);
         if (originalCollection != null
@@ -347,10 +351,14 @@ public class ChangeDetector : IChangeDetector
                 var originalEntry = originalEntriesList[i];
                 if (originalEntry == null)
                 {
-                    continue;
+                    // The entry hasn't been created for this element yet, so assuming it's going to be deleted
+                    // unless it's matched with a current element below.
+                    originalEntry = entry.GetComplexCollectionOriginalEntry(complexProperty, i);
+                    originalEntry.SetEntityState(EntityState.Deleted);
                 }
 
-                Check.DebugAssert(originalEntry.OriginalOrdinal == i, $"Expected original ordinal {originalEntry.OriginalOrdinal} to be equal to {i}.");
+                Check.DebugAssert(
+                    originalEntry.OriginalOrdinal == i, $"Expected original ordinal {originalEntry.OriginalOrdinal} to be equal to {i}.");
 
                 originalEntries[element] = originalEntry;
             }
@@ -377,23 +385,37 @@ public class ChangeDetector : IChangeDetector
                     // Existing instance found, fix ordinal and check for changes.
                     var originalEntry = originalEntries[element];
 
-                    Check.DebugAssert(originalEntry.OriginalOrdinal == originalOrdinal,
+                    Check.DebugAssert(
+                        originalEntry.OriginalOrdinal == originalOrdinal,
                         $"The OriginalOrdinal for entry of the element at original ordinal {originalOrdinal} is {originalEntry.OriginalOrdinal}.");
                     if (originalEntry.Ordinal != i)
                     {
-                        if (originalEntry.EntityState == EntityState.Detached)
+                        if (originalEntry.EntityState is EntityState.Detached or EntityState.Deleted)
                         {
-                            originalEntry.Ordinal = i;
-                            originalEntry.SetEntityState(EntityState.Unchanged);
+                            var currentEntry = entry.GetComplexCollectionEntry(complexProperty, i);
+                            if (currentEntry.EntityState is EntityState.Added)
+                            {
+                                // Prefer to use the current entry if possible
+                                currentEntry.OriginalOrdinal = originalEntry.OriginalOrdinal;
+                                originalEntry.SetEntityState(EntityState.Detached);
+                                currentEntry.SetEntityState(EntityState.Unchanged);
+                                originalEntry = currentEntry;
+                            }
+                            else
+                            {
+                                originalEntry.Ordinal = i;
+                                originalEntry.SetEntityState(EntityState.Unchanged);
+                            }
                         }
                         else
                         {
-                            Check.DebugAssert(originalEntry.Ordinal > i || currentNulls.Contains(originalEntry.Ordinal),
+                            Check.DebugAssert(
+                                originalEntry.Ordinal > i || currentNulls.Contains(originalEntry.Ordinal),
                                 $"Expected the entry that was previously at {originalEntry.Ordinal} to have been encountered at an ordinal before {i}.");
                             entry.MoveComplexCollectionEntry(complexProperty, originalEntry.Ordinal, i);
-                        }
 
-                        changesFound = true;
+                            changesFound = true;
+                        }
                     }
 
                     if (LocalDetectChanges(originalEntry))
@@ -434,13 +456,23 @@ public class ChangeDetector : IChangeDetector
                         added.Add(i);
                         if (currentEntry.EntityState is not EntityState.Detached and not EntityState.Added)
                         {
-                            // If the element was newly added then there should be a null entry at some ordinal, otherwise it will be treated as a replacement.
+                            // If the element was newly added then there should be a null entry at some ordinal,
+                            // otherwise it will be treated as a replacement.
                             var nullEntryOrdinal = -1;
-                            for (var j = i + 1; j < currentEntries.Count; j++)
+                            for (var j = originalCollection?.Count ?? i + 1; j < currentEntries.Count; j++)
                             {
-                                if (currentEntries[j] == null)
+                                var newEntry = currentEntries[j];
+                                if (newEntry == null)
                                 {
                                     nullEntryOrdinal = j;
+                                    break;
+                                }
+
+                                if (newEntry.OriginalOrdinal >= (originalCollection?.Count ?? 0)
+                                    || newEntry.EntityState == EntityState.Detached)
+                                {
+                                    nullEntryOrdinal = j;
+                                    newEntry.SetEntityState(EntityState.Detached);
                                     break;
                                 }
                             }
@@ -461,41 +493,97 @@ public class ChangeDetector : IChangeDetector
             var currentEntry = entry.GetComplexCollectionEntry(complexProperty, addedOrdinal);
             if (currentEntry.EntityState is EntityState.Detached or EntityState.Added)
             {
+                var originalOrdinal = -1;
+                var originalWasNull = false;
                 if (originalNulls.Count > 0)
                 {
-                    var originalOrdinal = originalNulls.First();
+                    originalWasNull = true;
+                    originalOrdinal = originalNulls.First();
                     originalNulls.Remove(originalOrdinal);
-                    currentEntry.OriginalOrdinal = originalOrdinal;
-                    currentEntry.SetEntityState(EntityState.Modified);
                 }
                 else if (removed.Count > 0)
                 {
-                    var (removedElement, originalOrdinal) = removed.First();
+                    (var removedElement, originalOrdinal) = removed.First();
                     removed.Remove(removedElement);
-                    currentEntry.OriginalOrdinal = originalOrdinal;
-                    currentEntry.SetEntityState(EntityState.Modified);
                 }
                 else
                 {
                     currentEntry.SetEntityState(EntityState.Added);
                     continue;
                 }
+
+                if (originalOrdinal != -1)
+                {
+                    // An unmatched null or original element was found, so use it as the original and discard the extra entry.
+                    var originalEntry = entry.GetComplexCollectionOriginalEntry(complexProperty, originalOrdinal);
+                    if (originalEntry != currentEntry)
+                    {
+                        if (currentEntry.EntityState is EntityState.Detached)
+                        {
+                            currentEntry = originalEntry;
+                            if (currentEntry.Ordinal == -1)
+                            {
+                                currentEntry.Ordinal = addedOrdinal;
+                            }
+                            else
+                            {
+                                entry.MoveComplexCollectionEntry(complexProperty, currentEntry.Ordinal, addedOrdinal);
+                            }
+                        }
+                        else
+                        {
+                            originalEntry.SetEntityState(EntityState.Detached);
+                            if (currentEntry.OriginalOrdinal == -1)
+                            {
+                                currentEntry.OriginalOrdinal = originalOrdinal;
+                            }
+                            else
+                            {
+                                entry.MoveComplexCollectionEntry(
+                                    complexProperty, currentEntry.OriginalOrdinal, originalOrdinal, original: true);
+                            }
+                        }
+                    }
+
+                    currentEntry.SetEntityState(originalWasNull ? EntityState.Modified : EntityState.Unchanged);
+                }
             }
             else if (!originalNulls.Remove(currentEntry.OriginalOrdinal))
             {
-                var removedElement = removed.FirstOrDefault(r => r.Value == currentEntry.OriginalOrdinal);
-                if (removedElement.Key != null)
+                var removedPair = removed.FirstOrDefault(r => r.Value == currentEntry.OriginalOrdinal);
+                if (removedPair.Key != null)
                 {
-                    removed.Remove(removedElement.Key);
+                    removed.Remove(removedPair.Key);
+                }
+                else if (removed.Count > 0)
+                {
+                    var (removedElement, originalOrdinal) = removed.First();
+                    removed.Remove(removedElement);
+
+                    if (currentEntry.OriginalOrdinal != originalOrdinal)
+                    {
+                        var movedEntry = entry.GetComplexCollectionOriginalEntry(complexProperty, currentEntry.OriginalOrdinal);
+                        var movedOrdinal = movedEntry.OriginalOrdinal;
+                        entry.MoveComplexCollectionEntry(complexProperty, movedEntry.Ordinal, addedOrdinal);
+                        movedEntry.SetEntityState(EntityState.Unchanged);
+                        entry.MoveComplexCollectionEntry(complexProperty, currentEntry.Ordinal, movedOrdinal);
+                    }
+                    else
+                    {
+                        currentEntry.SetEntityState(EntityState.Unchanged);
+                    }
                 }
                 else
                 {
-                    Check.DebugAssert(false,
+                    Check.DebugAssert(
+                        false,
                         $"Expected the entry at {addedOrdinal} to have been removed or matched with a null entry. Current state: {currentEntry.EntityState}.");
+
+                    currentEntry.SetEntityState(EntityState.Added);
                 }
             }
 
-            if (currentEntry.EntityState == EntityState.Unchanged)
+            if (currentEntry.EntityState is EntityState.Unchanged or EntityState.Modified)
             {
                 if (LocalDetectChanges(currentEntry))
                 {
@@ -511,10 +599,11 @@ public class ChangeDetector : IChangeDetector
             foreach (var (removedElement, originalOrdinal) in removed)
             {
                 var originalEntry = originalEntries[removedElement];
-                Check.DebugAssert(originalEntry.OriginalOrdinal == originalOrdinal,
+                Check.DebugAssert(
+                    originalEntry.OriginalOrdinal == originalOrdinal,
                     $"The OriginalOrdinal for entry of the element at original ordinal {originalOrdinal} is {originalEntry.OriginalOrdinal}.");
                 var newCurrentOrdinal = originalEntry.Ordinal;
-                if (originalEntry.EntityState is EntityState.Unchanged or EntityState.Detached)
+                if (originalEntry.EntityState is EntityState.Unchanged or EntityState.Modified or EntityState.Detached)
                 {
                     // Try to match removed elements with nulls to mark the entry as modified
                     if (!currentNulls.Remove(newCurrentOrdinal))
@@ -561,18 +650,47 @@ public class ChangeDetector : IChangeDetector
                     }
                 }
             }
+
             changesFound = true;
         }
 
         if (originalNulls.Count > 0)
         {
-            // If there are any unmatched original nulls left, they should be treated as deleted.
+            // If there are any unmatched original nulls left, they should be treated as deleted
+            // unless they can be matched with a current null.
             foreach (var originalNull in originalNulls)
             {
                 var nullEntry = entry.GetComplexCollectionOriginalEntry(complexProperty, originalNull);
+                if (currentNulls.Contains(nullEntry.Ordinal))
+                {
+                    currentNulls.Remove(nullEntry.Ordinal);
+                    nullEntry.SetEntityState(EntityState.Unchanged);
+                    changesFound |= nullEntry.Ordinal != nullEntry.OriginalOrdinal;
+                    continue;
+                }
 
-                Check.DebugAssert(nullEntry.EntityState is EntityState.Unchanged or EntityState.Detached,
-                    $"Expected null entry at {originalNull} to be unchanged or detached.");
+                if (currentNulls.Count > 0)
+                {
+                    var currentNullOrdinal = currentNulls.First();
+                    currentNulls.Remove(currentNullOrdinal);
+                    if (nullEntry.Ordinal != -1)
+                    {
+                        entry.MoveComplexCollectionEntry(complexProperty, nullEntry.Ordinal, currentNullOrdinal);
+                        nullEntry.SetEntityState(EntityState.Unchanged);
+                    }
+                    else
+                    {
+                        entry.GetComplexCollectionEntry(complexProperty, currentNullOrdinal).SetEntityState(EntityState.Detached);
+                        nullEntry.Ordinal = currentNullOrdinal;
+                    }
+
+                    changesFound |= nullEntry.Ordinal != nullEntry.OriginalOrdinal;
+                    continue;
+                }
+
+                Check.DebugAssert(
+                    nullEntry.EntityState is EntityState.Deleted or EntityState.Detached,
+                    $"Expected null entry at {originalNull} to be deleted or detached, current state {nullEntry.EntityState}.");
                 nullEntry.SetEntityState(EntityState.Deleted);
                 changesFound = true;
             }
@@ -589,19 +707,21 @@ public class ChangeDetector : IChangeDetector
                     continue;
                 }
 
-                Check.DebugAssert(nullEntry.EntityState is EntityState.Unchanged or EntityState.Detached,
-                    $"Expected null entry at {currentNull} to be unchanged or detached.");
+                Check.DebugAssert(
+                    nullEntry.EntityState is EntityState.Added or EntityState.Detached,
+                    $"Expected null entry at {currentNull} to be added or detached, current state {nullEntry.EntityState}.");
                 nullEntry.SetEntityState(EntityState.Added);
                 changesFound = true;
             }
         }
 
         // Trim excess entries
-        entry.EnsureComplexCollectionEntriesCapacity(complexProperty, currentCollection?.Count ?? 0, originalCollection?.Count ?? 0, trim: true);
+        entry.EnsureComplexCollectionEntriesCapacity(
+            complexProperty, currentCollection?.Count ?? 0, originalCollection?.Count ?? 0, trim: true);
 
         if (changesFound)
         {
-            entry.SetPropertyModified(complexProperty, true);
+            entry.SetPropertyModified(complexProperty);
         }
 
         return changesFound;
@@ -645,7 +765,7 @@ public class ChangeDetector : IChangeDetector
             }
             else
             {
-                _logger.ComplexTypePropertyChangeDetectedSensitive((InternalComplexEntry)entry, property, original, current);
+                _logger.ComplexElementPropertyChangeDetectedSensitive((InternalComplexEntry)entry, property, original, current);
             }
         }
         else
@@ -656,7 +776,7 @@ public class ChangeDetector : IChangeDetector
             }
             else
             {
-                _logger.ComplexTypePropertyChangeDetected((InternalComplexEntry)entry, property, original, current);
+                _logger.ComplexElementPropertyChangeDetected((InternalComplexEntry)entry, property, original, current);
             }
         }
     }

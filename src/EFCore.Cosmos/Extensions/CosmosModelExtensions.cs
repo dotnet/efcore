@@ -197,4 +197,46 @@ public static class CosmosModelExtensions
     public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(CosmosAnnotationNames.Throughput)
             ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the default language for the full-text search at database scope.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The default language for the full-text search.</returns>
+    public static string? GetDefaultFullTextSearchLanguage(this IReadOnlyModel model)
+        => (string?)model[CosmosAnnotationNames.DefaultFullTextSearchLanguage];
+
+    /// <summary>
+    ///     Sets the default language for the full-text search at database scope.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="language">The default language for the full-text search.</param>
+    public static void SetDefaultFullTextSearchLanguage(this IMutableModel model, string? language)
+        => model.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
+            language);
+
+    /// <summary>
+    ///     Sets the default language for the full-text search at database scope.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="language">The default language for the full-text search.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static string? SetDefaultFullTextSearchLanguage(
+        this IConventionModel model,
+        string? language,
+        bool fromDataAnnotation = false)
+        => (string?)model.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DefaultFullTextSearchLanguage,
+            language,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the default full-text search language at database scope.
+    /// </summary>
+    /// <param name="model">The model type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the default full-text search language.</returns>
+    public static ConfigurationSource? GetDefaultFullTextSearchLanguageConfigurationSource(this IConventionModel model)
+        => model.FindAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage)
+            ?.GetConfigurationSource();
 }

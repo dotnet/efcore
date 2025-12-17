@@ -66,7 +66,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.DbFunctions,
-                    out IReadOnlyDictionary<string, IDbFunction> functions))
+                    out IReadOnlyDictionary<string, IDbFunction>? functions))
             {
                 parameters.Namespaces.Add(typeof(Dictionary<,>).Namespace!);
                 parameters.Namespaces.Add(typeof(BindingFlags).Namespace!);
@@ -85,7 +85,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.Sequences,
-                    out IReadOnlyDictionary<(string, string?), ISequence> sequences))
+                    out IReadOnlyDictionary<(string, string?), ISequence>? sequences))
             {
                 parameters.Namespaces.Add(typeof(Dictionary<,>).Namespace!);
                 var sequencesVariable = Dependencies.CSharpHelper.Identifier(
@@ -1547,7 +1547,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
 
         var table = tableMapping.Table;
-        var isOptional = table.IsOptional(typeBase);
+        var isOptional = typeBase.IsMappedToJson()
+            ? (bool?)null
+            : table.IsOptional(typeBase);
         mainBuilder
             .AppendLine($"{tableVariable}.AddTypeMapping({tableMappingVariable}, {code.Literal(isOptional)});")
             .AppendLine($"{tableMappingsVariable}.Add({tableMappingVariable});");
@@ -1609,7 +1611,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             AddNamespace(method.DeclaringType!, parameters.Namespaces);
             mainBuilder.AppendLine(",")
                 .AppendLine($"methodInfo: {code.Literal(method.DeclaringType!)}.GetMethod(").IncrementIndent()
-                .Append(code.Literal(method.Name!)).AppendLine(",")
+                .Append(code.Literal(method.Name)).AppendLine(",")
                 .Append(method.IsPublic ? "BindingFlags.Public" : "BindingFlags.NonPublic")
                 .Append(method.IsStatic ? " | BindingFlags.Static" : " | BindingFlags.Instance")
                 .AppendLine(" | BindingFlags.DeclaredOnly,")
@@ -1823,7 +1825,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.MappingFragments,
-                    out IReadOnlyStoreObjectDictionary<IEntityTypeMappingFragment> fragments))
+                    out IReadOnlyStoreObjectDictionary<IEntityTypeMappingFragment>? fragments))
             {
                 AddNamespace(typeof(StoreObjectDictionary<RuntimeEntityTypeMappingFragment>), parameters.Namespaces);
                 AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
@@ -1843,7 +1845,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.InsertStoredProcedure,
-                    out StoredProcedure insertStoredProcedure))
+                    out StoredProcedure? insertStoredProcedure))
             {
                 var sprocVariable = Dependencies.CSharpHelper.Identifier(
                     "insertSproc", insertStoredProcedure, parameters.ScopeObjects, capitalize: false);
@@ -1856,7 +1858,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.DeleteStoredProcedure,
-                    out StoredProcedure deleteStoredProcedure))
+                    out StoredProcedure? deleteStoredProcedure))
             {
                 var sprocVariable = Dependencies.CSharpHelper.Identifier(
                     "deleteSproc", deleteStoredProcedure, parameters.ScopeObjects, capitalize: false);
@@ -1869,7 +1871,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.UpdateStoredProcedure,
-                    out StoredProcedure updateStoredProcedure))
+                    out StoredProcedure? updateStoredProcedure))
             {
                 var sprocVariable = Dependencies.CSharpHelper.Identifier(
                     "updateSproc", updateStoredProcedure, parameters.ScopeObjects, capitalize: false);
@@ -2085,7 +2087,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.RelationalOverrides,
-                    out IReadOnlyStoreObjectDictionary<IRelationalPropertyOverrides> tableOverrides))
+                    out IReadOnlyStoreObjectDictionary<IRelationalPropertyOverrides>? tableOverrides))
             {
                 AddNamespace(typeof(StoreObjectDictionary<RuntimeRelationalPropertyOverrides>), parameters.Namespaces);
                 AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);

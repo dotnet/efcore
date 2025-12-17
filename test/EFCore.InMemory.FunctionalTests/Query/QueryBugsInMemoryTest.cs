@@ -408,9 +408,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
 
-        var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
-        var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
-        var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
+        var e1 = new Entity3101 { Id = 1, Children = [c11, c12, c13] };
+        var e2 = new Entity3101 { Id = 2, Children = [c21, c22] };
+        var e3 = new Entity3101 { Id = 3, Children = [c31, c32] };
 
         e2.RootEntity = e1;
 
@@ -739,8 +739,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             using var context = new MyContext20729();
 
             var query = context.Set<Owner20729>()
-                .Select(
-                    dtoOwner => new
+                .Select(dtoOwner => new
                     {
                         dtoOwner.Id,
                         Owned2 = dtoOwner.Owned2 == null
@@ -1103,15 +1102,14 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             using var context = new MyContext18435();
 
             var result = context.TestEntities
-                .Select(
-                    x => new
-                    {
-                        x.Value,
-                        A = x.Owned.First,
-                        B = x.Owned.Second,
-                        C = x.Child.Owned.First,
-                        D = x.Child.Owned.Second
-                    }).FirstOrDefault();
+                .Select(x => new
+                {
+                    x.Value,
+                    A = x.Owned.First,
+                    B = x.Owned.Second,
+                    C = x.Child.Owned.First,
+                    D = x.Child.Owned.Second
+                }).FirstOrDefault();
 
             Assert.Equal("test", result.Value);
             Assert.Equal(2, result.A);
@@ -1351,17 +1349,15 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<A20359>(
-                builder =>
-                {
-                    builder.OwnsOne(x => x.Sub);
-                });
+            modelBuilder.Entity<A20359>(builder =>
+            {
+                builder.OwnsOne(x => x.Sub);
+            });
 
-            modelBuilder.Entity<Root20359>(
-                builder =>
-                {
-                    builder.OwnsOne(x => x.B);
-                });
+            modelBuilder.Entity<Root20359>(builder =>
+            {
+                builder.OwnsOne(x => x.B);
+            });
         }
     }
 
@@ -1377,20 +1373,18 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             using var context = new MyContext23360();
 
             var userQuery = context.User
-                .Select(
-                    u => new CommonSelectType23360
-                    {
-                        // 1. FirstName, 2. LastName
-                        FirstName = u.Forename, LastName = u.Surname,
-                    });
+                .Select(u => new CommonSelectType23360
+                {
+                    // 1. FirstName, 2. LastName
+                    FirstName = u.Forename, LastName = u.Surname,
+                });
 
             var customerQuery = context.Customer
-                .Select(
-                    c => new CommonSelectType23360
-                    {
-                        // 1. LastName, 2. FirstName
-                        LastName = c.FamilyName, FirstName = c.GivenName,
-                    });
+                .Select(c => new CommonSelectType23360
+                {
+                    // 1. LastName, 2. FirstName
+                    LastName = c.FamilyName, FirstName = c.GivenName,
+                });
 
             var result = userQuery.Union(customerQuery).ToList();
 
@@ -1466,19 +1460,18 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
             var myA = context.As
                 .Where(x => x.Id == 1)
-                .Select(
-                    x => new ADto18394
-                    {
-                        Id = x.Id,
-                        PropertyB = (x.PropertyB == null)
-                            ? null
-                            : new BDto18394
-                            {
-                                Id = x.PropertyB.Id,
-                                PropertyCList = x.PropertyB.PropertyCList.Select(
-                                    y => new CDto18394 { Id = y.Id, SomeText = y.SomeText }).ToList()
-                            }
-                    })
+                .Select(x => new ADto18394
+                {
+                    Id = x.Id,
+                    PropertyB = (x.PropertyB == null)
+                        ? null
+                        : new BDto18394
+                        {
+                            Id = x.PropertyB.Id,
+                            PropertyCList = x.PropertyB.PropertyCList.Select(y => new CDto18394 { Id = y.Id, SomeText = y.SomeText })
+                                .ToList()
+                        }
+                })
                 .FirstOrDefault();
 
             Assert.Equal("TestText", myA.PropertyB.PropertyCList.First().SomeText);

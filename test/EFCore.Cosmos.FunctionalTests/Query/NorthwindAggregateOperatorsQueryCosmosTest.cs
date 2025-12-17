@@ -448,8 +448,7 @@ WHERE (c["$type"] = "Order")
     public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
     {
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Sum_with_division_on_decimal_no_significant_digits(async));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_with_division_on_decimal_no_significant_digits(async));
 
         AssertSql();
     }
@@ -733,8 +732,8 @@ WHERE (c["$type"] = "Order")
     public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
     {
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Average_with_division_on_decimal_no_significant_digits(async));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async ()
+            => await base.Average_with_division_on_decimal_no_significant_digits(async));
 
         AssertSql();
     }
@@ -835,7 +834,7 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override  Task Min_no_data_nullable(bool async)
+    public override Task Min_no_data_nullable(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
@@ -1135,8 +1134,7 @@ WHERE (((c["$type"] = "Order") AND (c["OrderID"] > 10)) AND (c["CustomerID"] != 
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_client_Take(async));
+            await Assert.ThrowsAsync<CosmosException>(async () => await base.OrderBy_client_Take(async));
 
             AssertSql(
                 """
@@ -2038,8 +2036,8 @@ SELECT VALUE EXISTS (
     public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
     {
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async ()
+            => await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
 
         AssertSql();
     }
@@ -2050,8 +2048,8 @@ SELECT VALUE EXISTS (
         if (async)
         {
             // Aggregate selecting non-mapped type. Issue #20677.
-            await Assert.ThrowsAsync<KeyNotFoundException>(
-                async () => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+            await Assert.ThrowsAsync<KeyNotFoundException>(async ()
+                => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
 
             AssertSql();
         }
@@ -2060,8 +2058,8 @@ SELECT VALUE EXISTS (
     public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
     {
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            async () => await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async ()
+            => await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(async));
 
         AssertSql();
     }
@@ -2073,8 +2071,8 @@ SELECT VALUE EXISTS (
         {
             Assert.Equal(
                 CosmosStrings.ReverseAfterSkipTakeNotSupported,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () => await base.OrderBy_Take_Last_gives_correct_result(async))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.OrderBy_Take_Last_gives_correct_result(async)))
+                .Message);
 
             AssertSql();
         }
@@ -2084,8 +2082,8 @@ SELECT VALUE EXISTS (
     {
         Assert.Equal(
             CosmosStrings.ReverseAfterSkipTakeNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () => await base.OrderBy_Skip_Last_gives_correct_result(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.OrderBy_Skip_Last_gives_correct_result(async)))
+            .Message);
 
         AssertSql();
     }
@@ -2498,8 +2496,7 @@ FROM root c
     public override async Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(async));
+        await AssertTranslationFailed(() => base.Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(async));
 
         AssertSql();
     }
@@ -2507,8 +2504,7 @@ FROM root c
     public override async Task Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(async));
+        await AssertTranslationFailed(() => base.Contains_over_nullable_scalar_with_null_in_subquery_translated_correctly(async));
 
         AssertSql();
     }
@@ -2516,8 +2512,7 @@ FROM root c
     public override async Task Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(async));
+        await AssertTranslationFailed(() => base.Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(async));
 
         AssertSql();
     }
@@ -2525,8 +2520,7 @@ FROM root c
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(async));
+        await AssertTranslationFailed(() => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery(async));
 
         AssertSql();
     }
@@ -2534,8 +2528,8 @@ FROM root c
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(async));
+        await AssertTranslationFailed(()
+            => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(async));
 
         AssertSql();
     }
@@ -2543,8 +2537,8 @@ FROM root c
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(bool async)
     {
         // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(
-            () => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(async));
+        await AssertTranslationFailed(()
+            => base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(async));
 
         AssertSql();
     }
@@ -2592,11 +2586,10 @@ FROM root c
     public override async Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
     {
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(
-            () => AssertAverage(
-                async,
-                ss => ss.Set<Order>(),
-                selector: c => c.ShipVia));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertAverage(
+            async,
+            ss => ss.Set<Order>(),
+            selector: c => c.ShipVia));
 
         AssertSql();
     }

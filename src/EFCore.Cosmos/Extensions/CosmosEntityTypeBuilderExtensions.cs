@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -884,88 +885,6 @@ public static class CosmosEntityTypeBuilderExtensions
         => entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultTimeToLive, seconds, fromDataAnnotation);
 
     /// <summary>
-    ///     Configures a default language to use for full-text search at container scope.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="language">The default language.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder HasDefaultFullTextLanguage(
-        this EntityTypeBuilder entityTypeBuilder,
-        string? language)
-    {
-        entityTypeBuilder.Metadata.SetDefaultFullTextSearchLanguage(language);
-
-        return entityTypeBuilder;
-    }
-
-    /// <summary>
-    ///     Configures a default language to use for full-text search at container scope.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="language">The default language.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder<TEntity> HasDefaultFullTextLanguage<TEntity>(
-        this EntityTypeBuilder<TEntity> entityTypeBuilder,
-        string? language)
-        where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasDefaultFullTextLanguage((EntityTypeBuilder)entityTypeBuilder, language);
-
-    /// <summary>
-    ///     Configures a default language to use for full-text search at container scope.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="language">The default language.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    public static IConventionEntityTypeBuilder? HasDefaultFullTextLanguage(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? language,
-        bool fromDataAnnotation = false)
-    {
-        if (!entityTypeBuilder.CanSetDefaultFullTextLanguage(language, fromDataAnnotation))
-        {
-            return null;
-        }
-
-        entityTypeBuilder.Metadata.SetDefaultFullTextSearchLanguage(language, fromDataAnnotation);
-
-        return entityTypeBuilder;
-    }
-
-    /// <summary>
-    ///     Returns a value indicating whether the default full-text language can be set
-    ///     from the current configuration source
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="language">The default language.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    public static bool CanSetDefaultFullTextLanguage(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? language,
-        bool fromDataAnnotation = false)
-        => entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultFullTextSearchLanguage, language, fromDataAnnotation);
-
-    /// <summary>
     ///     Configures the manual provisioned throughput offering.
     /// </summary>
     /// <remarks>
@@ -1088,5 +1007,52 @@ public static class CosmosEntityTypeBuilderExtensions
         return autoscale
             ? existingThroughput?.Throughput == throughput
             : existingThroughput?.AutoscaleMaxThroughput == throughput;
+    }
+
+    /// <summary>
+    ///     Configures a database trigger on the entity.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="triggerType">The trigger type.</param>
+    /// <param name="triggerOperation">The trigger operation.</param>
+    /// <returns>A builder that can be used to configure the database trigger.</returns>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    public static TriggerBuilder HasTrigger(
+        this EntityTypeBuilder entityTypeBuilder,
+        string modelName,
+        TriggerType triggerType,
+        TriggerOperation triggerOperation)
+    {
+        var triggerBuilder = EntityTypeBuilder.HasTrigger(entityTypeBuilder.Metadata, modelName);
+        triggerBuilder.Metadata.SetTriggerType(triggerType);
+        triggerBuilder.Metadata.SetTriggerOperation(triggerOperation);
+        return triggerBuilder;
+    }
+
+    /// <summary>
+    ///     Configures a database trigger on the entity.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="triggerType">The trigger type.</param>
+    /// <param name="triggerOperation">The trigger operation.</param>
+    /// <returns>A builder that can be used to configure the database trigger.</returns>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    public static TriggerBuilder HasTrigger<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        string modelName,
+        TriggerType triggerType,
+        TriggerOperation triggerOperation)
+        where TEntity : class
+    {
+        var triggerBuilder = EntityTypeBuilder.HasTrigger(entityTypeBuilder.Metadata, modelName);
+        triggerBuilder.Metadata.SetTriggerType(triggerType);
+        triggerBuilder.Metadata.SetTriggerOperation(triggerOperation);
+        return triggerBuilder;
     }
 }

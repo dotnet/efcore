@@ -26,9 +26,9 @@ public class PrimitiveCollectionsQueryOldSqlServerTest : PrimitiveCollectionsQue
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Inline_collection_of_ints_Contains(bool async)
+    public override async Task Inline_collection_of_ints_Contains()
     {
-        await base.Inline_collection_of_ints_Contains(async);
+        await base.Inline_collection_of_ints_Contains();
 
         AssertSql(
             """
@@ -38,9 +38,9 @@ WHERE [p].[Int] IN (10, 999)
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_ints_Contains(bool async)
+    public override async Task Inline_collection_of_nullable_ints_Contains()
     {
-        await base.Inline_collection_of_nullable_ints_Contains(async);
+        await base.Inline_collection_of_nullable_ints_Contains();
 
         AssertSql(
             """
@@ -50,9 +50,9 @@ WHERE [p].[NullableInt] IN (10, 999)
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_ints_Contains_null(bool async)
+    public override async Task Inline_collection_of_nullable_ints_Contains_null()
     {
-        await base.Inline_collection_of_nullable_ints_Contains_null(async);
+        await base.Inline_collection_of_nullable_ints_Contains_null();
 
         AssertSql(
             """
@@ -62,16 +62,16 @@ WHERE [p].[NullableInt] IS NULL OR [p].[NullableInt] = 999
 """);
     }
 
-    public override async Task Inline_collection_Count_with_zero_values(bool async)
+    public override async Task Inline_collection_Count_with_zero_values()
     {
-        await base.Inline_collection_Count_with_zero_values(async);
+        await base.Inline_collection_Count_with_zero_values();
 
         AssertSql();
     }
 
-    public override async Task Inline_collection_Count_with_one_value(bool async)
+    public override async Task Inline_collection_Count_with_one_value()
     {
-        await base.Inline_collection_Count_with_one_value(async);
+        await base.Inline_collection_Count_with_one_value();
 
         AssertSql(
             """
@@ -84,9 +84,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_Count_with_two_values(bool async)
+    public override async Task Inline_collection_Count_with_two_values()
     {
-        await base.Inline_collection_Count_with_two_values(async);
+        await base.Inline_collection_Count_with_two_values();
 
         AssertSql(
             """
@@ -99,9 +99,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_Count_with_three_values(bool async)
+    public override async Task Inline_collection_Count_with_three_values()
     {
-        await base.Inline_collection_Count_with_three_values(async);
+        await base.Inline_collection_Count_with_three_values();
 
         AssertSql(
             """
@@ -114,9 +114,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_zero_values(bool async)
+    public override async Task Inline_collection_Contains_with_zero_values()
     {
-        await base.Inline_collection_Contains_with_zero_values(async);
+        await base.Inline_collection_Contains_with_zero_values();
 
         AssertSql(
             """
@@ -126,9 +126,9 @@ WHERE 0 = 1
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_one_value(bool async)
+    public override async Task Inline_collection_Contains_with_one_value()
     {
-        await base.Inline_collection_Contains_with_one_value(async);
+        await base.Inline_collection_Contains_with_one_value();
 
         AssertSql(
             """
@@ -138,9 +138,9 @@ WHERE [p].[Id] = 2
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_two_values(bool async)
+    public override async Task Inline_collection_Contains_with_two_values()
     {
-        await base.Inline_collection_Contains_with_two_values(async);
+        await base.Inline_collection_Contains_with_two_values();
 
         AssertSql(
             """
@@ -150,9 +150,9 @@ WHERE [p].[Id] IN (2, 999)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_three_values(bool async)
+    public override async Task Inline_collection_Contains_with_three_values()
     {
-        await base.Inline_collection_Contains_with_three_values(async);
+        await base.Inline_collection_Contains_with_three_values();
 
         AssertSql(
             """
@@ -162,9 +162,9 @@ WHERE [p].[Id] IN (2, 999, 1000)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_all_parameters(bool async)
+    public override async Task Inline_collection_Contains_with_all_parameters()
     {
-        await base.Inline_collection_Contains_with_all_parameters(async);
+        await base.Inline_collection_Contains_with_all_parameters();
 
         AssertSql(
             """
@@ -177,9 +177,9 @@ WHERE [p].[Id] IN (@i, @j)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_constant_and_parameter(bool async)
+    public override async Task Inline_collection_Contains_with_constant_and_parameter()
     {
-        await base.Inline_collection_Contains_with_constant_and_parameter(async);
+        await base.Inline_collection_Contains_with_constant_and_parameter();
 
         AssertSql(
             """
@@ -191,9 +191,9 @@ WHERE [p].[Id] IN (2, @j)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_mixed_value_types(bool async)
+    public override async Task Inline_collection_Contains_with_mixed_value_types()
     {
-        await base.Inline_collection_Contains_with_mixed_value_types(async);
+        await base.Inline_collection_Contains_with_mixed_value_types();
 
         AssertSql(
             """
@@ -205,9 +205,9 @@ WHERE [p].[Int] IN (999, @i, [p].[Id], [p].[Id] + [p].[Int])
 """);
     }
 
-    public override async Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
+    public override async Task Inline_collection_List_Contains_with_mixed_value_types()
     {
-        await base.Inline_collection_List_Contains_with_mixed_value_types(async);
+        await base.Inline_collection_List_Contains_with_mixed_value_types();
 
         AssertSql(
             """
@@ -219,9 +219,9 @@ WHERE [p].[Int] IN (999, @i, [p].[Id], [p].[Id] + [p].[Int])
 """);
     }
 
-    public override async Task Inline_collection_Contains_as_Any_with_predicate(bool async)
+    public override async Task Inline_collection_Contains_as_Any_with_predicate()
     {
-        await base.Inline_collection_Contains_as_Any_with_predicate(async);
+        await base.Inline_collection_Contains_as_Any_with_predicate();
 
         AssertSql(
             """
@@ -231,9 +231,9 @@ WHERE [p].[Id] IN (2, 999)
 """);
     }
 
-    public override async Task Inline_collection_negated_Contains_as_All(bool async)
+    public override async Task Inline_collection_negated_Contains_as_All()
     {
-        await base.Inline_collection_negated_Contains_as_All(async);
+        await base.Inline_collection_negated_Contains_as_All();
 
         AssertSql(
             """
@@ -243,9 +243,9 @@ WHERE [p].[Id] NOT IN (2, 999)
 """);
     }
 
-    public override async Task Inline_collection_Min_with_two_values(bool async)
+    public override async Task Inline_collection_Min_with_two_values()
     {
-        await base.Inline_collection_Min_with_two_values(async);
+        await base.Inline_collection_Min_with_two_values();
 
         AssertSql(
             """
@@ -257,9 +257,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_List_Min_with_two_values(bool async)
+    public override async Task Inline_collection_List_Min_with_two_values()
     {
-        await base.Inline_collection_List_Min_with_two_values(async);
+        await base.Inline_collection_List_Min_with_two_values();
 
         AssertSql(
             """
@@ -271,9 +271,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_Max_with_two_values(bool async)
+    public override async Task Inline_collection_Max_with_two_values()
     {
-        await base.Inline_collection_Max_with_two_values(async);
+        await base.Inline_collection_Max_with_two_values();
 
         AssertSql(
             """
@@ -285,9 +285,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_List_Max_with_two_values(bool async)
+    public override async Task Inline_collection_List_Max_with_two_values()
     {
-        await base.Inline_collection_List_Max_with_two_values(async);
+        await base.Inline_collection_List_Max_with_two_values();
 
         AssertSql(
             """
@@ -299,9 +299,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_Min_with_three_values(bool async)
+    public override async Task Inline_collection_Min_with_three_values()
     {
-        await base.Inline_collection_Min_with_three_values(async);
+        await base.Inline_collection_Min_with_three_values();
 
         AssertSql(
             """
@@ -315,9 +315,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_List_Min_with_three_values(bool async)
+    public override async Task Inline_collection_List_Min_with_three_values()
     {
-        await base.Inline_collection_List_Min_with_three_values(async);
+        await base.Inline_collection_List_Min_with_three_values();
 
         AssertSql(
             """
@@ -331,9 +331,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_Max_with_three_values(bool async)
+    public override async Task Inline_collection_Max_with_three_values()
     {
-        await base.Inline_collection_Max_with_three_values(async);
+        await base.Inline_collection_Max_with_three_values();
 
         AssertSql(
             """
@@ -347,9 +347,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_List_Max_with_three_values(bool async)
+    public override async Task Inline_collection_List_Max_with_three_values()
     {
-        await base.Inline_collection_List_Max_with_three_values(async);
+        await base.Inline_collection_List_Max_with_three_values();
 
         AssertSql(
             """
@@ -363,9 +363,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_value_type_Min(bool async)
+    public override async Task Inline_collection_of_nullable_value_type_Min()
     {
-        await base.Inline_collection_of_nullable_value_type_Min(async);
+        await base.Inline_collection_of_nullable_value_type_Min();
 
         AssertSql(
             """
@@ -379,9 +379,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_value_type_Max(bool async)
+    public override async Task Inline_collection_of_nullable_value_type_Max()
     {
-        await base.Inline_collection_of_nullable_value_type_Max(async);
+        await base.Inline_collection_of_nullable_value_type_Max();
 
         AssertSql(
             """
@@ -395,9 +395,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min()
     {
-        await base.Inline_collection_of_nullable_value_type_with_null_Min(async);
+        await base.Inline_collection_of_nullable_value_type_with_null_Min();
 
         AssertSql(
             """
@@ -409,9 +409,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Max()
     {
-        await base.Inline_collection_of_nullable_value_type_with_null_Max(async);
+        await base.Inline_collection_of_nullable_value_type_with_null_Max();
 
         AssertSql(
             """
@@ -423,9 +423,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_with_single_parameter_element_Contains(bool async)
+    public override async Task Inline_collection_with_single_parameter_element_Contains()
     {
-        await base.Inline_collection_with_single_parameter_element_Contains(async);
+        await base.Inline_collection_with_single_parameter_element_Contains();
 
         AssertSql(
             """
@@ -437,9 +437,9 @@ WHERE [p].[Id] = @i
 """);
     }
 
-    public override async Task Inline_collection_with_single_parameter_element_Count(bool async)
+    public override async Task Inline_collection_with_single_parameter_element_Count()
     {
-        await base.Inline_collection_with_single_parameter_element_Count(async);
+        await base.Inline_collection_with_single_parameter_element_Count();
 
         AssertSql(
             """
@@ -454,15 +454,18 @@ WHERE (
 """);
     }
 
-    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_EF_Parameter(async));
+    public override Task Inline_collection_Contains_with_EF_Parameter()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_EF_Parameter());
 
-    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async));
+    public override Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_IEnumerable_EF_Parameter());
 
-    public override async Task Parameter_collection_Count(bool async)
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Count_with_column_predicate_with_EF_Parameter());
+
+    public override async Task Parameter_collection_Count()
     {
-        await base.Parameter_collection_Count(async);
+        await base.Parameter_collection_Count();
 
         AssertSql(
             """
@@ -478,9 +481,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int(bool async)
+    public override async Task Parameter_collection_of_ints_Contains_int()
     {
-        await base.Parameter_collection_of_ints_Contains_int(async);
+        await base.Parameter_collection_of_ints_Contains_int();
 
         AssertSql(
             """
@@ -502,9 +505,9 @@ WHERE [p].[Int] NOT IN (@ints1, @ints2)
 """);
     }
 
-    public override async Task Parameter_collection_HashSet_of_ints_Contains_int(bool async)
+    public override async Task Parameter_collection_HashSet_of_ints_Contains_int()
     {
-        await base.Parameter_collection_HashSet_of_ints_Contains_int(async);
+        await base.Parameter_collection_HashSet_of_ints_Contains_int();
 
         AssertSql(
             """
@@ -526,9 +529,9 @@ WHERE [p].[Int] NOT IN (@ints1, @ints2)
 """);
     }
 
-    public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int(bool async)
+    public override async Task Parameter_collection_FrozenSet_of_ints_Contains_int()
     {
-        await base.Parameter_collection_ImmutableArray_of_ints_Contains_int(async);
+        await base.Parameter_collection_FrozenSet_of_ints_Contains_int();
 
         AssertSql(
             """
@@ -550,9 +553,33 @@ WHERE [p].[Int] NOT IN (@ints1, @ints2)
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
+    public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
     {
-        await base.Parameter_collection_of_ints_Contains_nullable_int(async);
+        await base.Parameter_collection_ImmutableArray_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2='999'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (@ints1, @ints2)
+""",
+            //
+            """
+@ints1='10'
+@ints2='999'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] NOT IN (@ints1, @ints2)
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_nullable_int()
+    {
+        await base.Parameter_collection_of_ints_Contains_nullable_int();
 
         AssertSql(
             """
@@ -574,9 +601,9 @@ WHERE [p].[NullableInt] NOT IN (@ints1, @ints2) OR [p].[NullableInt] IS NULL
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_int()
     {
-        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_int();
 
         AssertSql(
             """
@@ -598,9 +625,9 @@ WHERE [p].[Int] NOT IN (@nullableInts1, @nullableInts2)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int()
     {
-        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int();
 
         AssertSql(
             """
@@ -620,9 +647,9 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
 """);
     }
 
-    public override async Task Parameter_collection_of_strings_Contains_string(bool async)
+    public override async Task Parameter_collection_of_strings_Contains_string()
     {
-        await base.Parameter_collection_of_strings_Contains_string(async);
+        await base.Parameter_collection_of_strings_Contains_string();
 
         AssertSql(
             """
@@ -644,9 +671,9 @@ WHERE [p].[String] NOT IN (@strings1, @strings2)
 """);
     }
 
-    public override async Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
+    public override async Task Parameter_collection_of_strings_Contains_nullable_string()
     {
-        await base.Parameter_collection_of_strings_Contains_nullable_string(async);
+        await base.Parameter_collection_of_strings_Contains_nullable_string();
 
         AssertSql(
             """
@@ -668,9 +695,9 @@ WHERE [p].[NullableString] NOT IN (@strings1, @strings2) OR [p].[NullableString]
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_strings_Contains_string(bool async)
+    public override async Task Parameter_collection_of_nullable_strings_Contains_string()
     {
-        await base.Parameter_collection_of_nullable_strings_Contains_string(async);
+        await base.Parameter_collection_of_nullable_strings_Contains_string();
 
         AssertSql(
             """
@@ -690,9 +717,9 @@ WHERE [p].[String] <> @strings1
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_strings_Contains_nullable_string(bool async)
+    public override async Task Parameter_collection_of_nullable_strings_Contains_nullable_string()
     {
-        await base.Parameter_collection_of_nullable_strings_Contains_nullable_string(async);
+        await base.Parameter_collection_of_nullable_strings_Contains_nullable_string();
 
         AssertSql(
             """
@@ -712,9 +739,9 @@ WHERE [p].[NullableString] IS NOT NULL AND [p].[NullableString] <> @strings1
 """);
     }
 
-    public override async Task Parameter_collection_of_DateTimes_Contains(bool async)
+    public override async Task Parameter_collection_of_DateTimes_Contains()
     {
-        await base.Parameter_collection_of_DateTimes_Contains(async);
+        await base.Parameter_collection_of_DateTimes_Contains();
 
         AssertSql(
             """
@@ -727,9 +754,9 @@ WHERE [p].[DateTime] IN (@dateTimes1, @dateTimes2)
 """);
     }
 
-    public override async Task Parameter_collection_of_bools_Contains(bool async)
+    public override async Task Parameter_collection_of_bools_Contains()
     {
-        await base.Parameter_collection_of_bools_Contains(async);
+        await base.Parameter_collection_of_bools_Contains();
 
         AssertSql(
             """
@@ -741,9 +768,9 @@ WHERE [p].[Bool] = @bools1
 """);
     }
 
-    public override async Task Parameter_collection_of_enums_Contains(bool async)
+    public override async Task Parameter_collection_of_enums_Contains()
     {
-        await base.Parameter_collection_of_enums_Contains(async);
+        await base.Parameter_collection_of_enums_Contains();
 
         AssertSql(
             """
@@ -756,9 +783,9 @@ WHERE [p].[Enum] IN (@enums1, @enums2)
 """);
     }
 
-    public override async Task Parameter_collection_null_Contains(bool async)
+    public override async Task Parameter_collection_null_Contains()
     {
-        await base.Parameter_collection_null_Contains(async);
+        await base.Parameter_collection_null_Contains();
 
         AssertSql(
             """
@@ -768,9 +795,36 @@ WHERE 0 = 1
 """);
     }
 
-    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    public override async Task Parameter_collection_empty_Contains()
     {
-        await base.Parameter_collection_Contains_with_EF_Constant(async);
+        await base.Parameter_collection_empty_Contains();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE 0 = 1
+""");
+    }
+
+    public override async Task Parameter_collection_empty_Join()
+    {
+        await base.Parameter_collection_empty_Join();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+INNER JOIN (
+    SELECT NULL AS [Value]
+    WHERE 0 = 1
+) AS [p0] ON [p].[Id] = [p0].[Value]
+""");
+    }
+
+    public override async Task Parameter_collection_Contains_with_EF_Constant()
+    {
+        await base.Parameter_collection_Contains_with_EF_Constant();
 
         AssertSql(
             """
@@ -780,9 +834,9 @@ WHERE [p].[Id] IN (2, 999, 1000)
 """);
     }
 
-    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any()
     {
-        await base.Parameter_collection_Where_with_EF_Constant_Where_Any(async);
+        await base.Parameter_collection_Where_with_EF_Constant_Where_Any();
 
         AssertSql(
             """
@@ -790,14 +844,14 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999), (1000)) AS [i]([Value])
     WHERE [i].[Value] > 0)
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant()
     {
-        await base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async);
+        await base.Parameter_collection_Count_with_column_predicate_with_EF_Constant();
 
         AssertSql(
             """
@@ -805,43 +859,178 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    FROM (VALUES (CAST(2 AS int)), (999), (1000)) AS [i]([Value])
     WHERE [i].[Value] > [p].[Id]) = 2
 """);
     }
 
-    public override async Task Parameter_collection_Count_with_huge_number_of_values(bool async)
+    public override async Task Parameter_collection_Count_with_huge_number_of_values()
     {
-        await base.Parameter_collection_Count_with_huge_number_of_values(async);
+        await base.Parameter_collection_Count_with_huge_number_of_values();
 
-        Assert.Contains("VALUES", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("VALUES (2)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values(bool async)
+    public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values(async);
+        await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations();
+
+        Assert.Contains("VALUES (2)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter()
+    {
+        await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
+
+        Assert.Contains("@ids1=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@ids2=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    {
+        await base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+        Assert.Contains("VALUES (2)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
+    {
+        await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants();
+
+        Assert.Contains("@ids1=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@ids2=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    {
+        await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
+
+        Assert.Contains("VALUES (2)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values();
 
         Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
         Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override Task Column_collection_of_ints_Contains(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_ints_Contains(async));
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations();
 
-    public override Task Column_collection_of_nullable_ints_Contains(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains(async));
+        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
 
-    public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains_null(async));
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
 
-    public override Task Column_collection_of_strings_contains_null(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null(async));
+        Assert.Contains("@ints1=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@ints1=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
 
-    public override Task Column_collection_of_nullable_strings_contains_null(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null(async));
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
 
-    public override Task Column_collection_of_bools_Contains(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains(async));
+        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants();
+
+        Assert.Contains("@ints1=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@ints1=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
+
+        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
+
+    public override async Task Static_readonly_collection_List_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_List_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""",
+            //
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_FrozenSet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""",
+            //
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_ImmutableArray_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""",
+            //
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] NOT IN (10, 999)
+""");
+    }
+
+    public override Task Column_collection_of_ints_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_ints_Contains());
+
+    public override Task Column_collection_of_nullable_ints_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains());
+
+    public override Task Column_collection_of_nullable_ints_Contains_null()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains_null());
+
+    public override Task Column_collection_of_strings_contains_null()
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null());
+
+    public override Task Column_collection_of_nullable_strings_contains_null()
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null());
+
+    public override Task Column_collection_of_bools_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains());
 
     [ConditionalFact]
     public virtual async Task Json_representation_of_bool_array()
@@ -854,39 +1043,76 @@ WHERE (
                 .SingleAsync());
     }
 
-    public override Task Column_collection_Count_method(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Count_method(async));
-
-    public override Task Column_collection_Length(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Length(async));
-
-    public override Task Column_collection_Count_with_predicate(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Count_with_predicate(async));
-
-    public override Task Column_collection_Where_Count(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Count(async));
-
-    public override Task Column_collection_index_int(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_int(async));
-
-    public override Task Column_collection_index_string(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_string(async));
-
-    public override Task Column_collection_index_datetime(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_datetime(async));
-
-    public override Task Column_collection_index_beyond_end(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end(async));
-
-    public override Task Nullable_reference_column_collection_index_equals_nullable_column(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end(async));
-
-    public override Task Non_nullable_reference_column_collection_index_equals_nullable_column(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end(async));
-
-    public override async Task Inline_collection_index_Column(bool async)
+    public override async Task Contains_on_Enumerable()
     {
-        await base.Inline_collection_index_Column(async);
+        await base.Contains_on_Enumerable();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""");
+    }
+
+
+    public override async Task Contains_on_MemoryExtensions()
+    {
+        await base.Contains_on_MemoryExtensions();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
+    {
+        await base.Contains_with_MemoryExtensions_with_null_comparer();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (10, 999)
+""");
+    }
+
+    public override Task Column_collection_Count_method()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Count_method());
+
+    public override Task Column_collection_Length()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Length());
+
+    public override Task Column_collection_Count_with_predicate()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Count_with_predicate());
+
+    public override Task Column_collection_Where_Count()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Count());
+
+    public override Task Column_collection_index_int()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_int());
+
+    public override Task Column_collection_index_string()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_string());
+
+    public override Task Column_collection_index_datetime()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_datetime());
+
+    public override Task Column_collection_index_beyond_end()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end());
+
+    public override Task Nullable_reference_column_collection_index_equals_nullable_column()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end());
+
+    public override Task Non_nullable_reference_column_collection_index_equals_nullable_column()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end());
+
+    public override async Task Inline_collection_index_Column()
+    {
+        await base.Inline_collection_index_Column();
 
         AssertSql(
             """
@@ -900,9 +1126,25 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_value_index_Column(bool async)
+    public override async Task Inline_collection_index_Column_with_EF_Constant()
     {
-        await base.Inline_collection_value_index_Column(async);
+        await base.Inline_collection_index_Column_with_EF_Constant();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT [i].[Value]
+    FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [i]([_ord], [Value])
+    ORDER BY [i].[_ord]
+    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+""");
+    }
+
+    public override async Task Inline_collection_value_index_Column()
+    {
+        await base.Inline_collection_value_index_Column();
 
         AssertSql(
             """
@@ -916,9 +1158,9 @@ WHERE (
 """);
     }
 
-    public override async Task Inline_collection_List_value_index_Column(bool async)
+    public override async Task Inline_collection_List_value_index_Column()
     {
-        await base.Inline_collection_List_value_index_Column(async);
+        await base.Inline_collection_List_value_index_Column();
 
         AssertSql(
             """
@@ -932,9 +1174,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_index_Column_equal_Column(bool async)
+    public override async Task Parameter_collection_index_Column_equal_Column()
     {
-        await base.Parameter_collection_index_Column_equal_Column(async);
+        await base.Parameter_collection_index_Column_equal_Column();
 
         AssertSql(
             """
@@ -946,15 +1188,15 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT [i].[Value]
-    FROM (VALUES (1, @ints1), (2, @ints2), (3, @ints3)) AS [i]([_ord], [Value])
+    FROM (VALUES (0, @ints1), (1, @ints2), (2, @ints3)) AS [i]([_ord], [Value])
     ORDER BY [i].[_ord]
     OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = [p].[Int]
 """);
     }
 
-    public override async Task Parameter_collection_index_Column_equal_constant(bool async)
+    public override async Task Parameter_collection_index_Column_equal_constant()
     {
-        await base.Parameter_collection_index_Column_equal_constant(async);
+        await base.Parameter_collection_index_Column_equal_constant();
 
         AssertSql(
             """
@@ -966,72 +1208,72 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT [i].[Value]
-    FROM (VALUES (1, @ints1), (2, @ints2), (3, @ints3)) AS [i]([_ord], [Value])
+    FROM (VALUES (0, @ints1), (1, @ints2), (2, @ints3)) AS [i]([_ord], [Value])
     ORDER BY [i].[_ord]
     OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
 """);
     }
 
-    public override Task Column_collection_ElementAt(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_ElementAt(async));
+    public override Task Column_collection_ElementAt()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_ElementAt());
 
-    public override Task Column_collection_First(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_First(async));
+    public override Task Column_collection_First()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_First());
 
-    public override Task Column_collection_FirstOrDefault(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_FirstOrDefault(async));
+    public override Task Column_collection_FirstOrDefault()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_FirstOrDefault());
 
-    public override Task Column_collection_Single(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Single(async));
+    public override Task Column_collection_Single()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Single());
 
-    public override Task Column_collection_SingleOrDefault(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_SingleOrDefault(async));
+    public override Task Column_collection_SingleOrDefault()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_SingleOrDefault());
 
-    public override Task Column_collection_Skip(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip(async));
+    public override Task Column_collection_Skip()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip());
 
-    public override Task Column_collection_Take(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Take(async));
+    public override Task Column_collection_Take()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Take());
 
-    public override Task Column_collection_Skip_Take(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
+    public override Task Column_collection_Skip_Take()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take());
 
-    public override Task Column_collection_Where_Skip(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Skip(async));
+    public override Task Column_collection_Where_Skip()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Skip());
 
-    public override Task Column_collection_Where_Take(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Take(async));
+    public override Task Column_collection_Where_Take()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Take());
 
-    public override Task Column_collection_Where_Skip_Take(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Skip_Take(async));
+    public override Task Column_collection_Where_Skip_Take()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Skip_Take());
 
-    public override Task Column_collection_Contains_over_subquery(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
+    public override Task Column_collection_Contains_over_subquery()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take());
 
-    public override Task Column_collection_OrderByDescending_ElementAt(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt(async));
+    public override Task Column_collection_OrderByDescending_ElementAt()
+        => AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt());
 
-    public override Task Column_collection_Where_ElementAt(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Where_ElementAt(async));
+    public override Task Column_collection_Where_ElementAt()
+        => AssertTranslationFailed(() => base.Column_collection_Where_ElementAt());
 
-    public override Task Column_collection_Any(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any(async));
+    public override Task Column_collection_Any()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any());
 
-    public override Task Column_collection_Distinct(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Distinct(async));
+    public override Task Column_collection_Distinct()
+        => AssertTranslationFailed(() => base.Column_collection_Distinct());
 
-    public override Task Column_collection_SelectMany(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_SelectMany(async));
+    public override Task Column_collection_SelectMany()
+        => AssertTranslationFailed(() => base.Column_collection_SelectMany());
 
-    public override Task Column_collection_SelectMany_with_filter(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_filter(async));
+    public override Task Column_collection_SelectMany_with_filter()
+        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_filter());
 
-    public override Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_Select_to_anonymous_type(async));
+    public override Task Column_collection_SelectMany_with_Select_to_anonymous_type()
+        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_Select_to_anonymous_type());
 
-    public override async Task Column_collection_projection_from_top_level(bool async)
+    public override async Task Column_collection_projection_from_top_level()
     {
-        await base.Column_collection_projection_from_top_level(async);
+        await base.Column_collection_projection_from_top_level();
 
         AssertSql(
             """
@@ -1041,33 +1283,33 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override Task Column_collection_Join_parameter_collection(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Join_parameter_collection(async));
+    public override Task Column_collection_Join_parameter_collection()
+        => AssertTranslationFailed(() => base.Column_collection_Join_parameter_collection());
 
-    public override Task Inline_collection_Join_ordered_column_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection(async));
+    public override Task Inline_collection_Join_ordered_column_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection());
 
-    public override Task Parameter_collection_Concat_column_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
+    public override Task Parameter_collection_Concat_column_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection());
 
-    public override Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
+    public override Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection());
 
-    public override Task Column_collection_Union_parameter_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Union_parameter_collection(async));
+    public override Task Column_collection_Union_parameter_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Union_parameter_collection());
 
-    public override Task Column_collection_Intersect_inline_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Intersect_inline_collection(async));
+    public override Task Column_collection_Intersect_inline_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Intersect_inline_collection());
 
-    public override Task Inline_collection_Except_column_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection(async));
+    public override Task Inline_collection_Except_column_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection());
 
-    public override Task Column_collection_Where_Union(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection(async));
+    public override Task Column_collection_Where_Union()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection());
 
-    public override async Task Column_collection_equality_parameter_collection(bool async)
+    public override async Task Column_collection_equality_parameter_collection()
     {
-        await base.Column_collection_equality_parameter_collection(async);
+        await base.Column_collection_equality_parameter_collection();
 
         AssertSql(
             """
@@ -1079,16 +1321,16 @@ WHERE [p].[Ints] = @ints
 """);
     }
 
-    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
+    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection()
     {
-        await base.Column_collection_Concat_parameter_collection_equality_inline_collection(async);
+        await base.Column_collection_Concat_parameter_collection_equality_inline_collection();
 
         AssertSql();
     }
 
-    public override async Task Column_collection_equality_inline_collection(bool async)
+    public override async Task Column_collection_equality_inline_collection()
     {
-        await base.Column_collection_equality_inline_collection(async);
+        await base.Column_collection_equality_inline_collection();
 
         AssertSql(
             """
@@ -1098,37 +1340,37 @@ WHERE [p].[Ints] = N'[1,10]'
 """);
     }
 
-    public override async Task Column_collection_equality_inline_collection_with_parameters(bool async)
+    public override async Task Column_collection_equality_inline_collection_with_parameters()
     {
-        await base.Column_collection_equality_inline_collection_with_parameters(async);
+        await base.Column_collection_equality_inline_collection_with_parameters();
 
         AssertSql();
     }
 
-    public override async Task Column_collection_Where_equality_inline_collection(bool async)
+    public override async Task Column_collection_Where_equality_inline_collection()
     {
-        await base.Column_collection_Where_equality_inline_collection(async);
+        await base.Column_collection_Where_equality_inline_collection();
 
         AssertSql();
     }
 
-    public override Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(async));
+    public override Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query()
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query());
 
-    public override Task Parameter_collection_in_subquery_Union_column_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection(async));
+    public override Task Parameter_collection_in_subquery_Union_column_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection());
 
-    public override Task Parameter_collection_in_subquery_Union_column_collection_nested(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_nested(async));
+    public override Task Parameter_collection_in_subquery_Union_column_collection_nested()
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_nested());
 
     public override void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
         // Base implementation asserts that a different exception is thrown
     }
 
-    public override async Task Parameter_collection_in_subquery_Count_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Count_as_compiled_query()
     {
-        await base.Parameter_collection_in_subquery_Count_as_compiled_query(async);
+        await base.Parameter_collection_in_subquery_Count_as_compiled_query();
 
         AssertSql(
             """
@@ -1141,7 +1383,7 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT [i].[Value] AS [Value0]
-        FROM (VALUES (1, @ints1), (2, @ints2)) AS [i]([_ord], [Value])
+        FROM (VALUES (0, @ints1), (1, @ints2)) AS [i]([_ord], [Value])
         ORDER BY [i].[_ord]
         OFFSET 1 ROWS
     ) AS [i0]
@@ -1149,19 +1391,19 @@ WHERE (
 """);
     }
 
-    public override Task Column_collection_in_subquery_Union_parameter_collection(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_in_subquery_Union_parameter_collection(async));
+    public override Task Column_collection_in_subquery_Union_parameter_collection()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_in_subquery_Union_parameter_collection());
 
-    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query()
     {
-        await base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async);
+        await base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query();
 
         AssertSql();
     }
 
-    public override async Task Project_collection_of_ints_simple(bool async)
+    public override async Task Project_collection_of_ints_simple()
     {
-        await base.Project_collection_of_ints_simple(async);
+        await base.Project_collection_of_ints_simple();
 
         AssertSql(
             """
@@ -1171,17 +1413,17 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override Task Project_collection_of_ints_ordered(bool async)
+    public override Task Project_collection_of_ints_ordered()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_ints_ordered(async));
+        => AssertTranslationFailed(() => base.Project_collection_of_ints_ordered());
 
-    public override Task Project_collection_of_datetimes_filtered(bool async)
+    public override Task Project_collection_of_datetimes_filtered()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_datetimes_filtered(async));
+        => AssertTranslationFailed(() => base.Project_collection_of_datetimes_filtered());
 
-    public override async Task Project_collection_of_nullable_ints_with_paging(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging()
     {
-        await base.Project_collection_of_nullable_ints_with_paging(async);
+        await base.Project_collection_of_nullable_ints_with_paging();
 
         // client eval
         AssertSql(
@@ -1192,13 +1434,13 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override Task Project_collection_of_nullable_ints_with_paging2(bool async)
+    public override Task Project_collection_of_nullable_ints_with_paging2()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_nullable_ints_with_paging2(async));
+        => AssertTranslationFailed(() => base.Project_collection_of_nullable_ints_with_paging2());
 
-    public override async Task Project_collection_of_nullable_ints_with_paging3(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging3()
     {
-        await base.Project_collection_of_nullable_ints_with_paging3(async);
+        await base.Project_collection_of_nullable_ints_with_paging3();
 
         // client eval
         AssertSql(
@@ -1209,9 +1451,9 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override async Task Project_collection_of_ints_with_distinct(bool async)
+    public override async Task Project_collection_of_ints_with_distinct()
     {
-        await base.Project_collection_of_ints_with_distinct(async);
+        await base.Project_collection_of_ints_with_distinct();
 
         // client eval
         AssertSql(
@@ -1222,16 +1464,16 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override async Task Project_collection_of_nullable_ints_with_distinct(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_distinct()
     {
-        await base.Project_collection_of_nullable_ints_with_distinct(async);
+        await base.Project_collection_of_nullable_ints_with_distinct();
 
         AssertSql("");
     }
 
-    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault()
     {
-        await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(async);
+        await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault();
 
         AssertSql(
             """
@@ -1241,17 +1483,17 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override Task Project_multiple_collections(bool async)
+    public override Task Project_multiple_collections()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_multiple_collections(async));
+        => AssertTranslationFailed(() => base.Project_multiple_collections());
 
-    public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
+    public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async));
+        => AssertTranslationFailed(() => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls());
 
-    public override async Task Project_primitive_collections_element(bool async)
+    public override async Task Project_primitive_collections_element()
     {
-        await base.Project_primitive_collections_element(async);
+        await base.Project_primitive_collections_element();
 
         AssertSql(
             """
@@ -1262,9 +1504,9 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override async Task Project_inline_collection(bool async)
+    public override async Task Project_inline_collection()
     {
-        await base.Project_inline_collection(async);
+        await base.Project_inline_collection();
 
         AssertSql(
             """
@@ -1273,9 +1515,9 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 """);
     }
 
-    public override async Task Project_inline_collection_with_Union(bool async)
+    public override async Task Project_inline_collection_with_Union()
     {
-        await base.Project_inline_collection_with_Union(async);
+        await base.Project_inline_collection_with_Union();
 
         AssertSql(
             """
@@ -1292,16 +1534,16 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override async Task Project_inline_collection_with_Concat(bool async)
+    public override async Task Project_inline_collection_with_Concat()
     {
-        await base.Project_inline_collection_with_Concat(async);
+        await base.Project_inline_collection_with_Concat();
 
         AssertSql();
     }
 
-    public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
+    public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping()
     {
-        await base.Nested_contains_with_Lists_and_no_inferred_type_mapping(async);
+        await base.Nested_contains_with_Lists_and_no_inferred_type_mapping();
 
         AssertSql(
             """
@@ -1321,9 +1563,9 @@ END IN (@strings1, @strings2, @strings3)
 """);
     }
 
-    public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
+    public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping()
     {
-        await base.Nested_contains_with_arrays_and_no_inferred_type_mapping(async);
+        await base.Nested_contains_with_arrays_and_no_inferred_type_mapping();
 
         AssertSql(
             """
@@ -1343,9 +1585,9 @@ END IN (@strings1, @strings2, @strings3)
 """);
     }
 
-    public override async Task Parameter_collection_of_structs_Contains_struct(bool async)
+    public override async Task Parameter_collection_of_structs_Contains_struct()
     {
-        await base.Parameter_collection_of_structs_Contains_struct(async);
+        await base.Parameter_collection_of_structs_Contains_struct();
 
         AssertSql(
             """
@@ -1367,9 +1609,9 @@ WHERE [p].[WrappedId] NOT IN (@values1, @values2)
 """);
     }
 
-    public override async Task Parameter_collection_of_structs_Contains_nullable_struct(bool async)
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct()
     {
-        await base.Parameter_collection_of_structs_Contains_nullable_struct(async);
+        await base.Parameter_collection_of_structs_Contains_nullable_struct();
 
         AssertSql(
             """
@@ -1391,9 +1633,9 @@ WHERE [p].[NullableWrappedId] NOT IN (@values1, @values2) OR [p].[NullableWrappe
 """);
     }
 
-    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer()
     {
-        await base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer(async);
+        await base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer();
 
         AssertSql(
             """
@@ -1415,9 +1657,9 @@ WHERE [p].[NullableWrappedId] NOT IN (@values1, @values2) OR [p].[NullableWrappe
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_structs_Contains_struct(bool async)
+    public override async Task Parameter_collection_of_nullable_structs_Contains_struct()
     {
-        await base.Parameter_collection_of_nullable_structs_Contains_struct(async);
+        await base.Parameter_collection_of_nullable_structs_Contains_struct();
 
         AssertSql(
             """
@@ -1438,9 +1680,9 @@ WHERE [p].[WrappedId] NOT IN (@values1, @values2)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct(bool async)
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct()
     {
-        await base.Parameter_collection_of_nullable_structs_Contains_nullable_struct(async);
+        await base.Parameter_collection_of_nullable_structs_Contains_nullable_struct();
 
         AssertSql(
             """
@@ -1461,9 +1703,9 @@ WHERE [p].[NullableWrappedId] NOT IN (@values1, @values2) OR [p].[NullableWrappe
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(bool async)
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer()
     {
-        await base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer(async);
+        await base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer();
 
         AssertSql(
             """
@@ -1484,9 +1726,9 @@ WHERE [p].[NullableWrappedIdWithNullableComparer] NOT IN (@values1, @values2) OR
 """);
     }
 
-    public override async Task Values_of_enum_casted_to_underlying_value(bool async)
+    public override async Task Values_of_enum_casted_to_underlying_value()
     {
-        await base.Values_of_enum_casted_to_underlying_value(async);
+        await base.Values_of_enum_casted_to_underlying_value();
 
         AssertSql(
             """
@@ -1526,6 +1768,6 @@ WHERE (
 
         // Compatibility level 120 (SQL Server 2014) doesn't support OPENJSON
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(o => o.UseCompatibilityLevel(120));
+            => base.AddOptions(builder).UseSqlServerCompatibilityLevel(120);
     }
 }

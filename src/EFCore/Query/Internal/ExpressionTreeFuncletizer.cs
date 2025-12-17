@@ -3,7 +3,6 @@
 
 using System.Buffers;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using static System.Linq.Expressions.Expression;
 using ElementInit = System.Linq.Expressions.ElementInit;
@@ -69,7 +68,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     does need to get evaluated. This list contains <see cref="ParameterExpression" /> instances for that case, to allow
     ///     evaluatability.
     /// </summary>
-    private readonly HashSet<ParameterExpression> _evaluatableParameters = new();
+    private readonly HashSet<ParameterExpression> _evaluatableParameters = [];
 
     /// <summary>
     ///     A cache of tree fragments that have already been parameterized, along with their parameter. This allows us to reuse the same
@@ -80,7 +79,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     /// <summary>
     ///     A set of the names of parameters that have already been created. Used to ensure different parameters have unique names.
     /// </summary>
-    private readonly HashSet<string> _parameterNames = new();
+    private readonly HashSet<string> _parameterNames = [];
 
     /// <summary>
     ///     Used only when evaluating arbitrary QueryRootExpressions (specifically SqlQueryRootExpression), to force any evaluatable nested
@@ -250,7 +249,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     ExpressionType = state.ExpressionType!,
                     ParameterName = parameterName,
-                    Children = Array.Empty<PathNode>()
+                    Children = []
                 }
             };
         }
@@ -288,7 +287,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     ExpressionType = state.ExpressionType!,
                     ParameterName = parameterName,
-                    Children = Array.Empty<PathNode>()
+                    Children = []
                 }
             };
         }
@@ -479,7 +478,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                     if (rightState.ContainsEvaluatable)
                     {
-                        children ??= new List<PathNode>();
+                        children ??= [];
                         children.Add(rightState.Path! with { PathFromParent = static e => Property(e, nameof(BinaryExpression.Right)) });
                     }
                 }
@@ -560,21 +559,21 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     if (testState.ContainsEvaluatable)
                     {
-                        children ??= new List<PathNode>();
+                        children ??= [];
                         children.Add(
                             testState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.Test)) });
                     }
 
                     if (ifTrueState.ContainsEvaluatable)
                     {
-                        children ??= new List<PathNode>();
+                        children ??= [];
                         children.Add(
                             ifTrueState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.IfTrue)) });
                     }
 
                     if (ifFalseState.ContainsEvaluatable)
                     {
-                        children ??= new List<PathNode>();
+                        children ??= [];
                         children.Add(
                             ifFalseState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.IfFalse)) });
                     }
@@ -844,7 +843,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _state = State.CreateContainsEvaluatable(
                 typeof(LambdaExpression),
-                [_state.Path! with { PathFromParent = static e => Property(e, nameof(Expression<T>.Body)) }]);
+                [_state.Path! with { PathFromParent = static e => Property(e, nameof(Expression<>.Body)) }]);
         }
 
         _inLambda = oldInLambda;
@@ -939,7 +938,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                     if (!argumentState.IsEvaluatable)
                     {
-                        throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluatableArgument);
+                        throw new InvalidOperationException(CoreStrings.EFMethodWithNonEvaluatableArgument("EF.Constant<T>"));
                     }
 
                     // Even EF.Constant will be parameter here.
@@ -952,19 +951,15 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                 case nameof(EF.Parameter):
                 {
-                    var argument = Visit(methodCall.Arguments[0], out var argumentState);
-
-                    if (!argumentState.IsEvaluatable)
-                    {
-                        throw new InvalidOperationException(CoreStrings.EFParameterWithNonEvaluatableArgument);
-                    }
-
-                    argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
-                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
-                    _state = argumentState;
-                    return Call(method, evaluatedArgument);
+                    return HandleParameter(methodCall, "EF.Parameter<T>");
                 }
             }
+        }
+
+        // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
+        if (method is { Name: "MultipleParameters", DeclaringType.FullName: "Microsoft.EntityFrameworkCore.EFExtensions" })
+        {
+            return HandleParameter(methodCall, "EF.MultipleParameters<T>");
         }
 
         // .NET 10 made changes to overload resolution to prefer Span-based overloads when those exist ("first-class spans").
@@ -978,7 +973,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // it's null.
                 case nameof(MemoryExtensions.Contains)
                     when methodCall.Arguments is [var spanArg, var valueArg, ..]
-                    && (methodCall.Arguments.Count is 2 || methodCall.Arguments.Count is 3 && methodCall.Arguments[2] is ConstantExpression { Value: null })
+                    && (methodCall.Arguments.Count is 2
+                        || methodCall.Arguments.Count is 3 && methodCall.Arguments[2] is ConstantExpression { Value: null })
                     && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
                 {
                     return Visit(
@@ -999,20 +995,23 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
             {
-                if (expression is MethodCallExpression
+                switch (expression)
+                {
+                    case MethodCallExpression
                     {
                         Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
                         Arguments: [var unwrapped]
+                    } when implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                        && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)):
+                    {
+                        result = unwrapped;
+                        return true;
                     }
-                    && implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
-                    && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
-                {
-                    result = unwrapped;
-                    return true;
-                }
 
-                result = null;
-                return false;
+                    default:
+                        result = null;
+                        return false;
+                }
             }
         }
 
@@ -1116,6 +1115,21 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
 
         return methodCall.Update(@object, ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments);
+
+        Expression HandleParameter(MethodCallExpression methodCall, string methodName)
+        {
+            var argument = Visit(methodCall.Arguments[0], out var argumentState);
+
+            if (!argumentState.IsEvaluatable)
+            {
+                throw new InvalidOperationException(CoreStrings.EFMethodWithNonEvaluatableArgument(methodName));
+            }
+
+            argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
+            var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
+            _state = argumentState;
+            return Call(methodCall.Method, evaluatedArgument);
+        }
     }
 
     /// <summary>
@@ -1950,7 +1964,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     {
                         ExpressionType = state.ExpressionType!,
                         ParameterName = parameterName,
-                        Children = Array.Empty<PathNode>()
+                        Children = []
                     }
                 };
 
@@ -1977,8 +1991,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return _parameterizedValues[evaluatableRoot] = new QueryParameterExpression(
                 parameterName,
                 evaluatableRoot.Type,
-                shouldBeConstantized: false,
-                shouldNotBeConstantized: false,
+                translationMode: null,
                 isNonNullableReferenceType);
         }
 
@@ -2081,12 +2094,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 parameterName = parameterName.Substring("$VB$Local_".Length);
             }
 
-            // Uniquify the parameter name
-            var originalParameterName = parameterName;
-            for (var i = 0; _parameterNames.Contains(parameterName); i++)
-            {
-                parameterName = originalParameterName + i;
-            }
+            parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+
             _parameterNames.Add(parameterName);
         }
         else

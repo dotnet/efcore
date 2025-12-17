@@ -145,7 +145,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                     _relationalQueryContext.Connection,
                     _relationalQueryContext.Parameters,
                     null,
-                    null,
+                    _relationalQueryContext.Context,
                     null, CommandSource.LinqQuery),
                 Guid.Empty,
                 (DbCommandMethod)(-1));

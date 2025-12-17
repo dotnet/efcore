@@ -227,8 +227,31 @@ FROM [Blogs] AS [b]
     {
         await base.Update_complex_type_with_view_mapping(async);
 
-        // #34706
-        AssertSql();
+        AssertSql(
+            """
+@complex_type_p_Prop1='3' (Nullable = true)
+@complex_type_p_Prop2='4' (Nullable = true)
+
+UPDATE [b]
+SET [b].[ComplexThing_Prop1] = @complex_type_p_Prop1,
+    [b].[ComplexThing_Prop2] = @complex_type_p_Prop2
+FROM [Blogs] AS [b]
+""");
+
+    }
+
+    public override async Task Update_complex_type_property_with_view_mapping(bool async)
+    {
+        await base.Update_complex_type_property_with_view_mapping(async);
+
+        AssertSql(
+            """
+@p='6'
+
+UPDATE [b]
+SET [b].[ComplexThing_Prop1] = @p
+FROM [Blogs] AS [b]
+""");
     }
 
     private void AssertSql(params string[] expected)

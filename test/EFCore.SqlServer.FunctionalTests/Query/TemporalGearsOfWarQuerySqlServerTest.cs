@@ -62,8 +62,7 @@ FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 
     public override async Task Include_where_list_contains_navigation(bool async)
     {
-        await Assert.ThrowsAsync<EqualException>(
-            () => base.Include_where_list_contains_navigation(async));
+        await Assert.ThrowsAsync<EqualException>(() => base.Include_where_list_contains_navigation(async));
 
         AssertSql(
             """
@@ -81,8 +80,7 @@ WHERE 0 = 1
 
     public override async Task Include_where_list_contains_navigation2(bool async)
     {
-        await Assert.ThrowsAsync<EqualException>(
-            () => base.Include_where_list_contains_navigation2(async));
+        await Assert.ThrowsAsync<EqualException>(() => base.Include_where_list_contains_navigation2(async));
 
         AssertSql(
             """
@@ -101,8 +99,7 @@ WHERE 0 = 1
 
     public override async Task Navigation_accessed_twice_outside_and_inside_subquery(bool async)
     {
-        await Assert.ThrowsAsync<EqualException>(
-            () => base.Navigation_accessed_twice_outside_and_inside_subquery(async));
+        await Assert.ThrowsAsync<EqualException>(() => base.Navigation_accessed_twice_outside_and_inside_subquery(async));
 
         AssertSql(
             """
@@ -121,8 +118,8 @@ WHERE 0 = 1
     public override async Task Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(bool async)
     {
         // Test infra issue
-        await Assert.ThrowsAsync<EqualException>(
-            () => base.Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(async));
+        await Assert.ThrowsAsync<EqualException>(()
+            => base.Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(async));
 
         AssertSql(
             """
@@ -329,8 +326,7 @@ WHERE NOT EXISTS (
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Set_operation_on_temporal_same_ops(bool async)
     {
         using var ctx = CreateContext();
@@ -351,8 +347,7 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2015-01-01T00:00:00.0000000' AS [g0]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Set_operation_with_inheritance_on_temporal_same_ops(bool async)
     {
         using var ctx = CreateContext();
@@ -374,8 +369,7 @@ WHERE [g0].[Discriminator] = N'Officer'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Set_operation_on_temporal_different_dates(bool async)
     {
         using var ctx = CreateContext();
@@ -383,10 +377,9 @@ WHERE [g0].[Discriminator] = N'Officer'
         var date2 = new DateTime(2018, 1, 1);
         var query = ctx.Set<Gear>().TemporalAsOf(date1).Where(g => g.HasSoulPatch).Concat(ctx.Set<Gear>().TemporalAsOf(date2));
 
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => async
-                ? query.ToListAsync()
-                : Task.FromResult(query.ToList()))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => async
+            ? query.ToListAsync()
+            : Task.FromResult(query.ToList()))).Message;
 
         Assert.Equal(SqlServerStrings.TemporalSetOperationOnMismatchedSources(nameof(Gear)), message);
 
@@ -1721,6 +1714,60 @@ LEFT JOIN (
 """);
     }
 
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[Rating]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating]
+    FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating] + 2.0E0 AS [c]
+    FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([m0].[c], 0)
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Id] + 2 AS [c]
+    FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
     public override async Task Select_null_propagation_works_for_navigations_with_composite_keys(bool async)
     {
         await base.Select_null_propagation_works_for_navigations_with_composite_keys(async);
@@ -2920,11 +2967,12 @@ FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
 
         AssertSql(
             """
-@place='Ephyra's location' (Size = 4000), @place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@place='Ephyra's location' (Size = 4000)
+@place0='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation], [c].[PeriodEnd], [c].[PeriodStart]
 FROM [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c]
-WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place0
 """);
     }
 
@@ -5922,7 +5970,8 @@ WHERE [t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL
         AssertSql(
             """
 @cities1='Unknown' (Size = 100) (DbType = AnsiString)
-@cities2='Jacinto's location' (Size = 100) (DbType = AnsiString), @cities3='Ephyra's location' (Size = 100) (DbType = AnsiString)
+@cities2='Jacinto's location' (Size = 100) (DbType = AnsiString)
+@cities3='Ephyra's location' (Size = 100) (DbType = AnsiString)
 
 SELECT [c].[Name], [c].[Location], [c].[Nation], [c].[PeriodEnd], [c].[PeriodStart]
 FROM [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c]
@@ -6640,7 +6689,7 @@ WHERE [l].[Discriminator] = N'LocustCommander'
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[Discriminator], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[PeriodEnd], [s].[PeriodStart], [s].[Rank], [s].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[PeriodEnd], [w].[PeriodStart], [w].[SynergyWithId]
 FROM (
@@ -6653,7 +6702,7 @@ FROM (
         GROUP BY [g0].[HasSoulPatch]
     ) AS [g1] ON CAST(LEN([g].[Nickname]) AS int) = [g1].[c]
     ORDER BY [g].[Nickname]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [s]
 LEFT JOIN [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w] ON [s].[FullName] = [w].[OwnerFullName]
 ORDER BY [s].[Nickname], [s].[SquadId], [s].[HasSoulPatch0]
@@ -9054,7 +9103,8 @@ END IN (@numbers1, @numbers2)
 
         AssertSql(
             """
-@weapons1='Marcus' Lancer' (Size = 4000), @weapons2='Dom's Gnasher' (Size = 4000)
+@weapons1='Marcus' Lancer' (Size = 4000)
+@weapons2='Dom's Gnasher' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
@@ -9086,7 +9136,7 @@ LEFT JOIN (
     ) AS [w0]
     WHERE [w0].[row] <= ISNULL((
         SELECT [n].[Value]
-        FROM (VALUES (1, @numbers1), (2, @numbers2), (3, @numbers3)) AS [n]([_ord], [Value])
+        FROM (VALUES (@numbers1), (@numbers2), (@numbers3)) AS [n]([Value])
         ORDER BY [n].[Value]
         OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY), 0)
 ) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]

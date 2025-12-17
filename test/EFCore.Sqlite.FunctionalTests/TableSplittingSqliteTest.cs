@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class TableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper) : TableSplittingTestBase(fixture, testOutputHelper)
+public class TableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : TableSplittingTestBase(fixture, testOutputHelper)
 {
     public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
     {

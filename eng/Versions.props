@@ -1,51 +1,39 @@
 <Project>
+
+  <Import Project="Version.Details.props" />
+
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>10.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>7</PreReleaseVersionIteration>
+    <VersionPrefix>10.0.2</VersionPrefix>
+    <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration></PreReleaseVersionIteration>
+    <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
+    <DotNetFinalVersionKind></DotNetFinalVersionKind>
+
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
-    <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
-    <!--
-        When StabilizePackageVersion is set to 'true', this branch will produce stable outputs for 'Shipping' packages
-    -->
-    <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
-    <DotNetFinalVersionKind Condition="'$(StabilizePackageVersion)' == 'true'">release</DotNetFinalVersionKind>
     <DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
+
+    <!-- Arcade features -->
+    <UsingToolXliff>false</UsingToolXliff>
   </PropertyGroup>
-  <PropertyGroup Label="Arcade settings">
-    <UsingToolXliff>False</UsingToolXliff>
+  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(PreReleaseVersionLabel)' == 'servicing'">
+    <!-- Use the current stable builds for MSBuild and Roslyn packages, next version (non-servicing) will use the preview builds -->
+    <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.0.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>10.0.0-preview.7.25364.102</MicrosoftExtensionsLoggingVersion>
-    <MicrosoftNETCoreAppRefVersion>10.0.0-preview.7.25364.102</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCorePlatformsVersion>10.0.0-preview.7.25364.102</MicrosoftNETCorePlatformsVersion>
-    <SystemTextEncodingsWebVersion>10.0.0-preview.7.25364.102</SystemTextEncodingsWebVersion>
-    <SystemTextJsonVersion>10.0.0-preview.7.25364.102</SystemTextJsonVersion>
-    <SystemFormatsAsn1Version>10.0.0-preview.7.25364.102</SystemFormatsAsn1Version>
-    <SystemRuntimeCachingVersion>10.0.0-preview.7.25364.102</SystemRuntimeCachingVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>10.0.0-beta.25364.102</MicrosoftDotNetBuildTasksTemplatingVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Other dependencies">
-    <MicrosoftBuildFrameworkVersion>17.14.8</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.14.8</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>17.14.8</MicrosoftBuildTasksCoreVersion>
-    <!-- NB: This version affects Visual Studio compatibility. See https://github.com/dotnet/roslyn/blob/main/docs/wiki/NuGet-packages.md and https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
-    <MicrosoftCodeAnalysisVersion>4.14.0</MicrosoftCodeAnalysisVersion>
+  <PropertyGroup Label="Test dependencies">
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.24423.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.24352.1</MicrosoftCodeAnalysisCSharpTestingVersion>
-    <AzureIdentityVersion>1.14.0</AzureIdentityVersion>
+    <AzureIdentityVersion>1.14.2</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
-    <SQLitePCLRawVersion>2.1.11</SQLitePCLRawVersion>
+    <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Analyzers">
+    <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
+    <DotNetAnalyzersDocumentationAnalyzersVersion>1.0.0-beta.59</DotNetAnalyzersDocumentationAnalyzersVersion>
   </PropertyGroup>
 </Project>

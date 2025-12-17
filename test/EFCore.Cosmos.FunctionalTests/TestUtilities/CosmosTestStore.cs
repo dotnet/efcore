@@ -241,7 +241,7 @@ public class CosmosTestStore : TestStore
                                                     document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -293,8 +293,7 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput,
-                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -340,7 +339,7 @@ public class CosmosTestStore : TestStore
         {
             if (!created)
             {
-                await DeleteContainers(context).ConfigureAwait(false);
+                await DeleteContainersAsync(context).ConfigureAwait(false);
             }
 
             if (!TestEnvironment.UseTokenCredential)
@@ -402,14 +401,13 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
-                    Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
                 };
             }
 
             // TODO: see issue #35854
             // once Azure.ResourceManager.CosmosDB package supports vectors and FTS, those need to be added here
-            
+
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
         }
@@ -435,15 +433,15 @@ public class CosmosTestStore : TestStore
             mappedTypes.Add(entityType);
         }
 
+        var fullTextDefaultLanguage = model.GetDefaultFullTextSearchLanguage();
         foreach (var (containerName, mappedTypes) in containers)
         {
-            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
+            IReadOnlyList<string> partitionKeyStoreNames = [];
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
-            string? fullTextDefaultLanguage = null;
             var fullTextProperties = new List<(IProperty Property, string? Language)>();
 
             foreach (var entityType in mappedTypes)
@@ -456,7 +454,6 @@ public class CosmosTestStore : TestStore
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
-                fullTextDefaultLanguage ??= entityType.GetDefaultFullTextSearchLanguage();
 
                 ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
@@ -495,8 +492,8 @@ public class CosmosTestStore : TestStore
             }
 
             foreach (var ownedType in entityType.GetNavigations()
-                .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
-                .Select(x => x.TargetEntityType))
+                         .Where(x => x.ForeignKey.IsOwnership && !x.IsOnDependent && !x.TargetEntityType.IsDocumentRoot())
+                         .Select(x => x.TargetEntityType))
             {
                 ProcessEntityType(ownedType, indexes, vectors, fullTextProperties);
             }
@@ -511,7 +508,7 @@ public class CosmosTestStore : TestStore
             : [CosmosClientWrapper.DefaultPartitionKey];
     }
 
-    private async Task DeleteContainers(DbContext context)
+    private async Task DeleteContainersAsync(DbContext context)
     {
         if (!TestEnvironment.UseTokenCredential)
         {
@@ -654,12 +651,15 @@ public class CosmosTestStore : TestStore
 
         public bool IsConceptualNull(IProperty property)
             => throw new NotImplementedException();
+
+        public bool IsModified(IComplexProperty property)
+            => throw new NotImplementedException();
     }
 
     public class FakeEntityType : Annotatable, IEntityType
     {
-        public IEntityType BaseType
-            => throw new NotImplementedException();
+        public IEntityType? BaseType
+            => null;
 
         public string DefiningNavigationName
             => throw new NotImplementedException();
@@ -835,6 +835,9 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IProperty> GetProperties()
             => throw new NotImplementedException();
 
+        public IEnumerable<IProperty> GetFlattenedValueGeneratingProperties()
+            => throw new NotImplementedException();
+
         public PropertyAccessMode GetPropertyAccessMode()
             => throw new NotImplementedException();
 
@@ -850,16 +853,13 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IServiceProperty> GetServiceProperties()
             => throw new NotImplementedException();
 
-        public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+        public Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source)
             => throw new NotImplementedException();
 
-        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source)
             => throw new NotImplementedException();
 
         public IEnumerable<ISkipNavigation> GetSkipNavigations()
-            => throw new NotImplementedException();
-
-        public IEnumerable<IProperty> GetValueGeneratingProperties()
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
@@ -962,10 +962,10 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
-            => throw new NotImplementedException();
+            => [];
 
         IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
-            => throw new NotImplementedException();
+            => [];
 
         public IComplexProperty FindComplexProperty(string name)
             => throw new NotImplementedException();
@@ -1035,8 +1035,14 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes()
             => GetDirectlyDerivedTypes();
-        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters() => throw new NotImplementedException();
-        public LambdaExpression? GetQueryFilter() => throw new NotImplementedException();
-        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey) => throw new NotImplementedException();
+
+        IReadOnlyCollection<IQueryFilter> IReadOnlyEntityType.GetDeclaredQueryFilters()
+            => throw new NotImplementedException();
+
+        public LambdaExpression? GetQueryFilter()
+            => throw new NotImplementedException();
+
+        public IQueryFilter? FindDeclaredQueryFilter(string? filterKey)
+            => throw new NotImplementedException();
     }
 }

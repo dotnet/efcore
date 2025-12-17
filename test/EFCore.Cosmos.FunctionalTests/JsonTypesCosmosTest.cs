@@ -7,9 +7,8 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
 {
     public override Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-        => Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(
-                """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD\u002BOIEqL6JjHwarevQ==","/////////////////////w=="]}"""));
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(
+            """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD\u002BOIEqL6JjHwarevQ==","/////////////////////w=="]}"""));
 
     public override Task Can_read_write_array_of_list_of_binary_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
@@ -45,8 +44,8 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
 
     public override Task Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
-        => Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(expected));
+        => Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(expected));
 
     public override Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.

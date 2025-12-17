@@ -342,10 +342,11 @@ public static class PropertyBaseExtensions
         => propertyBase.DeclaringType switch
         {
             EntityType entityType
-            when entityType.GetServiceProperties().Any(p => typeof(ILazyLoader).IsAssignableFrom(p.ClrType))
+                when entityType.GetServiceProperties().Any(p => typeof(ILazyLoader).IsAssignableFrom(p.ClrType))
                 || entityType.ConstructorBinding?.ParameterBindings
                     .OfType<ServiceParameterBinding>()
-                    .Any(b => b.ServiceType == typeof(ILazyLoader)) == true
+                    .Any(b => b.ServiceType == typeof(ILazyLoader))
+                == true
                 => CoreStrings.NoBackingFieldLazyLoading(
                     propertyBase.Name, propertyBase.DeclaringType.DisplayName()),
             _ => CoreStrings.NoBackingField(

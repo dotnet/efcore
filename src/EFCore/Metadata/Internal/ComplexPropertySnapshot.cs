@@ -120,7 +120,9 @@ public class ComplexPropertySnapshot
             }
         }
 
-        return MergeConfiguration(complexPropertyBuilder);
+        return complexPropertyBuilder.Metadata.IsCollection == ComplexProperty.IsCollection
+            ? MergeConfiguration(complexPropertyBuilder)
+            : complexPropertyBuilder;
     }
 
     private InternalComplexPropertyBuilder MergeConfiguration(InternalComplexPropertyBuilder complexPropertyBuilder)
@@ -197,8 +199,7 @@ public class ComplexPropertySnapshot
 
     private static ParameterBinding Create(ParameterBinding parameterBinding, ComplexType complexType)
         => parameterBinding.With(
-            parameterBinding.ConsumedProperties.Select(
-                property =>
-                    (IPropertyBase?)complexType.FindProperty(property.Name)
-                    ?? complexType.FindComplexProperty(property.Name)!).ToArray());
+            parameterBinding.ConsumedProperties.Select(property =>
+                (IPropertyBase?)complexType.FindProperty(property.Name)
+                ?? complexType.FindComplexProperty(property.Name)!).ToArray());
 }

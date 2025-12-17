@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -97,7 +97,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <param name="property">The property that the key is defined on.</param>
     /// <returns>The key, or null if none is defined.</returns>
     new IKey? FindKey(IReadOnlyProperty property)
-        => FindKey(new[] { property });
+        => FindKey([property]);
 
     /// <summary>
     ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
@@ -178,7 +178,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <param name="property">The property to find the foreign keys on.</param>
     /// <returns>The foreign keys.</returns>
     new IEnumerable<IForeignKey> FindForeignKeys(IReadOnlyProperty property)
-        => FindForeignKeys(new[] { property });
+        => FindForeignKeys([property]);
 
     /// <summary>
     ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -204,7 +204,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
         IReadOnlyProperty property,
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
-        => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+        => FindForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Gets the foreign keys declared on the given <see cref="IEntityType" /> using the given properties.
@@ -395,7 +395,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     new IIndex? FindIndex(IReadOnlyProperty property)
-        => FindIndex(new[] { property });
+        => FindIndex([property]);
 
     /// <summary>
     ///     Gets all indexes declared on the given <see cref="IEntityType" />.
@@ -529,7 +529,8 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
             .SelectMany(t => t.GetDeclaredProperties());
 
     /// <summary>
-    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex types.
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on non-collection complex
+    ///     types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedPropertiesInHierarchy()
@@ -541,7 +542,8 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     ///     <see cref="EntityState.Added" /> state.
     /// </summary>
     /// <returns>The properties that need a value to be generated on add.</returns>
-    IEnumerable<IProperty> GetValueGeneratingProperties();
+    IEnumerable<IProperty> GetValueGeneratingProperties()
+        => GetProperties().Where(p => p.RequiresValueGenerator());
 
     /// <summary>
     ///     Gets the service property with a given name.
@@ -597,6 +599,13 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     ///     Returns the declared triggers on the entity type.
     /// </summary>
     new IEnumerable<ITrigger> GetDeclaredTriggers();
+
+    /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    new IEnumerable<ITrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? []).Concat(GetDeclaredTriggers());
 
     internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
         System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors

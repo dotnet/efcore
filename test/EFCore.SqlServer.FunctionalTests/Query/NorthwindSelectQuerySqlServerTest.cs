@@ -1371,10 +1371,10 @@ INNER JOIN (
 
         AssertSql(
             """
-@p0='3'
+@p1='3'
 @p='5'
 
-SELECT TOP(@p0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+SELECT TOP(@p1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -1474,10 +1474,9 @@ CROSS APPLY (
         SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
             bool async)
     {
-        await AssertUnableToTranslateEFProperty(
-            () => base
-                .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
-                    async));
+        await AssertUnableToTranslateEFProperty(() => base
+            .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                async));
 
         AssertSql();
     }
@@ -2252,8 +2251,8 @@ ORDER BY [o0].[OrderDate], [o0].[CustomerID]
         // Identifier set for Distinct. Issue #24440.
         Assert.Equal(
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
             .Message);
 
         AssertSql();

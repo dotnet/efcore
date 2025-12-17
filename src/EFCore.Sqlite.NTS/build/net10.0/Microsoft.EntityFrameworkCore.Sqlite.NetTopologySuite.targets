@@ -32,7 +32,10 @@
           Outputs="$(EFCoreSqliteNetTopologySuiteFile)">
     <ItemGroup>
       <EFCoreSqliteNetTopologySuiteServices Include="Microsoft.EntityFrameworkCore.Design.DesignTimeServicesReferenceAttribute">
-        <_Parameter1>Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteNetTopologySuiteDesignTimeServices, Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite</_Parameter1>
+        <_Parameter1>
+          Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteNetTopologySuiteDesignTimeServices,
+          Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite
+        </_Parameter1>
         <_Parameter2>Microsoft.EntityFrameworkCore.Sqlite</_Parameter2>
       </EFCoreSqliteNetTopologySuiteServices>
     </ItemGroup>

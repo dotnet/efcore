@@ -132,7 +132,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             return Visit(unaryExpression.Operand) is SqlExpression sqlExpression
                 ? Dependencies.SqlExpressionFactory.Function(
                     "length",
-                    new[] { sqlExpression },
+                    [sqlExpression],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(int))
@@ -152,9 +152,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             {
                 return Dependencies.SqlExpressionFactory.Function(
                     name: "ef_negate",
-                    new[] { sqlUnary.Operand },
+                    [sqlUnary.Operand],
                     nullable: true,
-                    new[] { true },
+                    [true],
                     visitedExpression.Type);
             }
 
@@ -228,7 +228,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             {
                 return Dependencies.SqlExpressionFactory.Function(
                     function,
-                    new[] { sqlBinary.Left, sqlBinary.Right },
+                    [sqlBinary.Left, sqlBinary.Right],
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseArrays[2],
                     visitedExpression.Type,
@@ -325,7 +325,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                         char s => IsLikeWildChar(s)
                             ? _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? LikeEscapeString + s  + "%" : '%' + LikeEscapeString + s),
+                                _sqlExpressionFactory.Constant(startsWith ? LikeEscapeString + s + "%" : '%' + LikeEscapeString + s),
                                 _sqlExpressionFactory.Constant(LikeEscapeString))
                             : _sqlExpressionFactory.Like(
                                 translatedInstance,
@@ -379,17 +379,16 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                                     _sqlExpressionFactory.Equal(
                                         _sqlExpressionFactory.Function(
                                             "substr",
-                                            new[]
-                                            {
+                                            [
                                                 translatedInstance,
                                                 _sqlExpressionFactory.Constant(1),
                                                 _sqlExpressionFactory.Function(
                                                     "length",
-                                                    new[] { translatedPattern },
+                                                    [translatedPattern],
                                                     nullable: true,
                                                     argumentsPropagateNullability: Statics.TrueArrays[1],
                                                     typeof(int))
-                                            },
+                                            ],
                                             nullable: true,
                                             argumentsPropagateNullability: [true, false, false],
                                             typeof(string),
@@ -413,17 +412,16 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                                         _sqlExpressionFactory.Equal(
                                             _sqlExpressionFactory.Function(
                                                 "substr",
-                                                new[]
-                                                {
+                                                [
                                                     translatedInstance,
                                                     _sqlExpressionFactory.Negate(
                                                         _sqlExpressionFactory.Function(
                                                             "length",
-                                                            new[] { translatedPattern },
+                                                            [translatedPattern],
                                                             nullable: true,
                                                             argumentsPropagateNullability: Statics.TrueArrays[1],
                                                             typeof(int)))
-                                                },
+                                                ],
                                                 nullable: true,
                                                 argumentsPropagateNullability: Statics.TrueArrays[2],
                                                 typeof(string),
@@ -458,7 +456,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
 
             string s => startsWith ? EscapeLikePattern(s) + '%' : '%' + EscapeLikePattern(s),
 
-            char s when IsLikeWildChar(s )=> startsWith ? LikeEscapeString + s + '%' : '%' + LikeEscapeString + s,
+            char s when IsLikeWildChar(s) => startsWith ? LikeEscapeString + s + '%' : '%' + LikeEscapeString + s,
 
             char s => startsWith ? s + "%" : "%" + s,
 
@@ -542,9 +540,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     {
         var actual = Dependencies.SqlExpressionFactory.Function(
             name: "ef_compare",
-            new[] { left, right },
+            [left, right],
             nullable: true,
-            new[] { true, true },
+            [true, true],
             typeof(int));
         var oracle = Dependencies.SqlExpressionFactory.Constant(value: 0);
 
@@ -587,26 +585,26 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         Expression DecimalArithmeticExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
             => Dependencies.SqlExpressionFactory.Function(
                 name,
-                new[] { left, right },
+                [left, right],
                 nullable: true,
-                new[] { true, true },
+                [true, true],
                 visitedExpression.Type);
 
         Expression DecimalDivisionExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
             => Dependencies.SqlExpressionFactory.Function(
                 name,
-                new[] { left, right },
+                [left, right],
                 nullable: true,
-                new[] { false, false },
+                [false, false],
                 visitedExpression.Type);
 
         Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)
         {
             var subtrahend = Dependencies.SqlExpressionFactory.Function(
                 "ef_negate",
-                new[] { right },
+                [right],
                 nullable: true,
-                new[] { true },
+                [true],
                 visitedExpression.Type);
 
             return DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, subtrahend);

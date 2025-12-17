@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -36,12 +35,6 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// </summary>
     new IConventionEntityType ContainingEntityType
         => (IConventionEntityType)this;
-
-    /// <summary>
-    ///     Gets this entity type or the closest collection property in the complex property chain.
-    /// </summary>
-    new IConventionTypeBase ContainingType
-        => this;
 
     /// <summary>
     ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
@@ -83,7 +76,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// </summary>
     /// <returns>The property that will be used for storing a discriminator value.</returns>
     new IConventionProperty? FindDiscriminatorProperty()
-        => (IConventionProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
+        => (IConventionProperty?)((IReadOnlyTypeBase)this).FindDiscriminatorProperty();
 
     /// <summary>
     ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.

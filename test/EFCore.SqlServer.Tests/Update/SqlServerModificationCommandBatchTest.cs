@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -12,10 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class SqlServerModificationCommandBatchTest
 {
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Deleted)]
-    [InlineData(EntityState.Modified)]
+    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Deleted), InlineData(EntityState.Modified)]
     public void AddCommand_returns_false_when_max_batch_size_is_reached(EntityState entityState)
     {
         var batch = CreateBatch(maxBatchSize: 1);
@@ -31,13 +29,8 @@ public class SqlServerModificationCommandBatchTest
         Assert.Same(firstCommand, Assert.Single(batch.ModificationCommands));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Deleted, true)]
-    [InlineData(EntityState.Deleted, false)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
+    [ConditionalTheory, InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true),
+     InlineData(EntityState.Deleted, false), InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false)]
     public void AddCommand_returns_false_when_max_parameters_are_reached(EntityState entityState, bool withSameTable)
     {
         var typeMapper = CreateTypeMappingSource();
@@ -74,9 +67,7 @@ public class SqlServerModificationCommandBatchTest
             };
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void AddCommand_when_max_parameters_are_reached_with_pending_commands(bool lastCommandPending)
     {
         var typeMapper = CreateTypeMappingSource();
@@ -155,7 +146,8 @@ public class SqlServerModificationCommandBatchTest
     private static SqlServerTypeMappingSource CreateTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<SqlServerSingletonOptions>());
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,

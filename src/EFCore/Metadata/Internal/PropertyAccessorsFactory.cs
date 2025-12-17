@@ -259,7 +259,7 @@ public class PropertyAccessorsFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo ContainsKeyMethod =
-        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey), [typeof(string)])!;
+        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<,>.ContainsKey), [typeof(string)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -273,26 +273,10 @@ public class PropertyAccessorsFactory
         Expression indicesExpression,
         MemberInfo memberInfo,
         bool fromDeclaringType,
-        bool fromEntity)
+        bool fromEntity,
+        bool addNullCheck = true)
     {
         Check.DebugAssert(!fromEntity || !fromDeclaringType, "fromEntity and fromDeclaringType can't both be true");
-
-        if (property?.IsIndexerProperty() == true)
-        {
-            Expression expression = Expression.MakeIndex(
-                instanceExpression, (PropertyInfo)memberInfo, [Expression.Constant(property.Name)]);
-
-            if (property.DeclaringType.IsPropertyBag)
-            {
-                expression = Expression.Condition(
-                    Expression.Call(
-                        instanceExpression, ContainsKeyMethod, [Expression.Constant(property.Name)]),
-                    expression,
-                    expression.Type.GetDefaultValueConstant());
-            }
-
-            return expression;
-        }
 
         if (!fromDeclaringType
             && property?.DeclaringType is IRuntimeComplexType complexType)
@@ -300,7 +284,8 @@ public class PropertyAccessorsFactory
             switch (complexType.ComplexProperty)
             {
                 case { IsCollection: true } complexProperty when fromEntity:
-                    instanceExpression = CreateComplexCollectionElementAccess(complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity);
+                    instanceExpression = CreateComplexCollectionElementAccess(
+                        complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity);
                     break;
                 case { IsCollection: false } complexProperty:
                     instanceExpression = CreateMemberAccess(
@@ -309,28 +294,51 @@ public class PropertyAccessorsFactory
                         indicesExpression,
                         complexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
                         fromDeclaringType,
-                        fromEntity);
+                        fromEntity,
+                        addNullCheck);
                     break;
                 default:
-                    return instanceExpression.MakeMemberAccess(memberInfo);
-            }
-
-            if (!instanceExpression.Type.IsValueType
-                || instanceExpression.Type.IsNullableValueType())
-            {
-                return Expression.Condition(
-                    Expression.Equal(instanceExpression, Expression.Constant(null)),
-                    Expression.Default(memberInfo.GetMemberType()),
-                    instanceExpression.MakeMemberAccess(memberInfo));
+                    addNullCheck = false;
+                    break;
             }
         }
+        else
+        {
+            addNullCheck = false;
+        }
 
-        return instanceExpression.MakeMemberAccess(memberInfo);
+        Expression? memberAccess;
+        if (property?.IsIndexerProperty() == true)
+        {
+            memberAccess = Expression.MakeIndex(
+                instanceExpression, (PropertyInfo)memberInfo, [Expression.Constant(property.Name)]);
+
+            if (property.DeclaringType.IsPropertyBag)
+            {
+                memberAccess = Expression.Condition(
+                    Expression.Call(
+                        instanceExpression, ContainsKeyMethod, Expression.Constant(property.Name)),
+                    memberAccess,
+                    memberAccess.Type.GetDefaultValueConstant());
+            }
+        }
+        else
+        {
+            memberAccess = instanceExpression.MakeMemberAccess(memberInfo);
+        }
+
+        return !addNullCheck
+            || instanceExpression.Type.IsValueType
+            && !instanceExpression.Type.IsNullableValueType()
+                ? memberAccess
+                : Expression.Condition(
+                    Expression.Equal(instanceExpression, Expression.Constant(null)),
+                    Expression.Default(memberInfo.GetMemberType()),
+                    memberAccess);
     }
 
     private static readonly MethodInfo ComplexCollectionNotInitializedMethod
         = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNotInitialized), BindingFlags.Static | BindingFlags.Public)!;
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -338,7 +346,8 @@ public class PropertyAccessorsFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly ConstructorInfo InvalidOperationConstructor = typeof(InvalidOperationException).GetConstructor([typeof(string)])!;
+    public static readonly ConstructorInfo
+        InvalidOperationConstructor = typeof(InvalidOperationException).GetConstructor([typeof(string)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

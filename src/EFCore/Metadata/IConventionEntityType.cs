@@ -236,7 +236,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created key.</returns>
     IConventionKey? AddKey(IConventionProperty property, bool fromDataAnnotation = false)
-        => AddKey(new[] { property }, fromDataAnnotation);
+        => AddKey([property], fromDataAnnotation);
 
     /// <summary>
     ///     Adds a new alternate key to this entity type.
@@ -261,7 +261,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="property">The property that the key is defined on.</param>
     /// <returns>The key, or null if none is defined.</returns>
     new IConventionKey? FindKey(IReadOnlyProperty property)
-        => FindKey(new[] { property });
+        => FindKey([property]);
 
     /// <summary>
     ///     Gets all keys declared on the given <see cref="IReadOnlyEntityType" />.
@@ -312,7 +312,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
         IConventionKey principalKey,
         IConventionEntityType principalEntityType,
         bool fromDataAnnotation = false)
-        => AddForeignKey(new[] { property }, principalKey, principalEntityType, fromDataAnnotation);
+        => AddForeignKey([property], principalKey, principalEntityType, fromDataAnnotation);
 
     /// <summary>
     ///     Adds a new relationship to this entity type.
@@ -360,7 +360,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="property">The property to find the foreign keys on.</param>
     /// <returns>The foreign keys.</returns>
     new IEnumerable<IConventionForeignKey> FindForeignKeys(IReadOnlyProperty property)
-        => FindForeignKeys(new[] { property });
+        => FindForeignKeys([property]);
 
     /// <summary>
     ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -387,7 +387,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
         IReadOnlyProperty property,
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
-        => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+        => FindForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Gets the foreign keys declared on this entity type using the given properties.
@@ -622,7 +622,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created index.</returns>
     IConventionIndex? AddIndex(IConventionProperty property, bool fromDataAnnotation = false)
-        => AddIndex(new[] { property }, fromDataAnnotation);
+        => AddIndex([property], fromDataAnnotation);
 
     /// <summary>
     ///     Adds an unnamed index to this entity type.
@@ -643,7 +643,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
         IConventionProperty property,
         string name,
         bool fromDataAnnotation = false)
-        => AddIndex(new[] { property }, name, fromDataAnnotation);
+        => AddIndex([property], name, fromDataAnnotation);
 
     /// <summary>
     ///     Adds a named index to this entity type.
@@ -666,7 +666,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     new IConventionIndex? FindIndex(IReadOnlyProperty property)
-        => FindIndex(new[] { property });
+        => FindIndex([property]);
 
     /// <summary>
     ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no index is defined.
@@ -802,6 +802,13 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     ///     Returns the declared triggers on the entity type.
     /// </summary>
     new IEnumerable<IConventionTrigger> GetDeclaredTriggers();
+
+    /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    new IEnumerable<IConventionTrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? []).Concat(GetDeclaredTriggers());
 
     /// <summary>
     ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same

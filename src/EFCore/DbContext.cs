@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -80,11 +79,10 @@ public class DbContext :
     ///     for more information and examples.
     /// </remarks>
     [RequiresUnreferencedCode(
-        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
-        + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
-        + "more details.")]
-    [RequiresDynamicCode(
-        "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
+         "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
+         + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
+         + "more details."), RequiresDynamicCode(
+         "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
     protected DbContext()
         : this(new DbContextOptions<DbContext>())
     {
@@ -101,11 +99,10 @@ public class DbContext :
     /// </remarks>
     /// <param name="options">The options for this context.</param>
     [RequiresUnreferencedCode(
-        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
-        + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
-        + "more details.")]
-    [RequiresDynamicCode(
-        "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
+         "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
+         + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
+         + "more details."), RequiresDynamicCode(
+         "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
     public DbContext(DbContextOptions options)
     {
         Check.NotNull(options);

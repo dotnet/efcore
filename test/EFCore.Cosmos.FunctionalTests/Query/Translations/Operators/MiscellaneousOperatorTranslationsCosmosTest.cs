@@ -12,33 +12,29 @@ public class MiscellaneousOperatorTranslationsSqlServerTest : MiscellaneousOpera
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Conditional(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Conditional(a);
+    public override async Task Conditional()
+    {
+        await base.Conditional();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["Int"] = 8) ? c["String"] : "Foo") = "Seattle")
 """);
-            });
+    }
 
-    public override Task Coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Coalesce(a);
+    public override async Task Coalesce()
+    {
+        await base.Coalesce();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (((c["String"] != null) ? c["String"] : "Unknown") = "Seattle")
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

@@ -35,13 +35,13 @@ public class RelationalCommandCache : IPrintableExpression
         IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
         Expression queryExpression,
         bool useRelationalNulls,
-        ParameterizedCollectionMode parameterizedCollectionMode)
+        ParameterTranslationMode collectionParameterTranslationMode)
     {
         _memoryCache = memoryCache;
         _querySqlGeneratorFactory = querySqlGeneratorFactory;
         _queryExpression = queryExpression;
         _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(
-            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls, parameterizedCollectionMode));
+            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls, collectionParameterTranslationMode));
     }
 
     /// <summary>
@@ -119,8 +119,7 @@ public class RelationalCommandCache : IPrintableExpression
             {
                 _parameterInfos[key] = new ParameterInfo
                 {
-                    IsNull = value is null,
-                    ObjectArrayLength = value is object[] arr ? arr.Length : null
+                    IsNull = value is null, ObjectArrayLength = value is object[] arr ? arr.Length : null
                 };
             }
         }

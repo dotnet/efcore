@@ -15,8 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public abstract class ServiceParameterBinding : ParameterBinding
 {
-    private Func<MaterializationContext, IEntityType, object, object>? _serviceDelegate;
-
     /// <summary>
     ///     Creates a new <see cref="ServiceParameterBinding" /> instance for the given service type
     ///     or metadata type.
@@ -73,9 +71,10 @@ public abstract class ServiceParameterBinding : ParameterBinding
     /// <summary>
     ///     A delegate to set a CLR service property on an entity instance.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _serviceDelegate, this, static b =>
+            ref field, this, static b =>
             {
                 var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
                 var entityTypeParam = Expression.Parameter(typeof(IEntityType));

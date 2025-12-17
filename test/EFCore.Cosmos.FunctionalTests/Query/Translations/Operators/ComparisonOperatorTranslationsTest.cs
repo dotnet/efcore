@@ -12,89 +12,77 @@ public class ComparisonOperatorTranslationsCosmosTest : ComparisonOperatorTransl
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Equal(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Equal(a);
+    public override async Task Equal()
+    {
+        await base.Equal();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Int"] = 8)
 """);
-            });
+    }
 
-    public override Task NotEqual(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.NotEqual(a);
+    public override async Task NotEqual()
+    {
+        await base.NotEqual();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Int"] != 8)
 """);
-            });
+    }
 
-    public override Task GreaterThan(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.GreaterThan(a);
+    public override async Task GreaterThan()
+    {
+        await base.GreaterThan();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Int"] > 8)
 """);
-            });
+    }
 
-    public override Task GreaterThanOrEqual(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.GreaterThanOrEqual(a);
+    public override async Task GreaterThanOrEqual()
+    {
+        await base.GreaterThanOrEqual();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Int"] >= 8)
 """);
-            });
+    }
 
-    public override Task LessThan(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.LessThan(a);
+    public override async Task LessThan()
+    {
+        await base.LessThan();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Int"] < 8)
 """);
-            });
+    }
 
-    public override Task LessThanOrEqual(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.LessThanOrEqual(a);
+    public override async Task LessThanOrEqual()
+    {
+        await base.LessThanOrEqual();
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["Int"] <= 8)
 """);
-            });
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

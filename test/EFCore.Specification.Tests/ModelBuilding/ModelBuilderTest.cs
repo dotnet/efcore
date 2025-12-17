@@ -205,7 +205,8 @@ public abstract partial class ModelBuilderTest
             where TProperty : IEnumerable<TElement>
             where TElement : notnull;
 
-        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName,
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
             string complexTypeName)
             where TProperty : IEnumerable<TElement>
             where TElement : notnull;
@@ -487,17 +488,17 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexCollectionBuilder<TComplex> HasTypeAnnotation(string annotation, object? value);
         public abstract TestComplexCollectionBuilder<TComplex> HasPropertyAnnotation(string annotation, object? value);
 
-        public abstract TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression);
 
-        public abstract TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName);
 
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression);
 
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName);
 
-        public abstract TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
             where TProperty : notnull;
@@ -574,6 +575,7 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TComplex, object?>> propertyExpression);
 
         public abstract TestComplexCollectionBuilder<TComplex> Ignore(string propertyName);
+        public abstract TestComplexCollectionBuilder<TComplex> IsRequired(bool isRequired = true);
         public abstract TestComplexCollectionBuilder<TComplex> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
         public abstract TestComplexCollectionBuilder<TComplex> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         public abstract TestComplexCollectionBuilder<TComplex> UseDefaultPropertyAccessMode(PropertyAccessMode propertyAccessMode);
@@ -860,6 +862,80 @@ public abstract partial class ModelBuilderTest
             where TComparer : ValueComparer;
 
         public abstract TestComplexTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
+            where TComparer : ValueComparer
+            where TProviderComparer : ValueComparer;
+    }
+
+    public abstract class TestComplexCollectionTypePropertyBuilder<TProperty>
+    {
+        public abstract IMutableProperty Metadata { get; }
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IsRequired(bool isRequired = true);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasSentinel(TProperty? sentinel);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IsUnicode(bool unicode = true);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+            where TGenerator : ValueGenerator;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+            where TFactory : ValueGeneratorFactory;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasField(string fieldName);
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>();
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter,
+            ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+            where TComparer : ValueComparer;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
             where TComparer : ValueComparer
             where TProviderComparer : ValueComparer;
     }

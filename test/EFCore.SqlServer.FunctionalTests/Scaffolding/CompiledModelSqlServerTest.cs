@@ -22,57 +22,53 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             .UseCollation("Latin1_General_CS_AS")
             .UseIdentityColumns(3, 2);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            if (!jsonColumns)
             {
-                if (!jsonColumns)
+                eb.Property(e => e.Id).UseIdentityColumn(2, 3).ValueGeneratedOnAdd();
+            }
+
+            eb.HasKey(e => new { e.Id, e.AlternateId })
+                .IsClustered();
+
+            eb.OwnsOne(
+                e => e.Owned, ob =>
                 {
-                    eb.Property(e => e.Id).UseIdentityColumn(2, 3).ValueGeneratedOnAdd();
-                }
+                    ob.Property(e => e.Details)
+                        .IsSparse()
+                        .UseCollation("Latin1_General_CI_AI");
 
-                eb.HasKey(e => new { e.Id, e.AlternateId })
-                    .IsClustered();
-
-                eb.OwnsOne(
-                    e => e.Owned, ob =>
+                    if (!jsonColumns)
                     {
-                        ob.Property(e => e.Details)
-                            .IsSparse()
-                            .UseCollation("Latin1_General_CI_AI");
+                        ob.ToTable(
+                            "PrincipalBase", "mySchema",
+                            t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
+                    }
+                });
+        });
 
-                        if (!jsonColumns)
-                        {
-                            ob.ToTable(
-                                "PrincipalBase", "mySchema",
-                                t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
-                        }
-                    });
-            });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb =>
+        {
+            eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
+                .UsingEntity(jb =>
+                {
+                    jb.ToTable(tb => tb.IsMemoryOptimized());
+                });
+        });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb =>
-            {
-                eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
-                    .UsingEntity(
-                        jb =>
-                        {
-                            jb.ToTable(tb => tb.IsMemoryOptimized());
-                        });
-            });
-
-        modelBuilder.Entity<ManyTypes>(
-            eb =>
-            {
-                eb.Property(m => m.CharToStringConverterProperty)
-                    .IsFixedLength();
-            });
+        modelBuilder.Entity<ManyTypes>(eb =>
+        {
+            eb.Property(m => m.CharToStringConverterProperty)
+                .IsFixedLength();
+        });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
     {
         base.AssertBigModel(model, jsonColumns);
         Assert.Equal(
-            new[] { RelationalAnnotationNames.MaxIdentifierLength, SqlServerAnnotationNames.ValueGenerationStrategy },
+            [RelationalAnnotationNames.MaxIdentifierLength, SqlServerAnnotationNames.ValueGenerationStrategy],
             model.GetAnnotations().Select(a => a.Name));
         Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetValueGenerationStrategy());
         Assert.Equal(
@@ -93,14 +89,14 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         if (jsonColumns)
         {
             Assert.Equal(
-                new[] { SqlServerAnnotationNames.ValueGenerationStrategy },
+                [SqlServerAnnotationNames.ValueGenerationStrategy],
                 principalId.GetAnnotations().Select(a => a.Name));
             Assert.Equal(SqlServerValueGenerationStrategy.None, principalId.GetValueGenerationStrategy());
         }
         else
         {
             Assert.Equal(
-                new[] { RelationalAnnotationNames.RelationalOverrides, SqlServerAnnotationNames.ValueGenerationStrategy },
+                [RelationalAnnotationNames.RelationalOverrides, SqlServerAnnotationNames.ValueGenerationStrategy],
                 principalId.GetAnnotations().Select(a => a.Name));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, principalId.GetValueGenerationStrategy());
         }
@@ -182,8 +178,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         var dependentMoney = dependentDerived.GetDeclaredProperties().Last();
         Assert.Equal("decimal(9,3)", dependentMoney.GetColumnType());
         Assert.Equal(
-            new[]
-            {
+            [
                 dependentBase,
                 dependentDerived,
                 manyTypesType,
@@ -192,7 +187,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 principalDerived,
                 collectionOwnedType,
                 joinType
-            },
+            ],
             model.GetEntityTypes());
     }
 
@@ -208,20 +203,19 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             .HasPerformanceLevel("High")
             .HasServiceTier("AB");
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.ToTable("PrincipalBase");
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.ToTable("PrincipalBase");
 
-                eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
-                    .IsUnique()
-                    .IsClustered()
-                    .IsCreatedOnline()
-                    .HasFillFactor(40)
-                    .IncludeProperties(e => e.Id)
-                    .SortInTempDb()
-                    .UseDataCompression(DataCompressionType.Page);
-            });
+            eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
+                .IsUnique()
+                .IsClustered()
+                .IsCreatedOnline()
+                .HasFillFactor(40)
+                .IncludeProperties(e => e.Id)
+                .SortInTempDb()
+                .UseDataCompression(DataCompressionType.Page);
+        });
     }
 
     protected override void AssertTpcSprocs(IModel model)
@@ -281,26 +275,25 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(() => alternateIndex.GetDataCompression()).Message);
 
-        Assert.Equal(new[] { alternateIndex }, principalBaseId.GetContainingIndexes());
+        Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         base.BuildComplexTypesModel(modelBuilder);
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.ComplexProperty(
-                    e => e.Owned, eb =>
-                    {
-                        eb.Ignore(c => c.Context);
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.ComplexProperty(
+                e => e.Owned, eb =>
+                {
+                    eb.Ignore(c => c.Context);
 
-                        eb.Property(c => c.Details)
-                            .IsSparse()
-                            .UseCollation("Latin1_General_CI_AI");
-                    });
-            });
+                    eb.Property(c => c.Details)
+                        .IsSparse()
+                        .UseCollation("Latin1_General_CI_AI");
+                });
+        });
     }
 
     protected override void AssertComplexTypes(IModel model)
@@ -312,8 +305,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         var complexType = complexProperty.ComplexType;
         var detailsProperty = complexType.FindProperty(nameof(OwnedType.Details))!;
         Assert.Equal(
-            new[]
-            {
+            [
                 CoreAnnotationNames.MaxLength,
                 CoreAnnotationNames.Precision,
                 RelationalAnnotationNames.ColumnName,
@@ -322,7 +314,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 SqlServerAnnotationNames.ValueGenerationStrategy,
                 CoreAnnotationNames.Unicode,
                 "foo"
-            },
+            ],
             detailsProperty.GetAnnotations().Select(a => a.Name));
 
         var dbFunction = model.FindDbFunction("PrincipalBaseTvf")!;
@@ -345,12 +337,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         => Test(
             modelBuilder =>
             {
-                modelBuilder.Entity<Data>(
-                    eb =>
-                    {
-                        eb.Property<int>("Id").UseHiLo("HL", "S");
-                        eb.HasKey("Id");
-                    });
+                modelBuilder.Entity<Data>(eb =>
+                {
+                    eb.Property<int>("Id").UseHiLo("HL", "S");
+                    eb.HasKey("Id");
+                });
             },
             model =>
             {
@@ -375,12 +366,11 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     [ConditionalFact]
     public virtual Task Key_sequence()
         => Test(
-            modelBuilder => modelBuilder.Entity<Data>(
-                eb =>
-                {
-                    eb.Property<int>("Id").UseSequence("KeySeq", "KeySeqSchema");
-                    eb.HasKey("Id");
-                }),
+            modelBuilder => modelBuilder.Entity<Data>(eb =>
+            {
+                eb.Property<int>("Id").UseSequence("KeySeq", "KeySeqSchema");
+                eb.HasKey("Id");
+            }),
             model =>
             {
                 Assert.Single(model.GetSequences());
@@ -401,19 +391,17 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.Same(keySequence, dataEntity!.FindPrimaryKey()!.Properties.Single().FindSequence());
             });
 
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual Task SpatialTypesTest()
         => Test(
-            modelBuilder => modelBuilder.Entity<SpatialTypes>(
-                eb =>
-                {
-                    eb.Property<Point>("Point")
-                        .HasColumnType("geometry")
-                        .HasDefaultValue(
-                            NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                        .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-                }),
+            modelBuilder => modelBuilder.Entity<SpatialTypes>(eb =>
+            {
+                eb.Property<Point>("Point")
+                    .HasColumnType("geometry")
+                    .HasDefaultValue(
+                        NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+                    .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
+            }),
             model =>
             {
                 var entityType = model.FindEntityType(typeof(SpatialTypes))!;

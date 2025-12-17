@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -132,7 +131,8 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetMaterializationSetter<TEntity, TStructural, TValue>(
-        Action<TEntity, IReadOnlyList<int>, TValue> setClrValueUsingContainingEntity, Func<TStructural, TValue, TStructural> setClrValue)
+        Action<TEntity, IReadOnlyList<int>, TValue> setClrValueUsingContainingEntity,
+        Func<TStructural, TValue, TStructural> setClrValue)
         where TEntity : class
         => _materializationSetter = new ClrPropertySetter<TEntity, TStructural, TValue>(setClrValueUsingContainingEntity, setClrValue);
 
@@ -183,7 +183,8 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetSetter<TEntity, TStructural, TValue>(
-        Action<TEntity, IReadOnlyList<int>, TValue> setClrValueUsingContainingEntity, Func<TStructural, TValue, TStructural> setClrValue)
+        Action<TEntity, IReadOnlyList<int>, TValue> setClrValueUsingContainingEntity,
+        Func<TStructural, TValue, TStructural> setClrValue)
         where TEntity : class
         => _setter = new ClrPropertySetter<TEntity, TStructural, TValue>(setClrValueUsingContainingEntity, setClrValue);
 
@@ -298,9 +299,9 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
         => IsCollection
             ? NonCapturingLazyInitializer.EnsureInitialized(
                 ref _clrIndexedCollectionAccessor, this, static property =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? ClrIndexedCollectionAccessorFactory.Instance.Create(property)!
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel))
+                    RuntimeFeature.IsDynamicCodeSupported
+                        ? ClrIndexedCollectionAccessorFactory.Instance.Create(property)!
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel))
             : throw new InvalidOperationException(
                 CoreStrings.PropertyIsNotACollection(DeclaringType.Name, Name));
 

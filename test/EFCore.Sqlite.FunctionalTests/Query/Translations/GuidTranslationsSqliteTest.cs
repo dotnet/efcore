@@ -12,9 +12,9 @@ public class GuidTranslationsSqliteTest : GuidTranslationsTestBase<BasicTypesQue
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task New_with_constant(bool async)
+    public override async Task New_with_constant()
     {
-        await base.New_with_constant(async);
+        await base.New_with_constant();
 
         AssertSql(
             """
@@ -24,9 +24,9 @@ WHERE "b"."Guid" = 'DF36F493-463F-4123-83F9-6B135DEEB7BA'
 """);
     }
 
-    public override async Task New_with_parameter(bool async)
+    public override async Task New_with_parameter()
     {
-        await base.New_with_parameter(async);
+        await base.New_with_parameter();
 
         AssertSql(
             """
@@ -38,9 +38,9 @@ WHERE "b"."Guid" = @p
 """);
     }
 
-    public override async Task ToString_projection(bool async)
+    public override async Task ToString_projection()
     {
-        await base.ToString_projection(async);
+        await base.ToString_projection();
 
         AssertSql(
             """
@@ -49,8 +49,8 @@ FROM "BasicTypesEntities" AS "b"
 """);
     }
 
-    public override Task NewGuid(bool async)
-        => AssertTranslationFailed(() => base.NewGuid(async));
+    public override Task NewGuid()
+        => AssertTranslationFailed(() => base.NewGuid());
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

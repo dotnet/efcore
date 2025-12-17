@@ -71,22 +71,22 @@ public class SqlServerMathTranslator : IMethodCallTranslator
 
     // Note: Math.Max/Min are handled in RelationalSqlTranslatingExpressionVisitor
 
-    private static readonly IEnumerable<MethodInfo> TruncateMethodInfos = new[]
-    {
+    private static readonly IEnumerable<MethodInfo> TruncateMethodInfos =
+    [
         typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), [typeof(decimal)])!,
         typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), [typeof(double)])!,
         typeof(MathF).GetRuntimeMethod(nameof(MathF.Truncate), [typeof(float)])!
-    };
+    ];
 
-    private static readonly IEnumerable<MethodInfo> RoundMethodInfos = new[]
-    {
+    private static readonly IEnumerable<MethodInfo> RoundMethodInfos =
+    [
         typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(decimal)])!,
         typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(double)])!,
         typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(decimal), typeof(int)])!,
         typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(double), typeof(int)])!,
         typeof(MathF).GetRuntimeMethod(nameof(MathF.Round), [typeof(float)])!,
         typeof(MathF).GetRuntimeMethod(nameof(MathF.Round), [typeof(float), typeof(int)])!
-    };
+    ];
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -147,7 +147,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
 
             var result = _sqlExpressionFactory.Function(
                 "ROUND",
-                new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
+                [argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1)],
                 nullable: true,
                 argumentsPropagateNullability: [true, false, false],
                 resultType);
@@ -174,7 +174,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
 
             var result = _sqlExpressionFactory.Function(
                 "ROUND",
-                new[] { argument, digits },
+                [argument, digits],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
                 resultType);

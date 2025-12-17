@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -19,13 +20,14 @@ public class CSharpMigrationOperationGeneratorTest
                 new CSharpHelper(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<SqlServerSingletonOptions>()))));
 
         var builder = new IndentedStringBuilder();
 
         generator.Generate(
             "mb",
-            new[] { new SqlOperation { Sql = "-- Don't stand so" }, new SqlOperation { Sql = "-- close to me" } },
+            [new SqlOperation { Sql = "-- Don't stand so" }, new SqlOperation { Sql = "-- close to me" }],
             builder);
 
         Assert.Equal(
@@ -2323,6 +2325,32 @@ mb.RestartSequence(
             "mb.Sql(\"-- I <3 DDL\");",
             o => Assert.Equal("-- I <3 DDL", o.Sql));
 
+    [ConditionalFact]
+    public void SqlOperation_suppressTransaction_true()
+        => Test(
+            new SqlOperation
+            {
+                Sql = "ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;",
+                SuppressTransaction = true
+            },
+            "mb.Sql(\"ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;\", suppressTransaction: true);",
+            o =>
+            {
+                Assert.Equal("ALTER DATABASE SCOPED CONFIGURATION CLEAR PROCEDURE_CACHE;", o.Sql);
+                Assert.True(o.SuppressTransaction);
+            });
+
+    [ConditionalFact]
+    public void SqlOperation_suppressTransaction_false_omits_argument()
+        => Test(
+            new SqlOperation { Sql = "SELECT 1" },
+            "mb.Sql(\"SELECT 1\");",
+            o =>
+            {
+                Assert.Equal("SELECT 1", o.Sql);
+                Assert.False(o.SuppressTransaction);
+            });
+
     private static readonly LineString _lineString1 = new(
         [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
 
@@ -3146,13 +3174,11 @@ mb.AlterTable(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         new RelationalTypeMappingSourceDependencies(
-                            new IRelationalTypeMappingSourcePlugin[]
-                            {
-                                new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                            })))));
+                            [new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)]),
+                        new SqlServerSingletonOptions()))));
 
         var builder = new IndentedStringBuilder();
-        generator.Generate("mb", new[] { operation }, builder);
+        generator.Generate("mb", [operation], builder);
         var code = builder.ToString();
 
         Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);

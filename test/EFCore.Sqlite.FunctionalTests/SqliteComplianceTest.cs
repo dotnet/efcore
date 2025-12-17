@@ -1,9 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.Relationships.JsonOwnedNavigations;
-using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedNavigations;
-using Microsoft.EntityFrameworkCore.Query.Relationships.OwnedTableSplitting;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
+using Microsoft.EntityFrameworkCore.Query.Associations.OwnedTableSplitting;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -23,7 +23,7 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         // (Stop generating composite keys for owned collections on SQLite)
         typeof(OwnedNavigationsProjectionTestBase<>),
         typeof(OwnedNavigationsProjectionRelationalTestBase<>),
-        typeof(JsonOwnedNavigationsProjectionRelationalTestBase<>),
+        typeof(OwnedJsonProjectionRelationalTestBase<>),
         typeof(OwnedTableSplittingProjectionRelationalTestBase<>)
     };
 

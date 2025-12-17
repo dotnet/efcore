@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -32,7 +30,6 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     {
     }
 
-
     /// <summary>
     ///     Adds or updates an annotation on the complex property. If an annotation with the key specified in
     ///     <paramref name="annotation" /> already exists its value will be updated.
@@ -54,6 +51,16 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
         => (ComplexCollectionBuilder<TComplex>)base.HasTypeAnnotation(annotation, value);
 
     /// <summary>
+    ///     Configures whether this property must have a value assigned or <see langword="null" /> is a valid value.
+    ///     A property can only be configured as non-required if it is based on a CLR type that can be
+    ///     assigned <see langword="null" />.
+    /// </summary>
+    /// <param name="required">A value indicating whether the property is required.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ComplexCollectionBuilder<TComplex> IsRequired(bool required = true)
+        => (ComplexCollectionBuilder<TComplex>)base.IsRequired(required);
+
+    /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
     ///     If the specified property is not already part of the model, it will be added.
     /// </summary>
@@ -62,7 +69,8 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     ///     <c>blog => blog.Url</c>).
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual ComplexTypePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
+    public virtual ComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(
+        Expression<Func<TComplex, TProperty>> propertyExpression)
         => new(
             TypeBuilder.Property(
                     Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!
@@ -307,6 +315,124 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     }
 
     /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TComplex, TProperty?>> propertyExpression)
+        where TProperty : struct
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                complexTypeName: null,
+                collection: false,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TComplex, TProperty?>> propertyExpression,
+        string complexTypeName)
+        where TProperty : struct
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                Check.NotEmpty(complexTypeName),
+                collection: false,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Configures a complex property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+        Expression<Func<TComplex, TProperty?>> propertyExpression,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexProperty(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
+        Expression<Func<TComplex, TProperty?>> propertyExpression,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexProperty(propertyExpression, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
     ///     Configures a complex collection of the complex type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
@@ -318,7 +444,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyName, buildAction);
 
     /// <summary>
@@ -338,7 +466,8 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
-        string propertyName, Action<ComplexCollectionBuilder<TElement>> buildAction)
+        string propertyName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TProperty : IEnumerable<TElement>
         where TElement : notnull
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection<TProperty, TElement>(propertyName, buildAction);
@@ -383,7 +512,10 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(Type propertyType, string propertyName, Action<ComplexCollectionBuilder> buildAction)
+    public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
+        Type propertyType,
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, propertyName, buildAction);
 
     /// <summary>
@@ -403,7 +535,10 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public new virtual ComplexCollectionBuilder<TComplex> ComplexCollection(
-        Type propertyType, string propertyName, string complexTypeName, Action<ComplexCollectionBuilder> buildAction)
+        Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder> buildAction)
         => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, complexTypeName, propertyName, buildAction);
 
     /// <summary>
@@ -488,6 +623,96 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
         string complexTypeName,
         Action<ComplexCollectionBuilder<TElement>> buildAction)
         where TElement : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyExpression, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection property of the complex type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
+        where TElement : struct
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                complexTypeName: null,
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection property of the complex type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+        string complexTypeName)
+        where TElement : struct
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                Check.NotEmpty(complexTypeName),
+                collection: true,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Configures a complex collection property of the complex type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TElement : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection property of the complex type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TComplex> ComplexCollection<TElement>(
+        Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TElement : struct
     {
         Check.NotNull(buildAction);
 

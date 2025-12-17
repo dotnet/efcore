@@ -17,12 +17,10 @@ public class Employee
         set => _employeeId = value;
     }
 
-    [MaxLength(20)]
-    [Required]
+    [MaxLength(20), Required]
     public string LastName { get; set; }
 
-    [MaxLength(10)]
-    [Required]
+    [MaxLength(10), Required]
     public string FirstName { get; set; }
 
     [MaxLength(30)]

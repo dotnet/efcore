@@ -117,37 +117,107 @@ public partial class InternalEntryBase
                 {
                     for (var i = _originalEntries.Count - 1; i >= capacity; i--)
                     {
-                        var entry = _originalEntries[i];
-                        Check.DebugAssert(entry == null || _containingEntry.EntityState == EntityState.Added,
-                            $"Complex entry at original ordinal {i} is not null for property {_complexCollection.Name}.");
-
                         _originalEntries.RemoveAt(i);
                     }
                 }
 
                 return _originalEntries;
             }
+
+            _entries ??= new List<InternalComplexEntry?>(capacity);
+            for (var i = _entries.Count; i < capacity; i++)
+            {
+                _entries.Add(null);
+            }
+
+            if (trim)
+            {
+                for (var i = _entries.Count - 1; i >= capacity; i--)
+                {
+                    _entries.RemoveAt(i);
+                }
+            }
+
+            return _entries;
+        }
+
+        public void AcceptChanges()
+        {
+            _isModified = false;
+
+            if (_originalEntries != null)
+            {
+                for (var i = 0; i < _originalEntries.Count; i++)
+                {
+                    var entry = _originalEntries[i];
+                    if (entry == null
+                        || entry.EntityState != EntityState.Deleted)
+                    {
+                        continue;
+                    }
+
+                    entry.AcceptChanges();
+                    // The entry was deleted, so AcceptChanges removed it from the list
+                    i--;
+                }
+            }
+
+            if (_entries != null)
+            {
+                _originalEntries ??= new List<InternalComplexEntry?>(_entries.Count);
+                _originalEntries.Clear();
+                for (var i = 0; i < _entries.Count; i++)
+                {
+                    _originalEntries.Add(_entries[i]);
+                }
+
+                for (var i = 0; i < _originalEntries.Count; i++)
+                {
+                    _originalEntries[i]?.AcceptChanges();
+                }
+            }
             else
             {
-                _entries ??= new List<InternalComplexEntry?>(capacity);
-                for (var i = _entries.Count; i < capacity; i++)
-                {
-                    _entries.Add(null);
-                }
+                _originalEntries = null;
+            }
+        }
 
-                if (trim)
+        public void RejectChanges()
+        {
+            _isModified = false;
+
+            if (_entries != null)
+            {
+                foreach (var entry in _entries)
                 {
-                    for (var i = _entries.Count - 1; i >= capacity; i--)
+                    if (entry == null
+                        || entry.EntityState != EntityState.Added)
                     {
-                        var entry = _entries[i];
-                        Check.DebugAssert(entry == null || _containingEntry.EntityState == EntityState.Deleted,
-                            $"Complex entry at original ordinal {i} is not null for property {_complexCollection.Name}.");
-
-                        _entries.RemoveAt(i);
+                        continue;
                     }
+
+                    entry.SetEntityState(EntityState.Detached, acceptChanges: false, modifyProperties: false);
+                }
+            }
+
+            if (_originalEntries != null)
+            {
+                _entries ??= new List<InternalComplexEntry?>(_originalEntries.Count);
+                _entries.Clear();
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i = 0; i < _originalEntries.Count; i++)
+                {
+                    _entries.Add(_originalEntries[i]);
                 }
 
-                return _entries;
+                foreach (var entry in _entries)
+                {
+                    entry?.Ordinal = entry.OriginalOrdinal;
+                }
+            }
+            else
+            {
+                _entries = null;
             }
         }
 
@@ -158,13 +228,15 @@ public partial class InternalEntryBase
                 if (_containingEntry.EntityState == EntityState.Added)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionOriginalEntryAddedEntity(ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                        CoreStrings.ComplexCollectionOriginalEntryAddedEntity(
+                            ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
 
                 if (_containingEntry.GetOriginalValue(_complexCollection) == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionEntryOriginalNull(_complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                        CoreStrings.ComplexCollectionEntryOriginalNull(
+                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
             }
             else
@@ -172,24 +244,27 @@ public partial class InternalEntryBase
                 if (_containingEntry.EntityState == EntityState.Deleted)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionEntryDeletedEntity(ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                        CoreStrings.ComplexCollectionEntryDeletedEntity(
+                            ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
 
                 if (_containingEntry[_complexCollection] == null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionNotInitialized(_complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                        CoreStrings.ComplexCollectionNotInitialized(
+                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
             }
 
             var entries = GetOrCreateEntries(original);
             if (ordinal < 0 || ordinal >= entries.Count)
             {
-                throw new InvalidOperationException(original
-                    ? CoreStrings.ComplexCollectionEntryOriginalOrdinalInvalid(
-                        ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count)
-                    : CoreStrings.ComplexCollectionEntryOrdinalInvalid(
-                        ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count));
+                throw new InvalidOperationException(
+                    original
+                        ? CoreStrings.ComplexCollectionEntryOriginalOrdinalInvalid(
+                            ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count)
+                        : CoreStrings.ComplexCollectionEntryOrdinalInvalid(
+                            ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count));
             }
 
             var complexEntry = entries[ordinal];
@@ -198,7 +273,7 @@ public partial class InternalEntryBase
                 return complexEntry;
             }
 
-            // The entry is created in Detached state, so it's not added to the entries list yet.
+            // The currentEntry is created in Detached state, so it's not added to the entries list yet.
             // HandleStateChange will add it when the state changes.
             return new InternalComplexEntry((IRuntimeComplexType)_complexCollection.ComplexType, _containingEntry, ordinal);
         }
@@ -211,9 +286,12 @@ public partial class InternalEntryBase
             }
 
             var entries = original ? _originalEntries : _entries;
-            Check.DebugAssert(entries != null, $"Property {_complexCollection.Name} should have{(original ? " original" : "")} entries initialized.");
-            if (fromOrdinal < 0 || fromOrdinal >= entries.Count
-                || toOrdinal < 0 || toOrdinal >= entries.Count)
+            Check.DebugAssert(
+                entries != null, $"Property {_complexCollection.Name} should have{(original ? " original" : "")} entries initialized.");
+            if (fromOrdinal < 0
+                || fromOrdinal >= entries.Count
+                || toOrdinal < 0
+                || toOrdinal >= entries.Count)
             {
                 throw new ArgumentOutOfRangeException(
                     CoreStrings.ComplexCollectionMoveInvalidOrdinals(fromOrdinal, toOrdinal, entries.Count));
@@ -282,10 +360,12 @@ public partial class InternalEntryBase
                 setOriginalState = true;
             }
 
-            EnsureCapacity(((IList?)_containingEntry.GetOriginalValue(_complexCollection))?.Count ?? 0,
-                original: true);
-            EnsureCapacity(((IList?)_containingEntry[_complexCollection])?.Count ?? 0,
-                original: false);
+            EnsureCapacity(
+                ((IList?)_containingEntry.GetOriginalValue(_complexCollection))?.Count ?? 0,
+                original: true, trim: false);
+            EnsureCapacity(
+                ((IList?)_containingEntry[_complexCollection])?.Count ?? 0,
+                original: false, trim: false);
 
             var defaultState = newState == EntityState.Modified && !modifyProperties
                 ? EntityState.Unchanged
@@ -296,20 +376,26 @@ public partial class InternalEntryBase
             {
                 foreach (var originalEntry in originalEntries)
                 {
+                    if (originalEntry?.EntityState is EntityState.Deleted && newState is EntityState.Unchanged or EntityState.Modified)
+                    {
+                        continue;
+                    }
+
                     originalEntry?.SetEntityState(newState, acceptChanges, modifyProperties);
                 }
             }
 
             if (setCurrentState)
             {
-                foreach (var entry in currentEntries)
+                foreach (var currentEntry in currentEntries)
                 {
-                    if (entry?.EntityState == EntityState.Unchanged && newState == EntityState.Modified && !modifyProperties)
+                    if ((currentEntry?.EntityState is EntityState.Unchanged && newState is EntityState.Modified && !modifyProperties)
+                        || (currentEntry?.EntityState is EntityState.Added && newState is EntityState.Unchanged or EntityState.Modified))
                     {
                         continue;
                     }
 
-                    entry?.SetEntityState(newState, acceptChanges, modifyProperties);
+                    currentEntry?.SetEntityState(newState, acceptChanges, modifyProperties);
                 }
             }
         }
@@ -323,11 +409,14 @@ public partial class InternalEntryBase
             if (ordinal < 0 || ordinal >= entries.Count)
             {
                 var property = entry.ComplexProperty;
-                throw new InvalidOperationException(original
-                    ? CoreStrings.ComplexCollectionEntryOriginalOrdinalInvalid(
-                        ordinal, property.ComplexType.ShortNameChain(), property.Name, ((IList?)_containingEntry.GetOriginalValue(_complexCollection))?.Count ?? 0)
-                    : CoreStrings.ComplexCollectionEntryOrdinalInvalid(
-                        ordinal, property.ComplexType.ShortNameChain(), property.Name, ((IList?)_containingEntry.GetCurrentValue(_complexCollection))?.Count ?? 0));
+                throw new InvalidOperationException(
+                    original
+                        ? CoreStrings.ComplexCollectionEntryOriginalOrdinalInvalid(
+                            ordinal, property.ComplexType.ShortNameChain(), property.Name,
+                            ((IList?)_containingEntry.GetOriginalValue(_complexCollection))?.Count ?? 0)
+                        : CoreStrings.ComplexCollectionEntryOrdinalInvalid(
+                            ordinal, property.ComplexType.ShortNameChain(), property.Name,
+                            ((IList?)_containingEntry.GetCurrentValue(_complexCollection))?.Count ?? 0));
             }
 
             return ordinal;
@@ -358,14 +447,14 @@ public partial class InternalEntryBase
                     InsertEntry(entry, original: false);
                 }
 
-                // When going from Deleted to Unchanged, restore the entry to the original collection
+                // When going from Deleted to Unchanged, restore the currentEntry to the original collection
                 if (newState == EntityState.Unchanged)
                 {
                     InsertEntry(entry, original: true);
                 }
             }
             else if (oldState == EntityState.Added
-                && newState is not EntityState.Detached)
+                     && newState is not EntityState.Detached)
             {
                 InsertEntry(entry, original: true);
             }
@@ -391,6 +480,7 @@ public partial class InternalEntryBase
                     {
                         _containingEntry.SetPropertyModified(property, false);
                     }
+
                     break;
                 case EntityState.Deleted:
                     if (oldState is not EntityState.Detached
@@ -398,8 +488,9 @@ public partial class InternalEntryBase
                     {
                         RemoveEntry(entry, original: false);
                     }
+
                     entry.Ordinal = -1;
-                    _containingEntry.SetPropertyModified(property, true);
+                    _containingEntry.SetPropertyModified(property);
                     break;
                 case EntityState.Added:
                     if (oldState is not EntityState.Detached
@@ -407,18 +498,22 @@ public partial class InternalEntryBase
                     {
                         RemoveEntry(entry, original: true);
                     }
+
                     entry.OriginalOrdinal = -1;
-                    _containingEntry.SetPropertyModified(property, true);
+                    _containingEntry.SetPropertyModified(property);
                     break;
                 case EntityState.Modified:
-                    _containingEntry.SetPropertyModified(property, true);
+                    _containingEntry.SetPropertyModified(property);
                     break;
                 case EntityState.Unchanged:
-                    if (GetOrCreateEntries(original: false).All(e => e == null || (e.EntityState == EntityState.Unchanged && e.Ordinal == e.OriginalOrdinal))
-                        && GetOrCreateEntries(original: true).All(e => e == null || (e.EntityState == EntityState.Unchanged && e.Ordinal == e.OriginalOrdinal)))
+                    if (GetOrCreateEntries(original: false).All(e
+                            => e == null || (e.EntityState == EntityState.Unchanged && e.Ordinal == e.OriginalOrdinal))
+                        && GetOrCreateEntries(original: true).All(e
+                            => e == null || (e.EntityState == EntityState.Unchanged && e.Ordinal == e.OriginalOrdinal)))
                     {
                         _containingEntry.SetPropertyModified(property, false);
                     }
+
                     break;
             }
 
@@ -428,18 +523,23 @@ public partial class InternalEntryBase
                 if (newState is not EntityState.Detached and not EntityState.Deleted)
                 {
                     var currentOrdinal = entry.Ordinal;
-                    Check.DebugAssert(currentOrdinal >= 0 && currentOrdinal < currentEntries.Count,
-                         $"ComplexEntry ordinal {currentOrdinal} is invalid for property {property.Name}.");
-                    Check.DebugAssert(currentEntries[currentOrdinal] == entry, $"ComplexEntry at ordinal {currentOrdinal} does not match the provided entry for property {property.Name}.");
+                    Check.DebugAssert(
+                        currentOrdinal >= 0 && currentOrdinal < currentEntries.Count,
+                        $"ComplexEntry ordinal {currentOrdinal} is invalid for property {property.Name}.");
+                    Check.DebugAssert(
+                        currentEntries[currentOrdinal] == entry,
+                        $"ComplexEntry at ordinal {currentOrdinal} does not match the provided entry for property {property.Name}.");
                 }
 
                 var originalEntries = GetOrCreateEntries(original: true);
                 if (newState is not EntityState.Detached and not EntityState.Added)
                 {
                     var originalOrdinal = entry.OriginalOrdinal;
-                    Check.DebugAssert(originalOrdinal >= 0 && originalOrdinal < originalEntries.Count,
+                    Check.DebugAssert(
+                        originalOrdinal >= 0 && originalOrdinal < originalEntries.Count,
                         $"ComplexEntry original ordinal {originalOrdinal} is invalid for property {property.Name}.");
-                    Check.DebugAssert(originalEntries[originalOrdinal] == entry,
+                    Check.DebugAssert(
+                        originalEntries[originalOrdinal] == entry,
                         $"ComplexEntry at OriginalOrdinal {originalOrdinal} does not match the provided entry for property {property.Name}.");
                 }
             }
@@ -553,7 +653,7 @@ public partial class InternalEntryBase
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public readonly override string ToString()
+        public override readonly string ToString()
             => ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault);
 
         /// <summary>
@@ -562,14 +662,15 @@ public partial class InternalEntryBase
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        // ReSharper disable once UnusedMember.Local
         public readonly DebugView DebugView
         {
             get
             {
                 var instance = this;
                 return new DebugView(
-                        () => instance.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
-                        () => instance.ToDebugString());
+                    () => instance.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
+                    () => instance.ToDebugString());
             }
         }
 

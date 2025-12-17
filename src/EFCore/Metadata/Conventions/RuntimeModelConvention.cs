@@ -63,7 +63,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 var elementType = property.GetElementType();
                 if (elementType != null)
                 {
-                    Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                    Check.DebugAssert(
+                        property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
                     var runtimeElementType = Create(runtimeProperty, elementType);
                     CreateAnnotations(
                         elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
@@ -264,12 +265,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
     private static ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
         => parameterBinding.With(
-            parameterBinding.ConsumedProperties.Select(
-                property =>
-                    (entityType.FindProperty(property.Name)
-                        ?? entityType.FindServiceProperty(property.Name)
-                        ?? entityType.FindNavigation(property.Name)
-                        ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
+            parameterBinding.ConsumedProperties.Select(property =>
+                (entityType.FindProperty(property.Name)
+                    ?? entityType.FindServiceProperty(property.Name)
+                    ?? entityType.FindNavigation(property.Name)
+                    ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
 
     private static InstantiationBinding? Create(InstantiationBinding? instantiationBinding, RuntimeEntityType entityType)
         => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
@@ -301,13 +301,12 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
             if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilters) && queryFilters != null)
             {
-
                 var rewritingVisitor = new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model);
 
                 annotations[CoreAnnotationNames.QueryFilter] = new QueryFilterCollection(
                     ((QueryFilterCollection)queryFilters)
-                        .Select(x => new RuntimeQueryFilter(x.Key, (LambdaExpression)rewritingVisitor.Rewrite(x.Expression!)))
-                    );
+                    .Select(x => new RuntimeQueryFilter(x.Key, (LambdaExpression)rewritingVisitor.Rewrite(x.Expression!)))
+                );
             }
         }
     }
@@ -535,7 +534,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             var elementType = property.GetElementType();
             if (elementType != null)
             {
-                Check.DebugAssert(property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                Check.DebugAssert(
+                    property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
                 var runtimeElementType = Create(runtimeProperty, elementType);
                 CreateAnnotations(
                     elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
@@ -795,10 +795,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     protected virtual RuntimeForeignKey GetForeignKey(IForeignKey foreignKey, RuntimeEntityType entityType)
         => entityType.FindDeclaredForeignKeys(
                 entityType.FindProperties(foreignKey.Properties.Select(p => p.Name))!)
-            .Single(
-                fk => fk.PrincipalEntityType.Name == foreignKey.PrincipalEntityType.Name
-                    && fk.PrincipalKey.Properties.Select(p => p.Name).SequenceEqual(
-                        foreignKey.PrincipalKey.Properties.Select(p => p.Name)));
+            .Single(fk => fk.PrincipalEntityType.Name == foreignKey.PrincipalEntityType.Name
+                && fk.PrincipalKey.Properties.Select(p => p.Name).SequenceEqual(
+                    foreignKey.PrincipalKey.Properties.Select(p => p.Name)));
 
     /// <summary>
     ///     Gets the corresponding key in the read-optimized model.

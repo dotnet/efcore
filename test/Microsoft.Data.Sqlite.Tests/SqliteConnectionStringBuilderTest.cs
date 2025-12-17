@@ -10,10 +10,7 @@ namespace Microsoft.Data.Sqlite;
 
 public class SqliteConnectionStringBuilderTest
 {
-    [Theory]
-    [InlineData("Data Source")]
-    [InlineData("Filename")]
-    [InlineData("DataSource")]
+    [Theory, InlineData("Data Source"), InlineData("Filename"), InlineData("DataSource")]
     public void Ctor_parses_DataSource(string keyword)
     {
         var builder = new SqliteConnectionStringBuilder($"{keyword}=test.db");
@@ -60,9 +57,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.True(builder.RecursiveTriggers);
     }
 
-    [Theory]
-    [InlineData("Default Timeout")]
-    [InlineData("Command Timeout")]
+    [Theory, InlineData("Default Timeout"), InlineData("Command Timeout")]
     public void Ctor_parses_DefaultTimeout(string keyword)
     {
         var builder = new SqliteConnectionStringBuilder($"{keyword}=1");
@@ -217,11 +212,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal("test.db", builder.DataSource);
     }
 
-    [Theory]
-    [InlineData("Shared")]
-    [InlineData("SHARED")]
-    [InlineData(SqliteCacheMode.Shared)]
-    [InlineData((int)SqliteCacheMode.Shared)]
+    [Theory, InlineData("Shared"), InlineData("SHARED"), InlineData(SqliteCacheMode.Shared), InlineData((int)SqliteCacheMode.Shared)]
     public void Item_converts_to_enum_on_set(object value)
     {
         var builder = new SqliteConnectionStringBuilder();
@@ -231,11 +222,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
     }
 
-    [Theory]
-    [InlineData(42)]
-    [InlineData("Unknown")]
-    [InlineData((SqliteCacheMode)42)]
-    [InlineData(SqliteOpenMode.ReadOnly)]
+    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly)]
     public void Item_throws_when_cannot_convert_to_enum_on_set(object value)
     {
         var builder = new SqliteConnectionStringBuilder();
@@ -243,13 +230,8 @@ public class SqliteConnectionStringBuilderTest
         Assert.ThrowsAny<ArgumentException>(() => builder["Cache"] = value);
     }
 
-    [Theory]
-    [InlineData(1, true)]
-    [InlineData("True", true)]
-    [InlineData(0, false)]
-    [InlineData("False", false)]
-    [InlineData(null, null)]
-    [InlineData("", null)]
+    [Theory, InlineData(1, true), InlineData("True", true), InlineData(0, false), InlineData("False", false), InlineData(null, null),
+     InlineData("", null)]
     public void Item_converts_to_bool_on_set(object? value, bool? expected)
     {
         var builder = new SqliteConnectionStringBuilder();
@@ -259,13 +241,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(expected, builder["Foreign Keys"]);
     }
 
-    [Theory]
-    [InlineData("1")]
-    [InlineData("Yes")]
-    [InlineData("On")]
-    [InlineData("0")]
-    [InlineData("No")]
-    [InlineData("Off")]
+    [Theory, InlineData("1"), InlineData("Yes"), InlineData("On"), InlineData("0"), InlineData("No"), InlineData("Off")]
     public void Item_throws_when_cannot_convert_to_bool_on_set(object value)
     {
         var builder = new SqliteConnectionStringBuilder();

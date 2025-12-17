@@ -94,8 +94,7 @@ public class ValueGenerationManager : IValueGenerationManager
         var hasNonStableValues = false;
         IProperty? propertyWithNoGenerator = null;
 
-        //TODO: Handle complex properties, #31633
-        foreach (var property in entry.EntityType.GetValueGeneratingProperties())
+        foreach (var property in entry.EntityType.GetFlattenedValueGeneratingProperties())
         {
             if (!TryFindValueGenerator(
                     entry, includePrimaryKey, property,
@@ -143,8 +142,7 @@ public class ValueGenerationManager : IValueGenerationManager
         var hasNonStableValues = false;
         IProperty? propertyWithNoGenerator = null;
 
-        //TODO: Handle complex properties
-        foreach (var property in entry.EntityType.GetValueGeneratingProperties())
+        foreach (var property in entry.EntityType.GetFlattenedValueGeneratingProperties())
         {
             if (!TryFindValueGenerator(
                     entry, includePrimaryKey, property,

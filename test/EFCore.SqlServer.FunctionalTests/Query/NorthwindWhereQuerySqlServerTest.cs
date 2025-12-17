@@ -1470,11 +1470,15 @@ ORDER BY [c0].[CustomerID]
 @entity_equality_customer_Orders_OrderID4='10835'
 @entity_equality_customer_Orders_OrderID5='10952'
 @entity_equality_customer_Orders_OrderID6='11011'
+@entity_equality_customer_Orders_OrderID7='11011'
+@entity_equality_customer_Orders_OrderID8='11011'
+@entity_equality_customer_Orders_OrderID9='11011'
+@entity_equality_customer_Orders_OrderID10='11011'
 
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o0].[OrderID] IN (@entity_equality_customer_Orders_OrderID1, @entity_equality_customer_Orders_OrderID2, @entity_equality_customer_Orders_OrderID3, @entity_equality_customer_Orders_OrderID4, @entity_equality_customer_Orders_OrderID5, @entity_equality_customer_Orders_OrderID6)
+WHERE [o0].[OrderID] IN (@entity_equality_customer_Orders_OrderID1, @entity_equality_customer_Orders_OrderID2, @entity_equality_customer_Orders_OrderID3, @entity_equality_customer_Orders_OrderID4, @entity_equality_customer_Orders_OrderID5, @entity_equality_customer_Orders_OrderID6, @entity_equality_customer_Orders_OrderID7, @entity_equality_customer_Orders_OrderID8, @entity_equality_customer_Orders_OrderID9, @entity_equality_customer_Orders_OrderID10)
 """);
     }
 
@@ -1700,19 +1704,33 @@ WHERE CAST(@i AS nvarchar(max)) + [c].[CustomerID] + CAST(@i AS nvarchar(max)) =
 """);
     }
 
-    [ConditionalTheory]
     public override async Task Two_parameters_with_same_name_get_uniquified(bool async)
     {
         await base.Two_parameters_with_same_name_get_uniquified(async);
 
         AssertSql(
             """
-@p='11'
-@p0='12'
+@customerId='ANATR' (Size = 5) (DbType = StringFixedLength)
+@customerId1='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + CAST(@p AS nvarchar(max)) + [c].[CustomerID] + CAST(@p0 AS nvarchar(max)) = N'ALFKI11ALFKI12'
+WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId1
+""");
+    }
+
+    public override async Task Two_parameters_with_same_case_insensitive_name_get_uniquified(bool async)
+    {
+        await base.Two_parameters_with_same_case_insensitive_name_get_uniquified(async);
+
+AssertSql(
+"""
+@customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
+@customerId0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @customerID OR [c].[CustomerID] = @customerId0
 """);
     }
 
@@ -2968,6 +2986,13 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = @p
 """);
+    }
+
+    public override async Task EF_MultipleParameters_with_non_evaluatable_argument_throws(bool async)
+    {
+        await base.EF_MultipleParameters_with_non_evaluatable_argument_throws(async);
+
+        AssertSql();
     }
 
     #region Evaluation order of operators

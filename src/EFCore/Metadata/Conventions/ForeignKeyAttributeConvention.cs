@@ -322,11 +322,10 @@ public class ForeignKeyAttributeConvention :
             if (existingProperties != null)
             {
                 var conflictingFk = foreignKey.DeclaringEntityType.FindForeignKeys(existingProperties)
-                    .FirstOrDefault(
-                        fk => fk != foreignKey
-                            && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
-                            && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
-                            && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
+                    .FirstOrDefault(fk => fk != foreignKey
+                        && fk.PrincipalEntityType == foreignKey.PrincipalEntityType
+                        && fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation
+                        && fk.GetPropertiesConfigurationSource() == ConfigurationSource.DataAnnotation);
                 if (conflictingFk != null)
                 {
                     throw new InvalidOperationException(

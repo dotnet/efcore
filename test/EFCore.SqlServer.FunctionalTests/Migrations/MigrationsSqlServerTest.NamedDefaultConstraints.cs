@@ -31,11 +31,11 @@ public partial class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlS
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [MyConstraintSql] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [Number] int NOT NULL CONSTRAINT [MyConstraint] DEFAULT 7;
 """);
     }
@@ -58,12 +58,12 @@ ALTER TABLE [Entity] ADD [Number] int NOT NULL CONSTRAINT [MyConstraint] DEFAULT
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [MyConstraintSql];
 ALTER TABLE [Entity] DROP COLUMN [Guid];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [MyConstraint];
 ALTER TABLE [Entity] DROP COLUMN [Number];
 """);
@@ -92,7 +92,7 @@ ALTER TABLE [Entity] DROP COLUMN [Number];
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Entity] (
     [Id] nvarchar(450) NOT NULL,
     [Guid] uniqueidentifier NOT NULL CONSTRAINT [MyConstraintSql] DEFAULT (NEWID()),
@@ -119,7 +119,7 @@ CREATE TABLE [Entity] (
             });
 
         AssertSql(
-"""
+            """
 DROP TABLE [Entity];
 """);
     }
@@ -137,7 +137,8 @@ DROP TABLE [Entity];
             builder =>
             {
                 builder.Entity("Entity").Property<int>("Number").HasDefaultValue(7, defaultConstraintName: "RenamedConstraint");
-                builder.Entity("Entity").Property<Guid>("Guid").HasDefaultValueSql("NEWID()", defaultConstraintName: "RenamedConstraintSql");
+                builder.Entity("Entity").Property<Guid>("Guid").HasDefaultValueSql(
+                    "NEWID()", defaultConstraintName: "RenamedConstraintSql");
             },
             model =>
             {
@@ -151,13 +152,13 @@ DROP TABLE [Entity];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [MyConstraint];
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [RenamedConstraint] DEFAULT 7 FOR [Number];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [MyConstraintSql];
 ALTER TABLE [Entity] ALTER COLUMN [Guid] uniqueidentifier NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [RenamedConstraintSql] DEFAULT (NEWID()) FOR [Guid];
@@ -191,7 +192,7 @@ ALTER TABLE [Entity] ADD CONSTRAINT [RenamedConstraintSql] DEFAULT (NEWID()) FOR
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var nvarchar(max);
 SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
@@ -201,8 +202,8 @@ IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [MyConstraint] DEFAULT 7 FOR [Number];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 nvarchar(max);
 SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
@@ -241,13 +242,13 @@ ALTER TABLE [Entity] ADD CONSTRAINT [MyConstraintSql] DEFAULT (NEWID()) FOR [Gui
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [MyConstraint];
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT 7 FOR [Number];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [MyConstraintSql];
 ALTER TABLE [Entity] ALTER COLUMN [Guid] uniqueidentifier NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
@@ -262,25 +263,29 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
             {
                 builder.UseNamedDefaultConstraints();
                 builder.Entity("Entity").Property<string>("Id");
-                builder.Entity("Entity").OwnsOne("OwnedType", "MyOwned", b =>
-                {
-                    b.OwnsOne("NestedType", "MyNested", bb =>
+                builder.Entity("Entity").OwnsOne(
+                    "OwnedType", "MyOwned", b =>
                     {
-                        bb.Property<int>("Foo");
+                        b.OwnsOne(
+                            "NestedType", "MyNested", bb =>
+                            {
+                                bb.Property<int>("Foo");
+                            });
                     });
-                });
             },
             builder => { },
             builder =>
             {
-                builder.Entity("Entity").OwnsOne("OwnedType", "MyOwned", b =>
-                {
-                    b.OwnsOne("NestedType", "MyNested", bb =>
+                builder.Entity("Entity").OwnsOne(
+                    "OwnedType", "MyOwned", b =>
                     {
-                        bb.Property<int>("Number").HasDefaultValue(7);
-                        bb.Property<Guid>("Guid").HasDefaultValueSql("NEWID()");
+                        b.OwnsOne(
+                            "NestedType", "MyNested", bb =>
+                            {
+                                bb.Property<int>("Number").HasDefaultValue(7);
+                                bb.Property<Guid>("Guid").HasDefaultValueSql("NEWID()");
+                            });
                     });
-                });
             },
             model =>
             {
@@ -294,11 +299,11 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [MyOwned_MyNested_Guid] uniqueidentifier NULL CONSTRAINT [DF_Entity_MyOwned_MyNested_Guid] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [MyOwned_MyNested_Number] int NULL CONSTRAINT [DF_Entity_MyOwned_MyNested_Number] DEFAULT 7;
 """);
     }
@@ -329,19 +334,19 @@ ALTER TABLE [Entity] ADD [MyOwned_MyNested_Number] int NULL CONSTRAINT [DF_Entit
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [Guid] uniqueidentifier NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [GuidNamed] uniqueidentifier NOT NULL CONSTRAINT [MyConstraintSql] DEFAULT '00000000-0000-0000-0000-000000000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [Number] int NULL;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [NumberNamed] int NULL;
 """);
     }
@@ -378,11 +383,11 @@ ALTER TABLE [Entity] ADD [NumberNamed] int NULL;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [DF_Entity_Guid] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [Number] int NOT NULL CONSTRAINT [DF_Entity_Number] DEFAULT 7;
 """);
     }
@@ -409,12 +414,12 @@ ALTER TABLE [Entity] ADD [Number] int NOT NULL CONSTRAINT [DF_Entity_Number] DEF
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [DF_Entity_Guid];
 ALTER TABLE [Entity] DROP COLUMN [Guid];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [DF_Entity_Number];
 ALTER TABLE [Entity] DROP COLUMN [Number];
 """);
@@ -445,7 +450,7 @@ ALTER TABLE [Entity] DROP COLUMN [Number];
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Entity] (
     [Id] nvarchar(450) NOT NULL,
     [Guid] uniqueidentifier NOT NULL CONSTRAINT [DF_Entity_Guid] DEFAULT (NEWID()),
@@ -473,7 +478,7 @@ CREATE TABLE [Entity] (
             });
 
         AssertSql(
-"""
+            """
 DROP TABLE [Entity];
 """);
     }
@@ -510,21 +515,21 @@ DROP TABLE [Entity];
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Entity].[Number]', N'ModifiedNumber', 'COLUMN';
 """,
-                //
-                """
+            //
+            """
 EXEC sp_rename N'[Entity].[Guid]', N'ModifiedGuid', 'COLUMN';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [DF_Entity_Number];
 ALTER TABLE [Entity] ALTER COLUMN [ModifiedNumber] int NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_ModifiedNumber] DEFAULT 7 FOR [ModifiedNumber];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [DF_Entity_Guid];
 ALTER TABLE [Entity] ALTER COLUMN [ModifiedGuid] uniqueidentifier NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_ModifiedGuid] DEFAULT (NEWID()) FOR [ModifiedGuid];
@@ -563,27 +568,27 @@ ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_ModifiedGuid] DEFAULT (NEWID()) F
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entities] DROP CONSTRAINT [PK_Entities];
 """,
-                //
-                """
+            //
+            """
 EXEC sp_rename N'[Entities]', N'RenamedEntities', 'OBJECT';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [RenamedEntities] DROP CONSTRAINT [DF_Entities_Number];
 ALTER TABLE [RenamedEntities] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [RenamedEntities] ADD CONSTRAINT [DF_RenamedEntities_Number] DEFAULT 7 FOR [Number];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [RenamedEntities] DROP CONSTRAINT [DF_Entities_Guid];
 ALTER TABLE [RenamedEntities] ALTER COLUMN [Guid] uniqueidentifier NOT NULL;
 ALTER TABLE [RenamedEntities] ADD CONSTRAINT [DF_RenamedEntities_Guid] DEFAULT (NEWID()) FOR [Guid];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [RenamedEntities] ADD CONSTRAINT [PK_RenamedEntities] PRIMARY KEY ([Id]);
 """);
     }
@@ -613,7 +618,7 @@ ALTER TABLE [RenamedEntities] ADD CONSTRAINT [PK_RenamedEntities] PRIMARY KEY ([
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var nvarchar(max);
 SELECT @var = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
@@ -623,8 +628,8 @@ IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_Number] DEFAULT 7 FOR [Number];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 nvarchar(max);
 SELECT @var1 = QUOTENAME([d].[name])
 FROM [sys].[default_constraints] [d]
@@ -661,13 +666,13 @@ ALTER TABLE [Entity] ADD CONSTRAINT [DF_Entity_Guid] DEFAULT (NEWID()) FOR [Guid
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [DF_Entity_Number];
 ALTER TABLE [Entity] ALTER COLUMN [Number] int NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT 7 FOR [Number];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] DROP CONSTRAINT [DF_Entity_Guid];
 ALTER TABLE [Entity] ALTER COLUMN [Guid] uniqueidentifier NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
@@ -753,7 +758,8 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
             builder =>
             {
                 builder.Entity("BranchEntity").Property<int>("Number").HasDefaultValue(7, defaultConstraintName: "MyConstraint");
-                builder.Entity("BranchEntity").Property<Guid>("Guid").HasDefaultValueSql("NEWID()", defaultConstraintName: "MyConstraintSql");
+                builder.Entity("BranchEntity").Property<Guid>("Guid")
+                    .HasDefaultValueSql("NEWID()", defaultConstraintName: "MyConstraintSql");
             },
             model =>
             {
@@ -768,11 +774,11 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Branches] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [MyConstraintSql] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [MyConstraint] DEFAULT 7;
 """);
     }
@@ -811,11 +817,11 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [MyConstraint] DEFAU
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Branches] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [DF_Branches_Guid] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number] DEFAULT 7;
 """);
     }
@@ -859,19 +865,19 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number]
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Leaves] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [DF_Leaves_Guid] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Leaves] ADD [Number] int NOT NULL CONSTRAINT [DF_Leaves_Number] DEFAULT 7;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Branches] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [DF_Branches_Guid] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number] DEFAULT 7;
 """);
     }
@@ -885,7 +891,8 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number]
                 builder.UseNamedDefaultConstraints();
                 builder.Entity("Entity").Property<int>("Id");
                 builder.Entity("Entity").Property<int>("Number").HasDefaultValue(7, defaultConstraintName: "DF_Entity_Another");
-                builder.Entity("Entity").Property<Guid>("Guid").HasDefaultValueSql("NEWID()", defaultConstraintName: "DF_Entity_YetAnother");
+                builder.Entity("Entity").Property<Guid>("Guid").HasDefaultValueSql(
+                    "NEWID()", defaultConstraintName: "DF_Entity_YetAnother");
             },
             builder => { },
             builder =>
@@ -914,11 +921,11 @@ ALTER TABLE [Branches] ADD [Number] int NOT NULL CONSTRAINT [DF_Branches_Number]
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [Another] int NOT NULL CONSTRAINT [DF_Entity_Another1] DEFAULT 7;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [YetAnother] uniqueidentifier NOT NULL CONSTRAINT [DF_Entity_YetAnother1] DEFAULT (NEWID());
 """);
     }
@@ -930,29 +937,35 @@ ALTER TABLE [Entity] ADD [YetAnother] uniqueidentifier NOT NULL CONSTRAINT [DF_E
             builder =>
             {
                 builder.UseNamedDefaultConstraints();
-                builder.Entity("VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity", b =>
-                {
-                    b.Property<int>("Id");
-                    b.OwnsOne("Owned", "YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation", bb =>
+                builder.Entity(
+                    "VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity", b =>
                     {
-                        bb.Property<string>("Name");
+                        b.Property<int>("Id");
+                        b.OwnsOne(
+                            "Owned", "YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation",
+                            bb =>
+                            {
+                                bb.Property<string>("Name");
+                            });
                     });
-                });
             },
             builder =>
             {
                 builder.UseNamedDefaultConstraints();
-                builder.Entity("VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity", b =>
-                {
-                    b.Property<int>("Id");
-                    b.OwnsOne("Owned", "YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation", bb =>
+                builder.Entity(
+                    "VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity", b =>
                     {
-                        bb.Property<string>("Name");
-                        bb.Property<int>("Prop").HasDefaultValue(7);
-                        bb.Property<Guid>("AnotherProp").HasDefaultValueSql("NEWID()");
-                        bb.Property<int>("YetAnotherProp").HasDefaultValue(27);
+                        b.Property<int>("Id");
+                        b.OwnsOne(
+                            "Owned", "YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation",
+                            bb =>
+                            {
+                                bb.Property<string>("Name");
+                                bb.Property<int>("Prop").HasDefaultValue(7);
+                                bb.Property<Guid>("AnotherProp").HasDefaultValueSql("NEWID()");
+                                bb.Property<int>("YetAnotherProp").HasDefaultValue(27);
+                            });
                     });
-                });
             },
             model =>
             {
@@ -963,15 +976,15 @@ ALTER TABLE [Entity] ADD [YetAnother] uniqueidentifier NOT NULL CONSTRAINT [DF_E
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_AnotherProp] uniqueidentifier NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnn~] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_Prop] int NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnn~1] DEFAULT 7;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity] ADD [YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation_YetAnotherProp] int NULL CONSTRAINT [DF_VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonEntity_YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnn~2] DEFAULT 27;
 """);
     }
@@ -1001,11 +1014,11 @@ ALTER TABLE [VeryVeryVeryVeryVeryVeryVeryVeryLoooooooooooooooooooooooooooooooonE
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [My Entity] ADD [Guid] uniqueidentifier NOT NULL CONSTRAINT [DF_My Entity_Guid] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [My Entity] ADD [Number] int NOT NULL CONSTRAINT [DF_My Entity_Number] DEFAULT 7;
 """);
     }
@@ -1035,11 +1048,11 @@ ALTER TABLE [My Entity] ADD [Number] int NOT NULL CONSTRAINT [DF_My Entity_Numbe
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [Gu!d] uniqueidentifier NOT NULL CONSTRAINT [DF_Entity_Gu!d] DEFAULT (NEWID());
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Entity] ADD [Num$be<>r] int NOT NULL CONSTRAINT [DF_Entity_Num$be<>r] DEFAULT 7;
 """);
     }

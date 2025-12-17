@@ -38,7 +38,7 @@ public static class RelationalComplexCollectionBuilderExtensions
     public static ComplexCollectionBuilder<TComplex> ToJson<TComplex>(
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? jsonColumnName = null)
-        where TComplex : class
+        where TComplex : notnull
         => (ComplexCollectionBuilder<TComplex>)ToJson((ComplexCollectionBuilder)complexCollectionBuilder, jsonColumnName);
 
     /// <summary>
@@ -71,4 +71,31 @@ public static class RelationalComplexCollectionBuilderExtensions
         string? name)
         where TComplex : notnull
         => (ComplexCollectionBuilder<TComplex>)HasJsonPropertyName((ComplexCollectionBuilder)complexCollectionBuilder, name);
+
+    /// <summary>
+    ///     Configures the column type for the JSON column that stores the complex collection.
+    /// </summary>
+    /// <param name="complexCollectionBuilder">The builder for the complex collection being configured.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexCollectionBuilder HasColumnType(
+        this ComplexCollectionBuilder complexCollectionBuilder,
+        string? columnType)
+    {
+        complexCollectionBuilder.Metadata.ComplexType.SetContainerColumnType(columnType);
+
+        return complexCollectionBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the column type for the JSON column that stores the complex collection.
+    /// </summary>
+    /// <param name="complexCollectionBuilder">The builder for the complex collection being configured.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ComplexCollectionBuilder<TComplex> HasColumnType<TComplex>(
+        this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
+        string? columnType)
+        where TComplex : notnull
+        => (ComplexCollectionBuilder<TComplex>)HasColumnType((ComplexCollectionBuilder)complexCollectionBuilder, columnType);
 }

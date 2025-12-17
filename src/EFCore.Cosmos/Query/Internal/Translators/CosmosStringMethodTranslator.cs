@@ -92,14 +92,12 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
         = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int), typeof(int)])!;
 
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(
-            m => m.Name == nameof(Enumerable.FirstOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
+        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.FirstOrDefault)
+            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(
-            m => m.Name == nameof(Enumerable.LastOrDefault)
-                && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
+        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.LastOrDefault)
+            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private static readonly MethodInfo StringConcatWithTwoArguments =
         typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(string), typeof(string)])!;

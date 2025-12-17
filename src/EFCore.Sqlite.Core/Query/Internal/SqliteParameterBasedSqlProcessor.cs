@@ -9,7 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteParameterBasedSqlProcessor : RelationalParameterBasedSqlProcessor
+public class SqliteParameterBasedSqlProcessor(
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    RelationalParameterBasedSqlProcessorParameters parameters)
+    : RelationalParameterBasedSqlProcessor(dependencies, parameters)
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,19 +20,6 @@ public class SqliteParameterBasedSqlProcessor : RelationalParameterBasedSqlProce
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteParameterBasedSqlProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        RelationalParameterBasedSqlProcessorParameters parameters)
-        : base(dependencies, parameters)
-    {
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression ProcessSqlNullability(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
-        => new SqliteSqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersFacade);
+    protected override Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
+        => new SqliteSqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersDecorator);
 }

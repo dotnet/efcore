@@ -10,6 +10,7 @@ internal static class EFDiagnostics
 {
     public const string InternalUsage = "EF1001";
     public const string InterpolatedStringUsageInRawQueries = "EF1002";
+    public const string StringConcatenationUsageInRawQueries = "EF1003";
     public const string SuppressUninitializedDbSetRule = "EFSPR1001";
 
     // Diagnostics for [Experimental]

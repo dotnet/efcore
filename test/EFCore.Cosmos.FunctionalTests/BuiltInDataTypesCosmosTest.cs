@@ -18,10 +18,6 @@ public class BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosTest.BuiltInDataTy
     public override Task Can_filter_projection_with_captured_enum_variable(bool async)
         => base.Can_filter_projection_with_captured_enum_variable(async);
 
-    [ConditionalFact(Skip = "Issue #17246 No Explicit Convert")]
-    public override Task Can_query_with_null_parameters_using_any_nullable_data_type()
-        => base.Can_query_with_null_parameters_using_any_nullable_data_type();
-
     [ConditionalFact(Skip = "Issue #16920")]
     public override Task Can_insert_and_read_back_with_string_key()
         => base.Can_insert_and_read_back_with_string_key();
@@ -93,19 +89,13 @@ WHERE ((c["$type"] = "BuiltInDataTypes") AND (c["Id"] = 13))
             => true;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.HasDiscriminatorInJsonIds();
-
-            var shadowJObject = (Property)modelBuilder.Entity<BuiltInDataTypesShadow>().Property("__jObject").Metadata;
-            shadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
-            var nullableShadowJObject = (Property)modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property("__jObject").Metadata;
-            nullableShadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
         }
     }
 }

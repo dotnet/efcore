@@ -141,7 +141,7 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
                 builder.Append(" Collection");
             }
             else if ((IsOnDependent && ForeignKey.IsRequired)
-                || (!IsOnDependent && ForeignKey.IsRequiredDependent))
+                     || (!IsOnDependent && ForeignKey.IsRequiredDependent))
             {
                 builder.Append(" Required");
             }
@@ -165,7 +165,7 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((AnnotatableBase)this).IsReadOnly)
+                && (this is RuntimeAnnotatableBase || this is AnnotatableBase { IsReadOnly: true }))
             {
                 var indexes = ((INavigation)this).GetPropertyIndexes();
                 builder.Append(' ').Append(indexes.Index);

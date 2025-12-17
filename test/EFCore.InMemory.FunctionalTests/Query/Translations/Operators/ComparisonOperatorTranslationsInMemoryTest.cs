@@ -4,4 +4,4 @@
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 
 public class ComparisonOperatorTranslationsInMemoryTest(BasicTypesQueryInMemoryFixture fixture)
-    :  ComparisonOperatorTranslationsTestBase<BasicTypesQueryInMemoryFixture>(fixture);
+    : ComparisonOperatorTranslationsTestBase<BasicTypesQueryInMemoryFixture>(fixture);

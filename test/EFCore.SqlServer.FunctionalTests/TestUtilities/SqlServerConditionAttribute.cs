@@ -27,12 +27,12 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
 
         if (Conditions.HasFlag(SqlServerCondition.IsAzureSql))
         {
-            isMet &= TestEnvironment.IsSqlAzure;
+            isMet &= TestEnvironment.IsAzureSql;
         }
 
         if (Conditions.HasFlag(SqlServerCondition.IsNotAzureSql))
         {
-            isMet &= !TestEnvironment.IsSqlAzure;
+            isMet &= !TestEnvironment.IsAzureSql;
         }
 
         if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
@@ -95,6 +95,11 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
         if (Conditions.HasFlag(SqlServerCondition.SupportsJsonType))
         {
             isMet &= TestEnvironment.IsJsonTypeSupported;
+        }
+
+        if (Conditions.HasFlag(SqlServerCondition.SupportsVectorType))
+        {
+            isMet &= TestEnvironment.IsVectorTypeSupported;
         }
 
         return ValueTask.FromResult(isMet);

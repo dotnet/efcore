@@ -48,7 +48,7 @@ public partial class InternalEntryBase
             {
                 throw new InvalidOperationException(
                     CoreStrings.ValueCannotBeNull(
-                        property.Name, property.DeclaringType.DisplayName(), property.ClrType.DisplayName()));
+                        property.Name, property.DeclaringType.DisplayName(), property.ClrType.ShortDisplayName()));
             }
 
             _values[index] = SnapshotValue(property, value);
@@ -61,14 +61,8 @@ public partial class InternalEntryBase
                 return;
             }
 
-            foreach (var property in entry.StructuralType.GetFlattenedProperties())
-            {
-                var index = property.GetOriginalValueIndex();
-                if (index >= 0)
-                {
-                    entry[property] = SnapshotValue(property, _values[index]);
-                }
-            }
+            // This isn't efficient, but avoids duplicating the logic
+            new CurrentPropertyValues((InternalEntryBase)entry).SetValues(new OriginalPropertyValues((InternalEntryBase)entry));
         }
 
         public void AcceptChanges(IInternalEntry entry)
@@ -82,19 +76,19 @@ public partial class InternalEntryBase
         }
 
         private static object? SnapshotValue(IPropertyBase propertyBase, object? value)
-        {
-            if (propertyBase is IProperty property)
+            => propertyBase switch
             {
-                return property.GetValueComparer().Snapshot(value);
-            }
-
-            if (propertyBase is IComplexProperty complexProperty && complexProperty.IsCollection && value is IList list)
-            {
-                return SnapshotFactoryFactory.SnapshotComplexCollection(list, (IRuntimeComplexProperty)complexProperty);
-            }
-
-            return value;
-        }
+                IProperty property => property.GetValueComparer().Snapshot(value),
+                IComplexProperty complexProperty when complexProperty.IsCollection
+                    => value is IList list
+                        ? SnapshotFactoryFactory.SnapshotComplexCollection(list, (IRuntimeComplexProperty)complexProperty)
+                        : value is null
+                            ? null
+                            : throw new InvalidOperationException(
+                                CoreStrings.ComplexPropertyValueNotList(
+                                    complexProperty.Name, complexProperty.ClrType, value.GetType().ShortDisplayName())),
+                _ => value
+            };
 
         public bool IsEmpty
             => _values == null;

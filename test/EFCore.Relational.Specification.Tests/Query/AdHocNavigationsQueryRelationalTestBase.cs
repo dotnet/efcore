@@ -18,11 +18,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
 
     #region 21803
 
-    [ConditionalTheory]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
+    [ConditionalTheory, InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false)]
     public virtual async Task Select_enumerable_navigation_backed_by_collection(bool async, bool split)
     {
         var contextFactory = await InitializeAsync<Context21803>(seed: c => c.SeedAsync());

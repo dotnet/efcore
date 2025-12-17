@@ -292,7 +292,7 @@ public static class RelationalTestModelBuilderExtensions
                 nonGenericBuilder.Instance.HasJsonPropertyName(name);
                 break;
         }
-		
+
         return builder;
     }
 
@@ -345,6 +345,40 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<ComplexCollectionBuilder> nonGenericBuilder:
                 nonGenericBuilder.Instance.ToJson(jsonColumnName);
                 break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexPropertyBuilder<TComplex> HasColumnType<TComplex>(
+        this ModelBuilderTest.TestComplexPropertyBuilder<TComplex> builder,
+        string? columnType)
+        where TComplex : class
+    {
+        if (builder is IInfrastructure<ComplexPropertyBuilder<TComplex>> genericBuilder)
+        {
+            genericBuilder.Instance.HasColumnType(columnType);
+        }
+        else if (builder is IInfrastructure<ComplexPropertyBuilder> nonGenericBuilder)
+        {
+            nonGenericBuilder.Instance.HasColumnType(columnType);
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexCollectionBuilder<TElement> HasColumnType<TElement>(
+        this ModelBuilderTest.TestComplexCollectionBuilder<TElement> builder,
+        string? columnType)
+        where TElement : notnull
+    {
+        if (builder is IInfrastructure<ComplexCollectionBuilder<TElement>> genericBuilder)
+        {
+            genericBuilder.Instance.HasColumnType(columnType);
+        }
+        else if (builder is IInfrastructure<ComplexCollectionBuilder> nonGenericBuilder)
+        {
+            nonGenericBuilder.Instance.HasColumnType(columnType);
         }
 
         return builder;
@@ -449,8 +483,7 @@ public static class RelationalTestModelBuilderExtensions
                 genericBuilder.Instance.ToTable(b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.ToTable(
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
+                nonGenericBuilder.Instance.ToTable(b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
                 break;
         }
 
@@ -552,14 +585,12 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.ToTable(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                genericBuilder.Instance.ToTable(b => buildAction(
+                    new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
             case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.ToTable(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                nonGenericBuilder.Instance.ToTable(b => buildAction(
+                    new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
         }
 
@@ -1014,12 +1045,12 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.UpdateUsingStoredProcedure(
-                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                genericBuilder.Instance.UpdateUsingStoredProcedure(b
+                    => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(b
+                    => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
                 break;
         }
 
@@ -1083,16 +1114,14 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.UpdateUsingStoredProcedure(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                genericBuilder.Instance.UpdateUsingStoredProcedure(b => buildAction(
+                    new RelationalModelBuilderTest.GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
             case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(b => buildAction(
+                    new RelationalModelBuilderTest.NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
         }
 
@@ -1166,12 +1195,12 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.InsertUsingStoredProcedure(
-                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                genericBuilder.Instance.InsertUsingStoredProcedure(b
+                    => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.InsertUsingStoredProcedure(
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                nonGenericBuilder.Instance.InsertUsingStoredProcedure(b
+                    => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
                 break;
         }
 
@@ -1235,16 +1264,14 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.InsertUsingStoredProcedure(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                genericBuilder.Instance.InsertUsingStoredProcedure(b => buildAction(
+                    new RelationalModelBuilderTest.GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
             case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.InsertUsingStoredProcedure(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                nonGenericBuilder.Instance.InsertUsingStoredProcedure(b => buildAction(
+                    new RelationalModelBuilderTest.NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
         }
 
@@ -1318,12 +1345,12 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.DeleteUsingStoredProcedure(
-                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                genericBuilder.Instance.DeleteUsingStoredProcedure(b
+                    => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(b
+                    => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
                 break;
         }
 
@@ -1387,16 +1414,14 @@ public static class RelationalTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.DeleteUsingStoredProcedure(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                genericBuilder.Instance.DeleteUsingStoredProcedure(b => buildAction(
+                    new RelationalModelBuilderTest.GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
             case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(
-                    b => buildAction(
-                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(b => buildAction(
+                    new RelationalModelBuilderTest.NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
         }
 
@@ -1639,6 +1664,23 @@ public static class RelationalTestModelBuilderExtensions
                 genericBuilder.Instance.HasJsonPropertyName(name);
                 break;
             case IInfrastructure<ComplexTypePropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this ModelBuilderTest.TestComplexCollectionTypePropertyBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<ComplexCollectionTypePropertyBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<ComplexCollectionTypePropertyBuilder> nonGenericBuilder:
                 nonGenericBuilder.Instance.HasJsonPropertyName(name);
                 break;
         }

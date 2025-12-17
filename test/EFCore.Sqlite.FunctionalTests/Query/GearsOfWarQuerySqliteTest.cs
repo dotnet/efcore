@@ -53,8 +53,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collections_inner_subquery_predicate_references_outer_qsre(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collections_inner_subquery_predicate_references_outer_qsre(async))).Message);
 
         AssertSql();
     }
@@ -63,8 +63,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collections_inner_subquery_selector_references_outer_qsre(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collections_inner_subquery_selector_references_outer_qsre(async))).Message);
 
         AssertSql();
     }
@@ -73,8 +73,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(async))).Message);
 
         AssertSql();
     }
@@ -83,8 +83,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(async))).Message);
 
         AssertSql();
     }
@@ -93,8 +93,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Outer_parameter_in_group_join_with_DefaultIfEmpty(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Outer_parameter_in_group_join_with_DefaultIfEmpty(async)))
+            .Message);
 
         AssertSql();
     }
@@ -103,8 +103,7 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Outer_parameter_in_join_key(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Outer_parameter_in_join_key(async))).Message);
 
         AssertSql();
     }
@@ -113,8 +112,7 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Outer_parameter_in_join_key_inner_and_outer(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Outer_parameter_in_join_key_inner_and_outer(async))).Message);
 
         AssertSql();
     }
@@ -123,8 +121,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion(async))).Message);
 
         AssertSql();
     }
@@ -133,8 +131,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(async))).Message);
 
         AssertSql();
     }
@@ -144,8 +142,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(async)))
             .Message);
 
         AssertSql();
@@ -156,9 +154,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base
-                    .Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base
+                .Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(async)))
             .Message);
 
         AssertSql();
@@ -168,8 +165,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async))).Message);
 
         AssertSql();
     }
@@ -178,8 +175,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async))).Message);
 
         AssertSql();
     }
@@ -189,8 +186,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
                     async))).Message);
 
         AssertSql();
@@ -202,10 +199,9 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base
-                    .Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(
-                        async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base
+                .Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(
+                    async))).Message);
 
         AssertSql();
     }
@@ -215,10 +211,9 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base
-                    .Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(
-                        async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base
+                .Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(
+                    async))).Message);
 
         AssertSql();
     }
@@ -227,8 +222,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_distinct_projecting_identifier_column(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_distinct_projecting_identifier_column(async))).Message);
 
         AssertSql();
     }
@@ -237,8 +232,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_distinct_not_projecting_identifier_column(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_with_distinct_not_projecting_identifier_column(async))).Message);
 
         AssertSql();
     }
@@ -247,8 +242,8 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async)))
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async)))
             .Message);
 
         AssertSql();
@@ -265,8 +260,7 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_after_distinct_3_levels(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Correlated_collection_after_distinct_3_levels(async))).Message);
 
         AssertSql();
     }
@@ -275,8 +269,7 @@ FROM "Missions" AS "m"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collections_with_Distinct(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Correlated_collections_with_Distinct(async))).Message);
 
         AssertSql();
     }
@@ -406,12 +399,16 @@ FROM "Tags" AS "t"
 @tags4='a8ad98f9-e023-4e2a-9a70-c2728455bd34'
 @tags5='b39a6fba-9026-4d69-828e-fd7068673e57'
 @tags6='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags7='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags8='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags9='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags10='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 INNER JOIN "Cities" AS "c" ON "g"."CityOfBirthName" = "c"."Name"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "c"."Location" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6)
+WHERE "c"."Location" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6, @tags7, @tags8, @tags9, @tags10)
 """);
     }
 
@@ -690,7 +687,7 @@ WHERE "g"."HasSoulPatch"
 
         AssertSql(
             """
-@p0='10'
+@p1='10'
 @p='0'
 
 SELECT "s"."Nickname", "s"."SquadId", "s"."AssignedCityName", "s"."CityOfBirthName", "s"."Discriminator", "s"."FullName", "s"."HasSoulPatch", "s"."LeaderNickname", "s"."LeaderSquadId", "s"."Rank", "s"."HasSoulPatch0", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
@@ -704,7 +701,7 @@ FROM (
         GROUP BY "g0"."HasSoulPatch"
     ) AS "g1" ON length("g"."Nickname") = "g1"."c"
     ORDER BY "g"."Nickname"
-    LIMIT @p0 OFFSET @p
+    LIMIT @p1 OFFSET @p
 ) AS "s"
 LEFT JOIN "Weapons" AS "w" ON "s"."FullName" = "w"."OwnerFullName"
 ORDER BY "s"."Nickname", "s"."SquadId", "s"."HasSoulPatch0"
@@ -758,7 +755,8 @@ FROM "Weapons" AS "w"
         AssertSql(
             """
 @cities1='Unknown' (Size = 7)
-@cities2='Jacinto's location' (Size = 18), @cities3='Ephyra's location' (Size = 17)
+@cities2='Jacinto's location' (Size = 18)
+@cities3='Ephyra's location' (Size = 17)
 
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
@@ -3124,11 +3122,15 @@ FROM "Tags" AS "t"
 @tags4='a8ad98f9-e023-4e2a-9a70-c2728455bd34'
 @tags5='b39a6fba-9026-4d69-828e-fd7068673e57'
 @tags6='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags7='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags8='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags9='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags10='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6)
+WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6, @tags7, @tags8, @tags9, @tags10)
 """);
     }
 
@@ -4197,11 +4199,15 @@ FROM "Tags" AS "t"
 @tags4='a8ad98f9-e023-4e2a-9a70-c2728455bd34'
 @tags5='b39a6fba-9026-4d69-828e-fd7068673e57'
 @tags6='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags7='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags8='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags9='df36f493-463f-4123-83f9-6b135deeb7ba'
+@tags10='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6)
+WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (@tags1, @tags2, @tags3, @tags4, @tags5, @tags6, @tags7, @tags8, @tags9, @tags10)
 """);
     }
 
@@ -5509,6 +5515,60 @@ LEFT JOIN (
     FROM "Weapons" AS "w"
     WHERE "w"."Id" > @prm
 ) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT "m0"."Rating"
+FROM (
+    SELECT 1
+) AS "e"
+LEFT JOIN (
+    SELECT "m"."Rating"
+    FROM "Missions" AS "m"
+    WHERE "m"."Id" = -1
+) AS "m0" ON 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT "m0"."c"
+FROM (
+    SELECT 1
+) AS "e"
+LEFT JOIN (
+    SELECT "m"."Rating" + 2.0 AS "c"
+    FROM "Missions" AS "m"
+    WHERE "m"."Id" = -1
+) AS "m0" ON 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE("m0"."c", 0)
+FROM (
+    SELECT 1
+) AS "e"
+LEFT JOIN (
+    SELECT "m"."Id" + 2 AS "c"
+    FROM "Missions" AS "m"
+    WHERE "m"."Id" = -1
+) AS "m0" ON 1
 """);
     }
 
@@ -8045,10 +8105,9 @@ FROM "Gears" AS "g"
     {
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base
-                    .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-                        async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base
+                .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                    async))).Message);
 
         AssertSql();
     }
@@ -8618,8 +8677,8 @@ WHERE NOT EXISTS (
 
     public override async Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
     {
-        var message = (await Assert.ThrowsAsync<SqliteException>(
-            () => base.Where_subquery_with_ElementAt_using_column_as_index(async))).Message;
+        var message = (await Assert.ThrowsAsync<SqliteException>(() => base.Where_subquery_with_ElementAt_using_column_as_index(async)))
+            .Message;
 
         Assert.Equal("SQLite Error 1: 'no such column: s.Id'.", message);
 
@@ -8705,7 +8764,8 @@ END IN (@numbers1, @numbers2)
 
         AssertSql(
             """
-@weapons1='Marcus' Lancer' (Size = 14), @weapons2='Dom's Gnasher' (Size = 13)
+@weapons1='Marcus' Lancer' (Size = 14)
+@weapons2='Dom's Gnasher' (Size = 13)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
@@ -8738,7 +8798,7 @@ LEFT JOIN (
     ) AS "w0"
     WHERE "w0"."row" <= COALESCE((
         SELECT "n"."Value"
-        FROM (SELECT 1 AS "_ord", @numbers1 AS "Value" UNION ALL VALUES (2, @numbers2), (3, @numbers3)) AS "n"
+        FROM (SELECT @numbers1 AS "Value" UNION ALL VALUES (@numbers2), (@numbers3)) AS "n"
         ORDER BY "n"."Value"
         LIMIT 1 OFFSET 1), 0)
 ) AS "w1" ON "g"."FullName" = "w1"."OwnerFullName"

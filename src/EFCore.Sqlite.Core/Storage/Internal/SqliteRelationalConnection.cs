@@ -159,7 +159,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 seed: null,
                 (decimal? max, decimal? value) => max is null
                     ? value
-                    : value is null ? max : decimal.Max(max.Value, value.Value),
+                    : value is null
+                        ? max
+                        : decimal.Max(max.Value, value.Value),
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(
@@ -167,7 +169,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 seed: null,
                 (decimal? min, decimal? value) => min is null
                     ? value
-                    : value is null ? min : decimal.Min(min.Value, value.Value),
+                    : value is null
+                        ? min
+                        : decimal.Min(min.Value, value.Value),
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(

@@ -374,7 +374,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
     {
         var mainBuilder = parameters.MainBuilder;
         var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
-        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
+        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<>.JsonReaderWriter));
         if (constructor == null
             || jsonReaderWriterProperty == null)
         {
@@ -455,7 +455,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
             .Any(t => t == typeof(ValueComparer) || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ValueComparer<>)));
 
         if (!containsNestedComparerCtor
-            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
+            || comparer is not IInfrastructure<ValueComparer> { Instance: { } underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);

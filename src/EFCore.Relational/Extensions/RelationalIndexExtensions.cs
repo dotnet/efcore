@@ -170,7 +170,7 @@ public static class RelationalIndexExtensions
         index.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableIndexMappings)
-            ?? Enumerable.Empty<ITableIndex>();
+            ?? [];
     }
 
     /// <summary>

@@ -10,8 +10,7 @@ public abstract class SharedTypeQueryTestBase(NonSharedFixture fixture) : NonSha
     protected override string StoreName
         => "SharedTypeQueryTests";
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext24601>(

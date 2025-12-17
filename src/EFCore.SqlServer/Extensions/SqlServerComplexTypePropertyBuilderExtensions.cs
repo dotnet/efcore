@@ -295,7 +295,8 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         object? value,
         string defaultConstraintName)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValue((ComplexTypePropertyBuilder)propertyBuilder, value, defaultConstraintName);
+        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValue(
+            (ComplexTypePropertyBuilder)propertyBuilder, value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -335,5 +336,6 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? sql,
         string defaultConstraintName)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValueSql((ComplexTypePropertyBuilder)propertyBuilder, sql, defaultConstraintName);
+        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValueSql(
+            (ComplexTypePropertyBuilder)propertyBuilder, sql, defaultConstraintName);
 }

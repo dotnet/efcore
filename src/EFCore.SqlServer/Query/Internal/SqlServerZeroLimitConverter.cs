@@ -15,7 +15,7 @@ public class SqlServerZeroLimitConverter : ExpressionVisitor
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    private CacheSafeParameterFacade _parametersFacade;
+    private ParametersCacheDecorator _parametersDecorator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,7 +26,7 @@ public class SqlServerZeroLimitConverter : ExpressionVisitor
     public SqlServerZeroLimitConverter(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
-        _parametersFacade = null!;
+        _parametersDecorator = null!;
     }
 
     /// <summary>
@@ -35,9 +35,9 @@ public class SqlServerZeroLimitConverter : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Process(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
+    public virtual Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
-        _parametersFacade = parametersFacade;
+        _parametersDecorator = parametersDecorator;
 
         return Visit(queryExpression);
     }
@@ -72,7 +72,7 @@ public class SqlServerZeroLimitConverter : ExpressionVisitor
                 => sqlExpression switch
                 {
                     SqlConstantExpression { Value: int i } => i == 0,
-                    SqlParameterExpression p => _parametersFacade.GetParametersAndDisableSqlCaching()[p.Name] is 0,
+                    SqlParameterExpression p => _parametersDecorator.GetAndDisableCaching()[p.Name] is 0,
                     _ => false
                 };
         }

@@ -198,13 +198,13 @@ public static class CosmosPropertyBuilderExtensions
         int dimensions,
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(
-            CosmosAnnotationNames.VectorDistanceFunction,
-            ValidateVectorDistanceFunction(distanceFunction),
-            fromDataAnnotation)
-        && propertyBuilder.CanSetAnnotation(
-            CosmosAnnotationNames.VectorDimensions,
-            dimensions,
-            fromDataAnnotation);
+                CosmosAnnotationNames.VectorDistanceFunction,
+                ValidateVectorDistanceFunction(distanceFunction),
+                fromDataAnnotation)
+            && propertyBuilder.CanSetAnnotation(
+                CosmosAnnotationNames.VectorDimensions,
+                dimensions,
+                fromDataAnnotation);
 
     private static DistanceFunction ValidateVectorDistanceFunction(DistanceFunction distanceFunction)
         => Enum.IsDefined(distanceFunction)
@@ -256,7 +256,10 @@ public static class CosmosPropertyBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
+    /// <param name="language">
+    ///     The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for
+    ///     the container, or "en-US" if default language was not specified.
+    /// </param>
     /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder EnableFullTextSearch(
@@ -283,7 +286,10 @@ public static class CosmosPropertyBuilderExtensions
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
+    /// <param name="language">
+    ///     The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for
+    ///     the container, or "en-US" if default language was not specified.
+    /// </param>
     /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertyBuilder<TProperty> EnableFullTextSearch<TProperty>(
@@ -300,7 +306,10 @@ public static class CosmosPropertyBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="language">The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for the container, or "en-US" if default language was not specified.</param>
+    /// <param name="language">
+    ///     The language used for full-text search. Setting this to (<see langword="null" /> will use the default language for
+    ///     the container, or "en-US" if default language was not specified.
+    /// </param>
     /// <param name="enabled">The value indicating whether full-text search should be enabled for this property.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>

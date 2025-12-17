@@ -281,3 +281,6 @@ dotnet_naming_rule.everything_else_naming.severity = suggestion
 
 # ReSharper properties
 resharper_local_function_body = expression_body
+
+# CS9236: Compiling requires binding the lambda expression at least 100 times
+dotnet_diagnostic.CS9236.severity = error

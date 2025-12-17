@@ -83,6 +83,14 @@ public class CosmosModelValidator : ModelValidator
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
+                if (complexProperty.IsCollection)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.ComplexTypeCollectionsNotSupported(
+                            complexProperty.ComplexType.ShortName(),
+                            complexProperty.Name));
+                }
+
                 ValidateType(complexProperty.ComplexType, logger);
             }
         }
@@ -161,11 +169,10 @@ public class CosmosModelValidator : ModelValidator
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var discriminatorValues = new Dictionary<object, IEntityType>();
-        List<string?> partitionKeyStoreNames = new();
+        List<string?> partitionKeyStoreNames = [];
         int? analyticalTtl = null;
         int? defaultTtl = null;
         ThroughputProperties? throughput = null;
-        string? defaultFullTextSearchLanguage = null;
         IEntityType? firstEntityType = null;
         bool? isDiscriminatorMappingComplete = null;
 
@@ -328,27 +335,6 @@ public class CosmosModelValidator : ModelValidator
 
                     throw new InvalidOperationException(
                         CosmosStrings.ThroughputTypeMismatch(manualType.DisplayName(), autoscaleType.DisplayName(), container));
-                }
-            }
-
-            var currentFullTextSearchDefaultLanguage = entityType.GetDefaultFullTextSearchLanguage();
-            if (currentFullTextSearchDefaultLanguage != null)
-            {
-                if (defaultFullTextSearchLanguage == null)
-                {
-                    defaultFullTextSearchLanguage = currentFullTextSearchDefaultLanguage;
-                }
-                else if (defaultFullTextSearchLanguage != currentFullTextSearchDefaultLanguage)
-                {
-                    var conflictingEntityType = mappedTypes.First(et => et.GetDefaultFullTextSearchLanguage() != null);
-
-                    throw new InvalidOperationException(
-                        CosmosStrings.FullTextSearchDefaultLanguageMismatch(
-                            defaultFullTextSearchLanguage,
-                            conflictingEntityType.DisplayName(),
-                            entityType.DisplayName(),
-                            currentFullTextSearchDefaultLanguage,
-                            container));
                 }
             }
         }
@@ -643,6 +629,43 @@ public class CosmosModelValidator : ModelValidator
                 {
                     // Will throw if the data type is not set and cannot be inferred.
                     CosmosVectorType.CreateDefaultVectorDataType(property.ClrType);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ValidateTriggers(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateTriggers(model, logger);
+
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                if (entityType.BaseType != null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.TriggerOnDerivedType(trigger.ModelName, entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+
+                if (trigger.GetTriggerType() == null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.TriggerMissingType(trigger.ModelName, entityType.DisplayName()));
+                }
+
+                if (trigger.GetTriggerOperation() == null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.TriggerMissingOperation(trigger.ModelName, entityType.DisplayName()));
                 }
             }
         }

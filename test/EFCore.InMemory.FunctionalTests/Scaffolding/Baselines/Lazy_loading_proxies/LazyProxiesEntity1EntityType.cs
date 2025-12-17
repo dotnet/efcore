@@ -60,7 +60,7 @@ namespace TestNamespace
                 int (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : (entry.FlaggedAsTemporary(0) && LazyProxiesEntity1UnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyProxiesEntity1)(entry.Entity))) == 0 ? entry.ReadTemporaryValue<int>(0) : LazyProxiesEntity1UnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyProxiesEntity1)(entry.Entity))))),
                 int (IInternalEntry entry) => LazyProxiesEntity1UnsafeAccessors.Id(((CompiledModelInMemoryTest.LazyProxiesEntity1)(entry.Entity))),
                 int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int>(id, 0));
+                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -92,7 +92,7 @@ namespace TestNamespace
                 int? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<int?>(1) : (entry.FlaggedAsTemporary(1) && !(entry.ReadShadowValue<int?>(0).HasValue) ? entry.ReadTemporaryValue<int?>(1) : entry.ReadShadowValue<int?>(0))),
                 int? (IInternalEntry entry) => entry.ReadShadowValue<int?>(0),
                 int? (IInternalEntry entry) => entry.ReadOriginalValue<int?>(referenceNavigationId, 1),
-                int? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<int?>(referenceNavigationId, 1));
+                int? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int?>(referenceNavigationId, 1));
             referenceNavigationId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -212,8 +212,8 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             collectionNavigation.SetCollectionAccessor<CompiledModelInMemoryTest.LazyProxiesEntity2, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>, CompiledModelInMemoryTest.LazyProxiesEntity1>(
                 ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2UnsafeAccessors.CollectionNavigation(entity),
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2UnsafeAccessors.CollectionNavigation(entity) = ((ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)(collection)),
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2UnsafeAccessors.CollectionNavigation(entity) = ((ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)(collection)),
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2UnsafeAccessors.CollectionNavigation(entity) = ((ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)collection),
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2UnsafeAccessors.CollectionNavigation(entity) = ((ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)collection),
                 ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, Action<CompiledModelInMemoryTest.LazyProxiesEntity2, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelInMemoryTest.LazyProxiesEntity2, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>, CompiledModelInMemoryTest.LazyProxiesEntity1>(entity, setter),
                 ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> () => ((ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)(((ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)(new HashSet<CompiledModelInMemoryTest.LazyProxiesEntity1>(ReferenceEqualityComparer.Instance))))));
             return runtimeForeignKey;

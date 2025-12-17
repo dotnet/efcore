@@ -32,7 +32,7 @@ internal static class DictionaryExtensions
     public static bool TryGetAndRemove<TKey, TValue, TReturn>(
         this IDictionary<TKey, TValue> source,
         TKey key,
-        [NotNullWhen(true)] out TReturn value)
+        [NotNullWhen(true)] out TReturn? value)
     {
         if (source.TryGetValue(key, out var item)
             && item != null)
@@ -42,7 +42,7 @@ internal static class DictionaryExtensions
             return true;
         }
 
-        value = default!;
+        value = default;
         return false;
     }
 

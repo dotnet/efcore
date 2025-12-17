@@ -81,7 +81,7 @@ public class SqlConstantExpression : SqlExpression
     public virtual object? Value { get; }
 
     /// <summary>
-    ///    Whether the expression contains sensitive values.
+    ///     Whether the expression contains sensitive values.
     /// </summary>
     public virtual bool IsSensitive { get; }
 

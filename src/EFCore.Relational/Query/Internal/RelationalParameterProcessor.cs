@@ -28,15 +28,18 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
     /// <summary>
     ///     Contains parameter names seen so far, for uniquification. These parameter names have already gone through
-    ///     <see cref="ISqlGenerationHelper.GenerateParameterName(string)"/> (i.e. they're prefixed), since
+    ///     <see cref="ISqlGenerationHelper.GenerateParameterName(string)" /> (i.e. they're prefixed), since
     ///     <see cref="DbParameter.ParameterName" /> can be prefixed or not.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = new();
+    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
 
-    private CacheSafeParameterFacade _parametersFacade;
+    private ParametersCacheDecorator _parametersDecorator;
     private ParameterNameGenerator _parameterNameGenerator;
+
+    private static readonly bool UseOldBehavior37189 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37189", out var enabled37189) && enabled37189;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,7 +56,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         _typeMappingSource = dependencies.TypeMappingSource;
         _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-        _parametersFacade = default!;
+        _parametersDecorator = default!;
         _parameterNameGenerator = default!;
     }
 
@@ -68,13 +71,13 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Expand(Expression queryExpression, CacheSafeParameterFacade parametersFacade)
+    public virtual Expression Expand(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
         _visitedFromSqlExpressions.Clear();
         _prefixedParameterNames.Clear();
         _sqlParameters.Clear();
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-        _parametersFacade = parametersFacade;
+        _parametersDecorator = parametersDecorator;
 
         var result = Visit(queryExpression);
 
@@ -112,12 +115,12 @@ public class RelationalParameterProcessor : ExpressionVisitor
         // that we need to ensure that there's only ever one type mapping instance (i.e. no type mappings are ever instantiated out of the
         // type mapping source). See #30677.
         if (_sqlParameters.TryGetValue(parameter.InvariantName, out var existingParameter)
-            && existingParameter is { TypeMapping: RelationalTypeMapping existingTypeMapping }
+            && existingParameter is { TypeMapping: { } existingTypeMapping }
             && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
             && (existingTypeMapping.Converter is null && typeMapping.Converter is null
                 || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)))
         {
-            return parameter;
+            return UseOldBehavior37189 ? parameter : existingParameter;
         }
 
         var uniquifiedName = UniquifyParameterName(parameter.Name);
@@ -128,7 +131,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
                 uniquifiedName,
                 parameter.Type,
                 parameter.IsNullable,
-                parameter.ShouldBeConstantized,
+                parameter.TranslationMode,
                 parameter.TypeMapping);
 
         return _sqlParameters[newParameter.InvariantName] = newParameter;
@@ -140,7 +143,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         {
             case QueryParameterExpression queryParameter:
                 // parameter value will never be null. It could be empty object?[]
-                var parameters = _parametersFacade.GetParametersAndDisableSqlCaching();
+                var parameters = _parametersDecorator.GetAndDisableCaching();
                 var parameterValues = (object?[])parameters[queryParameter.Name]!;
 
                 var subParameters = new List<IRelationalParameter>(parameterValues.Length);
@@ -214,11 +217,9 @@ public class RelationalParameterProcessor : ExpressionVisitor
         }
 
         void ProcessDbParameter(DbParameter dbParameter)
-        {
-            dbParameter.ParameterName = string.IsNullOrEmpty(dbParameter.ParameterName)
+            => dbParameter.ParameterName = string.IsNullOrEmpty(dbParameter.ParameterName)
                 ? GenerateNewParameterName()
                 : UniquifyParameterName(dbParameter.ParameterName);
-        }
     }
 
     private string GenerateNewParameterName()
