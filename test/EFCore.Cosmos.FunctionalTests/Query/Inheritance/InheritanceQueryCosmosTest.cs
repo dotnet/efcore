@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query;
+namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
@@ -19,13 +19,6 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
-
-    public override async Task Filter_on_property_inside_complex_type_on_derived_type(bool async)
-    {
-        await base.Filter_on_property_inside_complex_type_on_derived_type(async);
-
-        AssertSql();
-    }
 
     public override async Task Using_OfType_on_multiple_type_with_no_result(bool async)
     {

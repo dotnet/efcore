@@ -36,7 +36,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
             CoreEventId.MappedNavigationIgnoredWarning));
 
     public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
+        => CreateContext;
 
     public virtual ISetSource GetExpectedData()
         => UseGeneratedKeys
@@ -83,304 +83,393 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         { typeof(Coke), e => ((Coke)e)?.SortIndex },
         { typeof(Lilt), e => ((Lilt)e)?.SortIndex },
         { typeof(Tea), e => ((Tea)e)?.SortIndex },
+        { typeof(ComplexType), e => ((ComplexType)e)?.UniqueInt },
+        { typeof(NestedComplexType), e => ((NestedComplexType)e)?.UniqueInt },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
-    {
+    public IReadOnlyDictionary<Type, object> EntityAsserters { get; }
+
+    public InheritanceQueryFixtureBase()
+        => EntityAsserters = new Dictionary<Type, Action<object, object>>
         {
-            typeof(Animal), (e, a) =>
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(Animal), (e, a) =>
                 {
-                    var ee = (Animal)e;
-                    var aa = (Animal)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                }
-            }
-        },
-        {
-            typeof(Bird), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (Bird)e;
-                    var aa = (Bird)a;
-
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                    Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                }
-            }
-        },
-        {
-            typeof(Eagle), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (Eagle)e;
-                    var aa = (Eagle)a;
-
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                    Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.Group, aa.Group);
-                }
-            }
-        },
-        {
-            typeof(Kiwi), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (Kiwi)e;
-                    var aa = (Kiwi)a;
-
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                    Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.FoundOn, aa.FoundOn);
-                }
-            }
-        },
-        {
-            typeof(AnimalQuery), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (AnimalQuery)e;
-                    var aa = (AnimalQuery)a;
-
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                }
-            }
-        },
-        {
-            typeof(BirdQuery), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (BirdQuery)e;
-                    var aa = (BirdQuery)a;
-
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                    Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
-                }
-            }
-        },
-        {
-            typeof(EagleQuery), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (EagleQuery)e;
-                    var aa = (EagleQuery)a;
-
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                    Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
-                    Assert.Equal(ee.Group, aa.Group);
-                }
-            }
-        },
-        {
-            typeof(KiwiQuery), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (KiwiQuery)e;
-                    var aa = (KiwiQuery)a;
-
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.CountryId, aa.CountryId);
-                    Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
-                    Assert.Equal(ee.FoundOn, aa.FoundOn);
-                }
-            }
-        },
-        {
-            typeof(Plant), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (Plant)e;
-                    var aa = (Plant)a;
-
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.Genus, aa.Genus);
-                }
-            }
-        },
-        {
-            typeof(Flower), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (Flower)e;
-                    var aa = (Flower)a;
-
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.Genus, aa.Genus);
-                }
-            }
-        },
-        {
-            typeof(Daisy), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
-                {
-                    var ee = (Daisy)e;
-                    var aa = (Daisy)a;
-
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.Genus, aa.Genus);
-
-                    Assert.Equal(ee.AdditionalInfo is null, aa.AdditionalInfo is null);
-                    if (ee.AdditionalInfo is not null)
+                    if (a != null)
                     {
-                        Assert.Equal(ee.AdditionalInfo.Nickname, aa.AdditionalInfo!.Nickname);
+                        var ee = (Animal)e;
+                        var aa = (Animal)a;
 
-                        Assert.Equal(ee.AdditionalInfo.LeafStructure is null, aa.AdditionalInfo.LeafStructure is null);
-                        if (ee.AdditionalInfo.LeafStructure is not null)
-                        {
-                            Assert.Equal(ee.AdditionalInfo.LeafStructure.NumLeaves, aa.AdditionalInfo.LeafStructure!.NumLeaves);
-                            Assert.Equal(ee.AdditionalInfo.LeafStructure.AreLeavesBig, aa.AdditionalInfo.LeafStructure.AreLeavesBig);
-                        }
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
                     }
                 }
-            }
-        },
-        {
-            typeof(Rose), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(Bird), (e, a) =>
                 {
-                    var ee = (Rose)e;
-                    var aa = (Rose)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.Species, aa.Species);
-                    Assert.Equal(ee.Name, aa.Name);
-                    Assert.Equal(ee.Genus, aa.Genus);
-                    Assert.Equal(ee.HasThorns, aa.HasThorns);
+                    if (a != null)
+                    {
+                        var ee = (Bird)e;
+                        var aa = (Bird)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                        Assert.Equal(ee.IsFlightless, aa.IsFlightless);
+                    }
                 }
-            }
-        },
-        {
-            typeof(Country), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(Eagle), (e, a) =>
                 {
-                    var ee = (Country)e;
-                    var aa = (Country)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.Name, aa.Name);
+                    if (a != null)
+                    {
+                        var ee = (Eagle)e;
+                        var aa = (Eagle)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                        Assert.Equal(ee.IsFlightless, aa.IsFlightless);
+                        Assert.Equal(ee.Group, aa.Group);
+                    }
                 }
-            }
-        },
-        {
-            typeof(Drink), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(Kiwi), (e, a) =>
                 {
-                    var ee = (Drink)e;
-                    var aa = (Drink)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.SortIndex, aa.SortIndex);
+                    if (a != null)
+                    {
+                        var ee = (Kiwi)e;
+                        var aa = (Kiwi)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                        Assert.Equal(ee.IsFlightless, aa.IsFlightless);
+                        Assert.Equal(ee.FoundOn, aa.FoundOn);
+                    }
                 }
-            }
-        },
-        {
-            typeof(Coke), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(AnimalQuery), (e, a) =>
                 {
-                    var ee = (Coke)e;
-                    var aa = (Coke)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.SortIndex, aa.SortIndex);
-                    Assert.Equal(ee.SugarGrams, aa.SugarGrams);
-                    Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
-                    Assert.Equal(ee.Carbonation, aa.Carbonation);
+                    if (a != null)
+                    {
+                        var ee = (AnimalQuery)e;
+                        var aa = (AnimalQuery)a;
+
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                    }
                 }
-            }
-        },
-        {
-            typeof(Lilt), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(BirdQuery), (e, a) =>
                 {
-                    var ee = (Lilt)e;
-                    var aa = (Lilt)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.SortIndex, aa.SortIndex);
-                    Assert.Equal(ee.SugarGrams, aa.SugarGrams);
-                    Assert.Equal(ee.Carbonation, aa.Carbonation);
+                    if (a != null)
+                    {
+                        var ee = (BirdQuery)e;
+                        var aa = (BirdQuery)a;
+
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                        Assert.Equal(ee.IsFlightless, aa.IsFlightless);
+                        Assert.Equal(ee.EagleId, aa.EagleId);
+                    }
                 }
-            }
-        },
-        {
-            typeof(Tea), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-
-                if (a != null)
+                typeof(EagleQuery), (e, a) =>
                 {
-                    var ee = (Tea)e;
-                    var aa = (Tea)a;
+                    Assert.Equal(e == null, a == null);
 
-                    Assert.Equal(ee.SortIndex, aa.SortIndex);
-                    Assert.Equal(ee.HasMilk, aa.HasMilk);
-                    Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
+                    if (a != null)
+                    {
+                        var ee = (EagleQuery)e;
+                        var aa = (EagleQuery)a;
+
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                        Assert.Equal(ee.IsFlightless, aa.IsFlightless);
+                        Assert.Equal(ee.EagleId, aa.EagleId);
+                        Assert.Equal(ee.Group, aa.Group);
+                    }
                 }
+            },
+            {
+                typeof(KiwiQuery), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (KiwiQuery)e;
+                        var aa = (KiwiQuery)a;
+
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.CountryId, aa.CountryId);
+                        Assert.Equal(ee.IsFlightless, aa.IsFlightless);
+                        Assert.Equal(ee.EagleId, aa.EagleId);
+                        Assert.Equal(ee.FoundOn, aa.FoundOn);
+                    }
+                }
+            },
+            {
+                typeof(Plant), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Plant)e;
+                        var aa = (Plant)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.Genus, aa.Genus);
+                    }
+                }
+            },
+            {
+                typeof(Flower), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Flower)e;
+                        var aa = (Flower)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.Genus, aa.Genus);
+                    }
+                }
+            },
+            {
+                typeof(Daisy), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Daisy)e;
+                        var aa = (Daisy)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.Genus, aa.Genus);
+                    }
+                }
+            },
+            {
+                typeof(Rose), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Rose)e;
+                        var aa = (Rose)a;
+
+                        Assert.Equal(ee.Species, aa.Species);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.Genus, aa.Genus);
+                        Assert.Equal(ee.HasThorns, aa.HasThorns);
+                    }
+                }
+            },
+            {
+                typeof(Country), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Country)e;
+                        var aa = (Country)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                    }
+                }
+            },
+            {
+                typeof(Drink), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Drink)e;
+                        var aa = (Drink)a;
+
+                        Assert.Equal(ee.SortIndex, aa.SortIndex);
+
+                        AssertComplexType(ee.ParentComplexType, aa.ParentComplexType);
+                        AssertComplexTypes(ee.ComplexTypeCollection, aa.ComplexTypeCollection);
+                    }
+                }
+            },
+            {
+                typeof(Coke), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Coke)e;
+                        var aa = (Coke)a;
+
+                        Assert.Equal(ee.SortIndex, aa.SortIndex);
+                        Assert.Equal(ee.SugarGrams, aa.SugarGrams);
+                        Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
+                        Assert.Equal(ee.Carbonation, aa.Carbonation);
+
+                        AssertComplexType(ee.ParentComplexType, aa.ParentComplexType);
+                        AssertComplexType(ee.ChildComplexType, aa.ChildComplexType);
+                        AssertComplexTypes(ee.ComplexTypeCollection, aa.ComplexTypeCollection);
+                    }
+                }
+            },
+            {
+                typeof(Lilt), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Lilt)e;
+                        var aa = (Lilt)a;
+
+                        Assert.Equal(ee.SortIndex, aa.SortIndex);
+                        Assert.Equal(ee.SugarGrams, aa.SugarGrams);
+                        Assert.Equal(ee.Carbonation, aa.Carbonation);
+
+                        AssertComplexType(ee.ParentComplexType, aa.ParentComplexType);
+                        AssertComplexTypes(ee.ComplexTypeCollection, aa.ComplexTypeCollection);
+                    }
+                }
+            },
+            {
+                typeof(Tea), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Tea)e;
+                        var aa = (Tea)a;
+
+                        Assert.Equal(ee.SortIndex, aa.SortIndex);
+                        Assert.Equal(ee.HasMilk, aa.HasMilk);
+                        Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
+
+                        AssertComplexType(ee.ParentComplexType, aa.ParentComplexType);
+                        AssertComplexType(ee.ChildComplexType, aa.ChildComplexType);
+                        AssertComplexTypes(ee.ComplexTypeCollection, aa.ComplexTypeCollection);
+                    }
+                }
+            },
+            {
+                typeof(ComplexType), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (ComplexType)e;
+                        var aa = (ComplexType)a;
+
+                        AssertComplexType(ee, aa);
+                    }
+                }
+            },
+            {
+                typeof(NestedComplexType), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (NestedComplexType)e;
+                        var aa = (NestedComplexType)a;
+
+                        AssertNestedComplexType(ee, aa);
+                    }
+                }
+            },
+        }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+    private void AssertComplexType(ComplexType e, ComplexType a)
+    {
+        if (!EnableComplexTypes)
+        {
+            return;
+        }
+
+        Assert.Equal(e is null, a is null);
+
+        if (e is not null)
+        {
+            Assert.Equal(e.UniqueInt, a.UniqueInt);
+            Assert.Equal(e.Int, a.Int);
+
+            Assert.Equal(e.Nested is null, a.Nested is null);
+            if (e.Nested is not null)
+            {
+                AssertNestedComplexType(e.Nested, a.Nested);
             }
-        },
-    }.ToDictionary(e => e.Key, e => (object)e.Value);
+        }
+    }
+
+    private void AssertNestedComplexType(NestedComplexType e, NestedComplexType a)
+    {
+        if (!EnableComplexTypes)
+        {
+            return;
+        }
+
+        Assert.Equal(e is null, a is null);
+
+        if (e is not null)
+        {
+            Assert.Equal(e.UniqueInt, a.UniqueInt);
+            Assert.Equal(e.NestedInt, a.NestedInt);
+        }
+    }
+
+    private void AssertComplexTypes(List<ComplexType> e, List<ComplexType> a)
+    {
+        if (!EnableComplexTypes)
+        {
+            return;
+        }
+
+        Assert.NotNull(e);
+        Assert.NotNull(a);
+
+        Assert.Equal(e.Count, a.Count);
+        for (var i = 0; i < e.Count; i++)
+        {
+            AssertComplexType(e[i], a[i]);
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -428,13 +517,25 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 
         if (EnableComplexTypes)
         {
-            modelBuilder.Entity<Daisy>()
-                .ComplexProperty(d => d.AdditionalInfo)
-                .ComplexProperty(a => a.LeafStructure);
+            modelBuilder.Entity<Drink>(b =>
+            {
+                b.ComplexProperty(d => d.ParentComplexType);
+                b.ComplexCollection(d => d.ComplexTypeCollection);
+            });
+
+            modelBuilder.Entity<Coke>().ComplexProperty(c => c.ChildComplexType);
+            modelBuilder.Entity<Tea>().ComplexProperty(t => t.ChildComplexType);
         }
         else
         {
-            modelBuilder.Entity<Daisy>().Ignore(d => d.AdditionalInfo);
+            modelBuilder.Entity<Drink>(b =>
+            {
+                b.Ignore(d => d.ParentComplexType);
+                b.Ignore(d => d.ComplexTypeCollection);
+            });
+
+            modelBuilder.Entity<Coke>().Ignore(c => c.ChildComplexType);
+            modelBuilder.Entity<Tea>().Ignore(t => t.ChildComplexType);
         }
     }
 

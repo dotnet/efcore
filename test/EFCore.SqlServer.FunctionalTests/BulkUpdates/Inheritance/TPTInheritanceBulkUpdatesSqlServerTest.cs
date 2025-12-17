@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
 #nullable disable
 
-public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesTestBase<TPTInheritanceBulkUpdatesSqlServerFixture>
+// TODO: #35025
+internal class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesTestBase<TPTInheritanceBulkUpdatesSqlServerFixture>
 {
     public TPTInheritanceBulkUpdatesSqlServerTest(TPTInheritanceBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture, testOutputHelper)

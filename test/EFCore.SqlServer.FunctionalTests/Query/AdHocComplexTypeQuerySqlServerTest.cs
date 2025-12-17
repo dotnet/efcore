@@ -36,6 +36,24 @@ FROM [EntityType] AS [e]
 
     #region 36837
 
+    #region 35025
+
+    public override async Task Select_TPC_base_with_ComplexType()
+    {
+        await base.Select_TPC_base_with_ComplexType();
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
+FROM [TpcChild1] AS [t]
+UNION ALL
+SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
+FROM [TpcChild2] AS [t0]
+""");
+    }
+
+    #endregion 35025
+
     [ConditionalFact]
     public virtual async Task Complex_type_equality_with_non_default_type_mapping()
     {
@@ -83,12 +101,6 @@ WHERE [e].[ComplexThing_DateTime] = '2020-01-01T01:01:01.999'
     }
 
     #endregion 36837
-
-    protected TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
-
-    protected void AssertSql(params string[] expected)
-        => TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

@@ -277,15 +277,29 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         {
             var leftComplexType = left switch
             {
-                StructuralTypeReferenceExpression { StructuralType: IComplexType t } => t,
+                StructuralTypeReferenceExpression { StructuralType: IComplexType type } reference
+                    => reference.Subquery is null
+                        ? type
+                        // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery,
+                        // which would be potentially very inefficient.
+                        // TODO: Enable this by extracting the subquery out to a common table expressions (WITH), #31237
+                        : throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(type.DisplayName())),
+
                 CollectionResultExpression { StructuralProperty: IComplexProperty { ComplexType: var t } } => t,
+
                 _ => null
             };
 
             var rightComplexType = right switch
             {
-                StructuralTypeReferenceExpression { StructuralType: IComplexType t } => t,
+                StructuralTypeReferenceExpression { StructuralType: IComplexType type } reference
+                    => reference.Subquery is null
+                        ? type
+                        // See above
+                        : throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(type.DisplayName())),
+
                 CollectionResultExpression { StructuralProperty: IComplexProperty { ComplexType: var t } } => t,
+
                 _ => null
             };
 
@@ -299,25 +313,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 return false;
             }
 
-            var complexType = leftComplexType ?? rightComplexType;
-
-            Check.DebugAssert(complexType != null, "We checked that at least one side is a complex type before calling this function");
-
-            // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery, which would
-            // be potentially very inefficient.
-            // TODO: Enable this by extracting the subquery out to a common table expressions (WITH), #31237
-            if (left is StructuralTypeReferenceExpression { Subquery: not null }
-                || right is StructuralTypeReferenceExpression { Subquery: not null })
-            {
-                throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(complexType.DisplayName()));
-            }
-
             // Generate an expression that compares each property on the left to the same property on the right; this needs to recursively
             // include all properties in nested complex types.
             var boolTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(bool))!;
             SqlExpression? comparisons = null;
 
-            if (!TryGenerateComparisons(complexType, left, right, ref comparisons, out _))
+            if (!TryGenerateComparisons(leftComplexType, rightComplexType, left, right, ref comparisons, out _))
             {
                 result = null;
                 return false;
@@ -331,7 +332,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             // The moment we reach a a complex property that's mapped to JSON, we stop and generate a single comparison
             // for the whole complex type.
             bool TryGenerateComparisons(
-                IComplexType type,
+                IComplexType? leftComplexType,
+                IComplexType? rightComplexType,
                 Expression left,
                 Expression right,
                 [NotNullWhen(true)] ref SqlExpression? comparisons,
@@ -339,8 +341,17 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             {
                 exitImmediately = false;
 
-                if (type.IsMappedToJson())
+                var firstComplexType = leftComplexType ?? rightComplexType!;
+                var secondComplexType = leftComplexType is null ? null : rightComplexType;
+
+                if (firstComplexType.IsMappedToJson())
                 {
+                    if (secondComplexType?.IsMappedToJson() is false)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.CannotCompareJsonComplexTypeToNonJson(firstComplexType, secondComplexType));
+                    }
+
                     // The fact that a type is mapped to JSON doesn't necessary mean that we simply compare its JSON column/value:
                     // a JSON *collection* may have been converted to a relational representation via e.g. OPENJSON, at which point
                     // it behaves just like a table-splitting complex type, where we have to compare column-by-column.
@@ -394,7 +405,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             // JSON column on other side above - important for e.g. nvarchar vs. json columns)
                             case SqlConstantExpression constant:
                                 result = new SqlConstantExpression(
-                                    RelationalJsonUtilities.SerializeComplexTypeToJson(complexType, constant.Value, collection),
+                                    RelationalJsonUtilities.SerializeComplexTypeToJson(firstComplexType, constant.Value, collection),
                                     typeof(string),
                                     typeMapping: null);
                                 return true;
@@ -406,7 +417,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                                         Expression.Lambda(
                                             Expression.Call(
                                                 RelationalJsonUtilities.SerializeComplexTypeToJsonMethod,
-                                                Expression.Constant(complexType),
+                                                Expression.Constant(firstComplexType),
                                                 Expression.MakeIndex(
                                                     Expression.Property(
                                                         QueryCompilationContext.QueryContextParameter, nameof(QueryContext.Parameters)),
@@ -459,54 +470,76 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 // We handled JSON column comparison above.
                 // From here we handle table splitting and JSON types that have been converted to a relational table representation via
                 // e.g. OPENJSON.
-                foreach (var property in type.GetProperties())
+                // Note that scalar property binding doesn't actually bind or care about the property; we just bind properties from the
+                // first complex type on the second expression, which, if it's a column, has a different complex type.
+                foreach (var property in firstComplexType.GetProperties())
                 {
-                    if (TryTranslatePropertyAccess(left, property, out var leftTranslation)
-                        && TryTranslatePropertyAccess(right, property, out var rightTranslation))
-                    {
-                        var comparison = _sqlExpressionFactory.MakeBinary(nodeType, leftTranslation, rightTranslation, boolTypeMapping)!;
-
-                        // If we have a required property and one of the sides is a constant null,
-                        // we can use just that property and skip comparing the rest of properties.
-                        if (!property.IsNullable
-                            && (leftTranslation is SqlConstantExpression { Value: null }
-                                || rightTranslation is SqlConstantExpression { Value: null }))
-                        {
-                            comparisons = comparison;
-                            exitImmediately = true;
-                            return true;
-                        }
-
-                        comparisons = comparisons is null
-                            ? comparison
-                            : nodeType == ExpressionType.Equal
-                                ? _sqlExpressionFactory.AndAlso(comparisons, comparison)
-                                : _sqlExpressionFactory.OrElse(comparisons, comparison);
-                    }
-                    else
+                    if (!TryTranslatePropertyAccess(left, property, out var leftTranslation)
+                        || !TryTranslatePropertyAccess(right, property, out var rightTranslation))
                     {
                         return false;
                     }
+
+                    var comparison = _sqlExpressionFactory.MakeBinary(nodeType, leftTranslation, rightTranslation, boolTypeMapping)!;
+
+                    // If we have a required property and one of the sides is a constant null,
+                    // we can use just that property and skip comparing the rest of properties.
+                    if (!property.IsNullable
+                        && (leftTranslation is SqlConstantExpression { Value: null }
+                            || rightTranslation is SqlConstantExpression { Value: null }))
+                    {
+                        comparisons = comparison;
+                        exitImmediately = true;
+                        return true;
+                    }
+
+                    comparisons = comparisons is null
+                        ? comparison
+                        : nodeType == ExpressionType.Equal
+                            ? _sqlExpressionFactory.AndAlso(comparisons, comparison)
+                            : _sqlExpressionFactory.OrElse(comparisons, comparison);
                 }
 
-                foreach (var complexProperty in type.GetComplexProperties())
+                foreach (var firstComplexProperty in firstComplexType.GetComplexProperties())
                 {
-                    Check.DebugAssert(
-                        left is not StructuralTypeReferenceExpression { Subquery: not null }
-                        && right is not StructuralTypeReferenceExpression { Subquery: not null },
-                        "Subquery complex type references are not supported");
-
                     // TODO: Implement/test non-entity binding (i.e. with a constant instance)
-                    var nestedLeft = left is StructuralTypeReferenceExpression leftReference
-                        ? BindComplexProperty(leftReference, complexProperty)
-                        : CreateComplexPropertyAccessExpression(left, complexProperty);
-                    var nestedRight = right is StructuralTypeReferenceExpression rightReference
-                        ? BindComplexProperty(rightReference, complexProperty)
-                        : CreateComplexPropertyAccessExpression(right, complexProperty);
 
-                    if (nestedLeft is null
-                        || nestedRight is null
-                        || !TryGenerateComparisons(complexProperty.ComplexType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
+                    Expression nestedLeft, nestedRight;
+                    IComplexType? nestedLeftType = null, nestedRightType = null;
+
+                    switch (left, right)
+                    {
+                        case (StructuralTypeReferenceExpression leftReference, not StructuralTypeReferenceExpression):
+                            nestedLeft = BindComplexProperty(leftReference, firstComplexProperty);
+                            nestedLeftType = firstComplexProperty.ComplexType;
+                            nestedRight = CreateComplexPropertyAccessExpression(right, firstComplexProperty);
+                            break;
+
+                        case (not StructuralTypeReferenceExpression, StructuralTypeReferenceExpression rightReference):
+                            nestedLeft = CreateComplexPropertyAccessExpression(left, firstComplexProperty);
+                            nestedRight = BindComplexProperty(rightReference, firstComplexProperty);
+                            nestedRightType = firstComplexProperty.ComplexType;
+                            break;
+
+                        case (StructuralTypeReferenceExpression leftReference, StructuralTypeReferenceExpression rightReference):
+                            nestedLeft = BindComplexProperty(leftReference, firstComplexProperty);
+                            nestedLeftType = firstComplexProperty.ComplexType;
+
+                            // Find the corresponding property on the right-side complex type (which is different than the left-side complex type,
+                            // despite the two having the same CLR type, e.g. compare ShippingAddress to BillingAddress)
+                            var rightComplexProperty = secondComplexType!.FindComplexProperty(firstComplexProperty.Name)
+                                ?? throw new InvalidOperationException(RelationalStrings.IncompatibleComplexTypesInComparison(
+                                    firstComplexType.DisplayName(), secondComplexType.DisplayName(), firstComplexProperty.Name));
+                            nestedRight = BindComplexProperty(rightReference, rightComplexProperty);
+                            nestedRightType = rightComplexProperty.ComplexType;
+                            break;
+
+                        default:
+                            throw new UnreachableException();
+                    }
+
+                    if (!TryGenerateComparisons(
+                        nestedLeftType, nestedRightType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
                     {
                         return false;
                     }

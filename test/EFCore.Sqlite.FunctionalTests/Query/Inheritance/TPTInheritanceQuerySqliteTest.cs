@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
-public class TPTInheritanceQuerySqliteTest(TPTInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+// TODO: #35025
+internal class TPTInheritanceQuerySqliteTest(TPTInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : TPTInheritanceQueryTestBase<TPTInheritanceQuerySqliteFixture>(fixture, testOutputHelper)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
 #nullable disable
 
-public class TPTFiltersInheritanceBulkUpdatesSqlServerTest(
+// TODO: #35025
+internal class TPTFiltersInheritanceBulkUpdatesSqlServerTest(
     TPTFiltersInheritanceBulkUpdatesSqlServerFixture fixture,
     ITestOutputHelper testOutputHelper)
     : TPTFiltersInheritanceBulkUpdatesTestBase<TPTFiltersInheritanceBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)

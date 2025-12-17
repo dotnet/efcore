@@ -544,9 +544,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
         }
 
-        // TODO: Change this to call GetComplexProperties()
-        // Issue #31248
-        foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+        foreach (var complexProperty in mappedType.GetComplexProperties())
         {
             var complexType = complexProperty.ComplexType;
 
@@ -556,6 +554,10 @@ public class RelationalModel : Annotatable, IRelationalModel
             {
                 complexTableMappings = [];
                 complexType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, complexTableMappings);
+            }
+            else if (complexTableMappings.Any(m => m.Table == table))
+            {
+                continue;
             }
 
             CreateTableMapping(

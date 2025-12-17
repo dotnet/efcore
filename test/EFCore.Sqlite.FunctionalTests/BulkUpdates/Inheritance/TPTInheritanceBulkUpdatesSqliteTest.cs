@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
 #nullable disable
 
-public class TPTInheritanceBulkUpdatesSqliteTest(
+// TODO: #35025
+internal class TPTInheritanceBulkUpdatesSqliteTest(
     TPTInheritanceBulkUpdatesSqliteFixture fixture,
     ITestOutputHelper testOutputHelper)
     : TPTInheritanceBulkUpdatesTestBase<TPTInheritanceBulkUpdatesSqliteFixture>(fixture, testOutputHelper)

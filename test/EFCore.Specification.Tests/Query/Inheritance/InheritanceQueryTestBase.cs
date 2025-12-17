@@ -142,14 +142,6 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             assertOrder: true);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Filter_on_property_inside_complex_type_on_derived_type(bool async)
-        => Fixture.EnableComplexTypes
-            ? AssertQuery(
-                async,
-                ss => ss.Set<Daisy>().Where(d => d.AdditionalInfo.LeafStructure.AreLeavesBig))
-            : Task.CompletedTask;
-
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_filter_all_animals(bool async)
         => AssertQuery(
             async,

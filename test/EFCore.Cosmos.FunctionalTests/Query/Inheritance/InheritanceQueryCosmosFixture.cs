@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
-namespace Microsoft.EntityFrameworkCore.Query;
+namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 

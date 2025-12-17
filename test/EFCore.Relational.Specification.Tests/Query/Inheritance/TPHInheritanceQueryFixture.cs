@@ -7,11 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
-public abstract class TPHInheritanceQueryFixture : InheritanceQueryFixtureBase, ITestSqlLoggerFactory
+public abstract class TPHInheritanceQueryFixture : InheritanceQueryRelationalFixtureBase
 {
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

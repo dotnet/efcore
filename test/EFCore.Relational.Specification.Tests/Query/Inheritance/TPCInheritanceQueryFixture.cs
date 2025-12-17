@@ -7,13 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
-public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase, ITestSqlLoggerFactory
+public abstract class TPCInheritanceQueryFixture : InheritanceQueryRelationalFixtureBase
 {
     protected override string StoreName
         => "TPCInheritanceTest";
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override bool HasDiscriminator
         => false;

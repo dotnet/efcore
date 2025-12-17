@@ -362,26 +362,6 @@ public sealed partial class SelectExpression
                 case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):
                     return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
 
-                case StructuralTypeProjectionExpression:
-                    var result = (StructuralTypeProjectionExpression)base.Visit(expression);
-
-                    // TableMap aliases are not stored in form of expression so we need to update them manually
-                    var tableMapChanged = false;
-                    var newTableMap = result.TableMap.ToDictionary(x => x.Key, x => x.Value);
-                    foreach (var (oldAlias, newAlias) in _tableAliasMap)
-                    {
-                        var match = newTableMap.FirstOrDefault(x => x.Value == oldAlias).Key;
-                        if (match != null)
-                        {
-                            newTableMap[match] = newAlias;
-                            tableMapChanged = true;
-                        }
-                    }
-
-                    return tableMapChanged
-                        ? result.UpdateTableMap(newTableMap)
-                        : result;
-
                 default:
                     return base.Visit(expression);
             }

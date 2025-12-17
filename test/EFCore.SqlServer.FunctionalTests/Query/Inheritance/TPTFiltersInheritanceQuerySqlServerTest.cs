@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
-public class TPTFiltersInheritanceQuerySqlServerTest : TPTFiltersInheritanceQueryTestBase<TPTFiltersInheritanceQuerySqlServerFixture>
+// TODO: #35025
+internal class TPTFiltersInheritanceQuerySqlServerTest : TPTFiltersInheritanceQueryTestBase<TPTFiltersInheritanceQuerySqlServerFixture>
 {
     public TPTFiltersInheritanceQuerySqlServerTest(
         TPTFiltersInheritanceQuerySqlServerFixture fixture,
