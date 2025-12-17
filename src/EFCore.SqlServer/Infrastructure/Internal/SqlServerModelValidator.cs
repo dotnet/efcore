@@ -101,20 +101,34 @@ public class SqlServerModelValidator : RelationalModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (IConventionProperty property in model.GetEntityTypes()
-                     .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(SqlVector<float>)))
+        foreach (var entityType in model.GetEntityTypes())
         {
-            if (property.GetTypeMapping() is not SqlServerVectorTypeMapping { Size: not null } vectorTypeMapping)
+            ValidateVectorColumns(entityType);
+        }
+
+        void ValidateVectorColumns(ITypeBase typeBase)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
             {
-                throw new InvalidOperationException(
-                    SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
+                if (property.FindTypeMapping() is SqlServerVectorTypeMapping vectorTypeMapping)
+                {
+                    if (property.DeclaringType.IsMappedToJson())
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
+                    }
+
+                    if (vectorTypeMapping.Size is null)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
+                    }
+                }
             }
 
-            if (property.DeclaringType.IsMappedToJson())
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
-                throw new InvalidOperationException(
-                    SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
+                ValidateVectorColumns(complexProperty.ComplexType);
             }
         }
     }

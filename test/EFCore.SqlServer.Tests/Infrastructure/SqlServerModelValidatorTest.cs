@@ -1105,7 +1105,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Throws_for_vector_property_inside_JSON()
+    public virtual void Throws_for_vector_property_inside_JSON_owned_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -1118,6 +1118,27 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         VerifyError(
             SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_vector_property_inside_JSON_complex_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>()
+            .ComplexProperty(
+                v => v.VectorContainer,
+                n =>
+                {
+                    n.ToJson();
+                    n.Property(v => v.Vector).HasMaxLength(3);
+                });
+
+        VerifyError(
+            SqlServerStrings.VectorPropertiesNotSupportedInJson(
+                "VectorInsideJsonEntity.VectorContainer#VectorContainer",
+                nameof(VectorContainer.Vector)),
             modelBuilder);
     }
 
