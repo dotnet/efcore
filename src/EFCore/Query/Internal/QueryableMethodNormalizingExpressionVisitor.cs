@@ -171,8 +171,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         if (method.DeclaringType is { IsGenericType: true }
-            && method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
-            && method.Name == nameof(ICollection<>.Contains))
+            && method.Name == nameof(ICollection<>.Contains)
+            && (method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
+                || method.DeclaringType.TryGetElementType(typeof(IReadOnlyCollection<>)) is not null))
         {
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
