@@ -22,8 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 /// </summary>
 public class DocumentSource
 {
+    private readonly string _containerId;
     private readonly CosmosDatabaseWrapper _database;
-    private readonly ITypeBase _structuralType;
+    private readonly IEntityType _entityType;
     private readonly IProperty? _idProperty;
     private readonly IProperty? _jObjectProperty;
 
@@ -33,13 +34,23 @@ public class DocumentSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public DocumentSource(ITypeBase structuralType, CosmosDatabaseWrapper database)
+    public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
     {
+        _containerId = entityType.GetContainer()!;
         _database = database;
-        _structuralType = structuralType;
-        _idProperty = structuralType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
-        _jObjectProperty = structuralType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
+        _entityType = entityType;
+        _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
+        _jObjectProperty = entityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string GetContainerId()
+        => _containerId;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,7 +60,7 @@ public class DocumentSource
     /// </summary>
     public virtual string GetId(IUpdateEntry entry)
         => _idProperty is null
-            ? throw new InvalidOperationException(CosmosStrings.NoIdProperty(_structuralType.DisplayName()))
+            ? throw new InvalidOperationException(CosmosStrings.NoIdProperty(_entityType.DisplayName()))
             : (string)entry.GetCurrentProviderValue(_idProperty)!;
 
     /// <summary>
@@ -59,7 +70,7 @@ public class DocumentSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JObject CreateDocument(IUpdateEntry entry)
-        => CreateDocument((IInternalEntry)entry, entry.EntityType, null);
+        => CreateDocument(entry, null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +78,10 @@ public class DocumentSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual JObject CreateDocument(IInternalEntry entry, ITypeBase structuralType, int? ordinal)
+    public virtual JObject CreateDocument(IUpdateEntry entry, int? ordinal)
+        => CreateDocument((IInternalEntry)entry, entry.EntityType, ordinal);
+
+    private static JObject CreateDocument(IInternalEntry entry, ITypeBase structuralType, int? ordinal)
     {
         var document = new JObject();
         foreach (var property in structuralType.GetProperties())
@@ -108,7 +122,7 @@ public class DocumentSource
                 else if (fk.IsUnique)
                 {
                     var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
-                    document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
+                    document[embeddedPropertyName] = CreateDocument(dependentEntry, dependentEntry.StructuralType, null);
                 }
                 else
                 {
@@ -121,7 +135,7 @@ public class DocumentSource
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
                         var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
-                        array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, dependentEntry.EntityType, embeddedOrdinal));
+                        array.Add(CreateDocument(dependentEntry, dependentEntry.EntityType, embeddedOrdinal));
                         embeddedOrdinal++;
                     }
 
@@ -140,7 +154,7 @@ public class DocumentSource
             }
             else if (!complexProperty.IsCollection)
             {
-                document[embeddedPropertyName] = _database.GetDocumentSource(complexProperty.ComplexType).CreateDocument(entry, complexProperty.ComplexType, null);
+                document[embeddedPropertyName] = CreateDocument(entry, complexProperty.ComplexType, null);
             }
             else
             {
@@ -151,7 +165,7 @@ public class DocumentSource
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
                     var dependentEntry = internalEntry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
-                    array.Add(_database.GetDocumentSource(dependentEntry.ComplexType).CreateDocument(dependentEntry, complexProperty.ComplexType, null));
+                    array.Add(CreateDocument(dependentEntry, complexProperty.ComplexType, null));
                     embeddedOrdinal++;
                 }
 
@@ -169,7 +183,7 @@ public class DocumentSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry)
-        => UpdateDocument(document, (IInternalEntry)entry, entry.EntityType, null);
+        => UpdateDocument(document, entry, null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -177,7 +191,10 @@ public class DocumentSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual JObject? UpdateDocument(JObject document, IInternalEntry entry, ITypeBase structuralType, int? ordinal)
+    public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry, int? ordinal)
+        => UpdateDocument(document, (IInternalEntry)entry, entry.EntityType, ordinal);
+
+    private JObject? UpdateDocument(JObject document, IInternalEntry entry, ITypeBase structuralType, int? ordinal)
     {
         var anyPropertyUpdated = false;
         foreach (var property in structuralType.GetProperties())
@@ -229,10 +246,10 @@ public class DocumentSource
                 {
                     var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
 
-                    var embeddedDocument = embeddedDocumentSource.GetCurrentDocument((IInternalEntry)embeddedEntry);
+                    var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                     embeddedDocument = embeddedDocument != null
-                        ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry)
-                        : embeddedDocumentSource.CreateDocument(embeddedEntry);
+                        ? UpdateDocument(embeddedDocument, embeddedEntry, embeddedEntry.StructuralType, null)
+                        : CreateDocument(embeddedEntry, embeddedEntry.StructuralType, null);
 
                     if (embeddedDocument != null)
                     {
@@ -252,10 +269,10 @@ public class DocumentSource
                     {
                         var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
-                        var embeddedDocument = embeddedDocumentSource.GetCurrentDocument((IInternalEntry)embeddedEntry);
+                        var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                         embeddedDocument = embeddedDocument != null
-                            ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, embeddedEntry.EntityType, embeddedOrdinal) ?? embeddedDocument
-                            : embeddedDocumentSource.CreateDocument(embeddedEntry, embeddedEntry.EntityType, embeddedOrdinal);
+                            ? UpdateDocument(embeddedDocument, embeddedEntry, embeddedEntry.EntityType, embeddedOrdinal) ?? embeddedDocument
+                            : CreateDocument(embeddedEntry, embeddedEntry.EntityType, embeddedOrdinal);
 
                         array.Add(embeddedDocument);
                         embeddedOrdinal++;
@@ -279,18 +296,32 @@ public class DocumentSource
             }
             else if (!complexProperty.IsCollection)
             {
-                document[embeddedPropertyName] = _database.GetDocumentSource(complexProperty.ComplexType).CreateDocument(entry, complexProperty.ComplexType, null);
+                var embeddedDocument = document[embeddedPropertyName] as JObject;
+                embeddedDocument = embeddedDocument != null
+                    ? UpdateDocument(embeddedDocument, entry, complexProperty.ComplexType, null)
+                    : CreateDocument(entry, complexProperty.ComplexType, null);
+
+                if (embeddedDocument != null)
+                {
+                    document[embeddedPropertyName] = embeddedDocument;
+                    anyPropertyUpdated = true;
+                }
             }
             else
             {
-                var internalEntry = (InternalEntryBase)entry;
-
+                var embeddedCollection = document[embeddedPropertyName] as JArray;
                 var embeddedOrdinal = 0;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-                    var dependentEntry = internalEntry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
-                    array.Add(_database.GetDocumentSource(dependentEntry.ComplexType).CreateDocument(dependentEntry, complexProperty.ComplexType, null));
+                    var embeddedEntry = entry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
+
+                    var embeddedDocument = embeddedCollection?[embeddedEntry.OriginalOrdinal] as JObject;
+                    embeddedDocument = embeddedDocument != null
+                        ? UpdateDocument(embeddedDocument, embeddedEntry, complexProperty.ComplexType, null) ?? embeddedDocument
+                        : CreateDocument(embeddedEntry, complexProperty.ComplexType, null);
+
+                    array.Add(embeddedDocument);
                     embeddedOrdinal++;
                 }
 
@@ -351,17 +382,8 @@ public class DocumentSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JObject? GetCurrentDocument(IUpdateEntry entry)
-        => GetCurrentDocument((IInternalEntry)entry);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual JObject? GetCurrentDocument(IInternalEntry entry)
         => _jObjectProperty != null
-            ? (JObject?)(((IInternalEntry?)(entry as IUpdateEntry)?.SharedIdentityEntry) ?? entry).GetCurrentValue(_jObjectProperty)
+            ? (JObject?)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
             : null;
 
     private static JToken? ConvertPropertyValue(IProperty property, IInternalEntry entry)
@@ -372,4 +394,5 @@ public class DocumentSource
             : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
     }
 }
+
 #pragma warning restore EF1001 // Internal EF Core API usage.
