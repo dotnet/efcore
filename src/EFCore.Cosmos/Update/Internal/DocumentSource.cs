@@ -286,13 +286,15 @@ public class DocumentSource
 
         foreach (var complexProperty in structuralType.GetComplexProperties())
         {
-            anyPropertyUpdated = true;
-
             var embeddedValue = entry.GetCurrentValue(complexProperty);
             var embeddedPropertyName = complexProperty.Name;
             if (embeddedValue == null)
             {
-                document[embeddedPropertyName] = null;
+                if (document[embeddedPropertyName] != null)
+                {
+                    document[embeddedPropertyName] = null;
+                    anyPropertyUpdated = true;
+                }
             }
             else if (!complexProperty.IsCollection)
             {
@@ -326,6 +328,7 @@ public class DocumentSource
                 }
 
                 document[embeddedPropertyName] = array;
+                anyPropertyUpdated = true;
             }
         }
 
