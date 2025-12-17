@@ -146,6 +146,19 @@ WHERE [v].[OptionalAssociate] IS NOT NULL
 
     #endregion Value types
 
+    public override async Task FromSql_on_root()
+    {
+        await base.FromSql_on_root();
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Name], [m].[AssociateCollection], [m].[OptionalAssociate], [m].[RequiredAssociate]
+FROM (
+    SELECT * FROM [RootEntity]
+) AS [m]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

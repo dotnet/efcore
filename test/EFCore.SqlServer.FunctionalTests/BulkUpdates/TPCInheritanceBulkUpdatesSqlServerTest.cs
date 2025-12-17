@@ -187,11 +187,11 @@ WHERE (
         AssertExecuteUpdateSql(
             """
 @p='Kiwi' (Size = 4000)
-@p0='0' (Size = 1)
+@p1='0' (Size = 1)
 
 UPDATE [k]
 SET [k].[Name] = @p,
-    [k].[FoundOn] = @p0
+    [k].[FoundOn] = @p1
 FROM [Kiwi] AS [k]
 """);
     }

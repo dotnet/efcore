@@ -687,7 +687,7 @@ WHERE "g"."HasSoulPatch"
 
         AssertSql(
             """
-@p0='10'
+@p1='10'
 @p='0'
 
 SELECT "s"."Nickname", "s"."SquadId", "s"."AssignedCityName", "s"."CityOfBirthName", "s"."Discriminator", "s"."FullName", "s"."HasSoulPatch", "s"."LeaderNickname", "s"."LeaderSquadId", "s"."Rank", "s"."HasSoulPatch0", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
@@ -701,7 +701,7 @@ FROM (
         GROUP BY "g0"."HasSoulPatch"
     ) AS "g1" ON length("g"."Nickname") = "g1"."c"
     ORDER BY "g"."Nickname"
-    LIMIT @p0 OFFSET @p
+    LIMIT @p1 OFFSET @p
 ) AS "s"
 LEFT JOIN "Weapons" AS "w" ON "s"."FullName" = "w"."OwnerFullName"
 ORDER BY "s"."Nickname", "s"."SquadId", "s"."HasSoulPatch0"
@@ -5515,6 +5515,60 @@ LEFT JOIN (
     FROM "Weapons" AS "w"
     WHERE "w"."Id" > @prm
 ) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT "m0"."Rating"
+FROM (
+    SELECT 1
+) AS "e"
+LEFT JOIN (
+    SELECT "m"."Rating"
+    FROM "Missions" AS "m"
+    WHERE "m"."Id" = -1
+) AS "m0" ON 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT "m0"."c"
+FROM (
+    SELECT 1
+) AS "e"
+LEFT JOIN (
+    SELECT "m"."Rating" + 2.0 AS "c"
+    FROM "Missions" AS "m"
+    WHERE "m"."Id" = -1
+) AS "m0" ON 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE("m0"."c", 0)
+FROM (
+    SELECT 1
+) AS "e"
+LEFT JOIN (
+    SELECT "m"."Id" + 2 AS "c"
+    FROM "Missions" AS "m"
+    WHERE "m"."Id" = -1
+) AS "m0" ON 1
 """);
     }
 

@@ -6307,6 +6307,60 @@ LEFT JOIN (
 """);
     }
 
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[Rating]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating] + 2.0E0 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([m0].[c], 0)
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Id] + 2 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
     public override async Task Join_with_inner_being_a_subquery_projecting_single_property(bool async)
     {
         await base.Join_with_inner_being_a_subquery_projecting_single_property(async);
@@ -8396,7 +8450,7 @@ LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[Discriminator], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
@@ -8409,7 +8463,7 @@ FROM (
         GROUP BY [g0].[HasSoulPatch]
     ) AS [g1] ON CAST(LEN([g].[Nickname]) AS int) = [g1].[c]
     ORDER BY [g].[Nickname]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [s]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
 ORDER BY [s].[Nickname], [s].[SquadId], [s].[HasSoulPatch0]
@@ -8457,7 +8511,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (@values1, @
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place0
 """);
     }
 

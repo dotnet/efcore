@@ -65,7 +65,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 long? (IInternalEntry entry) => PrincipalBaseUnsafeAccessors.Id(((CompiledModelTestBase.PrincipalBase)(entry.Entity))),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 0),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(id, 0));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -156,11 +156,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum1.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -168,13 +168,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
             enum1.SetSentinelFromProviderValue(0);
 
             var enum2 = runtimeEntityType.AddProperty(
@@ -189,13 +189,13 @@ namespace TestNamespace
             enum2.SetSetter(
                 CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                 {
-                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                     return instance;
                 });
             enum2.SetMaterializationSetter(
                 CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                 {
-                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                    PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                     return instance;
                 });
             enum2.SetAccessors(
@@ -211,11 +211,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             enum2.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -223,13 +223,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                    int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                    int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                    CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                        int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                        int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                        CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
             enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
             enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
@@ -266,11 +266,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             flagsEnum1.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -278,13 +278,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
             flagsEnum1.SetSentinelFromProviderValue(0);
 
             var flagsEnum2 = runtimeEntityType.AddProperty(
@@ -320,11 +320,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             flagsEnum2.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                    bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                     int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -332,13 +332,13 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                    int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                    CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                     JsonInt32ReaderWriter.Instance,
                     new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                        int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                        CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
             flagsEnum2.SetSentinelFromProviderValue(0);
 
             var principalBaseId = runtimeEntityType.AddProperty(
@@ -349,7 +349,7 @@ namespace TestNamespace
                 long? (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<long?>(0) : (entry.FlaggedAsTemporary(6) && !(entry.ReadShadowValue<long?>(1).HasValue) ? entry.ReadTemporaryValue<long?>(0) : entry.ReadShadowValue<long?>(1))),
                 long? (IInternalEntry entry) => entry.ReadShadowValue<long?>(1),
                 long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(principalBaseId, 6),
-                long? (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<long?>(principalBaseId, 1));
+                long? (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<long?>(principalBaseId, 1));
             principalBaseId.SetPropertyIndexes(
                 index: 6,
                 originalValueIndex: 6,
@@ -545,12 +545,12 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v)),
                 keyComparer: new ValueComparer<DateTime[]>(
-                    bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     DateTime[] (DateTime[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<DateTime[]>(
-                    bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                    int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                    int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     DateTime[] (DateTime[] source) => source.ToArray()),
                 clrType: typeof(DateTime[]),
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
@@ -608,7 +608,7 @@ namespace TestNamespace
             valueTypeEnumerable.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 keyComparer: new ValueComparer<IEnumerable<byte>>(
                     bool (IEnumerable<byte> v1, IEnumerable<byte> v2) => object.Equals(v1, v2),
@@ -624,15 +624,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     keyComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     providerValueComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -674,7 +674,7 @@ namespace TestNamespace
             valueTypeIList.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     bool (byte v1, byte v2) => v1 == v2,
-                    int (byte v) => ((int)(v)),
+                    int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 keyComparer: new ValueComparer<IList<byte>>(
                     bool (IList<byte> v1, IList<byte> v2) => object.Equals(v1, v2),
@@ -690,15 +690,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     keyComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     providerValueComparer: new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v),
                     clrType: typeof(byte),
                     jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -740,7 +740,7 @@ namespace TestNamespace
             valueTypeList.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     bool (short v1, short v2) => v1 == v2,
-                    int (short v) => ((int)(v)),
+                    int (short v) => ((int)v),
                     short (short v) => v)),
                 keyComparer: new ValueComparer<List<short>>(
                     bool (List<short> v1, List<short> v2) => object.Equals(v1, v2),
@@ -756,15 +756,15 @@ namespace TestNamespace
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     keyComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     providerValueComparer: new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v),
                     clrType: typeof(short),
                     jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
@@ -1218,12 +1218,12 @@ namespace TestNamespace
                         int (DateTime v) => ((object)v).GetHashCode(),
                         DateTime (DateTime v) => v)),
                     keyComparer: new ValueComparer<DateTime[]>(
-                        bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         DateTime[] (DateTime[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<DateTime[]>(
-                        bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                        int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                        bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                        int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                         DateTime[] (DateTime[] source) => source.ToArray()),
                     clrType: typeof(DateTime[]),
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
@@ -1293,7 +1293,7 @@ namespace TestNamespace
                 valueTypeEnumerable.TypeMapping = CosmosTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     keyComparer: new ValueComparer<IEnumerable<byte>>(
                         bool (IEnumerable<byte> v1, IEnumerable<byte> v2) => object.Equals(v1, v2),
@@ -1309,15 +1309,15 @@ namespace TestNamespace
                     elementMapping: CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         keyComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         providerValueComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         clrType: typeof(byte),
                         jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -1371,7 +1371,7 @@ namespace TestNamespace
                 valueTypeIList.TypeMapping = CosmosTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         bool (byte v1, byte v2) => v1 == v2,
-                        int (byte v) => ((int)(v)),
+                        int (byte v) => ((int)v),
                         byte (byte v) => v)),
                     keyComparer: new ValueComparer<IList<byte>>(
                         bool (IList<byte> v1, IList<byte> v2) => object.Equals(v1, v2),
@@ -1387,15 +1387,15 @@ namespace TestNamespace
                     elementMapping: CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         keyComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         providerValueComparer: new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v),
                         clrType: typeof(byte),
                         jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -1449,7 +1449,7 @@ namespace TestNamespace
                 valueTypeList.TypeMapping = CosmosTypeMapping.Default.Clone(
                     comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         bool (short v1, short v2) => v1 == v2,
-                        int (short v) => ((int)(v)),
+                        int (short v) => ((int)v),
                         short (short v) => v)),
                     keyComparer: new ValueComparer<List<short>>(
                         bool (List<short> v1, List<short> v2) => object.Equals(v1, v2),
@@ -1465,15 +1465,15 @@ namespace TestNamespace
                     elementMapping: CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         keyComparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         providerValueComparer: new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v),
                         clrType: typeof(short),
                         jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
@@ -1534,7 +1534,7 @@ namespace TestNamespace
                         CompiledModelTestBase.PrincipalBase (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(complexProperty));
                     complexProperty.SetPropertyIndexes(
                         index: 1,
-                        originalValueIndex: -1,
+                        originalValueIndex: 23,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
@@ -1574,11 +1574,11 @@ namespace TestNamespace
                     alternateId.SetAccessors(
                         Guid (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))).AlternateId),
                         Guid (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))).AlternateId),
-                        Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(alternateId, 23),
+                        Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(alternateId, 24),
                         Guid (IInternalEntry entry) => entry.GetCurrentValue<Guid>(alternateId));
                     alternateId.SetPropertyIndexes(
                         index: 23,
-                        originalValueIndex: 23,
+                        originalValueIndex: 24,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
@@ -1642,21 +1642,21 @@ namespace TestNamespace
                     enum1.SetAccessors(
                         CompiledModelTestBase.AnEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         CompiledModelTestBase.AnEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        CompiledModelTestBase.AnEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 24),
+                        CompiledModelTestBase.AnEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 25),
                         CompiledModelTestBase.AnEnum (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1));
                     enum1.SetPropertyIndexes(
                         index: 24,
-                        originalValueIndex: 24,
+                        originalValueIndex: 25,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     enum1.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -1664,13 +1664,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                                int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                                int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                     enum1.SetSentinelFromProviderValue(0);
 
                     var enum2 = complexType.AddProperty(
@@ -1689,11 +1689,11 @@ namespace TestNamespace
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
-                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                         },
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                         {
-                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                             return instance;
                         });
                     enum2.SetMaterializationSetter(
@@ -1701,31 +1701,31 @@ namespace TestNamespace
                         {
                             var level1 = PrincipalBaseUnsafeAccessors._ownedField(entity);
                             var level2 = OwnedTypeUnsafeAccessors.Principal(level1);
-                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(level2) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                         },
                         CompiledModelTestBase.PrincipalBase (CompiledModelTestBase.PrincipalBase instance, CompiledModelTestBase.AnEnum? value) =>
                         {
-                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)(value)))));
+                            PrincipalBaseUnsafeAccessors.Enum2(instance) = (value == null ? value : ((CompiledModelTestBase.AnEnum? )(((CompiledModelTestBase.AnEnum)value))));
                             return instance;
                         });
                     enum2.SetAccessors(
                         CompiledModelTestBase.AnEnum? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         CompiledModelTestBase.AnEnum? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        CompiledModelTestBase.AnEnum? (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum?>(enum2, 25),
+                        CompiledModelTestBase.AnEnum? (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum?>(enum2, 26),
                         CompiledModelTestBase.AnEnum? (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2));
                     enum2.SetPropertyIndexes(
                         index: 25,
-                        originalValueIndex: 25,
+                        originalValueIndex: 26,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     enum2.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
-                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AnEnum (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -1733,13 +1733,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                            int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value))),
+                            int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                            CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AnEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AnEnum, int>(
-                                int (CompiledModelTestBase.AnEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)(value)))));
+                                int (CompiledModelTestBase.AnEnum value) => ((int)value),
+                                CompiledModelTestBase.AnEnum (int value) => ((CompiledModelTestBase.AnEnum)value))));
                     enum2.SetComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.Comparer));
                     enum2.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.AnEnum>(enum2.TypeMapping.KeyComparer));
 
@@ -1780,21 +1780,21 @@ namespace TestNamespace
                     flagsEnum1.SetAccessors(
                         CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 26),
+                        CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 27),
                         CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1));
                     flagsEnum1.SetPropertyIndexes(
                         index: 26,
-                        originalValueIndex: 26,
+                        originalValueIndex: 27,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     flagsEnum1.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -1802,13 +1802,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                     flagsEnum1.SetSentinelFromProviderValue(0);
 
                     var flagsEnum2 = complexType.AddProperty(
@@ -1848,21 +1848,21 @@ namespace TestNamespace
                     flagsEnum2.SetAccessors(
                         CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 27),
+                        CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 28),
                         CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2));
                     flagsEnum2.SetPropertyIndexes(
                         index: 27,
-                        originalValueIndex: 27,
+                        originalValueIndex: 28,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     flagsEnum2.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
-                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)(v1)), ((object)(v2))),
+                            bool (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals(((object)v1), ((object)v2)),
                             int (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.AFlagsEnum (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
@@ -1870,13 +1870,13 @@ namespace TestNamespace
                             int (int v) => v,
                             int (int v) => v),
                         converter: new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value))),
+                            int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                            CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.AFlagsEnum, int>(
                             JsonInt32ReaderWriter.Instance,
                             new ValueConverter<CompiledModelTestBase.AFlagsEnum, int>(
-                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)(value)),
-                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)(value)))));
+                                int (CompiledModelTestBase.AFlagsEnum value) => ((int)value),
+                                CompiledModelTestBase.AFlagsEnum (int value) => ((CompiledModelTestBase.AFlagsEnum)value))));
                     flagsEnum2.SetSentinelFromProviderValue(0);
 
                     var id = complexType.AddProperty(
@@ -1917,11 +1917,11 @@ namespace TestNamespace
                     id.SetAccessors(
                         long? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         long? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 28),
+                        long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 29),
                         long? (IInternalEntry entry) => entry.GetCurrentValue<long?>(id));
                     id.SetPropertyIndexes(
                         index: 28,
-                        originalValueIndex: 28,
+                        originalValueIndex: 29,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
@@ -1981,11 +1981,11 @@ namespace TestNamespace
                     refTypeEnumerable.SetAccessors(
                         IEnumerable<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         IEnumerable<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        IEnumerable<string> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 29),
+                        IEnumerable<string> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 30),
                         IEnumerable<string> (IInternalEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable));
                     refTypeEnumerable.SetPropertyIndexes(
                         index: 29,
-                        originalValueIndex: 29,
+                        originalValueIndex: 30,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
@@ -2061,11 +2061,11 @@ namespace TestNamespace
                     refTypeIList.SetAccessors(
                         IList<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         IList<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        IList<string> (IInternalEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 30),
+                        IList<string> (IInternalEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 31),
                         IList<string> (IInternalEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList));
                     refTypeIList.SetPropertyIndexes(
                         index: 30,
-                        originalValueIndex: 30,
+                        originalValueIndex: 31,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
@@ -2141,11 +2141,11 @@ namespace TestNamespace
                     valueTypeArray.SetAccessors(
                         DateTime[] (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         DateTime[] (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        DateTime[] (IInternalEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 31),
+                        DateTime[] (IInternalEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 32),
                         DateTime[] (IInternalEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray));
                     valueTypeArray.SetPropertyIndexes(
                         index: 31,
-                        originalValueIndex: 31,
+                        originalValueIndex: 32,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
@@ -2155,12 +2155,12 @@ namespace TestNamespace
                             int (DateTime v) => ((object)v).GetHashCode(),
                             DateTime (DateTime v) => v)),
                         keyComparer: new ValueComparer<DateTime[]>(
-                            bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             DateTime[] (DateTime[] source) => source.ToArray()),
                         providerValueComparer: new ValueComparer<DateTime[]>(
-                            bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
-                            int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                            bool (DateTime[] v1, DateTime[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)v1), ((object)v2)),
+                            int (DateTime[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                             DateTime[] (DateTime[] source) => source.ToArray()),
                         clrType: typeof(DateTime[]),
                         jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
@@ -2221,18 +2221,18 @@ namespace TestNamespace
                     valueTypeEnumerable.SetAccessors(
                         IEnumerable<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         IEnumerable<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        IEnumerable<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 32),
+                        IEnumerable<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 33),
                         IEnumerable<byte> (IInternalEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable));
                     valueTypeEnumerable.SetPropertyIndexes(
                         index: 32,
-                        originalValueIndex: 32,
+                        originalValueIndex: 33,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeEnumerable.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         keyComparer: new ValueComparer<IEnumerable<byte>>(
                             bool (IEnumerable<byte> v1, IEnumerable<byte> v2) => object.Equals(v1, v2),
@@ -2248,15 +2248,15 @@ namespace TestNamespace
                         elementMapping: CosmosTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             keyComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             providerValueComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             clrType: typeof(byte),
                             jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -2301,18 +2301,18 @@ namespace TestNamespace
                     valueTypeIList.SetAccessors(
                         IList<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         IList<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        IList<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 33),
+                        IList<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 34),
                         IList<byte> (IInternalEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList));
                     valueTypeIList.SetPropertyIndexes(
                         index: 33,
-                        originalValueIndex: 33,
+                        originalValueIndex: 34,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeIList.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             bool (byte v1, byte v2) => v1 == v2,
-                            int (byte v) => ((int)(v)),
+                            int (byte v) => ((int)v),
                             byte (byte v) => v)),
                         keyComparer: new ValueComparer<IList<byte>>(
                             bool (IList<byte> v1, IList<byte> v2) => object.Equals(v1, v2),
@@ -2328,15 +2328,15 @@ namespace TestNamespace
                         elementMapping: CosmosTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             keyComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             providerValueComparer: new ValueComparer<byte>(
                                 bool (byte v1, byte v2) => v1 == v2,
-                                int (byte v) => ((int)(v)),
+                                int (byte v) => ((int)v),
                                 byte (byte v) => v),
                             clrType: typeof(byte),
                             jsonValueReaderWriter: JsonByteReaderWriter.Instance));
@@ -2381,18 +2381,18 @@ namespace TestNamespace
                     valueTypeList.SetAccessors(
                         List<short> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                         List<short> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                        List<short> (IInternalEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 34),
+                        List<short> (IInternalEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 35),
                         List<short> (IInternalEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList));
                     valueTypeList.SetPropertyIndexes(
                         index: 34,
-                        originalValueIndex: 34,
+                        originalValueIndex: 35,
                         shadowIndex: -1,
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeList.TypeMapping = CosmosTypeMapping.Default.Clone(
                         comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             bool (short v1, short v2) => v1 == v2,
-                            int (short v) => ((int)(v)),
+                            int (short v) => ((int)v),
                             short (short v) => v)),
                         keyComparer: new ValueComparer<List<short>>(
                             bool (List<short> v1, List<short> v2) => object.Equals(v1, v2),
@@ -2408,15 +2408,15 @@ namespace TestNamespace
                         elementMapping: CosmosTypeMapping.Default.Clone(
                             comparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             keyComparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             providerValueComparer: new ValueComparer<short>(
                                 bool (short v1, short v2) => v1 == v2,
-                                int (short v) => ((int)(v)),
+                                int (short v) => ((int)v),
                                 short (short v) => v),
                             clrType: typeof(short),
                             jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
@@ -2469,8 +2469,8 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             deriveds.SetCollectionAccessor<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseUnsafeAccessors.Deriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)(collection)),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)(collection)),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseUnsafeAccessors.Deriveds(entity) = ((ICollection<CompiledModelTestBase.PrincipalBase>)collection),
                 ICollection<CompiledModelTestBase.PrincipalBase> (CompiledModelTestBase.PrincipalBase entity, Action<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
                 ICollection<CompiledModelTestBase.PrincipalBase> () => ((ICollection<CompiledModelTestBase.PrincipalBase>)(((ICollection<CompiledModelTestBase.PrincipalBase>)(new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance))))));
             return runtimeForeignKey;
@@ -2525,9 +2525,9 @@ namespace TestNamespace
                 ISnapshot (IInternalEntry source) =>
                 {
                     var structuralType = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
-                    var liftedArg = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, JObject, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))))));
+                    var liftedArg = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, JObject, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(principal))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))))));
                     var structuralType0 = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
-                    return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, ((ISnapshot)(new Snapshot<IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>((((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1)))))))))) })));
+                    return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, ((ISnapshot)(new Snapshot<IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>((((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1)))))))))) })));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 ISnapshot () => ((ISnapshot)(new Snapshot<long?>((default(long? ) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(default(long? )))))));
@@ -2548,7 +2548,7 @@ namespace TestNamespace
                 navigationCount: 1,
                 complexPropertyCount: 2,
                 complexCollectionCount: 0,
-                originalValueCount: 35,
+                originalValueCount: 36,
                 shadowCount: 4,
                 relationshipCount: 3,
                 storeGeneratedCount: 1));

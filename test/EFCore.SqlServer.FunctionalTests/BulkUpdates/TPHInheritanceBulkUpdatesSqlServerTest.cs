@@ -116,7 +116,7 @@ WHERE [a].[Id] IN (
         AssertSql(
             """
 @p='0'
-@p0='3'
+@p1='3'
 
 DELETE FROM [a]
 FROM [Animals] AS [a]
@@ -125,7 +125,7 @@ WHERE [a].[Id] IN (
     FROM [Animals] AS [a0]
     WHERE [a0].[Name] = N'Great spotted kiwi'
     ORDER BY [a0].[Name]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 )
 """);
     }
@@ -222,11 +222,11 @@ WHERE (
         AssertExecuteUpdateSql(
             """
 @p='Kiwi' (Size = 4000)
-@p0='0' (Size = 1)
+@p1='0' (Size = 1)
 
 UPDATE [a]
 SET [a].[Name] = @p,
-    [a].[FoundOn] = @p0
+    [a].[FoundOn] = @p1
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'
 """);

@@ -28,24 +28,24 @@ public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitI
         AssertSql(
             """
 @p='10'
-@p0='5'
+@p1='5'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
-OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """,
             //
             """
 @p='10'
-@p0='5'
+@p1='5'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c0].[CustomerID]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 INNER JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
 ORDER BY [c0].[CustomerID]
@@ -352,10 +352,10 @@ WHERE [o].[OrderID] % 23 = 13
 
         AssertSql(
             """
-@p0='1'
+@p2='1'
 @p='2'
 
-SELECT TOP(@p0) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+SELECT TOP(@p2) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM (
     SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -371,12 +371,12 @@ ORDER BY [c1].[CustomerID], [c2].[CustomerID]
 """,
             //
             """
-@p0='1'
+@p2='1'
 @p='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [s].[CustomerID], [s].[CustomerID0]
 FROM (
-    SELECT TOP(@p0) [c1].[CustomerID], [c2].[CustomerID] AS [CustomerID0]
+    SELECT TOP(@p2) [c1].[CustomerID], [c2].[CustomerID] AS [CustomerID0]
     FROM (
         SELECT TOP(@p) [c].[CustomerID]
         FROM [Customers] AS [c]
@@ -395,12 +395,12 @@ ORDER BY [s].[CustomerID], [s].[CustomerID0]
 """,
             //
             """
-@p0='1'
+@p2='1'
 @p='2'
 
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [s0].[CustomerID], [s0].[CustomerID0]
 FROM (
-    SELECT TOP(@p0) [c1].[CustomerID], [c2].[CustomerID] AS [CustomerID0]
+    SELECT TOP(@p2) [c1].[CustomerID], [c2].[CustomerID] AS [CustomerID0]
     FROM (
         SELECT TOP(@p) [c].[CustomerID]
         FROM [Customers] AS [c]
@@ -583,7 +583,7 @@ ORDER BY [s].[c], [s].[c0], [s].[OrderID], [s].[CustomerID]
         AssertSql(
             """
 @p='1'
-@p0='2'
+@p1='2'
 
 SELECT [o0].[CustomerID]
 FROM (
@@ -591,7 +591,7 @@ FROM (
     FROM [Order Details] AS [o]
     WHERE [o].[Quantity] = CAST(10 AS smallint)
     ORDER BY [o].[OrderID], [o].[ProductID]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 INNER JOIN [Orders] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
 ORDER BY [o1].[OrderID], [o1].[ProductID]
@@ -2283,10 +2283,10 @@ ORDER BY [c].[CustomerID], [o].[OrderID]
 
         AssertSql(
             """
-@p0='1'
+@p2='1'
 @p='2'
 
-SELECT TOP(@p0) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+SELECT TOP(@p2) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM (
     SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -2302,12 +2302,12 @@ ORDER BY [c1].[CustomerID], [c2].[CustomerID]
 """,
             //
             """
-@p0='1'
+@p2='1'
 @p='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [s].[CustomerID], [s].[CustomerID0]
 FROM (
-    SELECT TOP(@p0) [c1].[CustomerID], [c2].[CustomerID] AS [CustomerID0]
+    SELECT TOP(@p2) [c1].[CustomerID], [c2].[CustomerID] AS [CustomerID0]
     FROM (
         SELECT TOP(@p) [c].[CustomerID]
         FROM [Customers] AS [c]

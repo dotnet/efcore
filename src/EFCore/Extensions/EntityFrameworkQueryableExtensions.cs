@@ -2710,7 +2710,9 @@ public static class EntityFrameworkQueryableExtensions
                 Expression.Call(
                     instance: null,
                     method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
+                    // converting the collection to an array if it isn't already one to ensure consistent caching. Fixes #37112.
+                    // #37212 may be a possible future solution providing broader capabilities around parameterizing collections.
+                    arguments: [source.Expression, Expression.Constant(filterKeys is string[] ? filterKeys : filterKeys.ToArray())]))
             : source;
 
     #endregion
@@ -3396,7 +3398,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
     [DynamicDependency(
-        "ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})",
+        "ExecuteUpdate``1(System.Linq.IQueryable{``0},System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple})",
         typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,

@@ -9131,7 +9131,7 @@ LEFT JOIN [LocustHighCommands] AS [l2] ON [l0].[HighCommandId] = [l2].[Id]
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [s0].[Nickname], [s0].[SquadId], [s0].[AssignedCityName], [s0].[CityOfBirthName], [s0].[FullName], [s0].[HasSoulPatch], [s0].[LeaderNickname], [s0].[LeaderSquadId], [s0].[Rank], [s0].[Discriminator], [s0].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
@@ -9147,7 +9147,7 @@ FROM (
         GROUP BY [g0].[HasSoulPatch]
     ) AS [s] ON CAST(LEN([g].[Nickname]) AS int) = [s].[c]
     ORDER BY [g].[Nickname]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [s0]
 LEFT JOIN [Weapons] AS [w] ON [s0].[FullName] = [w].[OwnerFullName]
 ORDER BY [s0].[Nickname], [s0].[SquadId], [s0].[HasSoulPatch0]
@@ -9201,7 +9201,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (@values1, @
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place
+WHERE [c].[Nation] = @place OR [c].[Location] = @place0 OR [c].[Location] = @place0
 """);
     }
 
@@ -9238,6 +9238,60 @@ LEFT JOIN (
     FROM [Weapons] AS [w]
     WHERE [w].[Id] > @prm
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_column_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[Rating]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [m0].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Rating] + 2.0E0 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([m0].[c], 0)
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [m].[Id] + 2 AS [c]
+    FROM [Missions] AS [m]
+    WHERE [m].[Id] = -1
+) AS [m0] ON 1 = 1
 """);
     }
 

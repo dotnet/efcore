@@ -2496,10 +2496,13 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Applies <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> on the <see cref="SelectExpression" />.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="sqlExpressionFactory">A factory to use for generating required sql expressions.</param>
-    public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
+    [EntityFrameworkInternal]
+    public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory, bool shaperNullable)
     {
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
             new SqlConstantExpression(null, typeof(string), null));
@@ -2527,7 +2530,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         _tables.Add(dummySelectExpression);
         _tables.Add(joinTable);
 
-        MakeProjectionNullable(sqlExpressionFactory);
+        MakeProjectionNullable(sqlExpressionFactory, shaperNullable);
     }
 
     /// <summary>
@@ -2537,7 +2540,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory)
+    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory, bool shaperNullable)
     {
         // Go over all projected columns and make them nullable; for non-nullable value types, add a SQL COALESCE as well.
 
@@ -2551,7 +2554,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var p => p
             };
 
-            if (newProjection is SqlExpression { Type: var type } newSqlProjection && !type.IsNullableType())
+            // The DefaultIfEmpty translation integrates the original source query as a LEFT JOIN, causing null to be returned when no
+            // rows matched (the default case). If the projected type is nullable that's perfect as-is, but if it's a non-nullable value
+            // type, we need to apply a COALESCE to get the CLR default instead.
+            // Note that the projections observed above in _projectionMapping don't contain accurate nullability information,
+            // since SQL expressions get Nullable<T> stripped out. So we instead flow the shaper nullability into here.
+            if (newProjection is SqlExpression { Type: var type } newSqlProjection && !shaperNullable)
             {
                 newProjection = sqlExpressionFactory.Coalesce(
                     newSqlProjection,
@@ -2862,7 +2870,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
         // See Issue #32853 and Issue #31248
-        var complexTypeTable = complexType.GetViewOrTableMappings().Single().Table;
+        var viewOrTableTable = complexType.GetViewOrTableMappings().Single().Table;
+        var complexTypeTable = viewOrTableTable;
 
         if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
         {
@@ -2886,7 +2895,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             var containerColumnName = complexType.GetContainerColumnName();
             Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-            var containerColumn = complexTypeTable.FindColumn(containerColumnName);
+
+            // TODO: when the JSON column is on a FromSql() source, we use the default mappings from the relational model (see just above),
+            // but those don't yet contain complex types (#34627). We work around this here, get the column from the table mapping instead
+            // of from the default mapping.
+            var containerColumn = complexTypeTable.FindColumn(containerColumnName) ?? viewOrTableTable.FindColumn(containerColumnName);
             Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
 
             // If the source type is a JSON complex type; since we're binding over StructuralTypeProjectionExpression - which represents a relational

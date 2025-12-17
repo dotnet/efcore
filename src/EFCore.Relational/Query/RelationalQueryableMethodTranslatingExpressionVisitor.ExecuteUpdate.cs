@@ -294,23 +294,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 default:
                     throw new InvalidOperationException(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
 
-                bool TryTranslateMemberAccess(
-                    Expression expression,
-                    [NotNullWhen(true)] out Expression? translation,
-                    [NotNullWhen(true)] out IPropertyBase? property)
-                {
-                    if (IsMemberAccess(expression, QueryCompilationContext.Model, out var baseExpression, out var member)
-                        && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
+                    bool TryTranslateMemberAccess(
+                        Expression expression,
+                        [NotNullWhen(true)] out Expression? translation,
+                        [NotNullWhen(true)] out IPropertyBase? property)
                     {
-                        translation = target;
-                        property = targetProperty;
-                        return true;
-                    }
+                        if (IsMemberAccess(expression, QueryCompilationContext.Model, out var baseExpression, out var member)
+                            && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
+                        {
+                            translation = target;
+                            property = targetProperty;
+                            return true;
+                        }
 
-                    translation = null;
-                    property = null;
-                    return false;
-                }
+                        translation = null;
+                        property = null;
+                        return false;
+                    }
             }
 
             if (targetProperty.DeclaringType is IEntityType entityType && entityType.IsMappedToJson())
@@ -473,8 +473,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
                                 .SelectMany(m => m.Table.Columns)
                                 .Where(c => c.Name == containerColumnName)
-                                .Single();
-
+                                .SingleOrDefault();
                             break;
                         }
 
@@ -510,15 +509,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             void ProcessComplexType(StructuralTypeShaperExpression shaperExpression, Expression valueExpression)
             {
                 if (shaperExpression.StructuralType is not IComplexType complexType
-                    || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
+                || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
                 {
                     throw new UnreachableException();
                 }
 
                 foreach (var property in complexType.GetProperties())
                 {
+                    targetProperty = property;
                     var column = projection.BindProperty(property);
-                    CheckColumnOnSameTable(column, propertySelector);
+                    ProcessColumn(column);
 
                     var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
                     var translatedValueSelector = TranslateScalarSetterValueSelector(

@@ -4652,6 +4652,33 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task DefaultIfEmpty_top_level_over_column_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>()
+                .Where(m => m.Id == -1) // Non-existent id, to exercise DefaultIfEmpty
+                .Select(c => c.Rating)
+                .DefaultIfEmpty());
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>()
+                .Where(m => m.Id == -1) // Non-existent id, to exercise DefaultIfEmpty
+                .Select(m => m.Rating + 2)
+                .DefaultIfEmpty());
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task DefaultIfEmpty_top_level_over_arbitrary_expression_with_non_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>()
+                .Where(m => m.Id == -1) // Non-existent id, to exercise DefaultIfEmpty
+                .Select(m => m.Id + 2)
+                .DefaultIfEmpty());
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_with_inner_being_a_subquery_projecting_single_property(bool async)
         => AssertQuery(
             async,

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
-    private const int MaxParameterCount = 2100;
+    private const int MaxParameterCount = 2100 - 2;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,6 +30,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
     private int _openJsonAliasCounter;
+    private int _totalParameterCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,6 +53,15 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public override Expression Process(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
     {
+        var parametersCounter = new ParametersCounter(
+            parametersDecorator,
+            CollectionParameterTranslationMode,
+#pragma warning disable EF1001
+            (count, elementTypeMapping) => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping)));
+#pragma warning restore EF1001
+        parametersCounter.Visit(queryExpression);
+        _totalParameterCount = parametersCounter.Count;
+
         var result = base.Process(queryExpression, parametersDecorator);
         _openJsonAliasCounter = 0;
         return result;
@@ -291,7 +301,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
             <= 750 => 50,
             <= 2000 => 100,
             <= 2070 => 10, // try not to over-pad as we approach that limit
-            <= MaxParameterCount => 0, // just don't pad between 2070 and 2100, to minimize the crazy
+            <= MaxParameterCount => 1, // just don't pad between 2070 and 2100, to minimize the crazy
             _ => 200,
         };
 
@@ -303,14 +313,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         out List<SqlExpression>? constantsResult,
         out bool? containsNulls)
     {
-        var parameters = ParametersDecorator.GetAndDisableCaching();
-        var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
-
         // SQL Server has limit on number of parameters in a query.
         // If we're over that limit, we switch to using single parameter
         // and processing it through JSON functions.
-        if (values.Count > MaxParameterCount)
+        if (_totalParameterCount > MaxParameterCount)
         {
+            var parameters = ParametersDecorator.GetAndDisableCaching();
+            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
+
             if (_sqlServerSingletonOptions.SupportsJsonFunctions)
             {
                 var openJsonExpression = new SqlServerOpenJsonExpression(
@@ -367,4 +377,110 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         return false;
     }
 #pragma warning restore EF1001
+}
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class ParametersCounter(
+    ParametersCacheDecorator parametersDecorator,
+    ParameterTranslationMode collectionParameterTranslationMode,
+    Func<int, RelationalTypeMapping, int> bucketizationPadding) : ExpressionVisitor
+{
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int Count { get; private set; }
+
+    private readonly HashSet<SqlParameterExpression> _visitedSqlParameters =
+        new(EqualityComparer<SqlParameterExpression>.Create(
+            (lhs, rhs) =>
+                ReferenceEquals(lhs, rhs)
+                || (lhs is not null && rhs is not null
+                    && lhs.InvariantName == rhs.InvariantName
+                    && lhs.Type == rhs.Type
+                    && lhs.TypeMapping == rhs.TypeMapping
+                    && lhs.TranslationMode == rhs.TranslationMode),
+            x => HashCode.Combine(x.InvariantName, x.Type, x.TypeMapping, x.TranslationMode)));
+
+    private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
+        new(EqualityComparer<QueryParameterExpression>.Create(
+            (lhs, rhs) =>
+                ReferenceEquals(lhs, rhs)
+                || (lhs is not null && rhs is not null
+                    && lhs.Name == rhs.Name
+                    && lhs.TranslationMode == rhs.TranslationMode),
+            x => HashCode.Combine(x.Name, x.TranslationMode)));
+
+    /// <inheritdoc/>
+    protected override Expression VisitExtension(Expression node)
+    {
+        switch (node)
+        {
+            case ValuesExpression { ValuesParameter: { } valuesParameter }:
+                ProcessCollectionParameter(valuesParameter, bucketization: false);
+                break;
+
+            case InExpression { ValuesParameter: { } valuesParameter }:
+                ProcessCollectionParameter(valuesParameter, bucketization: true);
+                break;
+
+            case FromSqlExpression { Arguments: QueryParameterExpression queryParameter }:
+                if (_visitedQueryParameters.Add(queryParameter))
+                {
+                    var parameters = parametersDecorator.GetAndDisableCaching();
+                    Count += ((object?[])parameters[queryParameter.Name]!).Length;
+                }
+                break;
+
+            case SqlParameterExpression sqlParameterExpression:
+                if (_visitedSqlParameters.Add(sqlParameterExpression))
+                {
+                    Count++;
+                }
+                break;
+        }
+
+        return base.VisitExtension(node);
+    }
+
+    private void ProcessCollectionParameter(SqlParameterExpression sqlParameterExpression, bool bucketization)
+    {
+        if (!_visitedSqlParameters.Add(sqlParameterExpression))
+        {
+            return;
+        }
+
+        switch (sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode)
+        {
+            case ParameterTranslationMode.MultipleParameters:
+                var parameters = parametersDecorator.GetAndDisableCaching();
+                var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object?>().Count() ?? 0;
+                Count += count;
+
+                if (bucketization)
+                {
+                    var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
+                    Count += bucketizationPadding(count, elementTypeMapping);
+                }
+
+                break;
+
+            case ParameterTranslationMode.Parameter:
+                Count++;
+                break;
+
+            case ParameterTranslationMode.Constant:
+                break;
+
+            default:
+                throw new UnreachableException();
+        }
+    }
 }

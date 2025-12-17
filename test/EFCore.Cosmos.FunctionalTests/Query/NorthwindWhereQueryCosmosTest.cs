@@ -1538,11 +1538,11 @@ WHERE ((c["$type"] = "Product") AND (true ? false : true))
                 AssertSql(
                     """
 @customerId='ANATR'
-@customerId0='ALFKI'
+@customerId1='ALFKI'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId0))
+WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId1))
 """);
             });
 
@@ -1555,11 +1555,11 @@ WHERE ((c["id"] = @customerId) OR (c["id"] = @customerId0))
                 AssertSql(
                     """
 @customerID='ANATR'
-@customerId='ALFKI'
+@customerId0='ALFKI'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId))
+WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId0))
 """);
             });
 

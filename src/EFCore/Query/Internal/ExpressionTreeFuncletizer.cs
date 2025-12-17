@@ -995,20 +995,23 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
             {
-                if (expression is MethodCallExpression
+                switch (expression)
+                {
+                    case MethodCallExpression
                     {
                         Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
                         Arguments: [var unwrapped]
+                    } when implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                        && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)):
+                    {
+                        result = unwrapped;
+                        return true;
                     }
-                    && implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
-                    && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
-                {
-                    result = unwrapped;
-                    return true;
-                }
 
-                result = null;
-                return false;
+                    default:
+                        result = null;
+                        return false;
+                }
             }
         }
 
@@ -2091,12 +2094,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 parameterName = parameterName.Substring("$VB$Local_".Length);
             }
 
-            // Uniquify the parameter name
-            var originalParameterName = parameterName;
-            for (var i = 0; _parameterNames.Contains(parameterName); i++)
-            {
-                parameterName = originalParameterName + i;
-            }
+            parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
 
             _parameterNames.Add(parameterName);
         }

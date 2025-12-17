@@ -2633,7 +2633,7 @@ WHERE (
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [l].[Name]
 FROM [LevelThree] AS [l]
@@ -2641,7 +2641,7 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Required_Inverse3Id] = [l0].[Id]
 INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
 WHERE [l1].[Name] IN (N'L1 10', N'L1 01')
 ORDER BY [l].[Level2_Required_Id]
-OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 

@@ -72,7 +72,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         };
 
         string etag = null;
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             await Fixture.TestStore.CleanAsync(context);
 
@@ -83,7 +83,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             etag = customer.ETag;
         }
 
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
@@ -133,7 +133,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         };
 
         string etag = null;
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             await Fixture.TestStore.CleanAsync(context);
 
@@ -144,7 +144,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             etag = customer.ETag;
         }
 
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             var customerFromStore = await context.Set<PremiumCustomer>().SingleAsync();
 
@@ -232,8 +232,11 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         Assert.IsAssignableFrom<Customer>(entry.Entity);
     }
 
-    protected ConcurrencyContext CreateContext()
+    protected virtual ConcurrencyContext CreateContext()
         => Fixture.CreateContext();
+
+    protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
+        => new ConcurrencyContext(options);
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {

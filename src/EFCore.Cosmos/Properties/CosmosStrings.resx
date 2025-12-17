@@ -147,6 +147,10 @@
   <data name="ContainerContainingPropertyConflict" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.</value>
   </data>
+  <data name="ContainerNameDoesNotExist" xml:space="preserve">
+    <value>The container with the name '{containerName}' does not exist.</value>
+    <comment>string</comment>
+  </data>
   <data name="ContainerNotOnRoot" xml:space="preserve">
     <value>An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.</value>
   </data>
@@ -170,6 +174,9 @@
   </data>
   <data name="ElementWithValueConverter" xml:space="preserve">
     <value>The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.</value>
+  </data>
+  <data name="EnableManualSessionTokenManagement" xml:space="preserve">
+    <value>Disable automatic session token management using 'options.SessionTokenManagementMode' to use this method.</value>
   </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
     <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
@@ -209,6 +216,10 @@
   </data>
   <data name="LimitOffsetNotSupportedInSubqueries" xml:space="preserve">
     <value>The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.</value>
+  </data>
+  <data name="LogBulkExecutionWithTransactionalBatch" xml:space="preserve">
+    <value>Transactional batches will skip bulk execution. Use DatabaseFacade.AutoTransactionBehavior = AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, ignore this warning using DbContextOptionsBuilder.ConfigureWarnings(w =&gt; w.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)).</value>
+    <comment>Warning CosmosEventId.BulkExecutionWithTransactionalBatch</comment>
   </data>
   <data name="LogExecutedCreateItem" xml:space="preserve">
     <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
@@ -252,6 +263,10 @@
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
+  </data>
+  <data name="MissingSessionTokenEnforceManual" xml:space="preserve">
+    <value>No session token has been set for container: '{container}'. While using 'EnforceManual' mode you must always set a session token for any container used on every context instance.</value>
+    <comment>string</comment>
   </data>
   <data name="MultipleRootEntityTypesReferencedInQuery" xml:space="preserve">
     <value>Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.</value>

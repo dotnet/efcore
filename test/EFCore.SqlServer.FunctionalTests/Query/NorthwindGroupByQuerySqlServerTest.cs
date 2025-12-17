@@ -1187,14 +1187,14 @@ GROUP BY [o0].[CustomerID]
         AssertSql(
             """
 @p='80'
-@p0='500'
+@p1='500'
 
 SELECT MAX([o0].[OrderID])
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o0]
 GROUP BY [o0].[CustomerID]
 """);
@@ -1276,8 +1276,8 @@ GROUP BY [o0].[CustomerID]
         AssertSql(
             """
 @p='100'
-@p0='10'
-@p1='50'
+@p1='10'
+@p2='50'
 
 SELECT [c0].[CustomerID] AS [Key], AVG(CAST([o0].[OrderID] AS float)) AS [Count]
 FROM (
@@ -1291,7 +1291,7 @@ INNER JOIN (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'DRACD', N'FOLKO')
     ORDER BY [c].[City]
-    OFFSET @p0 ROWS FETCH NEXT @p1 ROWS ONLY
+    OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
 ) AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
 GROUP BY [c0].[CustomerID]
 """);
@@ -1383,8 +1383,8 @@ GROUP BY [c].[Country]
         AssertSql(
             """
 @p='10'
-@p0='50'
-@p1='100'
+@p1='50'
+@p2='100'
 
 SELECT [o0].[CustomerID] AS [Key], AVG(CAST([o0].[OrderID] AS float)) AS [Count]
 FROM (
@@ -1392,10 +1392,10 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'DRACD', N'FOLKO')
     ORDER BY [c].[City]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 INNER JOIN (
-    SELECT TOP(@p1) [o].[OrderID], [o].[CustomerID]
+    SELECT TOP(@p2) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10400
     ORDER BY [o].[OrderDate]
@@ -1602,7 +1602,7 @@ WHERE EXISTS (
         AssertSql(
             """
 @p='20'
-@p0='4'
+@p1='4'
 
 SELECT [o0].[CustomerID]
 FROM (
@@ -1613,7 +1613,7 @@ FROM (
     ORDER BY [o].[CustomerID]
 ) AS [o0]
 ORDER BY [o0].[CustomerID]
-OFFSET @p0 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -1624,7 +1624,7 @@ OFFSET @p0 ROWS
         AssertSql(
             """
 @p='20'
-@p0='4'
+@p1='4'
 
 SELECT [o0].[Key], [o0].[Max]
 FROM (
@@ -1635,7 +1635,7 @@ FROM (
     ORDER BY [o].[CustomerID]
 ) AS [o0]
 ORDER BY [o0].[Key]
-OFFSET @p0 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -1646,7 +1646,7 @@ OFFSET @p0 ROWS
         AssertSql(
             """
 @p='20'
-@p0='4'
+@p1='4'
 
 SELECT CAST(LEN([o0].[CustomerID]) AS int)
 FROM (
@@ -1657,7 +1657,7 @@ FROM (
     ORDER BY [o].[CustomerID]
 ) AS [o0]
 ORDER BY [o0].[CustomerID]
-OFFSET @p0 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -1668,7 +1668,7 @@ OFFSET @p0 ROWS
         AssertSql(
             """
 @p='20'
-@p0='4'
+@p1='4'
 
 SELECT 5
 FROM (
@@ -1679,7 +1679,7 @@ FROM (
     ORDER BY [o].[CustomerID]
 ) AS [o0]
 ORDER BY [o0].[CustomerID]
-OFFSET @p0 ROWS
+OFFSET @p1 ROWS
 """);
     }
 

@@ -57,7 +57,7 @@ namespace Scaffolding
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => IdentityUserUnsafeAccessors<string>.Id(((IdentityUser)(entry.Entity))),
                 string (IInternalEntry entry) => entry.ReadOriginalValue<string>(id, 0),
-                string (IInternalEntry entry) => ((InternalEntityEntry)(entry)).ReadRelationshipSnapshotValue<string>(id, 0));
+                string (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<string>(id, 0));
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,

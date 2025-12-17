@@ -642,7 +642,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 valueBufferExpression,
                 shaper.MaterializationCondition.Body);
 
-            var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
+            var expressionContext = (returnType, shaper.IsNullable, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
             expressions.Add(Assign(concreteEntityTypeVariable, materializationConditionBody));
 
             var (primaryKey, concreteStructuralTypes) = structuralType is IEntityType entityType
@@ -708,11 +708,13 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         private BlockExpression CreateFullMaterializeExpression(
             ITypeBase concreteStructuralType,
             (Type ReturnType,
+                bool IsNullable,
                 ParameterExpression MaterializationContextVariable,
                 ParameterExpression ConcreteEntityTypeVariable,
                 ParameterExpression ShadowValuesVariable) materializeExpressionContext)
         {
             var (returnType,
+                nullable,
                 materializationContextVariable,
                 _,
                 shadowValuesVariable) = materializeExpressionContext;
@@ -722,7 +724,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var materializer = materializerSource
                 .CreateMaterializeExpression(
                     new StructuralTypeMaterializerSourceParameters(
-                        concreteStructuralType, "instance", returnType, queryTrackingBehavior), materializationContextVariable);
+                        concreteStructuralType, "instance", returnType, nullable, queryTrackingBehavior), materializationContextVariable);
 
             if (_queryStateManager
                 && concreteStructuralType is IRuntimeEntityType { ShadowPropertyCount: > 0 } runtimeEntityType)
