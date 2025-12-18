@@ -695,9 +695,10 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
                 {
                     var isSetDefault = foreignKey.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault;
 
-                    if ((properties.Any(p => p.IsNullable) || isSetDefault)
-                        && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
-                        && foreignKey.DeleteBehavior != DeleteBehavior.ClientCascade)
+                    if (isSetDefault
+                        || (properties.Any(p => p.IsNullable)
+                            && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
+                            && foreignKey.DeleteBehavior != DeleteBehavior.ClientCascade))
                     {
                         foreach (var toNull in properties)
                         {

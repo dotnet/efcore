@@ -161,7 +161,7 @@ public enum DeleteBehavior
     SetDefault,
 
     /// <summary>
-    ///     Sets foreign key values to their default values as appropriate when changes are made to tracked entities,
+    ///     Sets foreign key values to their sentinel values as appropriate when changes are made to tracked entities,
     ///     but creates a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
