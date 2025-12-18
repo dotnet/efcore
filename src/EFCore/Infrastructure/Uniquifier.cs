@@ -255,20 +255,18 @@ public static class Uniquifier
     }
 
     private static int GetLength(int? number)
-    {
-        if (number == null)
+        => number switch
         {
-            return 0;
-        }
-
-        var length = 0;
-        do
-        {
-            number /= 10;
-            length++;
-        }
-        while (number.Value >= 1);
-
-        return length;
-    }
+            null => 0,
+            < 10 => 1,
+            < 100 => 2,
+            < 1_000 => 3,
+            < 10_000 => 4,
+            < 100_000 => 5,
+            < 1_000_000 => 6,
+            < 10_000_000 => 7,
+            < 100_000_000 => 8,
+            < 1_000_000_000 => 9,
+            _ => MaxIntLength,
+        };
 }
