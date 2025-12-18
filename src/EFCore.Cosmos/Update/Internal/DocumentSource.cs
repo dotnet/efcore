@@ -6,9 +6,13 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
+
+// #16707
+#pragma warning disable EF1001 // Internal EF Core API usage.
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,9 +79,12 @@ public class DocumentSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JObject CreateDocument(IUpdateEntry entry, int? ordinal)
+        => CreateDocument((IInternalEntry)entry, entry.EntityType, ordinal);
+
+    private JObject CreateDocument(IInternalEntry entry, ITypeBase structuralType, int? ordinal)
     {
         var document = new JObject();
-        foreach (var property in entry.EntityType.GetProperties())
+        foreach (var property in structuralType.GetProperties())
         {
             var storeName = property.GetJsonPropertyName();
             if (storeName.Length != 0)
@@ -94,48 +101,71 @@ public class DocumentSource
             }
         }
 
-        foreach (var embeddedNavigation in entry.EntityType.GetNavigations())
+        if (structuralType is IEntityType entityType)
         {
-            var fk = embeddedNavigation.ForeignKey;
-            if (!fk.IsOwnership
-                || embeddedNavigation.IsOnDependent
-                || fk.DeclaringEntityType.IsDocumentRoot())
+            foreach (var embeddedNavigation in entityType.GetNavigations())
             {
-                continue;
-            }
+                var fk = embeddedNavigation.ForeignKey;
+                if (!fk.IsOwnership
+                    || embeddedNavigation.IsOnDependent
+                    || fk.DeclaringEntityType.IsDocumentRoot())
+                {
+                    continue;
+                }
 
-            var embeddedValue = entry.GetCurrentValue(embeddedNavigation);
-            var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName()!;
+                var embeddedValue = entry.GetCurrentValue(embeddedNavigation);
+                var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName()!;
+                if (embeddedValue == null)
+                {
+                    document[embeddedPropertyName] = null;
+                }
+                else if (fk.IsUnique)
+                {
+                    var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
+                    document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
+                }
+                else
+                {
+                    SetTemporaryOrdinals(entry, fk, embeddedValue);
+
+                    var stateManager = ((InternalEntityEntry)entry).StateManager;
+
+                    var embeddedOrdinal = 1;
+                    var array = new JArray();
+                    foreach (var dependent in (IEnumerable)embeddedValue)
+                    {
+                        var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
+                        array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
+                        embeddedOrdinal++;
+                    }
+
+                    document[embeddedPropertyName] = array;
+                }
+            }
+        }
+
+        foreach (var complexProperty in structuralType.GetComplexProperties())
+        {
+            var embeddedValue = entry.GetCurrentValue(complexProperty);
+            var embeddedPropertyName = complexProperty.Name;
             if (embeddedValue == null)
             {
                 document[embeddedPropertyName] = null;
             }
-            else if (fk.IsUnique)
+            else if (!complexProperty.IsCollection)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
-                var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
-                document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                document[embeddedPropertyName] = CreateDocument(entry, complexProperty.ComplexType, null);
             }
             else
             {
-                SetTemporaryOrdinals(entry, fk, embeddedValue);
+                var internalEntry = (InternalEntryBase)entry;
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
-                var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                var embeddedOrdinal = 1;
+                var embeddedOrdinal = 0;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
-                    var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
-                    array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                    var dependentEntry = internalEntry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
+                    array.Add(CreateDocument(dependentEntry, complexProperty.ComplexType, null));
                     embeddedOrdinal++;
                 }
 
@@ -162,9 +192,12 @@ public class DocumentSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry, int? ordinal)
+        => UpdateDocument(document, (IInternalEntry)entry, entry.EntityType, ordinal);
+
+    private JObject? UpdateDocument(JObject document, IInternalEntry entry, ITypeBase structuralType, int? ordinal)
     {
         var anyPropertyUpdated = false;
-        foreach (var property in entry.EntityType.GetProperties())
+        foreach (var property in structuralType.GetProperties())
         {
             if (ordinal != null
                 && entry.HasTemporaryValue(property)
@@ -174,7 +207,7 @@ public class DocumentSource
             }
 
             if (entry.EntityState == EntityState.Added
-                || entry.SharedIdentityEntry != null
+                || (entry is IUpdateEntry updateEntry && updateEntry.SharedIdentityEntry != null)
                 || entry.IsModified(property))
             {
                 var storeName = property.GetJsonPropertyName();
@@ -186,19 +219,75 @@ public class DocumentSource
             }
         }
 
-        foreach (var ownedNavigation in entry.EntityType.GetNavigations())
+        if (structuralType is IEntityType entityType)
         {
-            var fk = ownedNavigation.ForeignKey;
-            if (!fk.IsOwnership
-                || ownedNavigation.IsOnDependent
-                || fk.DeclaringEntityType.IsDocumentRoot())
+            foreach (var ownedNavigation in entityType.GetNavigations())
             {
-                continue;
-            }
+                var fk = ownedNavigation.ForeignKey;
+                if (!fk.IsOwnership
+                    || ownedNavigation.IsOnDependent
+                    || fk.DeclaringEntityType.IsDocumentRoot())
+                {
+                    continue;
+                }
 
-            var embeddedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
-            var embeddedValue = entry.GetCurrentValue(ownedNavigation);
-            var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName()!;
+                var embeddedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
+                var embeddedValue = entry.GetCurrentValue(ownedNavigation);
+                var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName()!;
+                if (embeddedValue == null)
+                {
+                    if (document[embeddedPropertyName] != null)
+                    {
+                        document[embeddedPropertyName] = null;
+                        anyPropertyUpdated = true;
+                    }
+                }
+                else if (fk.IsUnique)
+                {
+                    var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
+
+                    var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
+                    embeddedDocument = embeddedDocument != null
+                        ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, null)
+                        : embeddedDocumentSource.CreateDocument(embeddedEntry, null);
+
+                    if (embeddedDocument != null)
+                    {
+                        document[embeddedPropertyName] = embeddedDocument;
+                        anyPropertyUpdated = true;
+                    }
+                }
+                else
+                {
+                    SetTemporaryOrdinals(entry, fk, embeddedValue);
+
+                    var stateManager = ((InternalEntityEntry)entry).StateManager;
+
+                    var embeddedOrdinal = 1;
+                    var array = new JArray();
+                    foreach (var dependent in (IEnumerable)embeddedValue)
+                    {
+                        var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
+
+                        var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
+                        embeddedDocument = embeddedDocument != null
+                            ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, embeddedOrdinal) ?? embeddedDocument
+                            : embeddedDocumentSource.CreateDocument(embeddedEntry, embeddedOrdinal);
+
+                        array.Add(embeddedDocument);
+                        embeddedOrdinal++;
+                    }
+
+                    document[embeddedPropertyName] = array;
+                    anyPropertyUpdated = true;
+                }
+            }
+        }
+
+        foreach (var complexProperty in structuralType.GetComplexProperties())
+        {
+            var embeddedValue = entry.GetCurrentValue(complexProperty);
+            var embeddedPropertyName = complexProperty.Name;
             if (embeddedValue == null)
             {
                 if (document[embeddedPropertyName] != null)
@@ -207,17 +296,12 @@ public class DocumentSource
                     anyPropertyUpdated = true;
                 }
             }
-            else if (fk.IsUnique)
+            else if (!complexProperty.IsCollection)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
-                var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
+                var embeddedDocument = document[embeddedPropertyName] as JObject;
                 embeddedDocument = embeddedDocument != null
-                    ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry)
-                    : embeddedDocumentSource.CreateDocument(embeddedEntry);
+                    ? UpdateDocument(embeddedDocument, entry, complexProperty.ComplexType, null)
+                    : CreateDocument(entry, complexProperty.ComplexType, null);
 
                 if (embeddedDocument != null)
                 {
@@ -227,26 +311,17 @@ public class DocumentSource
             }
             else
             {
-                SetTemporaryOrdinals(entry, fk, embeddedValue);
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
-                var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                var embeddedOrdinal = 1;
+                var embeddedCollection = document[embeddedPropertyName] as JArray;
+                var embeddedOrdinal = 0;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
-                    var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                    var embeddedEntry = entry.GetComplexCollectionEntry(complexProperty, embeddedOrdinal);
 
-                    var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
+                    var embeddedDocument = embeddedEntry.OriginalOrdinal != -1 ? embeddedCollection?[embeddedEntry.OriginalOrdinal] as JObject : null;
                     embeddedDocument = embeddedDocument != null
-                        ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, embeddedOrdinal) ?? embeddedDocument
-                        : embeddedDocumentSource.CreateDocument(embeddedEntry, embeddedOrdinal);
+                        ? UpdateDocument(embeddedDocument, embeddedEntry, complexProperty.ComplexType, null) ?? embeddedDocument
+                        : CreateDocument(embeddedEntry, complexProperty.ComplexType, null);
 
                     array.Add(embeddedDocument);
                     embeddedOrdinal++;
@@ -261,7 +336,7 @@ public class DocumentSource
     }
 
     private static void SetTemporaryOrdinals(
-        IUpdateEntry entry,
+        IInternalEntry entry,
         IForeignKey fk,
         object embeddedValue)
     {
@@ -269,15 +344,10 @@ public class DocumentSource
         var ordinalKeyProperty = FindOrdinalKeyProperty(fk.DeclaringEntityType);
         if (ordinalKeyProperty != null)
         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            // #16707
             var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
             var shouldSetTemporaryKeys = false;
             foreach (var dependent in (IEnumerable)embeddedValue)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
                 var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
                 if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty)! != embeddedOrdinal
@@ -286,7 +356,6 @@ public class DocumentSource
                     shouldSetTemporaryKeys = true;
                     break;
                 }
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 embeddedOrdinal++;
             }
@@ -296,12 +365,9 @@ public class DocumentSource
                 var temporaryOrdinal = -1;
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
                     var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
                     embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                     temporaryOrdinal--;
                 }
@@ -323,7 +389,7 @@ public class DocumentSource
             ? (JObject?)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
             : null;
 
-    private static JToken? ConvertPropertyValue(IProperty property, IUpdateEntry entry)
+    private static JToken? ConvertPropertyValue(IProperty property, IInternalEntry entry)
     {
         var value = entry.GetCurrentProviderValue(property);
         return value == null
@@ -331,3 +397,5 @@ public class DocumentSource
             : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
     }
 }
+
+#pragma warning restore EF1001 // Internal EF Core API usage.
