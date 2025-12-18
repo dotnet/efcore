@@ -620,6 +620,24 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 b.HasKey(e => e.PrimaryGroup);
                 b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
             });
+
+            modelBuilder.Entity<ChildWithSetDefault>(b =>
+            {
+                b.Property(e => e.ParentId).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.ClientSetDefault);
+            });
+
+            modelBuilder.Entity<ChildWithSetDefaultValue>(b =>
+            {
+                b.Property(e => e.ParentId).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetDefault);
+            });
         }
 
         private class StableGuidGenerator : ValueGenerator<Guid>
@@ -3865,6 +3883,92 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get => _users;
             set => SetWithNotify(value, ref _users);
+        }
+    }
+
+    protected class ParentWithSetDefault : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<ChildWithSetDefault> _children = new ObservableHashSet<ChildWithSetDefault>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public virtual ICollection<ChildWithSetDefault> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class ChildWithSetDefault : NotifyingEntity
+    {
+        private int _id;
+        private int _parentId;
+        private ParentWithSetDefault _parent;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+
+        public virtual ParentWithSetDefault Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
+        }
+    }
+
+    protected class ParentWithSetDefaultValue : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<ChildWithSetDefaultValue> _children = new ObservableHashSet<ChildWithSetDefaultValue>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public virtual ICollection<ChildWithSetDefaultValue> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class ChildWithSetDefaultValue : NotifyingEntity
+    {
+        private int _id;
+        private int _parentId;
+        private ParentWithSetDefaultValue _parent;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+
+        public virtual ParentWithSetDefaultValue Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
         }
     }
 
