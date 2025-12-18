@@ -154,7 +154,8 @@ public class SqliteDataReader : DbDataReader
             {
                 stmt = _stmtEnumerator.Current;
 
-                var totalChangesBefore = sqlite3_total_changes(_command.Connection!.Handle);
+                var handle = _command.Connection!.Handle;
+                var totalChangesBefore = sqlite3_total_changes(handle);
 
                 var timer = SharedStopwatch.StartNew();
 
@@ -174,7 +175,7 @@ public class SqliteDataReader : DbDataReader
 
                 _totalElapsedTime += timer.Elapsed;
 
-                SqliteException.ThrowExceptionForRC(rc, _command.Connection!.Handle);
+                SqliteException.ThrowExceptionForRC(rc, handle);
 
                 // It's a SELECT statement
                 if (sqlite3_column_count(stmt) != 0)
@@ -187,13 +188,13 @@ public class SqliteDataReader : DbDataReader
                 while (rc != SQLITE_DONE)
                 {
                     rc = sqlite3_step(stmt);
-                    SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+                    SqliteException.ThrowExceptionForRC(rc, handle);
                 }
 
                 sqlite3_reset(stmt);
 
-                var totalChangesAfter = sqlite3_total_changes(_command.Connection.Handle);
-                var changes = totalChangesAfter - totalChangesBefore;
+                var totalChangesAfter = sqlite3_total_changes(handle);
+                int changes = totalChangesAfter - totalChangesBefore;
                 if (changes > 0)
                 {
                     AddChanges(changes);
