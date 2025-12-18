@@ -154,6 +154,8 @@ public class SqliteDataReader : DbDataReader
             {
                 stmt = _stmtEnumerator.Current;
 
+                var totalChangesBefore = sqlite3_total_changes(_command.Connection!.Handle);
+
                 var timer = SharedStopwatch.StartNew();
 
                 while (IsBusy(rc = sqlite3_step(stmt)))
@@ -190,8 +192,12 @@ public class SqliteDataReader : DbDataReader
 
                 sqlite3_reset(stmt);
 
-                var changes = sqlite3_changes(_command.Connection.Handle);
-                AddChanges(changes);
+                var totalChangesAfter = sqlite3_total_changes(_command.Connection.Handle);
+                var changes = totalChangesAfter - totalChangesBefore;
+                if (changes > 0)
+                {
+                    AddChanges(changes);
+                }
             }
             catch
             {
