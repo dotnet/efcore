@@ -83,14 +83,6 @@ public class CosmosModelValidator : ModelValidator
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
-                if (complexProperty.IsCollection)
-                {
-                    throw new InvalidOperationException(
-                        CosmosStrings.ComplexTypeCollectionsNotSupported(
-                            complexProperty.ComplexType.ShortName(),
-                            complexProperty.Name));
-                }
-
                 ValidateType(complexProperty.ComplexType, logger);
             }
         }
