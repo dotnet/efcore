@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 using Microsoft.EntityFrameworkCore.Query.Associations.OwnedTableSplitting;
+using Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore;
 
