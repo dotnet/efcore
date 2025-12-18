@@ -154,8 +154,8 @@ public class SqliteDataReader : DbDataReader
             {
                 stmt = _stmtEnumerator.Current;
 
-                var handle = _command.Connection!.Handle;
-                var totalChangesBefore = sqlite3_total_changes(handle);
+                var connectionHandle = _command.Connection!.Handle;
+                var totalChangesBefore = sqlite3_total_changes(connectionHandle);
 
                 var timer = SharedStopwatch.StartNew();
 
@@ -175,7 +175,7 @@ public class SqliteDataReader : DbDataReader
 
                 _totalElapsedTime += timer.Elapsed;
 
-                SqliteException.ThrowExceptionForRC(rc, handle);
+                SqliteException.ThrowExceptionForRC(rc, connectionHandle);
 
                 // It's a SELECT statement
                 if (sqlite3_column_count(stmt) != 0)
@@ -188,13 +188,16 @@ public class SqliteDataReader : DbDataReader
                 while (rc != SQLITE_DONE)
                 {
                     rc = sqlite3_step(stmt);
-                    SqliteException.ThrowExceptionForRC(rc, handle);
+                    SqliteException.ThrowExceptionForRC(rc, connectionHandle);
                 }
 
                 sqlite3_reset(stmt);
 
-                var totalChangesAfter = sqlite3_total_changes(handle);
-                int changes = totalChangesAfter - totalChangesBefore;
+                // sqlite3_changes() returns the row count from the most recent INSERT, UPDATE, or DELETE
+                // and incorrectly persists across DDL statements. Use sqlite3_total_changes() before and after
+                // to calculate the actual delta for this statement, ensuring DDL statements don't add stale counts.
+                var totalChangesAfter = sqlite3_total_changes(connectionHandle);
+                var changes = totalChangesAfter - totalChangesBefore;
                 if (changes > 0)
                 {
                     AddChanges(changes);

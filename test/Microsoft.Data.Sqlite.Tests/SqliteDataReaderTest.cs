@@ -1973,32 +1973,37 @@ public class SqliteDataReaderTest
     [Fact]
     public void RecordsAffected_not_affected_by_DDL_statements()
     {
-        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using (var reader = connection.ExecuteReader(
+            @"CREATE TABLE foo(bar TEXT NOT NULL);
+              CREATE TABLE xyz(aaa TEXT NOT NULL);
+              INSERT INTO foo(bar) VALUES('baz');
+              INSERT INTO foo(bar) VALUES('baz2');
+              DROP TABLE xyz;"))
         {
-            connection.Open();
-
-            // Test with INSERT followed by DROP TABLE
-            var reader = connection.ExecuteReader(
-                @"CREATE TABLE foo(bar TEXT NOT NULL);
-                  CREATE TABLE xyz(aaa TEXT NOT NULL);
-                  INSERT INTO foo(bar) VALUES('baz');
-                  INSERT INTO foo(bar) VALUES('baz2');
-                  DROP TABLE xyz;");
-            ((IDisposable)reader).Dispose();
-
             Assert.Equal(2, reader.RecordsAffected);
+        }
+    }
 
-            // Test with INSERT followed by DROP TABLE and CREATE TABLE
-            reader = connection.ExecuteReader(
-                @"DROP TABLE foo;
-                  CREATE TABLE foo(bar TEXT NOT NULL);
-                  CREATE TABLE xyz(aaa TEXT NOT NULL);
-                  INSERT INTO foo(bar) VALUES('baz');
-                  INSERT INTO foo(bar) VALUES('baz2');
-                  DROP TABLE xyz;
-                  CREATE TABLE xyz(aaa TEXT NOT NULL);");
-            ((IDisposable)reader).Dispose();
+    [Fact]
+    public void RecordsAffected_not_affected_by_DDL_statements_with_drop_and_create()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
 
+        connection.ExecuteNonQuery("CREATE TABLE foo(bar TEXT NOT NULL);");
+
+        using (var reader = connection.ExecuteReader(
+            @"DROP TABLE foo;
+              CREATE TABLE foo(bar TEXT NOT NULL);
+              CREATE TABLE xyz(aaa TEXT NOT NULL);
+              INSERT INTO foo(bar) VALUES('baz');
+              INSERT INTO foo(bar) VALUES('baz2');
+              DROP TABLE xyz;
+              CREATE TABLE xyz(aaa TEXT NOT NULL);"))
+        {
             Assert.Equal(2, reader.RecordsAffected);
         }
     }
