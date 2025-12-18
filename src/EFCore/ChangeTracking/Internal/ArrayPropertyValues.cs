@@ -16,6 +16,7 @@ public class ArrayPropertyValues : PropertyValues
 {
     private readonly object?[] _values;
     private readonly List<ArrayPropertyValues?>?[] _complexCollectionValues;
+    private readonly bool[]? _nullComplexPropertyFlags;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,11 +24,12 @@ public class ArrayPropertyValues : PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ArrayPropertyValues(InternalEntryBase internalEntry, object?[] values)
+    public ArrayPropertyValues(InternalEntryBase internalEntry, object?[] values, bool[]? nullComplexPropertyFlags)
         : base(internalEntry)
     {
         _values = values;
         _complexCollectionValues = new List<ArrayPropertyValues?>?[ComplexCollectionProperties.Count];
+        _nullComplexPropertyFlags = nullComplexPropertyFlags;
     }
 
     /// <summary>
@@ -40,6 +42,18 @@ public class ArrayPropertyValues : PropertyValues
     {
         var structuralObject = StructuralType.GetOrCreateMaterializer(MaterializerSource)(
             new MaterializationContext(new ValueBuffer(_values), InternalEntry.Context));
+
+        if (_nullComplexPropertyFlags != null && NullableComplexProperties != null)
+        {
+            for (var i = 0; i < _nullComplexPropertyFlags.Length; i++)
+            {
+                if (_nullComplexPropertyFlags[i])
+                {
+                    var complexProperty = NullableComplexProperties[i];
+                    structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
+                }
+            }
+        }
 
         for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
@@ -64,6 +78,15 @@ public class ArrayPropertyValues : PropertyValues
 
         return structuralObject;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool IsNullableComplexPropertyNull(int index)
+        => _nullComplexPropertyFlags != null && _nullComplexPropertyFlags[index];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -132,7 +155,15 @@ public class ArrayPropertyValues : PropertyValues
         var copies = new object[_values.Length];
         Array.Copy(_values, copies, _values.Length);
 
-        var clone = new ArrayPropertyValues(InternalEntry, copies);
+        bool[]? flagsCopy = null;
+        if (_nullComplexPropertyFlags != null)
+        {
+            flagsCopy = new bool[_nullComplexPropertyFlags.Length];
+            Array.Copy(_nullComplexPropertyFlags, flagsCopy, _nullComplexPropertyFlags.Length);
+        }
+
+        var clone = new ArrayPropertyValues(InternalEntry, copies, flagsCopy);
+
         for (var i = 0; i < _complexCollectionValues.Length; i++)
         {
             var list = _complexCollectionValues[i];
@@ -354,7 +385,7 @@ public class ArrayPropertyValues : PropertyValues
                 var complexEntry = new InternalComplexEntry((IRuntimeComplexType)complexProperty.ComplexType, InternalEntry, i);
                 var complexType = complexEntry.StructuralType;
                 var values = new object?[complexType.GetFlattenedProperties().Count()];
-                var complexPropertyValues = new ArrayPropertyValues(complexEntry, values);
+                var complexPropertyValues = new ArrayPropertyValues(complexEntry, values, null);
                 complexPropertyValues.SetValues(itemDict);
 
                 propertyValuesList.Add(complexPropertyValues);
@@ -468,7 +499,7 @@ public class ArrayPropertyValues : PropertyValues
                 values[i] = getter.GetClrValue(complexObject);
             }
 
-            var complexPropertyValues = new ArrayPropertyValues(entry, values);
+            var complexPropertyValues = new ArrayPropertyValues(entry, values, null);
 
             foreach (var nestedComplexProperty in complexPropertyValues.ComplexCollectionProperties)
             {

@@ -264,6 +264,9 @@
   <data name="MultipleStartupProjects" xml:space="preserve">
     <value>More than one project was found in the current working directory. Use the --startup-project option.</value>
   </data>
+  <data name="MultipleTargetFrameworks" xml:space="preserve">
+    <value>The project targets multiple frameworks. Use the --framework option to specify which target framework to use.</value>
+  </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
   </data>

@@ -169,11 +169,11 @@ WHERE [s].[Id] = @p
         AssertSql(
             """
 @p='77'
-@p0='Dog' (Size = 450)
+@p1='Dog' (Size = 450)
 
 SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
 FROM [CompositeKey] AS [c]
-WHERE [c].[Id1] = @p AND [c].[Id2] = @p0
+WHERE [c].[Id1] = @p AND [c].[Id2] = @p1
 """);
     }
 
@@ -184,11 +184,11 @@ WHERE [c].[Id1] = @p AND [c].[Id2] = @p0
         AssertSql(
             """
 @p='77'
-@p0='Fox' (Size = 450)
+@p1='Fox' (Size = 450)
 
 SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
 FROM [CompositeKey] AS [c]
-WHERE [c].[Id1] = @p AND [c].[Id2] = @p0
+WHERE [c].[Id1] = @p AND [c].[Id2] = @p1
 """);
     }
 

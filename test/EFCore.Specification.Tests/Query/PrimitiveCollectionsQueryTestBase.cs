@@ -486,6 +486,26 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual async Task Parameter_collection_empty_Contains()
+    {
+        int[] ints = [];
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)),
+            assertEmpty: true);
+    }
+
+    [ConditionalFact] // #37216
+    public virtual async Task Parameter_collection_empty_Join()
+    {
+        int[] ints = [];
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Join(ints, e => e.Id, i => i, (e, i) => e),
+            assertEmpty: true);
+    }
+
+    [ConditionalFact]
     public virtual Task Parameter_collection_Contains_with_EF_Constant()
     {
         var ids = new[] { 2, 999, 1000 };
@@ -573,6 +593,26 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => extra.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0));
+    }
+
+    [ConditionalFact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 3);
+        var ids = new[] { 2, 999 };
+
+        // Id will have a different type mapping here.
+        // Very specific, kind of fragile, but at least something.
+        // More info efcore#37185.
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ids.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Id) > 0)
+            .Where(c => extra.Count(i => i > c.Int) > 0));
     }
 
     [ConditionalFact]
@@ -728,6 +768,30 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => !extra.Contains(c.Int))
             .Where(c => !extra.Contains(c.Int))
             .Where(c => !extra.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    {
+        if (NumberOfValuesForHugeParameterCollectionTests is null)
+        {
+            return;
+        }
+
+        var extra = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 3).Append(1);
+        var ints = new[] { 10, 999 };
+
+        // Id will have a different type mapping here.
+        // Very specific, kind of fragile, but at least something.
+        // More info efcore#37185.
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Contains(c.Int))
+            .Where(c => extra.Contains(c.Int))
+            .Where(c => extra.Contains(c.Id)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => !ints.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Int))
+            .Where(c => !extra.Contains(c.Id)));
     }
 
     [ConditionalFact]
@@ -896,6 +960,28 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [ConditionalFact]
     public virtual Task Column_collection_of_bools_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Bools.Contains(true)));
+
+    // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
+    // The following tests that the various overloads are all supported.
+    [ConditionalFact]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_Enumerable()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Enumerable.Contains(new[] { 10, 999 }, c.Int)));
+
+    // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
+    // The following tests that the various overloads are all supported.
+    [ConditionalFact]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_MemoryExtensions()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int)));
+
+    [ConditionalFact]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_MemoryExtensions_with_null_comparer()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
 
     [ConditionalFact]
     public virtual Task Column_collection_Count_method()

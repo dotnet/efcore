@@ -356,11 +356,11 @@ WHERE [s].[ParentId] = @p
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId], [c].[Culture_Rating], [c].[Culture_Species], [c].[Culture_Subspecies], [c].[Culture_Validation], [c].[Culture_License_Charge], [c].[Culture_License_Title], [c].[Culture_License_Tag_Text], [c].[Culture_License_Tog_Text], [c].[Culture_Manufacturer_Name], [c].[Culture_Manufacturer_Rating], [c].[Culture_Manufacturer_Tag_Text], [c].[Culture_Manufacturer_Tog_Text], [c].[Milk_Rating], [c].[Milk_Species], [c].[Milk_Subspecies], [c].[Milk_Validation], [c].[Milk_License_Charge], [c].[Milk_License_Title], [c].[Milk_License_Tag_Text], [c].[Milk_License_Tog_Text], [c].[Milk_Manufacturer_Name], [c].[Milk_Manufacturer_Rating], [c].[Milk_Manufacturer_Tag_Text], [c].[Milk_Manufacturer_Tog_Text]
 FROM [ChildCompositeKey] AS [c]
-WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
+WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p1
 """);
     }
 
@@ -371,11 +371,11 @@ WHERE [c].[ParentAlternateId] = @p AND [c].[ParentId] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator], [p].[Culture_Rating], [p].[Culture_Species], [p].[Culture_Subspecies], [p].[Culture_Validation], [p].[Culture_License_Charge], [p].[Culture_License_Title], [p].[Culture_License_Tag_Text], [p].[Culture_License_Tog_Text], [p].[Culture_Manufacturer_Name], [p].[Culture_Manufacturer_Rating], [p].[Culture_Manufacturer_Tag_Text], [p].[Culture_Manufacturer_Tog_Text], [p].[Milk_Rating], [p].[Milk_Species], [p].[Milk_Subspecies], [p].[Milk_Validation], [p].[Milk_License_Charge], [p].[Milk_License_Title], [p].[Milk_License_Tag_Text], [p].[Milk_License_Tog_Text], [p].[Milk_Manufacturer_Name], [p].[Milk_Manufacturer_Rating], [p].[Milk_Manufacturer_Tag_Text], [p].[Milk_Manufacturer_Tog_Text]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -386,11 +386,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707'
+@p1='707'
 
 SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator], [p].[Culture_Rating], [p].[Culture_Species], [p].[Culture_Subspecies], [p].[Culture_Validation], [p].[Culture_License_Charge], [p].[Culture_License_Title], [p].[Culture_License_Tag_Text], [p].[Culture_License_Tog_Text], [p].[Culture_Manufacturer_Name], [p].[Culture_Manufacturer_Rating], [p].[Culture_Manufacturer_Tag_Text], [p].[Culture_Manufacturer_Tog_Text], [p].[Milk_Rating], [p].[Milk_Species], [p].[Milk_Subspecies], [p].[Milk_Validation], [p].[Milk_License_Charge], [p].[Milk_License_Title], [p].[Milk_License_Tag_Text], [p].[Milk_License_Tog_Text], [p].[Milk_Manufacturer_Name], [p].[Milk_Manufacturer_Rating], [p].[Milk_Manufacturer_Tag_Text], [p].[Milk_Manufacturer_Tog_Text]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
+WHERE [p].[AlternateId] = @p AND [p].[Id] = @p1
 """);
     }
 
@@ -401,11 +401,11 @@ WHERE [p].[AlternateId] = @p AND [p].[Id] = @p0
         AssertSql(
             """
 @p='Root' (Size = 450)
-@p0='707' (Nullable = true)
+@p1='707' (Nullable = true)
 
 SELECT TOP(1) [s].[Id], [s].[ParentAlternateId], [s].[ParentId], [s].[Culture_Rating], [s].[Culture_Species], [s].[Culture_Subspecies], [s].[Culture_Validation], [s].[Culture_License_Charge], [s].[Culture_License_Title], [s].[Culture_License_Tag_Text], [s].[Culture_License_Tog_Text], [s].[Culture_Manufacturer_Name], [s].[Culture_Manufacturer_Rating], [s].[Culture_Manufacturer_Tag_Text], [s].[Culture_Manufacturer_Tog_Text], [s].[Milk_Rating], [s].[Milk_Species], [s].[Milk_Subspecies], [s].[Milk_Validation], [s].[Milk_License_Charge], [s].[Milk_License_Title], [s].[Milk_License_Tag_Text], [s].[Milk_License_Tog_Text], [s].[Milk_Manufacturer_Name], [s].[Milk_Manufacturer_Rating], [s].[Milk_Manufacturer_Tag_Text], [s].[Milk_Manufacturer_Tog_Text]
 FROM [SingleCompositeKey] AS [s]
-WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p0
+WHERE [s].[ParentAlternateId] = @p AND [s].[ParentId] = @p1
 """);
     }
 

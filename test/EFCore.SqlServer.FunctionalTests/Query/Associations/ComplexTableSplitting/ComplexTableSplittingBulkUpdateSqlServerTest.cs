@@ -496,11 +496,11 @@ WHERE (
         AssertExecuteUpdateSql(
             """
 @p='foo_updated' (Size = 4000)
-@p0='20'
+@p1='20'
 
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = @p,
-    [r].[RequiredAssociate_Int] = @p0
+    [r].[RequiredAssociate_Int] = @p1
 FROM [RootEntity] AS [r]
 """);
     }

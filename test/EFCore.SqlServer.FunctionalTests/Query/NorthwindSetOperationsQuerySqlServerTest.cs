@@ -353,7 +353,7 @@ ORDER BY [u].[CompanyName]
         AssertSql(
             """
 @p='1'
-@p0='10'
+@p1='10'
 
 SELECT [u0].[Foo], [u0].[CustomerID], [u0].[Address], [u0].[City], [u0].[CompanyName], [u0].[ContactName], [u0].[ContactTitle], [u0].[Country], [u0].[Fax], [u0].[Phone], [u0].[PostalCode], [u0].[Region]
 FROM (
@@ -368,7 +368,7 @@ FROM (
         WHERE [c0].[City] = N'London'
     ) AS [u]
     ORDER BY [u].[Foo]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [u0]
 WHERE [u0].[Foo] = N'Berlin'
 ORDER BY [u0].[Foo]

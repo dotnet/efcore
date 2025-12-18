@@ -68,7 +68,7 @@ WHERE [OrderID] < 10300"));
 
     public override Task Update_multiple_tables_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.MultipleTablesInExecuteUpdate("o => o.Outer.OrderDate", "o => o.Inner.ContactName"),
+            RelationalStrings.MultipleTablesInExecuteUpdate("o => o.e.OrderDate", "o => o.Customer.ContactName"),
             () => base.Update_multiple_tables_throws(async));
 
     public override Task Update_unmapped_property_throws(bool async)

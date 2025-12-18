@@ -1064,6 +1064,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
 
+        // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
+        // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
+        var newStructure = SnapshotExpression(source.PendingSelector);
+        var queryable = Reduce(source);
+        var navigationTree = new NavigationTreeExpression(newStructure);
+        var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
+        source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
+
         NewArrayExpression settersArray;
         switch (setters)
         {

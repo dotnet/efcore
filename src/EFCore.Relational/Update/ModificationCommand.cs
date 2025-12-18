@@ -288,7 +288,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
-        if (_entries.Any(e => e.EntityType is { } entityType
+        if (!deleting && _entries.Any(e => e.EntityType is { } entityType
                 && (entityType.IsMappedToJson()
                     || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
                     || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))))

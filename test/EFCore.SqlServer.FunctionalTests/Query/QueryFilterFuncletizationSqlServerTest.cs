@@ -182,29 +182,29 @@ WHERE [m].[Tenant] = @ef_filter__p
         AssertSql(
             """
 @ef_filter__Property='False'
-@ef_filter__p0='True'
+@ef_filter__p2='True'
 
 SELECT [c].[Id], [c].[IsEnabled]
 FROM [ComplexFilter] AS [c]
-WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p0 = CAST(1 AS bit)
+WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p2 = CAST(1 AS bit)
 """,
             //
             """
 @ef_filter__Property='True'
-@ef_filter__p0='True'
+@ef_filter__p2='True'
 
 SELECT [c].[Id], [c].[IsEnabled]
 FROM [ComplexFilter] AS [c]
-WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p0 = CAST(1 AS bit)
+WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p2 = CAST(1 AS bit)
 """,
             //
             """
 @ef_filter__Property='True'
-@ef_filter__p0='False'
+@ef_filter__p2='False'
 
 SELECT [c].[Id], [c].[IsEnabled]
 FROM [ComplexFilter] AS [c]
-WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p0 = CAST(1 AS bit)
+WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p2 = CAST(1 AS bit)
 """);
     }
 
@@ -214,29 +214,29 @@ WHERE [c].[IsEnabled] = @ef_filter__Property AND @ef_filter__p0 = CAST(1 AS bit)
 
         AssertSql(
             """
-@ef_filter__p0='False'
+@ef_filter__p2='False'
 @ef_filter__IsModerated='True' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@ef_filter__p0 = CAST(1 AS bit) OR @ef_filter__IsModerated = [s].[IsModerated])
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@ef_filter__p2 = CAST(1 AS bit) OR @ef_filter__IsModerated = [s].[IsModerated])
 """,
             //
             """
-@ef_filter__p0='False'
+@ef_filter__p2='False'
 @ef_filter__IsModerated='False' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@ef_filter__p0 = CAST(1 AS bit) OR @ef_filter__IsModerated = [s].[IsModerated])
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@ef_filter__p2 = CAST(1 AS bit) OR @ef_filter__IsModerated = [s].[IsModerated])
 """,
             //
             """
-@ef_filter__p0='True'
+@ef_filter__p2='True'
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE [s].[IsDeleted] = CAST(0 AS bit) AND @ef_filter__p0 = CAST(1 AS bit)
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND @ef_filter__p2 = CAST(1 AS bit)
 """);
     }
 
