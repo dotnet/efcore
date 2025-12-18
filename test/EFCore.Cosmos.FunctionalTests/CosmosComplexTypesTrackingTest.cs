@@ -113,6 +113,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
 
         return base.TrackAndSaveTest(state, async, createPub);
     }
+
     protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null)
     {
         using var c = CreateContext();
@@ -145,13 +146,11 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
                 }
             });
     }
+
     public class CosmosFixture : FixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
-
-        //public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        //    => base.AddOptions(builder).ConfigureWarnings();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

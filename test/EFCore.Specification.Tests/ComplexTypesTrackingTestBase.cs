@@ -811,7 +811,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
-            List<int> a = [1, 2];
             var yogurt = CreateYogurt(context, nullLicense: true);
             _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
@@ -840,24 +839,24 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         => ExecuteWithStrategyInTransactionAsync(async context =>
         {
             var yogurt = CreateYogurt(context, nullTag: true);
-                _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+            _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
+            if (async)
+            {
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.SaveChanges();
+            }
 
-                // #31376
-                //var actualYogurt = async
-                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
-                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
+            // #31376
+            //var actualYogurt = async
+            //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+            //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
 
-                //Assert.Null(actualYogurt.Culture.License);
-                //Assert.Null(actualYogurt.Milk.License);
+            //Assert.Null(actualYogurt.Culture.License);
+            //Assert.Null(actualYogurt.Milk.License);
         });
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
