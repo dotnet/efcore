@@ -124,6 +124,7 @@ SELECT VALUE c
 FROM root c
 """);
     }
+
     public override async Task Select_required_nested_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_required_nested_on_required_associate(queryTrackingBehavior);
@@ -139,6 +140,7 @@ SELECT VALUE c
 FROM root c
 """);
     }
+
     public override async Task Select_optional_nested_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_optional_nested_on_required_associate(queryTrackingBehavior);
@@ -170,6 +172,7 @@ SELECT VALUE c
 FROM root c
 """);
     }
+
     public override async Task Select_optional_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
@@ -369,9 +372,9 @@ FROM root c
         await AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
     }
 
-#endregion Subquery
+    #endregion Subquery
 
-#region Value types
+    #region Value types
     public override async Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_root_with_value_types(queryTrackingBehavior);
@@ -394,7 +397,6 @@ FROM root c
 ORDER BY c["Id"]
 """);
     }
-
 
     public override async Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
     {

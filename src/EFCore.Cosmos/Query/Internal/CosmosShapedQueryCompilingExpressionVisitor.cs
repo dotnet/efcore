@@ -209,7 +209,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             )
         );
 
-        var materializeExpression = CreateComplexTypeMaterializeExperssion(complexProperty, jObjectVariable);
+        var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectVariable);
         if (complexProperty.IsNullable)
         {
             materializeExpression = Condition(Equal(jObjectVariable, Constant(null)),
@@ -242,7 +242,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             )
         );
         var jObjectParameter = Parameter(typeof(JObject), "complexJObject" + _currentComplexIndex);
-        var materializeExpression = CreateComplexTypeMaterializeExperssion(complexProperty, jObjectParameter);
+        var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectParameter);
 
         var select = Call(
                     EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
@@ -275,8 +275,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         );
     }
 
-
-    private Expression CreateComplexTypeMaterializeExperssion(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
+    private Expression CreateComplexTypeMaterializeExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
     {
         var tempValueBuffer = new ComplexPropertyBindingExpression(complexProperty, jObjectParameter);
         var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
@@ -289,7 +288,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var materializeExpression = InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
         _parentJObject = oldParentJObject;
 
-        if (complexProperty.ComplexType.ClrType.IsNullableType()) // @TODO: Can collection items be null?
+        if (complexProperty.ComplexType.ClrType.IsNullableType())
         {
             materializeExpression = Condition(Equal(jObjectParameter, Constant(null)),
                 Default(complexProperty.ComplexType.ClrType),
