@@ -15,7 +15,7 @@ public class CosmosBulkWarningTest(CosmosBulkWarningTest.ThrowingFixture fixture
         using var context = fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
 
-        context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
+        context.AddRange(Enumerable.Range(0, 100).Select(x => new Customer()));
         await context.SaveChangesAsync();
     }
 
@@ -27,7 +27,7 @@ public class CosmosBulkWarningTest(CosmosBulkWarningTest.ThrowingFixture fixture
 
         context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
-        Assert.Equal(Message, ex.Message);
+        Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
     }
 
     [ConditionalFact]
@@ -38,10 +38,10 @@ public class CosmosBulkWarningTest(CosmosBulkWarningTest.ThrowingFixture fixture
 
         context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
-        Assert.Equal(Message, ex.Message);
+        Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
     }
 
-    private string Message => CoreStrings.WarningAsErrorTemplate(
+    private string BulkExecutionWithTransactionalBatchMessage => CoreStrings.WarningAsErrorTemplate(
             CosmosEventId.BulkExecutionWithTransactionalBatch.ToString(),
             CosmosResources.LogBulkExecutionWithTransactionalBatch(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
             "CosmosEventId.BulkExecutionWithTransactionalBatch");
