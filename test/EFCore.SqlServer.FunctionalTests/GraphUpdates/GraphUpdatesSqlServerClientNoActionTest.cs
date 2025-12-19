@@ -26,7 +26,9 @@ public class GraphUpdatesSqlServerClientNoActionTest(GraphUpdatesSqlServerClient
 
             foreach (var foreignKey in modelBuilder.Model
                          .GetEntityTypes()
-                         .SelectMany(e => e.GetDeclaredForeignKeys()))
+                         .SelectMany(e => e.GetDeclaredForeignKeys())
+                         .Where(fk => fk.DeleteBehavior != DeleteBehavior.SetDefault
+                             && fk.DeleteBehavior != DeleteBehavior.ClientSetDefault))
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.ClientNoAction;
             }

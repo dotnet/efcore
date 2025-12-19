@@ -578,6 +578,34 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                 b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
             });
 
+            modelBuilder.Entity<ParentWithClientSetDefault>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ChildWithClientSetDefault>(b =>
+            {
+                b.Property(e => e.ParentId).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.ClientSetDefault);
+            });
+
+            modelBuilder.Entity<ParentWithSetDefault>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ChildWithSetDefault>(b =>
+            {
+                b.Property(e => e.ParentId).HasDefaultValue(667).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetDefault);
+            });
+
             modelBuilder.Entity<StringKeyAndIndexParent>(b =>
             {
                 b.HasAlternateKey(e => e.AlternateId);
