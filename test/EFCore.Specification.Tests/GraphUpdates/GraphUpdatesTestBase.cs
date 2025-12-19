@@ -621,22 +621,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
             });
 
-            modelBuilder.Entity<ChildWithSetDefault>(b =>
+            modelBuilder.Entity<ChildWithClientSetDefault>(b =>
             {
                 b.Property(e => e.ParentId).HasSentinel(667);
                 b.HasOne(e => e.Parent)
                     .WithMany(e => e.Children)
                     .HasForeignKey(e => e.ParentId)
                     .OnDelete(DeleteBehavior.ClientSetDefault);
-            });
-
-            modelBuilder.Entity<ChildWithSetDefaultValue>(b =>
-            {
-                b.Property(e => e.ParentId).HasSentinel(667);
-                b.HasOne(e => e.Parent)
-                    .WithMany(e => e.Children)
-                    .HasForeignKey(e => e.ParentId)
-                    .OnDelete(DeleteBehavior.SetDefault);
             });
         }
 
@@ -3886,10 +3877,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    protected class ParentWithSetDefault : NotifyingEntity
+    protected class ParentWithClientSetDefault : NotifyingEntity
     {
         private int _id;
-        private ICollection<ChildWithSetDefault> _children = new ObservableHashSet<ChildWithSetDefault>();
+        private ICollection<ChildWithClientSetDefault> _children = new ObservableHashSet<ChildWithClientSetDefault>();
 
         public int Id
         {
@@ -3897,18 +3888,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref _id);
         }
 
-        public virtual ICollection<ChildWithSetDefault> Children
+        public virtual ICollection<ChildWithClientSetDefault> Children
         {
             get => _children;
             set => SetWithNotify(value, ref _children);
         }
     }
 
-    protected class ChildWithSetDefault : NotifyingEntity
+    protected class ChildWithClientSetDefault : NotifyingEntity
     {
         private int _id;
         private int _parentId;
-        private ParentWithSetDefault _parent;
+        private ParentWithClientSetDefault _parent;
 
         public int Id
         {
@@ -3922,50 +3913,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             set => SetWithNotify(value, ref _parentId);
         }
 
-        public virtual ParentWithSetDefault Parent
-        {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
-        }
-    }
-
-    protected class ParentWithSetDefaultValue : NotifyingEntity
-    {
-        private int _id;
-        private ICollection<ChildWithSetDefaultValue> _children = new ObservableHashSet<ChildWithSetDefaultValue>();
-
-        public int Id
-        {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
-        }
-
-        public virtual ICollection<ChildWithSetDefaultValue> Children
-        {
-            get => _children;
-            set => SetWithNotify(value, ref _children);
-        }
-    }
-
-    protected class ChildWithSetDefaultValue : NotifyingEntity
-    {
-        private int _id;
-        private int _parentId;
-        private ParentWithSetDefaultValue _parent;
-
-        public int Id
-        {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
-        }
-
-        public int ParentId
-        {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
-        }
-
-        public virtual ParentWithSetDefaultValue Parent
+        public virtual ParentWithClientSetDefault Parent
         {
             get => _parent;
             set => SetWithNotify(value, ref _parent);

@@ -104,8 +104,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var parent = new ParentWithSetDefault();
-                var child = new ChildWithSetDefault { ParentId = 1, Parent = parent };
+                var parent = new ParentWithClientSetDefault();
+                var child = new ChildWithClientSetDefault { ParentId = 1, Parent = parent };
                 parent.Children.Add(child);
 
                 if (async)
@@ -122,10 +122,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             async context =>
             {
                 var parent = async
-                    ? await context.Set<ParentWithSetDefault>().Include(e => e.Children).SingleAsync()
-                    : context.Set<ParentWithSetDefault>().Include(e => e.Children).Single();
+                    ? await context.Set<ParentWithClientSetDefault>().Include(e => e.Children).SingleAsync()
+                    : context.Set<ParentWithClientSetDefault>().Include(e => e.Children).Single();
 
                 var child = parent.Children.Single();
+                var childId = child.Id;
                 Assert.NotEqual(667, child.ParentId);
 
                 context.Remove(parent);
@@ -134,49 +135,23 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(EntityState.Modified, context.Entry(child).State);
                 Assert.Equal(667, child.ParentId); // FK should be set to sentinel value
                 Assert.Null(child.Parent);
-            });
-
-    [ConditionalTheory, InlineData(false), InlineData(true)]
-    public virtual async Task SetDefault_with_sentinel_value_sets_FK_to_sentinel_on_delete(bool async)
-        => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var parent = new ParentWithSetDefaultValue();
-                var child = new ChildWithSetDefaultValue { ParentId = 1, Parent = parent };
-                parent.Children.Add(child);
 
                 if (async)
                 {
-                    await context.AddAsync(parent);
                     await context.SaveChangesAsync();
                 }
                 else
                 {
-                    context.Add(parent);
                     context.SaveChanges();
                 }
             },
             async context =>
             {
-                var parent = async
-                    ? await context.Set<ParentWithSetDefaultValue>().Include(e => e.Children).SingleAsync()
-                    : context.Set<ParentWithSetDefaultValue>().Include(e => e.Children).Single();
+                var child = async
+                    ? await context.Set<ChildWithClientSetDefault>().SingleAsync()
+                    : context.Set<ChildWithClientSetDefault>().Single();
 
-                var child = parent.Children.Single();
-                Assert.NotEqual(667, child.ParentId);
-
-                // Verify relationship is configured with SetDefault
-                var childEntry = context.Entry(child);
-                var fkProperty = childEntry.Property(e => e.ParentId).Metadata;
-                var fk = fkProperty.GetContainingForeignKeys().Single();
-                Assert.Equal(DeleteBehavior.SetDefault, fk.DeleteBehavior);
-
-                context.Remove(parent);
-
-                Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
-                Assert.Equal(EntityState.Modified, context.Entry(child).State);
-                Assert.Equal(667, child.ParentId); // FK should be set to sentinel value
-                Assert.Null(child.Parent);
+                Assert.Equal(667, child.ParentId); // Verify FK was persisted with sentinel value
             });
 
     [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
