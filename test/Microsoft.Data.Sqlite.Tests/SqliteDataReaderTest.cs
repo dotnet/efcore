@@ -1997,8 +1997,7 @@ public class SqliteDataReaderTest
             connection.Open();
 
             using (var reader = connection.ExecuteReader(
-                @"DROP TABLE IF EXISTS foo;
-                  CREATE TABLE foo(bar TEXT NOT NULL);
+                @"CREATE TABLE foo(bar TEXT NOT NULL);
                   CREATE TABLE xyz(aaa TEXT NOT NULL);
                   INSERT INTO foo(bar) VALUES('baz');
                   INSERT INTO foo(bar) VALUES('baz2');
