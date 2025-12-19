@@ -198,10 +198,7 @@ public class SqliteDataReader : DbDataReader
                 // to calculate the actual delta for this statement, ensuring DDL statements don't add stale counts.
                 var totalChangesAfter = sqlite3_total_changes(connectionHandle);
                 var changes = totalChangesAfter - totalChangesBefore;
-                if (changes > 0)
-                {
-                    AddChanges(changes);
-                }
+                AddChanges(changes);
             }
             catch
             {
