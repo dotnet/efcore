@@ -198,6 +198,11 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
                 b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
             });
 
+            modelBuilder.Entity<ParentWithSetDefault>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
             modelBuilder.Entity<ChildWithSetDefault>(b =>
             {
                 b.Property(e => e.ParentId).HasDefaultValue(667).HasSentinel(667);
@@ -257,35 +262,38 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var parent = new ParentWithSetDefault();
+                // Create a "default" parent that orphaned children will reference
+                var defaultParent = new ParentWithSetDefault { Id = 667 };
+                // Create the actual parent with a different Id
+                var parent = new ParentWithSetDefault { Id = 1 };
                 var child = new ChildWithSetDefault { ParentId = 1, Parent = parent };
                 parent.Children.Add(child);
 
                 if (async)
                 {
-                    await context.AddAsync(parent);
+                    await context.AddRangeAsync(defaultParent, parent);
                     await context.SaveChangesAsync();
                 }
                 else
                 {
-                    context.Add(parent);
+                    context.AddRange(defaultParent, parent);
                     context.SaveChanges();
                 }
             },
             async context =>
             {
                 var parent = async
-                    ? await context.Set<ParentWithSetDefault>().Include(e => e.Children).SingleAsync()
-                    : context.Set<ParentWithSetDefault>().Include(e => e.Children).Single();
+                    ? await context.Set<ParentWithSetDefault>().Include(e => e.Children).SingleAsync(e => e.Id == 1)
+                    : context.Set<ParentWithSetDefault>().Include(e => e.Children).Single(e => e.Id == 1);
 
                 var child = parent.Children.Single();
-                Assert.NotEqual(667, child.ParentId);
+                Assert.Equal(1, child.ParentId);
 
                 context.Remove(parent);
 
                 Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
                 Assert.Equal(EntityState.Modified, context.Entry(child).State);
-                Assert.Equal(667, child.ParentId); // FK should be set to default value
+                Assert.Equal(667, child.ParentId); // FK should be set to default value (the default parent)
                 Assert.Null(child.Parent);
 
                 if (async)

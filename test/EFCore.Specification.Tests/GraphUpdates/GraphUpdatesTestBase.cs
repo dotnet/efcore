@@ -621,6 +621,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
             });
 
+            modelBuilder.Entity<ParentWithClientSetDefault>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
             modelBuilder.Entity<ChildWithClientSetDefault>(b =>
             {
                 b.Property(e => e.ParentId).HasSentinel(667);
