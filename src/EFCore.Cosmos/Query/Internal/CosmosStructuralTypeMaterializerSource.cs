@@ -16,7 +16,7 @@ public class CosmosStructuralTypeMaterializerSource(StructuralTypeMaterializerSo
 {
     /// <summary>
     ///     Complex properties are not handled in the initial materialization expression,
-    ///     So we can more easily generate the necessary nested materialization expressions later in CosmosShapedQueryCompilingExpressionVisitor.
+    ///     so we can more easily generate the necessary nested materialization expressions later in CosmosShapedQueryCompilingExpressionVisitor.
     /// </summary>
     protected override bool ReadComplexTypeDirectly(IComplexType complexType)
         => false;

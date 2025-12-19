@@ -299,7 +299,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         return materializeExpression;
     }
 
-    private class ComplexPropertyBindingExpression : Expression
+    private sealed class ComplexPropertyBindingExpression : Expression
     {
         public ComplexPropertyBindingExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
         {

@@ -366,10 +366,10 @@ FROM root c
     {
         if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
         {
-                throw SkipException.ForSkip("Complex type tracking not supported.");
+            throw SkipException.ForSkip("Complex type tracking not supported.");
         }
 
-        await AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
+        await AssertTranslationFailed(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
     }
 
     #endregion Subquery

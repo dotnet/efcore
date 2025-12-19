@@ -145,7 +145,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 break;
                             case MethodCallExpression jObjectMethodCallExpression
                                 when jObjectMethodCallExpression.Method.IsGenericMethod && jObjectMethodCallExpression.Method.GetGenericMethodDefinition() == ToObjectWithSerializerMethodInfo:
-                                // jobject already uses ToObjectWithSerializerMethodInfo. This can happen because code was generated for complex properties that already leverages jobject correctly.
+                                // JObject assignment already uses ToObjectWithSerializerMethodInfo. This can happen because code was generated for complex properties that already leverages JObject correctly.
                                 return binaryExpression;
                             default:
                                 throw new UnreachableException();
