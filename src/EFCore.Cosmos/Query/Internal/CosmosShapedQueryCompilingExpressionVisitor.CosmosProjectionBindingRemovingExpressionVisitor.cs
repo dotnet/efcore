@@ -8,11 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed class CosmosProjectionBindingRemovingExpressionVisitor(
-        CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
         SelectExpression selectExpression,
         ParameterExpression jTokenParameter,
         bool trackQueryResults)
-        : CosmosProjectionBindingRemovingExpressionVisitorBase(parentVisitor, jTokenParameter, trackQueryResults)
+        : CosmosProjectionBindingRemovingExpressionVisitorBase(jTokenParameter, trackQueryResults)
     {
         protected override ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
             => selectExpression.Projection[GetProjectionIndex(projectionBindingExpression)];

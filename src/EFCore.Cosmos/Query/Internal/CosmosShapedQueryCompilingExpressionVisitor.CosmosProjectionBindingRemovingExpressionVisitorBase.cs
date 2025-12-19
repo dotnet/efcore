@@ -3,7 +3,6 @@
 
 #nullable disable
 
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -17,14 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase(
-        CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
         ParameterExpression jTokenParameter,
         bool trackQueryResults)
         : ExpressionVisitor
     {
-        private static readonly MethodInfo GetItemMethodInfo
-            = typeof(JObject).GetRuntimeProperties()
-                .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
+        public static readonly MethodInfo GetItemMethodInfo
+            = typeof(JToken).GetRuntimeProperties()
+                .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(object))
                 .GetMethod;
 
         private static readonly PropertyInfo JTokenTypePropertyInfo
@@ -52,72 +50,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
             = new Dictionary<Expression, (IEntityType, Expression)>();
 
-        private readonly Dictionary<ParameterExpression, ParameterExpression> _entityInstanceMaterializationContextMappings = new();
-        private readonly Dictionary<ParameterExpression, ParameterExpression> _concreteTypeInstanceMaterializationContextMappings = new();
-        private readonly Dictionary<ParameterExpression, ITypeBase> _instanceTypeBaseMappings = new();
-        private readonly Dictionary<ParameterExpression, Dictionary<IComplexProperty, ParameterExpression>> _materializationContextCompexPropertyJObjectMappings = new();
-
         private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
             = new Dictionary<Expression, Expression>();
 
-        private List<IncludeExpression> _pendingIncludes = [];
-        private int _currentComplexIndex;
-        private static readonly MethodInfo ToObjectWithSerializerMethodInfo
+        private List<IncludeExpression> _pendingIncludes
+            = [];
+
+        public static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
-
-        protected override Expression VisitBlock(BlockExpression node)
-        {
-            var materializationContextParameter = node.Variables
-                .SingleOrDefault(v => v.Type == typeof(MaterializationContext));
-
-            if (materializationContextParameter != null)
-            {
-                var instanceParameter = node.Variables.First(x => x.Name != null && Regex.Match(x.Name, @"instance\d+").Success);
-                _entityInstanceMaterializationContextMappings.Add(instanceParameter, materializationContextParameter);
-            }
-
-            return base.VisitBlock(node);
-        }
-
-        protected override SwitchCase VisitSwitchCase(SwitchCase switchCaseExpression)
-        {
-            if (switchCaseExpression.TestValues.SingleOrDefault() is ConstantExpression constantExpression
-                && constantExpression.Value is ITypeBase structuralType)
-            {
-                var instanceVariable = ((BlockExpression)switchCaseExpression.Body).Expressions
-                    .Select(node =>
-                    {
-                        if (node is UnaryExpression unaryExpression
-                            && unaryExpression.NodeType == ExpressionType.Convert)
-                        {
-                            node = unaryExpression.Operand;
-                        }
-
-                        if (node is ConditionalExpression conditionalExpression)
-                        {
-                            node = conditionalExpression.IfFalse;
-                            if (node is UnaryExpression unaryExpression2
-                                && unaryExpression2.NodeType == ExpressionType.Convert)
-                            {
-                                node = unaryExpression2.Operand;
-                            }
-                        }
-
-                        return node as BlockExpression;
-                    })
-                    .Select(x => x?.Variables.FirstOrDefault(x => x.Type == structuralType.ClrType))
-                    .FirstOrDefault(x => x != null);
-
-                // Can be null for constructor bindings, but since complex properties aren't supported, we don't need to set the _instanceTypeBaseMappings
-                if (instanceVariable != null)
-                {
-                    _instanceTypeBaseMappings.Add(instanceVariable, structuralType);
-                }
-            }
-
-            return base.VisitSwitchCase(switchCaseExpression);
-        }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
@@ -131,18 +72,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         string storeName = null;
 
                         // Values injected by JObjectInjectingExpressionVisitor
-                        var projectionExpression = ((UnaryExpression)binaryExpression.Right).Operand;
-
-                        if (projectionExpression is UnaryExpression
-                            {
-                                NodeType: ExpressionType.Convert,
-                                Operand: UnaryExpression operand
-                            })
-                        {
-                            // Unwrap EntityProjectionExpression when the root entity is not projected
-                            // That is, this is handling the projection of a non-root entity type.
-                            projectionExpression = operand.Operand;
-                        }
+                        var projectionExpression = binaryExpression.Right.UnwrapTypeConversion(out _);
 
                         switch (projectionExpression)
                         {
@@ -213,7 +143,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 }
 
                                 break;
-
+                            case MethodCallExpression jObjectMethodCallExpression
+                                when jObjectMethodCallExpression.Method.IsGenericMethod && jObjectMethodCallExpression.Method.GetGenericMethodDefinition() == ToObjectWithSerializerMethodInfo:
+                                // jobject already uses ToObjectWithSerializerMethodInfo. This can happen because code was generated for complex properties that already leverages jobject correctly.
+                                return binaryExpression;
                             default:
                                 throw new UnreachableException();
                         }
@@ -225,12 +158,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var newExpression = (NewExpression)binaryExpression.Right;
 
-                        if (newExpression.Arguments[0] is ComplexPropertyValueBufferExpression temp)
+                        if (newExpression.Arguments[0] is ComplexPropertyBindingExpression complexPropertyBindingExpression)
                         {
-                            _materializationContextBindings[parameterExpression] = temp;
-                            _projectionBindings[temp] = jTokenParameter;
-                            Debug.Assert(!_materializationContextCompexPropertyJObjectMappings.ContainsKey(parameterExpression), "Should never overwrite");
-                            _materializationContextCompexPropertyJObjectMappings[parameterExpression] = new() { { temp.ComplexProperty, jTokenParameter } };
+                            _materializationContextBindings[parameterExpression] = complexPropertyBindingExpression;
+                            _projectionBindings[complexPropertyBindingExpression] = complexPropertyBindingExpression.JObjectParameter;
                         }
                         else
                         {
@@ -256,152 +187,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
                     }
-
-                    if (_entityInstanceMaterializationContextMappings.TryGetValue(parameterExpression, out var instanceMaterializationContext) && binaryExpression.Right is SwitchExpression switchExpression)
-                    {
-                        var instances = switchExpression.Cases.Select(x => new SwitchCaseReturnValueExtractorExpressionVisitor(parameterExpression.Type).Extract(x.Body) as ParameterExpression).Where(x => x != null);// Null for constructor binding, but since complex properties aren't supported, we don't need to set the _concreteTypeInstanceMaterializationContextMapping
-                        foreach (var instance in instances)
-                        {
-                            _concreteTypeInstanceMaterializationContextMappings[instance] = instanceMaterializationContext;
-                        }
-                    }
                 }
 
-                if (binaryExpression.Left is MemberExpression memberExpression)
+                if (binaryExpression.Left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression)
                 {
-                    if (memberExpression.Expression is ParameterExpression instanceParameterExpression && _instanceTypeBaseMappings.TryGetValue(instanceParameterExpression, out var structuralType))
-                    {
-                        var complexProperty = structuralType.GetComplexProperties().FirstOrDefault(x => x.GetMemberInfo(true, true) == memberExpression.Member);
-                        if (complexProperty != null)
-                        {
-                            var materializationContext = _concreteTypeInstanceMaterializationContextMappings[instanceParameterExpression];
-                            Expression parentJObject;
-                            if (complexProperty.DeclaringType is IComplexType parentComplexType)
-                            {
-                                parentJObject = _materializationContextCompexPropertyJObjectMappings[materializationContext][parentComplexType.ComplexProperty];
-                            }
-                            else
-                            {
-                                parentJObject = _projectionBindings[_materializationContextBindings[materializationContext]];
-                            }
-
-                            return complexProperty.IsCollection
-                                ? CreateComplexCollectionAssignmentBlock(memberExpression, complexProperty, materializationContext, parentJObject)
-                                : CreateComplexPropertyAssignmentBlock(memberExpression, binaryExpression.Right, complexProperty, materializationContext, parentJObject);
-                        }
-                    }
                     return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
             }
 
             return base.VisitBinary(binaryExpression);
-        }
-
-        private BlockExpression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty, ParameterExpression materializationContext, Expression parentJObject)
-        {
-            var complexJArrayVariable = Variable(
-                typeof(JArray),
-                "complexJArray" + ++_currentComplexIndex);
-
-            var assignJArrayVariable = Assign(complexJArrayVariable,
-                Call(
-                    ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
-                    Call(parentJObject, GetItemMethodInfo,
-                        Constant(complexProperty.Name)
-                    )
-                )
-            );
-
-            var tempValueBuffer = new ComplexPropertyValueBufferExpression(complexProperty);
-            var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
-                complexProperty.ComplexType,
-                tempValueBuffer,
-                complexProperty.ClrType.IsNullableType()); // @TODO: Can collection items be null?
-            
-            var rawMaterializeExpression = parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression); // @TODO: We could also use entityMaterializerSource directly here..
-
-            var jObjectParameter = Parameter(typeof(JObject), "complexArrayItem" + _currentComplexIndex);
-            var oldJTokenParametr = jTokenParameter;
-            jTokenParameter = jObjectParameter;
-            var materializeExpression = Visit(rawMaterializeExpression);
-            jTokenParameter = oldJTokenParametr;
-
-            var select = Call(
-                        EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
-                        Call(
-                            EnumerableMethods.Cast.MakeGenericMethod(typeof(JObject)),
-                            complexJArrayVariable),
-                        Lambda(materializeExpression, jObjectParameter));
-
-            Expression populateExpression =
-                Call(
-                    PopulateCollectionMethodInfo.MakeGenericMethod(complexProperty.ComplexType.ClrType, complexProperty.ClrType),
-                    Constant(complexProperty.GetCollectionAccessor()),
-                    select
-                );
-
-            if (complexProperty.IsNullable)
-            {
-                populateExpression = Condition(Equal(complexJArrayVariable, Constant(null)),
-                    Default(complexProperty.ClrType),
-                    populateExpression
-                );
-            }
-
-            return Block(
-                [complexJArrayVariable],
-                [
-                    assignJArrayVariable,
-                    memberExpression.Assign(populateExpression)
-                ]
-            );
-        }
-
-        private BlockExpression CreateComplexPropertyAssignmentBlock(MemberExpression memberExpression, Expression materializationExpression, IComplexProperty complexProperty, ParameterExpression materializationContext, Expression parentJObject)
-        {
-            var complexJObjectVariable = Variable(
-                                typeof(JObject),
-                                "complexJObject" + ++_currentComplexIndex);
-            var assignComplexJObjectVariable = Assign(complexJObjectVariable, Call(
-                                    ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
-                                    Call(parentJObject, GetItemMethodInfo,
-                                        Constant(complexProperty.Name)
-                                    )
-                                ));
-
-            if (!_materializationContextCompexPropertyJObjectMappings.TryGetValue(materializationContext, out var complexPropertyJObjectMappings))
-            {
-                complexPropertyJObjectMappings = new();
-                _materializationContextCompexPropertyJObjectMappings[materializationContext] = complexPropertyJObjectMappings;
-            }
-
-            complexPropertyJObjectMappings.Add(complexProperty, complexJObjectVariable);
-
-            BlockExpression materializationBlock;
-            if (materializationExpression is ConditionalExpression condition)
-            {
-                materializationBlock = (condition.IfFalse as BlockExpression ?? (BlockExpression)(condition.IfFalse as UnaryExpression).Operand);
-                materializationExpression = Condition(
-                    Equal(complexJObjectVariable, Constant(null)),
-                    condition.IfTrue,
-                    Convert(materializationBlock, condition.Type));
-            }
-            else
-            {
-                materializationBlock = (BlockExpression)materializationExpression;
-            }
-
-            var instanceParameter = materializationBlock.Variables.First(v => v.Type == complexProperty.ComplexType.ClrType);
-            _instanceTypeBaseMappings.Add(instanceParameter, complexProperty.ComplexType);
-            _concreteTypeInstanceMaterializationContextMappings.Add(instanceParameter, materializationContext);
-
-            materializationExpression = Visit(materializationExpression);
-
-            return Block(
-                [complexJObjectVariable],
-                assignComplexJObjectVariable,
-                memberExpression.Assign(materializationExpression)
-            );
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -422,15 +216,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
                 else
                 {
-                    var materializationContext = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object;
-                    if (property.DeclaringType is IComplexType complexType)
-                    {
-                        innerExpression = _materializationContextCompexPropertyJObjectMappings[materializationContext][complexType.ComplexProperty];
-                    }
-                    else
-                    {
-                        innerExpression = _materializationContextBindings[materializationContext];
-                    }
+                    innerExpression = _materializationContextBindings[
+                        (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
                 }
 
                 return CreateGetValueExpression(innerExpression, property, methodCallExpression.Type);
@@ -808,7 +595,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 relatedEntity,
                 Constant(true));
 
-        private static readonly MethodInfo PopulateCollectionMethodInfo
+        public static readonly MethodInfo PopulateCollectionMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(PopulateCollection));
 
@@ -1054,42 +841,5 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
-
-        private sealed class SwitchCaseReturnValueExtractorExpressionVisitor(Type clrType) : ExpressionVisitor
-        {
-            private ParameterExpression _result;
-
-            public Expression Extract(Expression expression)
-            {
-                _result = null;
-                Visit(expression);
-                return _result;
-            }
-
-            protected override Expression VisitBinary(BinaryExpression node)
-            {
-                if (node.NodeType == ExpressionType.Assign && node.Type.IsAssignableTo(clrType))
-                {
-                    _result = (ParameterExpression)node.Left;
-                    return node;
-                }
-
-                return base.VisitBinary(node);
-            }
-        }
-
-        private sealed class ComplexPropertyValueBufferExpression : Expression
-        {
-            public ComplexPropertyValueBufferExpression(IComplexProperty complexProperty)
-            {
-                ComplexProperty = complexProperty;
-            }
-
-            public override Type Type => typeof(ValueBuffer);
-
-            public override ExpressionType NodeType => ExpressionType.Extension;
-
-            public IComplexProperty ComplexProperty { get; }
-        }
     }
 }

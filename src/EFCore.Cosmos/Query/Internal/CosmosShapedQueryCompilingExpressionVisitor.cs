@@ -22,6 +22,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
+    private ParameterExpression _parentJObject;
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
@@ -39,6 +40,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         var jTokenParameter = Parameter(typeof(JToken), "jToken");
+        _parentJObject = jTokenParameter;
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
 
@@ -67,7 +69,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
-                this,
                 selectExpression, jTokenParameter,
                 QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             .Visit(shaperBody);
@@ -170,5 +171,148 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         return builder.Build();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void AddStructuralTypeInitialization(StructuralTypeShaperExpression shaper, ParameterExpression instanceVariable, List<ParameterExpression> variables, List<Expression> expressions)
+    {
+        foreach (var complexProperty in shaper.StructuralType.GetComplexProperties())
+        {
+            var member = MakeMemberAccess(instanceVariable, complexProperty.GetMemberInfo(true, true));
+            if (complexProperty.IsCollection)
+            {
+                expressions.Add(CreateComplexCollectionAssignmentBlock(member, complexProperty));
+            }
+            else
+            {
+                expressions.Add(CreateComplexPropertyAssignmentBlock(member, complexProperty));
+            }
+        }
+    }
+
+    private int _currentComplexIndex;
+
+    private BlockExpression CreateComplexPropertyAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
+    {
+        var jObjectVariable = Parameter(typeof(JObject), "complexJObject" + ++_currentComplexIndex);
+        var assignJObjectVariable = Assign(jObjectVariable,
+            Call(
+                CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
+                Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
+                    Constant(complexProperty.Name)
+                )
+            )
+        );
+
+        var materializeExpression = CreateComplexTypeMaterializeExperssion(complexProperty, jObjectVariable);
+        if (complexProperty.IsNullable)
+        {
+            materializeExpression = Condition(Equal(jObjectVariable, Constant(null)),
+                Default(complexProperty.ClrType.MakeNullable()),
+                ConvertChecked(materializeExpression, complexProperty.ClrType.MakeNullable())
+            );
+        }
+
+        return Block(
+            [jObjectVariable],
+            [
+                assignJObjectVariable,
+                memberExpression.Assign(materializeExpression)
+            ]
+        );
+    }
+
+    private BlockExpression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
+    {
+        var complexJArrayVariable = Variable(
+            typeof(JArray),
+            "complexJArray" + ++_currentComplexIndex);
+
+        var assignJArrayVariable = Assign(complexJArrayVariable,
+            Call(
+                CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
+                Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
+                    Constant(complexProperty.Name)
+                )
+            )
+        );
+        var jObjectParameter = Parameter(typeof(JObject), "complexJObject" + _currentComplexIndex);
+        var materializeExpression = CreateComplexTypeMaterializeExperssion(complexProperty, jObjectParameter);
+
+        var select = Call(
+                    EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
+                    Call(
+                        EnumerableMethods.Cast.MakeGenericMethod(typeof(JObject)),
+                        complexJArrayVariable),
+                    Lambda(materializeExpression, jObjectParameter));
+
+        Expression populateExpression =
+            Call(
+                CosmosProjectionBindingRemovingExpressionVisitorBase.PopulateCollectionMethodInfo.MakeGenericMethod(complexProperty.ComplexType.ClrType, complexProperty.ClrType),
+                Constant(complexProperty.GetCollectionAccessor()),
+                select
+            );
+
+        if (complexProperty.IsNullable)
+        {
+            populateExpression = Condition(Equal(complexJArrayVariable, Constant(null)),
+                Default(complexProperty.ClrType.MakeNullable()),
+                ConvertChecked(populateExpression, complexProperty.ClrType.MakeNullable())
+            );
+        }
+
+        return Block(
+            [complexJArrayVariable],
+            [
+                assignJArrayVariable,
+                memberExpression.Assign(populateExpression)
+            ]
+        );
+    }
+
+
+    private Expression CreateComplexTypeMaterializeExperssion(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
+    {
+        var tempValueBuffer = new ComplexPropertyBindingExpression(complexProperty, jObjectParameter);
+        var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
+            complexProperty.ComplexType,
+            tempValueBuffer,
+            false);
+
+        var oldParentJObject = _parentJObject;
+        _parentJObject = jObjectParameter;
+        var materializeExpression = InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
+        _parentJObject = oldParentJObject;
+
+        if (complexProperty.ComplexType.ClrType.IsNullableType()) // @TODO: Can collection items be null?
+        {
+            materializeExpression = Condition(Equal(jObjectParameter, Constant(null)),
+                Default(complexProperty.ComplexType.ClrType),
+                materializeExpression
+            );
+        }
+
+        return materializeExpression;
+    }
+
+    private class ComplexPropertyBindingExpression : Expression
+    {
+        public ComplexPropertyBindingExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
+        {
+            ComplexProperty = complexProperty;
+            JObjectParameter = jObjectParameter;
+        }
+
+        public override Type Type => typeof(ValueBuffer);
+
+        public override ExpressionType NodeType => ExpressionType.Extension;
+
+        public IComplexProperty ComplexProperty { get; }
+        public ParameterExpression JObjectParameter { get; }
     }
 }
