@@ -85,6 +85,14 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
     public override Task Can_insert_when_int_PK_in_composite_key_has_sentinel_value(bool async, int initialValue)
         => Task.CompletedTask;
 
+    // Entities not configured in this fixture's OnModelCreating
+    public override Task ClientSetDefault_with_sentinel_value_sets_FK_to_sentinel_on_delete(bool async)
+        => Task.CompletedTask;
+
+    // Entities not configured in this fixture's OnModelCreating
+    public override Task SetDefault_with_default_value_sets_FK_to_default_on_delete(bool async)
+        => Task.CompletedTask;
+
     // No owned types
     public override Task Can_insert_when_nullable_bool_PK_in_composite_key_has_sentinel_value(bool async, bool? initialValue)
         => Task.CompletedTask;
@@ -576,34 +584,6 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             {
                 b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
                 b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
-            });
-
-            modelBuilder.Entity<ParentWithClientSetDefault>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
-
-            modelBuilder.Entity<ChildWithClientSetDefault>(b =>
-            {
-                b.Property(e => e.ParentId).HasSentinel(667);
-                b.HasOne(e => e.Parent)
-                    .WithMany(e => e.Children)
-                    .HasForeignKey(e => e.ParentId)
-                    .OnDelete(DeleteBehavior.ClientSetDefault);
-            });
-
-            modelBuilder.Entity<ParentWithSetDefault>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
-
-            modelBuilder.Entity<ChildWithSetDefault>(b =>
-            {
-                b.Property(e => e.ParentId).HasDefaultValue(667).HasSentinel(667);
-                b.HasOne(e => e.Parent)
-                    .WithMany(e => e.Children)
-                    .HasForeignKey(e => e.ParentId)
-                    .OnDelete(DeleteBehavior.SetDefault);
             });
 
             modelBuilder.Entity<StringKeyAndIndexParent>(b =>
