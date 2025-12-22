@@ -44,6 +44,23 @@ WHERE [Id] = @p1;
 """);
     }
 
+    public override async Task Delete_complex_collection_owner_entity_mapped_to_json()
+    {
+        await base.Delete_complex_collection_owner_entity_mapped_to_json();
+
+        AssertSql(
+            """
+@p0='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+DELETE FROM [Companies]
+OUTPUT 1
+WHERE [Id] = @p0;
+""");
+    }
+
+
     public override async Task Modify_element_in_complex_collection_mapped_to_json()
     {
         await base.Modify_element_in_complex_collection_mapped_to_json();
