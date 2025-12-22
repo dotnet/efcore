@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
@@ -25,21 +26,7 @@ public static class UpdateEntryExtensions
     /// <param name="property">The property to get the value for.</param>
     /// <returns>The value for the property.</returns>
     public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
-    {
-        var value = updateEntry.GetCurrentValue(property);
-        var typeMapping = property.GetTypeMapping();
-        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
-            : value;
-
-        var converter = typeMapping.Converter;
-        if (converter != null)
-        {
-            value = converter.ConvertToProvider(value);
-        }
-
-        return value;
-    }
+        => ((IInternalEntry)updateEntry).GetCurrentProviderValue(property);
 
     /// <summary>
     ///     Gets the original value that was assigned to the property and converts it to the provider-expected value.

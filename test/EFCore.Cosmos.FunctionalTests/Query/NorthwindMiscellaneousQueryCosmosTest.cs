@@ -533,20 +533,28 @@ ORDER BY ((c["UnitsInStock"] > 10) ? (c["ProductID"] > 40) : (c["ProductID"] <= 
 
     public override async Task Skip(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip(async))).Message);
+        // Always throws for sync.
+        if (async)
+        {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override async Task Skip_no_orderby(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_no_orderby(async))).Message);
+        // Always throws for sync.
+        if (async)
+        {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_no_orderby(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override Task Skip_Take(bool async)
@@ -1911,16 +1919,23 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ")
                 await base.Environment_newline_is_funcletized(a);
 
                 var sql = Fixture.TestSqlLoggerFactory.SqlStatements[0];
-                Assert.StartsWith("@NewLine='", sql);
-                Assert.EndsWith(
-                    """
-'
+                var newlineString = Environment.NewLine switch
+                {
+                    "\n" => """\n""",
+                    "\r\n" => """\r\n""",
+                    _ => throw new UnreachableException()
+                };
+
+                Assert.Equal(
+                    $"""
+@NewLine='{newlineString}'
 
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["id"], @NewLine)
 """,
-                    sql);
+                    sql,
+                    ignoreLineEndingDifferences: true);
             });
 
     public override async Task String_concat_with_navigation1(bool async)
@@ -3414,11 +3429,15 @@ FROM root c
 
     public override async Task Skip_orderby_const(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_orderby_const(async))).Message);
+        // Always throws for sync.
+        if (async)
+       {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_orderby_const(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override Task Where_Property_when_shadow_unconstrained_generic_method(bool async)

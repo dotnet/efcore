@@ -18,7 +18,7 @@ See [Getting started with EF Core](https://learn.microsoft.com/ef/core/get-start
 
 ## Additional documentation
 
-See [Microsoft SQL Server EF Core Database Provider](https://learn.microsoft.com/ef/core/providers/cosmos/) for more information about the features of this database provider.
+See [EF Core Azure Cosmos DB Provider](https://learn.microsoft.com/ef/core/providers/cosmos/) for more information about the features of this database provider.
 
 ## Feedback
 
