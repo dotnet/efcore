@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
@@ -34,6 +36,11 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     private readonly IMigrator _migrator;
     private readonly IMigrationsSqlGenerator _sqlGenerator;
     private readonly IRelationalDatabaseCreator _databaseCreator;
+    private readonly IMigrationCommandExecutor _commandExecutor;
+    private readonly IRelationalConnection _connection;
+    private readonly IHistoryRepository _historyRepository;
+    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+    private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuntimeMigrationService" /> class.
@@ -45,6 +52,11 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     /// <param name="migrator">The migrator.</param>
     /// <param name="sqlGenerator">The SQL generator.</param>
     /// <param name="databaseCreator">The database creator.</param>
+    /// <param name="commandExecutor">The migration command executor.</param>
+    /// <param name="connection">The relational connection.</param>
+    /// <param name="historyRepository">The history repository.</param>
+    /// <param name="rawSqlCommandBuilder">The raw SQL command builder.</param>
+    /// <param name="commandLogger">The command logger.</param>
     public RuntimeMigrationService(
         ICurrentDbContext currentContext,
         IMigrationsScaffolder scaffolder,
@@ -52,7 +64,12 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         IDynamicMigrationsAssembly dynamicMigrationsAssembly,
         IMigrator migrator,
         IMigrationsSqlGenerator sqlGenerator,
-        IRelationalDatabaseCreator databaseCreator)
+        IRelationalDatabaseCreator databaseCreator,
+        IMigrationCommandExecutor commandExecutor,
+        IRelationalConnection connection,
+        IHistoryRepository historyRepository,
+        IRawSqlCommandBuilder rawSqlCommandBuilder,
+        IRelationalCommandDiagnosticsLogger commandLogger)
     {
         _currentContext = currentContext;
         _scaffolder = scaffolder;
@@ -61,6 +78,11 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         _migrator = migrator;
         _sqlGenerator = sqlGenerator;
         _databaseCreator = databaseCreator;
+        _commandExecutor = commandExecutor;
+        _connection = connection;
+        _historyRepository = historyRepository;
+        _rawSqlCommandBuilder = rawSqlCommandBuilder;
+        _commandLogger = commandLogger;
     }
 
     /// <inheritdoc />
@@ -113,7 +135,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         var applied = false;
         if (!options.DryRun)
         {
-            _migrator.Migrate(compiledMigration.MigrationId);
+            ApplyMigration(compiledMigration, sqlCommands);
             applied = true;
         }
 
@@ -177,7 +199,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         var applied = false;
         if (!options.DryRun)
         {
-            await _migrator.MigrateAsync(compiledMigration.MigrationId, cancellationToken)
+            await ApplyMigrationAsync(compiledMigration, sqlCommands, cancellationToken)
                 .ConfigureAwait(false);
             applied = true;
         }
@@ -189,6 +211,104 @@ public class RuntimeMigrationService : IRuntimeMigrationService
             savedFiles?.MigrationFile,
             savedFiles?.MetadataFile,
             savedFiles?.SnapshotFile);
+    }
+
+    /// <summary>
+    ///     Applies a compiled migration to the database.
+    /// </summary>
+    /// <param name="compiledMigration">The compiled migration to apply.</param>
+    /// <param name="sqlCommands">The pre-generated SQL commands.</param>
+    protected virtual void ApplyMigration(CompiledMigration compiledMigration, IReadOnlyList<string> sqlCommands)
+    {
+        // Ensure database exists
+        if (!_databaseCreator.Exists())
+        {
+            _databaseCreator.Create();
+        }
+
+        _connection.Open();
+        try
+        {
+            // Ensure history table exists
+            if (!_historyRepository.Exists())
+            {
+                _historyRepository.Create();
+            }
+
+            // Get the migration and its operations
+            var migration = _dynamicMigrationsAssembly.CreateMigration(
+                compiledMigration.MigrationTypeInfo,
+                _currentContext.Context.Database.ProviderName!);
+
+            // Build the history insert command
+            var insertCommand = _rawSqlCommandBuilder.Build(
+                _historyRepository.GetInsertScript(new HistoryRow(compiledMigration.MigrationId, ProductInfo.GetVersion())));
+
+            // Generate migration commands and append history insert
+            var migrationCommands = _sqlGenerator.Generate(
+                migration.UpOperations,
+                _currentContext.Context.Model).ToList();
+            migrationCommands.Add(new MigrationCommand(insertCommand, _currentContext.Context, _commandLogger));
+
+            // Execute all commands
+            _commandExecutor.ExecuteNonQuery(migrationCommands, _connection);
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+
+    /// <summary>
+    ///     Applies a compiled migration to the database asynchronously.
+    /// </summary>
+    /// <param name="compiledMigration">The compiled migration to apply.</param>
+    /// <param name="sqlCommands">The pre-generated SQL commands.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    protected virtual async Task ApplyMigrationAsync(
+        CompiledMigration compiledMigration,
+        IReadOnlyList<string> sqlCommands,
+        CancellationToken cancellationToken = default)
+    {
+        // Ensure database exists
+        if (!await _databaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false))
+        {
+            await _databaseCreator.CreateAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            // Ensure history table exists
+            if (!await _historyRepository.ExistsAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await _historyRepository.CreateAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            // Get the migration and its operations
+            var migration = _dynamicMigrationsAssembly.CreateMigration(
+                compiledMigration.MigrationTypeInfo,
+                _currentContext.Context.Database.ProviderName!);
+
+            // Build the history insert command
+            var insertCommand = _rawSqlCommandBuilder.Build(
+                _historyRepository.GetInsertScript(new HistoryRow(compiledMigration.MigrationId, ProductInfo.GetVersion())));
+
+            // Generate migration commands and append history insert
+            var migrationCommands = _sqlGenerator.Generate(
+                migration.UpOperations,
+                _currentContext.Context.Model).ToList();
+            migrationCommands.Add(new MigrationCommand(insertCommand, _currentContext.Context, _commandLogger));
+
+            // Execute all commands
+            await _commandExecutor.ExecuteNonQueryAsync(migrationCommands, _connection, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        finally
+        {
+            await _connection.CloseAsync().ConfigureAwait(false);
+        }
     }
 
     /// <inheritdoc />
