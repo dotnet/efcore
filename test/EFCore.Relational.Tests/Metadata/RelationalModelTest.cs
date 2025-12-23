@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.True(specialCustomerViewMapping.IncludesDerivedTypes);
                     Assert.Same(customerView, specialCustomerView);
 
-                    Assert.Equal(12, specialCustomerView.Columns.Count());
+                    Assert.Equal(13, specialCustomerView.Columns.Count());
 
                     Assert.Equal(6, specialCustomerView.EntityTypeMappings.Count());
                     Assert.True(specialCustomerView.EntityTypeMappings.First().IsSharedTablePrincipal);

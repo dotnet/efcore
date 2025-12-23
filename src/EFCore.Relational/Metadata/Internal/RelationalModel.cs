@@ -1679,20 +1679,33 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
             {
-                foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
-                {
-                    if (mappedEntityTypes.Contains(directlyDerivedEntityType)
-                        && !optionalTypes.ContainsKey(directlyDerivedEntityType))
-                    {
-                        entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
-                    }
-                }
+                EnqueueDerivedTypes(entityType, mappedEntityTypes, optionalTypes, entityTypesToVisit, optional);
             }
         }
 
         if (optionalTypes.Count > 1)
         {
             table.OptionalTypes = optionalTypes;
+        }
+
+        static void EnqueueDerivedTypes(
+            IEntityType entityType,
+            HashSet<IEntityType> mappedEntityTypes,
+            Dictionary<ITypeBase, bool> optionalTypes,
+            Queue<(ITypeBase, bool)> entityTypesToVisit,
+            bool optional)
+        {
+            foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
+            {
+                if (!mappedEntityTypes.Contains(directlyDerivedEntityType))
+                {
+                    EnqueueDerivedTypes(directlyDerivedEntityType, mappedEntityTypes, optionalTypes, entityTypesToVisit, optional);
+                }
+                else if (!optionalTypes.ContainsKey(directlyDerivedEntityType))
+                {
+                    entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
+                }
+            }
         }
     }
 

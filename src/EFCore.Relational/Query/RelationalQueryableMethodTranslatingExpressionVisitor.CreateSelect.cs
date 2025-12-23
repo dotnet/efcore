@@ -46,7 +46,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                         foreach (var complexProperty in baseType.GetDeclaredComplexProperties())
                         {
-                            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, isContainerNullable: false);
+                            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, containerNullable: false);
                         }
 
                         if (tables.Count == 0)
@@ -87,7 +87,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                         foreach (var complexProperty in derivedType.GetDeclaredComplexProperties())
                         {
-                            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, isContainerNullable: true);
+                            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, containerNullable: true);
                         }
 
                         var keyColumns = keyProperties.Select(p => CreateColumnExpression(p, table, alias, nullable: true)).ToArray();
@@ -164,17 +164,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                             foreach (var property in currentType.GetDeclaredProperties())
                             {
-                                var columnExpression = ProcessPropertyTpc(property, isContainerNullable: false);
+                                var columnExpression = ProcessPropertyTpc(property, containerNullable: false);
                                 propertyMap[property] = columnExpression;
                             }
 
                             foreach (var complexProperty in currentType.GetDeclaredComplexProperties())
                             {
                                 complexPropertyMap[complexProperty] =
-                                    ProcessComplexPropertyTpc(complexProperty, isContainerNullable: false);
+                                    ProcessComplexPropertyTpc(complexProperty, containerNullable: false);
                             }
 
-                            ColumnExpression ProcessPropertyTpc(IProperty property, bool isContainerNullable)
+                            ColumnExpression ProcessPropertyTpc(IProperty property, bool containerNullable)
                             {
                                 // We'll create the column projected out of the UNION of the *entire* hierarchy (columns for each
                                 // individual subquery of that UNION are created below).
@@ -198,7 +198,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     // Note that we're creating projected columns for the UNION of the entire hierarchy.
                                     // So the moment this property is not on the root projected entity type (or one of its base types),
                                     // it must be nullable since there's going to be some concrete type which doesn't have it.
-                                    nullable: isContainerNullable
+                                    nullable: containerNullable
                                         || property.IsNullable
                                         || !entityType.IsAssignableTo(property.DeclaringType.ContainingEntityType));
 
@@ -209,10 +209,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                             Expression ProcessComplexPropertyTpc(
                                 IComplexProperty complexProperty,
-                                bool isContainerNullable)
+                                bool containerNullable)
                             {
                                 var complexType = complexProperty.ComplexType;
-                                var isNullable = isContainerNullable || complexProperty.IsNullable;
+                                var isNullable = containerNullable || complexProperty.IsNullable;
                                 var propertyMap = new Dictionary<IProperty, ColumnExpression>();
                                 var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
 
@@ -236,7 +236,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                         projectedColumnName,
                                         containerColumn.StoreTypeMapping,
                                         tpcTableAlias,
-                                        isContainerNullable,
+                                        containerNullable,
                                         out var containerColumnExpression);
 
                                     allPropertyMap.Add((complexProperty, containerColumnExpression));
@@ -417,7 +417,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     foreach (var complexProperty in entityType.GetComplexProperties())
                     {
                         var table = complexProperty.ComplexType.GetViewOrTableMappings().Single().Table;
-                        complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, tableMap[table], isContainerNullable: false);
+                        complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, tableMap[table], containerNullable: false);
                     }
 
                     var projection = new StructuralTypeProjectionExpression(entityType, propertyMap, complexPropertyMap);
@@ -449,7 +449,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         foreach (var complexProperty in entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
             .SelectMany(t => t.GetDeclaredComplexProperties()))
         {
-            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, isContainerNullable: false);
+            complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, alias, containerNullable: false);
         }
 
         var tableMap = new Dictionary<ITableBase, string> { [table] = alias };
@@ -473,13 +473,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IComplexProperty complexProperty,
         ITableBase table,
         string tableAlias,
-        bool isContainerNullable)
+        bool containerNullable)
     {
         var complexType = complexProperty.ComplexType;
-        var isNullable = isContainerNullable || complexProperty.IsNullable;
+        var isNullable = containerNullable || complexProperty.IsNullable;
         if (complexType.IsMappedToJson())
         {
-            return GenerateComplexJsonShaper(complexProperty, table, tableAlias, isContainerNullable);
+            return GenerateComplexJsonShaper(complexProperty, table, tableAlias, containerNullable);
         }
 
         var propertyMap = new Dictionary<IProperty, ColumnExpression>();
@@ -504,7 +504,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IComplexProperty complexProperty,
         ITableBase table,
         string tableAlias,
-        bool isContainerNullable)
+        bool containerNullable)
     {
         Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
 
@@ -520,7 +520,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             containerColumn.Name,
             containerColumn.StoreTypeMapping,
             tableAlias,
-            isContainerNullable,
+            containerNullable,
             out _);
     }
 
@@ -530,7 +530,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         string containerColumnName,
         RelationalTypeMapping containerColumnTypeMapping,
         string tableAlias,
-        bool isContainerNullable,
+        bool containerNullable,
         out ColumnExpression containerColumnExpression)
     {
         // This method is for JSON complex properties on non-JSON types only; see CreateSelect() which accepts a JsonQueryExpression
@@ -539,7 +539,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         Check.DebugAssert(!complexProperty.DeclaringType.IsMappedToJson());
 
         var complexType = complexProperty.ComplexType;
-        var isNullable = isContainerNullable || complexProperty.IsNullable;
+        var isNullable = containerNullable || complexProperty.IsNullable;
 
         // If the source type is a JSON complex type; since we're binding over StructuralTypeProjectionExpression - which represents a relational
         // table-like thing - this means that an internal JSON collection has been converted to a relational table (e.g. OPENJSON on SQL Server)
