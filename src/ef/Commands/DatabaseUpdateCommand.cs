@@ -10,7 +10,20 @@ internal partial class DatabaseUpdateCommand
     {
         using var executor = CreateExecutor(args);
 
-        executor.UpdateDatabase(_migration!.Value, _connection!.Value(), Context!.Value());
+        if (_add!.HasValue())
+        {
+            // Create and apply a new migration in one step
+            executor.CreateAndApplyMigration(
+                _add.Value()!,
+                _connection!.Value(),
+                Context!.Value(),
+                _outputDir!.Value(),
+                _namespace!.Value());
+        }
+        else
+        {
+            executor.UpdateDatabase(_migration!.Value, _connection!.Value(), Context!.Value());
+        }
 
         return base.Execute(args);
     }

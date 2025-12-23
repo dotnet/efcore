@@ -272,6 +272,49 @@ public class MigrationsOperations
         _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual RuntimeMigrationResult CreateAndApplyMigration(
+        string name,
+        string? connectionString,
+        string? contextType,
+        string? outputDir,
+        string? @namespace)
+    {
+        _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
+
+        using var context = _contextOperations.CreateContext(contextType);
+
+        if (connectionString != null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
+        var services = _servicesBuilder.Build(context);
+        EnsureServices(services);
+
+        using var scope = services.CreateScope();
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var options = new RuntimeMigrationOptions
+        {
+            PersistToDisk = true,
+            OutputDirectory = outputDir,
+            Namespace = @namespace,
+            ProjectDirectory = _projectDir
+        };
+
+        var result = runtimeMigrationService.CreateAndApplyMigration(name, options);
+
+        _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(result.MigrationId));
+
+        return result;
+    }
+
     private static void EnsureServices(IServiceProvider services)
     {
         var migrator = services.GetService<IMigrator>();
