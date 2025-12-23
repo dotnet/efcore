@@ -68,8 +68,8 @@ public static class DesignTimeServiceCollectionExtensions
                 .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
                 .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>()
                 .TryAddSingleton<IMigrationCompiler, CSharpMigrationCompiler>()
-                .TryAddScoped<IDynamicMigrationsAssembly>(sp =>
-                    new DynamicMigrationsAssembly(sp.GetRequiredService<IMigrationsAssembly>()))
+                // Note: IDynamicMigrationsAssembly and IMigrationsAssembly are registered in
+                // AddDbContextDesignTimeServices to ensure proper wrapping of the context's assembly
                 .TryAddScoped<IRuntimeMigrationService, RuntimeMigrationService>());
 
         var loggerFactory = new LoggerFactory(
@@ -92,6 +92,12 @@ public static class DesignTimeServiceCollectionExtensions
         this IServiceCollection services,
         DbContext context)
     {
+        // Get the context's IMigrationsAssembly to wrap in DynamicMigrationsAssembly
+        var innerMigrationsAssembly = context.GetService<IMigrationsAssembly>();
+
+        // Create DynamicMigrationsAssembly wrapping the context's IMigrationsAssembly
+        var dynamicMigrationsAssembly = new DynamicMigrationsAssembly(innerMigrationsAssembly);
+
         new EntityFrameworkRelationalServicesBuilder(services)
             .TryAdd(context.GetService<IDatabaseProvider>())
             .TryAdd(_ => context.GetService<IMigrationsIdGenerator>())
@@ -101,10 +107,18 @@ public static class DesignTimeServiceCollectionExtensions
             .TryAdd(_ => context.GetService<ICurrentDbContext>())
             .TryAdd(_ => context.GetService<IDbContextOptions>())
             .TryAdd(_ => context.GetService<IHistoryRepository>())
-            .TryAdd(_ => context.GetService<IMigrationsAssembly>())
             .TryAdd(_ => context.GetService<IMigrationsModelDiffer>())
             .TryAdd(_ => context.GetService<IMigrator>())
+            .TryAdd(_ => context.GetService<IDesignTimeModel>())
             .TryAdd(_ => context.GetService<IDesignTimeModel>().Model);
+
+        // Register DynamicMigrationsAssembly as both IDynamicMigrationsAssembly and IMigrationsAssembly
+        // Note: For runtime migration to work, the IMigrator from context needs to be updated to use
+        // DynamicMigrationsAssembly, which isn't directly possible. The RuntimeMigrationService handles
+        // this by registering migrations with DynamicMigrationsAssembly and calling the context's Migrator.
+        services.AddScoped<IDynamicMigrationsAssembly>(_ => dynamicMigrationsAssembly);
+        services.AddScoped<IMigrationsAssembly>(_ => dynamicMigrationsAssembly);
+
         return services;
     }
 }
