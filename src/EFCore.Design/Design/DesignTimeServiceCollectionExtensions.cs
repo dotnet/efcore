@@ -92,11 +92,20 @@ public static class DesignTimeServiceCollectionExtensions
         this IServiceCollection services,
         DbContext context)
     {
-        // Get the context's IMigrationsAssembly to wrap in DynamicMigrationsAssembly
-        var innerMigrationsAssembly = context.GetService<IMigrationsAssembly>();
+        // Create a lazy wrapper that creates DynamicMigrationsAssembly on first access
+        // This is necessary because some contexts may not have IMigrationsAssembly available
+        // until a database provider is configured
+        DynamicMigrationsAssembly? dynamicMigrationsAssembly = null;
+        DynamicMigrationsAssembly GetOrCreateDynamicMigrationsAssembly()
+        {
+            if (dynamicMigrationsAssembly == null)
+            {
+                var innerMigrationsAssembly = context.GetService<IMigrationsAssembly>();
+                dynamicMigrationsAssembly = new DynamicMigrationsAssembly(innerMigrationsAssembly);
+            }
 
-        // Create DynamicMigrationsAssembly wrapping the context's IMigrationsAssembly
-        var dynamicMigrationsAssembly = new DynamicMigrationsAssembly(innerMigrationsAssembly);
+            return dynamicMigrationsAssembly;
+        }
 
         new EntityFrameworkRelationalServicesBuilder(services)
             .TryAdd(context.GetService<IDatabaseProvider>())
@@ -116,8 +125,8 @@ public static class DesignTimeServiceCollectionExtensions
         // Note: For runtime migration to work, the IMigrator from context needs to be updated to use
         // DynamicMigrationsAssembly, which isn't directly possible. The RuntimeMigrationService handles
         // this by registering migrations with DynamicMigrationsAssembly and calling the context's Migrator.
-        services.AddScoped<IDynamicMigrationsAssembly>(_ => dynamicMigrationsAssembly);
-        services.AddScoped<IMigrationsAssembly>(_ => dynamicMigrationsAssembly);
+        services.AddScoped<IDynamicMigrationsAssembly>(_ => GetOrCreateDynamicMigrationsAssembly());
+        services.AddScoped<IMigrationsAssembly>(_ => GetOrCreateDynamicMigrationsAssembly());
 
         return services;
     }
