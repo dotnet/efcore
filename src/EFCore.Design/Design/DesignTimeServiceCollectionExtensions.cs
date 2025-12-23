@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -65,7 +66,11 @@ public static class DesignTimeServiceCollectionExtensions
                 .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                 .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
-                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
+                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>()
+                .TryAddSingleton<IMigrationCompiler, CSharpMigrationCompiler>()
+                .TryAddScoped<IDynamicMigrationsAssembly>(sp =>
+                    new DynamicMigrationsAssembly(sp.GetRequiredService<IMigrationsAssembly>()))
+                .TryAddScoped<IRuntimeMigrationService, RuntimeMigrationService>());
 
         var loggerFactory = new LoggerFactory(
             [new OperationLoggerProvider(reporter)], new LoggerFilterOptions { MinLevel = LogLevel.Debug });

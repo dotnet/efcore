@@ -910,6 +910,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("WritingSnapshot", nameof(file)),
                 file);
 
+        /// <summary>
+        ///     Failed to compile migration '{migrationId}'. Errors:
+        ///     {errors}
+        /// </summary>
+        public static string MigrationCompilationFailed(object? migrationId, object? errors)
+            => string.Format(
+                GetString("MigrationCompilationFailed", nameof(migrationId), nameof(errors)),
+                migrationId, errors);
+
+        /// <summary>
+        ///     Could not find migration type with ID '{migrationId}' in the compiled assembly.
+        /// </summary>
+        public static string MigrationTypeNotFound(object? migrationId)
+            => string.Format(
+                GetString("MigrationTypeNotFound", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
+        ///     Creating and applying migration '{migrationName}'.
+        /// </summary>
+        public static string CreatingAndApplyingMigration(object? migrationName)
+            => string.Format(
+                GetString("CreatingAndApplyingMigration", nameof(migrationName)),
+                migrationName);
+
+        /// <summary>
+        ///     Migration '{migrationId}' was successfully created and applied.
+        /// </summary>
+        public static string MigrationCreatedAndApplied(object? migrationId)
+            => string.Format(
+                GetString("MigrationCreatedAndApplied", nameof(migrationId)),
+                migrationId);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;
