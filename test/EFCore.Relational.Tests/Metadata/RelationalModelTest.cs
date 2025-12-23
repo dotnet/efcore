@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("viewSchema", customerView.Schema);
                 Assert.Equal(3, specialCustomerType.GetViewMappings().Count());
                 Assert.Null(specialCustomerType.GetViewMappings().First().IsSplitEntityTypePrincipal);
-                Assert.False(specialCustomerType.GetViewMappings().First().IncludesDerivedTypes);
+                Assert.True(specialCustomerType.GetViewMappings().First().IncludesDerivedTypes);
                 Assert.Null(specialCustomerType.GetViewMappings().Last().IsSplitEntityTypePrincipal);
                 Assert.True(specialCustomerType.GetViewMappings().Last().IncludesDerivedTypes);
 

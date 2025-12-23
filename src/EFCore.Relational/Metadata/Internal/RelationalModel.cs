@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Emit;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -660,6 +661,9 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         var mappingStrategy = entityType.GetMappingStrategy();
         var isTpc = mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy;
+        var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
+            ? !isTpc && mappedType == entityType
+            : (bool?)null;
         while (mappedType != null)
         {
             var mappedViewName = mappedType.GetViewName();
@@ -676,9 +680,6 @@ public class RelationalModel : Annotatable, IRelationalModel
                 continue;
             }
 
-            var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
-                ? !isTpc && mappedType == entityType
-                : (bool?)null;
             foreach (var fragment in mappedType.GetMappingFragments(StoreObjectType.View))
             {
                 CreateViewMapping(
@@ -772,9 +773,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
         }
 
-        // TODO: Change this to call GetComplexProperties()
-        // Issue #31248
-        foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+        foreach (var complexProperty in mappedType.GetComplexProperties())
         {
             var complexType = complexProperty.ComplexType;
 
@@ -784,6 +783,10 @@ public class RelationalModel : Annotatable, IRelationalModel
             {
                 complexViewMappings = [];
                 complexType.AddRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, complexViewMappings);
+            }
+            else if (complexViewMappings.Any(m => m.Table == view))
+            {
+                continue;
             }
 
             CreateViewMapping(
