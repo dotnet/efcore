@@ -1521,7 +1521,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (TranslateLambdaExpression(source, predicate) is { } translation)
         {
-            if (translation is not SqlConstantExpression { Value: true })
+            if (translation is not SqlConstantExpression { Value: true } && translation is not SqlUnaryExpression { OperatorType: ExpressionType.Not, Operand: SqlConstantExpression { Value: false } })
             {
                 select.ApplyPredicate(translation);
             }
