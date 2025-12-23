@@ -1100,6 +1100,97 @@ namespace My.Gnomespace.Data
         return executor.MigrationsOperations.AddMigration("M", outputDir, nameof(GnomeContext), @namespace, dryRun: true);
     }
 
+    [ConditionalFact]
+    public void CreateAndApplyMigration_errors_when_no_model_changes()
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteCreateAndApplyMigration(
+            tempPath,
+            "TestMigration",
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.Equal(typeof(InvalidOperationException).FullName, resultHandler.ErrorType);
+        Assert.Contains("No changes have been made to the model", resultHandler.ErrorMessage);
+    }
+
+    [ConditionalFact]
+    public void CreateAndApplyMigration_errors_for_invalid_context()
+    {
+        using var tempPath = new TempDirectory();
+        var reportHandler = new OperationReportHandler();
+        var resultHandler = new OperationResultHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", tempPath.Path },
+                { "rootNamespace", "My.Gnomespace.Data" },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        new OperationExecutor.CreateAndApplyMigration(
+            executor,
+            resultHandler,
+            new Dictionary<string, object?>
+            {
+                { "name", "TestMigration" },
+                { "connectionString", null },
+                { "contextType", "NonExistentContext" },
+                { "outputDir", null },
+                { "namespace", null }
+            });
+
+        Assert.False(resultHandler.HasResult);
+        Assert.NotNull(resultHandler.ErrorType);
+        Assert.Contains("NonExistentContext", resultHandler.ErrorMessage);
+    }
+
+    private static OperationResultHandler ExecuteCreateAndApplyMigration(
+        string tempPath,
+        string migrationName,
+        string? outputDir,
+        string? @namespace)
+    {
+        var reportHandler = new OperationReportHandler();
+        var resultHandler = new OperationResultHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", tempPath },
+                { "rootNamespace", "My.Gnomespace.Data" },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        new OperationExecutor.CreateAndApplyMigration(
+            executor,
+            resultHandler,
+            new Dictionary<string, object?>
+            {
+                { "name", migrationName },
+                { "connectionString", null },
+                { "contextType", "GnomeContext" },
+                { "outputDir", outputDir },
+                { "namespace", @namespace }
+            });
+
+        return resultHandler;
+    }
+
     public class OperationBaseTests
     {
         [ConditionalFact]
