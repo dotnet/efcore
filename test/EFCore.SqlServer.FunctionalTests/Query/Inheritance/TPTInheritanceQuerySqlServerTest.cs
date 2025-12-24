@@ -5,8 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
-// TODO: #35025
-internal class TPTInheritanceQuerySqlServerTest(TPTInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+public class TPTInheritanceQuerySqlServerTest(TPTInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : TPTInheritanceQueryTestBase<TPTInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
 {
     [ConditionalFact]
@@ -159,7 +158,7 @@ ORDER BY [p].[Species]
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[SortIndex], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams], [l].[LiltCO2], [l].[SugarGrams], [t].[CaffeineGrams], [t].[HasMilk], [d].[AdditionalParentInfo_Int], [d].[AdditionalParentInfo_UniqueInt], [d].[AdditionalParentInfo_Nested_NestedInt], [d].[AdditionalParentInfo_Nested_UniqueInt], [c].[AdditionalChildInfo_Int], [c].[AdditionalChildInfo_UniqueInt], [c].[AdditionalChildInfo_Nested_NestedInt], [c].[AdditionalChildInfo_Nested_UniqueInt], [t].[AdditionalChildInfo_Int], [t].[AdditionalChildInfo_UniqueInt], [t].[AdditionalChildInfo_Nested_NestedInt], [t].[AdditionalChildInfo_Nested_UniqueInt], CASE
+SELECT [d].[Id], [d].[SortIndex], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams], [l].[LiltCO2], [l].[SugarGrams], [t].[CaffeineGrams], [t].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [c].[ChildComplexType_Int], [c].[ChildComplexType_UniqueInt], [c].[ChildComplexType_Nested_NestedInt], [c].[ChildComplexType_Nested_UniqueInt], [t].[ChildComplexType_Int], [t].[ChildComplexType_UniqueInt], [t].[ChildComplexType_Nested_NestedInt], [t].[ChildComplexType_Nested_UniqueInt], CASE
     WHEN [t].[Id] IS NOT NULL THEN N'Tea'
     WHEN [l].[Id] IS NOT NULL THEN N'Lilt'
     WHEN [c].[Id] IS NOT NULL THEN N'Coke'
@@ -203,19 +202,19 @@ INNER JOIN [Roses] AS [r] ON [p].[Species] = [r].[Species]
 
         AssertSql(
             """
-SELECT TOP(2) [d].[Id], [d].[SortIndex], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams], [d].[AdditionalParentInfo_Int], [d].[AdditionalParentInfo_UniqueInt], [d].[AdditionalParentInfo_Nested_NestedInt], [d].[AdditionalParentInfo_Nested_UniqueInt], [c].[AdditionalChildInfo_Int], [c].[AdditionalChildInfo_UniqueInt], [c].[AdditionalChildInfo_Nested_NestedInt], [c].[AdditionalChildInfo_Nested_UniqueInt]
+SELECT TOP(2) [d].[Id], [d].[SortIndex], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [c].[ChildComplexType_Int], [c].[ChildComplexType_UniqueInt], [c].[ChildComplexType_Nested_NestedInt], [c].[ChildComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 """,
             //
             """
-SELECT TOP(2) [d].[Id], [d].[SortIndex], [l].[LiltCO2], [l].[SugarGrams], [d].[AdditionalParentInfo_Int], [d].[AdditionalParentInfo_UniqueInt], [d].[AdditionalParentInfo_Nested_NestedInt], [d].[AdditionalParentInfo_Nested_UniqueInt]
+SELECT TOP(2) [d].[Id], [d].[SortIndex], [l].[LiltCO2], [l].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 INNER JOIN [Lilt] AS [l] ON [d].[Id] = [l].[Id]
 """,
             //
             """
-SELECT TOP(2) [d].[Id], [d].[SortIndex], [t].[CaffeineGrams], [t].[HasMilk], [d].[AdditionalParentInfo_Int], [d].[AdditionalParentInfo_UniqueInt], [d].[AdditionalParentInfo_Nested_NestedInt], [d].[AdditionalParentInfo_Nested_UniqueInt], [t].[AdditionalChildInfo_Int], [t].[AdditionalChildInfo_UniqueInt], [t].[AdditionalChildInfo_Nested_NestedInt], [t].[AdditionalChildInfo_Nested_UniqueInt]
+SELECT TOP(2) [d].[Id], [d].[SortIndex], [t].[CaffeineGrams], [t].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [t].[ChildComplexType_Int], [t].[ChildComplexType_UniqueInt], [t].[ChildComplexType_Nested_NestedInt], [t].[ChildComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 INNER JOIN [Tea] AS [t] ON [d].[Id] = [t].[Id]
 """);

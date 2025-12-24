@@ -281,13 +281,14 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var usePrefix = property.DeclaringType != otherProperty.DeclaringType;
-            if (!usePrefix
+            var differentTypes = property.DeclaringType != otherProperty.DeclaringType;
+            if (!differentTypes
                 || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
                     && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
                 || declaringEntityType?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
-                var newColumnName = TryUniquify(property, columnName, columns, storeObject, usePrefix, maxLength);
+                var prefix = CreatePrefix(property.DeclaringType, otherProperty.DeclaringType);
+                var newColumnName = TryUniquify(property, columnName, columns, storeObject, prefix, maxLength);
                 if (newColumnName != null)
                 {
                     columns[newColumnName] = property;
@@ -295,12 +296,13 @@ public class SharedTableConvention : IModelFinalizingConvention
                 }
             }
 
-            if (!usePrefix
+            if (!differentTypes
                 || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
                     && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
                 || (otherProperty.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
-                var newOtherColumnName = TryUniquify(otherProperty, columnName, columns, storeObject, usePrefix, maxLength);
+                var prefix = CreatePrefix(otherProperty.DeclaringType, property.DeclaringType);
+                var newOtherColumnName = TryUniquify(otherProperty, columnName, columns, storeObject, prefix, maxLength);
                 if (newOtherColumnName != null)
                 {
                     columns[columnName] = property;
@@ -313,6 +315,16 @@ public class SharedTableConvention : IModelFinalizingConvention
         {
             UniquifyColumnNames(complexProperty.ComplexType, columns, storeObject, maxLength);
         }
+
+        static string CreatePrefix(IReadOnlyTypeBase type, IReadOnlyTypeBase otherType)
+        {
+            var prefix = type.ShortName();
+            return prefix == otherType.ShortName()
+                && type is IComplexType complexType
+                && otherType is IComplexType othertComplexType
+                ? CreatePrefix(complexType.ComplexProperty.DeclaringType, othertComplexType.ComplexProperty.DeclaringType)
+                : prefix;
+        }
     }
 
     private static string? TryUniquify(
@@ -320,19 +332,15 @@ public class SharedTableConvention : IModelFinalizingConvention
         string columnName,
         Dictionary<string, IConventionProperty> properties,
         in StoreObjectIdentifier storeObject,
-        bool usePrefix,
+        string? prefix,
         int maxLength)
     {
         if (property.Builder.CanSetColumnName(null)
             && property.Builder.CanSetColumnName(null, storeObject))
         {
-            if (usePrefix)
+            if (prefix != null)
             {
-                var prefix = property.DeclaringType.ShortName();
-                if (!columnName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    columnName = prefix + "_" + columnName;
-                }
+                columnName = prefix + "_" + columnName;
             }
 
             columnName = Uniquifier.Uniquify(columnName, properties, maxLength);

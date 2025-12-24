@@ -609,8 +609,11 @@ public class RelationalModel : Annotatable, IRelationalModel
             return;
         }
 
-        Check.DebugAssert(
-            tableBase.FindColumn(containerColumnName) == null, $"Table '{tableBase.Name}' already has a '{containerColumnName}' column.");
+        if (tableBase.FindColumn(containerColumnName) != null)
+        {
+            // TODO: Add column mapping #36646
+            return;
+        }
 
         var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(
             typeof(JsonTypePlaceholder), storeTypeName: containerColumnType);
@@ -627,9 +630,11 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
-            if (ownership.PrincipalEntityType.BaseType != null)
+            if (!jsonColumn.IsNullable
+                && ownership.PrincipalEntityType.BaseType != null
+                && ownership.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
             {
-                // if navigation is defined on a derived type, the column must be made nullable
+                // if navigation is defined on a derived type in TPH, the column must be made nullable
                 jsonColumn.IsNullable = true;
             }
         }
@@ -640,6 +645,16 @@ public class RelationalModel : Annotatable, IRelationalModel
             jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable
                 || complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true).Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+
+            var declaringType = complexType.ComplexProperty.DeclaringType;
+            if (!jsonColumn.IsNullable
+                && declaringType is IEntityType declaringEntityType
+                && declaringEntityType.BaseType != null
+                && declaringEntityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+            {
+                // if complex property is defined on a derived type in TPH, the column must be made nullable
+                jsonColumn.IsNullable = true;
+            }
         }
     }
 

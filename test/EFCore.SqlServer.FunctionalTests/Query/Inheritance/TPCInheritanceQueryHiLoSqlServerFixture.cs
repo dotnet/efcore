@@ -10,6 +10,9 @@ public class TPCInheritanceQueryHiLoSqlServerFixture : TPCInheritanceQuerySqlSer
     protected override string StoreName
         => "TPCHiLoInheritanceTest";
 
+    public override bool UseGeneratedKeys
+        => true;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.UseHiLo();

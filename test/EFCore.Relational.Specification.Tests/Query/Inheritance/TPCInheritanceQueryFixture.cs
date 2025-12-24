@@ -15,6 +15,9 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryRelationalFix
     public override bool HasDiscriminator
         => false;
 
+    public override bool UseGeneratedKeys
+        => false;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);

@@ -3,6 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-// TODO: #35025
-internal class TPTInheritanceTableSplittingQuerySqliteTest(TPTInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+public class TPTInheritanceTableSplittingQuerySqliteTest(TPTInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : TPTInheritanceTableSplittingQueryRelationalTestBase<TPTInheritanceQuerySqliteFixture>(fixture, testOutputHelper);

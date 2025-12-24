@@ -51,7 +51,7 @@ WHERE [d].[Discriminator] = 2
 """,
             //
             """
-SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ComplexType_ChildComplexType_Int], [d].[ComplexType_ChildComplexType_UniqueInt], [d].[NestedComplexType_ChildComplexType_Nested_NestedInt], [d].[NestedComplexType_ChildComplexType_Nested_UniqueInt]
+SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[Tea_ChildComplexType_Int], [d].[Tea_ChildComplexType_UniqueInt], [d].[Tea_ChildComplexType_Nested_NestedInt], [d].[Tea_ChildComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 3
 """);
@@ -87,7 +87,7 @@ WHERE [m].[Discriminator] = N'Eagle'
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt], [d].[ComplexType_ChildComplexType_Int], [d].[ComplexType_ChildComplexType_UniqueInt], [d].[NestedComplexType_ChildComplexType_Nested_NestedInt], [d].[NestedComplexType_ChildComplexType_Nested_UniqueInt]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType_Int], [d].[ParentComplexType_UniqueInt], [d].[ParentComplexType_Nested_NestedInt], [d].[ParentComplexType_Nested_UniqueInt], [d].[ChildComplexType_Int], [d].[ChildComplexType_UniqueInt], [d].[ChildComplexType_Nested_NestedInt], [d].[ChildComplexType_Nested_UniqueInt], [d].[Tea_ChildComplexType_Int], [d].[Tea_ChildComplexType_UniqueInt], [d].[Tea_ChildComplexType_Nested_NestedInt], [d].[Tea_ChildComplexType_Nested_UniqueInt]
 FROM [Drinks] AS [d]
 """);
     }

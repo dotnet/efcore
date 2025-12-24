@@ -3,6 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-// TODO: #35025
-internal class TPHInheritanceJsonQuerySqliteTest(TPHInheritanceJsonQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+public class TPHInheritanceJsonQuerySqliteTest(TPHInheritanceJsonQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : TPHInheritanceJsonQueryRelationalTestBase<TPHInheritanceJsonQuerySqliteFixture>(fixture, testOutputHelper);
