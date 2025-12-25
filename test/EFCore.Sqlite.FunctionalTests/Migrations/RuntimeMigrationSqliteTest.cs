@@ -489,6 +489,335 @@ public class RuntimeMigrationSqliteTest : IDisposable
         Assert.Equal(0L, await cmd2.ExecuteScalarAsync());
     }
 
+    [ConditionalFact]
+    public void Can_apply_and_revert_migration_in_same_session()
+    {
+        // This test verifies the full lifecycle: apply, verify, revert, verify
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "FullLifecycleMigration",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        Assert.True(result.Applied);
+        Assert.Contains("FullLifecycleMigration", result.MigrationId);
+
+        // Verify table exists
+        using var cmd1 = _connection.CreateCommand();
+        cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(1L, cmd1.ExecuteScalar());
+
+        // Verify migration in history
+        using var cmd2 = _connection.CreateCommand();
+        cmd2.CommandText = "SELECT COUNT(*) FROM __EFMigrationsHistory";
+        Assert.Equal(1L, cmd2.ExecuteScalar());
+
+        // Revert the migration
+        var revertSql = runtimeMigrationService.RevertMigration();
+        Assert.NotEmpty(revertSql);
+
+        // Verify table was dropped
+        using var cmd3 = _connection.CreateCommand();
+        cmd3.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, cmd3.ExecuteScalar());
+
+        // Verify migration history is empty
+        using var cmd4 = _connection.CreateCommand();
+        cmd4.CommandText = "SELECT COUNT(*) FROM __EFMigrationsHistory";
+        Assert.Equal(0L, cmd4.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_returns_correct_sql()
+    {
+        // Verify that RevertMigration returns the SQL that was executed
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "RevertSqlTest",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+
+        // Verify table exists
+        using var cmd1 = _connection.CreateCommand();
+        cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(1L, cmd1.ExecuteScalar());
+
+        // Revert and check the returned SQL
+        var revertSql = runtimeMigrationService.RevertMigration();
+
+        // Should contain DROP TABLE
+        Assert.NotEmpty(revertSql);
+        Assert.Contains(revertSql, sql => sql.Contains("DROP TABLE"));
+        Assert.Contains(revertSql, sql => sql.Contains("TestEntities"));
+
+        // Verify table was actually dropped
+        using var cmd2 = _connection.CreateCommand();
+        cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, cmd2.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_can_revert_specific_migration_by_id()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "SpecificMigration",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+
+        // Revert by specific migration ID
+        var revertSql = runtimeMigrationService.RevertMigration(result.MigrationId);
+
+        Assert.Contains(revertSql, sql => sql.Contains("DROP TABLE"));
+
+        // Verify table was dropped
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, cmd.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_clears_tracking_after_revert()
+    {
+        // Verify that after reverting, trying to revert again throws
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "TrackingTest",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+
+        // Revert it
+        runtimeMigrationService.RevertMigration();
+
+        // Trying to revert again should throw because no more dynamic migrations
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => runtimeMigrationService.RevertMigration());
+
+        Assert.Contains("No dynamic migrations", exception.Message);
+    }
+
+    [ConditionalFact]
+    public void CreateAndApplyMigration_handles_special_characters_in_name()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Migration names with underscores and numbers are valid
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "Add_User_Table_v2",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+        Assert.Contains("Add_User_Table_v2", result.MigrationId);
+    }
+
+    [ConditionalFact]
+    public void CreateAndApplyMigration_fails_when_table_already_exists()
+    {
+        // Manually create a table that will conflict with the migration
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "CREATE TABLE TestEntities (Id INTEGER PRIMARY KEY)";
+        cmd.ExecuteNonQuery();
+
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Should throw because the table already exists
+        var exception = Assert.ThrowsAny<Exception>(
+            () => runtimeMigrationService.CreateAndApplyMigration(
+                "ConflictMigration",
+                new RuntimeMigrationOptions { PersistToDisk = false }));
+
+        // Verify the error is about table already existing
+        Assert.Contains("already exists", exception.Message, StringComparison.OrdinalIgnoreCase);
+
+        // Verify the migration was NOT added to history (partial failure recovery)
+        using var historyCmd = _connection.CreateCommand();
+        historyCmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='__EFMigrationsHistory'";
+        var historyTableExists = (long)historyCmd.ExecuteScalar()! > 0;
+
+        if (historyTableExists)
+        {
+            using var countCmd = _connection.CreateCommand();
+            countCmd.CommandText = "SELECT COUNT(*) FROM __EFMigrationsHistory WHERE MigrationId LIKE '%ConflictMigration'";
+            Assert.Equal(0L, countCmd.ExecuteScalar());
+        }
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_handles_already_dropped_table_gracefully()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "DropTest",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+
+        // Manually drop the table (simulating external interference)
+        using var dropCmd = _connection.CreateCommand();
+        dropCmd.CommandText = "DROP TABLE TestEntities";
+        dropCmd.ExecuteNonQuery();
+
+        // Try to revert - should fail because table doesn't exist
+        var exception = Assert.ThrowsAny<Exception>(
+            () => runtimeMigrationService.RevertMigration());
+
+        // The error should indicate the table doesn't exist
+        Assert.Contains("no such table", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [ConditionalFact]
+    public void DryRun_does_not_modify_database_on_failure_scenario()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Use dry run mode
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "DryRunSafetyTest",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = false,
+                DryRun = true
+            });
+
+        Assert.False(result.Applied);
+        Assert.NotEmpty(result.SqlCommands);
+
+        // Verify no tables were created
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, cmd.ExecuteScalar());
+
+        // Verify no history table was created
+        using var historyCmd = _connection.CreateCommand();
+        historyCmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='__EFMigrationsHistory'";
+        Assert.Equal(0L, historyCmd.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void Applied_migration_is_tracked_for_revert()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply first migration
+        var result1 = runtimeMigrationService.CreateAndApplyMigration(
+            "TrackedMigration1",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result1.Applied);
+
+        // Revert should work and return the correct migration
+        var revertSql = runtimeMigrationService.RevertMigration(result1.MigrationId);
+        Assert.NotEmpty(revertSql);
+
+        // Verify table was dropped
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, cmd.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void Migration_result_contains_all_expected_properties()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "PropertiesTest",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        // Verify all properties are set correctly
+        Assert.NotNull(result.MigrationId);
+        Assert.Contains("PropertiesTest", result.MigrationId);
+        Assert.True(result.Applied);
+        Assert.True(result.PersistedToDisk);
+        Assert.NotNull(result.MigrationFilePath);
+        Assert.NotNull(result.MetadataFilePath);
+        Assert.NotNull(result.SnapshotFilePath);
+        Assert.NotEmpty(result.SqlCommands);
+        Assert.All(result.SqlCommands, sql => Assert.False(string.IsNullOrWhiteSpace(sql)));
+    }
+
+    [ConditionalFact]
+    public void Migration_without_persistence_has_null_file_paths()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "NoPersistTest",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+        Assert.False(result.PersistedToDisk);
+        Assert.Null(result.MigrationFilePath);
+        Assert.Null(result.MetadataFilePath);
+        Assert.Null(result.SnapshotFilePath);
+    }
+
     private TestDbContext CreateContext()
     {
         var optionsBuilder = new DbContextOptionsBuilder<TestDbContext>();
