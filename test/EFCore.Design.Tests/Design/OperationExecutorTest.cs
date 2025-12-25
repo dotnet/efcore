@@ -1115,6 +1115,24 @@ namespace My.Gnomespace.Data
         Assert.Contains("No changes have been made to the model", resultHandler.ErrorMessage);
     }
 
+    [ConditionalTheory, PlatformSkipCondition(
+         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("to fix error: add column"),
+     InlineData(@"A\B\C")]
+    public void CreateAndApplyMigration_errors_for_bad_names(string migrationName)
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteCreateAndApplyMigration(
+            tempPath,
+            migrationName,
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.Equal(typeof(OperationException).FullName, resultHandler.ErrorType);
+        Assert.Contains(migrationName, resultHandler.ErrorMessage);
+    }
+
     [ConditionalFact]
     public void CreateAndApplyMigration_errors_for_invalid_context()
     {
@@ -1151,6 +1169,20 @@ namespace My.Gnomespace.Data
         Assert.False(resultHandler.HasResult);
         Assert.NotNull(resultHandler.ErrorType);
         Assert.Contains("NonExistentContext", resultHandler.ErrorMessage);
+    }
+
+    [ConditionalFact]
+    public void CreateAndApplyMigration_errors_for_empty_name()
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteCreateAndApplyMigration(
+            tempPath,
+            "",
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.NotNull(resultHandler.ErrorType);
     }
 
     private static OperationResultHandler ExecuteCreateAndApplyMigration(
