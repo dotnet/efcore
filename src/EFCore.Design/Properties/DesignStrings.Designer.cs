@@ -589,6 +589,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoPendingModelChanges");
 
         /// <summary>
+        ///     No dynamic migrations have been applied in the current session. Only migrations applied using CreateAndApplyMigration can be reverted with RevertMigration.
+        /// </summary>
+        public static string NoDynamicMigrationsToRevert
+            => GetString("NoDynamicMigrationsToRevert");
+
+        /// <summary>
+        ///     The dynamic migration '{migrationId}' was not found. Only migrations applied in the current session using CreateAndApplyMigration can be reverted.
+        /// </summary>
+        public static string DynamicMigrationNotFound(object? migrationId)
+            => string.Format(
+                GetString("DynamicMigrationNotFound", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
         ///     No referenced design-time services were found.
         /// </summary>
         public static string NoReferencedServices

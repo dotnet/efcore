@@ -68,4 +68,49 @@ public interface IRuntimeMigrationService
     ///     <see langword="true" /> if there are pending model changes; otherwise, <see langword="false" />.
     /// </returns>
     bool HasPendingModelChanges();
+
+    /// <summary>
+    ///     Reverts a dynamically applied migration by executing its Down operations.
+    /// </summary>
+    /// <remarks>
+    ///     This method can only revert migrations that were applied in the current session
+    ///     using <see cref="CreateAndApplyMigration" />. To revert migrations that were
+    ///     compiled into the assembly, use <see cref="IMigrator.Migrate" /> instead.
+    /// </remarks>
+    /// <param name="migrationId">
+    ///     The ID of the migration to revert. If <see langword="null" />, reverts the most
+    ///     recently applied dynamic migration.
+    /// </param>
+    /// <returns>The SQL commands that were executed to revert the migration.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when no dynamic migrations have been applied or the specified migration is not found.
+    /// </exception>
+    [RequiresDynamicCode("Runtime migration requires dynamic code generation.")]
+    IReadOnlyList<string> RevertMigration(string? migrationId = null);
+
+    /// <summary>
+    ///     Reverts a dynamically applied migration by executing its Down operations.
+    /// </summary>
+    /// <remarks>
+    ///     This method can only revert migrations that were applied in the current session
+    ///     using <see cref="CreateAndApplyMigrationAsync" />. To revert migrations that were
+    ///     compiled into the assembly, use <see cref="IMigrator.MigrateAsync" /> instead.
+    /// </remarks>
+    /// <param name="migrationId">
+    ///     The ID of the migration to revert. If <see langword="null" />, reverts the most
+    ///     recently applied dynamic migration.
+    /// </param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation.
+    ///     The task result contains the SQL commands that were executed to revert the migration.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when no dynamic migrations have been applied or the specified migration is not found.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [RequiresDynamicCode("Runtime migration requires dynamic code generation.")]
+    Task<IReadOnlyList<string>> RevertMigrationAsync(
+        string? migrationId = null,
+        CancellationToken cancellationToken = default);
 }

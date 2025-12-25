@@ -42,6 +42,9 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
     private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
 
+    // Track applied dynamic migrations in order for revert support
+    private readonly List<CompiledMigration> _appliedDynamicMigrations = new();
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuntimeMigrationService" /> class.
     /// </summary>
@@ -136,6 +139,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         if (!options.DryRun)
         {
             ApplyMigration(compiledMigration, sqlCommands);
+            _appliedDynamicMigrations.Add(compiledMigration);
             applied = true;
         }
 
@@ -201,6 +205,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         {
             await ApplyMigrationAsync(compiledMigration, sqlCommands, cancellationToken)
                 .ConfigureAwait(false);
+            _appliedDynamicMigrations.Add(compiledMigration);
             applied = true;
         }
 
@@ -331,5 +336,151 @@ public class RuntimeMigrationService : IRuntimeMigrationService
             _currentContext.Context.Model);
 
         return commands.Select(c => c.CommandText).ToList();
+    }
+
+    /// <inheritdoc />
+    [RequiresDynamicCode("Runtime migration requires dynamic code generation.")]
+    public virtual IReadOnlyList<string> RevertMigration(string? migrationId = null)
+    {
+        var compiledMigration = FindMigrationToRevert(migrationId);
+
+        _connection.Open();
+        try
+        {
+            var sqlCommands = RevertMigrationCore(compiledMigration);
+            _appliedDynamicMigrations.Remove(compiledMigration);
+            return sqlCommands;
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+
+    /// <inheritdoc />
+    [RequiresDynamicCode("Runtime migration requires dynamic code generation.")]
+    public virtual async Task<IReadOnlyList<string>> RevertMigrationAsync(
+        string? migrationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var compiledMigration = FindMigrationToRevert(migrationId);
+
+        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var sqlCommands = await RevertMigrationCoreAsync(compiledMigration, cancellationToken)
+                .ConfigureAwait(false);
+            _appliedDynamicMigrations.Remove(compiledMigration);
+            return sqlCommands;
+        }
+        finally
+        {
+            await _connection.CloseAsync().ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    ///     Finds the migration to revert based on the provided migration ID.
+    /// </summary>
+    /// <param name="migrationId">The migration ID to find, or null for the most recent.</param>
+    /// <returns>The compiled migration to revert.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when no dynamic migrations have been applied or the specified migration is not found.
+    /// </exception>
+    protected virtual CompiledMigration FindMigrationToRevert(string? migrationId)
+    {
+        if (_appliedDynamicMigrations.Count == 0)
+        {
+            throw new InvalidOperationException(DesignStrings.NoDynamicMigrationsToRevert);
+        }
+
+        CompiledMigration? compiledMigration;
+        if (migrationId == null)
+        {
+            // Revert the most recently applied migration
+            compiledMigration = _appliedDynamicMigrations[^1];
+        }
+        else
+        {
+            // Find the specified migration
+            compiledMigration = _appliedDynamicMigrations
+                .FirstOrDefault(m => m.MigrationId == migrationId);
+
+            if (compiledMigration == null)
+            {
+                throw new InvalidOperationException(
+                    DesignStrings.DynamicMigrationNotFound(migrationId));
+            }
+        }
+
+        return compiledMigration;
+    }
+
+    /// <summary>
+    ///     Executes the Down operations for a migration and removes it from history.
+    /// </summary>
+    /// <param name="compiledMigration">The migration to revert.</param>
+    /// <returns>The SQL commands that were executed.</returns>
+    protected virtual IReadOnlyList<string> RevertMigrationCore(CompiledMigration compiledMigration)
+    {
+        // Get the migration and its Down operations
+        var migration = _dynamicMigrationsAssembly.CreateMigration(
+            compiledMigration.MigrationTypeInfo,
+            _currentContext.Context.Database.ProviderName!);
+
+        // Build the history delete command
+        var deleteCommand = _rawSqlCommandBuilder.Build(
+            _historyRepository.GetDeleteScript(compiledMigration.MigrationId));
+
+        // Generate migration commands from Down operations and append history delete
+        var migrationCommands = _sqlGenerator.Generate(
+            migration.DownOperations,
+            _currentContext.Context.Model).ToList();
+        migrationCommands.Add(new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger));
+
+        // Execute all commands
+        _commandExecutor.ExecuteNonQuery(migrationCommands, _connection);
+
+        // Return the SQL that was executed (excluding history delete for cleaner output)
+        return migrationCommands
+            .Take(migrationCommands.Count - 1)
+            .Select(c => c.CommandText)
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Executes the Down operations for a migration and removes it from history asynchronously.
+    /// </summary>
+    /// <param name="compiledMigration">The migration to revert.</param>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A task containing the SQL commands that were executed.</returns>
+    protected virtual async Task<IReadOnlyList<string>> RevertMigrationCoreAsync(
+        CompiledMigration compiledMigration,
+        CancellationToken cancellationToken = default)
+    {
+        // Get the migration and its Down operations
+        var migration = _dynamicMigrationsAssembly.CreateMigration(
+            compiledMigration.MigrationTypeInfo,
+            _currentContext.Context.Database.ProviderName!);
+
+        // Build the history delete command
+        var deleteCommand = _rawSqlCommandBuilder.Build(
+            _historyRepository.GetDeleteScript(compiledMigration.MigrationId));
+
+        // Generate migration commands from Down operations and append history delete
+        var migrationCommands = _sqlGenerator.Generate(
+            migration.DownOperations,
+            _currentContext.Context.Model).ToList();
+        migrationCommands.Add(new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger));
+
+        // Execute all commands
+        await _commandExecutor.ExecuteNonQueryAsync(migrationCommands, _connection, cancellationToken)
+            .ConfigureAwait(false);
+
+        // Return the SQL that was executed (excluding history delete for cleaner output)
+        return migrationCommands
+            .Take(migrationCommands.Count - 1)
+            .Select(c => c.CommandText)
+            .ToList();
     }
 }

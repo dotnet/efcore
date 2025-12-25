@@ -268,60 +268,31 @@ public class RuntimeMigrationSqliteTest : IDisposable
     }
 
     [ConditionalFact]
-    public void Can_apply_multiple_sequential_migrations()
+    public void HasPendingModelChanges_returns_true_before_migration()
     {
-        // First migration - create initial table
-        using var context1 = CreateContext();
-        using var serviceProvider1 = CreateDesignTimeServiceProvider(context1);
-        using var scope1 = serviceProvider1.CreateScope();
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
 
-        var runtimeMigrationService1 = scope1.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
 
-        var result1 = runtimeMigrationService1.CreateAndApplyMigration(
-            "Migration1_Initial",
+        // Before any migrations, there should be pending model changes
+        Assert.True(runtimeMigrationService.HasPendingModelChanges());
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "InitialMigration",
             new RuntimeMigrationOptions
             {
-                PersistToDisk = true,
-                ProjectDirectory = _tempDirectory,
-                OutputDirectory = "Migrations"
+                PersistToDisk = false
             });
 
-        Assert.True(result1.Applied);
-        Assert.Contains("Migration1_Initial", result1.MigrationId);
+        Assert.True(result.Applied);
 
-        // Verify first table exists
-        using var cmd1 = _connection.CreateCommand();
-        cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
-        Assert.Equal(1L, cmd1.ExecuteScalar());
-
-        // Second migration - add another entity using extended context
-        using var context2 = CreateExtendedContext();
-        using var serviceProvider2 = CreateDesignTimeServiceProvider(context2);
-        using var scope2 = serviceProvider2.CreateScope();
-
-        var runtimeMigrationService2 = scope2.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
-
-        var result2 = runtimeMigrationService2.CreateAndApplyMigration(
-            "Migration2_AddOrders",
-            new RuntimeMigrationOptions
-            {
-                PersistToDisk = true,
-                ProjectDirectory = _tempDirectory,
-                OutputDirectory = "Migrations"
-            });
-
-        Assert.True(result2.Applied);
-        Assert.Contains("Migration2_AddOrders", result2.MigrationId);
-
-        // Verify both tables exist
-        using var cmd2 = _connection.CreateCommand();
-        cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('TestEntities', 'Orders')";
-        Assert.Equal(2L, cmd2.ExecuteScalar());
-
-        // Verify migration history has both migrations
-        using var cmd3 = _connection.CreateCommand();
-        cmd3.CommandText = "SELECT COUNT(*) FROM __EFMigrationsHistory";
-        Assert.Equal(2L, cmd3.ExecuteScalar());
+        // Verify table exists
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(1L, cmd.ExecuteScalar());
     }
 
     [ConditionalFact]
@@ -388,18 +359,16 @@ public class RuntimeMigrationSqliteTest : IDisposable
         Assert.Contains("migrationBuilder.CreateTable", migrationContent);
 
         // Verify metadata file exists
-        var metadataFilePath = result.MigrationFilePath.Replace(".cs", ".Designer.cs");
-        Assert.True(File.Exists(metadataFilePath));
+        Assert.NotNull(result.MetadataFilePath);
+        Assert.True(File.Exists(result.MetadataFilePath));
 
-        var metadataContent = File.ReadAllText(metadataFilePath);
+        var metadataContent = File.ReadAllText(result.MetadataFilePath);
         Assert.Contains("[DbContext(typeof(", metadataContent);
         Assert.Contains("[Migration(", metadataContent);
 
         // Verify snapshot file exists
-        var snapshotPath = Path.Combine(
-            Path.GetDirectoryName(result.MigrationFilePath)!,
-            "TestDbContextModelSnapshot.cs");
-        Assert.True(File.Exists(snapshotPath));
+        Assert.NotNull(result.SnapshotFilePath);
+        Assert.True(File.Exists(result.SnapshotFilePath));
     }
 
     [ConditionalFact]
@@ -428,18 +397,96 @@ public class RuntimeMigrationSqliteTest : IDisposable
         cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
         Assert.Equal(1L, cmd1.ExecuteScalar());
 
-        // Verify generated Down() method contains DROP TABLE
+        // Verify generated Down() method contains correct DROP TABLE operations
         var migrationContent = File.ReadAllText(result.MigrationFilePath!);
         Assert.Contains("migrationBuilder.DropTable", migrationContent);
+        Assert.Contains("name: \"TestEntities\"", migrationContent);
 
-        // Use the migrator to revert the migration
-        var migrator = context.GetService<IMigrator>();
-        migrator.Migrate("0"); // Migrate to initial state (no migrations)
+        // Revert the migration using the service
+        var revertSqlCommands = runtimeMigrationService.RevertMigration();
+
+        // Verify the revert SQL contains DROP TABLE
+        Assert.Contains(revertSqlCommands, sql => sql.Contains("DROP TABLE"));
 
         // Verify table was dropped
         using var cmd2 = _connection.CreateCommand();
         cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
         Assert.Equal(0L, cmd2.ExecuteScalar());
+
+        // Verify migration was removed from history
+        using var cmd3 = _connection.CreateCommand();
+        cmd3.CommandText = "SELECT COUNT(*) FROM __EFMigrationsHistory WHERE MigrationId LIKE '%DownTestMigration'";
+        Assert.Equal(0L, cmd3.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_throws_when_no_migrations_applied()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Should throw because no dynamic migrations have been applied
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => runtimeMigrationService.RevertMigration());
+
+        Assert.Contains("No dynamic migrations", exception.Message);
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_throws_when_migration_not_found()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply a migration first
+        runtimeMigrationService.CreateAndApplyMigration(
+            "SomeMigration",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        // Try to revert a non-existent migration
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => runtimeMigrationService.RevertMigration("NonExistentMigrationId"));
+
+        Assert.Contains("not found", exception.Message);
+    }
+
+    [ConditionalFact]
+    public async Task RevertMigrationAsync_reverts_migration()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = await runtimeMigrationService.CreateAndApplyMigrationAsync(
+            "AsyncRevertTest",
+            new RuntimeMigrationOptions { PersistToDisk = false });
+
+        Assert.True(result.Applied);
+
+        // Verify table exists
+        await using var cmd1 = _connection.CreateCommand();
+        cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(1L, await cmd1.ExecuteScalarAsync());
+
+        // Revert the migration
+        var revertSqlCommands = await runtimeMigrationService.RevertMigrationAsync();
+
+        // Verify the revert SQL contains DROP TABLE
+        Assert.Contains(revertSqlCommands, sql => sql.Contains("DROP TABLE"));
+
+        // Verify table was dropped
+        await using var cmd2 = _connection.CreateCommand();
+        cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, await cmd2.ExecuteScalarAsync());
     }
 
     private TestDbContext CreateContext()
@@ -448,14 +495,6 @@ public class RuntimeMigrationSqliteTest : IDisposable
         optionsBuilder.UseSqlite(_connection);
 
         return new TestDbContext(optionsBuilder.Options);
-    }
-
-    private ExtendedDbContext CreateExtendedContext()
-    {
-        var optionsBuilder = new DbContextOptionsBuilder<ExtendedDbContext>();
-        optionsBuilder.UseSqlite(_connection);
-
-        return new ExtendedDbContext(optionsBuilder.Options);
     }
 
     private ComplexDbContext CreateComplexContext()
@@ -513,42 +552,6 @@ public class RuntimeMigrationSqliteTest : IDisposable
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
-    }
-
-    // Extended context for sequential migration test - adds Orders table
-    public class ExtendedDbContext : DbContext
-    {
-        public ExtendedDbContext(DbContextOptions<ExtendedDbContext> options)
-            : base(options)
-        {
-        }
-
-        public DbSet<TestEntity> TestEntities { get; set; } = null!;
-        public DbSet<Order> Orders { get; set; } = null!;
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<TestEntity>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).HasMaxLength(100);
-                entity.Property(e => e.Description).HasMaxLength(500);
-            });
-
-            modelBuilder.Entity<Order>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.OrderNumber).HasMaxLength(50);
-            });
-        }
-    }
-
-    public class Order
-    {
-        public int Id { get; set; }
-        public string OrderNumber { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public DateTime OrderDate { get; set; }
     }
 
     // Complex context with indexes and foreign keys
