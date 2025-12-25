@@ -267,12 +267,203 @@ public class RuntimeMigrationSqliteTest : IDisposable
         Assert.Contains("HistoryTestMigration", migrationId);
     }
 
+    [ConditionalFact]
+    public void Can_apply_multiple_sequential_migrations()
+    {
+        // First migration - create initial table
+        using var context1 = CreateContext();
+        using var serviceProvider1 = CreateDesignTimeServiceProvider(context1);
+        using var scope1 = serviceProvider1.CreateScope();
+
+        var runtimeMigrationService1 = scope1.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var result1 = runtimeMigrationService1.CreateAndApplyMigration(
+            "Migration1_Initial",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        Assert.True(result1.Applied);
+        Assert.Contains("Migration1_Initial", result1.MigrationId);
+
+        // Verify first table exists
+        using var cmd1 = _connection.CreateCommand();
+        cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(1L, cmd1.ExecuteScalar());
+
+        // Second migration - add another entity using extended context
+        using var context2 = CreateExtendedContext();
+        using var serviceProvider2 = CreateDesignTimeServiceProvider(context2);
+        using var scope2 = serviceProvider2.CreateScope();
+
+        var runtimeMigrationService2 = scope2.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var result2 = runtimeMigrationService2.CreateAndApplyMigration(
+            "Migration2_AddOrders",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        Assert.True(result2.Applied);
+        Assert.Contains("Migration2_AddOrders", result2.MigrationId);
+
+        // Verify both tables exist
+        using var cmd2 = _connection.CreateCommand();
+        cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('TestEntities', 'Orders')";
+        Assert.Equal(2L, cmd2.ExecuteScalar());
+
+        // Verify migration history has both migrations
+        using var cmd3 = _connection.CreateCommand();
+        cmd3.CommandText = "SELECT COUNT(*) FROM __EFMigrationsHistory";
+        Assert.Equal(2L, cmd3.ExecuteScalar());
+    }
+
+    [ConditionalFact]
+    public void Can_create_migration_with_indexes_and_foreign_keys()
+    {
+        using var context = CreateComplexContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "ComplexMigration",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        Assert.True(result.Applied);
+
+        // Verify SQL contains index creation
+        Assert.Contains(result.SqlCommands, sql => sql.Contains("CREATE INDEX"));
+
+        // Verify tables were created
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('Authors', 'Books')";
+        Assert.Equal(2L, cmd.ExecuteScalar());
+
+        // Verify index was created
+        using var cmd2 = _connection.CreateCommand();
+        cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND name LIKE '%ISBN%'";
+        Assert.True((long)cmd2.ExecuteScalar()! >= 1);
+    }
+
+    [ConditionalFact]
+    public void Generated_migration_file_has_correct_structure()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "StructureTestMigration",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        Assert.NotNull(result.MigrationFilePath);
+        Assert.True(File.Exists(result.MigrationFilePath));
+
+        var migrationContent = File.ReadAllText(result.MigrationFilePath);
+
+        // Verify migration file structure
+        Assert.Contains("public partial class StructureTestMigration : Migration", migrationContent);
+        Assert.Contains("protected override void Up(MigrationBuilder migrationBuilder)", migrationContent);
+        Assert.Contains("protected override void Down(MigrationBuilder migrationBuilder)", migrationContent);
+        Assert.Contains("migrationBuilder.CreateTable", migrationContent);
+
+        // Verify metadata file exists
+        var metadataFilePath = result.MigrationFilePath.Replace(".cs", ".Designer.cs");
+        Assert.True(File.Exists(metadataFilePath));
+
+        var metadataContent = File.ReadAllText(metadataFilePath);
+        Assert.Contains("[DbContext(typeof(", metadataContent);
+        Assert.Contains("[Migration(", metadataContent);
+
+        // Verify snapshot file exists
+        var snapshotPath = Path.Combine(
+            Path.GetDirectoryName(result.MigrationFilePath)!,
+            "TestDbContextModelSnapshot.cs");
+        Assert.True(File.Exists(snapshotPath));
+    }
+
+    [ConditionalFact]
+    public void Down_migration_reverses_changes()
+    {
+        using var context = CreateContext();
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
+        using var scope = serviceProvider.CreateScope();
+
+        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+
+        // Apply migration
+        var result = runtimeMigrationService.CreateAndApplyMigration(
+            "DownTestMigration",
+            new RuntimeMigrationOptions
+            {
+                PersistToDisk = true,
+                ProjectDirectory = _tempDirectory,
+                OutputDirectory = "Migrations"
+            });
+
+        Assert.True(result.Applied);
+
+        // Verify table exists
+        using var cmd1 = _connection.CreateCommand();
+        cmd1.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(1L, cmd1.ExecuteScalar());
+
+        // Verify generated Down() method contains DROP TABLE
+        var migrationContent = File.ReadAllText(result.MigrationFilePath!);
+        Assert.Contains("migrationBuilder.DropTable", migrationContent);
+
+        // Use the migrator to revert the migration
+        var migrator = context.GetService<IMigrator>();
+        migrator.Migrate("0"); // Migrate to initial state (no migrations)
+
+        // Verify table was dropped
+        using var cmd2 = _connection.CreateCommand();
+        cmd2.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='TestEntities'";
+        Assert.Equal(0L, cmd2.ExecuteScalar());
+    }
+
     private TestDbContext CreateContext()
     {
         var optionsBuilder = new DbContextOptionsBuilder<TestDbContext>();
         optionsBuilder.UseSqlite(_connection);
 
         return new TestDbContext(optionsBuilder.Options);
+    }
+
+    private ExtendedDbContext CreateExtendedContext()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ExtendedDbContext>();
+        optionsBuilder.UseSqlite(_connection);
+
+        return new ExtendedDbContext(optionsBuilder.Options);
+    }
+
+    private ComplexDbContext CreateComplexContext()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ComplexDbContext>();
+        optionsBuilder.UseSqlite(_connection);
+
+        return new ComplexDbContext(optionsBuilder.Options);
     }
 
     private static ServiceProvider CreateDesignTimeServiceProvider(DbContext context)
@@ -322,5 +513,91 @@ public class RuntimeMigrationSqliteTest : IDisposable
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    // Extended context for sequential migration test - adds Orders table
+    public class ExtendedDbContext : DbContext
+    {
+        public ExtendedDbContext(DbContextOptions<ExtendedDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<TestEntity> TestEntities { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TestEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.OrderNumber).HasMaxLength(50);
+            });
+        }
+    }
+
+    public class Order
+    {
+        public int Id { get; set; }
+        public string OrderNumber { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public DateTime OrderDate { get; set; }
+    }
+
+    // Complex context with indexes and foreign keys
+    public class ComplexDbContext : DbContext
+    {
+        public ComplexDbContext(DbContextOptions<ComplexDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Author> Authors { get; set; } = null!;
+        public DbSet<Book> Books { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Author>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+                entity.HasMany(e => e.Books)
+                    .WithOne(e => e.Author)
+                    .HasForeignKey(e => e.AuthorId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Book>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).HasMaxLength(500).IsRequired();
+                entity.Property(e => e.ISBN).HasMaxLength(20);
+                entity.HasIndex(e => e.ISBN).IsUnique();
+                entity.HasIndex(e => e.Title);
+            });
+        }
+    }
+
+    public class Author
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public List<Book> Books { get; set; } = new();
+    }
+
+    public class Book
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? ISBN { get; set; }
+        public int AuthorId { get; set; }
+        public Author Author { get; set; } = null!;
     }
 }
