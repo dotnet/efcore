@@ -285,9 +285,22 @@ public class MigrationsOperations
         string? outputDir,
         string? @namespace)
     {
+        var invalidPathChars = Path.GetInvalidFileNameChars();
+        if (name.Any(c => invalidPathChars.Contains(c)))
+        {
+            throw new OperationException(
+                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
+        }
+
         _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
 
         using var context = _contextOperations.CreateContext(contextType);
+        var contextClassName = context.GetType().Name;
+        if (string.Equals(name, contextClassName, StringComparison.Ordinal))
+        {
+            throw new OperationException(
+                DesignStrings.ConflictingContextAndMigrationName(name));
+        }
 
         if (connectionString != null)
         {
