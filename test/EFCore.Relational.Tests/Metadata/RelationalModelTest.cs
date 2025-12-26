@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NameSpace1;
 
 // ReSharper disable InconsistentNaming
@@ -19,6 +20,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 CoreStrings.ModelNotFinalized("GetRelationalModel"),
                 Assert.Throws<InvalidOperationException>(() => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(DeleteBehavior.Cascade, ReferentialAction.Cascade)]
+        [InlineData(DeleteBehavior.SetNull, ReferentialAction.SetNull)]
+        [InlineData(DeleteBehavior.SetDefault, ReferentialAction.SetDefault)]
+        [InlineData(DeleteBehavior.Restrict, ReferentialAction.Restrict)]
+        [InlineData(DeleteBehavior.NoAction, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientSetNull, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientCascade, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientNoAction, ReferentialAction.NoAction)]
+        [InlineData(DeleteBehavior.ClientSetDefault, ReferentialAction.NoAction)]
+        public void ToReferentialAction_maps_DeleteBehavior_correctly(DeleteBehavior deleteBehavior, ReferentialAction expected)
+        {
+            Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
         }
 
         [ConditionalFact]
