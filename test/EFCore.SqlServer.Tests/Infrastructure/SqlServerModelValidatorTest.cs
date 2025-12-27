@@ -1104,22 +1104,26 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Throws_for_vector_property_inside_JSON_owned_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorInsideJsonEntity>().OwnsOne(
-            v => v.VectorContainer, n =>
-            {
-                n.ToJson();
-                n.Property(v => v.Vector).HasMaxLength(3);
-            });
+        modelBuilder.Entity<VectorInsideJsonEntity>()
+            .OwnsOne(
+                v => v.VectorContainer,
+                n =>
+                {
+                    n.ToJson();
+                    n.Property(v => v.Vector).HasMaxLength(3);
+                });
 
         VerifyError(
             SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),
             modelBuilder);
     }
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
     public virtual void Throws_for_vector_property_inside_JSON_complex_type()

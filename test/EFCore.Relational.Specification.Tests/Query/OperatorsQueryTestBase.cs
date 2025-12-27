@@ -311,6 +311,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         }
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_and_json_scalar(bool async)
     {
@@ -331,6 +332,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         var result = await context.Set<Owner>().SingleAsync(o => "Foo" + o.Owned.SomeProperty == "FooBar");
         Assert.Equal("Bar", result.Owned.SomeProperty);
     }
+#pragma warning restore EF8001
 
     private class Owner
     {

@@ -66,6 +66,7 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
             options);
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     public class JsonContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<JsonEntity> JsonEntities { get; set; } = null!;
@@ -73,6 +74,7 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<JsonEntity>().OwnsOne(j => j.JsonThing, n => n.ToJson());
     }
+#pragma warning restore EF8001
 
     public class JsonEntity
     {

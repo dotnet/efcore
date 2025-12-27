@@ -17,6 +17,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode);
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
@@ -38,6 +39,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase(NonSh
         result = await context.Set<TestOwner>().SingleAsync(o => o.Owned.Strings[1] == "bar");
         Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
     }
+#pragma warning restore EF8001
 
     protected static IEnumerable<object[]> ParameterTranslationModeValues()
         => Enum.GetValues<ParameterTranslationMode>().Select<ParameterTranslationMode, object[]>(x => [x]);
