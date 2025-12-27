@@ -200,6 +200,6 @@ All diagnostics:
                 { "CS8019", ReportDiagnostic.Suppress },
 
                 // Owned JSON entities are obsolete
-                { "EF8001", ReportDiagnostic.Suppress }
+                { EFDiagnostics.OwnedJsonObsolete, ReportDiagnostic.Suppress }
             });
 }
