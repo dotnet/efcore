@@ -2433,15 +2433,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
                 }
 
-                Check.DebugAssert(
-                    structuralProjection1.TableMap.Count == structuralProjection2.TableMap.Count,
-                    "Set operation over entity projections with different table map counts");
-                Check.DebugAssert(
-                    structuralProjection1.TableMap.Keys.All(t => structuralProjection2.TableMap.ContainsKey(t)),
-                    "Set operation over entity projections with table map discrepancy");
-
-                var tableMap = structuralProjection1.TableMap.ToDictionary(kvp => kvp.Key, _ => setOperationAlias);
-
                 var discriminatorExpression = structuralProjection1.DiscriminatorExpression;
                 if (structuralProjection1.DiscriminatorExpression != null
                     && structuralProjection2.DiscriminatorExpression != null)
@@ -2454,7 +2445,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
 
                 var outerProjection = new StructuralTypeProjectionExpression(
-                    type, propertyExpressions, complexPropertyCache, tableMap, nullable: false, discriminatorExpression);
+                    type, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression);
 
                 if (outerIdentifiers.Length > 0 && outerProjection is { StructuralType: IEntityType entityType })
                 {
@@ -2601,9 +2592,12 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         var expressions = GetPropertyExpressions(sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn);
 
+        // TODO: support for complex types on owned entity types, #33170
+        var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
+
         var entityShaper = new RelationalStructuralTypeShaperExpression(
             navigation.TargetEntityType,
-            new StructuralTypeProjectionExpression(navigation.TargetEntityType, expressions, principalEntityProjection.TableMap),
+            new StructuralTypeProjectionExpression(navigation.TargetEntityType, expressions, complexPropertyMap),
             identifyingColumn.IsNullable || navigation.DeclaringEntityType.BaseType != null || !navigation.ForeignKey.IsRequiredDependent);
         principalEntityProjection.AddNavigationBinding(navigation, entityShaper);
 
@@ -2852,109 +2846,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             return table;
         }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public static Expression GenerateComplexPropertyShaperExpression(
-        StructuralTypeProjectionExpression containerProjection,
-        IComplexProperty complexProperty)
-    {
-        var complexType = complexProperty.ComplexType;
-        var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-
-        // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
-        // See Issue #32853 and Issue #31248
-        var viewOrTableTable = complexType.GetViewOrTableMappings().Single().Table;
-        var complexTypeTable = viewOrTableTable;
-
-        if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
-        {
-            complexTypeTable = complexType.GetDefaultMappings().Single().Table;
-            tableAlias = containerProjection.TableMap[complexTypeTable];
-        }
-
-        var isComplexTypeNullable = containerProjection.IsNullable || complexProperty.IsNullable;
-
-        // If the complex property is declared on a type that's derived relative to the type being projected, the projected column is
-        // nullable.
-        if (!isComplexTypeNullable
-            && containerProjection.StructuralType is IEntityType entityType
-            && !entityType.GetAllBaseTypesInclusiveAscending().Contains(complexProperty.DeclaringType))
-        {
-            isComplexTypeNullable = true;
-        }
-
-        // The target type is a JSON complex type - generate a JsonQueryExpression.
-        if (complexType.IsMappedToJson())
-        {
-            var containerColumnName = complexType.GetContainerColumnName();
-            Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-
-            // TODO: when the JSON column is on a FromSql() source, we use the default mappings from the relational model (see just above),
-            // but those don't yet contain complex types (#34627). We work around this here, get the column from the table mapping instead
-            // of from the default mapping.
-            var containerColumn = complexTypeTable.FindColumn(containerColumnName) ?? viewOrTableTable.FindColumn(containerColumnName);
-            Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
-
-            // If the source type is a JSON complex type; since we're binding over StructuralTypeProjectionExpression - which represents a relational
-            // table-like thing - this means that an internal JSON collection has been converted to a relational table (e.g. OPENJSON on SQL Server)
-            // and we're now binding over that table.
-            // Otherwise, if the source type isn't mapped to JSON, we're just binding to an actual JSON column in a relational table, and not within it.
-            var containerColumnExpression = complexProperty.DeclaringType.IsMappedToJson()
-                ? new ColumnExpression(
-                    complexType.GetJsonPropertyName()
-                    ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
-                    tableAlias,
-                    complexProperty.ClrType.UnwrapNullableType(),
-                    typeMapping: containerColumn.StoreTypeMapping,
-                    isComplexTypeNullable)
-                : new ColumnExpression(
-                    containerColumn.Name,
-                    tableAlias,
-                    containerColumn,
-                    complexProperty.ClrType.UnwrapNullableType(),
-                    containerColumn.StoreTypeMapping,
-                    isComplexTypeNullable);
-
-            var jsonQuery = new JsonQueryExpression(
-                complexType,
-                containerColumnExpression,
-                keyPropertyMap: null,
-                complexProperty.ClrType,
-                complexProperty.IsCollection);
-
-            return complexProperty.IsCollection
-                ? new CollectionResultExpression(jsonQuery, complexProperty, elementType: complexType.ClrType)
-                : new RelationalStructuralTypeShaperExpression(complexType, jsonQuery, isComplexTypeNullable);
-        }
-
-        // Table splitting
-        foreach (var property in complexType.GetProperties())
-        {
-            // TODO: Reimplement EntityProjectionExpression via TableMap, and then use that here
-            var column = complexTypeTable.FindColumn(property)!;
-            propertyExpressionMap[property] = CreateColumnExpression(
-                property, column, tableAlias, isComplexTypeNullable || column.IsNullable);
-        }
-
-        // The table map of the target complex type should only ever contains a single table (no table splitting).
-        // If the source is itself a complex type (nested complex type), its table map is already suitable and we can just pass it on.
-        var newTableMap = containerProjection.TableMap.Count == 1
-            ? containerProjection.TableMap
-            : new Dictionary<ITableBase, string> { [complexTypeTable] = tableAlias };
-
-        Check.DebugAssert(newTableMap.Single().Key == complexTypeTable, "Bad new table map");
-
-        return new RelationalStructuralTypeShaperExpression(
-            complexType,
-            new StructuralTypeProjectionExpression(complexProperty.ComplexType, propertyExpressionMap, newTableMap, isComplexTypeNullable),
-            isComplexTypeNullable);
     }
 
     /// <summary>
@@ -3987,10 +3878,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 projectionMap[projection.DiscriminatorExpression] = discriminatorExpression;
             }
 
-            var tableMap = projection.TableMap.ToDictionary(kvp => kvp.Key, _ => subqueryAlias);
-
             var newEntityProjection = new StructuralTypeProjectionExpression(
-                projection.StructuralType, propertyExpressions, complexPropertyCache, tableMap, nullable: false, discriminatorExpression);
+                projection.StructuralType, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression);
 
             if (projection.StructuralType is IEntityType entityType2)
             {

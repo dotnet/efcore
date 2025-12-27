@@ -340,7 +340,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 {
                     Check.DebugAssert(column.TypeMapping is not null);
 
-                    ProcessColumn(column);
+                    ProcessColumn(column, targetProperty);
 
                     var translatedValue = TranslateScalarSetterValueSelector(source, valueSelector, column.Type, column.TypeMapping);
 
@@ -382,7 +382,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     // SQL Server datetime2), but contrived and unsupported.
                     Check.DebugAssert(jsonScalar.Path.Count > 0);
 
-                    ProcessColumn(jsonColumn);
+                    ProcessColumn(jsonColumn, targetProperty);
 
                     var translatedValue = TranslateScalarSetterValueSelector(source, valueSelector, jsonScalar.Type, typeMapping);
 
@@ -439,7 +439,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 }
             }
 
-            void ProcessColumn(ColumnExpression column)
+            void ProcessColumn(ColumnExpression column, IPropertyBase targetProperty)
             {
                 var tableExpression = select.GetTable(column, out var tableIndex);
                 if (tableExpression.UnwrapJoin() is TableExpression { Table: not ITable } unwrappedTableExpression)
@@ -472,8 +472,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             var containerColumnName = complexType.GetContainerColumnName();
                             targetColumnModel = complexType.ContainingEntityType.GetTableMappings()
                                 .SelectMany(m => m.Table.Columns)
-                                .Where(c => c.Name == containerColumnName)
-                                .SingleOrDefault();
+                                .SingleOrDefault(c => c.Name == containerColumnName);
                             break;
                         }
 
@@ -508,41 +507,56 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // handled elsewhere.
             void ProcessComplexType(StructuralTypeShaperExpression shaperExpression, Expression valueExpression)
             {
-                if (shaperExpression.StructuralType is not IComplexType complexType
-                || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression projection)
+                if (shaperExpression.StructuralType is not IComplexType targetComplexType
+                    || shaperExpression.ValueBufferExpression is not StructuralTypeProjectionExpression targetProjection)
                 {
                     throw new UnreachableException();
                 }
 
-                foreach (var property in complexType.GetProperties())
+                foreach (var targetNestedProperty in targetComplexType.GetProperties())
                 {
-                    targetProperty = property;
-                    var column = projection.BindProperty(property);
-                    ProcessColumn(column);
+                    var column = targetProjection.BindProperty(targetNestedProperty);
+                    ProcessColumn(column, targetNestedProperty);
 
-                    var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
+                    var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, targetNestedProperty);
                     var translatedValueSelector = TranslateScalarSetterValueSelector(
                         source, rewrittenValueSelector, column.Type, column.TypeMapping!);
 
                     translatedSetters.Add(new ColumnValueSetter(column, translatedValueSelector));
                 }
 
-                foreach (var complexProperty in complexType.GetComplexProperties())
+                foreach (var nestedTargetComplexProperty in targetComplexType.GetComplexProperties())
                 {
                     // Note that TranslateProjection currently returns null for StructuralTypeReferenceExpression with a subquery (as
                     // opposed to a parameter); this ensures that we don't generate an efficient translation where the subquery is
                     // duplicated for every property on the complex type.
                     // TODO: Make this work by using a common table expression (CTE)
-
-                    if (complexProperty.ComplexType.IsMappedToJson())
+                    var targetNestedComplexType = nestedTargetComplexProperty.ComplexType;
+                    if (targetNestedComplexType.IsMappedToJson())
                     {
                         throw new InvalidOperationException(
-                            RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(complexProperty.ComplexType.DisplayName()));
+                            RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(nestedTargetComplexProperty.ComplexType.DisplayName()));
                     }
 
-                    var nestedShaperExpression = (StructuralTypeShaperExpression)projection.BindComplexProperty(complexProperty);
-                    var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, complexProperty);
-                    ProcessComplexType(nestedShaperExpression, nestedValueExpression);
+                    var nestedTargetExpression = (StructuralTypeShaperExpression)targetProjection.BindComplexProperty(nestedTargetComplexProperty);
+
+                    // If the value expression is a shaper with its own complex type (as opposed to a constant/parameter), we're assigning
+                    // one (modeled) column to another. In that case, find the corresponding property on the value complex type (which is
+                    // different than the target complex type, despite the two having the same CLR type, e.g. compare ShippingAddress to
+                    // BillingAddress).
+                    // Otherwise, if the value expression is a constant/parameter, just use the target complex property.
+                    var nestedValueComplexProperty = valueExpression is StructuralTypeShaperExpression
+                        {
+                            StructuralType: IComplexType valueNestedComplexType
+                        }
+                        ? valueNestedComplexType!.FindComplexProperty(nestedTargetComplexProperty.Name)
+                            ?? throw new InvalidOperationException(RelationalStrings.IncompatibleComplexTypesInAssignment(
+                                targetNestedComplexType.DisplayName(), valueNestedComplexType.DisplayName(), nestedTargetComplexProperty.Name))
+                        : nestedTargetComplexProperty;
+
+                    var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, nestedValueComplexProperty);
+
+                    ProcessComplexType(nestedTargetExpression, nestedValueExpression);
                 }
 
                 Expression CreatePropertyAccessExpression(Expression target, IProperty property)
@@ -653,7 +667,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 Check.DebugAssert(jsonColumn.TypeMapping is not null);
 
-                ProcessColumn(jsonColumn);
+                ProcessColumn(jsonColumn, targetProperty);
 
                 var translatedValue = TranslateSetterValueSelector(source, valueSelector, jsonQuery.Type);
 

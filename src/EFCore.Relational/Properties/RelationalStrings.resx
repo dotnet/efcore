@@ -133,6 +133,9 @@
   <data name="CannotSetAliasOnJoin" xml:space="preserve">
     <value>Aliases cannot be set on join expressions; set the alias on the enclosed table expression.</value>
   </data>
+  <data name="CannotCompareJsonComplexTypeToNonJson" xml:space="preserve">
+    <value>Cannot compare complex type '{jsonComplexType}', which is mapped to JSON, to complex type '{nonJsonComplexType}', which is not.</value>
+  </data>
   <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
     <value>The query contains a new array expression with non-constant elements that cannot be translated: '{newArrayExpression}'.</value>
   </data>
@@ -468,6 +471,12 @@
   </data>
   <data name="ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash" xml:space="preserve">
     <value>Named default constraints cannot be used with TPC or entity splitting if they result in non-unique constraint names. Constraint name: '{constraintNameCandidate}'.</value>
+  </data>
+  <data name="IncompatibleComplexTypesInComparison" xml:space="preserve">
+    <value>The complex types '{complexType1}' and '{complexType2}' are being compared, but the latter is lacking property '{property}' of the former.</value>
+  </data>
+  <data name="IncompatibleComplexTypesInAssignment" xml:space="preserve">
+    <value>The complex types '{complexType1}' and '{complexType2}' are being assigned, but the latter is lacking property '{property}' of the former.</value>
   </data>
   <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
     <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
