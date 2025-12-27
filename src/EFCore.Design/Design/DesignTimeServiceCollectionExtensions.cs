@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -65,7 +66,11 @@ public static class DesignTimeServiceCollectionExtensions
                 .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                 .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
-                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
+                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>()
+                .TryAddSingleton<IMigrationCompiler, CSharpMigrationCompiler>()
+                // Note: IDynamicMigrationsAssembly and IMigrationsAssembly are registered in
+                // AddDbContextDesignTimeServices to ensure proper wrapping of the context's assembly
+                .TryAddScoped<IRuntimeMigrationService, RuntimeMigrationService>());
 
         var loggerFactory = new LoggerFactory(
             [new OperationLoggerProvider(reporter)], new LoggerFilterOptions { MinLevel = LogLevel.Debug });
@@ -87,6 +92,21 @@ public static class DesignTimeServiceCollectionExtensions
         this IServiceCollection services,
         DbContext context)
     {
+        // Create a lazy wrapper that creates DynamicMigrationsAssembly on first access
+        // This is necessary because some contexts may not have IMigrationsAssembly available
+        // until a database provider is configured
+        DynamicMigrationsAssembly? dynamicMigrationsAssembly = null;
+        DynamicMigrationsAssembly GetOrCreateDynamicMigrationsAssembly()
+        {
+            if (dynamicMigrationsAssembly == null)
+            {
+                var innerMigrationsAssembly = context.GetService<IMigrationsAssembly>();
+                dynamicMigrationsAssembly = new DynamicMigrationsAssembly(innerMigrationsAssembly);
+            }
+
+            return dynamicMigrationsAssembly;
+        }
+
         new EntityFrameworkRelationalServicesBuilder(services)
             .TryAdd(context.GetService<IDatabaseProvider>())
             .TryAdd(_ => context.GetService<IMigrationsIdGenerator>())
@@ -96,10 +116,18 @@ public static class DesignTimeServiceCollectionExtensions
             .TryAdd(_ => context.GetService<ICurrentDbContext>())
             .TryAdd(_ => context.GetService<IDbContextOptions>())
             .TryAdd(_ => context.GetService<IHistoryRepository>())
-            .TryAdd(_ => context.GetService<IMigrationsAssembly>())
             .TryAdd(_ => context.GetService<IMigrationsModelDiffer>())
             .TryAdd(_ => context.GetService<IMigrator>())
+            .TryAdd(_ => context.GetService<IDesignTimeModel>())
             .TryAdd(_ => context.GetService<IDesignTimeModel>().Model);
+
+        // Register DynamicMigrationsAssembly as both IDynamicMigrationsAssembly and IMigrationsAssembly
+        // Note: For runtime migration to work, the IMigrator from context needs to be updated to use
+        // DynamicMigrationsAssembly, which isn't directly possible. The RuntimeMigrationService handles
+        // this by registering migrations with DynamicMigrationsAssembly and calling the context's Migrator.
+        services.AddScoped<IDynamicMigrationsAssembly>(_ => GetOrCreateDynamicMigrationsAssembly());
+        services.AddScoped<IMigrationsAssembly>(_ => GetOrCreateDynamicMigrationsAssembly());
+
         return services;
     }
 }
