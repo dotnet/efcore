@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
@@ -94,6 +95,7 @@ public static class CosmosServiceCollectionExtensions
     public static IServiceCollection AddEntityFrameworkCosmos(this IServiceCollection serviceCollection)
     {
         var builder = new EntityFrameworkServicesBuilder(serviceCollection)
+            .TryAdd<IStructuralTypeMaterializerSource, CosmosStructuralTypeMaterializerSource>()
             .TryAdd<LoggingDefinitions, CosmosLoggingDefinitions>()
             .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosOptionsExtension>>()
             .TryAdd<IDatabase, CosmosDatabaseWrapper>()

@@ -21,11 +21,10 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         var last = pub.Activities.Last();
         await context.SaveChangesAsync();
 
-        // TODO: Can be asserted after binding has been implemented.
-        //await using var assertContext = CreateContext();
-        //var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        //Assert.Equivalent(first, dbPub.Activities[0]);
-        //Assert.Equivalent(last, dbPub.Activities.Last());
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equivalent(first, dbPub.Activities[0]);
+        Assert.Equivalent(last, dbPub.Activities.Last());
     }
 
     [ConditionalFact]
@@ -39,10 +38,9 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         pub.Activities[0].Name = "Changed123";
         await context.SaveChangesAsync();
 
-        // TODO: Can be asserted after binding has been implemented.
-        //await using var assertContext = CreateContext();
-        //var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        //Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
     }
 
     [ConditionalFact]
@@ -56,11 +54,10 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         pub.Activities.Add(new ActivityWithCollection { Name = "NewActivity" });
         await context.SaveChangesAsync();
 
-        // TODO: Can be asserted after binding has been implemented.
-        //await using var assertContext = CreateContext();
-        //var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        //Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
-        //Assert.Equivalent(pub.Activities.Count, dbPub.Activities.Count);
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
+        Assert.Equivalent(pub.Activities.Count, dbPub.Activities.Count);
     }
 
     [ConditionalFact]
