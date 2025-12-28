@@ -36,6 +36,17 @@ FROM [EntityType] AS [e]
 
     #region 36837
 
+    public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        await base.Complex_type_on_an_entity_mapped_to_view_and_table();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[ComplexThing_Prop1], [b].[ComplexThing_Prop2]
+FROM [BlogsView] AS [b]
+""");
+    }
+
     [ConditionalFact]
     public virtual async Task Complex_type_equality_with_non_default_type_mapping()
     {
