@@ -502,8 +502,6 @@ public partial class RelationalSqlTranslatingExpressionVisitor
 
                 foreach (var firstComplexProperty in firstComplexType.GetComplexProperties())
                 {
-                    // TODO: Implement/test non-entity binding (i.e. with a constant instance)
-
                     Expression nestedLeft, nestedRight;
                     IComplexType? nestedLeftType = null, nestedRightType = null;
 

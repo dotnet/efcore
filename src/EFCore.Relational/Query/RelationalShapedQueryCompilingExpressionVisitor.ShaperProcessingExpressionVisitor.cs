@@ -2554,8 +2554,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Check.DebugAssert(structuralType.IsMappedToJson());
 
             var jsonColumnName = structuralType.GetContainerColumnName()!;
-            var jsonColumn = (structuralType.ContainingEntityType.GetViewOrTableMappings().Select(m => m.Table.FindColumn(jsonColumnName)).FirstOrDefault(c => c is not null)
-               ?? structuralType.GetDefaultMappings().Single().Table.FindColumn(jsonColumnName))
+            var jsonColumn = structuralType.ContainingEntityType.GetViewOrTableMappings()
+                .Select(m => m.Table.FindColumn(jsonColumnName))
+                .FirstOrDefault(c => c is not null)
                ?? throw new UnreachableException($"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");
 
             var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;

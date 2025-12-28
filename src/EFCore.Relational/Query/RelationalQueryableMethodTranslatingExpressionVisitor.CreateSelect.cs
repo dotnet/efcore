@@ -224,7 +224,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     var containerColumn = table.FindColumn(containerColumnName);
                                     Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
 
-                                    // Since multiple properties from differ ent entity types may have the same column names in their
+                                    // Since multiple properties from different entity types may have the same column names in their
                                     // respective table, we must uniquify the projected container column name.
                                     var projectedColumnName = Uniquifier.Uniquify(
                                         containerColumn.Name, projectedColumnNames, maxIdentifierLength);
@@ -234,6 +234,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                         complexProperty,
                                         containerColumn: null,
                                         projectedColumnName,
+                                        containerColumn.ProviderClrType,
                                         containerColumn.StoreTypeMapping,
                                         tpcTableAlias,
                                         containerNullable,
@@ -244,12 +245,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     return shaper;
                                 }
 
-                                foreach (var property in complexType.GetDeclaredProperties())
+                                foreach (var property in complexType.GetProperties())
                                 {
                                     propertyMap[property] = ProcessPropertyTpc(property, isNullable);
                                 }
 
-                                foreach (var nestedComplexProperty in complexType.GetDeclaredComplexProperties())
+                                foreach (var nestedComplexProperty in complexType.GetComplexProperties())
                                 {
                                     complexPropertyMap[nestedComplexProperty] =
                                         ProcessComplexPropertyTpc(nestedComplexProperty, isNullable)!;
@@ -518,6 +519,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             complexProperty,
             containerColumn,
             containerColumn.Name,
+            containerColumn.ProviderClrType,
             containerColumn.StoreTypeMapping,
             tableAlias,
             containerNullable,
@@ -528,6 +530,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         IComplexProperty complexProperty,
         IColumnBase? containerColumn,
         string containerColumnName,
+        Type containerColumnClrType,
         RelationalTypeMapping containerColumnTypeMapping,
         string tableAlias,
         bool containerNullable,
@@ -549,7 +552,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             containerColumnName,
             tableAlias,
             containerColumn,
-            complexProperty.ClrType.UnwrapNullableType(),
+            containerColumnClrType,
             containerColumnTypeMapping,
             isNullable);
 
@@ -766,6 +769,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         var structuralType = jsonQueryExpression.StructuralType;
+        var jsonColumn = jsonQueryExpression.JsonColumn;
         var tableAlias = tableExpressionBase.Alias!;
 
         Check.DebugAssert(
@@ -806,8 +810,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 complexType.GetJsonPropertyName()
                 ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
                 tableAlias,
-                complexProperty.ClrType.UnwrapNullableType(),
-                typeMapping: jsonQueryExpression.JsonColumn.Column?.StoreTypeMapping,
+                jsonColumn.Type,
+                jsonColumn.TypeMapping,
                 isNullable);
 
             var jsonQuery = new JsonQueryExpression(
@@ -825,17 +829,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var projection = new StructuralTypeProjectionExpression(structuralType, propertyExpressions, complexPropertyExpressions);
 
         // Go over all owned JSON navigations and pre-populate bindings for them - these get used later if the LINQ query binds to them.
-        // Note that we don't need to do the same for complex properties, are these are managed lazily: when a complex property is bound,
-        // we generate everything we need at that point.
         if (structuralType is IEntityType entityType)
         {
-            var containerColumnName = structuralType.GetContainerColumnName()!;
-            var containerColumn = structuralType.GetViewOrTableMappings()
-                .Select(m => m.Table.FindColumn(containerColumnName))
-                .FirstOrDefault(c => c is not null)
-                ?? structuralType.GetDefaultMappings().Single().Table.FindColumn(containerColumnName)!;
-
-            var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
             foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
                          .Where(n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()
@@ -844,18 +839,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 var targetEntityType = ownedJsonNavigation.TargetEntityType;
                 var jsonNavigationName = ownedJsonNavigation.TargetEntityType.GetJsonPropertyName();
                 Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
-                var isNullable = containerColumn.IsNullable
+                var isNullable = jsonQueryExpression.IsNullable
                     || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
                     || ownedJsonNavigation.IsCollection;
 
                 // The TableExpressionBase represents a relational expansion of the JSON collection. We now need a ColumnExpression to represent
                 // the specific JSON property (projected as a relational column) which holds the JSON subtree for the target entity.
-                var column = new ColumnExpression(
-                    jsonNavigationName,
-                    tableAlias,
-                    containerColumnTypeMapping.ClrType,
-                    containerColumnTypeMapping,
-                    isNullable);
+                var column = new ColumnExpression(jsonNavigationName, tableAlias, jsonColumn.Type, jsonColumn.TypeMapping, isNullable);
 
                 // need to remap key property map to use target entity key properties
                 var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
