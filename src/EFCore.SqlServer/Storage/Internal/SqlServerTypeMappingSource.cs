@@ -237,10 +237,10 @@ public class SqlServerTypeMappingSource(
         if (clrType == typeof(JsonTypePlaceholder))
         {
             // We get here when a structural type (complex type or owned entity) is mapped to JSON.
-            return storeTypeName switch
+            return mappingInfo.StoreTypeNameBase switch
             {
                 "json" => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
-                "nvarchar(max)" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+                "nvarchar" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
 
                 null when _isJsonTypeSupported => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
                 null => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
