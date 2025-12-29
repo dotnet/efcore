@@ -620,6 +620,20 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 b.HasKey(e => e.PrimaryGroup);
                 b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
             });
+
+            modelBuilder.Entity<ParentWithClientSetDefault>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ChildWithClientSetDefault>(b =>
+            {
+                b.Property(e => e.ParentId).HasSentinel(667);
+                b.HasOne(e => e.Parent)
+                    .WithMany(e => e.Children)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.ClientSetDefault);
+            });
         }
 
         private class StableGuidGenerator : ValueGenerator<Guid>
@@ -3865,6 +3879,49 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get => _users;
             set => SetWithNotify(value, ref _users);
+        }
+    }
+
+    protected class ParentWithClientSetDefault : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<ChildWithClientSetDefault> _children = new ObservableHashSet<ChildWithClientSetDefault>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public virtual ICollection<ChildWithClientSetDefault> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class ChildWithClientSetDefault : NotifyingEntity
+    {
+        private int _id;
+        private int _parentId;
+        private ParentWithClientSetDefault _parent;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+
+        public virtual ParentWithClientSetDefault Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
         }
     }
 

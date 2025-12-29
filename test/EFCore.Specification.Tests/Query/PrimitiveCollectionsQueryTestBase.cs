@@ -1384,6 +1384,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         _ = compiledQuery(context, ints1, ints2).ToList();
     }
 
+    [ConditionalFact] // #37370
+    public virtual async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        var func = EF.CompileAsyncQuery(
+            (PrimitiveCollectionsContext context, int[] ids) => context.Set<PrimitiveCollectionsEntity>().Where(e => ids.Any()));
+
+        await using var context = Fixture.CreateContext();
+        _ = await func(context, []).ToListAsync();
+    }
+
     [ConditionalFact]
     public virtual Task Column_collection_in_subquery_Union_parameter_collection()
     {

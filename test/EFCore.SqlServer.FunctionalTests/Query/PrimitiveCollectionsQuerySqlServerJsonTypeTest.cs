@@ -2168,6 +2168,23 @@ WHERE (
         AssertSql();
     }
 
+    public override async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        await base.Compiled_query_with_uncorrelated_parameter_collection_expression();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT NULL AS [Value]
+        WHERE 0 = 1
+    ) AS [i])
+""");
+    }
+
     public override async Task Column_collection_in_subquery_Union_parameter_collection()
     {
         await base.Column_collection_in_subquery_Union_parameter_collection();
