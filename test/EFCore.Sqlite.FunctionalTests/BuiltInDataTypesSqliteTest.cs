@@ -1572,7 +1572,7 @@ LIMIT 1
         {
             Id = 225,
             PartitionId = 209,
-            TestDecimal = 1.5m,
+            TestDecimal = 1.05m,
             TestDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
             TestTimeSpan = TimeSpan.FromDays(1),
             TestUnsignedInt64 = 0
@@ -1583,7 +1583,7 @@ LIMIT 1
         {
             Id = 226,
             PartitionId = 209,
-            TestDecimal = 2.5m,
+            TestDecimal = 1.5m,
             TestDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
             TestTimeSpan = TimeSpan.FromDays(2),
             TestUnsignedInt64 = 1
@@ -1594,7 +1594,7 @@ LIMIT 1
         {
             Id = 227,
             PartitionId = 209,
-            TestDecimal = 1.05m,
+            TestDecimal = 2.5m,
             TestDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
             TestTimeSpan = TimeSpan.FromDays(10),
             TestUnsignedInt64 = long.MaxValue + 1ul
