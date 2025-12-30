@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -1561,6 +1563,76 @@ LIMIT 1
             .First();
 
         Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact, UseCulture("tr-TR")]
+    public virtual void Can_query_OrderBy_decimal_with_Turkish_culture()
+    {
+        using var context = CreateContext();
+        var min = new BuiltInDataTypes
+        {
+            Id = 225,
+            PartitionId = 209,
+            TestDecimal = 1.5m,
+            TestDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
+            TestTimeSpan = TimeSpan.FromDays(1),
+            TestUnsignedInt64 = 0
+        };
+        context.Add(min);
+
+        var middle = new BuiltInDataTypes
+        {
+            Id = 226,
+            PartitionId = 209,
+            TestDecimal = 2.5m,
+            TestDateTimeOffset = new DateTimeOffset(2018, 1, 1, 12, 0, 0, TimeSpan.Zero),
+            TestTimeSpan = TimeSpan.FromDays(2),
+            TestUnsignedInt64 = 1
+        };
+        context.Add(middle);
+
+        var max = new BuiltInDataTypes
+        {
+            Id = 227,
+            PartitionId = 209,
+            TestDecimal = 1.05m,
+            TestDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+            TestTimeSpan = TimeSpan.FromDays(10),
+            TestUnsignedInt64 = long.MaxValue + 1ul
+        };
+        context.Add(max);
+
+        context.SaveChanges();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var query = context.Set<BuiltInDataTypes>()
+            .Where(e => e.PartitionId == 209);
+
+        var results = query
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => new { e.Id, e.TestDecimal })
+            .ToList();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."TestDecimal"
+FROM "BuiltInDataTypes" AS "b"
+WHERE "b"."PartitionId" = 209
+ORDER BY "b"."TestDecimal" COLLATE EF_DECIMAL
+""");
+
+        var expectedResults = query.AsEnumerable()
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => new { e.Id, e.TestDecimal })
+            .ToList();
+
+        Assert.Equal(expectedResults.Count, results.Count);
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            Assert.Equal(expectedResults[i].Id, results[i].Id);
+            Assert.Equal(expectedResults[i].TestDecimal, results[i].TestDecimal);
+        }
     }
 
     [ConditionalFact]
