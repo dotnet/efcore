@@ -173,7 +173,8 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
             // detect that and overwrite.
             if (connectionStringBuilder.ApplicationName is "Core Microsoft SqlClient Data Provider" or "" or null)
             {
-                var efVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+                var efVersion = typeof(SqlServerConnection).Assembly
+                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
                 _defaultApplicationName ??=
                     $"EFCore/{efVersion} ({RuntimeInformation.OSDescription} {RuntimeInformation.OSArchitecture})";
