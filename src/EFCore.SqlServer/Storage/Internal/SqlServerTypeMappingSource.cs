@@ -240,6 +240,8 @@ public class SqlServerTypeMappingSource(
             return mappingInfo.StoreTypeNameBase switch
             {
                 "json" => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
+
+                // Note that if the store type is non-max (e.g. nvarchar(2000)), it gets cloned outside for the right size.
                 "nvarchar" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
 
                 null when _isJsonTypeSupported => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
