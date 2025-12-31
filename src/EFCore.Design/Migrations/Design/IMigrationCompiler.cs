@@ -26,10 +26,10 @@ public interface IMigrationCompiler
     /// <param name="scaffoldedMigration">The scaffolded migration containing C# source code.</param>
     /// <param name="contextType">The type of the <see cref="DbContext" /> for which the migration was created.</param>
     /// <param name="references">Additional assembly references to include in compilation, if any.</param>
-    /// <returns>A <see cref="CompiledMigration" /> containing the compiled assembly and type information.</returns>
+    /// <returns>An <see cref="Assembly" /> containing the compiled migration and model snapshot.</returns>
     /// <exception cref="InvalidOperationException">Thrown when compilation fails.</exception>
     [RequiresDynamicCode("Runtime migration compilation requires dynamic code generation.")]
-    CompiledMigration CompileMigration(
+    Assembly CompileMigration(
         ScaffoldedMigration scaffoldedMigration,
         Type contextType,
         IEnumerable<Assembly>? references = null);

@@ -8,17 +8,31 @@ internal partial class DatabaseUpdateCommand
 {
     protected override int Execute(string[] args)
     {
+        // Validate that -o and -n are only used with --add
+        if (!_add!.HasValue())
+        {
+            if (_outputDir!.HasValue())
+            {
+                throw new CommandException(Resources.OutputDirRequiresAdd);
+            }
+
+            if (_namespace!.HasValue())
+            {
+                throw new CommandException(Resources.NamespaceRequiresAdd);
+            }
+        }
+
         using var executor = CreateExecutor(args);
 
         if (_add!.HasValue())
         {
             // Create and apply a new migration in one step
-            executor.CreateAndApplyMigration(
+            executor.AddAndApplyMigration(
                 _add.Value()!,
-                _connection!.Value(),
-                Context!.Value(),
                 _outputDir!.Value(),
-                _namespace!.Value());
+                Context!.Value(),
+                _namespace!.Value(),
+                _connection!.Value());
         }
         else
         {

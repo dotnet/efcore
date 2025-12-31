@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-[SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.IsNotCI)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
 public class RuntimeMigrationSqlServerTest : IAsyncLifetime
 {
     private SqlServerTestStore? _testStore;
@@ -19,9 +19,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _testStore = await SqlServerTestStore.CreateInitializedAsync(
-            "RuntimeMigrationTest_" + Guid.NewGuid().ToString("N")[..8]);
-        _tempDirectory = Path.Combine(Path.GetTempPath(), "RuntimeMigrationSqlServerTest_" + Guid.NewGuid().ToString("N"));
+        _testStore = await SqlServerTestStore.CreateInitializedAsync("RuntimeMigrationTest");
+        _tempDirectory = Path.Combine(Path.GetTempPath(), "RuntimeMigrationSqlServerTest");
         Directory.CreateDirectory(_tempDirectory);
     }
 
@@ -32,17 +31,7 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
             await _testStore.DisposeAsync();
         }
 
-        if (Directory.Exists(_tempDirectory))
-        {
-            try
-            {
-                Directory.Delete(_tempDirectory, recursive: true);
-            }
-            catch
-            {
-                // Ignore cleanup errors
-            }
-        }
+        // Don't delete the temp directory - allow it to be reused
     }
 
     [ConditionalFact]
@@ -50,16 +39,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean (no tables)
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
-        // Drop everything again so we can test migration from scratch
-        context.Database.EnsureDeleted();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -93,13 +74,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean
-        await context.Database.EnsureDeletedAsync();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -131,13 +107,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean
-        context.Database.EnsureDeleted();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -159,8 +130,6 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
         Assert.Null(result.MigrationFilePath); // Should not persist to disk
         Assert.False(result.PersistedToDisk);
 
-        // Note: We don't verify the table wasn't created by querying the database
-        // because in dry run mode after EnsureDeleted(), the database doesn't exist.
         // The fact that result.Applied is false is sufficient to verify dry run behavior.
     }
 
@@ -169,13 +138,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean
-        context.Database.EnsureDeleted();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -198,13 +162,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean
-        context.Database.EnsureDeleted();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -221,13 +180,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean
-        context.Database.EnsureDeleted();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -252,13 +206,8 @@ public class RuntimeMigrationSqlServerTest : IAsyncLifetime
     {
         using var context = CreateContext();
 
-        // Ensure the database is clean
-        context.Database.EnsureDeleted();
-
-        using var freshContext = CreateContext();
-
         // Create the design-time service provider
-        using var serviceProvider = CreateDesignTimeServiceProvider(freshContext);
+        using var serviceProvider = CreateDesignTimeServiceProvider(context);
         using var scope = serviceProvider.CreateScope();
 
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();

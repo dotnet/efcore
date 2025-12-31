@@ -416,6 +416,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
+        ///     The '--namespace' option requires the '--add' option to be specified.
+        /// </summary>
+        public static string NamespaceRequiresAdd
+            => GetString("NamespaceRequiresAdd");
+
+        /// <summary>
         ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
@@ -494,6 +500,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     The '--output-dir' option requires the '--add' option to be specified.
+        /// </summary>
+        public static string OutputDirRequiresAdd
+            => GetString("OutputDirRequiresAdd");
 
         /// <summary>
         ///      (Pending)

@@ -47,7 +47,7 @@ public class CSharpMigrationCompiler : IMigrationCompiler
 
     /// <inheritdoc />
     [RequiresDynamicCode("Runtime migration compilation requires dynamic code generation.")]
-    public virtual CompiledMigration CompileMigration(
+    public virtual Assembly CompileMigration(
         ScaffoldedMigration scaffoldedMigration,
         Type contextType,
         IEnumerable<Assembly>? additionalReferences = null)
@@ -98,18 +98,7 @@ public class CSharpMigrationCompiler : IMigrationCompiler
         }
 
         assemblyStream.Seek(0, SeekOrigin.Begin);
-        var assembly = AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
-
-        // Find the migration and snapshot types
-        var migrationTypeInfo = FindMigrationTypeInfo(assembly, scaffoldedMigration.MigrationId);
-        var snapshotTypeInfo = FindSnapshotTypeInfo(assembly, scaffoldedMigration.SnapshotName);
-
-        return new CompiledMigration(
-            assembly,
-            migrationTypeInfo,
-            snapshotTypeInfo,
-            scaffoldedMigration.MigrationId,
-            scaffoldedMigration);
+        return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
     }
 
     /// <summary>
@@ -229,38 +218,5 @@ public class CSharpMigrationCompiler : IMigrationCompiler
         {
             // Ignore assemblies that can't be referenced
         }
-    }
-
-    private static System.Reflection.TypeInfo FindMigrationTypeInfo(Assembly assembly, string migrationId)
-    {
-        foreach (var type in assembly.GetTypes())
-        {
-            if (typeof(Migration).IsAssignableFrom(type))
-            {
-                var migrationAttribute = type.GetCustomAttribute<MigrationAttribute>();
-                if (migrationAttribute != null
-                    && string.Equals(migrationAttribute.Id, migrationId, StringComparison.Ordinal))
-                {
-                    return type.GetTypeInfo();
-                }
-            }
-        }
-
-        throw new InvalidOperationException(
-            DesignStrings.MigrationTypeNotFound(migrationId));
-    }
-
-    private static System.Reflection.TypeInfo? FindSnapshotTypeInfo(Assembly assembly, string snapshotName)
-    {
-        foreach (var type in assembly.GetTypes())
-        {
-            if (typeof(ModelSnapshot).IsAssignableFrom(type)
-                && type.Name == snapshotName)
-            {
-                return type.GetTypeInfo();
-            }
-        }
-
-        return null;
     }
 }

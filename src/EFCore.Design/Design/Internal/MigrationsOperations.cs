@@ -70,12 +70,7 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
-        var invalidPathChars = Path.GetInvalidFileNameChars();
-        if (name.Any(c => invalidPathChars.Contains(c)))
-        {
-            throw new OperationException(
-                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
-        }
+        ValidateMigrationName(name);
 
         if (outputDir != null)
         {
@@ -85,12 +80,7 @@ public class MigrationsOperations
         var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
         using var context = _contextOperations.CreateContext(contextType);
-        var contextClassName = context.GetType().Name;
-        if (string.Equals(name, contextClassName, StringComparison.Ordinal))
-        {
-            throw new OperationException(
-                DesignStrings.ConflictingContextAndMigrationName(name));
-        }
+        ValidateMigrationNameNotContextName(name, context);
 
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
@@ -278,29 +268,19 @@ public class MigrationsOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RuntimeMigrationResult CreateAndApplyMigration(
+    public virtual RuntimeMigrationResult AddAndApplyMigration(
         string name,
-        string? connectionString,
-        string? contextType,
         string? outputDir,
-        string? @namespace)
+        string? contextType,
+        string? @namespace,
+        string? connectionString)
     {
-        var invalidPathChars = Path.GetInvalidFileNameChars();
-        if (name.Any(c => invalidPathChars.Contains(c)))
-        {
-            throw new OperationException(
-                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
-        }
+        ValidateMigrationName(name);
 
         _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
 
         using var context = _contextOperations.CreateContext(contextType);
-        var contextClassName = context.GetType().Name;
-        if (string.Equals(name, contextClassName, StringComparison.Ordinal))
-        {
-            throw new OperationException(
-                DesignStrings.ConflictingContextAndMigrationName(name));
-        }
+        ValidateMigrationNameNotContextName(name, context);
 
         if (connectionString != null)
         {
@@ -309,6 +289,7 @@ public class MigrationsOperations
 
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
+        EnsureMigrationsAssembly(services);
 
         using var scope = services.CreateScope();
         var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
@@ -326,6 +307,26 @@ public class MigrationsOperations
         _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(result.MigrationId));
 
         return result;
+    }
+
+    private static void ValidateMigrationName(string name)
+    {
+        var invalidPathChars = Path.GetInvalidFileNameChars();
+        if (name.Any(c => invalidPathChars.Contains(c)))
+        {
+            throw new OperationException(
+                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
+        }
+    }
+
+    private static void ValidateMigrationNameNotContextName(string name, DbContext context)
+    {
+        var contextClassName = context.GetType().Name;
+        if (string.Equals(name, contextClassName, StringComparison.Ordinal))
+        {
+            throw new OperationException(
+                DesignStrings.ConflictingContextAndMigrationName(name));
+        }
     }
 
     private static void EnsureServices(IServiceProvider services)

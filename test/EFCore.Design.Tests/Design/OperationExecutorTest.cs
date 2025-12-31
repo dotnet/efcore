@@ -1101,10 +1101,10 @@ namespace My.Gnomespace.Data
     }
 
     [ConditionalFact]
-    public void CreateAndApplyMigration_errors_when_no_model_changes()
+    public void AddAndApplyMigration_errors_when_no_model_changes()
     {
         using var tempPath = new TempDirectory();
-        var resultHandler = ExecuteCreateAndApplyMigration(
+        var resultHandler = ExecuteAddAndApplyMigration(
             tempPath,
             "TestMigration",
             null,
@@ -1119,10 +1119,10 @@ namespace My.Gnomespace.Data
          TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
          SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("to fix error: add column"),
      InlineData(@"A\B\C")]
-    public void CreateAndApplyMigration_errors_for_bad_names(string migrationName)
+    public void AddAndApplyMigration_errors_for_bad_names(string migrationName)
     {
         using var tempPath = new TempDirectory();
-        var resultHandler = ExecuteCreateAndApplyMigration(
+        var resultHandler = ExecuteAddAndApplyMigration(
             tempPath,
             migrationName,
             null,
@@ -1134,7 +1134,7 @@ namespace My.Gnomespace.Data
     }
 
     [ConditionalFact]
-    public void CreateAndApplyMigration_errors_for_invalid_context()
+    public void AddAndApplyMigration_errors_for_invalid_context()
     {
         using var tempPath = new TempDirectory();
         var reportHandler = new OperationReportHandler();
@@ -1154,7 +1154,7 @@ namespace My.Gnomespace.Data
                 { "remainingArguments", null }
             });
 
-        new OperationExecutor.CreateAndApplyMigration(
+        new OperationExecutor.AddAndApplyMigration(
             executor,
             resultHandler,
             new Dictionary<string, object?>
@@ -1172,10 +1172,10 @@ namespace My.Gnomespace.Data
     }
 
     [ConditionalFact]
-    public void CreateAndApplyMigration_errors_for_empty_name()
+    public void AddAndApplyMigration_errors_for_empty_name()
     {
         using var tempPath = new TempDirectory();
-        var resultHandler = ExecuteCreateAndApplyMigration(
+        var resultHandler = ExecuteAddAndApplyMigration(
             tempPath,
             "",
             null,
@@ -1185,7 +1185,7 @@ namespace My.Gnomespace.Data
         Assert.NotNull(resultHandler.ErrorType);
     }
 
-    private static OperationResultHandler ExecuteCreateAndApplyMigration(
+    private static OperationResultHandler ExecuteAddAndApplyMigration(
         string tempPath,
         string migrationName,
         string? outputDir,
@@ -1208,7 +1208,7 @@ namespace My.Gnomespace.Data
                 { "remainingArguments", null }
             });
 
-        new OperationExecutor.CreateAndApplyMigration(
+        new OperationExecutor.AddAndApplyMigration(
             executor,
             resultHandler,
             new Dictionary<string, object?>
