@@ -71,6 +71,30 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             });
 
     [ConditionalFact]
+    public virtual Task Delete_complex_collection_owner_entity_mapped_to_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var company = await context.Companies.SingleAsync(c => c.Id == 1);
+
+                context.Remove(company);
+
+                ClearLog();
+
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var exists = await context.Companies.AnyAsync(c => c.Id == 1);
+                    Assert.False(exists);
+                }
+            });
+
+    [ConditionalFact]
     public virtual Task Modify_element_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,

@@ -149,30 +149,35 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                 {
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteDeleteMethodInfo:
-                        return TranslateExecuteDelete(shapedQueryExpression)
-                            ?? throw new InvalidOperationException(
-                                CoreStrings.NonQueryTranslationFailedWithDetails(
-                                    methodCallExpression.Print(), TranslationErrorDetails));
+                    {
+                        try
+                        {
+                            return TranslateExecuteDelete(shapedQueryExpression);
+                        }
+                        catch (Exception innerException)
+                        {
+                            throw new InvalidOperationException(
+	                            CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                innerException);
+                        }
+                    }
 
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
                         NewArrayExpression newArray;
-                        switch (methodCallExpression.Arguments[1])
+                    {
+                        newArray = methodCallExpression.Arguments[1] switch
                         {
-                            case NewArrayExpression n:
-                                newArray = n;
-                                break;
-
-                            case ConstantExpression { Value: Array { Length: 0 } }:
-                                throw new InvalidOperationException(
-                                    CoreStrings.NonQueryTranslationFailedWithDetails(
-                                        methodCallExpression.Print(), CoreStrings.NoSetPropertyInvocation));
-
-                            default:
-                                throw new UnreachableException("ExecuteUpdate with incorrect setters");
-                        }
+                            NewArrayExpression n => n,
+                            ConstantExpression { Value: Array { Length: 0 } }
+                                => throw new InvalidOperationException(
+                                    CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                    new InvalidOperationException(CoreStrings.NoSetPropertyInvocation)),
+                            _ => throw new UnreachableException("ExecuteUpdate with incorrect setters")
+                        };
 
                         var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
+
                         for (var i = 0; i < setters.Length; i++)
                         {
                             var @new = (NewExpression)newArray.Expressions[i];
@@ -190,10 +195,17 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                             setters[i] = new ExecuteUpdateSetter(propertySelector, valueSelector);
                         }
 
-                        return TranslateExecuteUpdate(shapedQueryExpression, setters)
-                            ?? throw new InvalidOperationException(
-                                CoreStrings.NonQueryTranslationFailedWithDetails(
-                                    methodCallExpression.Print(), TranslationErrorDetails));
+                        try
+                        {
+                            return TranslateExecuteUpdate(shapedQueryExpression, setters);
+                        }
+                        catch (Exception innerException)
+                        {
+                            throw new InvalidOperationException(
+	                            CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                innerException);
+                        }
+                    }
                 }
             }
         }
@@ -1124,7 +1136,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// </summary>
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <returns>The non query after translation.</returns>
-    protected virtual Expression? TranslateExecuteDelete(ShapedQueryExpression source)
+    protected virtual Expression TranslateExecuteDelete(ShapedQueryExpression source)
         => throw new InvalidOperationException(
             CoreStrings.ExecuteQueriesNotSupported(
                 nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)));
@@ -1144,7 +1156,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     ///     call.
     /// </param>
     /// <returns>The non query after translation.</returns>
-    protected virtual Expression? TranslateExecuteUpdate(ShapedQueryExpression source, IReadOnlyList<ExecuteUpdateSetter> setters)
+    protected virtual Expression TranslateExecuteUpdate(ShapedQueryExpression source, IReadOnlyList<ExecuteUpdateSetter> setters)
         => throw new InvalidOperationException(
             CoreStrings.ExecuteQueriesNotSupported(
                 nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate), nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)));

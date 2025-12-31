@@ -51,4 +51,73 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
     }
 
     #endregion 37205
+
+    #region 35025
+
+    [ConditionalFact]
+    public virtual async Task Select_TPC_base_with_ComplexType()
+    {
+        var contextFactory = await InitializeAsync<Context35025>();
+        using var context = contextFactory.CreateContext();
+
+        var count = await context.TpcBases.ToListAsync();
+
+        // TODO: Seed data and assert materialization as well
+        // Assert.Equal(0, count);
+    }
+
+    protected class Context35025(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<TpcBase> TpcBases { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TpcBase>(builder =>
+            {
+                builder.ComplexProperty(e => e.BaseComplexProperty);
+                builder.UseTpcMappingStrategy();
+            });
+
+            modelBuilder.Entity<TpcChild1>().ComplexProperty(e => e.ChildComplexProperty);
+            modelBuilder.Entity<TpcChild2>().ComplexProperty(e => e.ChildComplexProperty);
+        }
+
+        public abstract class TpcBase
+        {
+            public int Id { get; set; }
+            public required ComplexThing BaseComplexProperty { get; set; }
+        }
+
+        public class TpcChild1 : TpcBase
+        {
+            public required ComplexThing ChildComplexProperty { get; set; }
+            public int ChildProperty { get; set; }
+        }
+
+        public class TpcChild2 : TpcBase
+        {
+            public required AnotherComplexThing ChildComplexProperty { get; set; }
+            public required string ChildProperty { get; set; }
+        }
+
+        public class ComplexThing
+        {
+            public int PropertyInsideComplexThing { get; set; }
+        }
+
+        public class AnotherComplexThing
+        {
+            // Another nested property with the same name but a different type.
+            // We should properly uniquify the projected name coming out of the UNION.
+            public required string PropertyInsideComplexThing { get; set; }
+        }
+    }
+
+    #endregion 35025
+
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    protected void AssertSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected);
 }

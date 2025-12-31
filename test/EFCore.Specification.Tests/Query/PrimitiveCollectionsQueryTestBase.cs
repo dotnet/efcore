@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,6 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
+    // List<T> is a regular class
+    protected static readonly List<int> StaticReadonlyList = [10, 999];
+    // FrozenSet<T> is an abstract class
+    protected static readonly FrozenSet<int> StaticReadonlyFrozenSet = [10, 999];
+    // ImmutableArray<T> is a struct
+    protected static readonly ImmutableArray<int> StaticReadonlyImmutableArray = [10, 999];
+
     public virtual int? NumberOfValuesForHugeParameterCollectionTests { get; } = null;
 
     [ConditionalFact]
@@ -269,9 +277,18 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual async Task Parameter_collection_FrozenSet_of_ints_Contains_int()
+    {
+        var ints = FrozenSet.Create(10, 999);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
     public virtual async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
     {
-        var ints = ImmutableArray.Create([10, 999]);
+        var ints = ImmutableArray.Create(10, 999);
 
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
@@ -898,6 +915,27 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual async Task Static_readonly_collection_List_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyList.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticReadonlyList.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Static_readonly_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyFrozenSet.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticReadonlyFrozenSet.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Static_readonly_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyImmutableArray.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticReadonlyImmutableArray.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
     public virtual Task Column_collection_of_ints_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Contains(10)));
 
@@ -1344,6 +1382,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var ints2 = new[] { 7, 42 };
 
         _ = compiledQuery(context, ints1, ints2).ToList();
+    }
+
+    [ConditionalFact] // #37370
+    public virtual async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        var func = EF.CompileAsyncQuery(
+            (PrimitiveCollectionsContext context, int[] ids) => context.Set<PrimitiveCollectionsEntity>().Where(e => ids.Any()));
+
+        await using var context = Fixture.CreateContext();
+        _ = await func(context, []).ToListAsync();
     }
 
     [ConditionalFact]

@@ -88,6 +88,8 @@ extends:
         justificationForDisabling: 'NonProduction'
     customBuildTags:
     - ES365AIMigrationTooling
+    settings:
+      networkIsolationPolicy: Permissive,CFSClean
     stages:
     - stage: build
       displayName: Build
@@ -195,7 +197,7 @@ extends:
             templateContext:
               sdl:
                 binskim:
-                  prereleaseVersion: ' '
+                  prereleaseVersion: ''
           - job: Helix
             timeoutInMinutes: 180
             pool:
@@ -208,7 +210,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Windows.10.Amd64;OSX.15.Amd64;OSX.15.ARM64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64
+                value: Windows.10.Amd64;OSX.15.Amd64;OSX.15.ARM64;Ubuntu.2204.Amd64.XL@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 # Needed for internal queues
                 value: $(HelixApiAccessToken)

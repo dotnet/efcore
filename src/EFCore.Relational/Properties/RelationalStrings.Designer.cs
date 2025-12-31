@@ -60,6 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotSetAliasOnJoin");
 
         /// <summary>
+        ///     Cannot compare complex type '{jsonComplexType}', which is mapped to JSON, to complex type '{nonJsonComplexType}', which is not.
+        /// </summary>
+        public static string CannotCompareJsonComplexTypeToNonJson(object? jsonComplexType, object? nonJsonComplexType)
+            => string.Format(
+                GetString("CannotCompareJsonComplexTypeToNonJson", nameof(jsonComplexType), nameof(nonJsonComplexType)),
+                jsonComplexType, nonJsonComplexType);
+
+        /// <summary>
         ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
         /// </summary>
         public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
@@ -932,6 +940,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash", nameof(constraintNameCandidate)),
                 constraintNameCandidate);
+
+        /// <summary>
+        ///     The complex types '{complexType1}' and '{complexType2}' are being compared, but the latter is lacking property '{property}' of the former.
+        /// </summary>
+        public static string IncompatibleComplexTypesInComparison(object? complexType1, object? complexType2, object? property)
+            => string.Format(
+                GetString("IncompatibleComplexTypesInComparison", nameof(complexType1), nameof(complexType2), nameof(property)),
+                complexType1, complexType2, property);
+
+        /// <summary>
+        ///     The complex types '{complexType1}' and '{complexType2}' are being assigned, but the latter is lacking property '{property}' of the former.
+        /// </summary>
+        public static string IncompatibleComplexTypesInAssignment(object? complexType1, object? complexType2, object? property)
+            => string.Format(
+                GetString("IncompatibleComplexTypesInAssignment", nameof(complexType1), nameof(complexType2), nameof(property)),
+                complexType1, complexType2, property);
 
         /// <summary>
         ///     The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.

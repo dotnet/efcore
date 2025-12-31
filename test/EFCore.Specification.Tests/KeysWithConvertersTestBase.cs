@@ -7706,5 +7706,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.OwnsOne(e => e.Owned);
             });
         }
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CoreEventId.CollectionWithoutComparer));
     }
 }

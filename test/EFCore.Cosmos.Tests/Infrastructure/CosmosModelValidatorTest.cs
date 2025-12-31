@@ -550,10 +550,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             b.ComplexCollection(e => e.ComplexTypes);
         });
 
-        VerifyError(
-            CosmosStrings.ComplexTypeCollectionsNotSupported(
-                nameof(ComplexTypeInCollection),
-                nameof(EntityWithComplexTypeCollection.ComplexTypes)), modelBuilder);
+        Validate(modelBuilder);
     }
 
     private class EntityWithComplexTypeCollection
