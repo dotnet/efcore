@@ -84,14 +84,21 @@ public class CSharpMigrationCompilerTest
                 """,
             snapshotName: "TestContextModelSnapshot");
 
-        var compiled = compiler.CompileMigration(scaffoldedMigration, typeof(TestContext));
+        var assembly = compiler.CompileMigration(scaffoldedMigration, typeof(TestContext));
 
-        Assert.NotNull(compiled);
-        Assert.NotNull(compiled.Assembly);
-        Assert.NotNull(compiled.MigrationTypeInfo);
-        Assert.Equal("20231215120000_TestMigration", compiled.MigrationId);
-        Assert.Equal(typeof(Migration), compiled.MigrationTypeInfo.BaseType);
-        Assert.Equal("TestMigration", compiled.MigrationTypeInfo.Name);
+        Assert.NotNull(assembly);
+
+        // Find the migration type
+        var migrationType = assembly.GetTypes()
+            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+        Assert.NotNull(migrationType);
+        Assert.Equal("TestMigration", migrationType.Name);
+        Assert.Equal(typeof(Migration), migrationType.BaseType);
+
+        // Verify it has the Migration attribute with correct ID
+        var migrationAttribute = migrationType.GetCustomAttribute<MigrationAttribute>();
+        Assert.NotNull(migrationAttribute);
+        Assert.Equal("20231215120000_TestMigration", migrationAttribute.Id);
     }
 
     [ConditionalFact]
@@ -143,31 +150,20 @@ public class CSharpMigrationCompilerTest
     }
 
     [ConditionalFact]
-    public void CompileMigration_includes_migration_source_code_in_result()
-    {
-        var compiler = new CSharpMigrationCompiler();
-
-        var scaffoldedMigration = CreateValidScaffoldedMigration("20231215130000_SourceCodeTest");
-
-        var compiled = compiler.CompileMigration(scaffoldedMigration, typeof(TestContext));
-
-        Assert.NotNull(compiled.SourceCode);
-        Assert.Same(scaffoldedMigration, compiled.SourceCode);
-        Assert.Equal(scaffoldedMigration.MigrationCode, compiled.SourceCode.MigrationCode);
-    }
-
-    [ConditionalFact]
     public void CompileMigration_finds_snapshot_type()
     {
         var compiler = new CSharpMigrationCompiler();
 
         var scaffoldedMigration = CreateValidScaffoldedMigration("20231215140000_SnapshotTest");
 
-        var compiled = compiler.CompileMigration(scaffoldedMigration, typeof(TestContext));
+        var assembly = compiler.CompileMigration(scaffoldedMigration, typeof(TestContext));
 
-        Assert.NotNull(compiled.SnapshotTypeInfo);
-        Assert.Equal("TestContextModelSnapshot", compiled.SnapshotTypeInfo.Name);
-        Assert.Equal(typeof(ModelSnapshot), compiled.SnapshotTypeInfo.BaseType);
+        // Find the snapshot type
+        var snapshotType = assembly.GetTypes()
+            .FirstOrDefault(t => typeof(ModelSnapshot).IsAssignableFrom(t) && !t.IsAbstract);
+        Assert.NotNull(snapshotType);
+        Assert.Equal("TestContextModelSnapshot", snapshotType.Name);
+        Assert.Equal(typeof(ModelSnapshot), snapshotType.BaseType);
     }
 
     [ConditionalFact]
@@ -178,11 +174,11 @@ public class CSharpMigrationCompilerTest
         var scaffolded1 = CreateValidScaffoldedMigration("20231215150000_First");
         var scaffolded2 = CreateValidScaffoldedMigration("20231215150001_Second");
 
-        var compiled1 = compiler.CompileMigration(scaffolded1, typeof(TestContext));
-        var compiled2 = compiler.CompileMigration(scaffolded2, typeof(TestContext));
+        var assembly1 = compiler.CompileMigration(scaffolded1, typeof(TestContext));
+        var assembly2 = compiler.CompileMigration(scaffolded2, typeof(TestContext));
 
-        Assert.NotSame(compiled1.Assembly, compiled2.Assembly);
-        Assert.NotEqual(compiled1.Assembly.FullName, compiled2.Assembly.FullName);
+        Assert.NotSame(assembly1, assembly2);
+        Assert.NotEqual(assembly1.FullName, assembly2.FullName);
     }
 
     private static ScaffoldedMigration CreateValidScaffoldedMigration(string migrationId)

@@ -16,6 +16,7 @@ public class MigrationsAssembly : IMigrationsAssembly
     private IReadOnlyDictionary<string, TypeInfo>? _migrations;
     private ModelSnapshot? _modelSnapshot;
     private readonly Type _contextType;
+    private readonly List<Assembly> _additionalAssemblies = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,30 +58,42 @@ public class MigrationsAssembly : IMigrationsAssembly
             {
                 var result = new SortedList<string, TypeInfo>();
 
-                var items
-                    = from t in Assembly.GetConstructibleTypes()
-                      where t.IsSubclassOf(typeof(Migration))
-                          && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
-                      let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
-                      orderby id
-                      select (id, t);
+                // Get migrations from the main assembly
+                AddMigrationsFromAssembly(Assembly, result);
 
-                foreach (var (id, t) in items)
+                // Get migrations from additional assemblies
+                foreach (var additionalAssembly in _additionalAssemblies)
                 {
-                    if (id == null)
-                    {
-                        _logger.MigrationAttributeMissingWarning(t);
-
-                        continue;
-                    }
-
-                    result.Add(id, t);
+                    AddMigrationsFromAssembly(additionalAssembly, result);
                 }
 
                 return result;
             }
 
             return _migrations ??= Create();
+        }
+    }
+
+    private void AddMigrationsFromAssembly(Assembly assembly, SortedList<string, TypeInfo> result)
+    {
+        var items
+            = from t in assembly.GetConstructibleTypes()
+              where t.IsSubclassOf(typeof(Migration))
+                  && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
+              let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
+              orderby id
+              select (id, t);
+
+        foreach (var (id, t) in items)
+        {
+            if (id == null)
+            {
+                _logger.MigrationAttributeMissingWarning(t);
+
+                continue;
+            }
+
+            result[id] = t;
         }
     }
 
@@ -91,12 +104,37 @@ public class MigrationsAssembly : IMigrationsAssembly
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ModelSnapshot? ModelSnapshot
-        => _modelSnapshot
-            ??= (from t in Assembly.GetConstructibleTypes()
-                 where t.IsSubclassOf(typeof(ModelSnapshot))
-                     && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
-                 select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
-            .FirstOrDefault();
+    {
+        get
+        {
+            if (_modelSnapshot != null)
+            {
+                return _modelSnapshot;
+            }
+
+            // Check additional assemblies first (in reverse order, so latest added is checked first)
+            for (var i = _additionalAssemblies.Count - 1; i >= 0; i--)
+            {
+                var snapshot = GetModelSnapshotFromAssembly(_additionalAssemblies[i]);
+                if (snapshot != null)
+                {
+                    _modelSnapshot = snapshot;
+                    return _modelSnapshot;
+                }
+            }
+
+            // Fall back to main assembly
+            _modelSnapshot = GetModelSnapshotFromAssembly(Assembly);
+            return _modelSnapshot;
+        }
+    }
+
+    private ModelSnapshot? GetModelSnapshotFromAssembly(Assembly assembly)
+        => (from t in assembly.GetConstructibleTypes()
+            where t.IsSubclassOf(typeof(ModelSnapshot))
+                && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
+            select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
+        .FirstOrDefault();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,5 +171,20 @@ public class MigrationsAssembly : IMigrationsAssembly
         migration.ActiveProvider = activeProvider;
 
         return migration;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddMigrations(Assembly additionalMigrationsAssembly)
+    {
+        _additionalAssemblies.Add(additionalMigrationsAssembly);
+
+        // Reset cached data so it will be recomputed with the new assembly
+        _migrations = null;
+        _modelSnapshot = null;
     }
 }

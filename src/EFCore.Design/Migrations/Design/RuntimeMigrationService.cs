@@ -32,7 +32,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     private readonly ICurrentDbContext _currentContext;
     private readonly IMigrationsScaffolder _scaffolder;
     private readonly IMigrationCompiler _compiler;
-    private readonly IDynamicMigrationsAssembly _dynamicMigrationsAssembly;
+    private readonly IMigrationsAssembly _migrationsAssembly;
     private readonly IMigrator _migrator;
     private readonly IMigrationsSqlGenerator _sqlGenerator;
     private readonly IRelationalDatabaseCreator _databaseCreator;
@@ -43,7 +43,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
 
     // Track applied dynamic migrations in order for revert support
-    private readonly List<CompiledMigration> _appliedDynamicMigrations = new();
+    private readonly List<string> _appliedDynamicMigrationIds = new();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuntimeMigrationService" /> class.
@@ -51,7 +51,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     /// <param name="currentContext">The current DbContext.</param>
     /// <param name="scaffolder">The migrations scaffolder.</param>
     /// <param name="compiler">The migration compiler.</param>
-    /// <param name="dynamicMigrationsAssembly">The dynamic migrations assembly.</param>
+    /// <param name="migrationsAssembly">The migrations assembly.</param>
     /// <param name="migrator">The migrator.</param>
     /// <param name="sqlGenerator">The SQL generator.</param>
     /// <param name="databaseCreator">The database creator.</param>
@@ -64,7 +64,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         ICurrentDbContext currentContext,
         IMigrationsScaffolder scaffolder,
         IMigrationCompiler compiler,
-        IDynamicMigrationsAssembly dynamicMigrationsAssembly,
+        IMigrationsAssembly migrationsAssembly,
         IMigrator migrator,
         IMigrationsSqlGenerator sqlGenerator,
         IRelationalDatabaseCreator databaseCreator,
@@ -77,7 +77,7 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         _currentContext = currentContext;
         _scaffolder = scaffolder;
         _compiler = compiler;
-        _dynamicMigrationsAssembly = dynamicMigrationsAssembly;
+        _migrationsAssembly = migrationsAssembly;
         _migrator = migrator;
         _sqlGenerator = sqlGenerator;
         _databaseCreator = databaseCreator;
@@ -126,25 +126,27 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         }
 
         // Step 4: Compile the migration
-        var compiledMigration = _compiler.CompileMigration(scaffoldedMigration, contextType);
+        var migrationAssembly = _compiler.CompileMigration(scaffoldedMigration, contextType);
 
-        // Step 5: Register with dynamic migrations assembly
-        _dynamicMigrationsAssembly.RegisterDynamicMigration(compiledMigration);
+        // Step 5: Register with migrations assembly
+        _migrationsAssembly.AddMigrations(migrationAssembly);
+
+        var migrationId = scaffoldedMigration.MigrationId;
 
         // Step 6: Generate SQL commands for reporting
-        var sqlCommands = GenerateSqlCommands(compiledMigration);
+        var sqlCommands = GenerateSqlCommands(migrationId);
 
         // Step 7: Apply the migration (unless dry run)
         var applied = false;
         if (!options.DryRun)
         {
-            ApplyMigration(compiledMigration, sqlCommands);
-            _appliedDynamicMigrations.Add(compiledMigration);
+            ApplyMigration(migrationId, sqlCommands);
+            _appliedDynamicMigrationIds.Add(migrationId);
             applied = true;
         }
 
         return new RuntimeMigrationResult(
-            compiledMigration.MigrationId,
+            migrationId,
             applied,
             sqlCommands,
             savedFiles?.MigrationFile,
@@ -191,26 +193,28 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         }
 
         // Step 4: Compile the migration (synchronous - Roslyn is synchronous)
-        var compiledMigration = _compiler.CompileMigration(scaffoldedMigration, contextType);
+        var migrationAssembly = _compiler.CompileMigration(scaffoldedMigration, contextType);
 
-        // Step 5: Register with dynamic migrations assembly
-        _dynamicMigrationsAssembly.RegisterDynamicMigration(compiledMigration);
+        // Step 5: Register with migrations assembly
+        _migrationsAssembly.AddMigrations(migrationAssembly);
+
+        var migrationId = scaffoldedMigration.MigrationId;
 
         // Step 6: Generate SQL commands for reporting
-        var sqlCommands = GenerateSqlCommands(compiledMigration);
+        var sqlCommands = GenerateSqlCommands(migrationId);
 
         // Step 7: Apply the migration (unless dry run)
         var applied = false;
         if (!options.DryRun)
         {
-            await ApplyMigrationAsync(compiledMigration, sqlCommands, cancellationToken)
+            await ApplyMigrationAsync(migrationId, sqlCommands, cancellationToken)
                 .ConfigureAwait(false);
-            _appliedDynamicMigrations.Add(compiledMigration);
+            _appliedDynamicMigrationIds.Add(migrationId);
             applied = true;
         }
 
         return new RuntimeMigrationResult(
-            compiledMigration.MigrationId,
+            migrationId,
             applied,
             sqlCommands,
             savedFiles?.MigrationFile,
@@ -219,11 +223,11 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     }
 
     /// <summary>
-    ///     Applies a compiled migration to the database.
+    ///     Applies a migration to the database.
     /// </summary>
-    /// <param name="compiledMigration">The compiled migration to apply.</param>
+    /// <param name="migrationId">The migration ID to apply.</param>
     /// <param name="sqlCommands">The pre-generated SQL commands.</param>
-    protected virtual void ApplyMigration(CompiledMigration compiledMigration, IReadOnlyList<string> sqlCommands)
+    protected virtual void ApplyMigration(string migrationId, IReadOnlyList<string> sqlCommands)
     {
         // Ensure database exists
         if (!_databaseCreator.Exists())
@@ -240,14 +244,15 @@ public class RuntimeMigrationService : IRuntimeMigrationService
                 _historyRepository.Create();
             }
 
-            // Get the migration and its operations
-            var migration = _dynamicMigrationsAssembly.CreateMigration(
-                compiledMigration.MigrationTypeInfo,
+            // Get the migration type and create instance
+            var migrationTypeInfo = _migrationsAssembly.Migrations[migrationId];
+            var migration = _migrationsAssembly.CreateMigration(
+                migrationTypeInfo,
                 _currentContext.Context.Database.ProviderName!);
 
             // Build the history insert command
             var insertCommand = _rawSqlCommandBuilder.Build(
-                _historyRepository.GetInsertScript(new HistoryRow(compiledMigration.MigrationId, ProductInfo.GetVersion())));
+                _historyRepository.GetInsertScript(new HistoryRow(migrationId, ProductInfo.GetVersion())));
 
             // Generate migration commands and append history insert
             var migrationCommands = _sqlGenerator.Generate(
@@ -265,14 +270,14 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     }
 
     /// <summary>
-    ///     Applies a compiled migration to the database asynchronously.
+    ///     Applies a migration to the database asynchronously.
     /// </summary>
-    /// <param name="compiledMigration">The compiled migration to apply.</param>
+    /// <param name="migrationId">The migration ID to apply.</param>
     /// <param name="sqlCommands">The pre-generated SQL commands.</param>
     /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     protected virtual async Task ApplyMigrationAsync(
-        CompiledMigration compiledMigration,
+        string migrationId,
         IReadOnlyList<string> sqlCommands,
         CancellationToken cancellationToken = default)
     {
@@ -291,14 +296,15 @@ public class RuntimeMigrationService : IRuntimeMigrationService
                 await _historyRepository.CreateAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            // Get the migration and its operations
-            var migration = _dynamicMigrationsAssembly.CreateMigration(
-                compiledMigration.MigrationTypeInfo,
+            // Get the migration type and create instance
+            var migrationTypeInfo = _migrationsAssembly.Migrations[migrationId];
+            var migration = _migrationsAssembly.CreateMigration(
+                migrationTypeInfo,
                 _currentContext.Context.Database.ProviderName!);
 
             // Build the history insert command
             var insertCommand = _rawSqlCommandBuilder.Build(
-                _historyRepository.GetInsertScript(new HistoryRow(compiledMigration.MigrationId, ProductInfo.GetVersion())));
+                _historyRepository.GetInsertScript(new HistoryRow(migrationId, ProductInfo.GetVersion())));
 
             // Generate migration commands and append history insert
             var migrationCommands = _sqlGenerator.Generate(
@@ -323,12 +329,13 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     /// <summary>
     ///     Generates the SQL commands that would be executed for the migration.
     /// </summary>
-    /// <param name="compiledMigration">The compiled migration.</param>
+    /// <param name="migrationId">The migration ID.</param>
     /// <returns>The list of SQL command strings.</returns>
-    protected virtual IReadOnlyList<string> GenerateSqlCommands(CompiledMigration compiledMigration)
+    protected virtual IReadOnlyList<string> GenerateSqlCommands(string migrationId)
     {
-        var migration = _dynamicMigrationsAssembly.CreateMigration(
-            compiledMigration.MigrationTypeInfo,
+        var migrationTypeInfo = _migrationsAssembly.Migrations[migrationId];
+        var migration = _migrationsAssembly.CreateMigration(
+            migrationTypeInfo,
             _currentContext.Context.Database.ProviderName!);
 
         var commands = _sqlGenerator.Generate(
@@ -342,13 +349,13 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     [RequiresDynamicCode("Runtime migration requires dynamic code generation.")]
     public virtual IReadOnlyList<string> RevertMigration(string? migrationId = null)
     {
-        var compiledMigration = FindMigrationToRevert(migrationId);
+        var migrationIdToRevert = FindMigrationIdToRevert(migrationId);
 
         _connection.Open();
         try
         {
-            var sqlCommands = RevertMigrationCore(compiledMigration);
-            _appliedDynamicMigrations.Remove(compiledMigration);
+            var sqlCommands = RevertMigrationCore(migrationIdToRevert);
+            _appliedDynamicMigrationIds.Remove(migrationIdToRevert);
             return sqlCommands;
         }
         finally
@@ -363,14 +370,14 @@ public class RuntimeMigrationService : IRuntimeMigrationService
         string? migrationId = null,
         CancellationToken cancellationToken = default)
     {
-        var compiledMigration = FindMigrationToRevert(migrationId);
+        var migrationIdToRevert = FindMigrationIdToRevert(migrationId);
 
         await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var sqlCommands = await RevertMigrationCoreAsync(compiledMigration, cancellationToken)
+            var sqlCommands = await RevertMigrationCoreAsync(migrationIdToRevert, cancellationToken)
                 .ConfigureAwait(false);
-            _appliedDynamicMigrations.Remove(compiledMigration);
+            _appliedDynamicMigrationIds.Remove(migrationIdToRevert);
             return sqlCommands;
         }
         finally
@@ -380,57 +387,52 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     }
 
     /// <summary>
-    ///     Finds the migration to revert based on the provided migration ID.
+    ///     Finds the migration ID to revert based on the provided migration ID.
     /// </summary>
     /// <param name="migrationId">The migration ID to find, or null for the most recent.</param>
-    /// <returns>The compiled migration to revert.</returns>
+    /// <returns>The migration ID to revert.</returns>
     /// <exception cref="InvalidOperationException">
     ///     Thrown when no dynamic migrations have been applied or the specified migration is not found.
     /// </exception>
-    protected virtual CompiledMigration FindMigrationToRevert(string? migrationId)
+    protected virtual string FindMigrationIdToRevert(string? migrationId)
     {
-        if (_appliedDynamicMigrations.Count == 0)
+        if (_appliedDynamicMigrationIds.Count == 0)
         {
             throw new InvalidOperationException(DesignStrings.NoDynamicMigrationsToRevert);
         }
 
-        CompiledMigration? compiledMigration;
         if (migrationId == null)
         {
             // Revert the most recently applied migration
-            compiledMigration = _appliedDynamicMigrations[^1];
+            return _appliedDynamicMigrationIds[^1];
         }
-        else
+
+        // Find the specified migration
+        if (!_appliedDynamicMigrationIds.Contains(migrationId))
         {
-            // Find the specified migration
-            compiledMigration = _appliedDynamicMigrations
-                .FirstOrDefault(m => m.MigrationId == migrationId);
-
-            if (compiledMigration == null)
-            {
-                throw new InvalidOperationException(
-                    DesignStrings.DynamicMigrationNotFound(migrationId));
-            }
+            throw new InvalidOperationException(
+                DesignStrings.DynamicMigrationNotFound(migrationId));
         }
 
-        return compiledMigration;
+        return migrationId;
     }
 
     /// <summary>
     ///     Executes the Down operations for a migration and removes it from history.
     /// </summary>
-    /// <param name="compiledMigration">The migration to revert.</param>
+    /// <param name="migrationId">The migration ID to revert.</param>
     /// <returns>The SQL commands that were executed.</returns>
-    protected virtual IReadOnlyList<string> RevertMigrationCore(CompiledMigration compiledMigration)
+    protected virtual IReadOnlyList<string> RevertMigrationCore(string migrationId)
     {
-        // Get the migration and its Down operations
-        var migration = _dynamicMigrationsAssembly.CreateMigration(
-            compiledMigration.MigrationTypeInfo,
+        // Get the migration type and create instance
+        var migrationTypeInfo = _migrationsAssembly.Migrations[migrationId];
+        var migration = _migrationsAssembly.CreateMigration(
+            migrationTypeInfo,
             _currentContext.Context.Database.ProviderName!);
 
         // Build the history delete command
         var deleteCommand = _rawSqlCommandBuilder.Build(
-            _historyRepository.GetDeleteScript(compiledMigration.MigrationId));
+            _historyRepository.GetDeleteScript(migrationId));
 
         // Generate migration commands from Down operations and append history delete
         var migrationCommands = _sqlGenerator.Generate(
@@ -451,21 +453,22 @@ public class RuntimeMigrationService : IRuntimeMigrationService
     /// <summary>
     ///     Executes the Down operations for a migration and removes it from history asynchronously.
     /// </summary>
-    /// <param name="compiledMigration">The migration to revert.</param>
+    /// <param name="migrationId">The migration ID to revert.</param>
     /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
     /// <returns>A task containing the SQL commands that were executed.</returns>
     protected virtual async Task<IReadOnlyList<string>> RevertMigrationCoreAsync(
-        CompiledMigration compiledMigration,
+        string migrationId,
         CancellationToken cancellationToken = default)
     {
-        // Get the migration and its Down operations
-        var migration = _dynamicMigrationsAssembly.CreateMigration(
-            compiledMigration.MigrationTypeInfo,
+        // Get the migration type and create instance
+        var migrationTypeInfo = _migrationsAssembly.Migrations[migrationId];
+        var migration = _migrationsAssembly.CreateMigration(
+            migrationTypeInfo,
             _currentContext.Context.Database.ProviderName!);
 
         // Build the history delete command
         var deleteCommand = _rawSqlCommandBuilder.Build(
-            _historyRepository.GetDeleteScript(compiledMigration.MigrationId));
+            _historyRepository.GetDeleteScript(migrationId));
 
         // Generate migration commands from Down operations and append history delete
         var migrationCommands = _sqlGenerator.Generate(
