@@ -43,6 +43,27 @@ public class MigrationsAssembly : IMigrationsAssembly
         _logger = logger;
     }
 
+    private static Type? GetDbContextType(TypeInfo typeInfo)
+    {
+        // Walk the inheritance chain to find the first DbContextAttribute.
+        // This supports inheritance while avoiding AmbiguousMatchException
+        // that would occur with GetCustomAttribute(inherit: true) when multiple
+        // attributes exist in the hierarchy.
+        var currentType = typeInfo.AsType();
+        while (currentType != null && currentType != typeof(object))
+        {
+            var attribute = currentType.GetCustomAttribute<DbContextAttribute>(inherit: false);
+            if (attribute != null)
+            {
+                return attribute.ContextType;
+            }
+
+            currentType = currentType.BaseType;
+        }
+
+        return null;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -60,7 +81,7 @@ public class MigrationsAssembly : IMigrationsAssembly
                 var items
                     = from t in Assembly.GetConstructibleTypes()
                       where t.IsSubclassOf(typeof(Migration))
-                          && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
+                          && GetDbContextType(t) == _contextType
                       let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
                       orderby id
                       select (id, t);
@@ -94,7 +115,7 @@ public class MigrationsAssembly : IMigrationsAssembly
         => _modelSnapshot
             ??= (from t in Assembly.GetConstructibleTypes()
                  where t.IsSubclassOf(typeof(ModelSnapshot))
-                     && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
+                     && GetDbContextType(t) == _contextType
                  select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
             .FirstOrDefault();
 
