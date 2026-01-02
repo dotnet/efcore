@@ -188,8 +188,8 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
             sqliteConnection.CreateCollation(
                 "EF_DECIMAL",
                 (x, y) => decimal.Compare(
-                    decimal.Parse(x, NumberStyles.Any, CultureInfo.InvariantCulture),
-                    decimal.Parse(y, NumberStyles.Any, CultureInfo.InvariantCulture)));
+                    decimal.Parse(x, NumberStyles.Number, CultureInfo.InvariantCulture),
+                    decimal.Parse(y, NumberStyles.Number, CultureInfo.InvariantCulture)));
         }
         else
         {
