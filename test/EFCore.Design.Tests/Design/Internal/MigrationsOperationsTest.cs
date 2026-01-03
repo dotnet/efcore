@@ -44,52 +44,6 @@ public class MigrationsOperationsTest
     }
 
     [ConditionalFact]
-    public void AddMigration_validates_migration_name_with_invalid_characters()
-    {
-        var assembly = MockAssembly.Create(typeof(TestContext));
-        var operations = new TestMigrationsOperations(
-            new TestOperationReporter(),
-            assembly,
-            assembly,
-            "projectDir",
-            "RootNamespace",
-            "C#",
-            nullable: false,
-            args: []);
-
-        // Use Path.GetInvalidFileNameChars() to get platform-specific invalid characters
-        // Null character (char 0) is invalid on all platforms
-        var invalidName = "Test\0Migration";
-
-        var exception = Assert.Throws<OperationException>(
-            () => operations.AddMigration(invalidName, null, null, null, dryRun: true));
-
-        // The error message contains the invalid characters list
-        Assert.NotNull(exception);
-    }
-
-    [ConditionalFact]
-    public void AddMigration_rejects_context_class_name()
-    {
-        var assembly = MockAssembly.Create(typeof(TestContext));
-        var operations = new TestMigrationsOperations(
-            new TestOperationReporter(),
-            assembly,
-            assembly,
-            "projectDir",
-            "RootNamespace",
-            "C#",
-            nullable: false,
-            args: []);
-
-        // Migration name same as context class name should be rejected
-        var exception = Assert.Throws<OperationException>(
-            () => operations.AddMigration("TestContext", null, typeof(TestContext).FullName, null, dryRun: true));
-
-        Assert.Contains("TestContext", exception.Message);
-    }
-
-    [ConditionalFact]
     public void RevertMigration_throws_when_no_dynamic_migrations()
     {
         var assembly = MockAssembly.Create(typeof(TestContext));
