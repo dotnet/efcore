@@ -97,6 +97,47 @@ public class MigrationsAssemblyTest
         Assert.Contains(result, t => t.Key == "20150302103200_InheritedMigration");
     }
 
+    [ConditionalFact]
+    public void Migrations_finds_attribute_on_base_class_only()
+    {
+        var assembly = CreateMigrationsAssemblyWithAttributeOnBaseOnly();
+
+        // This should find the migration even though the attribute is only on the base class
+        var result = assembly.Migrations;
+
+        Assert.Single(result);
+        Assert.Contains(result, t => t.Key == "20150302103300_DerivedMigrationWithBaseAttribute");
+    }
+
+    private IMigrationsAssembly CreateMigrationsAssemblyWithAttributeOnBaseOnly()
+        => new MigrationsAssembly(
+            new CurrentDbContext(new AttributeOnBaseContext()),
+            new DbContextOptions<DbContext>(
+                new Dictionary<Type, IDbContextOptionsExtension>
+                {
+                    { typeof(FakeRelationalOptionsExtension), new FakeRelationalOptionsExtension() }
+                }),
+            new MigrationsIdGenerator(),
+            new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
+
+    private class AttributeOnBaseContext : DbContext;
+
+    [DbContext(typeof(AttributeOnBaseContext))]
+    private class BaseMigrationWithAttribute : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [Migration("20150302103300_DerivedMigrationWithBaseAttribute")]
+    private class DerivedMigrationWithBaseAttribute : BaseMigrationWithAttribute
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
     private IMigrationsAssembly CreateInheritedMigrationsAssembly()
         => new MigrationsAssembly(
             new CurrentDbContext(new DerivedContext()),
