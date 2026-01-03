@@ -168,8 +168,6 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             is { Table: var principalSplitTable }
                             => principalSplitTable,
 
-                        [] => nullComparedEntityType.GetDefaultMappings().Single().Table,
-
                         _ => null
                     };
 
