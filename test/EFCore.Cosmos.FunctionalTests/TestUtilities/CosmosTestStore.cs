@@ -96,6 +96,11 @@ public class CosmosTestStore : TestStore
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
+        if (TestEnvironment.SkipConnectionCheck)
+        {
+            return true;
+        }
+
         if (_connectionAvailable == null)
         {
             await _connectionSemaphore.WaitAsync();
