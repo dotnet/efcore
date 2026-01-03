@@ -268,6 +268,65 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion 37162
 
+    #region Issue37337
+
+    [ConditionalFact]
+    public virtual async Task Nullable_complex_type_with_discriminator_and_shadow_property()
+    {
+        var contextFactory = await InitializeAsync<Context37337>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context37337.EntityType
+                    {
+                        Prop = new Context37337.OptionalComplexProperty
+                        {
+                            OptionalValue = true
+                        }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var entities = await context.Set<Context37337.EntityType>().ToArrayAsync();
+
+        Assert.Single(entities);
+        var entity = entities[0];
+        Assert.NotNull(entity.Prop);
+        Assert.True(entity.Prop.OptionalValue);
+    }
+
+    private class Context37337(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var entity = modelBuilder.Entity<EntityType>();
+            entity.Property(p => p.Id);
+            entity.HasKey(p => p.Id);
+
+            var compl = entity.ComplexProperty(p => p.Prop);
+            compl.Property(p => p.OptionalValue);
+            compl.HasDiscriminator();
+
+            // Shadow property added via convention (e.g., audit field)
+            entity.Property<string>("CreatedBy").IsRequired(false);
+        }
+
+        public class EntityType
+        {
+            public Guid Id { get; set; }
+            public OptionalComplexProperty? Prop { get; set; }
+        }
+
+        public class OptionalComplexProperty
+        {
+            public bool? OptionalValue { get; set; }
+        }
+    }
+
+    #endregion Issue37337
+
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";
 }
