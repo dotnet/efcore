@@ -3,6 +3,7 @@
 
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -1542,6 +1543,53 @@ LIMIT 1
             .First();
 
         Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact, UseCulture("tr-TR")]
+    public virtual void Can_query_OrderBy_decimal_with_Turkish_culture()
+    {
+        using var context = CreateContext();
+        var min = new BuiltInDataTypes
+        {
+            Id = 1,
+            TestDecimal = 1.05m
+        };
+        context.Add(min);
+
+        var middle = new BuiltInDataTypes
+        {
+            Id = 2,
+            TestDecimal = 1.5m
+        };
+        context.Add(middle);
+
+        var max = new BuiltInDataTypes
+        {
+            Id = 3,
+            TestDecimal = 2.5m
+        };
+        context.Add(max);
+
+        context.SaveChanges();
+
+        var query = context.Set<BuiltInDataTypes>();
+
+        var results = query
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => new { e.Id, e.TestDecimal })
+            .ToList();
+
+        var expectedResults = query.AsEnumerable()
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => new { e.Id, e.TestDecimal })
+            .ToList();
+
+        Assert.Equal(expectedResults.Count, results.Count);
+        for (var i = 0; i < expectedResults.Count; i++)
+        {
+            Assert.Equal(expectedResults[i].Id, results[i].Id);
+            Assert.Equal(expectedResults[i].TestDecimal, results[i].TestDecimal);
+        }
     }
 
     [ConditionalFact]
