@@ -159,9 +159,19 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 if (nullComparedEntityType.GetRootType() == nullComparedEntityType
                     && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var table = nullComparedEntityType.GetViewOrTableMappings().SingleOrDefault()?.Table
-                        ?? nullComparedEntityType.GetDefaultMappings().Single().Table;
-                    if (table.IsOptional(nullComparedEntityType))
+                    var table = nullComparedEntityType.GetViewOrTableMappings().ToList() switch
+                    {
+                        [var singleMapping] => singleMapping.Table,
+
+                        // For entity splitting we get multiple table mappings, but can simply choose the principal table.
+                        var multipleMappings when multipleMappings.SingleOrDefault(m => m.IsSplitEntityTypePrincipal is true)
+                            is { Table: var principalSplitTable }
+                            => principalSplitTable,
+
+                        _ => null
+                    };
+
+                    if (table?.IsOptional(nullComparedEntityType) is true)
                     {
                         Expression? condition = null;
                         // Optional dependent sharing table
