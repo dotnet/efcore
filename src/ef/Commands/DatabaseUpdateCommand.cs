@@ -8,9 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands;
 // ReSharper disable once ArrangeTypeModifiers
 internal partial class DatabaseUpdateCommand
 {
-    protected override int Execute(string[] args)
+    protected override void Validate()
     {
-        // Validate that -o and -n are only used with --add
+        base.Validate();
+
         if (!_add!.HasValue())
         {
             if (_outputDir!.HasValue())
@@ -23,7 +24,10 @@ internal partial class DatabaseUpdateCommand
                 throw new CommandException(Resources.NamespaceRequiresAdd);
             }
         }
+    }
 
+    protected override int Execute(string[] args)
+    {
         using var executor = CreateExecutor(args);
 
         if (_add!.HasValue())

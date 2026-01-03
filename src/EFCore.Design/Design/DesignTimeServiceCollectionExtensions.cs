@@ -67,8 +67,7 @@ public static class DesignTimeServiceCollectionExtensions
                 .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                 .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
                 .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>()
-                .TryAddSingleton<IMigrationCompiler, CSharpMigrationCompiler>()
-                .TryAddScoped<IRuntimeMigrationService, RuntimeMigrationService>());
+                .TryAddSingleton<IMigrationCompiler, CSharpMigrationCompiler>());
 
         var loggerFactory = new LoggerFactory(
             [new OperationLoggerProvider(reporter)], new LoggerFilterOptions { MinLevel = LogLevel.Debug });

@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -20,6 +22,9 @@ public class MigrationsOperations
     private readonly string? _language;
     private readonly DesignTimeServicesBuilder _servicesBuilder;
     private readonly DbContextOperations _contextOperations;
+
+    // Track applied dynamic migrations for revert support
+    private readonly List<string> _appliedDynamicMigrationIds = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -268,7 +273,8 @@ public class MigrationsOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RuntimeMigrationResult AddAndApplyMigration(
+    [RequiresDynamicCode("Runtime migration compilation requires dynamic code generation.")]
+    public virtual MigrationFiles AddAndApplyMigration(
         string name,
         string? outputDir,
         string? contextType,
@@ -277,7 +283,12 @@ public class MigrationsOperations
     {
         ValidateMigrationName(name);
 
-        _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
+        if (outputDir != null)
+        {
+            outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+        }
+
+        var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
         using var context = _contextOperations.CreateContext(contextType);
         ValidateMigrationNameNotContextName(name, context);
@@ -292,21 +303,119 @@ public class MigrationsOperations
         EnsureMigrationsAssembly(services);
 
         using var scope = services.CreateScope();
-        var runtimeMigrationService = scope.ServiceProvider.GetRequiredService<IRuntimeMigrationService>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
 
-        var options = new RuntimeMigrationOptions
+        // Check for pending model changes
+        if (!migrator.HasPendingModelChanges())
         {
-            PersistToDisk = true,
-            OutputDirectory = outputDir,
-            Namespace = @namespace,
-            ProjectDirectory = _projectDir
-        };
+            // No new migration needed, just apply existing migrations
+            _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
+            migrator.Migrate(null);
+            _reporter.WriteInformation(DesignStrings.Done);
+            return new MigrationFiles();
+        }
 
-        var result = runtimeMigrationService.CreateAndApplyMigration(name, options);
+        _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
 
-        _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(result.MigrationId));
+        // Scaffold migration
+        var migration =
+            string.IsNullOrEmpty(@namespace)
+                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun: true)
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun: true);
 
-        return result;
+        // Save to disk
+        var files = scaffolder.Save(_projectDir, migration, outputDir, dryRun: false);
+
+        // Compile and register
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+        migrationsAssembly.AddMigrations(compiledAssembly);
+
+        // Track for revert support
+        _appliedDynamicMigrationIds.Add(migration.MigrationId);
+
+        // Apply migration
+        migrator.Migrate(migration.MigrationId);
+
+        _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(migration.MigrationId));
+
+        return files;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [RequiresDynamicCode("Runtime migration requires dynamic code generation.")]
+    public virtual IReadOnlyList<string> RevertMigration(
+        string? contextType,
+        string? migrationId = null)
+    {
+        if (_appliedDynamicMigrationIds.Count == 0)
+        {
+            throw new OperationException(DesignStrings.NoDynamicMigrationsToRevert);
+        }
+
+        var idToRevert = migrationId ?? _appliedDynamicMigrationIds[^1];
+
+        if (!_appliedDynamicMigrationIds.Contains(idToRevert))
+        {
+            throw new OperationException(DesignStrings.DynamicMigrationNotFound(idToRevert));
+        }
+
+        using var context = _contextOperations.CreateContext(contextType);
+
+        var services = _servicesBuilder.Build(context);
+        EnsureServices(services);
+
+        using var scope = services.CreateScope();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var sqlGenerator = scope.ServiceProvider.GetRequiredService<IMigrationsSqlGenerator>();
+        var historyRepository = scope.ServiceProvider.GetRequiredService<IHistoryRepository>();
+        var commandExecutor = scope.ServiceProvider.GetRequiredService<IMigrationCommandExecutor>();
+        var connection = scope.ServiceProvider.GetRequiredService<IRelationalConnection>();
+        var rawSqlCommandBuilder = scope.ServiceProvider.GetRequiredService<IRawSqlCommandBuilder>();
+        var commandLogger = scope.ServiceProvider.GetRequiredService<IRelationalCommandDiagnosticsLogger>();
+
+        // Get the migration and execute Down operations
+        var migrationTypeInfo = migrationsAssembly.Migrations[idToRevert];
+        var migration = migrationsAssembly.CreateMigration(
+            migrationTypeInfo,
+            context.Database.ProviderName!);
+
+        connection.Open();
+        try
+        {
+            // Build the history delete command
+            var deleteCommand = rawSqlCommandBuilder.Build(
+                historyRepository.GetDeleteScript(idToRevert));
+
+            // Generate migration commands from Down operations and append history delete
+            var migrationCommands = sqlGenerator.Generate(
+                migration.DownOperations,
+                context.Model).ToList();
+            migrationCommands.Add(new MigrationCommand(deleteCommand, context, commandLogger));
+
+            // Execute all commands
+            commandExecutor.ExecuteNonQuery(migrationCommands, connection);
+
+            _appliedDynamicMigrationIds.Remove(idToRevert);
+
+            // Return the SQL that was executed (excluding history delete for cleaner output)
+            return migrationCommands
+                .Take(migrationCommands.Count - 1)
+                .Select(c => c.CommandText)
+                .ToList();
+        }
+        finally
+        {
+            connection.Close();
+        }
     }
 
     private static void ValidateMigrationName(string name)
