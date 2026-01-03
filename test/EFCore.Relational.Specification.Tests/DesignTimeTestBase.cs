@@ -174,6 +174,113 @@ public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFix
         Assert.True(migrator.HasPendingModelChanges());
     }
 
+    [ConditionalFact]
+    public void HasPendingModelChanges_returns_false_after_migration()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        // Initially has pending changes
+        Assert.True(migrator.HasPendingModelChanges());
+
+        // Apply migration
+        var migration = scaffolder.ScaffoldMigration(
+            "PendingChangesTest",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+        migrationsAssembly.AddMigrations(compiledAssembly);
+        migrator.Migrate(migration.MigrationId);
+
+        // Should not have pending changes after migration
+        Assert.False(migrator.HasPendingModelChanges());
+    }
+
+    [ConditionalFact]
+    public void Compiled_migration_contains_correct_operations()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+
+        var migration = scaffolder.ScaffoldMigration(
+            "OperationsTest",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+
+        // Find the migration type
+        var migrationType = compiledAssembly.GetTypes()
+            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+        Assert.NotNull(migrationType);
+
+        // Create an instance and verify operations
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+        var upOperations = migrationInstance.UpOperations.ToList();
+
+        Assert.NotEmpty(upOperations);
+        Assert.Contains(upOperations, op => op is CreateTableOperation);
+    }
+
+    [ConditionalFact]
+    public void Can_scaffold_and_save_migration_to_disk()
+    {
+        var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreMigrationTest_" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(tempDirectory);
+
+            using var context = Fixture.CreateContext();
+            using var services = CreateDesignTimeServices(context);
+            using var scope = services.CreateScope();
+
+            var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+
+            var migration = scaffolder.ScaffoldMigration(
+                "SaveToDisk",
+                rootNamespace: "TestNamespace",
+                subNamespace: "Migrations",
+                language: "C#",
+                dryRun: true);
+
+            var files = scaffolder.Save(tempDirectory, migration, outputDir: null, dryRun: false);
+
+            Assert.NotNull(files.MigrationFile);
+            Assert.NotNull(files.MetadataFile);
+            Assert.NotNull(files.SnapshotFile);
+            Assert.True(File.Exists(files.MigrationFile));
+            Assert.True(File.Exists(files.MetadataFile));
+            Assert.True(File.Exists(files.SnapshotFile));
+
+            // Verify content
+            var migrationContent = File.ReadAllText(files.MigrationFile);
+            Assert.Contains("CreateTable", migrationContent);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDirectory))
+            {
+                try { Directory.Delete(tempDirectory, recursive: true); }
+                catch { /* Ignore cleanup errors */ }
+            }
+        }
+    }
+
     protected ServiceProvider CreateDesignTimeServices(DbContext context)
     {
         var serviceCollection = new ServiceCollection()
