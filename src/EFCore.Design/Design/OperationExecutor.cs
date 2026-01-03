@@ -342,14 +342,12 @@ public class OperationExecutor : MarshalByRefObject
         string? @namespace,
         string? connectionString)
     {
-        var result = MigrationsOperations.AddAndApplyMigration(name, outputDir, contextType, @namespace, connectionString);
+        var files = MigrationsOperations.AddAndApplyMigration(name, outputDir, contextType, @namespace, connectionString);
         return new Hashtable
         {
-            ["MigrationId"] = result.MigrationId,
-            ["Applied"] = result.Applied,
-            ["MigrationFile"] = result.MigrationFilePath,
-            ["MetadataFile"] = result.MetadataFilePath,
-            ["SnapshotFile"] = result.SnapshotFilePath
+            ["MigrationFile"] = files.MigrationFile,
+            ["MetadataFile"] = files.MetadataFile,
+            ["SnapshotFile"] = files.SnapshotFile
         };
     }
 
