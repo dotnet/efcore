@@ -1029,6 +1029,83 @@ public static class EntityFrameworkServiceCollectionExtensions
     }
 
     /// <summary>
+    ///     Registers a pooled <see cref="IDbContextFactory{TContext}" /> in the
+    ///     <see cref="IServiceCollection" /> for creating instances of the specified
+    ///     <see cref="DbContext" /> type.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This parameterless overload aligns the pooled factory with the centralized
+    ///         configuration model introduced by
+    ///         <see cref="ConfigureDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime)"/>
+    ///         When used together, options (including the database provider) configured in
+    ///         <c>ConfigureDbContext&lt;TContext&gt;</c> automatically flow into the pooled factory,
+    ///         avoiding redundant configuration lambdas.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see>,
+    ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TContext">
+    ///     The type of <see cref="DbContext" /> to be created by the factory.
+    /// </typeparam>
+    /// <param name="serviceCollection">
+    ///     The <see cref="IServiceCollection" /> to which the services are added.
+    /// </param>
+    /// <returns>
+    ///     The same <see cref="IServiceCollection" /> so that multiple calls can be chained.
+    /// </returns>
+    public static IServiceCollection AddPooledDbContextFactory
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection)
+        where TContext : DbContext
+        => AddPooledDbContextFactory<TContext>(
+            serviceCollection,
+            static (_, __) => { },
+            DbContextPool<DbContext>.DefaultPoolSize);
+
+    /// <summary>
+    ///     Registers a pooled <see cref="IDbContextFactory{TContext}" /> in the
+    ///     <see cref="IServiceCollection" /> for creating instances of the specified
+    ///     <see cref="DbContext" /> type, using a custom pool size.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This overload aligns with the EF Core centralized configuration model
+    ///         <see cref="ConfigureDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime)" />
+    ///         and allows specifying a custom <paramref name="poolSize"/>.  
+    ///         Options configured via <c>ConfigureDbContext&lt;TContext&gt;</c> are automatically used,
+    ///         eliminating the need to repeat provider configuration.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TContext">
+    ///     The type of <see cref="DbContext" /> to be created by the factory.
+    /// </typeparam>
+    /// <param name="serviceCollection">
+    ///     The <see cref="IServiceCollection" /> to which the services are added.
+    /// </param>
+    /// <param name="poolSize">
+    ///     The maximum number of <typeparamref name="TContext" /> instances retained by the pool.
+    ///     The default is 1024.
+    /// </param>
+    /// <returns>
+    ///     The same <see cref="IServiceCollection" /> so that multiple calls can be chained.
+    /// </returns>
+    public static IServiceCollection AddPooledDbContextFactory
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            int poolSize)
+        where TContext : DbContext
+        => AddPooledDbContextFactory<TContext>(
+            serviceCollection,
+            static (_, __) => { },
+            poolSize);
+
+
+    /// <summary>
     ///     Configures the given context type in the <see cref="IServiceCollection" />.
     /// </summary>
     /// <remarks>
