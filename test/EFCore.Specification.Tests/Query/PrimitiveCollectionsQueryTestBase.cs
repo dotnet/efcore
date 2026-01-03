@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
@@ -289,6 +290,25 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
     {
         var ints = ImmutableArray.Create(10, 999);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        // IReadOnlySet<T> has Contains defined directly on itself
+        IReadOnlySet<int> ints = new HashSet<int> { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        var ints = new ReadOnlyCollectionWithContains<int>(10, 999);
 
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
@@ -1844,4 +1864,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 }
             };
     }
+}
+
+// Keep it outside so it does not inherit the TFixture.
+internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
+{
+    public int Count => items.Length;
+
+    public bool Contains(T item) => items.Contains(item);
+
+    public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
