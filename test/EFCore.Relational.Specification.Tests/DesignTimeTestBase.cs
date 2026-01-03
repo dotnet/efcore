@@ -281,6 +281,210 @@ public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFix
         }
     }
 
+    [ConditionalFact]
+    public void Can_apply_multiple_migrations_sequentially()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        // First migration
+        var migration1 = scaffolder.ScaffoldMigration(
+            "FirstSequential",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var assembly1 = compiler.CompileMigration(migration1, context.GetType());
+        migrationsAssembly.AddMigrations(assembly1);
+        migrator.Migrate(migration1.MigrationId);
+
+        // First migration should be applied
+        var appliedAfterFirst = context.Database.GetAppliedMigrations().ToList();
+        Assert.Contains(migration1.MigrationId, appliedAfterFirst);
+
+        // Second migration (empty since model hasn't changed, but should still work)
+        var migration2 = scaffolder.ScaffoldMigration(
+            "SecondSequential",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var assembly2 = compiler.CompileMigration(migration2, context.GetType());
+        migrationsAssembly.AddMigrations(assembly2);
+        migrator.Migrate(migration2.MigrationId);
+
+        // Both migrations should be applied
+        var appliedAfterSecond = context.Database.GetAppliedMigrations().ToList();
+        Assert.Contains(migration1.MigrationId, appliedAfterSecond);
+        Assert.Contains(migration2.MigrationId, appliedAfterSecond);
+    }
+
+    [ConditionalFact]
+    public void Migration_up_and_down_operations_are_symmetric()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+
+        var migration = scaffolder.ScaffoldMigration(
+            "TableOperationsTest",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+
+        var migrationType = compiledAssembly.GetTypes()
+            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+        Assert.NotNull(migrationType);
+
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+        var upOperations = migrationInstance.UpOperations.ToList();
+        var downOperations = migrationInstance.DownOperations.ToList();
+
+        // Verify symmetry: CreateTable in Up matches DropTable in Down
+        var createTableCount = upOperations.OfType<CreateTableOperation>().Count();
+        var dropTableCount = downOperations.OfType<DropTableOperation>().Count();
+        Assert.Equal(createTableCount, dropTableCount);
+
+        // Verify symmetry: CreateIndex in Up matches DropIndex in Down
+        var createIndexCount = upOperations.OfType<CreateIndexOperation>().Count();
+        var dropIndexCount = downOperations.OfType<DropIndexOperation>().Count();
+        Assert.Equal(createIndexCount, dropIndexCount);
+    }
+
+    [ConditionalFact]
+    public void Can_revert_migration_using_down_operations()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+        var sqlGenerator = scope.ServiceProvider.GetRequiredService<IMigrationsSqlGenerator>();
+        var commandExecutor = scope.ServiceProvider.GetRequiredService<IMigrationCommandExecutor>();
+        var connection = scope.ServiceProvider.GetRequiredService<IRelationalConnection>();
+
+        // Apply migration
+        var migration = scaffolder.ScaffoldMigration(
+            "RevertTest",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+        migrationsAssembly.AddMigrations(compiledAssembly);
+        migrator.Migrate(migration.MigrationId);
+
+        // Verify it's applied
+        var appliedBefore = context.Database.GetAppliedMigrations().ToList();
+        Assert.Contains(migration.MigrationId, appliedBefore);
+
+        // Get the migration instance and execute Down operations
+        var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
+        var migrationInstance = migrationsAssembly.CreateMigration(
+            migrationTypeInfo,
+            context.Database.ProviderName);
+
+        var downCommands = sqlGenerator.Generate(
+            migrationInstance.DownOperations,
+            context.Model).ToList();
+
+        connection.Open();
+        try
+        {
+            commandExecutor.ExecuteNonQuery(downCommands, connection);
+        }
+        finally
+        {
+            connection.Close();
+        }
+
+        // Note: This doesn't update the history table, just executes Down operations
+        // A full revert would also remove the entry from __EFMigrationsHistory
+    }
+
+    [ConditionalFact]
+    public void Applied_migration_is_recorded_in_history()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+        var historyRepository = scope.ServiceProvider.GetRequiredService<IHistoryRepository>();
+
+        // Get initial count
+        var initialApplied = context.Database.GetAppliedMigrations().ToList();
+
+        // Apply migration
+        var migration = scaffolder.ScaffoldMigration(
+            "HistoryTest",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+        migrationsAssembly.AddMigrations(compiledAssembly);
+        migrator.Migrate(migration.MigrationId);
+
+        // Verify history repository has the new migration
+        var afterApplied = context.Database.GetAppliedMigrations().ToList();
+        Assert.Equal(initialApplied.Count + 1, afterApplied.Count);
+        Assert.Contains(migration.MigrationId, afterApplied);
+    }
+
+    [ConditionalFact]
+    public void Compiled_migration_has_matching_up_and_down_table_operations()
+    {
+        using var context = Fixture.CreateContext();
+        using var services = CreateDesignTimeServices(context);
+        using var scope = services.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+
+        var migration = scaffolder.ScaffoldMigration(
+            "UpDownTest",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+
+        var migrationType = compiledAssembly.GetTypes()
+            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+        Assert.NotNull(migrationType);
+
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+
+        // If there are CreateTable operations, there should be matching DropTable operations
+        var upTableCount = migrationInstance.UpOperations.OfType<CreateTableOperation>().Count();
+        var downTableCount = migrationInstance.DownOperations.OfType<DropTableOperation>().Count();
+        Assert.Equal(upTableCount, downTableCount);
+    }
+
     protected ServiceProvider CreateDesignTimeServices(DbContext context)
     {
         var serviceCollection = new ServiceCollection()
