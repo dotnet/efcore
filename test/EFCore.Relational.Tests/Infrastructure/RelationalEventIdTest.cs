@@ -163,6 +163,10 @@ public class RelationalEventIdTest : EventIdTestBase
 
         public string FindMigrationId(string nameOrId)
             => throw new NotImplementedException();
+
+        public void AddMigrations(Assembly additionalMigrationsAssembly)
+        {
+        }
     }
 
     private class FakeMigrationCommand()

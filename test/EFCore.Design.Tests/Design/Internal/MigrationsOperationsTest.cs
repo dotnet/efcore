@@ -43,6 +43,49 @@ public class MigrationsOperationsTest
         testOperations.AddMigration("Test", null, null, null, dryRun: true);
     }
 
+    [ConditionalFact]
+    public void RevertMigration_throws_when_no_dynamic_migrations()
+    {
+        var assembly = MockAssembly.Create(typeof(TestContext));
+        var operations = new TestMigrationsOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            "projectDir",
+            "RootNamespace",
+            "C#",
+            nullable: false,
+            args: []);
+
+        // No migrations have been applied via AddAndApply, so revert should fail
+        var exception = Assert.Throws<OperationException>(
+            () => operations.RevertMigration(null, null));
+
+        Assert.NotNull(exception);
+    }
+
+    [ConditionalFact]
+    public void RevertMigration_throws_when_specifying_migration_id_with_empty_list()
+    {
+        var assembly = MockAssembly.Create(typeof(TestContext));
+        var operations = new TestMigrationsOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            "projectDir",
+            "RootNamespace",
+            "C#",
+            nullable: false,
+            args: []);
+
+        // Even when specifying a migration ID, it first checks if any dynamic migrations exist
+        var exception = Assert.Throws<OperationException>(
+            () => operations.RevertMigration(null, "SomeMigrationId"));
+
+        // Should throw the "no dynamic migrations" error since list is empty
+        Assert.NotNull(exception);
+    }
+
     private class TestContext : DbContext;
 
     private class AssemblyTestContext : DbContext

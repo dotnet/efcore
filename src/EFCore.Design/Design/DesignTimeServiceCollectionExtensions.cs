@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -65,7 +66,8 @@ public static class DesignTimeServiceCollectionExtensions
                 .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                 .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
-                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
+                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>()
+                .TryAddSingleton<IMigrationCompiler, CSharpMigrationCompiler>());
 
         var loggerFactory = new LoggerFactory(
             [new OperationLoggerProvider(reporter)], new LoggerFilterOptions { MinLevel = LogLevel.Debug });
@@ -96,10 +98,11 @@ public static class DesignTimeServiceCollectionExtensions
             .TryAdd(_ => context.GetService<ICurrentDbContext>())
             .TryAdd(_ => context.GetService<IDbContextOptions>())
             .TryAdd(_ => context.GetService<IHistoryRepository>())
-            .TryAdd(_ => context.GetService<IMigrationsAssembly>())
             .TryAdd(_ => context.GetService<IMigrationsModelDiffer>())
             .TryAdd(_ => context.GetService<IMigrator>())
+            .TryAdd(_ => context.GetService<IMigrationsAssembly>())
             .TryAdd(_ => context.GetService<IDesignTimeModel>().Model);
+
         return services;
     }
 }
