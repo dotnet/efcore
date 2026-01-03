@@ -1545,7 +1545,7 @@ LIMIT 1
         Assert.Equal(expectedResults, results);
     }
 
-    [ConditionalFact, UseCulture("tr-TR")]
+    [ConditionalFact, UseCulture("tr-TR")] // #37432
     public virtual void Can_query_OrderBy_decimal_with_Turkish_culture()
     {
         using var context = CreateContext();
