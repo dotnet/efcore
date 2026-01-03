@@ -35,7 +35,7 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 
     protected abstract void BindText(string value);
 
-    protected abstract void BindBlob(byte[] value);
+    protected abstract void BindBlob(ReadOnlySpan<byte> value);
 
     protected abstract void BindNull();
 
