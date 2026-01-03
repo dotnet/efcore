@@ -59,6 +59,28 @@ public class ChangeDetector : IChangeDetector
 
             DetectKeyChange(entry, property);
         }
+        else if (propertyBase is IComplexProperty { IsCollection: false } complexProperty)
+        {
+            // When a non-collection complex property changes (e.g., from null to non-null),
+            // we need to mark all properties within the complex type as modified
+            // to ensure default values are properly tracked and saved
+            if (entry.EntityState is not EntityState.Deleted && setModified && entry is InternalEntryBase entryBase)
+            {
+                var currentValue = entry[complexProperty];
+                var hasOriginalValues = entryBase.HasOriginalValuesSnapshot
+                    && complexProperty.GetOriginalValueIndex() >= 0;
+                var originalValue = hasOriginalValues ? entry.GetOriginalValue(complexProperty) : null;
+                
+                // If the complex property changed from null to non-null, mark all its properties as modified
+                if (originalValue == null && currentValue != null)
+                {
+                    foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
+                    {
+                        entry.SetPropertyModified(innerProperty, isModified: true);
+                    }
+                }
+            }
+        }
         else if (propertyBase.GetRelationshipIndex() != -1
                  && propertyBase is INavigationBase navigation)
         {
