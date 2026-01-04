@@ -420,6 +420,11 @@ public class MigrationsOperations
 
     private static void ValidateMigrationName(string name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new OperationException(DesignStrings.MigrationNameRequired);
+        }
+
         var invalidPathChars = Path.GetInvalidFileNameChars();
         if (name.Any(c => invalidPathChars.Contains(c)))
         {

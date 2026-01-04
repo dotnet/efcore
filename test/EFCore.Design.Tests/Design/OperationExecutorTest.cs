@@ -1101,7 +1101,7 @@ namespace My.Gnomespace.Data
     }
 
     [ConditionalFact]
-    public void AddAndApplyMigration_errors_when_no_model_changes()
+    public void AddAndApplyMigration_succeeds_when_no_model_changes()
     {
         using var tempPath = new TempDirectory();
         var resultHandler = ExecuteAddAndApplyMigration(
@@ -1110,9 +1110,10 @@ namespace My.Gnomespace.Data
             null,
             null);
 
-        Assert.False(resultHandler.HasResult);
-        Assert.Equal(typeof(InvalidOperationException).FullName, resultHandler.ErrorType);
-        Assert.Contains("No changes have been made to the model", resultHandler.ErrorMessage);
+        // When there are no pending model changes, the operation succeeds
+        // by applying existing migrations without creating a new one
+        Assert.True(resultHandler.HasResult);
+        Assert.Null(resultHandler.ErrorType);
     }
 
     [ConditionalTheory, PlatformSkipCondition(

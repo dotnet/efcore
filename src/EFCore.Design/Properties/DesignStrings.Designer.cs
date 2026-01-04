@@ -36,6 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name, characters);
 
         /// <summary>
+        ///     A migration name must be specified.
+        /// </summary>
+        public static string MigrationNameRequired
+            => GetString("MigrationNameRequired");
+
+        /// <summary>
         ///     Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType(object? sequenceName, object? typeName)

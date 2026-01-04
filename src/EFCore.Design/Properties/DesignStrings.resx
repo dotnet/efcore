@@ -123,6 +123,9 @@
   <data name="BadMigrationName" xml:space="preserve">
     <value>The migration name '{name}' is not valid. Migration names cannot contain any of the following characters: '{characters}'.</value>
   </data>
+  <data name="MigrationNameRequired" xml:space="preserve">
+    <value>A migration name must be specified.</value>
+  </data>
   <data name="BadSequenceType" xml:space="preserve">
     <value>Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.</value>
   </data>
