@@ -157,9 +157,6 @@ function InitializeDotNetCli([bool]$install, [bool]$createSdkLocationFile) {
     return $global:_DotNetInstallDir
   }
 
-  # Don't resolve runtime, shared framework, or SDK from other locations to ensure build determinism
-  $env:DOTNET_MULTILEVEL_LOOKUP=0
-
   # Disable first run since we do not need all ASP.NET packages restored.
   $env:DOTNET_NOLOGO=1
 
@@ -225,7 +222,6 @@ function InitializeDotNetCli([bool]$install, [bool]$createSdkLocationFile) {
   # Make Sure that our bootstrapped dotnet cli is available in future steps of the Azure Pipelines build
   Write-PipelinePrependPath -Path $dotnetRoot
 
-  Write-PipelineSetVariable -Name 'DOTNET_MULTILEVEL_LOOKUP' -Value '0'
   Write-PipelineSetVariable -Name 'DOTNET_NOLOGO' -Value '1'
 
   return $global:_DotNetInstallDir = $dotnetRoot
@@ -560,19 +556,26 @@ function LocateVisualStudio([object]$vsRequirements = $null){
     })
   }
 
-  if (!$vsRequirements) { $vsRequirements = $GlobalJson.tools.vs }
+  if (!$vsRequirements) {
+    if (Get-Member -InputObject $GlobalJson.tools -Name 'vs' -ErrorAction SilentlyContinue) {
+      $vsRequirements = $GlobalJson.tools.vs
+    } else {
+      $vsRequirements = $null
+    }
+  }
+
   $args = @('-latest', '-format', 'json', '-requires', 'Microsoft.Component.MSBuild', '-products', '*')
 
   if (!$excludePrereleaseVS) {
     $args += '-prerelease'
   }
 
-  if (Get-Member -InputObject $vsRequirements -Name 'version') {
+  if ($vsRequirements -and (Get-Member -InputObject $vsRequirements -Name 'version' -ErrorAction SilentlyContinue)) {
     $args += '-version'
     $args += $vsRequirements.version
   }
 
-  if (Get-Member -InputObject $vsRequirements -Name 'components') {
+  if ($vsRequirements -and (Get-Member -InputObject $vsRequirements -Name 'components' -ErrorAction SilentlyContinue)) {
     foreach ($component in $vsRequirements.components) {
       $args += '-requires'
       $args += $component
