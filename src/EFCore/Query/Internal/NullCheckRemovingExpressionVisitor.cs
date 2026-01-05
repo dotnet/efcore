@@ -119,9 +119,11 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
 
     private static Expression? TryOptimizeQueryableNullCheck(Expression expression)
     {
-        // Optimize IQueryable/DbSet null checks:
-        // * IQueryable != null => true
-        // * IQueryable == null => false
+        // Optimize IQueryable/DbSet null checks for expressions that are guaranteed to be non-null:
+        // * queryableMethodCall != null => true
+        // * queryableMethodCall == null => false
+        // This applies to method calls and member accesses that produce IQueryable results, which can never be null.
+        // We do NOT optimize null checks for parameters/variables, as they could legitimately be null.
         if (expression is BinaryExpression
             {
                 NodeType: ExpressionType.Equal or ExpressionType.NotEqual
@@ -134,7 +136,10 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
             {
                 var nonNullExpression = isLeftNull ? binaryExpression.Right : binaryExpression.Left;
 
-                if (nonNullExpression.Type.IsAssignableTo(typeof(IQueryable)))
+                // Only optimize if the expression is a query operation that cannot be null
+                // (method call returning IQueryable, DbSet property access, or QueryRootExpression)
+                if (nonNullExpression.Type.IsAssignableTo(typeof(IQueryable))
+                    && IsNonNullableQueryExpression(nonNullExpression))
                 {
                     var result = binaryExpression.NodeType == ExpressionType.NotEqual;
                     return Expression.Constant(result);
@@ -143,6 +148,22 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
         }
 
         return null;
+    }
+
+    private static bool IsNonNullableQueryExpression(Expression expression)
+    {
+        if (expression is MethodCallExpression or QueryRootExpression)
+        {
+            return true;
+        }
+
+        if (expression is MemberExpression { Member.DeclaringType: not null } memberExpression
+            && memberExpression.Member.DeclaringType.IsAssignableTo(typeof(DbContext)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private sealed class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor
