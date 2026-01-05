@@ -24,9 +24,7 @@ public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGen
     /// </summary>
     public SqlServerSequenceValueGeneratorFactory(
         ISqlServerUpdateSqlGenerator sqlGenerator)
-    {
-        _sqlGenerator = sqlGenerator;
-    }
+        => _sqlGenerator = sqlGenerator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

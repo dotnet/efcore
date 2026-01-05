@@ -26,9 +26,7 @@ public abstract class HiLoValueGenerator<TValue> : ValueGenerator<TValue>
     /// </summary>
     /// <param name="generatorState">The state used to keep track of which value to return next.</param>
     protected HiLoValueGenerator(HiLoValueGeneratorState generatorState)
-    {
-        _generatorState = generatorState;
-    }
+        => _generatorState = generatorState;
 
     /// <summary>
     ///     Gets a value to be assigned to a property.

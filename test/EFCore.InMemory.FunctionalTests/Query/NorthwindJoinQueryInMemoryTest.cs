@@ -5,18 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindJoinQueryInMemoryTest : NorthwindJoinQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindJoinQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindJoinQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindJoinQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-#pragma warning disable IDE0060 // Remove unused parameter
-        ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override Task SelectMany_with_client_eval(bool async)
         // Joins between sources with client eval. Issue #21200.
         => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval(async));
@@ -44,7 +35,7 @@ public class NorthwindJoinQueryInMemoryTest : NorthwindJoinQueryTestBase<Northwi
                       join id in ids on e.EmployeeID equals id
                       select e.EmployeeID));
 
-        ids = new uint[] { 3 };
+        ids = [3];
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,
