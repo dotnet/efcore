@@ -178,41 +178,36 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-            && method.IsGenericMethod
-            && method.GetGenericMethodDefinition() is var genericMethod
-            && (genericMethod == EntityFrameworkQueryableExtensions.IncludeMethodInfo
-                || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo
-                || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
-                || genericMethod == EntityFrameworkQueryableExtensions.NotQuiteIncludeMethodInfo))
+            && method.Name is nameof(EntityFrameworkQueryableExtensions.Include)
+                or nameof(EntityFrameworkQueryableExtensions.ThenInclude)
+                or nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude)
+            && methodCallExpression.Arguments[1].TryGetLambdaExpression(out var includeLambda)
+            && includeLambda.ReturnType.IsGenericType
+            && includeLambda.ReturnType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
         {
-            var includeLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-            if (includeLambda.ReturnType.IsGenericType
-                && includeLambda.ReturnType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+            var source = Visit(methodCallExpression.Arguments[0]);
+            var body = Visit(includeLambda.Body);
+
+            // we have to rewrite the lambda to accommodate for IOrderedEnumerable<> into IOrderedQueryable<> conversion
+            var lambda = (Expression)Expression.Lambda(body, includeLambda.Parameters);
+            if (methodCallExpression.Arguments[1].NodeType == ExpressionType.Quote)
             {
-                var source = Visit(methodCallExpression.Arguments[0]);
-                var body = Visit(includeLambda.Body);
-
-                // we have to rewrite the lambda to accommodate for IOrderedEnumerable<> into IOrderedQueryable<> conversion
-                var lambda = (Expression)Expression.Lambda(body, includeLambda.Parameters);
-                if (methodCallExpression.Arguments[1].NodeType == ExpressionType.Quote)
-                {
-                    lambda = Expression.Quote(lambda);
-                }
-
-                var genericArguments = methodCallExpression.Method.GetGenericArguments();
-
-                if (body.Type.IsGenericType
-                    && body.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
-                {
-                    genericArguments[^1] = body.Type;
-                    var newIncludeMethod = methodCallExpression.Method.GetGenericMethodDefinition()
-                        .MakeGenericMethod(genericArguments);
-
-                    return Expression.Call(newIncludeMethod, source, lambda);
-                }
-
-                return methodCallExpression.Update(null, [source, lambda]);
+                lambda = Expression.Quote(lambda);
             }
+
+            var genericArguments = methodCallExpression.Method.GetGenericArguments();
+
+            if (body.Type.IsGenericType
+                && body.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
+            {
+                genericArguments[^1] = body.Type;
+                var newIncludeMethod = methodCallExpression.Method.GetGenericMethodDefinition()
+                    .MakeGenericMethod(genericArguments);
+
+                return Expression.Call(newIncludeMethod, source, lambda);
+            }
+
+            return methodCallExpression.Update(null, [source, lambda]);
         }
 
         if (visitedExpression == null)
@@ -289,79 +284,81 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     private Expression? ExtractQueryMetadata(MethodCallExpression methodCallExpression)
     {
         // We visit innerQueryable first so that we can get information in the same order operators are applied.
-        var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsTrackingMethodInfo)
+        var method = methodCallExpression.Method;
+        if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
         {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolutionMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.AddTag(methodCallExpression.Arguments[1].GetConstantValue<string>());
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithCallSiteMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-
-            var filePath = methodCallExpression.Arguments[1].GetConstantValue<string>();
-            var lineNumber = methodCallExpression.Arguments[2].GetConstantValue<int>();
-            _queryCompilationContext.AddTag($"File: {filePath}:{lineNumber}");
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.IgnoredQueryFilters = null;
-            _queryCompilationContext.IgnoreQueryFilters = true;
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreNamedQueryFiltersMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            var filterKeys = methodCallExpression.Arguments[1].GetConstantValue<IReadOnlyCollection<string>>();
-            if (filterKeys?.Count > 0)
+            switch (method.Name)
             {
-                _queryCompilationContext.IgnoredQueryFilters ??= [];
-                _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
+                case nameof(EntityFrameworkQueryableExtensions.AsTracking):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+                    return visitedExpression;
+                }
+
+                case nameof(EntityFrameworkQueryableExtensions.AsNoTracking):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                    return visitedExpression;
+                }
+
+                case nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+                    return visitedExpression;
+                }
+
+                case nameof(EntityFrameworkQueryableExtensions.TagWith):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.AddTag(methodCallExpression.Arguments[1].GetConstantValue<string>());
+                    return visitedExpression;
+                }
+
+                case nameof(EntityFrameworkQueryableExtensions.TagWithCallSite):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    var filePath = methodCallExpression.Arguments[1].GetConstantValue<string>();
+                    var lineNumber = methodCallExpression.Arguments[2].GetConstantValue<int>();
+                    _queryCompilationContext.AddTag($"File: {filePath}:{lineNumber}");
+                    return visitedExpression;
+                }
+
+                // For named query filters
+                case nameof(EntityFrameworkQueryableExtensions.IgnoreQueryFilters)
+                    when methodCallExpression.Arguments is
+                    [
+                        var source,
+                        ConstantExpression { Value: IReadOnlyCollection<string> filterKeys }
+                    ]:
+                {
+                    var visitedExpression = Visit(source);
+                    if (filterKeys?.Count > 0)
+                    {
+                        _queryCompilationContext.IgnoredQueryFilters ??= [];
+                        _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
+                    }
+                    return visitedExpression;
+                }
+
+                // For unnamed query filters
+                case nameof(EntityFrameworkQueryableExtensions.IgnoreQueryFilters):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.IgnoredQueryFilters = null;
+                    _queryCompilationContext.IgnoreQueryFilters = true;
+                    return visitedExpression;
+                }
+
+                case nameof(EntityFrameworkQueryableExtensions.IgnoreAutoIncludes):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.IgnoreAutoIncludes = true;
+                    return visitedExpression;
+                }
             }
-
-            return visitedExpression;
-        }
-
-        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreAutoIncludesMethodInfo)
-        {
-            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.IgnoreAutoIncludes = true;
-
-            return visitedExpression;
         }
 
         return null;

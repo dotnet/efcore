@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "EFCore.sln",
+    "path": "EFCore.slnx",
     "projects": [
       "src\\EFCore.Abstractions\\EFCore.Abstractions.csproj",
       "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",

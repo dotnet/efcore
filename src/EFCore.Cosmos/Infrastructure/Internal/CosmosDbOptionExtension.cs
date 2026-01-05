@@ -36,6 +36,8 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     private bool? _enableContentResponseOnWrite;
     private DbContextOptionsExtensionInfo? _info;
     private Func<HttpClient>? _httpClientFactory;
+    private SessionTokenManagementMode _sessionTokenManagementMode = SessionTokenManagementMode.FullyAutomatic;
+    private bool? _enableBulkExecution;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,6 +75,8 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
         _maxTcpConnectionsPerEndpoint = copyFrom._maxTcpConnectionsPerEndpoint;
         _maxRequestsPerTcpConnection = copyFrom._maxRequestsPerTcpConnection;
         _httpClientFactory = copyFrom._httpClientFactory;
+        _sessionTokenManagementMode = copyFrom._sessionTokenManagementMode;
+        _enableBulkExecution = copyFrom._enableBulkExecution;
     }
 
     /// <summary>
@@ -570,6 +574,53 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual SessionTokenManagementMode SessionTokenManagementMode
+        => _sessionTokenManagementMode;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosOptionsExtension WithSessionTokenManagementMode(SessionTokenManagementMode mode)
+    {
+        var clone = Clone();
+
+        clone._sessionTokenManagementMode = mode;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? EnableBulkExecution => _enableBulkExecution;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosOptionsExtension BulkExecutionEnabled(bool enabled)
+    {
+        var clone = Clone();
+
+        clone._enableBulkExecution = enabled;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected virtual CosmosOptionsExtension Clone()
         => new(this);
 
@@ -632,6 +683,8 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 hashCode.Add(Extension._maxTcpConnectionsPerEndpoint);
                 hashCode.Add(Extension._maxRequestsPerTcpConnection);
                 hashCode.Add(Extension._httpClientFactory);
+                hashCode.Add(Extension._sessionTokenManagementMode);
+                hashCode.Add(Extension._enableBulkExecution);
 
                 _serviceProviderHash = hashCode.ToHashCode();
             }
@@ -656,7 +709,9 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 && Extension._gatewayModeMaxConnectionLimit == otherInfo.Extension._gatewayModeMaxConnectionLimit
                 && Extension._maxTcpConnectionsPerEndpoint == otherInfo.Extension._maxTcpConnectionsPerEndpoint
                 && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection
-                && Extension._httpClientFactory == otherInfo.Extension._httpClientFactory;
+                && Extension._httpClientFactory == otherInfo.Extension._httpClientFactory
+                && Extension._sessionTokenManagementMode == otherInfo.Extension._sessionTokenManagementMode
+                && Extension._enableBulkExecution == otherInfo.Extension._enableBulkExecution;
 
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
