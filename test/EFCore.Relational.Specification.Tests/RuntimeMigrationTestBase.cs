@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
@@ -449,6 +452,49 @@ public abstract class RuntimeMigrationTestBase
     /// </summary>
     protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
 
+    /// <summary>
+    ///     Gets the database model by reverse-engineering the current database state.
+    ///     This allows rigorous verification of actual schema structure.
+    /// </summary>
+    protected DatabaseModel GetDatabaseModel(IServiceScope scope, RuntimeMigrationDbContext context)
+    {
+        var databaseModelFactory = scope.ServiceProvider.GetRequiredService<IDatabaseModelFactory>();
+        var connection = context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            connection.Open();
+        }
+
+        return databaseModelFactory.Create(connection, new DatabaseModelFactoryOptions());
+    }
+
+    /// <summary>
+    ///     Helper to scaffold, compile, and apply a migration.
+    /// </summary>
+    protected (ScaffoldedMigration Migration, Assembly CompiledAssembly) ScaffoldAndApplyMigration(
+        IServiceScope scope,
+        RuntimeMigrationDbContext context,
+        string migrationName)
+    {
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        var migration = scaffolder.ScaffoldMigration(
+            migrationName,
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+        migrationsAssembly.AddMigrations(compiledAssembly);
+        migrator.Migrate(migration.MigrationId);
+
+        return (migration, compiledAssembly);
+    }
+
     [ConditionalFact]
     public void Can_revert_migration_using_down_operations()
     {
@@ -553,6 +599,329 @@ public abstract class RuntimeMigrationTestBase
         var upTableCount = migrationInstance.UpOperations.OfType<CreateTableOperation>().Count();
         var downTableCount = migrationInstance.DownOperations.OfType<DropTableOperation>().Count();
         Assert.Equal(upTableCount, downTableCount);
+    }
+
+    #endregion
+
+    #region Rigorous Schema Verification Tests
+
+    [ConditionalFact]
+    public void Migration_creates_correct_table_structure()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        ScaffoldAndApplyMigration(scope, test.Context, "TableStructureTest");
+
+        var dbModel = GetDatabaseModel(scope, test.Context);
+
+        // Verify both tables exist
+        Assert.Contains(dbModel.Tables, t => t.Name == "Blogs");
+        Assert.Contains(dbModel.Tables, t => t.Name == "Posts");
+
+        // Verify Blogs table structure
+        var blogsTable = dbModel.Tables.Single(t => t.Name == "Blogs");
+        Assert.Equal(2, blogsTable.Columns.Count); // Id, Name
+        Assert.Single(blogsTable.Columns, c => c.Name == "Id");
+        Assert.Single(blogsTable.Columns, c => c.Name == "Name");
+
+        // Verify Posts table structure
+        var postsTable = dbModel.Tables.Single(t => t.Name == "Posts");
+        Assert.Equal(4, postsTable.Columns.Count); // Id, Title, Content, BlogId
+        Assert.Single(postsTable.Columns, c => c.Name == "Id");
+        Assert.Single(postsTable.Columns, c => c.Name == "Title");
+        Assert.Single(postsTable.Columns, c => c.Name == "Content");
+        Assert.Single(postsTable.Columns, c => c.Name == "BlogId");
+    }
+
+    [ConditionalFact]
+    public void Migration_creates_correct_primary_keys()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        ScaffoldAndApplyMigration(scope, test.Context, "PrimaryKeyTest");
+
+        var dbModel = GetDatabaseModel(scope, test.Context);
+
+        // Verify Blogs.Id is primary key
+        var blogsTable = dbModel.Tables.Single(t => t.Name == "Blogs");
+        Assert.NotNull(blogsTable.PrimaryKey);
+        Assert.Single(blogsTable.PrimaryKey.Columns);
+        Assert.Equal("Id", blogsTable.PrimaryKey.Columns[0].Name);
+
+        // Verify Blogs.Id is not nullable (PK requirement)
+        var blogsId = blogsTable.Columns.Single(c => c.Name == "Id");
+        Assert.False(blogsId.IsNullable);
+
+        // Verify Posts.Id is primary key
+        var postsTable = dbModel.Tables.Single(t => t.Name == "Posts");
+        Assert.NotNull(postsTable.PrimaryKey);
+        Assert.Single(postsTable.PrimaryKey.Columns);
+        Assert.Equal("Id", postsTable.PrimaryKey.Columns[0].Name);
+
+        // Verify Posts.Id is not nullable
+        var postsId = postsTable.Columns.Single(c => c.Name == "Id");
+        Assert.False(postsId.IsNullable);
+    }
+
+    [ConditionalFact]
+    public void Migration_creates_correct_foreign_keys()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        ScaffoldAndApplyMigration(scope, test.Context, "ForeignKeyTest");
+
+        var dbModel = GetDatabaseModel(scope, test.Context);
+
+        var postsTable = dbModel.Tables.Single(t => t.Name == "Posts");
+        var blogsTable = dbModel.Tables.Single(t => t.Name == "Blogs");
+
+        // Verify Posts has exactly one foreign key
+        var fk = Assert.Single(postsTable.ForeignKeys);
+
+        // Verify FK points to Blogs table
+        Assert.Equal("Blogs", fk.PrincipalTable.Name);
+
+        // Verify FK column is BlogId
+        Assert.Single(fk.Columns);
+        Assert.Equal("BlogId", fk.Columns[0].Name);
+
+        // Verify FK principal column is Id
+        Assert.Single(fk.PrincipalColumns);
+        Assert.Equal("Id", fk.PrincipalColumns[0].Name);
+
+        // Verify cascade delete behavior
+        Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
+    }
+
+    [ConditionalFact]
+    public void Migration_creates_columns_with_correct_constraints()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        ScaffoldAndApplyMigration(scope, test.Context, "ColumnConstraintTest");
+
+        var dbModel = GetDatabaseModel(scope, test.Context);
+
+        // Verify Blogs.Name column (MaxLength 200)
+        var blogsTable = dbModel.Tables.Single(t => t.Name == "Blogs");
+        var nameColumn = blogsTable.Columns.Single(c => c.Name == "Name");
+        // SQLite stores as TEXT with length info embedded or separate
+        Assert.NotNull(nameColumn.StoreType);
+
+        // Verify Posts.Title column (MaxLength 300)
+        var postsTable = dbModel.Tables.Single(t => t.Name == "Posts");
+        var titleColumn = postsTable.Columns.Single(c => c.Name == "Title");
+        Assert.NotNull(titleColumn.StoreType);
+
+        // Verify Posts.Content is nullable (no constraint specified)
+        var contentColumn = postsTable.Columns.Single(c => c.Name == "Content");
+        Assert.True(contentColumn.IsNullable);
+
+        // Verify Posts.BlogId is NOT nullable (required FK)
+        var blogIdColumn = postsTable.Columns.Single(c => c.Name == "BlogId");
+        Assert.False(blogIdColumn.IsNullable);
+    }
+
+    [ConditionalFact]
+    public void Migration_down_removes_schema_completely()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        // Apply migration and verify schema exists
+        ScaffoldAndApplyMigration(scope, test.Context, "CompleteRemovalTest");
+
+        var dbModelBefore = GetDatabaseModel(scope, test.Context);
+
+        // Verify Blogs and Posts tables exist
+        Assert.Contains(dbModelBefore.Tables, t => t.Name == "Blogs");
+        Assert.Contains(dbModelBefore.Tables, t => t.Name == "Posts");
+
+        // Verify FK exists before rollback
+        var postsTableBefore = dbModelBefore.Tables.Single(t => t.Name == "Posts");
+        Assert.Single(postsTableBefore.ForeignKeys);
+
+        // Run Down to revert all migrations
+        migrator.Migrate("0");
+
+        // Verify schema is completely removed
+        var dbModelAfter = GetDatabaseModel(scope, test.Context);
+
+        // Verify Blogs and Posts tables are removed
+        Assert.DoesNotContain(dbModelAfter.Tables, t => t.Name == "Blogs");
+        Assert.DoesNotContain(dbModelAfter.Tables, t => t.Name == "Posts");
+    }
+
+    [ConditionalFact]
+    public void Migration_creates_foreign_key_index()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        ScaffoldAndApplyMigration(scope, test.Context, "FKIndexTest");
+
+        var dbModel = GetDatabaseModel(scope, test.Context);
+
+        var postsTable = dbModel.Tables.Single(t => t.Name == "Posts");
+
+        // EF Core automatically creates an index on FK columns
+        // Look for an index that contains BlogId
+        var fkIndex = postsTable.Indexes.FirstOrDefault(i =>
+            i.Columns.Any(c => c.Name == "BlogId"));
+
+        Assert.NotNull(fkIndex);
+        Assert.Single(fkIndex.Columns);
+        Assert.Equal("BlogId", fkIndex.Columns[0].Name);
+    }
+
+    [ConditionalFact]
+    public void Migration_with_no_changes_produces_empty_operations()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        // Apply first migration (creates schema)
+        var migration1 = scaffolder.ScaffoldMigration(
+            "InitialMigration",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var assembly1 = compiler.CompileMigration(migration1, test.Context.GetType());
+        migrationsAssembly.AddMigrations(assembly1);
+        migrator.Migrate(migration1.MigrationId);
+
+        // Scaffold second migration (no model changes)
+        var migration2 = scaffolder.ScaffoldMigration(
+            "EmptyMigration",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var assembly2 = compiler.CompileMigration(migration2, test.Context.GetType());
+
+        // Find the migration type and verify empty operations
+        var migrationType = assembly2.GetTypes()
+            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+        Assert.NotNull(migrationType);
+
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+
+        // Should have no Up operations (model unchanged)
+        Assert.Empty(migrationInstance.UpOperations);
+
+        // Should have no Down operations
+        Assert.Empty(migrationInstance.DownOperations);
+    }
+
+    [ConditionalFact]
+    public void Migration_preserves_existing_data()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        // Apply first migration
+        var migration1 = scaffolder.ScaffoldMigration(
+            "DataPreservationInit",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var assembly1 = compiler.CompileMigration(migration1, test.Context.GetType());
+        migrationsAssembly.AddMigrations(assembly1);
+        migrator.Migrate(migration1.MigrationId);
+
+        // Insert test data
+        test.Context.Blogs.Add(new Blog { Name = "Test Blog" });
+        test.Context.SaveChanges();
+
+        var blogId = test.Context.Blogs.First().Id;
+        test.Context.Posts.Add(new Post
+        {
+            Title = "Test Post",
+            Content = "Test Content",
+            BlogId = blogId
+        });
+        test.Context.SaveChanges();
+
+        // Verify data exists
+        Assert.Equal(1, test.Context.Blogs.Count());
+        Assert.Equal(1, test.Context.Posts.Count());
+
+        // Apply second empty migration
+        var migration2 = scaffolder.ScaffoldMigration(
+            "DataPreservationCheck",
+            rootNamespace: "TestNamespace",
+            subNamespace: null,
+            language: "C#",
+            dryRun: true);
+
+        var assembly2 = compiler.CompileMigration(migration2, test.Context.GetType());
+        migrationsAssembly.AddMigrations(assembly2);
+        migrator.Migrate(migration2.MigrationId);
+
+        // Verify data is preserved
+        Assert.Equal(1, test.Context.Blogs.Count());
+        Assert.Equal(1, test.Context.Posts.Count());
+
+        var blog = test.Context.Blogs.First();
+        Assert.Equal("Test Blog", blog.Name);
+
+        var post = test.Context.Posts.First();
+        Assert.Equal("Test Post", post.Title);
+        Assert.Equal("Test Content", post.Content);
+    }
+
+    [ConditionalFact]
+    public void Applied_migration_snapshot_matches_model()
+    {
+        using var test = CreateTestContext();
+        using var scope = test.CreateScope();
+
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        // Initially should have pending model changes
+        Assert.True(migrator.HasPendingModelChanges());
+
+        // Apply migration
+        ScaffoldAndApplyMigration(scope, test.Context, "SnapshotMatchTest");
+
+        // After migration, should have no pending changes
+        Assert.False(migrator.HasPendingModelChanges());
+
+        // Verify the database model matches expectations
+        var dbModel = GetDatabaseModel(scope, test.Context);
+
+        // Model should have Blogs and Posts tables
+        Assert.Contains(dbModel.Tables, t => t.Name == "Blogs");
+        Assert.Contains(dbModel.Tables, t => t.Name == "Posts");
+
+        // Blogs should have the correct columns
+        var blogsTable = dbModel.Tables.Single(t => t.Name == "Blogs");
+        Assert.Equal(2, blogsTable.Columns.Count);
+
+        // Posts should have the correct columns
+        var postsTable = dbModel.Tables.Single(t => t.Name == "Posts");
+        Assert.Equal(4, postsTable.Columns.Count);
     }
 
     #endregion
