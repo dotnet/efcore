@@ -3,9 +3,9 @@
   <Import Project="Version.Details.props" />
 
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>10.0.2</VersionPrefix>
-    <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration></PreReleaseVersionIteration>
+    <VersionPrefix>11.0.0</VersionPrefix>
+    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
     <DotNetFinalVersionKind></DotNetFinalVersionKind>
 
@@ -15,8 +15,7 @@
     <!-- Arcade features -->
     <UsingToolXliff>false</UsingToolXliff>
   </PropertyGroup>
-  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(PreReleaseVersionLabel)' == 'servicing'">
-    <!-- Use the current stable builds for MSBuild and Roslyn packages, next version (non-servicing) will use the preview builds -->
+  <PropertyGroup Label="MSBuild and Roslyn">
     <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
     <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
     <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
