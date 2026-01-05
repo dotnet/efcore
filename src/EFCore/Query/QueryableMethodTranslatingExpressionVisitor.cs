@@ -166,22 +166,18 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
                         NewArrayExpression newArray;
                     {
-                        switch (methodCallExpression.Arguments[1])
+                        newArray = methodCallExpression.Arguments[1] switch
                         {
-                            case NewArrayExpression n:
-                                newArray = n;
-                                break;
-
-                            case ConstantExpression { Value: Array { Length: 0 } }:
-                                throw new InvalidOperationException(
+                            NewArrayExpression n => n,
+                            ConstantExpression { Value: Array { Length: 0 } }
+                                => throw new InvalidOperationException(
                                     CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
-                                    new InvalidOperationException(CoreStrings.NoSetPropertyInvocation));
-
-                            default:
-                                throw new UnreachableException("ExecuteUpdate with incorrect setters");
-                        }
+                                    new InvalidOperationException(CoreStrings.NoSetPropertyInvocation)),
+                            _ => throw new UnreachableException("ExecuteUpdate with incorrect setters")
+                        };
 
                         var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
+
                         for (var i = 0; i < setters.Length; i++)
                         {
                             var @new = (NewExpression)newArray.Expressions[i];

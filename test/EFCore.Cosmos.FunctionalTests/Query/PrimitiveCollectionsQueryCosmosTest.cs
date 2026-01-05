@@ -1738,6 +1738,20 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         AssertSql();
     }
 
+    public override async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        await base.Compiled_query_with_uncorrelated_parameter_collection_expression();
+
+        AssertSql(
+            """
+@ids='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(@ids) > 0)
+""");
+    }
+
     public override async Task Column_collection_in_subquery_Union_parameter_collection()
     {
         await base.Column_collection_in_subquery_Union_parameter_collection();

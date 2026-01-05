@@ -197,7 +197,7 @@ extends:
             templateContext:
               sdl:
                 binskim:
-                  prereleaseVersion: ' '
+                  prereleaseVersion: ''
           - job: Helix
             timeoutInMinutes: 180
             pool:
