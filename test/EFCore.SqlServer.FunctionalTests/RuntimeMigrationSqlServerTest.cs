@@ -43,34 +43,45 @@ public class RuntimeMigrationSqlServerTest : RuntimeMigrationTestBase
         // SQL Server requires dropping foreign key constraints before dropping tables
         context.Database.EnsureCreated();
         var connection = context.Database.GetDbConnection();
-        if (connection.State != System.Data.ConnectionState.Open)
+        var wasOpen = connection.State == System.Data.ConnectionState.Open;
+        if (!wasOpen)
         {
             connection.Open();
         }
 
-        // First, drop all foreign key constraints
-        using (var command = connection.CreateCommand())
+        try
         {
-            command.CommandText = @"
-                DECLARE @sql NVARCHAR(MAX) = N'';
-                SELECT @sql += 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name) + ';' + CHAR(13)
-                FROM sys.foreign_keys;
-                EXEC sp_executesql @sql;";
-            command.ExecuteNonQuery();
-        }
+            // First, drop all foreign key constraints
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    DECLARE @sql NVARCHAR(MAX) = N'';
+                    SELECT @sql += 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name) + ';' + CHAR(13)
+                    FROM sys.foreign_keys;
+                    EXEC sp_executesql @sql;";
+                command.ExecuteNonQuery();
+            }
 
-        // Then drop all tables
-        var tables = GetTableNames(connection);
-        foreach (var table in tables)
+            // Then drop all tables
+            var tables = GetTableNames(connection);
+            foreach (var table in tables)
+            {
+                using var dropCommand = connection.CreateCommand();
+                dropCommand.CommandText = $"DROP TABLE IF EXISTS [{table}]";
+                dropCommand.ExecuteNonQuery();
+            }
+
+            // Drop migrations history table
+            using var dropHistoryCommand = connection.CreateCommand();
+            dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS [__EFMigrationsHistory]";
+            dropHistoryCommand.ExecuteNonQuery();
+        }
+        finally
         {
-            using var dropCommand = connection.CreateCommand();
-            dropCommand.CommandText = $"DROP TABLE IF EXISTS [{table}]";
-            dropCommand.ExecuteNonQuery();
+            if (!wasOpen)
+            {
+                connection.Close();
+            }
         }
-
-        // Drop migrations history table
-        using var dropHistoryCommand = connection.CreateCommand();
-        dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS [__EFMigrationsHistory]";
-        dropHistoryCommand.ExecuteNonQuery();
     }
 }

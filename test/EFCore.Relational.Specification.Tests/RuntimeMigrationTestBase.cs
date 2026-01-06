@@ -107,24 +107,35 @@ public abstract class RuntimeMigrationTestBase
         // This avoids file locking issues on Windows
         context.Database.EnsureCreated();
         var connection = context.Database.GetDbConnection();
-        if (connection.State != System.Data.ConnectionState.Open)
+        var wasOpen = connection.State == System.Data.ConnectionState.Open;
+        if (!wasOpen)
         {
             connection.Open();
         }
 
-        // Drop all tables except migrations history
-        var tables = GetTableNames(connection);
-        foreach (var table in tables)
+        try
         {
-            using var command = connection.CreateCommand();
-            command.CommandText = $"DROP TABLE IF EXISTS \"{table}\"";
-            command.ExecuteNonQuery();
-        }
+            // Drop all tables except migrations history
+            var tables = GetTableNames(connection);
+            foreach (var table in tables)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = $"DROP TABLE IF EXISTS \"{table}\"";
+                command.ExecuteNonQuery();
+            }
 
-        // Drop migrations history table to reset migration state
-        using var dropHistoryCommand = connection.CreateCommand();
-        dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS \"__EFMigrationsHistory\"";
-        dropHistoryCommand.ExecuteNonQuery();
+            // Drop migrations history table to reset migration state
+            using var dropHistoryCommand = connection.CreateCommand();
+            dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS \"__EFMigrationsHistory\"";
+            dropHistoryCommand.ExecuteNonQuery();
+        }
+        finally
+        {
+            if (!wasOpen)
+            {
+                connection.Close();
+            }
+        }
     }
 
     /// <summary>
