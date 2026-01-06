@@ -946,5 +946,75 @@ public abstract class RuntimeMigrationTestBase
         Assert.Equal(4, postsTable.Columns.Count);
     }
 
+    [ConditionalFact]
+    public void RemoveMigration_removes_dynamically_created_migration()
+    {
+        var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationTest_" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(tempDirectory);
+
+            using var test = CreateTestContext();
+            using var scope = test.CreateScope();
+
+            var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+            var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+            // Step 1: Scaffold migration
+            var migration = scaffolder.ScaffoldMigration(
+                "RemovableTest",
+                rootNamespace: "TestNamespace",
+                subNamespace: null,
+                language: "C#",
+                dryRun: true);
+
+            // Step 2: Save files to disk
+            var files = scaffolder.Save(tempDirectory, migration, outputDir: null, dryRun: false);
+
+            // Verify files exist
+            Assert.True(File.Exists(files.MigrationFile));
+            Assert.True(File.Exists(files.MetadataFile));
+            Assert.True(File.Exists(files.SnapshotFile));
+
+            // Step 3: Compile and register the migration
+            var compiledAssembly = compiler.CompileMigration(migration, test.Context.GetType());
+            migrationsAssembly.AddMigrations(compiledAssembly);
+
+            // Step 4: Apply the migration
+            migrator.Migrate(migration.MigrationId);
+
+            // Verify migration was applied
+            var appliedMigrations = test.Context.Database.GetAppliedMigrations().ToList();
+            Assert.Contains(migration.MigrationId, appliedMigrations);
+
+            // Step 5: Call RemoveMigration
+            // Note: RemoveMigration will fail because the migration is applied.
+            // We need to first revert the migration, then remove it.
+            migrator.Migrate("0"); // Revert all migrations
+
+            // Verify migration was reverted
+            var appliedAfterRevert = test.Context.Database.GetAppliedMigrations().ToList();
+            Assert.DoesNotContain(migration.MigrationId, appliedAfterRevert);
+
+            // Now remove the migration files
+            var removedFiles = scaffolder.RemoveMigration(tempDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false);
+
+            // Verify files were deleted
+            Assert.NotNull(removedFiles.MigrationFile);
+            Assert.False(File.Exists(removedFiles.MigrationFile));
+            Assert.False(File.Exists(removedFiles.MetadataFile));
+        }
+        finally
+        {
+            if (Directory.Exists(tempDirectory))
+            {
+                try { Directory.Delete(tempDirectory, recursive: true); }
+                catch { /* Ignore cleanup errors */ }
+            }
+        }
+    }
+
     #endregion
 }

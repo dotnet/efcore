@@ -164,42 +164,15 @@ public class CSharpMigrationCompiler : IMigrationCompiler
 
             var references = new List<MetadataReference>();
 
-            // Add references from all loaded assemblies that we need
+            // Add references from all loaded assemblies (except dynamic/in-memory ones)
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location))
-                {
-                    continue;
-                }
-
-                var name = assembly.GetName().Name;
-                if (name == null)
-                {
-                    continue;
-                }
-
-                // Include core runtime, EF Core, and common dependencies
-                if (IsRequiredAssembly(name))
-                {
-                    AddAssemblyReference(references, assembly);
-                }
+                AddAssemblyReference(references, assembly);
             }
 
             _cachedReferences = references;
             return _cachedReferences;
         }
-    }
-
-    private static bool IsRequiredAssembly(string assemblyName)
-    {
-        return assemblyName.StartsWith("System", StringComparison.Ordinal)
-            || assemblyName.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal)
-            || assemblyName.StartsWith("Microsoft.Extensions", StringComparison.Ordinal)
-            || assemblyName == "netstandard"
-            || assemblyName == "mscorlib"
-            || assemblyName.StartsWith("Npgsql", StringComparison.Ordinal)
-            || assemblyName.StartsWith("MySql", StringComparison.Ordinal)
-            || assemblyName.StartsWith("Oracle", StringComparison.Ordinal);
     }
 
     private static void AddAssemblyReference(List<MetadataReference> references, Assembly assembly)
