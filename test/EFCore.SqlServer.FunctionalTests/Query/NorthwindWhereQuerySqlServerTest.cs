@@ -1920,6 +1920,48 @@ WHERE [c].[CustomerID] NOT IN (
 """);
     }
 
+    public override async Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool someFlag)
+    {
+        await base.Where_Queryable_conditional_null_check_with_Contains(async, someFlag);
+
+        AssertSql(
+            someFlag
+                ? """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
+    FROM [Customers] AS [c0]
+)
+"""
+                : """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1
+""");
+    }
+
+    public override async Task Where_Queryable_conditional_null_check_with_Contains_negated(bool async, bool someFlag)
+    {
+        await base.Where_Queryable_conditional_null_check_with_Contains_negated(async, someFlag);
+
+        AssertSql(
+            someFlag
+                ? """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN (
+    SELECT [c0].[CustomerID]
+    FROM [Customers] AS [c0]
+)
+"""
+                : """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 1 = 1
+""");
+    }
+
     public override async Task Where_collection_navigation_ToList_Count(bool async)
     {
         await base.Where_collection_navigation_ToList_Count(async);
