@@ -320,12 +320,10 @@ public class MigrationsOperations
             }
             catch (Exception ex)
             {
-                // Clean up saved files on failure
                 if (files != null)
                 {
                     TryDeleteFile(files.MigrationFile);
                     TryDeleteFile(files.MetadataFile);
-                    TryDeleteFile(files.SnapshotFile);
                 }
 
                 throw new OperationException(
