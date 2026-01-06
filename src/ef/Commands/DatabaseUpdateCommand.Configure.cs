@@ -29,4 +29,29 @@ internal partial class DatabaseUpdateCommand : ContextCommandBase
 
         base.Configure(command);
     }
+
+    protected override void Validate()
+    {
+        base.Validate();
+
+        if (_add!.HasValue())
+        {
+            if (string.IsNullOrEmpty(_migration!.Value))
+            {
+                throw new CommandException(Resources.MissingArgument(_migration.Name));
+            }
+        }
+        else
+        {
+            if (_outputDir!.HasValue())
+            {
+                throw new CommandException(Resources.OutputDirRequiresAdd);
+            }
+
+            if (_namespace!.HasValue())
+            {
+                throw new CommandException(Resources.NamespaceRequiresAdd);
+            }
+        }
+    }
 }

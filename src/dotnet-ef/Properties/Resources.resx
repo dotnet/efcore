@@ -216,6 +216,9 @@
   <data name="MigrationNameDescription" xml:space="preserve">
     <value>The name of the migration.</value>
   </data>
+  <data name="MissingArgument" xml:space="preserve">
+    <value>Missing required argument '{arg}'.</value>
+  </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
   </data>
@@ -273,6 +276,9 @@
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
+  <data name="NamespaceRequiresAdd" xml:space="preserve">
+    <value>Option '--namespace' must be specified with '--add'.</value>
+  </data>
   <data name="NativeAotDescription" xml:space="preserve">
     <value>Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).</value>
   </data>
@@ -314,6 +320,9 @@
   </data>
   <data name="OutputDirDescription" xml:space="preserve">
     <value>The directory to put files in. Paths are relative to the project directory.</value>
+  </data>
+  <data name="OutputDirRequiresAdd" xml:space="preserve">
+    <value>Option '--output-dir' must be specified with '--add'.</value>
   </data>
   <data name="PrecompileQueriesDescription" xml:space="preserve">
     <value>Generate precompiled queries.</value>

@@ -9,31 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands;
 // ReSharper disable once ArrangeTypeModifiers
 internal partial class DatabaseUpdateCommand
 {
-    protected override void Validate()
-    {
-        base.Validate();
-
-        if (_add!.HasValue())
-        {
-            if (string.IsNullOrEmpty(_migration!.Value))
-            {
-                throw new CommandException(Resources.MissingArgument(_migration.Name));
-            }
-        }
-        else
-        {
-            if (_outputDir!.HasValue())
-            {
-                throw new CommandException(Resources.OutputDirRequiresAdd);
-            }
-
-            if (_namespace!.HasValue())
-            {
-                throw new CommandException(Resources.NamespaceRequiresAdd);
-            }
-        }
-    }
-
     protected override int Execute(string[] args)
     {
         using var executor = CreateExecutor(args);
