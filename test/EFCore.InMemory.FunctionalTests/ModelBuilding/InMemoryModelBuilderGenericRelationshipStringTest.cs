@@ -48,9 +48,8 @@ public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBu
 
         public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
         {
-            ModelBuilder.Entity<TEntity>(
-                entityTypeBuilder =>
-                    buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+            ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
+                buildAction(new GenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
             return this;
         }
 

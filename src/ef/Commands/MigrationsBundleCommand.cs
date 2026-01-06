@@ -29,21 +29,23 @@ internal partial class MigrationsBundleCommand
         }
     }
 
-#if NET472
+#if !NET
     protected override int Execute(string[] args)
         => throw new CommandException(Resources.VersionRequired("6.0.0"));
 #else
     protected override int Execute(string[] args)
     {
-        if (new SemanticVersionComparer().Compare(EFCoreVersion, "6.0.0") < 0)
-        {
-            throw new CommandException(Resources.VersionRequired("6.0.0"));
-        }
-
+        string? version;
         string context;
         using (var executor = CreateExecutor(args))
         {
-            context = (string)executor.GetContextInfo(Context!.Value())["Type"];
+            version = executor.EFCoreVersion;
+            if (new SemanticVersionComparer().Compare(version, "6.0.0") < 0)
+            {
+                throw new CommandException(Resources.VersionRequired("6.0.0"));
+            }
+
+            context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
 
         Reporter.WriteInformation(Resources.BuildBundleStarted);
@@ -53,7 +55,7 @@ internal partial class MigrationsBundleCommand
             Session = new Dictionary<string, object>
             {
                 ["TargetFramework"] = Framework!.Value()!,
-                ["EFCoreVersion"] = EFCoreVersion!,
+                ["EFCoreVersion"] = version!,
                 ["Project"] = Project!.Value()!,
                 ["StartupProject"] = StartupProject!.Value()!
             }
@@ -86,7 +88,7 @@ internal partial class MigrationsBundleCommand
             var globalJson = default(string);
             var nugetConfigs = new Stack<string>();
 
-            var searchPath = WorkingDir!.Value();
+            var searchPath = WorkingDir!.Value()!;
             do
             {
                 foreach (var file in Directory.EnumerateFiles(searchPath))
@@ -131,7 +133,7 @@ internal partial class MigrationsBundleCommand
 
             var runtime = _runtime!.HasValue()
                 ? _runtime!.Value()!
-                : (string)AppContext.GetData("RUNTIME_IDENTIFIER");
+                : (string)AppContext.GetData("RUNTIME_IDENTIFIER")!;
             publishArgs.Add("--runtime");
             publishArgs.Add(runtime);
 

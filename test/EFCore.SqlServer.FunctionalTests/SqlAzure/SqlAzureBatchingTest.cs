@@ -7,16 +7,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsAzureSql)]
 public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixture<BatchingSqlAzureFixture>
 {
     public BatchingSqlAzureFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory]
-    [InlineData(1)]
-    [InlineData(10)]
-    [InlineData(100)]
-    [InlineData(1000)]
+    [ConditionalTheory, InlineData(1), InlineData(10), InlineData(100), InlineData(1000)]
     public void AddWithBatchSize(int batchSize)
     {
         using var context = Fixture.CreateContext(batchSize);

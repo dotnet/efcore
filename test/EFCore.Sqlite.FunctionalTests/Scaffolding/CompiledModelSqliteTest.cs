@@ -12,31 +12,36 @@ using NetTopologySuite.Geometries;
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 [SpatialiteRequired]
-public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
+public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
 
-        modelBuilder.Entity<Data>(
-            eb =>
-            {
-                eb.Property<int>("Id");
-                eb.HasKey("Id");
+        modelBuilder.Entity<Data>(eb =>
+        {
+            eb.Property<int>("Id");
+            eb.HasKey("Id");
 
-                eb.Property<Point>("Point")
-                    .HasSrid(1101);
-            });
+            eb.Property<Point>("Point")
+                .HasSrid(1101);
+        });
 
-        modelBuilder.Entity<PrincipalBase>(
-            eb =>
-            {
-                eb.Property<Point>("Point")
-                    .HasColumnType("geometry")
-                    .HasDefaultValue(
-                        NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                    .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-            });
+        modelBuilder.Entity<AutoIncrementEntity>(eb =>
+        {
+            eb.Property<int>("Id");
+            eb.HasKey("Id");
+            eb.Property<string>("Name");
+        });
+
+        modelBuilder.Entity<PrincipalBase>(eb =>
+        {
+            eb.Property<Point>("Point")
+                .HasColumnType("geometry")
+                .HasDefaultValue(
+                    NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
+                .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
+        });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -78,6 +83,15 @@ public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
         Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetKeyValueComparer());
         Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetProviderValueComparer());
         Assert.Null(pointProperty[CoreAnnotationNames.PropertyAccessMode]);
+
+        var autoIncrementEntity = model.FindEntityType(typeof(AutoIncrementEntity))!;
+        var idProperty = autoIncrementEntity.FindProperty("Id")!;
+        Assert.Equal(typeof(int), idProperty.ClrType);
+        Assert.False(idProperty.IsNullable);
+        Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
+        Assert.Equal("Id", idProperty.GetColumnName());
+        Assert.Equal("INTEGER", idProperty.GetColumnType());
+        Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, idProperty.GetValueGenerationStrategy());
     }
 
     //Sprocs not supported
@@ -101,10 +115,9 @@ public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {
         builder = base.AddOptions(builder)
-            .ConfigureWarnings(
-                w => w
-                    .Ignore(SqliteEventId.SchemaConfiguredWarning)
-                    .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
+            .ConfigureWarnings(w => w
+                .Ignore(SqliteEventId.SchemaConfiguredWarning)
+                .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
         new SqliteDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;
     }
@@ -119,5 +132,11 @@ public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite"));
         build.References.Add(BuildReference.ByName("NetTopologySuite"));
         return build;
+    }
+
+    public class AutoIncrementEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 }

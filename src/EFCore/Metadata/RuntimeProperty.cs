@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -16,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeProperty : RuntimePropertyBase, IProperty
+public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
 {
     private readonly bool _isNullable;
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
     private object? _sentinel;
-    private object? _sentinelFromProviderValue;
+    private volatile object? _sentinelFromProviderValue;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, ITypeBase, ValueGenerator>? _valueGeneratorFactory;
@@ -125,17 +124,16 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <param name="clrType">The type of value the property will hold.</param>
     /// <param name="nullable">A value indicating whether this property can contain <see langword="null" />.</param>
     /// <param name="maxLength">The maximum length of data that is allowed in this property.</param>
-    /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+    /// <param name="unicode">A value indicating whether the property can persist Unicode characters.</param>
     /// <param name="precision">The precision of data that is allowed in this property.</param>
     /// <param name="scale">The scale of data that is allowed in this property.</param>
-    /// <param name="providerPropertyType">
+    /// <param name="providerClrType">
     ///     The type that the property value will be converted to before being sent to the database provider.
     /// </param>
     /// <param name="valueConverter">The custom <see cref="ValueConverter" /> set for this property.</param>
     /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
     /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
-    /// <param name="primitiveCollection">A value indicating whether this property represents a primitive collection.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeElementType SetElementType(
         Type clrType,
@@ -144,12 +142,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         bool? unicode = null,
         int? precision = null,
         int? scale = null,
-        Type? providerPropertyType = null,
+        Type? providerClrType = null,
         ValueConverter? valueConverter = null,
         ValueComparer? valueComparer = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null,
-        CoreTypeMapping? typeMapping = null,
-        bool primitiveCollection = false)
+        CoreTypeMapping? typeMapping = null)
     {
         var elementType = new RuntimeElementType(
             clrType,
@@ -159,7 +156,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
             unicode,
             precision,
             scale,
-            providerPropertyType,
+            providerClrType,
             valueConverter,
             valueComparer,
             jsonValueReaderWriter,
@@ -167,7 +164,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         SetAnnotation(CoreAnnotationNames.ElementType, elementType);
 
-        IsPrimitiveCollection = primitiveCollection;
+        IsPrimitiveCollection = true;
 
         return elementType;
     }
@@ -180,6 +177,10 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     /// <inheritdoc />
     public override RuntimeTypeBase DeclaringType { get; }
+
+    /// <inheritdoc />
+    public override bool IsCollection
+        => IsPrimitiveCollection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -334,11 +335,12 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     {
         get
         {
-            if (_sentinelFromProviderValue != null)
+            var providerValue = _sentinelFromProviderValue;
+            if (providerValue != null)
             {
-                var providerValue = _sentinelFromProviderValue;
+                Interlocked.CompareExchange(ref _sentinel, TypeMapping.Converter!.ConvertFromProvider(providerValue), null);
+
                 _sentinelFromProviderValue = null;
-                _sentinel = TypeMapping.Converter!.ConvertFromProvider(providerValue);
             }
 
             return _sentinel;
