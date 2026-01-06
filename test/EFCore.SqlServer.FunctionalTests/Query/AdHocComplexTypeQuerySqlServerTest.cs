@@ -54,6 +54,21 @@ FROM [TpcChild2] AS [t0]
 
     #endregion 35025
 
+    #region 34706
+
+    public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        await base.Complex_type_on_an_entity_mapped_to_view_and_table();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[ComplexThing_Prop1], [b].[ComplexThing_Prop2]
+FROM [BlogsView] AS [b]
+""");
+    }
+
+    #endregion 34706
+
     [ConditionalFact]
     public virtual async Task Complex_type_equality_with_non_default_type_mapping()
     {

@@ -115,6 +115,61 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
 
     #endregion 35025
 
+    #region 34706
+
+    [ConditionalFact]
+    public virtual async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        var contextFactory = await InitializeAsync<Context34706>(
+            onModelCreating: mb => mb.Entity<Context34706.Blog>(eb => eb
+                .ToTable("Blogs")
+                .ToView("BlogsView")
+                .ComplexProperty(b => b.ComplexThing)),
+            seed: async context =>
+            {
+                var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+                await context.Database.ExecuteSqlRawAsync($"CREATE VIEW {Q("BlogsView")} AS SELECT {Q("Id")}, {Q("ComplexThing_Prop1")}, {Q("ComplexThing_Prop2")} FROM {Q("Blogs")}");
+
+                context.Add(
+                    new Context34706.Blog
+                    {
+                        ComplexThing = new Context34706.ComplexThing
+                        {
+                            Prop1 = 1,
+                            Prop2 = 2
+                        }
+                    });
+                await context.SaveChangesAsync();
+
+                string Q(string name) => sqlGenerationHelper.DelimitIdentifier(name);
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity = await context.Set<Context34706.Blog>().SingleAsync();
+
+        Assert.NotNull(entity.ComplexThing);
+        Assert.Equal(1, entity.ComplexThing.Prop1);
+        Assert.Equal(2, entity.ComplexThing.Prop2);
+    }
+
+    private class Context34706(DbContextOptions options) : DbContext(options)
+    {
+        public class Blog
+        {
+            public int Id { get; set; }
+            public required ComplexThing ComplexThing { get; set; }
+        }
+
+        public class ComplexThing
+        {
+            public int Prop1 { get; set; }
+            public int Prop2 { get; set; }
+        }
+    }
+
+    #endregion 34706
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
