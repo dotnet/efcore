@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.Common;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 using Xunit;
 
@@ -36,5 +37,12 @@ public class RuntimeMigrationSqliteTest : RuntimeMigrationTestBase
             tables.Add(reader.GetString(0));
         }
         return tables;
+    }
+
+    protected override void CleanDatabase(RuntimeMigrationDbContext context)
+    {
+        // SQLite requires clearing connection pools to release file locks on Windows
+        SqliteConnection.ClearAllPools();
+        base.CleanDatabase(context);
     }
 }
