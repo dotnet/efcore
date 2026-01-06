@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
@@ -102,9 +103,35 @@ public abstract class RuntimeMigrationTestBase
     /// </summary>
     protected virtual void CleanDatabase(RuntimeMigrationDbContext context)
     {
-        // Default: use EnsureDeleted to start fresh
-        context.Database.EnsureDeleted();
+        // Clean up existing tables without deleting the database file
+        // This avoids file locking issues on Windows
+        context.Database.EnsureCreated();
+        var connection = context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+        {
+            connection.Open();
+        }
+
+        // Drop all tables except migrations history
+        var tables = GetTableNames(connection);
+        foreach (var table in tables)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = $"DROP TABLE IF EXISTS \"{table}\"";
+            command.ExecuteNonQuery();
+        }
+
+        // Drop migrations history table to reset migration state
+        using var dropHistoryCommand = connection.CreateCommand();
+        dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS \"__EFMigrationsHistory\"";
+        dropHistoryCommand.ExecuteNonQuery();
     }
+
+    /// <summary>
+    ///     Gets all table names in the database (excluding system tables and migrations history).
+    ///     Provider-specific implementation required.
+    /// </summary>
+    protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
 
     public sealed class TestContext : IDisposable
     {
@@ -446,11 +473,6 @@ public abstract class RuntimeMigrationTestBase
         Assert.DoesNotContain("Posts", tablesAfterDown);
         connection.Close();
     }
-
-    /// <summary>
-    ///     Gets table names from the database. Provider-specific implementation required.
-    /// </summary>
-    protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
 
     /// <summary>
     ///     Gets the database model by reverse-engineering the current database state.

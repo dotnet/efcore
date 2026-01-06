@@ -13,6 +13,7 @@ internal partial class DatabaseUpdateCommand : ContextCommandBase
     private CommandOption? _add;
     private CommandOption? _outputDir;
     private CommandOption? _namespace;
+    private CommandOption? _json;
 
     public override void Configure(CommandLineApplication command)
     {
@@ -21,9 +22,10 @@ internal partial class DatabaseUpdateCommand : ContextCommandBase
         _migration = command.Argument("<MIGRATION>", Resources.MigrationDescription);
 
         _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
-        _add = command.Option("--add <NAME>", Resources.DatabaseUpdateAddDescription);
+        _add = command.Option("--add", Resources.DatabaseUpdateAddDescription);
         _outputDir = command.Option("-o|--output-dir <PATH>", Resources.MigrationsOutputDirDescription);
         _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.MigrationsNamespaceDescription);
+        _json = Json.ConfigureOption(command);
 
         base.Configure(command);
     }

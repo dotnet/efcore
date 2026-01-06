@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class MigrationsOperationsTest
@@ -44,7 +46,7 @@ public class MigrationsOperationsTest
     }
 
     [ConditionalFact]
-    public void RevertMigration_throws_when_no_dynamic_migrations()
+    public void AddMigration_throws_when_name_is_empty()
     {
         var assembly = MockAssembly.Create(typeof(TestContext));
         var operations = new TestMigrationsOperations(
@@ -57,15 +59,14 @@ public class MigrationsOperationsTest
             nullable: false,
             args: []);
 
-        // No migrations have been applied via AddAndApply, so revert should fail
         var exception = Assert.Throws<OperationException>(
-            () => operations.RevertMigration(null, null));
+            () => operations.AddMigration("", null, null, null, dryRun: true));
 
-        Assert.NotNull(exception);
+        Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
     }
 
     [ConditionalFact]
-    public void RevertMigration_throws_when_specifying_migration_id_with_empty_list()
+    public void AddMigration_throws_when_name_is_whitespace()
     {
         var assembly = MockAssembly.Create(typeof(TestContext));
         var operations = new TestMigrationsOperations(
@@ -78,12 +79,10 @@ public class MigrationsOperationsTest
             nullable: false,
             args: []);
 
-        // Even when specifying a migration ID, it first checks if any dynamic migrations exist
         var exception = Assert.Throws<OperationException>(
-            () => operations.RevertMigration(null, "SomeMigrationId"));
+            () => operations.AddMigration("   ", null, null, null, dryRun: true));
 
-        // Should throw the "no dynamic migrations" error since list is empty
-        Assert.NotNull(exception);
+        Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
     }
 
     private class TestContext : DbContext;
