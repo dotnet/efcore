@@ -20,6 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
+        ///     Failed to create and apply migration '{name}'. {message}
+        /// </summary>
+        public static string AddAndApplyMigrationFailed(object? name, object? message)
+            => string.Format(
+                GetString("AddAndApplyMigrationFailed", nameof(name), nameof(message)),
+                name, message);
+
+        /// <summary>
         ///     Failed creating connection: {exceptionMessage}
         /// </summary>
         public static string BadConnection(object? exceptionMessage)

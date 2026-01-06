@@ -301,19 +301,36 @@ public class MigrationsOperations
                     ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun: true)
                     : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun: true);
 
-            // Save to disk
-            var files = scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun: false);
+            MigrationFiles? files = null;
+            try
+            {
+                // Save to disk
+                files = scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun: false);
 
-            // Compile and register
-            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-            migrationsAssembly.AddMigrations(compiledAssembly);
+                // Compile and register
+                var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+                migrationsAssembly.AddMigrations(compiledAssembly);
 
-            // Apply migration
-            migrator.Migrate(migration.MigrationId);
+                // Apply migration
+                migrator.Migrate(migration.MigrationId);
 
-            _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(migration.MigrationId));
+                _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(migration.MigrationId));
 
-            return files;
+                return files;
+            }
+            catch (Exception ex)
+            {
+                // Clean up saved files on failure
+                if (files != null)
+                {
+                    TryDeleteFile(files.MigrationFile);
+                    TryDeleteFile(files.MetadataFile);
+                    TryDeleteFile(files.SnapshotFile);
+                }
+
+                throw new OperationException(
+                    DesignStrings.AddAndApplyMigrationFailed(name, ex.Message), ex);
+            }
         }
     }
 
@@ -333,13 +350,36 @@ public class MigrationsOperations
         var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
         var context = _contextOperations.CreateContext(contextType);
-        ValidateMigrationNameNotContextName(name, context);
+        try
+        {
+            ValidateMigrationNameNotContextName(name, context);
 
-        var services = _servicesBuilder.Build(context);
-        EnsureServices(services);
-        EnsureMigrationsAssembly(services);
+            var services = _servicesBuilder.Build(context);
+            EnsureServices(services);
+            EnsureMigrationsAssembly(services);
 
-        return (outputDir, subNamespace, context, services);
+            return (outputDir, subNamespace, context, services);
+        }
+        catch
+        {
+            context.Dispose();
+            throw;
+        }
+    }
+
+    private static void TryDeleteFile(string? filePath)
+    {
+        if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+        {
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch
+            {
+                // Best effort cleanup - ignore failures
+            }
+        }
     }
 
     private static void ValidateMigrationName(string name)
