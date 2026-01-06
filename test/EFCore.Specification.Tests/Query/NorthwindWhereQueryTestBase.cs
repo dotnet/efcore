@@ -1459,6 +1459,36 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             },
             assertEmpty: true);
 
+    [ConditionalTheory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public virtual Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool someFlag)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var ids = someFlag ? ss.Set<Customer>().Select(c => c.CustomerID) : null;
+                return ss.Set<Customer>().Where(c => ids != null && ids.Contains(c.CustomerID));
+            },
+            assertEmpty: !someFlag);
+
+    [ConditionalTheory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public virtual Task Where_Queryable_conditional_null_check_with_Contains_negated(bool async, bool someFlag)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var ids = someFlag ? ss.Set<Customer>().Select(c => c.CustomerID) : null;
+                return ss.Set<Customer>().Where(c => ids == null || !ids.Contains(c.CustomerID));
+            },
+            assertEmpty: someFlag);
+
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_collection_navigation_ToList_Count(bool async)
         => AssertQuery(
