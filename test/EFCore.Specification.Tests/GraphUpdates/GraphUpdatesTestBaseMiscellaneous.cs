@@ -99,6 +99,63 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateWithSentinelId);
             });
 
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task ClientSetDefault_with_sentinel_value_sets_FK_to_sentinel_on_delete(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                // Create a "default" parent that orphaned children will reference
+                var defaultParent = new ParentWithClientSetDefault { Id = 667 };
+                // Create the actual parent with a different Id
+                var parent = new ParentWithClientSetDefault { Id = 1 };
+                var child = new ChildWithClientSetDefault { ParentId = 1, Parent = parent };
+                parent.Children.Add(child);
+
+                if (async)
+                {
+                    await context.AddRangeAsync(defaultParent, parent);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.AddRange(defaultParent, parent);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var parent = async
+                    ? await context.Set<ParentWithClientSetDefault>().Include(e => e.Children).SingleAsync(e => e.Id == 1)
+                    : context.Set<ParentWithClientSetDefault>().Include(e => e.Children).Single(e => e.Id == 1);
+
+                var child = parent.Children.Single();
+                Assert.Equal(1, child.ParentId);
+
+                context.Remove(parent);
+
+                Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
+                Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                Assert.Equal(667, child.ParentId); // FK should be set to sentinel value (the default parent)
+                Assert.Null(child.Parent);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var child = async
+                    ? await context.Set<ChildWithClientSetDefault>().SingleAsync()
+                    : context.Set<ChildWithClientSetDefault>().Single();
+
+                Assert.Equal(667, child.ParentId); // Verify FK was persisted with sentinel value
+            });
+
     [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
         => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);

@@ -14,36 +14,26 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         not used in application code.
 ///     </para>
 /// </summary>
+/// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+/// <param name="queryCompilationContext">The query compilation context object to use.</param>
+/// <param name="subquery">A bool value indicating whether it is for a subquery translation.</param>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVisitor
+public abstract class QueryableMethodTranslatingExpressionVisitor(
+    QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+    QueryCompilationContext queryCompilationContext,
+    bool subquery)
+    : ExpressionVisitor
 {
-    private readonly bool _subquery;
-    private readonly EntityShaperNullableMarkingExpressionVisitor _entityShaperNullableMarkingExpressionVisitor;
-
-    /// <summary>
-    ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
-    /// <param name="queryCompilationContext">The query compilation context object to use.</param>
-    /// <param name="subquery">A bool value indicating whether it is for a subquery translation.</param>
-    protected QueryableMethodTranslatingExpressionVisitor(
-        QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-        QueryCompilationContext queryCompilationContext,
-        bool subquery)
-    {
-        Dependencies = dependencies;
-        QueryCompilationContext = queryCompilationContext;
-        _subquery = subquery;
-        _entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
-    }
+    private readonly bool _subquery = subquery;
+    private readonly EntityShaperNullableMarkingExpressionVisitor _entityShaperNullableMarkingExpressionVisitor = new();
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
-    protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
+    protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; } = dependencies;
 
     private Expression? _untranslatedExpression;
 
@@ -101,7 +91,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <summary>
     ///     The query compilation context object for current compilation.
     /// </summary>
-    protected virtual QueryCompilationContext QueryCompilationContext { get; }
+    protected virtual QueryCompilationContext QueryCompilationContext { get; } = queryCompilationContext;
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
@@ -166,22 +156,18 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
                         NewArrayExpression newArray;
                     {
-                        switch (methodCallExpression.Arguments[1])
+                        newArray = methodCallExpression.Arguments[1] switch
                         {
-                            case NewArrayExpression n:
-                                newArray = n;
-                                break;
-
-                            case ConstantExpression { Value: Array { Length: 0 } }:
-                                throw new InvalidOperationException(
+                            NewArrayExpression n => n,
+                            ConstantExpression { Value: Array { Length: 0 } }
+                                => throw new InvalidOperationException(
                                     CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
-                                    new InvalidOperationException(CoreStrings.NoSetPropertyInvocation));
-
-                            default:
-                                throw new UnreachableException("ExecuteUpdate with incorrect setters");
-                        }
+                                    new InvalidOperationException(CoreStrings.NoSetPropertyInvocation)),
+                            _ => throw new UnreachableException("ExecuteUpdate with incorrect setters")
+                        };
 
                         var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];
+
                         for (var i = 0; i < setters.Length; i++)
                         {
                             var @new = (NewExpression)newArray.Expressions[i];

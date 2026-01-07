@@ -170,9 +170,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
         }
 
-        if (method.DeclaringType is { IsGenericType: true }
-            && method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
-            && method.Name == nameof(ICollection<>.Contains))
+        if (method.Name == nameof(ICollection<>.Contains)
+            && method.DeclaringType is { IsGenericType: true }
+            && (method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
+                || method.DeclaringType.TryGetElementType(typeof(IReadOnlyCollection<>)) is not null))
         {
             visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }

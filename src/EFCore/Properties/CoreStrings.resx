@@ -613,7 +613,7 @@
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
   </data>
   <data name="ExecuteQueriesNotSupported" xml:space="preserve">
-    <value>The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information. </value>
+    <value>The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.</value>
   </data>
   <data name="ExecutionStrategyExistingTransaction" xml:space="preserve">
     <value>The configured execution strategy '{strategy}' does not support user-initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>
@@ -1575,10 +1575,10 @@
     <value>The principal and dependent ends of the relationship cannot be changed once foreign key or principal key properties have been specified. Remove the conflicting configuration.</value>
   </data>
   <data name="RelationshipConceptualNull" xml:space="preserve">
-    <value>The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+    <value>The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
-    <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes.</value>
+    <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information.</value>
   </data>
   <data name="RelationshipCycle" xml:space="preserve">
     <value>A relationship cycle involving the property '{entityType}.{property}' was detected. This prevents Entity Framework from determining the correct configuration. Review the foreign keys defined on the property and the corresponding principal property and either remove one of them or specify '{configuration}' explicitly on one of the properties.</value>
