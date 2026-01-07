@@ -114,7 +114,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         return base.TrackAndSaveTest(state, async, createPub);
     }
 
-    protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null)
+    protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
         await c.Database.CreateExecutionStrategy().ExecuteAsync(
@@ -143,6 +143,16 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
                 using (var innerContext2 = CreateContext())
                 {
                     await nestedTestOperation2(innerContext2);
+                }
+
+                if (nestedTestOperation3 == null)
+                {
+                    return;
+                }
+
+                using (var innerContext3 = CreateContext())
+                {
+                    await nestedTestOperation3(innerContext3);
                 }
             });
     }
