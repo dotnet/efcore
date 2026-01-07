@@ -350,20 +350,20 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()));
         }
 
-        Expression NullSafeUpdate(Expression? expression)
+        Expression NullSafeUpdate(Expression? innerExpression)
         {
-            if (expression is null)
+            if (innerExpression is null)
             {
-                return memberExpression.Update(expression);
+                return memberExpression.Update(innerExpression);
             }
 
-            var expressionValue = Expression.Parameter(expression.Type);
-            var assignment = Expression.Assign(expressionValue, expression);
+            var expressionValue = Expression.Parameter(innerExpression.Type);
+            var assignment = Expression.Assign(expressionValue, innerExpression);
 
-            if (expression.Type.IsNullableType() == true
+            if (innerExpression.Type.IsNullableType()
                 && !memberExpression.Type.IsNullableType()
                 && memberExpression.Expression is MemberExpression innerMember
-                && innerMember.Type.IsNullableValueType() == true
+                && innerMember.Type.IsNullableValueType()
                 && memberExpression.Member.Name == nameof(Nullable<>.Value))
             {
                 var nullCheck = Expression.Not(
@@ -381,7 +381,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
             Expression updatedMemberExpression = memberExpression.Update(MatchTypes(expressionValue, memberExpression.Expression!.Type));
 
-            if (expression.Type.IsNullableType() == true)
+            if (innerExpression.Type.IsNullableType())
             {
                 var nullableReturnType = memberExpression.Type.MakeNullable();
 
@@ -391,7 +391,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 }
 
                 Expression nullCheck;
-                if (expression.Type.IsNullableValueType())
+                if (innerExpression.Type.IsNullableValueType())
                 {
                     // For Nullable<T>, use HasValue property instead of equality comparison
                     // to avoid issues with value types that don't define the == operator
@@ -400,7 +400,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 }
                 else
                 {
-                    nullCheck = Expression.Equal(expressionValue, Expression.Default(expression.Type));
+                    nullCheck = Expression.Equal(expressionValue, Expression.Default(innerExpression.Type));
                 }
 
                 updatedMemberExpression = Expression.Condition(

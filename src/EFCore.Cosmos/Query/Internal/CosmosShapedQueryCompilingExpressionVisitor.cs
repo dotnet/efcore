@@ -22,6 +22,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
+    private int _currentComplexIndex;
     private ParameterExpression _parentJObject;
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
@@ -184,18 +185,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         foreach (var complexProperty in shaper.StructuralType.GetComplexProperties())
         {
             var member = MakeMemberAccess(instanceVariable, complexProperty.GetMemberInfo(true, true));
-            if (complexProperty.IsCollection)
-            {
-                expressions.Add(CreateComplexCollectionAssignmentBlock(member, complexProperty));
-            }
-            else
-            {
-                expressions.Add(CreateComplexPropertyAssignmentBlock(member, complexProperty));
-            }
+            expressions.Add(complexProperty.IsCollection
+                ? CreateComplexCollectionAssignmentBlock(member, complexProperty)
+                : CreateComplexPropertyAssignmentBlock(member, complexProperty));
         }
     }
-
-    private int _currentComplexIndex;
 
     private BlockExpression CreateComplexPropertyAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
     {
@@ -237,10 +231,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             Call(
                 CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
                 Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
-                    Constant(complexProperty.Name)
-                )
-            )
-        );
+                    Constant(complexProperty.Name))));
+
         var jObjectParameter = Parameter(typeof(JObject), "complexJObject" + _currentComplexIndex);
         var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectParameter);
 
@@ -299,19 +291,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         return materializeExpression;
     }
 
-    private sealed class ComplexPropertyBindingExpression : Expression
+    private sealed class ComplexPropertyBindingExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter) : Expression
     {
-        public ComplexPropertyBindingExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
-        {
-            ComplexProperty = complexProperty;
-            JObjectParameter = jObjectParameter;
-        }
-
         public override Type Type => typeof(ValueBuffer);
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public IComplexProperty ComplexProperty { get; }
-        public ParameterExpression JObjectParameter { get; }
+        public IComplexProperty ComplexProperty { get; } = complexProperty;
+        public ParameterExpression JObjectParameter { get; } = jObjectParameter;
     }
 }
