@@ -139,6 +139,14 @@ public abstract class SnapshotFactoryFactory
                     continue;
 
                 case IProperty property:
+                    // Shadow property materialization on complex types is not currently supported (see #35613).
+                    if (propertyBase.DeclaringType is IComplexType && property.IsShadowProperty())
+                    {
+                        arguments[i] = propertyBase.ClrType.GetDefaultValueConstant();
+                        types[i] = propertyBase.ClrType;
+                        continue;
+                    }
+
                     arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
                     continue;
 
