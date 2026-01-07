@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -360,12 +361,16 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             var expressionValue = Expression.Parameter(innerExpression.Type);
             var assignment = Expression.Assign(expressionValue, innerExpression);
 
+            // Special case for when query is projecting 'nullable.Value' where 'nullable' is of type Nullable<T>
+            // In this case we return default(T) when 'nullable' is null
             if (innerExpression.Type.IsNullableType()
                 && !memberExpression.Type.IsNullableType()
-                && memberExpression.Expression is MemberExpression innerMember
-                && innerMember.Type.IsNullableValueType()
+                && memberExpression.Expression is MemberExpression outerMember
+                && outerMember.Type.IsNullableValueType()
                 && memberExpression.Member.Name == nameof(Nullable<>.Value))
             {
+                // Use HasValue property instead of equality comparison
+                // to avoid issues with value types that don't define the == operator
                 var nullCheck = Expression.Not(
                     Expression.Property(expressionValue, nameof(Nullable<>.HasValue)));
                 var conditionalExpression = Expression.Condition(
