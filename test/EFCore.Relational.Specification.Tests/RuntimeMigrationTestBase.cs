@@ -424,9 +424,11 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var tablesAfterUp = GetTableNames(connection);
         Assert.Contains("Blogs", tablesAfterUp);
         Assert.Contains("Posts", tablesAfterUp);
+        connection.Close();
 
         migrator.Migrate("0");
 
+        connection.Open();
         var tablesAfterDown = GetTableNames(connection);
         Assert.DoesNotContain("Blogs", tablesAfterDown);
         Assert.DoesNotContain("Posts", tablesAfterDown);
