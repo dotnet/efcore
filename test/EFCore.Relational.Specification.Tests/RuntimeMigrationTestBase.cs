@@ -831,10 +831,10 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(1, context.Blogs.Count());
         Assert.Equal(1, context.Posts.Count());
 
-        var blog = context.Blogs.First();
+        var blog = context.Blogs.Single();
         Assert.Equal("Test Blog", blog.Name);
 
-        var post = context.Posts.First();
+        var post = context.Posts.Single();
         Assert.Equal("Test Post", post.Title);
         Assert.Equal("Test Content", post.Content);
     }
