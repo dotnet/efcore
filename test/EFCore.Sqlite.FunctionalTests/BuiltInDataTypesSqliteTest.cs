@@ -1476,7 +1476,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
 SELECT "b"."Id"
 FROM "BuiltInDataTypes" AS "b"
 WHERE "b"."PartitionId" = 207
-ORDER BY "b"."TestDecimal" COLLATE EF_DECIMAL
+ORDER BY "b"."TestDecimal" COLLATE "EF_DECIMAL"
 LIMIT 1
 """);
 
@@ -1532,7 +1532,7 @@ LIMIT 1
 SELECT "b"."Id"
 FROM "BuiltInDataTypes" AS "b"
 WHERE "b"."PartitionId" = 208
-ORDER BY "b"."PartitionId", "b"."TestDecimal" COLLATE EF_DECIMAL
+ORDER BY "b"."PartitionId", "b"."TestDecimal" COLLATE "EF_DECIMAL"
 LIMIT 1
 """);
 
@@ -1591,7 +1591,7 @@ LIMIT 1
             """
 SELECT "b"."Id", "b"."TestDecimal"
 FROM "BuiltInDataTypes" AS "b"
-ORDER BY "b"."TestDecimal" COLLATE EF_DECIMAL
+ORDER BY "b"."TestDecimal" COLLATE "EF_DECIMAL"
 """,
                 //
                 """

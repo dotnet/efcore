@@ -61,6 +61,35 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitCollate(CollateExpression collateExpression)
+    {
+        Visit(collateExpression.Operand);
+
+        // SQL Server collation docs: https://learn.microsoft.com/sql/relational-databases/collations/collation-and-unicode-support
+
+        // The default behavior in QuerySqlGenerator is to quote collation names, but SQL Server does not support that.
+        // Instead, make sure the collation name only contains a restricted set of characters.
+        foreach (var c in collateExpression.Collation)
+        {
+            if (!char.IsLetterOrDigit(c) && c != '_')
+            {
+                throw new InvalidOperationException(SqlServerStrings.InvalidCollationName(collateExpression.Collation));
+            }
+        }
+
+        Sql
+            .Append(" COLLATE ")
+            .Append(collateExpression.Collation);
+
+        return collateExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
     {
         var selectExpression = deleteExpression.SelectExpression;
