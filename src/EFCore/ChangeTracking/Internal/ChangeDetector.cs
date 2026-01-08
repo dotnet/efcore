@@ -323,7 +323,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool DetectComplexPropertyChange(InternalEntryBase entry, IComplexProperty complexProperty)
+    public virtual bool DetectComplexPropertyChange(InternalEntryBase entry, IComplexProperty complexProperty)
     {
         Check.DebugAssert(!complexProperty.IsCollection, $"Expected {complexProperty.Name} to not be a collection.");
 
@@ -338,7 +338,12 @@ public class ChangeDetector : IChangeDetector
             {
                 foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
                 {
-                    entry.SetPropertyModified(innerProperty);
+                    // Only mark properties that are tracked and can be modified
+                    if (innerProperty.GetOriginalValueIndex() >= 0
+                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                    {
+                        entry.SetPropertyModified(innerProperty);
+                    }
                 }
             }
 
