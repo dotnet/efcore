@@ -805,7 +805,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         context.Blogs.Add(new Blog { Name = "Test Blog" });
         context.SaveChanges();
 
-        var blogId = context.Blogs.First().Id;
+        var blogId = context.Blogs.Single().Id;
         context.Posts.Add(new Post
         {
             Title = "Test Post",
