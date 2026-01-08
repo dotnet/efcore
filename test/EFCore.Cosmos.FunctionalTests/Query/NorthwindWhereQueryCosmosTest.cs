@@ -1715,6 +1715,38 @@ WHERE ((c["id"] = @customerID) OR (c["id"] = @customerId))
         AssertSql();
     }
 
+    public override async Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool someFlag)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Queryable_conditional_null_check_with_Contains(async, someFlag));
+
+        AssertSql();
+    }
+
+    public override async Task Where_Queryable_conditional_null_check_with_Contains_negated(bool async, bool someFlag)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Queryable_conditional_null_check_with_Contains_negated(async, someFlag));
+
+        AssertSql();
+    }
+
+    public override async Task Where_Enumerable_conditional_null_check_with_Contains(bool async, bool someFlag)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Enumerable_conditional_null_check_with_Contains(async, someFlag));
+
+        AssertSql();
+    }
+
+    public override async Task Where_Enumerable_conditional_null_check_with_Contains_negated(bool async, bool someFlag)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_Enumerable_conditional_null_check_with_Contains_negated(async, someFlag));
+
+        AssertSql();
+    }
+
     public override Task Where_list_object_contains_over_value_type(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
