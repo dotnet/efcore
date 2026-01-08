@@ -5,11 +5,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
+
+    <!-- Causes the dll/pdb to be placed in the analyzers/dotnet/cs folder in the nupkg instead of lib -->
+    <BuildOutputTargetFolder>analyzers/dotnet/cs</BuildOutputTargetFolder>
+
+    <!-- A slightly hacky way to place the dll/pdbs directly under analyzers/dotnet/cs, and not under a netstandard2.0 subfolder -->
+    <IsTool>true</IsTool>
+
+    <IncludeSymbols>true</IncludeSymbols>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <ImplicitUsings>true</ImplicitUsings>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <NoWarn>$(NoWarn);RS1038</NoWarn> <!-- Compiler extensions should be implemented in assemblies with compiler-provided references, #35752 -->
   </PropertyGroup>
@@ -33,19 +40,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
   </ItemGroup>
-
-  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
-    <PropertyGroup>
-      <!-- Make sure we create a symbols.nupkg. -->
-      <IncludeSymbols>true</IncludeSymbols>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <NuspecProperty Include="targetFramework=$(TargetFramework)" />
-      <NuspecProperty Include="OutputBinary=$(OutputPath)$(AssemblyName).dll" />
-      <NuspecProperty Include="OutputSymbol=$(OutputPath)$(AssemblyName).pdb" />
-    </ItemGroup>
-  </Target>
 
   <ItemGroup>
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
