@@ -4,25 +4,14 @@
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-/// <summary>
-///     Collection definition to ensure runtime migration tests run sequentially.
-///     These tests share a database and must not run in parallel.
-/// </summary>
-[CollectionDefinition("RuntimeMigration", DisableParallelization = true)]
-public class RuntimeMigrationCollection;
-
-[Collection("RuntimeMigration")]
-public class RuntimeMigrationSqliteTest : RuntimeMigrationTestBase
+public class RuntimeMigrationSqliteTest(RuntimeMigrationSqliteTest.RuntimeMigrationSqliteFixture fixture)
+    : RuntimeMigrationTestBase<RuntimeMigrationSqliteTest.RuntimeMigrationSqliteFixture>(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
-        => SqliteTestStoreFactory.Instance;
-
     protected override Assembly ProviderAssembly
         => typeof(SqliteDesignTimeServices).Assembly;
 
@@ -30,7 +19,7 @@ public class RuntimeMigrationSqliteTest : RuntimeMigrationTestBase
     {
         var tables = new List<string>();
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != '__EFMigrationsHistory'";
+        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name != '__EFMigrationsHistory' AND name NOT LIKE 'sqlite_%'";
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
@@ -39,10 +28,9 @@ public class RuntimeMigrationSqliteTest : RuntimeMigrationTestBase
         return tables;
     }
 
-    protected override void CleanDatabase(RuntimeMigrationDbContext context)
+    public class RuntimeMigrationSqliteFixture : RuntimeMigrationFixtureBase
     {
-        // SQLite requires clearing connection pools to release file locks on Windows
-        SqliteConnection.ClearAllPools();
-        base.CleanDatabase(context);
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

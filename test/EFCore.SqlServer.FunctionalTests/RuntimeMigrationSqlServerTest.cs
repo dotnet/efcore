@@ -3,25 +3,14 @@
 
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-/// <summary>
-///     Collection definition to ensure runtime migration tests run sequentially.
-///     These tests share a database and must not run in parallel.
-/// </summary>
-[CollectionDefinition("RuntimeMigrationSqlServer", DisableParallelization = true)]
-public class RuntimeMigrationSqlServerCollection;
-
-[Collection("RuntimeMigrationSqlServer")]
-public class RuntimeMigrationSqlServerTest : RuntimeMigrationTestBase
+public class RuntimeMigrationSqlServerTest(RuntimeMigrationSqlServerTest.RuntimeMigrationSqlServerFixture fixture)
+    : RuntimeMigrationTestBase<RuntimeMigrationSqlServerTest.RuntimeMigrationSqlServerFixture>(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
-        => SqlServerTestStoreFactory.Instance;
-
     protected override Assembly ProviderAssembly
         => typeof(SqlServerDesignTimeServices).Assembly;
 
@@ -40,7 +29,6 @@ public class RuntimeMigrationSqlServerTest : RuntimeMigrationTestBase
 
     protected override void CleanDatabase(RuntimeMigrationDbContext context)
     {
-        // SQL Server requires dropping foreign key constraints before dropping tables
         context.Database.EnsureCreated();
         var connection = context.Database.GetDbConnection();
         var wasOpen = connection.State == System.Data.ConnectionState.Open;
@@ -51,18 +39,17 @@ public class RuntimeMigrationSqlServerTest : RuntimeMigrationTestBase
 
         try
         {
-            // First, drop all foreign key constraints
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = @"
-                    DECLARE @sql NVARCHAR(MAX) = N'';
-                    SELECT @sql += 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name) + ';' + CHAR(13)
-                    FROM sys.foreign_keys;
-                    EXEC sp_executesql @sql;";
-                command.ExecuteNonQuery();
-            }
+            using var command = connection.CreateCommand();
+            command.CommandText = """
+                DECLARE @sql NVARCHAR(MAX) = N'';
+                SELECT @sql += 'ALTER TABLE ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name) + ' DROP CONSTRAINT ' + QUOTENAME(f.name) + ';'
+                FROM sys.foreign_keys f
+                INNER JOIN sys.tables t ON f.parent_object_id = t.object_id
+                INNER JOIN sys.schemas s ON t.schema_id = s.schema_id;
+                EXEC sp_executesql @sql;
+                """;
+            command.ExecuteNonQuery();
 
-            // Then drop all tables
             var tables = GetTableNames(connection);
             foreach (var table in tables)
             {
@@ -71,7 +58,6 @@ public class RuntimeMigrationSqlServerTest : RuntimeMigrationTestBase
                 dropCommand.ExecuteNonQuery();
             }
 
-            // Drop migrations history table
             using var dropHistoryCommand = connection.CreateCommand();
             dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS [__EFMigrationsHistory]";
             dropHistoryCommand.ExecuteNonQuery();
@@ -83,5 +69,11 @@ public class RuntimeMigrationSqlServerTest : RuntimeMigrationTestBase
                 connection.Close();
             }
         }
+    }
+
+    public class RuntimeMigrationSqlServerFixture : RuntimeMigrationFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 }

@@ -73,19 +73,17 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
-        var (resolvedOutputDir, subNamespace, context, services) = PrepareForMigration(name, outputDir, contextType);
+        using var context = _contextOperations.CreateContext(contextType);
+        var (resolvedOutputDir, subNamespace, services) = PrepareForMigration(name, outputDir, context);
 
-        using (context)
-        using (var scope = services.CreateScope())
-        {
-            var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-            var migration =
-                string.IsNullOrEmpty(@namespace)
-                    // TODO: Honor _nullable (issue #18950)
-                    ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun)
-                    : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun);
-            return scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun);
-        }
+        using var scope = services.CreateScope();
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var migration =
+            string.IsNullOrEmpty(@namespace)
+                // TODO: Honor _nullable (issue #18950)
+                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun)
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun);
+        return scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun);
     }
 
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
@@ -268,119 +266,61 @@ public class MigrationsOperations
         string? @namespace,
         string? connectionString)
     {
-        var (resolvedOutputDir, subNamespace, context, services) = PrepareForMigration(name, outputDir, contextType);
+        using var context = _contextOperations.CreateContext(contextType);
+        var (resolvedOutputDir, subNamespace, services) = PrepareForMigration(name, outputDir, context);
 
-        using (context)
+        if (connectionString != null)
         {
-            if (connectionString != null)
-            {
-                context.Database.SetConnectionString(connectionString);
-            }
+            context.Database.SetConnectionString(connectionString);
+        }
 
-            using var scope = services.CreateScope();
-            var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
-            var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
-            var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        using var scope = services.CreateScope();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
 
-            // Check for pending model changes
-            if (!migrator.HasPendingModelChanges())
-            {
-                // No new migration needed, just apply existing migrations
-                _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
-                migrator.Migrate(null);
-                _reporter.WriteInformation(DesignStrings.Done);
-                return new MigrationFiles();
-            }
+        if (!migrator.HasPendingModelChanges())
+        {
+            _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
+            migrator.Migrate(null);
+            _reporter.WriteInformation(DesignStrings.Done);
+            return new MigrationFiles();
+        }
 
-            _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
+        _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
 
-            // Scaffold migration
-            var migration =
-                string.IsNullOrEmpty(@namespace)
-                    ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun: true)
-                    : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun: true);
+        var migration =
+            string.IsNullOrEmpty(@namespace)
+                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun: true)
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun: true);
 
-            MigrationFiles? files = null;
-            try
-            {
-                // Save to disk
-                files = scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun: false);
+        MigrationFiles? files = null;
+        try
+        {
+            files = scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun: false);
 
-                // Compile and register
-                var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-                migrationsAssembly.AddMigrations(compiledAssembly);
+            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+            migrationsAssembly.AddMigrations(compiledAssembly);
 
-                // Apply migration
-                migrator.Migrate(migration.MigrationId);
+            migrator.Migrate(migration.MigrationId);
 
-                _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(migration.MigrationId));
+            _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(migration.MigrationId));
 
-                return files;
-            }
-            catch (Exception ex)
-            {
-                if (files != null)
-                {
-                    TryDeleteFile(files.MigrationFile);
-                    TryDeleteFile(files.MetadataFile);
-                }
-
-                throw new OperationException(
-                    DesignStrings.AddAndApplyMigrationFailed(name, ex.Message), ex);
-            }
+            return files;
+        }
+        catch (Exception ex)
+        {
+            throw new OperationException(
+                DesignStrings.AddAndApplyMigrationFailed(name, ex.Message), ex);
         }
     }
 
     /// <summary>
     ///     Prepares common resources for migration operations.
     /// </summary>
-    private (string? outputDir, string? subNamespace, DbContext context, IServiceProvider services)
-        PrepareForMigration(string name, string? outputDir, string? contextType)
-    {
-        ValidateMigrationName(name);
-
-        if (outputDir != null)
-        {
-            outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
-        }
-
-        var subNamespace = SubnamespaceFromOutputPath(outputDir);
-
-        var context = _contextOperations.CreateContext(contextType);
-        try
-        {
-            ValidateMigrationNameNotContextName(name, context);
-
-            var services = _servicesBuilder.Build(context);
-            EnsureServices(services);
-            EnsureMigrationsAssembly(services);
-
-            return (outputDir, subNamespace, context, services);
-        }
-        catch
-        {
-            context.Dispose();
-            throw;
-        }
-    }
-
-    private static void TryDeleteFile(string? filePath)
-    {
-        if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-        {
-            try
-            {
-                File.Delete(filePath);
-            }
-            catch
-            {
-                // Best effort cleanup - ignore failures
-            }
-        }
-    }
-
-    private static void ValidateMigrationName(string name)
+    private (string? outputDir, string? subNamespace, IServiceProvider services)
+        PrepareForMigration(string name, string? outputDir, DbContext context)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -393,16 +333,26 @@ public class MigrationsOperations
             throw new OperationException(
                 DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
         }
-    }
 
-    private static void ValidateMigrationNameNotContextName(string name, DbContext context)
-    {
+        if (outputDir != null)
+        {
+            outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+        }
+
+        var subNamespace = SubnamespaceFromOutputPath(outputDir);
+
         var contextClassName = context.GetType().Name;
         if (string.Equals(name, contextClassName, StringComparison.Ordinal))
         {
             throw new OperationException(
                 DesignStrings.ConflictingContextAndMigrationName(name));
         }
+
+        var services = _servicesBuilder.Build(context);
+        EnsureServices(services);
+        EnsureMigrationsAssembly(services);
+
+        return (outputDir, subNamespace, services);
     }
 
     private static void EnsureServices(IServiceProvider services)
