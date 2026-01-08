@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 using VerifyCS = CSharpAnalyzerVerifier<InternalUsageDiagnosticAnalyzer>;
 
-public class InternalUsageDiagnosticAnalyzerTests
+//Issue #37106
+internal class InternalUsageDiagnosticAnalyzerTests
 {
     [ConditionalFact]
     public Task Invocation_on_type_in_internal_namespace()

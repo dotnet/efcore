@@ -6,7 +6,8 @@ namespace Microsoft.EntityFrameworkCore;
 using VerifyCS =
     CSharpCodeFixVerifier<InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer, InterpolatedStringUsageInRawQueriesCodeFixProvider>;
 
-public class InterpolatedStringUsageInRawQueriesTests
+//Issue #37106
+internal class InterpolatedStringUsageInRawQueriesTests
 {
     private const string MyDbContext =
         """
