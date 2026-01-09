@@ -50,6 +50,7 @@ extends:
       baseline:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
+        preReleaseVersion: '4.3.1'
         enabled: false
         justificationForDisabling: 'NonProduction'
       policheck:
