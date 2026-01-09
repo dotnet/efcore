@@ -13,10 +13,16 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Base class for runtime migration tests. These tests validate the ability to
 ///     scaffold, compile, and apply migrations at runtime without using the CLI.
 /// </summary>
-public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
+public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : RuntimeMigrationTestBase<TFixture>.RuntimeMigrationFixtureBase
 {
     protected TFixture Fixture { get; } = fixture;
+
+    public virtual Task InitializeAsync()
+        => Fixture.ReseedAsync();
+
+    public virtual Task DisposeAsync()
+        => Task.CompletedTask;
 
     protected abstract Assembly ProviderAssembly { get; }
 
@@ -82,39 +88,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 
     protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
 
-    protected virtual void CleanDatabase(RuntimeMigrationDbContext context)
-    {
-        context.Database.EnsureCreated();
-        var connection = context.Database.GetDbConnection();
-        var wasOpen = connection.State == System.Data.ConnectionState.Open;
-        if (!wasOpen)
-        {
-            connection.Open();
-        }
-
-        try
-        {
-            var tables = GetTableNames(connection);
-            foreach (var table in tables)
-            {
-                using var command = connection.CreateCommand();
-                command.CommandText = $"DROP TABLE IF EXISTS \"{table}\"";
-                command.ExecuteNonQuery();
-            }
-
-            using var dropHistoryCommand = connection.CreateCommand();
-            dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS \"__EFMigrationsHistory\"";
-            dropHistoryCommand.ExecuteNonQuery();
-        }
-        finally
-        {
-            if (!wasOpen)
-            {
-                connection.Close();
-            }
-        }
-    }
-
     public abstract class RuntimeMigrationFixtureBase : SharedStoreFixtureBase<RuntimeMigrationDbContext>
     {
         protected override string StoreName
@@ -122,6 +95,34 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 
         protected override bool UsePooling
             => false;
+
+        protected override async Task CleanAsync(DbContext context)
+        {
+            await context.Database.EnsureCreatedAsync();
+            var connection = context.Database.GetDbConnection();
+            await context.Database.OpenConnectionAsync();
+
+            try
+            {
+                var tables = await GetTableNamesAsync(connection);
+                foreach (var table in tables)
+                {
+                    using var command = connection.CreateCommand();
+                    command.CommandText = $"DROP TABLE IF EXISTS \"{table}\"";
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                using var dropHistoryCommand = connection.CreateCommand();
+                dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS \"__EFMigrationsHistory\"";
+                await dropHistoryCommand.ExecuteNonQueryAsync();
+            }
+            finally
+            {
+                await context.Database.CloseConnectionAsync();
+            }
+        }
+
+        protected abstract Task<List<string>> GetTableNamesAsync(System.Data.Common.DbConnection connection);
     }
 
     #endregion
@@ -132,7 +133,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_scaffold_migration()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -155,7 +155,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_compile_migration()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -181,7 +180,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_register_and_apply_compiled_migration()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -211,7 +209,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Compiled_migration_generates_valid_sql()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -245,7 +242,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void HasPendingModelChanges_returns_true_for_new_model()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
@@ -257,7 +253,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void HasPendingModelChanges_returns_false_after_migration()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -285,7 +280,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Compiled_migration_contains_correct_operations()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -320,7 +314,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             Directory.CreateDirectory(tempDirectory);
 
             using var context = CreateContext();
-            CleanDatabase(context);
             using var services = CreateDesignTimeServices(context);
 
             var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -358,7 +351,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_apply_multiple_migrations_sequentially()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -400,7 +392,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_down_reverses_up()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -420,19 +411,19 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         migrator.Migrate(migration.MigrationId);
 
         var connection = context.Database.GetDbConnection();
-        connection.Open();
+        context.Database.OpenConnection();
         var tablesAfterUp = GetTableNames(connection);
         Assert.Contains("Blogs", tablesAfterUp);
         Assert.Contains("Posts", tablesAfterUp);
-        connection.Close();
+        context.Database.CloseConnection();
 
         migrator.Migrate("0");
 
-        connection.Open();
+        context.Database.OpenConnection();
         var tablesAfterDown = GetTableNames(connection);
         Assert.DoesNotContain("Blogs", tablesAfterDown);
         Assert.DoesNotContain("Posts", tablesAfterDown);
-        connection.Close();
+        context.Database.CloseConnection();
     }
 
     protected DatabaseModel GetDatabaseModel(IServiceScope services, RuntimeMigrationDbContext context)
@@ -441,7 +432,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var connection = context.Database.GetDbConnection();
         if (connection.State != System.Data.ConnectionState.Open)
         {
-            connection.Open();
+            context.Database.OpenConnection();
         }
 
         return databaseModelFactory.Create(connection, new DatabaseModelFactoryOptions());
@@ -475,7 +466,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_revert_migration_using_down_operations()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -524,7 +514,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Applied_migration_is_recorded_in_history()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -554,7 +543,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Compiled_migration_has_matching_up_and_down_table_operations()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -588,7 +576,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_creates_correct_table_structure()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         ScaffoldAndApplyMigration(services, context, "TableStructureTest");
@@ -615,7 +602,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_creates_correct_primary_keys()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         ScaffoldAndApplyMigration(services, context, "PrimaryKeyTest");
@@ -643,7 +629,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_creates_correct_foreign_keys()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         ScaffoldAndApplyMigration(services, context, "ForeignKeyTest");
@@ -669,7 +654,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_creates_columns_with_correct_constraints()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         ScaffoldAndApplyMigration(services, context, "ColumnConstraintTest");
@@ -695,7 +679,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_down_removes_schema_completely()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
@@ -722,7 +705,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_creates_foreign_key_index()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         ScaffoldAndApplyMigration(services, context, "FKIndexTest");
@@ -743,7 +725,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_with_no_changes_produces_empty_operations()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -785,7 +766,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Migration_preserves_existing_data()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
@@ -845,7 +825,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Applied_migration_snapshot_matches_model()
     {
         using var context = CreateContext();
-        CleanDatabase(context);
         using var services = CreateDesignTimeServices(context);
 
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
@@ -877,7 +856,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             Directory.CreateDirectory(tempDirectory);
 
             using var context = CreateContext();
-            CleanDatabase(context);
             using var services = CreateDesignTimeServices(context);
 
             var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
