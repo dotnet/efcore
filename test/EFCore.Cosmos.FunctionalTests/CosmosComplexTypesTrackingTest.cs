@@ -174,6 +174,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
             modelBuilder.Entity<PubWithArrayCollections>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<PubWithRecordArrayCollections>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<PubWithPropertyBagCollections>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>().HasPartitionKey(x => x.Id);
             if (!UseProxies)
             {
                 modelBuilder.Entity<FieldPub>().HasPartitionKey(x => x.Id);
