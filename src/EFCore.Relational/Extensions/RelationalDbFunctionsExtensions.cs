@@ -56,4 +56,17 @@ public static class RelationalDbFunctionsExtensions
         this DbFunctions _,
         [NotParameterized] params T[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Greatest)));
+
+    /// <summary>
+    ///     Returns a value indicating whether a given JSON path exists within the specified JSON.
+    ///     Usually corresponds to the <c>JSON_PATH_EXISTS</c> SQL function.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="json">The JSON value to check.</param>
+    /// <param name="path">The JSON path to look for.</param>
+    public static bool JsonExists(
+        this DbFunctions _,
+        object json,
+        [NotParameterized] string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExists)));
 }

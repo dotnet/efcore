@@ -1348,6 +1348,30 @@ WHERE CAST(DATALENGTH(N'foo') AS int) = 3
         }
     }
 
+    [ConditionalFact]
+    public void JsonExists_client_eval_throws()
+    {
+        Assert.Throws<InvalidOperationException>(() => EF.Functions.JsonExists("{\"key\": 1}", "$.key"));
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public async Task JsonExists_on_json_string_literal()
+    {
+        await using var context = CreateContext();
+        var result = await context.Customers
+            .Where(c => EF.Functions.JsonExists("{\"name\": \"test\"}", "$.name"))
+            .CountAsync();
+
+        Assert.Equal(91, result);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE JSON_PATH_EXISTS(N'{"name": "test"}', N'$.name') = 1
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
