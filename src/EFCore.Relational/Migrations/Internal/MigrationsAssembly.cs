@@ -81,15 +81,9 @@ public class MigrationsAssembly : IMigrationsAssembly
             this,
             static self =>
             {
-                Assembly[] additionalAssemblies;
-                lock (self._lock)
-                {
-                    additionalAssemblies = [.. self._additionalAssemblies];
-                }
-
                 var result = new SortedList<string, TypeInfo>();
                 self.AddMigrationsFromAssembly(self.Assembly, result);
-                foreach (var additionalAssembly in additionalAssemblies)
+                foreach (var additionalAssembly in self._additionalAssemblies)
                 {
                     self.AddMigrationsFromAssembly(additionalAssembly, result);
                 }
@@ -205,12 +199,9 @@ public class MigrationsAssembly : IMigrationsAssembly
     /// </summary>
     public virtual void AddMigrations(Assembly additionalMigrationsAssembly)
     {
-        lock (_lock)
-        {
-            _additionalAssemblies.Add(additionalMigrationsAssembly);
-            _migrations = null;
-            _modelSnapshot = null;
-            _modelSnapshotInitialized = false;
-        }
+        _additionalAssemblies.Add(additionalMigrationsAssembly);
+        _migrations = null;
+        _modelSnapshot = null;
+        _modelSnapshotInitialized = false;
     }
 }
