@@ -114,27 +114,12 @@ public class CSharpMigrationCompiler : IMigrationCompiler
         Type contextType,
         IEnumerable<Assembly>? additionalReferences)
     {
-        // Get or create cached base references
+        // Get cached references from all loaded assemblies
         var baseReferences = GetOrCreateCachedReferences();
-
-        // Add context-specific references
-        var contextAssembly = contextType.Assembly;
         var allReferences = new List<MetadataReference>(baseReferences);
 
-        // Add the context's assembly and its references
-        AddAssemblyReference(allReferences, contextAssembly);
-        foreach (var referencedAssembly in contextAssembly.GetReferencedAssemblies())
-        {
-            try
-            {
-                var assembly = Assembly.Load(referencedAssembly);
-                AddAssemblyReference(allReferences, assembly);
-            }
-            catch
-            {
-                // Ignore assemblies that can't be loaded
-            }
-        }
+        // Add the context's assembly (in case it wasn't loaded when cache was built)
+        AddAssemblyReference(allReferences, contextType.Assembly);
 
         // Add any additional references
         if (additionalReferences != null)

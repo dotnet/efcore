@@ -73,11 +73,6 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new OperationException(DesignStrings.MigrationNameRequired);
-        }
-
         using var context = _contextOperations.CreateContext(contextType);
         var (resolvedOutputDir, subNamespace, services) = PrepareForMigration(name, outputDir, context);
 
@@ -271,11 +266,6 @@ public class MigrationsOperations
         string? @namespace,
         string? connectionString)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new OperationException(DesignStrings.MigrationNameRequired);
-        }
-
         using var context = _contextOperations.CreateContext(contextType);
         var (resolvedOutputDir, subNamespace, services) = PrepareForMigration(name, outputDir, context);
 

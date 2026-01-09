@@ -93,9 +93,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         protected override string StoreName
             => "RuntimeMigration";
 
-        protected override bool UsePooling
-            => false;
-
         protected override async Task CleanAsync(DbContext context)
         {
             await context.Database.EnsureCreatedAsync();
