@@ -158,7 +158,7 @@ extends:
             templateContext:
               sdl:
                 binskim:
-                  prereleaseVersion: ' '
+                  prereleaseVersion: ''
               outputs:
               - output: pipelineArtifact
                 displayName: Upload TestResults
@@ -199,7 +199,7 @@ extends:
             templateContext:
               sdl:
                 binskim:
-                  prereleaseVersion: ' '
+                  prereleaseVersion: ''
               outputs:
               - output: pipelineArtifact
                 displayName: Upload TestResults
