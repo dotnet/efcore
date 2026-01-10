@@ -39,14 +39,14 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
 
         if (test is BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest)
         {
-            var isLeftNullConstant = IsNullConstant(binaryTest.Left);
-            var isRightNullConstant = IsNullConstant(binaryTest.Right);
+            var isLeftNullConstant = binaryTest.Left is ConstantExpression { Value: null };
+            var isRightNullConstant = binaryTest.Right is ConstantExpression { Value: null };
 
             if ((isLeftNullConstant == isRightNullConstant)
                 || (binaryTest.NodeType == ExpressionType.Equal
-                    && !IsNullConstant(conditionalExpression.IfTrue))
+                    && conditionalExpression.IfTrue is not ConstantExpression { Value: null })
                 || (binaryTest.NodeType == ExpressionType.NotEqual
-                    && !IsNullConstant(conditionalExpression.IfFalse)))
+                    && conditionalExpression.IfFalse is not ConstantExpression { Value: null }))
             {
                 return conditionalExpression;
             }
@@ -158,7 +158,4 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
             return unaryExpression;
         }
     }
-
-    private static bool IsNullConstant(Expression expression)
-        => expression is ConstantExpression { Value: null };
 }
