@@ -621,6 +621,30 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                 b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
             });
 
+            modelBuilder.Entity<Group37310>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasOne(e => e.GroupOwner)
+                    .WithMany()
+                    .HasForeignKey(e => new { e.Id, e.GroupOwnerId });
+            });
+
+            modelBuilder.Entity<GroupMember37310>(b =>
+            {
+                b.HasKey(e => new { e.GroupId, e.UserId });
+                b.HasOne(e => e.User)
+                    .WithMany(e => e.Groups)
+                    .HasForeignKey(e => e.UserId);
+                b.HasOne(e => e.Group)
+                    .WithMany(e => e.Members)
+                    .HasForeignKey(e => e.GroupId);
+            });
+
+            modelBuilder.Entity<User37310>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+          
             modelBuilder.Entity<ParentWithClientSetDefault>(b =>
             {
                 b.Property(e => e.Id).ValueGeneratedNever();
