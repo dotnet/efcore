@@ -2080,18 +2080,20 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         if (evaluateAsParameter)
         {
-            parameterName = tempParameterName ?? "p";
-
-            var compilerPrefixIndex = parameterName.LastIndexOf('>');
-            if (compilerPrefixIndex != -1)
-            {
-                parameterName = parameterName[(compilerPrefixIndex + 1)..];
-            }
+            parameterName = string.IsNullOrWhiteSpace(tempParameterName) ? "p" : tempParameterName;
 
             // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
             if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
             {
                 parameterName = parameterName.Substring("$VB$Local_".Length);
+            }
+
+            // In many databases, parameter names must start with a letter or underscore.
+            // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
+            // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
+            if (!char.IsLetter(parameterName[0]) && parameterName[0] != '_')
+            {
+                parameterName = "_" + parameterName;
             }
 
             parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
@@ -2147,11 +2149,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                                parameterName = parameterName is null ? fieldInfo.Name : $"{parameterName}_{fieldInfo.Name}";
+                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
+                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
 
                             case PropertyInfo propertyInfo:
-                                parameterName = parameterName is null ? propertyInfo.Name : $"{parameterName}_{propertyInfo.Name}";
+                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
+                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
                         }
                     }
@@ -2166,7 +2170,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return constantExpression.Value;
 
                 case MethodCallExpression methodCallExpression:
-                    parameterName = methodCallExpression.Method.Name;
+                    parameterName = SanitizeCompilerGeneratedName(methodCallExpression.Method.Name);
                     break;
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
@@ -2189,6 +2193,25 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         : CoreStrings.ExpressionParameterizationException,
                     exception);
             }
+        }
+
+        static string SanitizeCompilerGeneratedName(string s)
+        {
+            // Compiler-generated field names intentionally contain illegal characters, specifically angle brackets <>.
+            // In cases where there's something within the angle brackets, that tends to be the original user-provided variable name
+            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or it the angle brackets contain no
+            // content, strip them out entirely and take what comes after.
+            var closingBracket = s.IndexOf('>');
+            if (closingBracket == -1)
+            {
+                return s;
+            }
+
+            var openingBracket = s.IndexOf('<');
+
+            return openingBracket != -1 && openingBracket < closingBracket - 1
+                ? s[(openingBracket + 1)..closingBracket]
+                : s[(closingBracket + 1)..];
         }
     }
 
