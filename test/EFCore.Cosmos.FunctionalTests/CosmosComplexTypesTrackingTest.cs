@@ -114,6 +114,11 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         return base.TrackAndSaveTest(state, async, createPub);
     }
 
+    public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+        // Optional complex properties are not supported on Cosmos
+        // See https://github.com/dotnet/efcore/issues/31253
+        => Task.CompletedTask;
+
     protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
