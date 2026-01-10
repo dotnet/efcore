@@ -1439,6 +1439,93 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             elementAsserter: (e, a) => AssertCollection(e, a));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_Queryable_not_null_check_with_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var ids = ss.Set<Customer>().Select(c => c.CustomerID);
+                return ss.Set<Customer>().Where(c => ids != null && ids.Contains(c.CustomerID));
+            });
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_Queryable_null_check_with_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var ids = ss.Set<Customer>().Select(c => c.CustomerID);
+                return ss.Set<Customer>().Where(c => ids == null || !ids.Contains(c.CustomerID));
+            },
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public virtual Task Where_Queryable_conditional_not_null_check_with_Contains(bool async, bool someFlag)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var ids = someFlag ? ss.Set<Customer>().Select(c => c.CustomerID) : null;
+                return ss.Set<Customer>().Where(c => ids != null && ids.Contains(c.CustomerID));
+            },
+            assertEmpty: !someFlag);
+
+    [ConditionalTheory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public virtual Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool someFlag)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var ids = someFlag ? ss.Set<Customer>().Select(c => c.CustomerID) : null;
+                return ss.Set<Customer>().Where(c => ids == null || !ids.Contains(c.CustomerID));
+            },
+            assertEmpty: someFlag);
+
+    [ConditionalTheory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public virtual Task Where_Enumerable_conditional_not_null_check_with_Contains(bool async, bool someFlag)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                // Check also with Enumerable here so we don't handle the null check
+                // incorrectly because Contains is coverted in
+                // QueryableMethodNormalizingExpressionVisitor.TryConvertCollectionContainsToQueryableContains.
+                var ids = someFlag ? new List<string> { "ALFKI", "ANATR" } : null;
+                return ss.Set<Customer>().Where(c => ids != null && ids.Contains(c.CustomerID));
+            },
+            assertEmpty: !someFlag);
+
+    [ConditionalTheory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public virtual Task Where_Enumerable_conditional_null_check_with_Contains(bool async, bool someFlag)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                // Check also with Enumerable here so we don't handle the null check
+                // incorrectly because Contains is coverted in
+                // QueryableMethodNormalizingExpressionVisitor.TryConvertCollectionContainsToQueryableContains.
+                var ids = someFlag ? new List<string> { "ALFKI", "ANATR" } : null;
+                return ss.Set<Customer>().Where(c => ids == null || !ids.Contains(c.CustomerID));
+            },
+            assertEmpty: false);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_collection_navigation_ToList_Count(bool async)
         => AssertQuery(
             async,
