@@ -2053,10 +2053,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task>? nestedTestOperation1 = null,
-        Func<DbContext, Task>? nestedTestOperation2 = null)
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
+            testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
@@ -2396,6 +2397,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                                 b.ComplexProperty(e => e.Tog);
                             });
                     });
+            });
+
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProp);
             });
         }
     }
@@ -4373,4 +4379,72 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             ],
             FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"])
         };
+
+    [ConditionalTheory(), InlineData(false), InlineData(true)]
+    public virtual async Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = Fixture.UseProxies
+                    ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                    : new EntityWithOptionalMultiPropComplex();
+
+                entity.Id = Guid.NewGuid();
+                entity.ComplexProp = null;
+
+                _ = async ? await context.AddAsync(entity) : context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.Null(entity.ComplexProp);
+
+                // Set the complex property with default values
+                entity.ComplexProp = new MultiPropComplex
+                {
+                    IntValue = 0,
+                    BoolValue = false,
+                    DateValue = default
+                };
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.NotNull(entity.ComplexProp);
+                Assert.Equal(0, entity.ComplexProp.IntValue);
+                Assert.False(entity.ComplexProp.BoolValue);
+                Assert.Equal(default, entity.ComplexProp.DateValue);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                // Complex types with more than one property should materialize even with default values
+                Assert.NotNull(entity.ComplexProp);
+                Assert.Equal(0, entity.ComplexProp.IntValue);
+                Assert.False(entity.ComplexProp.BoolValue);
+                Assert.Equal(default, entity.ComplexProp.DateValue);
+            });
+    }
+
+    public class EntityWithOptionalMultiPropComplex
+    {
+        public virtual Guid Id { get; set; }
+        public virtual MultiPropComplex? ComplexProp { get; set; }
+    }
+
+    public class MultiPropComplex
+    {
+        public int IntValue { get; set; }
+        public bool BoolValue { get; set; }
+        public DateTimeOffset DateValue { get; set; }
+    }
 }
