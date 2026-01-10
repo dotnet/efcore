@@ -1024,6 +1024,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is not supported by the Dataverse TDS Endpoint
+        /// </summary>
+        public static EventDefinition<string, string> LogDataverseForeignKeyInvalidWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDataverseForeignKeyInvalid;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDataverseForeignKeyInvalid,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.DataverseForeignKeyInvalidWarning,
+                        LogLevel.Debug,
+                        "SqlServerEventId.LogDataverseForeignKeyInvalidWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.DataverseForeignKeyInvalidWarning,
+                            _resourceManager.GetString("LogDataverseForeignKeyInvalidWarning")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
         /// </summary>
         public static EventDefinition LogSavepointsDisabledBecauseOfMARS(IDiagnosticsLogger logger)
