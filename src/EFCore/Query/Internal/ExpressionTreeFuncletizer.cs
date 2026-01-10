@@ -2078,14 +2078,24 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         var value = EvaluateCore(expression, ref evaluateAsParameter, out var tempParameterName, out isContextAccessor);
 
-        if (evaluateAsParameter)
+        if (!evaluateAsParameter)
         {
-            parameterName = string.IsNullOrWhiteSpace(tempParameterName) ? "p" : tempParameterName;
+            parameterName = string.Empty;
+            return value;
+        }
+
+        if (tempParameterName is null)
+        {
+            parameterName = "p";
+        }
+        else
+        {
+            parameterName = tempParameterName;
 
             // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
             if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
             {
-                parameterName = parameterName.Substring("$VB$Local_".Length);
+                parameterName = parameterName["$VB$Local_".Length..];
             }
 
             // In many databases, parameter names must start with a letter or underscore.
@@ -2096,14 +2106,20 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 parameterName = "_" + parameterName;
             }
 
-            parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+            // Just as a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
+            foreach (var c in parameterName)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    parameterName = "p";
+                    break;
+                }
+            }
+        }
 
-            _parameterNames.Add(parameterName);
-        }
-        else
-        {
-            parameterName = string.Empty;
-        }
+        parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+
+        _parameterNames.Add(parameterName);
 
         return value;
 
