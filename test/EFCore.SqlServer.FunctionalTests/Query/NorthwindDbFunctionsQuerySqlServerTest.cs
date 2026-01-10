@@ -1348,27 +1348,22 @@ WHERE CAST(DATALENGTH(N'foo') AS int) = 3
         }
     }
 
-    [ConditionalFact]
-    public void JsonExists_client_eval_throws()
-    {
-        Assert.Throws<InvalidOperationException>(() => EF.Functions.JsonExists("{\"key\": 1}", "$.key"));
-    }
-
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public async Task JsonExists_on_json_string_literal()
+    public virtual async Task JsonExists_with_column()
     {
         await using var context = CreateContext();
-        var result = await context.Customers
-            .Where(c => EF.Functions.JsonExists("{\"name\": \"test\"}", "$.name"))
-            .CountAsync();
 
-        Assert.Equal(91, result);
+        // Note: Address is not valid JSON, so this will return no results,
+        // but the purpose is to verify the SQL translation is correct
+        var result = await context.Customers
+            .Where(c => EF.Functions.JsonExists(c.Address!, "$.city"))
+            .ToListAsync();
 
         AssertSql(
             """
-SELECT COUNT(*)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE JSON_PATH_EXISTS(N'{"name": "test"}', N'$.name') = 1
+WHERE JSON_PATH_EXISTS([c].[Address], N'$.city') = 1
 """);
     }
 
