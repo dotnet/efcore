@@ -214,21 +214,65 @@ public class SqliteSqlTranslatingExpressionVisitor(
         }
 
         var method = methodCallExpression.Method;
+        var declaringType = method.DeclaringType;
+        var @object = methodCallExpression.Object;
+        var arguments = methodCallExpression.Arguments;
 
-        // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
-        // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-char)
-        // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-string)
-        // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-char)
-        if (method.Name is nameof(string.StartsWith) or nameof(string.EndsWith)
-            && methodCallExpression.Object is not null
-            && method.DeclaringType == typeof(string)
-            && methodCallExpression.Arguments is [Expression value]
-            && (value.Type == typeof(string) || value.Type == typeof(char)))
+        switch (method.Name)
         {
-            return TranslateStartsEndsWith(
-                methodCallExpression.Object,
-                value,
-                method.Name is nameof(string.StartsWith));
+            // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-char)
+            // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-char)
+            case nameof(string.StartsWith) or nameof(string.EndsWith)
+                when methodCallExpression.Object is not null
+                    && declaringType == typeof(string)
+                    && arguments is [Expression value]
+                    && (value.Type == typeof(string) || value.Type == typeof(char)):
+            {
+                return TranslateStartsEndsWith(
+                    methodCallExpression.Object,
+                    value,
+                    method.Name is nameof(string.StartsWith));
+            }
+
+            // We translate EF.Functions.JsonExists here and not in a method translator since we need to support JsonExists over a complex
+            // property, which requires special handling.
+            case nameof(RelationalDbFunctionsExtensions.JsonExists)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                    && @object is null
+                    && arguments is [_, var json, var path]:
+            {
+                if (Translate(path) is not SqlExpression translatedPath)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    // The JSON argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The JSON argument is a complex JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                return translatedJson is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.IsNotNull(
+                        _sqlExpressionFactory.Function(
+                            "json_type",
+                            [translatedJson, translatedPath],
+                            nullable: true,
+                            // Note that json_type() does propagate nullability; however, our query pipeline assumes that if arguments
+                            // propagate nullability, that's the *only* reason for the function to return null; this means that if the
+                            // arguments are non-nullable, the IS NOT NULL wrapping check can be optimized away.
+                            argumentsPropagateNullability: [false, false],
+                            typeof(int)));
+            }
         }
 
         return QueryCompilationContext.NotTranslatedExpression;
