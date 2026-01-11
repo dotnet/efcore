@@ -256,8 +256,8 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_works_when_read_only_memory_bytes()
     {
-        var buffer = new byte[] { 0x7E, 0x57, 0xAB };
-        var input = ((ReadOnlyMemory<byte>)buffer).Slice(0, 2);
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((ReadOnlyMemory<byte>)buffer).Slice(1, 2);
         var expected = new byte[] { 0x7E, 0x57 };
         Bind_works(input, expected);
     }
@@ -265,8 +265,8 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_works_when_memory_bytes()
     {
-        var buffer = new byte[] { 0x7E, 0x57, 0xAB };
-        var input = ((Memory<byte>)buffer).Slice(0, 2);
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((Memory<byte>)buffer).Slice(1, 2);
         var expected = new byte[] { 0x7E, 0x57 };
         Bind_works(input, expected);
     }
