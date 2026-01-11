@@ -1287,7 +1287,7 @@ namespace My.Gnomespace.Data
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseSqlite()
+                .UseSqlite("Data Source=:memory:")
                 .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>();
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator
