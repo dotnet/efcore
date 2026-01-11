@@ -55,7 +55,7 @@ internal partial class DatabaseUpdateCommand : ContextCommandBase
 
             if (_json!.HasValue())
             {
-                throw new CommandException(Resources.JsonRequiresAdd);
+                throw new CommandException(Resources.MissingConditionalOption("add", "json"));
             }
         }
     }
