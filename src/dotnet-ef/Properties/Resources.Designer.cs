@@ -110,6 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseUpdateDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
         /// </summary>
         public static string DbContextConnectionDescription
@@ -210,6 +216,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationNameDescription
             => GetString("MigrationNameDescription");
+
+        /// <summary>
+        ///     Missing required argument '{arg}'.
+        /// </summary>
+        public static string MissingArgument(object? arg)
+            => string.Format(
+                GetString("MissingArgument", nameof(arg)),
+                arg);
 
         /// <summary>
         ///     Adds a new migration.
@@ -330,6 +344,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
+        ///     Option '--namespace' must be specified with '--add'.
+        /// </summary>
+        public static string NamespaceRequiresAdd
+            => GetString("NamespaceRequiresAdd");
+
+        /// <summary>
         ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
@@ -418,6 +438,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     Option '--output-dir' must be specified with '--add'.
+        /// </summary>
+        public static string OutputDirRequiresAdd
+            => GetString("OutputDirRequiresAdd");
 
         /// <summary>
         ///     Generate precompiled queries.

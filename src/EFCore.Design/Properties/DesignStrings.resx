@@ -117,11 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AddAndApplyMigrationFailed" xml:space="preserve">
+    <value>Failed to create and apply migration '{name}'. {message}</value>
+  </data>
   <data name="BadConnection" xml:space="preserve">
     <value>Failed creating connection: {exceptionMessage}</value>
   </data>
   <data name="BadMigrationName" xml:space="preserve">
     <value>The migration name '{name}' is not valid. Migration names cannot contain any of the following characters: '{characters}'.</value>
+  </data>
+  <data name="MigrationNameRequired" xml:space="preserve">
+    <value>A migration name must be specified.</value>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
     <value>Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.</value>
@@ -351,6 +357,12 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NoPendingModelChanges" xml:space="preserve">
     <value>No changes have been made to the model since the last migration.</value>
   </data>
+  <data name="NoDynamicMigrationsToRevert" xml:space="preserve">
+    <value>No dynamic migrations have been applied in the current session. Only migrations applied using CreateAndApplyMigration can be reverted with RevertMigration.</value>
+  </data>
+  <data name="DynamicMigrationNotFound" xml:space="preserve">
+    <value>The dynamic migration '{migrationId}' was not found. Only migrations applied in the current session using CreateAndApplyMigration can be reverted.</value>
+  </data>
   <data name="NoReferencedServices" xml:space="preserve">
     <value>No referenced design-time services were found.</value>
   </data>
@@ -483,5 +495,18 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="WritingSnapshot" xml:space="preserve">
     <value>Writing model snapshot to '{file}'.</value>
+  </data>
+  <data name="MigrationCompilationFailed" xml:space="preserve">
+    <value>Failed to compile migration '{migrationId}'. Errors:
+{errors}</value>
+  </data>
+  <data name="MigrationTypeNotFound" xml:space="preserve">
+    <value>Could not find migration type with ID '{migrationId}' in the compiled assembly.</value>
+  </data>
+  <data name="CreatingAndApplyingMigration" xml:space="preserve">
+    <value>Creating and applying migration '{migrationName}'.</value>
+  </data>
+  <data name="MigrationCreatedAndApplied" xml:space="preserve">
+    <value>Migration '{migrationId}' was successfully created and applied.</value>
   </data>
 </root>
