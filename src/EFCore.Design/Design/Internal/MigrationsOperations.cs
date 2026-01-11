@@ -285,6 +285,8 @@ public class MigrationsOperations
             _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
             migrator.Migrate(null);
             _reporter.WriteInformation(DesignStrings.Done);
+            // Return empty MigrationFiles to indicate no migration was created.
+            // When serialized to JSON (with --json), all file path properties will be null.
             return new MigrationFiles();
         }
 

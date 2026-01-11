@@ -966,6 +966,18 @@ function Update-Database
         [string] $StartupProject,
         [string] $Args)
 
+    if (-not $Add)
+    {
+        if ($OutputDir)
+        {
+            throw "The '-OutputDir' parameter requires the '-Add' parameter to be specified."
+        }
+        if ($Namespace)
+        {
+            throw "The '-Namespace' parameter requires the '-Add' parameter to be specified."
+        }
+    }
+
     WarnIfEF6 'Update-Database'
 
     $dteProject = GetProject $Project

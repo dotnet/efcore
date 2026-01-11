@@ -278,6 +278,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("JsonDescription");
 
         /// <summary>
+        ///     The '--json' option requires the '--add' option to be specified.
+        /// </summary>
+        public static string JsonRequiresAdd
+            => GetString("JsonRequiresAdd");
+
+        /// <summary>
         ///     The language. Defaults to 'C#'.
         /// </summary>
         public static string LanguageDescription

@@ -52,6 +52,11 @@ internal partial class DatabaseUpdateCommand : ContextCommandBase
             {
                 throw new CommandException(Resources.NamespaceRequiresAdd);
             }
+
+            if (_json!.HasValue())
+            {
+                throw new CommandException(Resources.JsonRequiresAdd);
+            }
         }
     }
 }

@@ -99,9 +99,9 @@ public static class DesignTimeServiceCollectionExtensions
             .TryAdd(_ => context.GetService<ICurrentDbContext>())
             .TryAdd(_ => context.GetService<IDbContextOptions>())
             .TryAdd(_ => context.GetService<IHistoryRepository>())
+            .TryAdd(_ => context.GetService<IMigrationsAssembly>())
             .TryAdd(_ => context.GetService<IMigrationsModelDiffer>())
             .TryAdd(_ => context.GetService<IMigrator>())
-            .TryAdd(_ => context.GetService<IMigrationsAssembly>())
             .TryAdd(_ => context.GetService<IDesignTimeModel>().Model);
 
         return services;

@@ -237,6 +237,9 @@
   <data name="JsonDescription" xml:space="preserve">
     <value>Show JSON output. Use with --prefix-output to parse programatically.</value>
   </data>
+  <data name="JsonRequiresAdd" xml:space="preserve">
+    <value>The '--json' option requires the '--add' option to be specified.</value>
+  </data>
   <data name="LanguageDescription" xml:space="preserve">
     <value>The language. Defaults to 'C#'.</value>
   </data>
