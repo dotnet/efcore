@@ -32,18 +32,5 @@ public class RuntimeMigrationSqliteTest(RuntimeMigrationSqliteTest.RuntimeMigrat
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
-
-        protected override async Task<List<string>> GetTableNamesAsync(DbConnection connection)
-        {
-            var tables = new List<string>();
-            using var command = connection.CreateCommand();
-            command.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name != '__EFMigrationsHistory' AND name NOT LIKE 'sqlite_%'";
-            using var reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                tables.Add(reader.GetString(0));
-            }
-            return tables;
-        }
     }
 }

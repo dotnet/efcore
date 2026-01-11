@@ -18,8 +18,11 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 {
     protected TFixture Fixture { get; } = fixture;
 
-    public virtual Task InitializeAsync()
-        => Fixture.ReseedAsync();
+    public virtual async Task InitializeAsync()
+    {
+        using var context = CreateContext();
+        await Fixture.TestStore.CleanAsync(context, createTables: false);
+    }
 
     public virtual Task DisposeAsync()
         => Task.CompletedTask;
@@ -93,33 +96,10 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         protected override string StoreName
             => "RuntimeMigration";
 
-        protected override async Task CleanAsync(DbContext context)
-        {
-            await context.Database.EnsureCreatedAsync();
-            var connection = context.Database.GetDbConnection();
-            await context.Database.OpenConnectionAsync();
-
-            try
-            {
-                var tables = await GetTableNamesAsync(connection);
-                foreach (var table in tables)
-                {
-                    using var command = connection.CreateCommand();
-                    command.CommandText = $"DROP TABLE IF EXISTS \"{table}\"";
-                    await command.ExecuteNonQueryAsync();
-                }
-
-                using var dropHistoryCommand = connection.CreateCommand();
-                dropHistoryCommand.CommandText = "DROP TABLE IF EXISTS \"__EFMigrationsHistory\"";
-                await dropHistoryCommand.ExecuteNonQueryAsync();
-            }
-            finally
-            {
-                await context.Database.CloseConnectionAsync();
-            }
-        }
-
-        protected abstract Task<List<string>> GetTableNamesAsync(System.Data.Common.DbConnection connection);
+        // Disable DbContext pooling because pooled contexts retain runtime migration assemblies
+        // from previous tests, causing subsequent tests to fail
+        protected override bool UsePooling
+            => false;
     }
 
     #endregion
