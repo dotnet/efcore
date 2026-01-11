@@ -469,6 +469,13 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             async,
             ss => ss.Set<Animal>().Where(e => typeof(Kiwi) != e.GetType()));
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Primitive_collection_on_subtype(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Drink>().Where(d => ((Coke)d).Ints.Any()),
+            ss => ss.Set<Drink>().Where(d => d is Coke && ((Coke)d).Ints.Any()));
+
     protected InheritanceContext CreateContext()
         => Fixture.CreateContext();
 
