@@ -684,6 +684,20 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
 """);
             });
 
+    public override Task Primitive_collection_on_subtype(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Primitive_collection_on_subtype(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE (c["Discriminator"] IN (0, 1, 2, 3) AND (ARRAY_LENGTH(c["Ints"]) > 0))
+""");
+            });
+
     protected override bool EnforcesFkConstraints
         => false;
 
