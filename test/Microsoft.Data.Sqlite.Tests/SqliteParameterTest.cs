@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.TestUtilities;
 using Xunit;
@@ -569,6 +570,54 @@ public class SqliteParameterTest
             }
         }
     }
+
+    [Fact]
+    public void Bind_BigInteger_parameter_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = BigInteger.Parse("1234567890123456789012345678901234567890");
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("1234567890123456789012345678901234567890", result);
+        }
+    }
+
+
+#if NET7_0_OR_GREATER
+    [Fact]
+    public void Bind_Int128_parameter_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = Int128.Parse("170141183460469231731687303715884105727");
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("170141183460469231731687303715884105727", result);
+        }
+    }
+
+    [Fact]
+    public void Bind_UInt128_parameter_as_text()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            var value = UInt128.Parse("340282366920938463463374607431768211455");
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
+            var result = (string)command.ExecuteScalar()!;
+            Assert.Equal("340282366920938463463374607431768211455", result);
+        }
+    }
+#endif
 
     public static IEnumerable<object[]> TypesData
         => new List<object[]>

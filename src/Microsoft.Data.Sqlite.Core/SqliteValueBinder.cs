@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
 
 namespace Microsoft.Data.Sqlite;
@@ -228,6 +229,22 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             var value1 = (long)(ushort)value;
             BindInt64(value1);
         }
+        else if (type == typeof(BigInteger))
+        {
+            BindText(((BigInteger)value).ToString(CultureInfo.InvariantCulture));
+        }
+#if NET7_0_OR_GREATER
+        else if (type == typeof(Int128))
+        {
+            var value1 = (Int128)value;   
+            BindText((value1).ToString(CultureInfo.InvariantCulture));
+        }
+        else if (type == typeof(UInt128))
+        {
+            var value1 = (UInt128)value;
+            BindText((value1).ToString(CultureInfo.InvariantCulture));
+        }
+#endif
         else
         {
             throw new InvalidOperationException(Resources.UnknownDataType(type));
@@ -247,7 +264,13 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             { typeof(DateOnly), SqliteType.Text },
             { typeof(TimeOnly), SqliteType.Text },
 #endif
+
             { typeof(DBNull), SqliteType.Text },
+            { typeof(BigInteger), SqliteType.Text },
+#if NET7_0_OR_GREATER
+            { typeof(Int128), SqliteType.Text },
+            { typeof(UInt128), SqliteType.Text },
+#endif
             { typeof(decimal), SqliteType.Text },
             { typeof(double), SqliteType.Real },
             { typeof(float), SqliteType.Real },
