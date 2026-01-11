@@ -128,7 +128,7 @@ public partial class NavigationExpandingExpressionVisitor
                     return null;
             }
 
-            // Attempt to bind complex and primitive collection properties; this are common to both entity and complex types
+            // Attempt to bind complex and primitive collection properties; these are common to both entity and complex types
             var complexProperty = memberIdentity.MemberInfo != null
                 ? structuralType.FindComplexProperty(memberIdentity.MemberInfo)
                 : memberIdentity.Name is not null
