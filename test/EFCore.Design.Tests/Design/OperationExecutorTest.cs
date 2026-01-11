@@ -6,6 +6,7 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design;
@@ -1285,9 +1286,21 @@ namespace My.Gnomespace.Data
 
     public class GnomeContext : DbContext
     {
+        // Use an externally opened connection so EF Core doesn't close it during migration steps.
+        // With :memory: SQLite, the database is destroyed when the connection closes, which causes
+        // issues when Migrator.Migrate opens/closes the connection multiple times.
+        private static readonly SqliteConnection _connection = CreateOpenConnection();
+
+        private static SqliteConnection CreateOpenConnection()
+        {
+            var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            return connection;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseSqlite("Data Source=:memory:")
+                .UseSqlite(_connection)
                 .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>();
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator
