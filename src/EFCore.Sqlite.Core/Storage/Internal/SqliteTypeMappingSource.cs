@@ -80,6 +80,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { typeof(decimal), SqliteDecimalTypeMapping.Default },
         { typeof(double), Real },
         { typeof(float), new FloatTypeMapping(RealTypeName) },
+        { typeof(Half), SqliteHalfTypeMapping.Default },
         { typeof(Guid), SqliteGuidTypeMapping.Default },
         { typeof(JsonTypePlaceholder), SqliteJsonTypeMapping.Default }
     };
