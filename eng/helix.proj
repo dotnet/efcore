@@ -76,7 +76,7 @@
   <!-- Set Cosmos emulator connection on Windows  -->
   <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
     <XUnitProject Update="$(CosmosTests)">
-      <PreCommands>$(PreCommands);set Test__Cosmos__SkipConnectionCheck=true;set Test__Cosmos__DefaultConnection="https://localhost:8800"</PreCommands>
+      <PreCommands>$(PreCommands);set Test__Cosmos__SkipConnectionCheck=true;set Test__Cosmos__DefaultConnection=https://localhost:8800</PreCommands>
     </XUnitProject>
   </ItemGroup>  
 
