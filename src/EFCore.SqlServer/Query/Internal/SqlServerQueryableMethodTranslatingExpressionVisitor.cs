@@ -91,13 +91,50 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 ? "CONTAINSTABLE"
                 : "FREETEXTTABLE";
 
-            // Translate the arguments
-            var propertyReference = TranslateExpression(methodCallExpression.Arguments[1]);
-            if (propertyReference is not ColumnExpression columnExpression)
+          
+            var propertyReference = Translate(methodCallExpression.Arguments[1]);
+
+            ColumnExpression? columnExpression = null;
+            TableExpressionBase? table = null;
+
+            if (propertyReference is ShapedQueryExpression shapedQuery
+                && shapedQuery.QueryExpression is SelectExpression select
+                && TryGetProjection(shapedQuery, select, out var projection))
             {
-                throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
+                // Extract the column from the projection
+                if (projection is ColumnExpression projectedColumn)
+                {
+                    columnExpression = projectedColumn;
+                    
+                    // Find the table that this column belongs to
+                    if (select.Tables.Count > 0)
+                    {
+                        table = select.Tables[0];
+                    }
+                }
+            }
+            else if (propertyReference is SqlExpression sqlExpr && sqlExpr is ColumnExpression colExpr)
+            {
+                columnExpression = colExpr;
             }
 
+            if (columnExpression == null)
+            {
+                AddTranslationErrorDetails(SqlServerStrings.InvalidColumnNameForFreeText);
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            // For CONTAINSTABLE/FREETEXTTABLE, we need a column that references the base table directly
+            // If we have a table, create a new column expression with the table's alias
+            if (table != null)
+            {
+                columnExpression = new ColumnExpression(
+                    columnExpression.Name,
+                    table.Alias!,
+                    columnExpression.Type,
+                    columnExpression.TypeMapping,
+                    columnExpression.IsNullable);
+            }
             var searchCondition = TranslateExpression(methodCallExpression.Arguments[2]);
             if (searchCondition == null)
             {
@@ -105,32 +142,26 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     CoreStrings.TranslationFailed(methodCallExpression.Arguments[2].Print()));
                 return QueryCompilationContext.NotTranslatedExpression;
             }
-
-            // Create the FullTextTableExpression
             var alias = _queryCompilationContext.SqlAliasManager.GenerateTableAlias("ct");
             var fullTextTableExpression = new FullTextTableExpression(functionName, columnExpression, searchCondition, alias);
 
-            // Create columns for Key and Rank (CONTAINSTABLE/FREETEXTTABLE return these columns)
             var resultType = typeof(SqlServerDbFunctionsExtensions.FullTextTableResult);
+
             var keyColumn = new ColumnExpression("Key", alias, typeof(object), null, nullable: false);
             var rankColumn = new ColumnExpression("Rank", alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false);
 
-            // Create SelectExpression with Key as the main projection
-            // Use Key as identifier since it's the primary key from CONTAINSTABLE/FREETEXTTABLE
             var keyTypeMapping = _typeMappingSource.FindMapping(typeof(object));
-#pragma warning disable EF1001 // Internal EF Core API usage.
+
+#pragma warning disable EF1001 
             var selectExpression = new SelectExpression(
                 [fullTextTableExpression],
                 keyColumn,
                 [(keyColumn, keyTypeMapping?.Comparer ?? ValueComparer.CreateDefault(typeof(object), favorStructuralComparisons: false))],
                 _queryCompilationContext.SqlAliasManager);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF1001
 
-            // Add Rank to projection
+           
             var rankIndex = selectExpression.AddToProjection(rankColumn);
-
-            // Create shaper expression for FullTextTableResult
-            // Key is in the projection mapping (main projection), Rank is at rankIndex in the projection list
             var keyBinding = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(object));
             var rankBinding = new ProjectionBindingExpression(selectExpression, rankIndex, typeof(int));
 
@@ -144,7 +175,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
         return base.VisitMethodCall(methodCallExpression);
     }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

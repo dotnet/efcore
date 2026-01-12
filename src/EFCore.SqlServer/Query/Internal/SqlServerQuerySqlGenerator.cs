@@ -925,13 +925,15 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected virtual Expression VisitFullTextTable(FullTextTableExpression fullTextTableExpression)
     {
-        Sql.Append(fullTextTableExpression.FunctionName)
-            .Append("(")
-            .Append(_sqlGenerationHelper.DelimitIdentifier(fullTextTableExpression.Column.TableAlias!))
-            .Append(", ");
-        Visit(fullTextTableExpression.Column);
+        Sql.Append(fullTextTableExpression.FunctionName!).Append("(");
+        Visit(fullTextTableExpression.TableFragment);
+
+        Sql.Append(", ");
+        Visit(fullTextTableExpression.ColumnFragment);
+
         Sql.Append(", ");
         Visit(fullTextTableExpression.SearchCondition);
+
         Sql.Append(")")
             .Append(AliasSeparator)
             .Append(_sqlGenerationHelper.DelimitIdentifier(fullTextTableExpression.Alias!));

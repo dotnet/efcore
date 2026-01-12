@@ -14,22 +14,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class FullTextTableExpression : TableExpressionBase
 {
-    /// <summary>
+   /// <summary>
     ///     Creates a new instance of the <see cref="FullTextTableExpression" /> class.
     /// </summary>
     /// <param name="functionName">The name of the full-text function.</param>
-    /// <param name="column">The column to search.</param>
+    /// <param name="tableFragment">The SQL fragment representing the raw table name.</param>
+    /// <param name="columnFragment">The SQL fragment representing the raw column name.</param>
     /// <param name="searchCondition">The search condition expression.</param>
     /// <param name="alias">The table alias.</param>
     public FullTextTableExpression(
         string functionName,
-        ColumnExpression column,
+        SqlFragmentExpression tableFragment,
+        SqlFragmentExpression columnFragment,
         SqlExpression searchCondition,
         string alias)
         : base(alias)
     {
         FunctionName = functionName;
-        Column = column;
+        TableFragment = tableFragment;
+        ColumnFragment = columnFragment;
         SearchCondition = searchCondition;
     }
 
@@ -39,9 +42,14 @@ public class FullTextTableExpression : TableExpressionBase
     public virtual string FunctionName { get; }
 
     /// <summary>
-    ///     The column being searched.
+    ///     The SQL fragment representing the raw table name.
     /// </summary>
-    public virtual ColumnExpression Column { get; }
+    public virtual SqlFragmentExpression TableFragment { get; }
+
+    /// <summary>
+    ///     The SQL fragment representing the raw column name.
+    /// </summary>
+    public virtual SqlFragmentExpression ColumnFragment { get; }
 
     /// <summary>
     ///     The search condition.
@@ -50,17 +58,19 @@ public class FullTextTableExpression : TableExpressionBase
 
     /// <inheritdoc />
     protected override TableExpressionBase WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
-        => this;
+        => new FullTextTableExpression(FunctionName, TableFragment, ColumnFragment, SearchCondition, Alias!);
 
     /// <inheritdoc />
     public override TableExpressionBase WithAlias(string newAlias)
-        => new FullTextTableExpression(FunctionName, Column, SearchCondition, newAlias);
+        => new FullTextTableExpression(FunctionName, TableFragment, ColumnFragment, SearchCondition, newAlias);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.Append(FunctionName!).Append("(").Append(Column.TableAlias!).Append(", ");
-        expressionPrinter.Visit(Column);
+        expressionPrinter.Append(FunctionName).Append("(");
+        expressionPrinter.Visit(TableFragment);
+        expressionPrinter.Append(", ");
+        expressionPrinter.Visit(ColumnFragment);
         expressionPrinter.Append(", ");
         expressionPrinter.Visit(SearchCondition);
         expressionPrinter.Append(") AS ").Append(Alias!);
@@ -73,9 +83,11 @@ public class FullTextTableExpression : TableExpressionBase
     /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor visitor)
     {
-        var newColumn = (ColumnExpression)visitor.Visit(Column);
-        var newSearchCondition = (SqlExpression)visitor.Visit(SearchCondition);
-
-        return new FullTextTableExpression(FunctionName, newColumn, newSearchCondition, alias ?? Alias!);
+        return new FullTextTableExpression(
+            FunctionName,
+            (SqlFragmentExpression)visitor.Visit(TableFragment),
+            (SqlFragmentExpression)visitor.Visit(ColumnFragment),
+            (SqlExpression)visitor.Visit(SearchCondition),
+            (alias ?? Alias)!);
     }
 }
