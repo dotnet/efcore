@@ -822,7 +822,6 @@ WHERE CAST(LEN(UPPER([s].[Value])) AS int) = 0
     public virtual void FullText_ContainsTable_queryable_simple()
     {
         using var ctx = Fixture.CreateContext();
-
        
         var query = from c in ctx.Set<Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer>()
                     join ct in EF.Functions.ContainsTable(ctx.Set<TestModels.Northwind.Customer>().Select(x => x.ContactName), "John")
