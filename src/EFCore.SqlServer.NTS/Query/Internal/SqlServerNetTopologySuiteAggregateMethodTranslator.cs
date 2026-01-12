@@ -99,9 +99,9 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
 
         return _sqlExpressionFactory.Function(
             $"{typeMapping.StoreType}::{functionName}",
-            new[] { sqlExpression },
+            [sqlExpression],
             nullable: true,
-            argumentsPropagateNullability: new[] { false },
+            argumentsPropagateNullability: Statics.FalseArrays[1],
             method.ReturnType,
             _typeMappingSource.FindMapping(method.ReturnType, typeMapping.StoreType));
     }

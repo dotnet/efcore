@@ -68,14 +68,14 @@ WHERE [c].[City] IS NOT NULL
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c1].[CustomerID]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID]
+        SELECT TOP(@p) [c].[CustomerID]
         FROM [Customers] AS [c]
         ORDER BY [c].[CustomerID]
     ) AS [c1]
@@ -91,14 +91,14 @@ ORDER BY [s].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c1].[CustomerID]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID]
+        SELECT TOP(@p) [c].[CustomerID]
         FROM [Customers] AS [c]
         ORDER BY [c].[CustomerID]
     ) AS [c1]
@@ -117,11 +117,11 @@ ORDER BY [s].[CustomerID]
 
         AssertSql(
             """
-@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@p='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__p_0
+WHERE [c].[CustomerID] = @p
 """);
     }
 
@@ -142,11 +142,11 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-@__entity_equality_local_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
+@entity_equality_local_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID
+WHERE [c].[CustomerID] = @entity_equality_local_CustomerID
 """);
     }
 
@@ -156,12 +156,12 @@ WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID
 
         AssertSql(
             """
-@__entity_equality_local_0_OrderID='10248' (Nullable = true)
-@__entity_equality_local_0_ProductID='11' (Nullable = true)
+@entity_equality_local_OrderID='10248' (Nullable = true)
+@entity_equality_local_ProductID='11' (Nullable = true)
 
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = @__entity_equality_local_0_OrderID AND [o].[ProductID] = @__entity_equality_local_0_ProductID
+WHERE [o].[OrderID] = @entity_equality_local_OrderID AND [o].[ProductID] = @entity_equality_local_ProductID
 """);
     }
 
@@ -171,11 +171,11 @@ WHERE [o].[OrderID] = @__entity_equality_local_0_OrderID AND [o].[ProductID] = @
 
         AssertSql(
             """
-@__entity_equality_local_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
+@entity_equality_local_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID AND @__entity_equality_local_0_CustomerID = [c].[CustomerID]
+WHERE [c].[CustomerID] = @entity_equality_local_CustomerID AND @entity_equality_local_CustomerID = [c].[CustomerID]
 """);
     }
 
@@ -185,16 +185,16 @@ WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID AND @__entity_equ
 
         AssertSql(
             """
-@__entity_equality_local_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
+@entity_equality_local_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] = @__entity_equality_local_0_CustomerID
+    WHERE [c0].[CustomerID] = @entity_equality_local_CustomerID
 ) AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]
-WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID
+WHERE [c].[CustomerID] = @entity_equality_local_CustomerID
 """);
     }
 
@@ -378,9 +378,9 @@ ORDER BY (
 """);
     }
 
-    public override async Task Default_if_empty_top_level(bool async)
+    public override async Task DefaultIfEmpty_top_level(bool async)
     {
-        await base.Default_if_empty_top_level(async);
+        await base.DefaultIfEmpty_top_level(async);
 
         AssertSql(
             """
@@ -396,9 +396,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Join_with_default_if_empty_on_both_sources(bool async)
+    public override async Task Join_with_DefaultIfEmpty_on_both_sources(bool async)
     {
-        await base.Join_with_default_if_empty_on_both_sources(async);
+        await base.Join_with_DefaultIfEmpty_on_both_sources(async);
 
         AssertSql(
             """
@@ -425,9 +425,9 @@ INNER JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_followed_by_constant_Select(bool async)
     {
-        await base.Default_if_empty_top_level_followed_by_projecting_constant(async);
+        await base.DefaultIfEmpty_top_level_followed_by_constant_Select(async);
 
         AssertSql(
             """
@@ -443,9 +443,27 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_positive(bool async)
+    public override async Task DefaultIfEmpty_top_level_preceded_by_constant_Select(bool async)
     {
-        await base.Default_if_empty_top_level_positive(async);
+        await base.DefaultIfEmpty_top_level_preceded_by_constant_Select(async);
+
+        AssertSql(
+            """
+SELECT [e1].[c]
+FROM (
+    SELECT 1 AS empty
+) AS [e0]
+LEFT JOIN (
+    SELECT N'Foo' AS [c]
+    FROM [Employees] AS [e]
+    WHERE [e].[EmployeeID] = -1
+) AS [e1] ON 1 = 1
+""");
+    }
+
+    public override async Task DefaultIfEmpty_top_level_positive(bool async)
+    {
+        await base.DefaultIfEmpty_top_level_positive(async);
 
         AssertSql(
             """
@@ -461,9 +479,9 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Default_if_empty_top_level_projection(bool async)
+    public override async Task DefaultIfEmpty_top_level_projection(bool async)
     {
-        await base.Default_if_empty_top_level_projection(async);
+        await base.DefaultIfEmpty_top_level_projection(async);
 
         AssertSql(
             """
@@ -500,11 +518,11 @@ WHERE [e].[FirstName] = (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
     ORDER BY [e].[EmployeeID]
 ) AS [e1]
@@ -522,15 +540,15 @@ ORDER BY [e1].[EmployeeID]
 
         AssertSql(
             """
-@__p_0='4'
-@__p_1='3'
+@p='4'
+@p1='3'
 
 SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM (
     SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
     ORDER BY [e].[EmployeeID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [e1]
 WHERE EXISTS (
     SELECT 1
@@ -727,11 +745,11 @@ WHERE (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [e1]
 WHERE [e1].[FirstName] = (
@@ -747,11 +765,11 @@ WHERE [e1].[FirstName] = (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [e1]
 WHERE [e1].[FirstName] = (
@@ -767,11 +785,11 @@ WHERE [e1].[FirstName] = (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [e1]
 WHERE [e1].[FirstName] = (
@@ -787,11 +805,11 @@ WHERE [e1].[FirstName] = (
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
 SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID]
+    SELECT TOP(@p) [o].[OrderID], [o].[ProductID]
     FROM [Order Details] AS [o]
     ORDER BY [o].[ProductID], [o].[OrderID]
 ) AS [o1]
@@ -813,9 +831,9 @@ ORDER BY [o1].[ProductID], [o1].[OrderID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
-SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+SELECT TOP(@p) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] = 10344 AND (
     SELECT TOP(1) (
@@ -833,9 +851,9 @@ WHERE [o].[OrderID] = 10344 AND (
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
-SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+SELECT TOP(@p) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 WHERE (
     SELECT TOP(1) (
@@ -853,11 +871,11 @@ WHERE (
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o3]
@@ -897,11 +915,11 @@ ORDER BY [o3].[OrderID]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
     ORDER BY [e].[EmployeeID]
 ) AS [e0]
@@ -921,11 +939,11 @@ ORDER BY [e0].[EmployeeID]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
     ORDER BY [e].[EmployeeID]
 ) AS [e0]
@@ -1051,12 +1069,12 @@ END, [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
-OFFSET @__p_0 ROWS
+OFFSET @p ROWS
 """);
     }
 
@@ -1066,12 +1084,12 @@ OFFSET @__p_0 ROWS
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY (SELECT 1)
-OFFSET @__p_0 ROWS
+OFFSET @p ROWS
 """);
     }
 
@@ -1081,12 +1099,12 @@ OFFSET @__p_0 ROWS
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY (SELECT 1)
-OFFSET @__p_0 ROWS
+OFFSET @p ROWS
 """);
     }
 
@@ -1096,13 +1114,13 @@ OFFSET @__p_0 ROWS
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactName]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -1112,14 +1130,14 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT [c].[ContactName], [o].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -1129,14 +1147,14 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT N'Foo'
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -1146,14 +1164,14 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT COALESCE([c].[ContactName], N'') + N' ' + COALESCE([c].[ContactTitle], N'') AS [Contact], [o].[OrderID]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [o].[OrderID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -1163,15 +1181,15 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT [o].[OrderID], [c].[CustomerID] AS [CustomerIDA], [c0].[CustomerID] AS [CustomerIDB], [c].[ContactName] AS [ContactNameA], [c0].[ContactName] AS [ContactNameB]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
 ORDER BY [o].[OrderID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -1203,17 +1221,17 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
 ) AS [c0]
 ORDER BY [c0].[ContactName]
-OFFSET @__p_1 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -1223,19 +1241,19 @@ OFFSET @__p_1 ROWS
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT DISTINCT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [c0]
     ORDER BY [c0].[ContactName]
-    OFFSET @__p_1 ROWS
+    OFFSET @p1 ROWS
 ) AS [c1]
 """);
     }
@@ -1246,36 +1264,36 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT DISTINCT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [c0]
     ORDER BY [c0].[ContactName]
-    OFFSET @__p_1 ROWS
+    OFFSET @p1 ROWS
 ) AS [c1]
 """,
             //
             """
-@__p_0='15'
-@__p_1='10'
+@p='15'
+@p1='10'
 
 SELECT DISTINCT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
     ) AS [c0]
     ORDER BY [c0].[ContactName]
-    OFFSET @__p_1 ROWS
+    OFFSET @p1 ROWS
 ) AS [c1]
 """);
     }
@@ -1286,13 +1304,13 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM (
-        SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        SELECT TOP(@p) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
     ) AS [o0]
 ) AS [o1]
@@ -1305,13 +1323,13 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
     FROM (
-        SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        SELECT TOP(@p) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [o].[CustomerID] = N'FRANK'
     ) AS [o0]
@@ -1358,9 +1376,9 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-@__p_0='91'
+@p='91'
 
-SELECT TOP(@__p_0) [c].[City]
+SELECT TOP(@p) [c].[City]
 FROM [Customers] AS [c]
 """);
     }
@@ -1371,9 +1389,9 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-@__p_0='91'
+@p='91'
 
-SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 """);
     }
@@ -1384,9 +1402,9 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -1398,9 +1416,9 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -1412,9 +1430,9 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [c].[City]
+SELECT TOP(@p) [c].[City]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -1426,9 +1444,9 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='2'
+@p='2'
 
-SELECT TOP(@__p_0) [c].[City]
+SELECT TOP(@p) [c].[City]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -1440,11 +1458,11 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -1457,11 +1475,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Orders] AS [o]
 ) AS [o0]
 """);
@@ -1783,13 +1801,13 @@ WHERE [c].[City] IN (N'London', N'Berlin', N'Seattle', N'Lisboa')
 
         AssertSql(
             """
-@__london_0='London' (Size = 15)
-@__lisboa_1='Lisboa' (Size = 15)
+@london='London' (Size = 15)
+@lisboa='Lisboa' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] = @__london_0 OR [c].[City] = N'Berlin' OR [c].[City] = N'Seattle' OR [c].[City] = @__lisboa_1
+WHERE [c].[City] = @london OR [c].[City] = N'Berlin' OR [c].[City] = N'Seattle' OR [c].[City] = @lisboa
 """);
     }
 
@@ -1799,11 +1817,11 @@ WHERE [c].[City] = @__london_0 OR [c].[City] = N'Berlin' OR [c].[City] = N'Seatt
 
         AssertSql(
             """
-@__p_0='9'
+@p='9'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT TOP(@p) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [e0]
 CROSS JOIN [Customers] AS [c]
@@ -2151,11 +2169,11 @@ INNER JOIN (
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT TOP(2) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [c0]
@@ -2169,11 +2187,11 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT TOP(2) [s].[CustomerID], [s].[Address], [s].[City], [s].[CompanyName], [s].[ContactName], [s].[ContactTitle], [s].[Country], [s].[Fax], [s].[Phone], [s].[PostalCode], [s].[Region], [s].[OrderID], [s].[CustomerID0], [s].[EmployeeID], [s].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID] AS [CustomerID0], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID] AS [CustomerID0], [o].[EmployeeID], [o].[OrderDate]
     FROM [Customers] AS [c]
     CROSS JOIN [Orders] AS [o]
     ORDER BY [c].[CustomerID], [o].[OrderID]
@@ -2188,7 +2206,7 @@ ORDER BY [s].[CustomerID], [s].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
@@ -2196,7 +2214,7 @@ FROM (
     FROM [Customers] AS [c]
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
-OFFSET @__p_0 ROWS
+OFFSET @p ROWS
 """);
     }
 
@@ -2206,8 +2224,8 @@ OFFSET @__p_0 ROWS
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
@@ -2215,7 +2233,7 @@ FROM (
     FROM [Customers] AS [c]
 ) AS [c0]
 ORDER BY [c0].[ContactName]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -2225,14 +2243,14 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT DISTINCT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 """);
     }
@@ -2243,15 +2261,15 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT DISTINCT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactName]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 """);
     }
@@ -2262,15 +2280,15 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactName]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY) THEN CAST(1 AS bit)
+        OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2282,8 +2300,8 @@ END
 
         AssertSql(
             """
-@__p_0='4'
-@__p_1='7'
+@p='4'
+@p1='7'
 
 SELECT CASE
     WHEN NOT EXISTS (
@@ -2292,7 +2310,7 @@ SELECT CASE
             SELECT [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
-            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+            OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
         ) AS [c0]
         WHERE [c0].[CustomerID] NOT LIKE N'B%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -2306,13 +2324,13 @@ END
 
         AssertSql(
             """
-@__p_0='4'
+@p='4'
 
 SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM (
-            SELECT TOP(@__p_0) [c].[CustomerID]
+            SELECT TOP(@p) [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [c0]
@@ -2328,8 +2346,8 @@ END
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='7'
+@p='5'
+@p1='7'
 
 SELECT CASE
     WHEN EXISTS (
@@ -2338,7 +2356,7 @@ SELECT CASE
             SELECT [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
-            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+            OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
         ) AS [c0]
         WHERE [c0].[CustomerID] LIKE N'C%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -2352,13 +2370,13 @@ END
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
-            SELECT TOP(@__p_0) [c].[CustomerID]
+            SELECT TOP(@p) [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [c0]
@@ -2443,9 +2461,9 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
-SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT TOP(@p) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
     SELECT DISTINCT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
@@ -2460,11 +2478,11 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT DISTINCT TOP(@p) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
 ) AS [o0]
 """);
@@ -2635,9 +2653,8 @@ ORDER BY [o0].[CustomerID]
         Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         // Allow binding of expressions after projection has turned to client eval. Issue #24478.
-        await Assert.ThrowsAsync<TrueException>(
-            () => base
-                .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
+        await Assert.ThrowsAsync<TrueException>(() => base
+            .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
 
         AssertSql(
             """
@@ -2748,11 +2765,11 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [c0].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [c0]
@@ -2844,6 +2861,41 @@ END, [c].[CustomerID]
 """);
     }
 
+    public override async Task Coalesce_Correct_Multiple_Same_TypeMapping(bool async)
+    {
+        await base.Coalesce_Correct_Multiple_Same_TypeMapping(async);
+
+        AssertSql(
+            """
+SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_Double(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_Double(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([e].[ReportsTo], 2.25)
+FROM [Employees] AS [e]
+""");
+    }
+
+    public override async Task Coalesce_Correct_TypeMapping_String(bool async)
+    {
+        await base.Coalesce_Correct_TypeMapping_String(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Region], N'no region specified')
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     public override async Task Null_Coalesce_Short_Circuit(bool async)
     {
         await base.Null_Coalesce_Short_Circuit(async);
@@ -2925,19 +2977,19 @@ WHERE COALESCE([c].[ContactName], [c].[CompanyName]) = N'Liz Nixon'
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT DISTINCT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM (
-        SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+        SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
         FROM [Customers] AS [c]
         ORDER BY COALESCE([c].[Region], N'ZZ')
     ) AS [c0]
     ORDER BY [c0].[c]
-    OFFSET @__p_1 ROWS
+    OFFSET @p1 ROWS
 ) AS [c1]
 """);
     }
@@ -2947,8 +2999,8 @@ FROM (
 
     // issue #16038
     //            AssertSql(
-    //                @"@__p_0='5'
-    //SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
+    //                @"@p='5'
+    //SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
     //FROM [Customers] AS [c]
     //ORDER BY [Region]");
     public override async Task Select_take_skip_null_coalesce_operator(bool async)
@@ -2957,17 +3009,17 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT [c0].[CustomerID], [c0].[CompanyName], COALESCE([c0].[Region], N'ZZ') AS [Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+    SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
     FROM [Customers] AS [c]
     ORDER BY COALESCE([c].[Region], N'ZZ')
 ) AS [c0]
 ORDER BY [c0].[c]
-OFFSET @__p_1 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -2977,17 +3029,17 @@ OFFSET @__p_1 ROWS
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT [c0].[CustomerID], [c0].[CompanyName], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+    SELECT TOP(@p) [c].[CustomerID], [c].[CompanyName], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
     FROM [Customers] AS [c]
     ORDER BY COALESCE([c].[Region], N'ZZ')
 ) AS [c0]
 ORDER BY [c0].[c]
-OFFSET @__p_1 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -2997,17 +3049,17 @@ OFFSET @__p_1 ROWS
 
         AssertSql(
             """
-@__p_0='10'
-@__p_1='5'
+@p='10'
+@p1='5'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE([c].[Region], N'ZZ') AS [c]
     FROM [Customers] AS [c]
     ORDER BY COALESCE([c].[Region], N'ZZ')
 ) AS [c0]
 ORDER BY [c0].[c]
-OFFSET @__p_1 ROWS
+OFFSET @p1 ROWS
 """);
     }
 
@@ -3023,78 +3075,18 @@ ORDER BY COALESCE([c].[Region], N'ZZ')
 """);
     }
 
-    public override async Task DateTime_parse_is_inlined(bool async)
-    {
-        await base.DateTime_parse_is_inlined(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'
-""");
-    }
-
-    public override async Task DateTime_parse_is_parameterized_when_from_closure(bool async)
-    {
-        await base.DateTime_parse_is_parameterized_when_from_closure(async);
-
-        AssertSql(
-            """
-@__Parse_0='1998-01-01T12:00:00.0000000' (Nullable = true) (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__Parse_0
-""");
-    }
-
-    public override async Task New_DateTime_is_inlined(bool async)
-    {
-        await base.New_DateTime_is_inlined(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > '1998-01-01T12:00:00.000'
-""");
-    }
-
-    public override async Task New_DateTime_is_parameterized_when_from_closure(bool async)
-    {
-        await base.New_DateTime_is_parameterized_when_from_closure(async);
-
-        AssertSql(
-            """
-@__p_0='1998-01-01T12:00:00.0000000' (Nullable = true) (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__p_0
-""",
-            //
-            """
-@__p_0='1998-01-01T11:00:00.0000000' (Nullable = true) (DbType = DateTime)
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > @__p_0
-""");
-    }
-
     public override async Task Environment_newline_is_funcletized(bool async)
     {
         await base.Environment_newline_is_funcletized(async);
 
         AssertSql(
             """
-@__NewLine_0_contains='%
+@NewLine_contains='%
 %' (Size = 5)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE @__NewLine_0_contains ESCAPE N'\'
+WHERE [c].[CustomerID] LIKE @NewLine_contains ESCAPE N'\'
 """);
     }
 
@@ -3126,9 +3118,9 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-@__parameter_0='-' (Size = 4000)
+@parameter='-' (Size = 4000)
 
-SELECT @__parameter_0 + CAST([o].[OrderID] AS nvarchar(max))
+SELECT @parameter + CAST([o].[OrderID] AS nvarchar(max))
 FROM [Orders] AS [o]
 """);
     }
@@ -3168,188 +3160,6 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 """);
     }
 
-    public override async Task Select_bitwise_or(bool async)
-    {
-        await base.Select_bitwise_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR') THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_or_multiple(bool async)
-    {
-        await base.Select_bitwise_or_multiple(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON') THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_and(bool async)
-    {
-        await base.Select_bitwise_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CAST(0 AS bit) AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_and_or(bool async)
-    {
-        await base.Select_bitwise_and_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] = N'ANTON' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Where_bitwise_or_with_logical_or(bool async)
-    {
-        await base.Where_bitwise_or_with_logical_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')
-""");
-    }
-
-    public override async Task Where_bitwise_and_with_logical_and(bool async)
-    {
-        await base.Where_bitwise_and_with_logical_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE 0 = 1
-""");
-    }
-
-    public override async Task Where_bitwise_or_with_logical_and(bool async)
-    {
-        await base.Where_bitwise_or_with_logical_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') AND [c].[Country] = N'Germany'
-""");
-    }
-
-    public override async Task Where_bitwise_and_with_logical_or(bool async)
-    {
-        await base.Where_bitwise_and_with_logical_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ANTON'
-""");
-    }
-
-    public override async Task Where_bitwise_binary_not(bool async)
-    {
-        await base.Where_bitwise_binary_not(async);
-
-        AssertSql(
-            """
-@__negatedId_0='-10249'
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE ~[o].[OrderID] = @__negatedId_0
-""");
-    }
-
-    public override async Task Where_bitwise_binary_and(bool async)
-    {
-        await base.Where_bitwise_binary_and(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] & 10248 = 10248
-""");
-    }
-
-    public override async Task Where_bitwise_binary_or(bool async)
-    {
-        await base.Where_bitwise_binary_or(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] | 10248 = 10248
-""");
-    }
-
-    public override async Task Where_bitwise_binary_xor(bool async)
-    {
-        await base.Where_bitwise_binary_xor(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] ^ 1 = 10249
-""");
-    }
-
-    public override async Task Select_bitwise_or_with_logical_or(bool async)
-    {
-        await base.Select_bitwise_or_with_logical_or(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON') THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
-    public override async Task Select_bitwise_and_with_logical_and(bool async)
-    {
-        await base.Select_bitwise_and_with_logical_and(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], CAST(0 AS bit) AS [Value]
-FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]
-""");
-    }
-
     public override async Task Handle_materialization_properly_when_more_than_two_query_sources_are_involved(bool async)
     {
         await base.Handle_materialization_properly_when_more_than_two_query_sources_are_involved(async);
@@ -3370,12 +3180,12 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__dateFilter_Value_Month_0='7'
-@__dateFilter_Value_Year_1='1996'
+@dateFilter_Value_Month='7'
+@dateFilter_Value_Year='1996'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10400 AND [o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0 AND DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1
+WHERE [o].[OrderID] < 10400 AND [o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) = @dateFilter_Value_Month AND DATEPART(year, [o].[OrderDate]) = @dateFilter_Value_Year
 """,
             //
             """
@@ -3391,12 +3201,12 @@ WHERE [o].[OrderID] < 10400
 
         AssertSql(
             """
-@__dateFilter_Value_Month_0='7'
-@__dateFilter_Value_Year_1='1996'
+@dateFilter_Value_Month='7'
+@dateFilter_Value_Year='1996'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10400 AND [o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0 AND DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1
+WHERE [o].[OrderID] < 10400 AND [o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) = @dateFilter_Value_Month AND DATEPART(year, [o].[OrderDate]) = @dateFilter_Value_Year
 """,
             //
             """
@@ -3412,12 +3222,12 @@ WHERE 0 = 1
 
         AssertSql(
             """
-@__dateFilter_Value_Month_0='7'
-@__dateFilter_Value_Year_1='1996'
+@dateFilter_Value_Month='7'
+@dateFilter_Value_Year='1996'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10400 OR ([o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0 AND DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1)
+WHERE [o].[OrderID] < 10400 OR ([o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) = @dateFilter_Value_Month AND DATEPART(year, [o].[OrderDate]) = @dateFilter_Value_Year)
 """,
             //
             """
@@ -3432,14 +3242,14 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [o0].[OrderID] AS [OrderId], (
     SELECT TOP(1) [c0].[City]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = [o0].[CustomerID]) AS [City]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -3456,14 +3266,14 @@ ORDER BY (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT [o0].[OrderID] AS [OrderId], (
     SELECT TOP(1) [c0].[City]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = [o0].[CustomerID]) AS [City]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -3630,9 +3440,9 @@ WHERE [o].[OrderDate] IS NOT NULL
 
         AssertSql(
             """
-@__millisecondsPerDay_0='86400000'
+@millisecondsPerDay='86400000'
 
-SELECT DATEADD(millisecond, CAST(CAST(CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) % @__millisecondsPerDay_0 AS float) AS int), DATEADD(day, CAST(CAST(CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) / @__millisecondsPerDay_0 AS float) AS int), [o].[OrderDate])) AS [OrderDate]
+SELECT DATEADD(millisecond, CAST(CAST(CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) % @millisecondsPerDay AS float) AS int), DATEADD(day, CAST(CAST(CAST(DATEPART(millisecond, [o].[OrderDate]) AS bigint) / @millisecondsPerDay AS float) AS int), [o].[OrderDate])) AS [OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL
 """);
@@ -3657,11 +3467,11 @@ ORDER BY [o].[OrderID]
 
         AssertSql(
             """
-@__nextYear_0='2017'
+@nextYear='2017'
 
 SELECT DISTINCT DATEPART(year, [o].[OrderDate])
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) < @__nextYear_0
+WHERE [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) < @nextYear
 """);
     }
 
@@ -3779,13 +3589,13 @@ ORDER BY [s].[OrderID], [o2].[OrderDate]
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='8'
+@p='5'
+@p1='8'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[ContactTitle], [c].[ContactName]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -3795,19 +3605,19 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='8'
-@__p_2='3'
+@p='5'
+@p1='8'
+@p2='3'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactTitle], [c].[ContactName]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 ORDER BY [c0].[ContactTitle], [c0].[ContactName]
-OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
+OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
 """);
     }
 
@@ -3817,16 +3627,16 @@ OFFSET @__p_1 ROWS FETCH NEXT @__p_2 ROWS ONLY
 
         AssertSql(
             """
-@__p_2='3'
-@__p_0='5'
-@__p_1='8'
+@p2='3'
+@p='5'
+@p1='8'
 
-SELECT TOP(@__p_2) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+SELECT TOP(@p2) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactTitle], [c].[ContactName]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 ORDER BY [c0].[ContactTitle], [c0].[ContactName]
 """);
@@ -3838,21 +3648,21 @@ ORDER BY [c0].[ContactTitle], [c0].[ContactName]
 
         AssertSql(
             """
-@__p_0='5'
-@__p_3='8'
-@__p_2='10'
-@__p_1='15'
+@p='5'
+@p3='8'
+@p2='10'
+@p1='15'
 
-SELECT TOP(@__p_0) [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+SELECT TOP(@p) [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
 FROM (
-    SELECT TOP(@__p_3) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+    SELECT TOP(@p3) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
     FROM (
-        SELECT TOP(@__p_2) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT TOP(@p2) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM (
             SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
             ORDER BY [c].[ContactTitle], [c].[ContactName]
-            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+            OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
         ) AS [c0]
         ORDER BY [c0].[ContactTitle], [c0].[ContactName]
     ) AS [c1]
@@ -3868,10 +3678,10 @@ ORDER BY [c2].[ContactTitle], [c2].[ContactName]
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='15'
-@__p_2='2'
-@__p_3='8'
+@p='5'
+@p1='15'
+@p2='2'
+@p3='8'
 
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM (
@@ -3880,13 +3690,13 @@ FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactTitle], [c].[ContactName]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
     ) AS [c0]
     ORDER BY [c0].[ContactTitle], [c0].[ContactName]
-    OFFSET @__p_2 ROWS FETCH NEXT @__p_3 ROWS ONLY
+    OFFSET @p2 ROWS FETCH NEXT @p3 ROWS ONLY
 ) AS [c1]
 ORDER BY [c1].[ContactTitle], [c1].[ContactName]
-OFFSET @__p_0 ROWS
+OFFSET @p ROWS
 """);
     }
 
@@ -3896,15 +3706,15 @@ OFFSET @__p_0 ROWS
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='15'
+@p='5'
+@p1='15'
 
 SELECT DISTINCT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[ContactTitle], [c].[ContactName]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 """);
     }
@@ -3915,11 +3725,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='15'
+@p='15'
 
 SELECT DISTINCT [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName], [p0].[SupplierID], [p0].[UnitPrice], [p0].[UnitsInStock]
 FROM (
-    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+    SELECT TOP(@p) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
 ) AS [p0]
@@ -3932,15 +3742,15 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='15'
+@p='5'
+@p1='15'
 
 SELECT DISTINCT [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName], [p0].[SupplierID], [p0].[UnitPrice], [p0].[UnitsInStock]
 FROM (
     SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [p0]
 """);
     }
@@ -3951,15 +3761,15 @@ FROM (
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='15'
+@p='5'
+@p1='15'
 
-SELECT DISTINCT TOP(@__p_0) [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName], [p0].[SupplierID], [p0].[UnitPrice], [p0].[UnitsInStock]
+SELECT DISTINCT TOP(@p) [p0].[ProductID], [p0].[Discontinued], [p0].[ProductName], [p0].[SupplierID], [p0].[UnitPrice], [p0].[UnitsInStock]
 FROM (
     SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [p0]
 """);
     }
@@ -3970,18 +3780,18 @@ FROM (
 
         AssertSql(
             """
-@__p_2='8'
-@__p_0='5'
-@__p_1='15'
+@p2='8'
+@p='5'
+@p1='15'
 
-SELECT TOP(@__p_2) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+SELECT TOP(@p2) [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM (
     SELECT DISTINCT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         ORDER BY [c].[ContactTitle], [c].[ContactName]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
     ) AS [c0]
 ) AS [c1]
 ORDER BY [c1].[ContactTitle]
@@ -4036,25 +3846,20 @@ LEFT JOIN [Employees] AS [e0] ON [e].[EmployeeID] = [e0].[ReportsTo]
 
         AssertSql(
             """
-@__dates_0='["1996-07-04T00:00:00","1996-07-16T00:00:00"]' (Size = 4000)
+@dates1='1996-07-04T00:00:00.0000000' (DbType = DateTime)
+@dates2='1996-07-16T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(date, [o].[OrderDate]) IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@__dates_0) WITH ([value] datetime '$') AS [d]
-)
+WHERE CONVERT(date, [o].[OrderDate]) IN (@dates1, @dates2)
 """,
             //
             """
-@__dates_0='["1996-07-04T00:00:00"]' (Size = 4000)
+@dates1='1996-07-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(date, [o].[OrderDate]) IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@__dates_0) WITH ([value] datetime '$') AS [d]
-)
+WHERE CONVERT(date, [o].[OrderDate]) = @dates1
 """);
     }
 
@@ -4358,8 +4163,8 @@ ORDER BY (
 
         AssertSql(
             """
-@__p_0='40'
-@__p_1='5'
+@p='40'
+@p1='5'
 
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -4367,7 +4172,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ORDER BY [c].[City], [c].[CustomerID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 LEFT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
 ORDER BY [c0].[City], [c0].[CustomerID]
@@ -4424,11 +4229,11 @@ WHERE (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT AVG(CAST([o0].[OrderID] AS float))
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -4441,11 +4246,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Customers] AS [c]
 ) AS [c0]
 """);
@@ -4457,11 +4262,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
 ) AS [c0]
@@ -4474,11 +4279,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Customers] AS [c]
 ) AS [c0]
 """);
@@ -4490,11 +4295,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
 ) AS [c0]
@@ -4507,11 +4312,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT MAX([o0].[OrderID])
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -4524,11 +4329,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT MIN([o0].[OrderID])
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -4541,11 +4346,11 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT COALESCE(SUM([o0].[OrderID]), 0)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -4558,14 +4363,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT AVG(CAST([o0].[OrderID] AS float))
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o0]
 """);
     }
@@ -4576,14 +4381,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 """);
     }
@@ -4594,14 +4399,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT(*)
 FROM (
     SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 """);
     }
@@ -4612,14 +4417,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT_BIG(*)
 FROM (
     SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 """);
     }
@@ -4630,14 +4435,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='7'
+@p='7'
 
 SELECT COUNT_BIG(*)
 FROM (
     SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 """);
     }
@@ -4648,14 +4453,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT MAX([o0].[OrderID])
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o0]
 """);
     }
@@ -4666,14 +4471,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT MIN([o0].[OrderID])
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o0]
 """);
     }
@@ -4684,14 +4489,14 @@ FROM (
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT COALESCE(SUM([o0].[OrderID]), 0)
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o0]
 """);
     }
@@ -4744,11 +4549,8 @@ FROM (
 
         AssertSql(
             """
-SELECT MAX([o0].[OrderID])
-FROM (
-    SELECT DISTINCT [o].[OrderID]
-    FROM [Orders] AS [o]
-) AS [o0]
+SELECT MAX([o].[OrderID])
+FROM [Orders] AS [o]
 """);
     }
 
@@ -4758,11 +4560,8 @@ FROM (
 
         AssertSql(
             """
-SELECT MIN([o0].[OrderID])
-FROM (
-    SELECT DISTINCT [o].[OrderID]
-    FROM [Orders] AS [o]
-) AS [o0]
+SELECT MIN([o].[OrderID])
+FROM [Orders] AS [o]
 """);
     }
 
@@ -4786,11 +4585,11 @@ FROM (
 
         AssertSql(
             """
-@__prefix_0_startswith='A%' (Size = 5)
+@prefix_startswith='A%' (Size = 5)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE @__prefix_0_startswith ESCAPE N'\'
+WHERE [c].[CustomerID] LIKE @prefix_startswith ESCAPE N'\'
 """);
     }
 
@@ -5043,13 +4842,13 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT [c].[CustomerID] AS [Id]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -5059,11 +4858,11 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) 1 AS empty
+    SELECT TOP(@p) 1 AS empty
     FROM [Orders] AS [o]
     INNER JOIN (
         SELECT [c].[CustomerID]
@@ -5081,17 +4880,8 @@ FROM (
 
         AssertSql(
             """
-@__list_0='[]' (Size = 4000)
-
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY CASE
-    WHEN [c].[CustomerID] IN (
-        SELECT [l].[value]
-        FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-    ) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
 """);
     }
 
@@ -5101,17 +4891,8 @@ END
 
         AssertSql(
             """
-@__list_0='[]' (Size = 4000)
-
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY CASE
-    WHEN [c].[CustomerID] NOT IN (
-        SELECT [l].[value]
-        FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-    ) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
 """);
     }
 
@@ -5272,14 +5053,14 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='20'
+@p='0'
+@p1='20'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID], [o].[OrderDate], [c].[CustomerID], [c].[City]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
@@ -5332,7 +5113,7 @@ END
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [o1].[OrderID], [o0].[ProductID], [o0].[OrderID]
 FROM (
@@ -5340,7 +5121,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
 ORDER BY [o1].[OrderID], [o0].[OrderID]
@@ -5353,11 +5134,11 @@ ORDER BY [o1].[OrderID], [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [o1].[OrderID], [o0].[ProductID], [o0].[OrderID]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@p) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
@@ -5373,8 +5154,8 @@ ORDER BY [o1].[OrderID], [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT [o1].[OrderID], [o0].[ProductID], [o0].[OrderID]
 FROM (
@@ -5382,7 +5163,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
 ORDER BY [o1].[OrderID], [o0].[OrderID]
@@ -5395,7 +5176,7 @@ ORDER BY [o1].[OrderID], [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [c].[City]
 FROM (
@@ -5403,7 +5184,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 ORDER BY [o0].[OrderID]
@@ -5416,11 +5197,11 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [c].[City]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
@@ -5436,8 +5217,8 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT [c].[City]
 FROM (
@@ -5445,7 +5226,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 ORDER BY [o0].[OrderID]
@@ -5458,7 +5239,7 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM (
@@ -5466,7 +5247,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
 ORDER BY [o1].[OrderID], [o0].[OrderID]
@@ -5479,11 +5260,11 @@ ORDER BY [o1].[OrderID], [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
@@ -5499,8 +5280,8 @@ ORDER BY [o1].[OrderID], [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='5'
-@__p_1='10'
+@p='5'
+@p1='10'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM (
@@ -5508,7 +5289,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
     ORDER BY [o].[OrderID]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
 ORDER BY [o1].[OrderID], [o0].[OrderID]
@@ -5521,7 +5302,7 @@ ORDER BY [o1].[OrderID], [o0].[OrderID]
 
         AssertSql(
             """
-@__p_0='0'
+@p='0'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM (
@@ -5529,7 +5310,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'FISSA'
     ORDER BY (SELECT 1)
-    OFFSET @__p_0 ROWS
+    OFFSET @p ROWS
 ) AS [c0]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -5548,11 +5329,11 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__p_0='1'
+@p='1'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@p) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'FISSA'
 ) AS [c0]
@@ -5573,8 +5354,8 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__p_0='0'
-@__p_1='1'
+@p='0'
+@p1='1'
 
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM (
@@ -5582,7 +5363,7 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'FISSA'
     ORDER BY (SELECT 1)
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [c0]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -5625,11 +5406,11 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-@__entity_equality_a_0_CustomerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@entity_equality_a_CustomerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__entity_equality_a_0_CustomerID
+WHERE [c].[CustomerID] = @entity_equality_a_CustomerID
 """);
     }
 
@@ -5639,9 +5420,11 @@ WHERE [c].[CustomerID] = @__entity_equality_a_0_CustomerID
 
         AssertSql(
             """
+@entity_equality_customers_CustomerID1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] = @entity_equality_customers_CustomerID1
 """);
     }
 
@@ -5830,17 +5613,17 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_1='5'
-@__searchTerm_0='c' (Size = 15)
+@p='5'
+@searchTerm='c' (Size = 15)
 
-SELECT TOP(@__p_1) [c0].[City]
+SELECT TOP(@p) [c0].[City]
 FROM (
     SELECT DISTINCT [c].[City]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ) AS [c0]
-ORDER BY CHARINDEX(@__searchTerm_0, [c0].[City]) - CASE
-    WHEN @__searchTerm_0 = N'' THEN 0
+ORDER BY CHARINDEX(@searchTerm, [c0].[City]) - CASE
+    WHEN @searchTerm = N'' THEN 0
     ELSE 1
 END, [c0].[City]
 """);
@@ -5951,13 +5734,13 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='91'
+@p='91'
 
 SELECT [c1].[City] AS [c1], [e0].[City], [e0].[c1]
 FROM (
     SELECT DISTINCT [c0].[City]
     FROM (
-        SELECT TOP(@__p_0) [c].[City]
+        SELECT TOP(@p) [c].[City]
         FROM [Customers] AS [c]
     ) AS [c0]
 ) AS [c1]
@@ -5986,12 +5769,12 @@ WHERE 0 = 1
 """,
             //
             """
-@__p_0='1'
+@p='1'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p ROWS ONLY
 """);
     }
 
@@ -6043,9 +5826,8 @@ ORDER BY [c].[CustomerID]
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
-        => await Assert.ThrowsAnyAsync<OperationCanceledException>(
-            async () =>
-                await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
+        => await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
 
     [ConditionalFact]
     public Task Query_compiler_concurrency()
@@ -6056,25 +5838,25 @@ ORDER BY [c].[CustomerID]
 
         for (var i = 0; i < threadCount; i++)
         {
-            tasks[i] = Task.Run(
-                () =>
-                {
-                    using var context = CreateContext();
-                    using ((from c in context.Customers
-                            where c.City == "London"
-                            orderby c.CustomerID
-                            select (from o1 in context.Orders
-                                    where o1.CustomerID == c.CustomerID
-                                        && o1.OrderDate.Value.Year == 1997
-                                    orderby o1.OrderID
-                                    select (from o2 in context.Orders
-                                            where o1.CustomerID == c.CustomerID
-                                            orderby o2.OrderID
-                                            select o1.OrderID).ToList()).ToList())
+            tasks[i] = Task.Run(() =>
+            {
+                using var context = CreateContext();
+                using (context.Customers
+                           .Where(c => c.City == "London")
+                           .OrderBy(c => c.CustomerID)
+                           .Select(c => context.Orders
+                               .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
+                               .OrderBy(o1 => o1.OrderID)
+                               .Select(o1 => context.Orders
+                                   .Where(o2 => o1.CustomerID == c.CustomerID)
+                                   .OrderBy(o2 => o2.OrderID)
+                                   .Select(o2 => o1.OrderID)
+                                   .ToList())
+                               .ToList())
                            .GetEnumerator())
-                    {
-                    }
-                });
+                {
+                }
+            });
         }
 
         return Task.WhenAll(tasks);
@@ -6195,9 +5977,9 @@ END
 """,
             //
             """
-@__Any_0='True'
+@Any='True'
 
-SELECT @__Any_0
+SELECT @Any
 FROM [Employees] AS [e]
 CROSS JOIN [Employees] AS [e0]
 """);
@@ -6219,12 +6001,11 @@ IF EXISTS
      FROM [sys].[objects] o
      WHERE [o].[type] = 'U'
      AND [o].[is_ms_shipped] = 0
-     AND NOT EXISTS (SELECT *
-         FROM [sys].[extended_properties] AS [ep]
-         WHERE [ep].[major_id] = [o].[object_id]
-             AND [ep].[minor_id] = 0
-             AND [ep].[class] = 1
-             AND [ep].[name] = N'microsoft_database_tools_support'
+     AND [o].[object_id] NOT IN (SELECT [ep].[major_id]
+        FROM [sys].[extended_properties] AS [ep]
+        WHERE [ep].[minor_id] = 0
+            AND [ep].[class] = 1
+            AND [ep].[name] = N'microsoft_database_tools_support'
     )
 )
 SELECT 1 ELSE SELECT 0
@@ -6265,11 +6046,11 @@ ORDER BY [c].[CustomerID] DESC
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT DISTINCT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@p) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
@@ -6289,15 +6070,21 @@ WHERE [c].[CustomerID] = N'ALFKI'
 """,
             //
             """
-@__orderIds_0='[10643,10692,10702,10835,10952,11011]' (Size = 4000)
+@orderIds1='10643'
+@orderIds2='10692'
+@orderIds3='10702'
+@orderIds4='10835'
+@orderIds5='10952'
+@orderIds6='11011'
+@orderIds7='11011'
+@orderIds8='11011'
+@orderIds9='11011'
+@orderIds10='11011'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[OrderID] IN (
-    SELECT [o0].[value]
-    FROM OPENJSON(@__orderIds_0) WITH ([value] int '$') AS [o0]
-)
+WHERE [o].[OrderID] IN (@orderIds1, @orderIds2, @orderIds3, @orderIds4, @orderIds5, @orderIds6, @orderIds7, @orderIds8, @orderIds9, @orderIds10)
 """);
     }
 
@@ -6426,19 +6213,19 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-@__value_0='Sales Representative' (Size = 30)
+@value='Sales Representative' (Size = 30)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[Title] = @__value_0
+WHERE [e].[Title] = @value
 """,
             //
             """
-@__value_0='Steven' (Size = 10)
+@value='Steven' (Size = 10)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[FirstName] = @__value_0
+WHERE [e].[FirstName] = @value
 """);
     }
 
@@ -6471,12 +6258,11 @@ IF EXISTS
      FROM [sys].[objects] o
      WHERE [o].[type] = 'U'
      AND [o].[is_ms_shipped] = 0
-     AND NOT EXISTS (SELECT *
-         FROM [sys].[extended_properties] AS [ep]
-         WHERE [ep].[major_id] = [o].[object_id]
-             AND [ep].[minor_id] = 0
-             AND [ep].[class] = 1
-             AND [ep].[name] = N'microsoft_database_tools_support'
+     AND [o].[object_id] NOT IN (SELECT [ep].[major_id]
+        FROM [sys].[extended_properties] AS [ep]
+        WHERE [ep].[minor_id] = 0
+            AND [ep].[class] = 1
+            AND [ep].[name] = N'microsoft_database_tools_support'
     )
 )
 SELECT 1 ELSE SELECT 0
@@ -6535,6 +6321,38 @@ ORDER BY [c].[CustomerID], [e].[EmployeeID]
 """);
     }
 
+    public override async Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
+    {
+        await base.SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(async);
+
+        AssertSql(
+            """
+SELECT [o0].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+""");
+    }
+
+    public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
+    {
+        await base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([o0].[OrderID], 0)
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(2) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[CustomerID] = N'NONEXISTENT'
+) AS [o0]
+""");
+    }
+
     public override async Task Select_Property_when_shadow_unconstrained_generic_method(bool async)
     {
         await base.Select_Property_when_shadow_unconstrained_generic_method(async);
@@ -6564,11 +6382,11 @@ WHERE [e].[Title] = N'Sales Representative'
 
         AssertSql(
             """
-@__value_0='Sales Representative' (Size = 30)
+@value='Sales Representative' (Size = 30)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[Title] = @__value_0
+WHERE [e].[Title] = @value
 """);
     }
 
@@ -6673,23 +6491,23 @@ FROM [Orders] AS [o]
 """,
             //
             """
-@__firstOrder_OrderID_0='10248'
+@firstOrder_OrderID='10248'
 
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [o].[OrderID] = @__firstOrder_OrderID_0) THEN CAST(1 AS bit)
+        WHERE [o].[OrderID] = @firstOrder_OrderID) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """,
             //
             """
-@__Any_0='True'
+@Any='True'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @__Any_0 = CAST(1 AS bit)
+WHERE @Any = CAST(1 AS bit)
 """);
     }
 
@@ -6733,14 +6551,14 @@ ORDER BY [o].[OrderID]
 """,
             //
             """
-@__firstOrder_OrderID_0='10248'
+@firstOrder_OrderID='10248'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] = @__firstOrder_OrderID_0 AND ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))
+    WHERE [o0].[OrderID] = @firstOrder_OrderID AND ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))
 """);
     }
 
@@ -6872,48 +6690,6 @@ FROM [Orders] AS [o]
         AssertSql();
     }
 
-    public override async Task Random_next_is_not_funcletized_1(bool async)
-    {
-        await base.Random_next_is_not_funcletized_1(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_2(bool async)
-    {
-        await base.Random_next_is_not_funcletized_2(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_3(bool async)
-    {
-        await base.Random_next_is_not_funcletized_3(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_4(bool async)
-    {
-        await base.Random_next_is_not_funcletized_4(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_5(bool async)
-    {
-        await base.Random_next_is_not_funcletized_5(async);
-
-        AssertSql();
-    }
-
-    public override async Task Random_next_is_not_funcletized_6(bool async)
-    {
-        await base.Random_next_is_not_funcletized_6(async);
-
-        AssertSql();
-    }
-
     public override async Task SelectMany_after_client_method(bool async)
     {
         await base.SelectMany_after_client_method(async);
@@ -6934,8 +6710,7 @@ FROM [Orders] AS [o]
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest",
                 "InstanceMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_method_throws(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_method_throws(async))).Message);
 
         AssertSql();
     }
@@ -6946,8 +6721,7 @@ FROM [Orders] AS [o]
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest",
                 "StaticMethod"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_static_method(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_static_method(async))).Message);
 
         AssertSql();
     }
@@ -6957,8 +6731,7 @@ FROM [Orders] AS [o]
         Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqlServerTest"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
         AssertSql();
     }
@@ -7051,16 +6824,16 @@ FROM [Orders] AS [o]
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg(bool async)
+    public override async Task DefaultIfEmpty_top_level_arg(bool async)
     {
-        await base.Default_if_empty_top_level_arg(async);
+        await base.DefaultIfEmpty_top_level_arg(async);
 
         AssertSql();
     }
 
-    public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
+    public override async Task DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(bool async)
     {
-        await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
+        await base.DefaultIfEmpty_top_level_arg_followed_by_projecting_constant(async);
 
         AssertSql();
     }
@@ -7130,8 +6903,8 @@ WHERE (
 
     public override async Task Entity_equality_through_subquery_composite_key(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Entity_equality_through_subquery_composite_key(async))).Message;
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_equality_through_subquery_composite_key(async))).Message;
 
         Assert.Equal(
             CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
@@ -7255,7 +7028,7 @@ WHERE NOT EXISTS (
 
         AssertSql(
             """
-@__prm_0='2'
+@prm='2'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -7264,7 +7037,7 @@ WHERE NOT EXISTS (
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]
-    OFFSET @__prm_0 ROWS)
+    OFFSET @prm ROWS)
 """);
     }
 
@@ -7277,7 +7050,7 @@ WHERE NOT EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT COALESCE(SUM([v].[Value]), 0)
+    SELECT ISNULL(SUM([v].[Value]), 0)
     FROM (VALUES (CAST(100 AS int)), ((
         SELECT COUNT(*)
         FROM [Orders] AS [o]
@@ -7291,30 +7064,22 @@ WHERE (
 
         AssertSql(
             """
-@__ids_0='[10248,10249]' (Size = 4000)
+@ids1='10248'
+@ids2='10249'
 
 SELECT [o].[Quantity] AS [Key], (
     SELECT MAX([o1].[OrderDate])
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (
-        SELECT [i0].[value]
-        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i0]
-    ) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
+    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] IN (
-    SELECT [i].[value]
-    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
-)
+WHERE [o].[OrderID] IN (@ids1, @ids2)
 GROUP BY [o].[Quantity]
 ORDER BY (
     SELECT MAX([o1].[OrderDate])
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (
-        SELECT [i0].[value]
-        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i0]
-    ) AND [o].[Quantity] = [o0].[Quantity])
+    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity])
 """);
     }
 
@@ -7324,14 +7089,12 @@ ORDER BY (
 
         AssertSql(
             """
-@__data_0='["ALFKIAlfreds Futterkiste","ANATRAna Trujillo Emparedados y helados"]' (Size = 4000)
+@data1='ALFKIAlfreds Futterkiste' (Size = 45)
+@data2='ANATRAna Trujillo Emparedados y helados' (Size = 45)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + [c].[CompanyName] IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(45) '$') AS [d]
-)
+WHERE [c].[CustomerID] + [c].[CompanyName] IN (@data1, @data2)
 """);
     }
 
@@ -7341,14 +7104,13 @@ WHERE [c].[CustomerID] + [c].[CompanyName] IN (
 
         AssertSql(
             """
-@__data_0='["ALFKISomeConstant","ANATRSomeConstant","ALFKIX"]' (Size = 4000)
+@data1='ALFKISomeConstant' (Size = 4000)
+@data2='ANATRSomeConstant' (Size = 4000)
+@data3='ALFKIX' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + N'SomeConstant' IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
-)
+WHERE [c].[CustomerID] + N'SomeConstant' IN (@data1, @data2, @data3)
 """);
     }
 
@@ -7358,15 +7120,15 @@ WHERE [c].[CustomerID] + N'SomeConstant' IN (
 
         AssertSql(
             """
-@__data_0='["ALFKIALFKI","ALFKI","ANATRAna Trujillo Emparedados y helados","ANATRANATR"]' (Size = 4000)
+@data1='ALFKIALFKI' (Size = 10) (DbType = StringFixedLength)
+@data2='ALFKI' (Size = 10)
+@data3='ANATRAna Trujillo Emparedados y helados' (Size = 4000)
+@data4='ANATRANATR' (Size = 10) (DbType = StringFixedLength)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@__data_0) WITH ([value] nchar(10) '$') AS [d]
-)
+WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (@data1, @data2, @data3, @data4)
 """);
     }
 
@@ -7376,15 +7138,14 @@ WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
 
         AssertSql(
             """
-@__someVariable_0='SomeVariable' (Size = 4000)
-@__data_1='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
+@someVariable='SomeVariable' (Size = 4000)
+@data1='ALFKISomeVariable' (Size = 4000)
+@data2='ANATRSomeVariable' (Size = 4000)
+@data3='ALFKIX' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + @__someVariable_0 IN (
-    SELECT [d].[value]
-    FROM OPENJSON(@__data_1) WITH ([value] nvarchar(max) '$') AS [d]
-)
+WHERE [c].[CustomerID] + @someVariable IN (@data1, @data2, @data3)
 """);
     }
 
@@ -7394,11 +7155,11 @@ WHERE [c].[CustomerID] + @__someVariable_0 IN (
 
         AssertSql(
             """
-@__Contains_0='True'
+@Contains='True'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__Contains_0 = CAST(1 AS bit)
+WHERE @Contains = CAST(1 AS bit)
 """);
     }
 
@@ -7413,11 +7174,11 @@ WHERE @__Contains_0 = CAST(1 AS bit)
 
         AssertSql(
             """
-@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@p='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__p_0
+WHERE [c].[CustomerID] = @p
 """);
     }
 
@@ -7461,6 +7222,70 @@ WHERE (
 """);
     }
 
+    public override async Task Where_nanosecond_and_microsecond_component(bool async)
+    {
+        await base.Where_nanosecond_and_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE (DATEPART(nanosecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL) AND (DATEPART(microsecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL)
+""");
+    }
+
+    public override async Task Ternary_Not_Null_Contains(bool async)
+    {
+        await base.Ternary_Not_Null_Contains(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) + N'' LIKE N'%1%'
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Ternary_Not_Null_endsWith_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Not_Null_endsWith_Non_Numeric_First_Part(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) N'' + CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE N'' + CAST([o].[OrderID] AS nvarchar(max)) + N'' LIKE N'%1'
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Ternary_Null_Equals_Non_Numeric_First_Part(bool async)
+    {
+        await base.Ternary_Null_Equals_Non_Numeric_First_Part(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) N'' + CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE N'' + CAST([o].[OrderID] AS nvarchar(max)) + N'' = N'1'
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Ternary_Null_StartsWith(bool async)
+    {
+        await base.Ternary_Null_StartsWith(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) CAST([o].[OrderID] AS nvarchar(max)) + N''
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) + N'' LIKE N'1%'
+ORDER BY [o].[OrderID]
+""");
+    }
+
     public override async Task Column_access_inside_subquery_predicate(bool async)
     {
         await base.Column_access_inside_subquery_predicate(async);
@@ -7484,6 +7309,25 @@ WHERE EXISTS (
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Late_subquery_pushdown(bool async)
+    {
+        await base.Late_subquery_pushdown(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID]
+FROM [Orders] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(100) [o0].[CustomerID]
+        FROM [Orders] AS [o0]
+        ORDER BY [o0].[CustomerID]
+    ) AS [o1]
+    WHERE [o1].[CustomerID] = [o].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL))
 """);
     }
 

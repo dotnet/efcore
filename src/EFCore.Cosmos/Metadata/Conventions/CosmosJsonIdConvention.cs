@@ -76,11 +76,10 @@ public class CosmosJsonIdConvention
         var computedIdProperty = entityType.FindDeclaredProperty(DefaultIdPropertyName);
 
         var primaryKey = entityType.FindPrimaryKey();
-        if (entityType.BaseType != null // Requires: IEntityTypeBaseTypeChangedConvention
-            || !entityType.IsDocumentRoot() // Requires: IEntityTypeAnnotationChangedConvention (ContainerName)
-            || entityType.GetForeignKeys()
-                .Any(fk => fk.IsOwnership) // Requires: IForeignKeyOwnershipChangedConvention, IForeignKeyRemovedConvention
-            || primaryKey == null) // Requires: IKeyAddedConvention, IKeyRemovedConvention
+        if (entityType.BaseType != null
+            || !entityType.IsDocumentRoot()
+            || entityType.GetForeignKeys().Any(fk => fk.IsOwnership)
+            || primaryKey == null)
         {
             // If the entity type is not a keyed, root document in the container, then it doesn't have an `id` mapping, so
             // undo anything that was done by previous execution of this convention.
@@ -93,7 +92,8 @@ public class CosmosJsonIdConvention
             if (computedIdProperty is not null
                 && computedIdProperty != jsonIdProperty)
             {
-                entityType.Builder.RemoveUnusedImplicitProperties([computedIdProperty]);            }
+                entityType.Builder.RemoveUnusedImplicitProperties([computedIdProperty]);
+            }
 
             return;
         }
@@ -102,17 +102,9 @@ public class CosmosJsonIdConvention
         // key is represented by a single string property, and the discriminator is not being included in the JSON `id`.
         // If these conditions are not met, or if the user has opted-in, then we will create a computed property that transforms
         // the appropriate values into a single string for the JSON `id` property.
-
-        // The line below requires: IModelAnnotationChangedConvention, IPropertyAnnotationChangedConvention
         var alwaysCreateId = entityType.GetHasShadowId();
         if (alwaysCreateId != true)
         {
-            // The line below requires:
-            // - IModelAnnotationChangedConvention, IPropertyAnnotationChangedConvention
-            // - IKeyAddedConvention, IKeyRemovedConvention
-            // - IPropertyAddedConvention, IPropertyRemovedConvention
-            // - IDiscriminatorPropertySetConvention
-            // - IEntityTypeBaseTypeChangedConvention
             var idDefinition = DefinitionFactory.Create((IEntityType)entityType)!;
             if (idDefinition is { IncludesDiscriminator: false, Properties.Count: 1 })
             {
@@ -125,15 +117,16 @@ public class CosmosJsonIdConvention
                     ?? mapping?.ClrType
                     ?? keyProperty!.ClrType;
 
-                if (clrType == typeof(string))
+                if (clrType == typeof(string)
+                    && keyProperty.Builder.CanSetJsonProperty(IdPropertyJsonName))
                 {
                     // We are at the point where we are going to map the `id` directly to the PK.
                     // However, if a previous run of this convention create the computed property, then we need to remove that
                     // mapping since it is now not needed.
-                    if (computedIdProperty != null)
+                    if (computedIdProperty != null
+                        && entityType.Builder.HasNoProperty(computedIdProperty) == null)
                     {
                         computedIdProperty.Builder.ToJsonProperty(null);
-                        entityType.Builder.HasNoProperty(computedIdProperty);
                     }
 
                     // If there was previously a different property mapped to `id`, but not one of our computed properties,
@@ -146,10 +139,7 @@ public class CosmosJsonIdConvention
                     }
 
                     // Finally, actually map the primary key directly to the JSON `id`.
-                    if (keyProperty.GetJsonPropertyName() != IdPropertyJsonName)
-                    {
-                        keyProperty.Builder.ToJsonProperty(IdPropertyJsonName);
-                    }
+                    keyProperty.Builder.ToJsonProperty(IdPropertyJsonName);
 
                     return;
                 }
@@ -183,20 +173,11 @@ public class CosmosJsonIdConvention
             return;
         }
 
-        if (computedIdPropertyBuilder.Metadata.GetJsonPropertyName() != IdPropertyJsonName)
-        {
-            computedIdPropertyBuilder = computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName)
-                ?? computedIdPropertyBuilder;
-        }
-
         // Don't chain, because each of these could return null if the property has been explicitly configured with some other value.
-        computedIdPropertyBuilder = computedIdPropertyBuilder.IsRequired(true)
-            ?? computedIdPropertyBuilder;
-
-        computedIdPropertyBuilder = computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory))
-            ?? computedIdPropertyBuilder;
-
+        computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName);
+        computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory));
         computedIdPropertyBuilder.AfterSave(PropertySaveBehavior.Throw);
+        computedIdPropertyBuilder.IsRequired(true);
     }
 
     /// <inheritdoc />
@@ -340,8 +321,13 @@ public class CosmosJsonIdConvention
 
     /// <inheritdoc />
     public virtual void ProcessDiscriminatorPropertySet(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder structuralTypeBuilder,
         string? name,
         IConventionContext<string?> context)
-        => ProcessEntityType(entityTypeBuilder.Metadata, context);
+    {
+        if (structuralTypeBuilder is IConventionEntityTypeBuilder entityTypeBuilder)
+        {
+            ProcessEntityType(entityTypeBuilder.Metadata, context);
+        }
+    }
 }

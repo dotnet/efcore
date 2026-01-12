@@ -1,8 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -16,9 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
-    private static readonly bool UseOldBehavior35094 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35094", out var enabled) && enabled;
-
     private readonly CosmosQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly ITypeMappingSource _typeMappingSource;
@@ -126,9 +122,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             if (arguments is not
                 [
                     _, // source
-                    ParameterExpression maxItemCount,
-                    ParameterExpression continuationToken,
-                    ParameterExpression responseContinuationTokenLimitInKb,
+                    QueryParameterExpression maxItemCount,
+                    QueryParameterExpression continuationToken,
+                    QueryParameterExpression responseContinuationTokenLimitInKb,
                     _ // cancellation token
                 ]
                 || _sqlTranslator.Translate(maxItemCount) is not SqlParameterExpression translatedMaxItemCount
@@ -210,10 +206,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     var returnDefault = method.Name == nameof(Queryable.ElementAtOrDefault);
                     if (Visit(innerMethodCall) is ShapedQueryExpression translatedSelect
                         && translatedSelect.TryExtractArray(out _, out _, out _, out var boundMember)
-                        && boundMember is IAccessExpression { PropertyName: string boundPropertyName }
+                        && boundMember is IAccessExpression { PropertyName: { } boundPropertyName }
                         && Visit(innerMethodCall.Arguments[0]) is ShapedQueryExpression innerSource
                         && TranslateElementAtOrDefault(
-                            innerSource, methodCallExpression.Arguments[1], returnDefault) is ShapedQueryExpression elementAtTranslation)
+                            innerSource, methodCallExpression.Arguments[1], returnDefault) is { } elementAtTranslation)
                     {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                         var translation = _sqlTranslator.Translate(
@@ -334,8 +330,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     selectExpression,
                     _sqlExpressionFactory.In(
                         (SqlExpression)discriminatorColumn,
-                        concreteEntityTypes.Select(
-                                et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(
+                                et.GetDiscriminatorValue(), discriminatorColumn.Type))
                             .ToArray()));
                 Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
             }
@@ -416,7 +412,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         {
             var simplifiedTranslation = _sqlExpressionFactory.GreaterThan(
                 _sqlExpressionFactory.Function(
-                    "ARRAY_LENGTH", new[] { array }, typeof(int), _typeMappingSource.FindMapping(typeof(int))),
+                    "ARRAY_LENGTH", [array], typeof(int), _typeMappingSource.FindMapping(typeof(int))),
                 _sqlExpressionFactory.Constant(0));
             var select = new SelectExpression(simplifiedTranslation);
 
@@ -447,31 +443,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-    {
-        if (UseOldBehavior35094)
-        {
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.IsDistinct
-                || selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                return null;
-            }
-
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
-
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-            projection = _sqlExpressionFactory.Function("AVG", new[] { projection }, projection.Type, projection.TypeMapping);
-
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
-
-        }
-
-        return TranslateAggregate(source, selector, resultType, "AVG");
-    }
+        => TranslateAggregate(source, selector, resultType, "AVG");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -504,7 +476,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
-            && TranslateExpression(item) is SqlExpression translatedItem)
+            && TranslateExpression(item) is { } translatedItem)
         {
             if (array is ArrayConstantExpression arrayConstant)
             {
@@ -576,7 +548,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         Expression index,
         bool returnDefault)
     {
-        if (TranslateExpression(index) is not SqlExpression translatedIndex)
+        if (TranslateExpression(index) is not { } translatedIndex)
         {
             return null;
         }
@@ -697,7 +669,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         if (predicate != null)
         {
-            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
+            if (TranslateWhere(source, predicate) is not { } translatedSource)
             {
                 return null;
             }
@@ -797,7 +769,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         if (predicate != null)
         {
-            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
+            if (TranslateWhere(source, predicate) is not { } translatedSource)
             {
                 return null;
             }
@@ -841,6 +813,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateRightJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        AddTranslationErrorDetails(CosmosStrings.CrossDocumentJoinNotSupported);
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
         => TranslateCountLongCount(source, predicate, typeof(long));
 
@@ -851,31 +840,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-    {
-        if (UseOldBehavior35094)
-        {
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.IsDistinct
-                || selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                return null;
-            }
-
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
-
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-            projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
-
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
-        }
-
-        return TranslateAggregate(source, selector, resultType, "MAX");
-    }
+        => TranslateAggregate(source, selector, resultType, "MAX");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -884,31 +849,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-    {
-        if (UseOldBehavior35094)
-        {
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.IsDistinct
-                || selectExpression.Limit != null
-                || selectExpression.Offset != null)
-            {
-                return null;
-            }
-
-            if (selector != null)
-            {
-                source = TranslateSelect(source, selector);
-            }
-
-            var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-            projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
-
-            return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
-        }
-
-        return TranslateAggregate(source, selector, resultType, "MIN");
-    }
+        => TranslateAggregate(source, selector, resultType, "MIN");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -984,7 +925,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
+        if (TranslateLambdaExpression(source, keySelector) is { } translation)
         {
             ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
 
@@ -1111,7 +1052,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         if (predicate != null)
         {
-            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
+            if (TranslateWhere(source, predicate) is not { } translatedSource)
             {
                 return null;
             }
@@ -1146,7 +1087,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count)
     {
-        if (TranslateExpression(count) is not SqlExpression translatedCount)
+        if (TranslateExpression(count) is not { } translatedCount)
         {
             return null;
         }
@@ -1259,9 +1200,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var serverOutputType = resultType.UnwrapNullableType();
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
-        projection = _sqlExpressionFactory.Function("SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
+        projection = _sqlExpressionFactory.Function("SUM", [projection], serverOutputType, projection.TypeMapping);
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
+        return AggregateResultShaper(source, projection, resultType);
     }
 
     /// <summary>
@@ -1272,7 +1213,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
     {
-        if (TranslateExpression(count) is not SqlExpression translatedCount)
+        if (TranslateExpression(count) is not { } translatedCount)
         {
             return null;
         }
@@ -1382,7 +1323,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
     {
-        if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
+        if (TranslateLambdaExpression(source, keySelector) is { } translation)
         {
             ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
 
@@ -1485,7 +1426,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         for (var i = 0; i < values.Count; i++)
         {
-            if (TranslateExpression(values[i]) is not SqlExpression translatedItem)
+            if (TranslateExpression(values[i]) is not { } translatedItem)
             {
                 return null;
             }
@@ -1516,18 +1457,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
     {
-        var parameter = parameterQueryRootExpression.ParameterExpression;
-        if (parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) != true)
-        {
-            return null;
-        }
+        var queryParameter = parameterQueryRootExpression.QueryParameterExpression;
 
         // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
         // value conversion). #34026.
         var elementClrType = parameterQueryRootExpression.ElementType;
         var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
-        var sqlParameterExpression = new SqlParameterExpression(parameter.Name, parameter.Type, arrayTypeMapping);
+        var sqlParameterExpression = new SqlParameterExpression(queryParameter.Name, queryParameter.Type, arrayTypeMapping);
 
         var sourceAlias = _aliasManager.GenerateSourceAlias(sqlParameterExpression.Name.TrimStart('_'));
         var select = SelectExpression.CreateForCollection(
@@ -1539,7 +1476,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
     #endregion Queryable collection support
 
-    private ShapedQueryExpression? TranslateAggregate(ShapedQueryExpression source, LambdaExpression? selector, Type resultType, string functionName)
+    private ShapedQueryExpression? TranslateAggregate(
+        ShapedQueryExpression source,
+        LambdaExpression? selector,
+        Type resultType,
+        string functionName)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -1565,7 +1506,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
         projection = _sqlExpressionFactory.Function(functionName, [projection], resultType, _typeMappingSource.FindMapping(resultType));
 
-        return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
+        return AggregateResultShaper(source, projection, resultType);
     }
 
     private bool TryApplyPredicate(ShapedQueryExpression source, LambdaExpression predicate)
@@ -1578,7 +1519,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return false;
         }
 
-        if (TranslateLambdaExpression(source, predicate) is SqlExpression translation)
+        if (TranslateLambdaExpression(source, predicate) is { } translation)
         {
             if (translation is not SqlConstantExpression { Value: true })
             {
@@ -1645,7 +1586,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         if (predicate is null && source.TryExtractArray(out var array, ignoreOrderings: true))
         {
             var simplifiedTranslation = _sqlExpressionFactory.Function(
-                "ARRAY_LENGTH", new[] { array }, typeof(int), _typeMappingSource.FindMapping(typeof(int)));
+                "ARRAY_LENGTH", [array], typeof(int), _typeMappingSource.FindMapping(typeof(int)));
             var select = new SelectExpression(simplifiedTranslation);
 
             return source.Update(select, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(int)));
@@ -1663,7 +1604,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (predicate != null)
         {
-            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
+            if (TranslateWhere(source, predicate) is not { } translatedSource)
             {
                 return null;
             }
@@ -1672,7 +1613,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-            _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Constant(1) }, typeof(int)));
+            _sqlExpressionFactory.Function("COUNT", [_sqlExpressionFactory.Constant(1)], typeof(int)));
 
         var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
 
@@ -1748,7 +1689,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private static ShapedQueryExpression AggregateResultShaper(
         ShapedQueryExpression source,
         Expression projection,
-        bool throwOnNullResult,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -1759,29 +1699,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var nullableResultType = resultType.MakeNullable();
         Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
 
-        if (throwOnNullResult)
-        {
-            var resultVariable = Expression.Variable(nullableResultType, "result");
-            var returnValueForNull = resultType.IsNullableType()
-                ? (Expression)Expression.Constant(null, resultType)
-                : Expression.Throw(
-                    Expression.New(
-                        typeof(InvalidOperationException).GetConstructors()
-                            .Single(ci => ci.GetParameters().Length == 1),
-                        Expression.Constant(CoreStrings.SequenceContainsNoElements)),
-                    resultType);
-
-            shaper = Expression.Block(
-                new[] { resultVariable },
-                Expression.Assign(resultVariable, shaper),
-                Expression.Condition(
-                    Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
-                    returnValueForNull,
-                    resultType != resultVariable.Type
-                        ? Expression.Convert(resultVariable, resultType)
-                        : resultVariable));
-        }
-        else if (resultType != shaper.Type)
+        if (resultType != shaper.Type)
         {
             shaper = Expression.Convert(shaper, resultType);
         }
@@ -1800,7 +1718,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var replacement2 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
         var newResultSelector = Expression.Lambda(
             new ReplacingExpressionVisitor(
-                    new[] { original1, original2 }, new[] { replacement1, replacement2 })
+                    [original1, original2], [replacement1, replacement2])
                 .Visit(resultSelector.Body),
             transparentIdentifierParameter);
 
