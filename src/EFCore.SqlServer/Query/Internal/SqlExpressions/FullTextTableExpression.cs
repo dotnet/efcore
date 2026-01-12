@@ -1,0 +1,81 @@
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using static Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions;
+
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+
+/// <summary>
+///     An expression that represents a SQL Server full-text table-valued function (e.g., CONTAINSTABLE).
+/// </summary>
+public class FullTextTableExpression : TableExpressionBase
+{
+    /// <summary>
+    ///     Creates a new instance of the <see cref="FullTextTableExpression" /> class.
+    /// </summary>
+    /// <param name="functionName">The name of the full-text function.</param>
+    /// <param name="column">The column to search.</param>
+    /// <param name="searchCondition">The search condition expression.</param>
+    /// <param name="alias">The table alias.</param>
+    public FullTextTableExpression(
+        string functionName,
+        ColumnExpression column,
+        SqlExpression searchCondition,
+        string alias)
+        : base(alias)
+    {
+        FunctionName = functionName;
+        Column = column;
+        SearchCondition = searchCondition;
+    }
+
+    /// <summary>
+    ///     The name of the function (e.g. CONTAINSTABLE).
+    /// </summary>
+    public virtual string FunctionName { get; }
+
+    /// <summary>
+    ///     The column being searched.
+    /// </summary>
+    public virtual ColumnExpression Column { get; }
+
+    /// <summary>
+    ///     The search condition.
+    /// </summary>
+    public virtual SqlExpression SearchCondition { get; }
+
+    /// <inheritdoc />
+    protected override TableExpressionBase WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => this;
+
+    /// <inheritdoc />
+    public override TableExpressionBase WithAlias(string newAlias)
+        => new FullTextTableExpression(FunctionName, Column, SearchCondition, newAlias);
+
+    /// <inheritdoc />
+    protected override void Print(ExpressionPrinter expressionPrinter)
+    {
+        expressionPrinter.Append(FunctionName!).Append("(").Append(Column.TableAlias!).Append(", ");
+        expressionPrinter.Visit(Column);
+        expressionPrinter.Append(", ");
+        expressionPrinter.Visit(SearchCondition);
+        expressionPrinter.Append(") AS ").Append(Alias!);
+    }
+
+    /// <inheritdoc />
+    public override TableExpressionBase Quote()
+        => this;
+
+    /// <inheritdoc />
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor visitor)
+    {
+        var newColumn = (ColumnExpression)visitor.Visit(Column);
+        var newSearchCondition = (SqlExpression)visitor.Visit(SearchCondition);
+
+        return new FullTextTableExpression(FunctionName, newColumn, newSearchCondition, alias ?? Alias!);
+    }
+}

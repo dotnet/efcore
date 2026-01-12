@@ -817,4 +817,24 @@ WHERE CAST(LEN(UPPER([s].[Value])) AS int) = 0
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    [ConditionalFact]
+    public virtual void FullText_ContainsTable_queryable_simple()
+    {
+        using var ctx = Fixture.CreateContext();
+
+       
+        var query = from c in ctx.Set<Microsoft.EntityFrameworkCore.TestModels.Northwind.Customer>()
+                    join ct in EF.Functions.ContainsTable(ctx.Set<TestModels.Northwind.Customer>().Select(x => x.ContactName), "John")
+                    on c.CustomerID equals (string)ct.Key
+                    select new { c.ContactName, ct.Rank };
+
+        var result = query.ToList();
+        AssertSql(
+            """
+SELECT [c].[ContactName], [c0].[Rank]
+FROM [Customers] AS [c]
+INNER JOIN CONTAINSTABLE([Customers], [ContactName], N'John') AS [c0] ON [c].[CustomerID] = [c0].[Key]
+""");
+    }
 }

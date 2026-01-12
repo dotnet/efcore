@@ -92,6 +92,48 @@ public static class SqlServerDbFunctionsExtensions
         string searchCondition)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
+    /// <summary>
+    ///     Provides a mapping to the SQL Server CONTAINSTABLE full-text search function.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="property">The property to search.</param>
+    /// <param name="searchCondition">The search condition.</param>
+    /// <returns>The table-valued function result containing Key and Rank columns.</returns>
+    public static IQueryable<FullTextTableResult> ContainsTable(
+        this DbFunctions _,
+        object property,
+        string searchCondition)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsTable)));
+
+    /// <summary>
+    ///     Provides a mapping to the SQL Server FREETEXTTABLE full-text search function.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="property">The property to search.</param>
+    /// <param name="freeText">The text that will be searched for in the property.</param>
+    /// <returns>The table-valued function result containing Key and Rank columns.</returns>
+    public static IQueryable<FullTextTableResult> FreeTextTable(
+        this DbFunctions _,
+        object property,
+        string freeText)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FreeTextTable)));
+
+    /// <summary>
+    ///     The result type for SQL Server full-text table-valued functions (CONTAINSTABLE / FREETEXTTABLE).
+    /// </summary>
+    public class FullTextTableResult
+    {
+        /// <summary>
+        ///     The key of the row matched.
+        /// </summary>
+        public object Key { get; set; } = default!;
+
+        /// <summary>
+        ///     The ranking value assigned to the row.
+        /// </summary>
+        public int Rank { get; set; }
+    }
+
     #endregion Full-text search
 
     #region DateDiffYear

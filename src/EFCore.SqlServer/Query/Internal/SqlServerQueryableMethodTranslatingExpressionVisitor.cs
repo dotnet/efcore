@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -70,6 +71,79 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new SqlServerQueryableMethodTranslatingExpressionVisitor(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        var method = methodCallExpression.Method;
+
+        // Handle ContainsTable and FreeTextTable table-valued functions
+        if (method.DeclaringType == typeof(SqlServerDbFunctionsExtensions)
+            && (method.Name == nameof(SqlServerDbFunctionsExtensions.ContainsTable)
+                || method.Name == nameof(SqlServerDbFunctionsExtensions.FreeTextTable)))
+        {
+            var functionName = method.Name == nameof(SqlServerDbFunctionsExtensions.ContainsTable)
+                ? "CONTAINSTABLE"
+                : "FREETEXTTABLE";
+
+            // Translate the arguments
+            var propertyReference = TranslateExpression(methodCallExpression.Arguments[1]);
+            if (propertyReference is not ColumnExpression columnExpression)
+            {
+                throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
+            }
+
+            var searchCondition = TranslateExpression(methodCallExpression.Arguments[2]);
+            if (searchCondition == null)
+            {
+                AddTranslationErrorDetails(
+                    CoreStrings.TranslationFailed(methodCallExpression.Arguments[2].Print()));
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            // Create the FullTextTableExpression
+            var alias = _queryCompilationContext.SqlAliasManager.GenerateTableAlias("ct");
+            var fullTextTableExpression = new FullTextTableExpression(functionName, columnExpression, searchCondition, alias);
+
+            // Create columns for Key and Rank (CONTAINSTABLE/FREETEXTTABLE return these columns)
+            var resultType = typeof(SqlServerDbFunctionsExtensions.FullTextTableResult);
+            var keyColumn = new ColumnExpression("Key", alias, typeof(object), null, nullable: false);
+            var rankColumn = new ColumnExpression("Rank", alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false);
+
+            // Create SelectExpression with Key as the main projection
+            // Use Key as identifier since it's the primary key from CONTAINSTABLE/FREETEXTTABLE
+            var keyTypeMapping = _typeMappingSource.FindMapping(typeof(object));
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var selectExpression = new SelectExpression(
+                [fullTextTableExpression],
+                keyColumn,
+                [(keyColumn, keyTypeMapping?.Comparer ?? ValueComparer.CreateDefault(typeof(object), favorStructuralComparisons: false))],
+                _queryCompilationContext.SqlAliasManager);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            // Add Rank to projection
+            var rankIndex = selectExpression.AddToProjection(rankColumn);
+
+            // Create shaper expression for FullTextTableResult
+            // Key is in the projection mapping (main projection), Rank is at rankIndex in the projection list
+            var keyBinding = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(object));
+            var rankBinding = new ProjectionBindingExpression(selectExpression, rankIndex, typeof(int));
+
+            var shaperExpression = Expression.New(
+                resultType.GetConstructor([typeof(object), typeof(int)])!,
+                keyBinding,
+                rankBinding);
+
+            return new ShapedQueryExpression(selectExpression, shaperExpression);
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

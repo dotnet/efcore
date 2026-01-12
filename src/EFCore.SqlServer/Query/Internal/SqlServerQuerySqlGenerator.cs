@@ -622,6 +622,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);
+
+            case FullTextTableExpression fullTextTableExpression:
+                return VisitFullTextTable(fullTextTableExpression);
         }
 
         return base.VisitExtension(extensionExpression);
@@ -912,6 +915,28 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         };
 
         return precedence != default;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Expression VisitFullTextTable(FullTextTableExpression fullTextTableExpression)
+    {
+        Sql.Append(fullTextTableExpression.FunctionName)
+            .Append("(")
+            .Append(_sqlGenerationHelper.DelimitIdentifier(fullTextTableExpression.Column.TableAlias!))
+            .Append(", ");
+        Visit(fullTextTableExpression.Column);
+        Sql.Append(", ");
+        Visit(fullTextTableExpression.SearchCondition);
+        Sql.Append(")")
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(fullTextTableExpression.Alias!));
+
+        return fullTextTableExpression;
     }
 
     private void GenerateList<T>(
