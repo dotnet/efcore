@@ -337,7 +337,6 @@ public class ServiceProviderCacheTest
 
         cache.GetOrAdd(options, providerRequired: false);
 
-       
         EntityFrameworkMetrics.ClearServiceProviderCache();
 
         var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance);
