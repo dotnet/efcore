@@ -19,10 +19,8 @@ public class HttpException : Exception
     /// </summary>
     public HttpException(HttpResponseMessage response)
         : base(response.ReasonPhrase)
-    {
-        // An error occurred while sending the request.
-        Response = response;
-    }
+    // An error occurred while sending the request.
+        => Response = response;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

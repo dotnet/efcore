@@ -18,8 +18,9 @@ public class DbFunctionParameter :
     IRuntimeDbFunctionParameter
 {
     private string? _storeType;
-    private RelationalTypeMapping? _typeMapping;
     private bool _propagatesNullability;
+    private IStoreFunctionParameter? _storeFunctionParameter;
+    private RelationalTypeMapping? _typeMapping;
 
     private ConfigurationSource? _storeTypeConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
@@ -52,7 +53,7 @@ public class DbFunctionParameter :
     public virtual InternalDbFunctionParameterBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>
@@ -115,14 +116,6 @@ public class DbFunctionParameter :
     [DebuggerStepThrough]
     public virtual ConfigurationSource GetConfigurationSource()
         => Function.GetConfigurationSource();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IStoreFunctionParameter StoreFunctionParameter { get; set; } = default!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -290,6 +283,28 @@ public class DbFunctionParameter :
     {
         [DebuggerStepThrough]
         get => Function;
+    }
+
+    /// <inheritdoc />
+    IStoreFunctionParameter IDbFunctionParameter.StoreFunctionParameter
+    {
+        [DebuggerStepThrough]
+        get
+        {
+            ((IModel)Function.Model).EnsureRelationalModel();
+            return _storeFunctionParameter!;
+        }
+    }
+
+    IStoreFunctionParameter IRuntimeDbFunctionParameter.StoreFunctionParameter
+    {
+        get
+        {
+            ((IModel)Function.Model).EnsureRelationalModel();
+            return _storeFunctionParameter!;
+        }
+
+        set => _storeFunctionParameter = value;
     }
 
     /// <inheritdoc />

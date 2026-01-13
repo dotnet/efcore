@@ -14,32 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class SqlBinaryExpression : SqlExpression
 {
-    private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
-    {
-        ExpressionType.Add,
-        ExpressionType.Subtract,
-        ExpressionType.Multiply,
-        ExpressionType.Divide,
-        ExpressionType.Modulo,
-        //ExpressionType.Power,
-        ExpressionType.And,
-        ExpressionType.AndAlso,
-        ExpressionType.Or,
-        ExpressionType.OrElse,
-        ExpressionType.LessThan,
-        ExpressionType.LessThanOrEqual,
-        ExpressionType.GreaterThan,
-        ExpressionType.GreaterThanOrEqual,
-        ExpressionType.Equal,
-        ExpressionType.NotEqual
-        //ExpressionType.ExclusiveOr,
-        //ExpressionType.ArrayIndex,
-        //ExpressionType.RightShift,
-        //ExpressionType.LeftShift,
-    };
-
-    internal static bool IsValidOperator(ExpressionType operatorType)
-        => AllowedOperators.Contains(operatorType);
+    private static ConstructorInfo? _quotingConstructor;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlBinaryExpression" /> class.
@@ -104,6 +79,44 @@ public class SqlBinaryExpression : SqlExpression
         => left != Left || right != Right
             ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
             : this;
+
+    internal static bool IsValidOperator(ExpressionType operatorType)
+    {
+        switch (operatorType)
+        {
+            case ExpressionType.Add:
+            case ExpressionType.Subtract:
+            case ExpressionType.Multiply:
+            case ExpressionType.Divide:
+            case ExpressionType.Modulo:
+            case ExpressionType.And:
+            case ExpressionType.AndAlso:
+            case ExpressionType.Or:
+            case ExpressionType.OrElse:
+            case ExpressionType.LessThan:
+            case ExpressionType.LessThanOrEqual:
+            case ExpressionType.GreaterThan:
+            case ExpressionType.GreaterThanOrEqual:
+            case ExpressionType.Equal:
+            case ExpressionType.NotEqual:
+            case ExpressionType.Coalesce:
+            case ExpressionType.ExclusiveOr:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlBinaryExpression).GetConstructor(
+                [typeof(ExpressionType), typeof(SqlExpression), typeof(SqlExpression), typeof(Type), typeof(RelationalTypeMapping)])!,
+            Constant(OperatorType),
+            Left.Quote(),
+            Right.Quote(),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
