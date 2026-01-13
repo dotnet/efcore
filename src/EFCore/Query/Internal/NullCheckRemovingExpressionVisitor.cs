@@ -139,31 +139,16 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
                 // Only optimize if the expression is a query operation that cannot be null
                 // (method call returning IQueryable, DbSet property access, or QueryRootExpression)
                 if (nonNullExpression.Type.IsAssignableTo(typeof(IQueryable))
-                    && IsNonNullableQueryExpression(nonNullExpression))
+                    && (nonNullExpression is MethodCallExpression or QueryRootExpression))
+                        // || (nonNullExpression is MemberExpression { Member.DeclaringType: not null } memberExpression
+                        //     && memberExpression.Member.DeclaringType.IsAssignableTo(typeof(DbContext)))))
                 {
-                    var result = binaryExpression.NodeType == ExpressionType.NotEqual;
-                    return Expression.Constant(result);
+                    return Expression.Constant(binaryExpression.NodeType == ExpressionType.NotEqual);
                 }
             }
         }
 
         return null;
-    }
-
-    private static bool IsNonNullableQueryExpression(Expression expression)
-    {
-        if (expression is MethodCallExpression or QueryRootExpression)
-        {
-            return true;
-        }
-
-        if (expression is MemberExpression { Member.DeclaringType: not null } memberExpression
-            && memberExpression.Member.DeclaringType.IsAssignableTo(typeof(DbContext)))
-        {
-            return true;
-        }
-
-        return false;
     }
 
     private sealed class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor
