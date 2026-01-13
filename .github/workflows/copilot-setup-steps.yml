@@ -30,7 +30,8 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${{ secrets.MSSQL_SA_PASSWORD }} -Q 'SELECT 1'"
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \$SA_PASSWORD -Q \"SELECT 1\" -C"
+          --health-start-period=20s
           --health-interval=2s
           --health-retries=30
           --health-timeout=5s
