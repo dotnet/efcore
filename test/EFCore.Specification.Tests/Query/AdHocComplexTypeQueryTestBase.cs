@@ -319,8 +319,15 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ProjectProperty>().HasOne(p => p.Project).WithMany(p => p.Properties).HasForeignKey(p => p.ProjectId);
-            modelBuilder.Entity<ProjectLifetime>().HasBaseType<ProjectProperty>().ComplexProperty(p => p.Lifetime).IsRequired(true);
+            modelBuilder.Entity<ProjectProperty>()
+                .HasOne(p => p.Project)
+                .WithMany(p => p.Properties)
+                .HasForeignKey(p => p.ProjectId);
+            
+            modelBuilder.Entity<ProjectLifetime>()
+                .HasBaseType<ProjectProperty>()
+                .ComplexProperty(p => p.Lifetime)
+                .IsRequired(true);
         }
 
         public class Project
