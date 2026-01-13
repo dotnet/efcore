@@ -282,6 +282,74 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion Issue37337
 
+    #region NonOptionalComplexTypeViaLeftJoin
+
+    [ConditionalFact]
+    public virtual async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
+    {
+        var contextFactory = await InitializeAsync<ContextNonOptionalComplexTypeViaLeftJoin>(
+            seed: context =>
+            {
+                context.Projects.Add(new ContextNonOptionalComplexTypeViaLeftJoin.Project
+                {
+                    Properties = new List<ContextNonOptionalComplexTypeViaLeftJoin.ProjectProperty>
+                    {
+                        new ContextNonOptionalComplexTypeViaLeftJoin.ProjectLifetime
+                        {
+                            Lifetime = new ContextNonOptionalComplexTypeViaLeftJoin.Lifetime()
+                        }
+                    }
+                });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var project = await context.Projects.Include(p => p.Properties).SingleAsync();
+        var projectLifetime = (ContextNonOptionalComplexTypeViaLeftJoin.ProjectLifetime)project.Properties.Single();
+        
+        Assert.NotNull(projectLifetime.Lifetime);
+        Assert.Null(projectLifetime.Lifetime.Start);
+        Assert.Null(projectLifetime.Lifetime.End);
+    }
+
+    private class ContextNonOptionalComplexTypeViaLeftJoin(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Project> Projects { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ProjectProperty>().HasOne(p => p.Project).WithMany(p => p.Properties).HasForeignKey(p => p.ProjectId);
+            modelBuilder.Entity<ProjectLifetime>().HasBaseType<ProjectProperty>().ComplexProperty(p => p.Lifetime).IsRequired(true);
+        }
+
+        public class Project
+        {
+            public int Id { get; set; }
+            public List<ProjectProperty> Properties { get; set; } = null!;
+        }
+
+        public class ProjectProperty
+        {
+            public int Id { get; set; }
+            public int ProjectId { get; set; }
+            public Project Project { get; set; } = null!;
+        }
+
+        public class ProjectLifetime : ProjectProperty
+        {
+            public Lifetime Lifetime { get; set; } = null!;
+        }
+
+        public class Lifetime
+        {
+            public DateTime? Start { get; init; }
+            public DateTime? End { get; init; }
+        }
+    }
+
+    #endregion NonOptionalComplexTypeViaLeftJoin
+
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";
 }

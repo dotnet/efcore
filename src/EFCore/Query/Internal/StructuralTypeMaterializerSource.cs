@@ -121,6 +121,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         return structuralType is IComplexType complexType
             && ReadComplexTypeDirectly(complexType)
             && (UseOldBehavior37162 ? parameters.ClrType.IsNullableType() : parameters.IsNullable)
+            && complexType.ComplexProperty.IsNullable  // Only apply null-checking wrapper if the complex property itself is nullable
             ? HandleNullableComplexTypeMaterialization(
                 complexType,
                 parameters.ClrType,
