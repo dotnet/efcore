@@ -81,99 +81,82 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-
-        // Handle ContainsTable and FreeTextTable table-valued functions
-        if (method.DeclaringType == typeof(SqlServerDbFunctionsExtensions)
-            && (method.Name == nameof(SqlServerDbFunctionsExtensions.ContainsTable)
-                || method.Name == nameof(SqlServerDbFunctionsExtensions.FreeTextTable)))
+        if (method.DeclaringType == typeof(SqlServerQueryableExtensions)
+            && (method.Name == nameof(SqlServerQueryableExtensions.ContainsTable)
+                || method.Name == nameof(SqlServerQueryableExtensions.FreeTextTable)))
         {
-            var functionName = method.Name == nameof(SqlServerDbFunctionsExtensions.ContainsTable)
+            var functionName = method.Name == nameof(SqlServerQueryableExtensions.ContainsTable)
                 ? "CONTAINSTABLE"
                 : "FREETEXTTABLE";
 
-          
-            var propertyReference = Translate(methodCallExpression.Arguments[1]);
-
-            ColumnExpression? columnExpression = null;
-            TableExpressionBase? table = null;
-
-            if (propertyReference is ShapedQueryExpression shapedQuery
-                && shapedQuery.QueryExpression is SelectExpression select
-                && TryGetProjection(shapedQuery, select, out var projection))
+            var source = Visit(methodCallExpression.Arguments[0]);
+            if (source is not ShapedQueryExpression shapedQuery
+                || shapedQuery.QueryExpression is not SelectExpression sourceSelectExpression)
             {
-                // Extract the column from the projection
-                if (projection is ColumnExpression projectedColumn)
-                {
-                    columnExpression = projectedColumn;
-                    
-                    // Find the table that this column belongs to
-                    if (select.Tables.Count > 0)
-                    {
-                        table = select.Tables[0];
-                    }
-                }
-            }
-            else if (propertyReference is SqlExpression sqlExpr && sqlExpr is ColumnExpression colExpr)
-            {
-                columnExpression = colExpr;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            if (columnExpression == null)
+            var lambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+            if (lambda is not LambdaExpression lambdaExpression)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+            
+            var propertyTranslation = TranslateLambdaExpression(shapedQuery, lambdaExpression);
+            if (propertyTranslation is not ColumnExpression columnExpression)
             {
                 AddTranslationErrorDetails(SqlServerStrings.InvalidColumnNameForFreeText);
                 return QueryCompilationContext.NotTranslatedExpression;
             }
-
-            // For CONTAINSTABLE/FREETEXTTABLE, we need a column that references the base table directly
-            // If we have a table, create a new column expression with the table's alias
-            if (table != null)
+            if (sourceSelectExpression.Tables.Count == 0
+                || sourceSelectExpression.Tables[0] is not TableExpression tableExpression)
             {
-                columnExpression = new ColumnExpression(
-                    columnExpression.Name,
-                    table.Alias!,
-                    columnExpression.Type,
-                    columnExpression.TypeMapping,
-                    columnExpression.IsNullable);
+                return QueryCompilationContext.NotTranslatedExpression;
             }
+            var tableName = tableExpression.Name;
+            var columnName = columnExpression.Name;
             var searchCondition = TranslateExpression(methodCallExpression.Arguments[2]);
             if (searchCondition == null)
             {
-                AddTranslationErrorDetails(
-                    CoreStrings.TranslationFailed(methodCallExpression.Arguments[2].Print()));
+                AddTranslationErrorDetails(CoreStrings.TranslationFailed(methodCallExpression.Arguments[2].Print()));
                 return QueryCompilationContext.NotTranslatedExpression;
             }
-            var alias = _queryCompilationContext.SqlAliasManager.GenerateTableAlias("ct");
-            var fullTextTableExpression = new FullTextTableExpression(functionName, columnExpression, searchCondition, alias);
-
-            var resultType = typeof(SqlServerDbFunctionsExtensions.FullTextTableResult);
-
-            var keyColumn = new ColumnExpression("Key", alias, typeof(object), null, nullable: false);
+            var keyType = method.GetGenericArguments()[1]; // TKey is the second generic argument
+            var alias = _queryCompilationContext.SqlAliasManager.GenerateTableAlias("ft");
+            var tableFragment = new SqlFragmentExpression($"[{tableName}]");
+            var columnFragment = new SqlFragmentExpression($"[{columnName}]");
+            var fullTextTableExpression = new FullTextTableExpression(
+                functionName,
+                tableFragment,
+                columnFragment,
+                searchCondition,
+                alias);
+            var resultType = typeof(SqlServerQueryableExtensions.FullTextTableResult<>).MakeGenericType(keyType);
+            var keyTypeMapping = _typeMappingSource.FindMapping(keyType);
+            var keyColumn = new ColumnExpression("Key", alias, keyType, keyTypeMapping, nullable: false);
             var rankColumn = new ColumnExpression("Rank", alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false);
 
-            var keyTypeMapping = _typeMappingSource.FindMapping(typeof(object));
+#pragma warning disable EF1001
 
-#pragma warning disable EF1001 
-            var selectExpression = new SelectExpression(
+            var newSelectExpression = new SelectExpression(
                 [fullTextTableExpression],
                 keyColumn,
-                [(keyColumn, keyTypeMapping?.Comparer ?? ValueComparer.CreateDefault(typeof(object), favorStructuralComparisons: false))],
+                [(keyColumn, keyTypeMapping?.Comparer ?? ValueComparer.CreateDefault(keyType, favorStructuralComparisons: false))],
                 _queryCompilationContext.SqlAliasManager);
+
 #pragma warning restore EF1001
-
-           
-            var rankIndex = selectExpression.AddToProjection(rankColumn);
-            var keyBinding = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(object));
-            var rankBinding = new ProjectionBindingExpression(selectExpression, rankIndex, typeof(int));
-
+            var rankIndex = newSelectExpression.AddToProjection(rankColumn);
+            var keyBinding = new ProjectionBindingExpression(newSelectExpression, new ProjectionMember(), keyType);
+            var rankBinding = new ProjectionBindingExpression(newSelectExpression, rankIndex, typeof(int));
             var shaperExpression = Expression.New(
-                resultType.GetConstructor([typeof(object), typeof(int)])!,
+                resultType.GetConstructor([keyType, typeof(int)])!,
                 keyBinding,
                 rankBinding);
+            return new ShapedQueryExpression(newSelectExpression, shaperExpression);
 
-            return new ShapedQueryExpression(selectExpression, shaperExpression);
         }
-
         return base.VisitMethodCall(methodCallExpression);
+
     }
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
