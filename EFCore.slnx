@@ -19,6 +19,7 @@
     <File Path=".github/workflows/copilot-setup-steps.yml" />
     <File Path=".github/workflows/inter-branch-merge-flow.yml" />
     <File Path=".github/workflows/TestCosmos.yaml" />
+    <File Path=".github/workflows/TestSqlServer.yaml" />
   </Folder>
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />

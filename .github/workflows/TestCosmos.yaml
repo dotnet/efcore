@@ -1,6 +1,11 @@
 name: Test Cosmos
 
 on:
+  push:
+    branches:
+      - main
+      - feature/*
+      - release/*
   pull_request:
     branches:
       - main

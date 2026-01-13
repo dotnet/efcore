@@ -13,10 +13,16 @@ on:
     paths:
       - .github/workflows/copilot-setup-steps.yml
 
+permissions: {}
+
 jobs:
   # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
   copilot-setup-steps:
     runs-on: ubuntu-24.04
+
+    env:
+      MSSQL_SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
+      Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
 
     # Install SQL Server via a docker container.
     # It's better to do this rather than e.g. use a testcontainer, because then the agent can reuse the same container
@@ -25,8 +31,8 @@ jobs:
       mssql:
         image: mcr.microsoft.com/mssql/server:2025-latest
         env:
-          ACCEPT_EULA: "Y"
-          SA_PASSWORD: "${{ secrets.MSSQL_SA_PASSWORD }}"
+          ACCEPT_EULA: Y
+          SA_PASSWORD: ${{ env.MSSQL_SA_PASSWORD }}
         ports:
           - 1433:1433
         options: >-
@@ -36,9 +42,8 @@ jobs:
           --health-retries=30
           --health-timeout=5s
 
-    permissions:
-      contents: read
-
     steps:
-      - name: Export SQL Server connection string for the agent's session
-        run: echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=master;User=SA;Password=${{ secrets.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+      # The Github Actions workflow syntax requires there to be at least one step;
+      # we don't have anything to do (we started SQL Server above), so just print something.
+      - name: Dummy step
+        run: echo "Workflow complete."

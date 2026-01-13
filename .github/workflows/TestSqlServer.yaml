@@ -1,0 +1,61 @@
+name: Test SQL Server
+
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - feature/*
+      - release/*
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        sqlserver_version: [2025, 2022, 2019]
+
+    env:
+      MSSQL_SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:${{ matrix.sqlserver_version }}-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: ${{ env.MSSQL_SA_PASSWORD }}
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' -C"
+          --health-start-period=20s
+          --health-interval=2s
+          --health-retries=30
+          --health-timeout=5s
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        run: ./restore.sh
+
+      - name: Test on SQL Server
+        env:
+          Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=${{ env.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
+        run: dotnet test test/EFCore.SqlServer.FunctionalTests
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: test-results-sqlserver-${{ matrix.sqlserver_version }}
+          path: artifacts/log/Debug/*
