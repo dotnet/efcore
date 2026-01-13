@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      MSSQL_SA_PASSWORD: 'P@ssw0rd12345!'
-      Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=P@ssw0rd12345!;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
+      MSSQL_SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
+      Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
 
     # Install SQL Server via a docker container.
     # It's better to do this rather than e.g. use a testcontainer, because then the agent can reuse the same container

@@ -24,7 +24,7 @@ jobs:
         sqlserver_version: [2025, 2022, 2019]
 
     env:
-      MSSQL_SA_PASSWORD: 'P@ssw0rd12345!'
+      MSSQL_SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
 
     services:
       mssql:
