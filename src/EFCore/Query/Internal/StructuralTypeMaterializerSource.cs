@@ -121,7 +121,6 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         return structuralType is IComplexType complexType
             && ReadComplexTypeDirectly(complexType)
             && (UseOldBehavior37162 ? parameters.ClrType.IsNullableType() : parameters.IsNullable)
-            && complexType.ComplexProperty.IsNullable  // Only apply null-checking wrapper if the complex property itself is nullable
             ? HandleNullableComplexTypeMaterialization(
                 complexType,
                 parameters.ClrType,
@@ -132,6 +131,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         // Creates a conditional expression that handles materialization of nullable complex types.
         // For nullable complex types, the method checks if all scalar properties are null
         // and returns default if they are, otherwise materializes the complex type instance.
+        // For required complex types, always materializes the instance even if all properties are null.
         // If there's a required (non-nullable) property, only that property is checked for efficiency.
         Expression HandleNullableComplexTypeMaterialization(
             IComplexType complexType,
@@ -139,6 +139,14 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             Expression materializeExpression,
             MethodCallExpression getValueBufferExpression)
         {
+            // If the complex property is required, don't apply null-checking wrapper
+            if (!complexType.ComplexProperty.IsNullable)
+            {
+                return clrType.IsNullableType()
+                    ? Convert(materializeExpression, clrType)
+                    : materializeExpression;
+            }
+
             // Get all scalar properties of the complex type (including nested ones).
             var allScalarProperties = complexType.GetFlattenedProperties().ToList();
 
