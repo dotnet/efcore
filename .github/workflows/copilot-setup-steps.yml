@@ -16,7 +16,7 @@ on:
 jobs:
   # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
   copilot-setup-steps:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     # Install SQL Server via a docker container.
     # It's better to do this rather than e.g. use a testcontainer, because then the agent can reuse the same container
@@ -26,11 +26,11 @@ jobs:
         image: mcr.microsoft.com/mssql/server:2025-latest
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: ${{ secrets.MSSQL_SA_PASSWORD }}
+          SA_PASSWORD: "${{ secrets.MSSQL_SA_PASSWORD }}"
         ports:
           - 1433:1433
         options: >-
-          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${{ secrets.MSSQL_SA_PASSWORD }}' -Q 'SELECT 1' -C"
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' -C"
           --health-start-period=20s
           --health-interval=2s
           --health-retries=30
@@ -39,14 +39,6 @@ jobs:
     permissions:
       contents: read
 
-    # You can define any steps you want, and they will run before the agent starts.
-    # If you do not check out your code, Copilot will do this for you.
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Restore
-        run: ./restore.sh
-
       - name: Export SQL Server connection string for the agent's session
         run: echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=master;User=SA;Password=${{ secrets.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
