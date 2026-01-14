@@ -8,9 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 public partial class NavigationExpandingExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37478 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37478", out var enabled) && enabled;
-
     /// <summary>
     ///     Expands navigations in the given tree for given source.
     ///     Optionally also expands navigations for includes.
