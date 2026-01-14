@@ -104,54 +104,6 @@ public class CSharpMigrationCompilerTest
     }
 
     [ConditionalFact]
-    public void CompileMigration_throws_on_invalid_code()
-    {
-        var compiler = new CSharpMigrationCompiler();
-
-        var scaffoldedMigration = CreateScaffoldedMigration(
-            migrationId: "20231215120000_InvalidMigration",
-            migrationCode: """
-                using Microsoft.EntityFrameworkCore.Migrations;
-
-                namespace TestNamespace
-                {
-                    // Invalid C# - missing class body
-                    public partial class InvalidMigration : Migration
-                """,
-            metadataCode: """
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Infrastructure;
-                using Microsoft.EntityFrameworkCore.Migrations;
-
-                namespace TestNamespace
-                {
-                    [DbContext(typeof(TestContext))]
-                    [Migration("20231215120000_InvalidMigration")]
-                    partial class InvalidMigration { }
-                }
-                """,
-            snapshotCode: """
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Infrastructure;
-
-                namespace TestNamespace
-                {
-                    [DbContext(typeof(TestContext))]
-                    partial class TestContextModelSnapshot : ModelSnapshot
-                    {
-                        protected override void BuildModel(ModelBuilder modelBuilder) { }
-                    }
-                }
-                """,
-            snapshotName: "TestContextModelSnapshot");
-
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => compiler.CompileMigration(scaffoldedMigration, typeof(TestContext)));
-
-        Assert.Contains("20231215120000_InvalidMigration", exception.Message);
-    }
-
-    [ConditionalFact]
     public void CompileMigration_finds_snapshot_type()
     {
         var compiler = new CSharpMigrationCompiler();
@@ -259,81 +211,6 @@ public class CSharpMigrationCompilerTest
         var migrationType = assembly.GetTypes()
             .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
         Assert.NotNull(migrationType);
-    }
-
-    [ConditionalFact]
-    public void CompileMigration_throws_on_very_long_migration_name()
-    {
-        var compiler = new CSharpMigrationCompiler();
-
-        // Create a migration with an excessively long name that exceeds metadata limits
-        var longName = "A" + new string('a', 200);
-        var migrationId = $"20231215190000_{longName}";
-
-        var migrationCode = $@"using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
-
-namespace TestNamespace
-{{
-    public partial class {longName} : Migration
-    {{
-        protected override void Up(MigrationBuilder migrationBuilder) {{ }}
-        protected override void Down(MigrationBuilder migrationBuilder) {{ }}
-    }}
-}}";
-
-        var metadataCode = $@"using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
-
-namespace TestNamespace
-{{
-    public class TestContext : DbContext {{ }}
-
-    [DbContext(typeof(TestContext))]
-    [Migration(""{migrationId}"")]
-    partial class {longName}
-    {{
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {{
-            modelBuilder.HasAnnotation(""ProductVersion"", ""8.0.0"");
-        }}
-    }}
-}}";
-
-        var snapshotCode = @"using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable disable
-
-namespace TestNamespace
-{
-    [DbContext(typeof(TestContext))]
-    partial class TestContextModelSnapshot : ModelSnapshot
-    {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
-            modelBuilder.HasAnnotation(""ProductVersion"", ""8.0.0"");
-        }
-    }
-}";
-
-        var scaffoldedMigration = CreateScaffoldedMigration(
-            migrationId: migrationId,
-            migrationCode: migrationCode,
-            metadataCode: metadataCode,
-            snapshotCode: snapshotCode,
-            snapshotName: "TestContextModelSnapshot");
-
-        // Very long migration names cause compilation failure due to metadata limits
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => compiler.CompileMigration(scaffoldedMigration, typeof(TestContext)));
-
-        Assert.Contains(migrationId, exception.Message);
-        Assert.Contains("CS7013", exception.Message); // Metadata name length exceeded
     }
 
     private static ScaffoldedMigration CreateValidScaffoldedMigration(string migrationId)

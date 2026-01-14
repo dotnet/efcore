@@ -45,17 +45,20 @@ internal partial class DatabaseUpdateCommand : ContextCommandBase
         {
             if (_outputDir!.HasValue())
             {
-                throw new CommandException(Resources.OutputDirRequiresAdd);
+                throw new CommandException(
+                    Resources.MissingConditionalOption(_add!.LongName, _outputDir.LongName));
             }
 
             if (_namespace!.HasValue())
             {
-                throw new CommandException(Resources.NamespaceRequiresAdd);
+                throw new CommandException(
+                    Resources.MissingConditionalOption(_add!.LongName, _namespace.LongName));
             }
 
             if (_json!.HasValue())
             {
-                throw new CommandException(Resources.MissingConditionalOption("add", "json"));
+                throw new CommandException(
+                    Resources.MissingConditionalOption(_add!.LongName, _json.LongName));
             }
         }
     }

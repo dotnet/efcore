@@ -1,9 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -89,6 +91,38 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         return serviceCollection.BuildServiceProvider(validateScopes: true).CreateScope();
     }
 
+    protected MigrationsOperations CreateMigrationsOperations()
+        => new(
+            new TestOperationReporter(),
+            typeof(RuntimeMigrationDbContext).Assembly,
+            typeof(RuntimeMigrationDbContext).Assembly,
+            AppContext.BaseDirectory,
+            "TestNamespace",
+            "C#",
+            nullable: false,
+            args: []);
+
+    protected (IServiceScope Scope, IMigrationsScaffolder Scaffolder, ScaffoldedMigration Migration, string OutputDir)
+        CreateScaffoldedMigration(
+            RuntimeMigrationDbContext context,
+            string migrationName,
+            string outputDir = null,
+            string @namespace = null,
+            bool dryRun = true)
+    {
+        var operations = CreateMigrationsOperations();
+        var services = operations.PrepareForMigration(migrationName, context);
+        var scope = services.CreateScope();
+        var (scaffolder, migration, resolvedOutputDir) = operations.CreateScaffoldedMigration(
+            migrationName,
+            outputDir,
+            @namespace,
+            dryRun,
+            scope.ServiceProvider);
+
+        return (scope, scaffolder, migration, resolvedOutputDir);
+    }
+
     protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
 
     public abstract class RuntimeMigrationFixtureBase : SharedStoreFixtureBase<RuntimeMigrationDbContext>
@@ -110,109 +144,83 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_scaffold_migration()
     {
         using var context = CreateContext();
-        using var services = CreateDesignTimeServices(context);
-
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-
-        var migration = scaffolder.ScaffoldMigration(
-            "TestMigration",
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
-
-        Assert.NotNull(migration);
-        Assert.Contains("TestMigration", migration.MigrationId);
-        Assert.NotEmpty(migration.MigrationCode);
-        Assert.NotEmpty(migration.MetadataCode);
-        Assert.NotEmpty(migration.SnapshotCode);
+        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "TestMigration");
+        using (scope)
+        {
+            Assert.NotNull(migration);
+            Assert.Contains("TestMigration", migration.MigrationId);
+            Assert.NotEmpty(migration.MigrationCode);
+            Assert.NotEmpty(migration.MetadataCode);
+            Assert.NotEmpty(migration.SnapshotCode);
+        }
     }
 
     [ConditionalFact]
     public void Can_compile_migration()
     {
         using var context = CreateContext();
-        using var services = CreateDesignTimeServices(context);
+        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "CompiledMigration");
+        using (scope)
+        {
+            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
 
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-        var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            Assert.NotNull(compiledAssembly);
 
-        var migration = scaffolder.ScaffoldMigration(
-            "CompiledMigration",
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
-
-        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-
-        Assert.NotNull(compiledAssembly);
-
-        var migrationType = compiledAssembly.GetTypes()
-            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
-        Assert.NotNull(migrationType);
+            var migrationType = compiledAssembly.GetTypes()
+                .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+            Assert.NotNull(migrationType);
+        }
     }
 
     [ConditionalFact]
     public void Can_register_and_apply_compiled_migration()
     {
         using var context = CreateContext();
-        using var services = CreateDesignTimeServices(context);
+        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "AppliedMigration");
+        using (scope)
+        {
+            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+            var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
 
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-        var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
-        var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
-        var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
+            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+            migrationsAssembly.AddMigrations(compiledAssembly);
 
-        var migration = scaffolder.ScaffoldMigration(
-            "AppliedMigration",
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
+            Assert.Contains(migration.MigrationId, migrationsAssembly.Migrations.Keys);
 
-        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-        migrationsAssembly.AddMigrations(compiledAssembly);
+            migrator.Migrate(migration.MigrationId);
 
-        Assert.Contains(migration.MigrationId, migrationsAssembly.Migrations.Keys);
-
-        migrator.Migrate(migration.MigrationId);
-
-        var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
-        Assert.Contains(migration.MigrationId, appliedMigrations);
+            var appliedMigrations = context.Database.GetAppliedMigrations().ToList();
+            Assert.Contains(migration.MigrationId, appliedMigrations);
+        }
     }
 
     [ConditionalFact]
     public void Compiled_migration_generates_valid_sql()
     {
         using var context = CreateContext();
-        using var services = CreateDesignTimeServices(context);
+        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "SqlGenMigration");
+        using (scope)
+        {
+            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+            var sqlGenerator = scope.ServiceProvider.GetRequiredService<IMigrationsSqlGenerator>();
 
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-        var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
-        var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
-        var sqlGenerator = services.ServiceProvider.GetRequiredService<IMigrationsSqlGenerator>();
+            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+            migrationsAssembly.AddMigrations(compiledAssembly);
 
-        var migration = scaffolder.ScaffoldMigration(
-            "SqlGenMigration",
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
+            var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
+            var migrationInstance = migrationsAssembly.CreateMigration(
+                migrationTypeInfo,
+                context.Database.ProviderName);
 
-        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-        migrationsAssembly.AddMigrations(compiledAssembly);
+            var commands = sqlGenerator.Generate(
+                migrationInstance.UpOperations,
+                context.Model).ToList();
 
-        var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
-        var migrationInstance = migrationsAssembly.CreateMigration(
-            migrationTypeInfo,
-            context.Database.ProviderName);
-
-        var commands = sqlGenerator.Generate(
-            migrationInstance.UpOperations,
-            context.Model).ToList();
-
-        Assert.NotEmpty(commands);
+            Assert.NotEmpty(commands);
+        }
     }
 
     [ConditionalFact]
@@ -230,56 +238,43 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void HasPendingModelChanges_returns_false_after_migration()
     {
         using var context = CreateContext();
-        using var services = CreateDesignTimeServices(context);
+        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "PendingChangesTest");
+        using (scope)
+        {
+            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+            var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
 
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-        var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
-        var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
-        var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
+            Assert.True(migrator.HasPendingModelChanges());
 
-        Assert.True(migrator.HasPendingModelChanges());
+            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+            migrationsAssembly.AddMigrations(compiledAssembly);
+            migrator.Migrate(migration.MigrationId);
 
-        var migration = scaffolder.ScaffoldMigration(
-            "PendingChangesTest",
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
-
-        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-        migrationsAssembly.AddMigrations(compiledAssembly);
-        migrator.Migrate(migration.MigrationId);
-
-        Assert.False(migrator.HasPendingModelChanges());
+            Assert.False(migrator.HasPendingModelChanges());
+        }
     }
 
     [ConditionalFact]
     public void Compiled_migration_contains_correct_operations()
     {
         using var context = CreateContext();
-        using var services = CreateDesignTimeServices(context);
+        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "OperationsTest");
+        using (scope)
+        {
+            var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
 
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-        var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var migrationType = compiledAssembly.GetTypes()
+                .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
+            Assert.NotNull(migrationType);
 
-        var migration = scaffolder.ScaffoldMigration(
-            "OperationsTest",
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
+            var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+            var upOperations = migrationInstance.UpOperations.ToList();
 
-        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
-
-        var migrationType = compiledAssembly.GetTypes()
-            .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
-        Assert.NotNull(migrationType);
-
-        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
-        var upOperations = migrationInstance.UpOperations.ToList();
-
-        Assert.NotEmpty(upOperations);
-        Assert.Contains(upOperations, op => op is CreateTableOperation);
+            Assert.NotEmpty(upOperations);
+            Assert.Contains(upOperations, op => op is CreateTableOperation);
+        }
     }
 
     [ConditionalFact]
@@ -291,28 +286,24 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             Directory.CreateDirectory(tempDirectory);
 
             using var context = CreateContext();
-            using var services = CreateDesignTimeServices(context);
-
-            var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
-
-            var migration = scaffolder.ScaffoldMigration(
+            var (scope, scaffolder, migration, _) = CreateScaffoldedMigration(
+                context,
                 "SaveToDisk",
-                rootNamespace: "TestNamespace",
-                subNamespace: "Migrations",
-                language: "C#",
-                dryRun: true);
+                @namespace: "TestNamespace.Migrations");
+            using (scope)
+            {
+                var files = scaffolder.Save(tempDirectory, migration, outputDir: null, dryRun: false);
 
-            var files = scaffolder.Save(tempDirectory, migration, outputDir: null, dryRun: false);
+                Assert.NotNull(files.MigrationFile);
+                Assert.NotNull(files.MetadataFile);
+                Assert.NotNull(files.SnapshotFile);
+                Assert.True(File.Exists(files.MigrationFile));
+                Assert.True(File.Exists(files.MetadataFile));
+                Assert.True(File.Exists(files.SnapshotFile));
 
-            Assert.NotNull(files.MigrationFile);
-            Assert.NotNull(files.MetadataFile);
-            Assert.NotNull(files.SnapshotFile);
-            Assert.True(File.Exists(files.MigrationFile));
-            Assert.True(File.Exists(files.MetadataFile));
-            Assert.True(File.Exists(files.SnapshotFile));
-
-            var migrationContent = File.ReadAllText(files.MigrationFile);
-            Assert.Contains("CreateTable", migrationContent);
+                var migrationContent = File.ReadAllText(files.MigrationFile);
+                Assert.Contains("CreateTable", migrationContent);
+            }
         }
         finally
         {
@@ -420,17 +411,17 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         RuntimeMigrationDbContext context,
         string migrationName)
     {
-        var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var operations = CreateMigrationsOperations();
         var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
         var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
 
-        var migration = scaffolder.ScaffoldMigration(
+        var (_, migration, _) = operations.CreateScaffoldedMigration(
             migrationName,
-            rootNamespace: "TestNamespace",
-            subNamespace: null,
-            language: "C#",
-            dryRun: true);
+            outputDir: null,
+            @namespace: null,
+            dryRun: true,
+            services.ServiceProvider);
 
         var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
         migrationsAssembly.AddMigrations(compiledAssembly);

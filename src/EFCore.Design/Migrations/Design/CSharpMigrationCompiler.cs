@@ -46,16 +46,15 @@ public class CSharpMigrationCompiler : IMigrationCompiler
 
     // Cache of assembly references to avoid repeated resolution
     private IReadOnlyList<MetadataReference>? _cachedReferences;
-    private readonly object _referenceLock = new();
 
     /// <inheritdoc />
     [RequiresDynamicCode("Runtime migration compilation requires dynamic code generation.")]
     public virtual Assembly CompileMigration(
         ScaffoldedMigration scaffoldedMigration,
-        Type contextType,
-        IEnumerable<Assembly>? additionalReferences = null)
+        Type contextType)
     {
         var assemblyName = $"DynamicMigration_{scaffoldedMigration.MigrationId}_{Guid.NewGuid():N}";
+        _ = contextType.Assembly;
 
         // Parse the source code into syntax trees
         var syntaxTrees = new List<SyntaxTree>
@@ -75,7 +74,7 @@ public class CSharpMigrationCompiler : IMigrationCompiler
         };
 
         // Gather assembly references
-        var references = GetMetadataReferences(contextType, additionalReferences);
+        var references = GetOrCreateCachedReferences();
 
         // Create the compilation
         var compilation = CSharpCompilation.Create(
@@ -104,61 +103,22 @@ public class CSharpMigrationCompiler : IMigrationCompiler
         return AssemblyLoadContext.Default.LoadFromStream(assemblyStream);
     }
 
-    /// <summary>
-    ///     Gets the metadata references required for compilation.
-    /// </summary>
-    /// <param name="contextType">The DbContext type.</param>
-    /// <param name="additionalReferences">Additional assembly references.</param>
-    /// <returns>The list of metadata references.</returns>
-    protected virtual IReadOnlyList<MetadataReference> GetMetadataReferences(
-        Type contextType,
-        IEnumerable<Assembly>? additionalReferences)
-    {
-        // Get cached references from all loaded assemblies
-        var baseReferences = GetOrCreateCachedReferences();
-        var allReferences = new List<MetadataReference>(baseReferences);
-
-        // Add the context's assembly (in case it wasn't loaded when cache was built)
-        AddAssemblyReference(allReferences, contextType.Assembly);
-
-        // Add any additional references
-        if (additionalReferences != null)
-        {
-            foreach (var assembly in additionalReferences)
-            {
-                AddAssemblyReference(allReferences, assembly);
-            }
-        }
-
-        return allReferences;
-    }
-
     private IReadOnlyList<MetadataReference> GetOrCreateCachedReferences()
-    {
-        if (_cachedReferences != null)
-        {
-            return _cachedReferences;
-        }
-
-        lock (_referenceLock)
-        {
-            if (_cachedReferences != null)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _cachedReferences,
+            this,
+            static self =>
             {
-                return _cachedReferences;
-            }
+                var references = new List<MetadataReference>();
 
-            var references = new List<MetadataReference>();
+                // Add references from all loaded assemblies (except dynamic/in-memory ones)
+                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    AddAssemblyReference(references, assembly);
+                }
 
-            // Add references from all loaded assemblies (except dynamic/in-memory ones)
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                AddAssemblyReference(references, assembly);
-            }
-
-            _cachedReferences = references;
-            return _cachedReferences;
-        }
-    }
+                return references;
+            });
 
     private static void AddAssemblyReference(List<MetadataReference> references, Assembly assembly)
     {

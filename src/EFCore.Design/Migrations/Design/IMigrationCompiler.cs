@@ -24,16 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 public interface IMigrationCompiler
 {
     /// <summary>
-    ///     Compiles scaffolded migration source code into an in-memory assembly.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     Compiles scaffolded migration source code into an in-memory assembly.
+    /// </remarks>
     /// <param name="scaffoldedMigration">The scaffolded migration containing C# source code.</param>
     /// <param name="contextType">The type of the <see cref="DbContext" /> for which the migration was created.</param>
-    /// <param name="references">Additional assembly references to include in compilation, if any.</param>
     /// <returns>An <see cref="Assembly" /> containing the compiled migration and model snapshot.</returns>
     /// <exception cref="InvalidOperationException">Thrown when compilation fails.</exception>
     [RequiresDynamicCode("Runtime migration compilation requires dynamic code generation.")]
     Assembly CompileMigration(
         ScaffoldedMigration scaffoldedMigration,
-        Type contextType,
-        IEnumerable<Assembly>? references = null);
+        Type contextType);
 }

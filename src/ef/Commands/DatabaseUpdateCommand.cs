@@ -38,10 +38,24 @@ internal partial class DatabaseUpdateCommand
 
     private static void ReportJson(IDictionary files)
     {
+        if (files.Count == 0)
+        {
+            return;
+        }
+
+        var migrationFile = files["MigrationFile"] as string;
+        var metadataFile = files["MetadataFile"] as string;
+        var snapshotFile = files["SnapshotFile"] as string;
+
+        if (migrationFile == null && metadataFile == null && snapshotFile == null)
+        {
+            return;
+        }
+
         Reporter.WriteData("{");
-        Reporter.WriteData("  \"migrationFile\": " + Json.Literal(files["MigrationFile"] as string) + ",");
-        Reporter.WriteData("  \"metadataFile\": " + Json.Literal(files["MetadataFile"] as string) + ",");
-        Reporter.WriteData("  \"snapshotFile\": " + Json.Literal(files["SnapshotFile"] as string));
+        Reporter.WriteData("  \"migrationFile\": " + Json.Literal(migrationFile) + ",");
+        Reporter.WriteData("  \"metadataFile\": " + Json.Literal(metadataFile) + ",");
+        Reporter.WriteData("  \"snapshotFile\": " + Json.Literal(snapshotFile));
         Reporter.WriteData("}");
     }
 }
