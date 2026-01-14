@@ -27,7 +27,7 @@ WHERE JSON_VALUE([r].[RequiredAssociate], '$.Int' RETURNING int) = 8
                 """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_VALUE([r].[RequiredAssociate], '$.Int') AS int) = 8
+WHERE CAST(JSON_VALUE([r].[RequiredAssociate], '$.Int') AS in) = 8
 """);
         }
     }
