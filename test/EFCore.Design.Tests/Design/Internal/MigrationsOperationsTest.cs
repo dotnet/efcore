@@ -48,7 +48,7 @@ public class MigrationsOperationsTest
     [ConditionalFact]
     public void AddMigration_throws_when_name_is_empty()
     {
-        var assembly = MockAssembly.Create(typeof(TestContext));
+        var assembly = MockAssembly.Create(typeof(AssemblyTestContext));
         var operations = new TestMigrationsOperations(
             new TestOperationReporter(),
             assembly,
@@ -68,7 +68,7 @@ public class MigrationsOperationsTest
     [ConditionalFact]
     public void AddMigration_throws_when_name_is_whitespace()
     {
-        var assembly = MockAssembly.Create(typeof(TestContext));
+        var assembly = MockAssembly.Create(typeof(AssemblyTestContext));
         var operations = new TestMigrationsOperations(
             new TestOperationReporter(),
             assembly,
