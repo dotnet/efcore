@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable InconsistentNaming
@@ -131,6 +132,17 @@ SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[Region] IS NULL
 """);
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Collate_with_invalid_chars_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Customers.CountAsync(c => EF.Functions.Collate(c.ContactName, "Invalid]Collation") == "test"));
+
+        Assert.Equal(SqlServerStrings.InvalidCollationName("Invalid]Collation"), exception.Message);
     }
 
     public override Task Least(bool async)

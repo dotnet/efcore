@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -16,63 +15,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
+public class SqlServerSqlTranslatingExpressionVisitor(
+    RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+    SqlServerQueryCompilationContext queryCompilationContext,
+    QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : RelationalSqlTranslatingExpressionVisitor(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
 {
-    private readonly SqlServerQueryCompilationContext _queryCompilationContext;
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly SqlServerQueryCompilationContext _queryCompilationContext = queryCompilationContext;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource = dependencies.TypeMappingSource;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
 
-    private static readonly HashSet<string> DateTimeDataTypes
-        =
-        [
-            "time",
-            "date",
-            "datetime",
-            "datetime2",
-            "datetimeoffset"
-        ];
+    private static readonly HashSet<Type> DateTimeClrTypes =
+    [
+        typeof(TimeOnly),
+        typeof(DateOnly),
+        typeof(TimeSpan),
+        typeof(DateTime),
+        typeof(DateTimeOffset)
+    ];
 
-    private static readonly HashSet<Type> DateTimeClrTypes
-        =
-        [
-            typeof(TimeOnly),
-            typeof(DateOnly),
-            typeof(TimeSpan),
-            typeof(DateTime),
-            typeof(DateTimeOffset)
-        ];
-
-    private static readonly HashSet<ExpressionType> ArithmeticOperatorTypes
-        =
-        [
-            ExpressionType.Add,
-            ExpressionType.Subtract,
-            ExpressionType.Multiply,
-            ExpressionType.Divide,
-            ExpressionType.Modulo
-        ];
-
-    private static readonly MethodInfo StringStartsWithMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
-
-    private static readonly MethodInfo StringStartsWithMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(char)])!;
-
-    private static readonly MethodInfo StringEndsWithMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
-
-    private static readonly MethodInfo StringEndsWithMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(char)])!;
-
-    private static readonly MethodInfo StringContainsMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
-
-    private static readonly MethodInfo StringContainsMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char)])!;
-
-    private static readonly MethodInfo StringJoinMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Join), [typeof(string), typeof(string[])])!;
+    private static readonly HashSet<ExpressionType> ArithmeticOperatorTypes =
+    [
+        ExpressionType.Add,
+        ExpressionType.Subtract,
+        ExpressionType.Multiply,
+        ExpressionType.Divide,
+        ExpressionType.Modulo
+    ];
 
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqlServerSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;
@@ -86,28 +57,30 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerSqlTranslatingExpressionVisitor(
-        RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-        SqlServerQueryCompilationContext queryCompilationContext,
-        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
-        : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
-    {
-        _queryCompilationContext = queryCompilationContext;
-        _sqlExpressionFactory = dependencies.SqlExpressionFactory;
-        _typeMappingSource = dependencies.TypeMappingSource;
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-        if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+        var translation = base.VisitBinary(binaryExpression);
+
+        if (translation is SqlBinaryExpression translatedBinary
+            && ArithmeticOperatorTypes.Contains(translatedBinary.OperatorType))
+        {
+            var inferredProviderType = GetProviderType(translatedBinary.Left) ?? GetProviderType(translatedBinary.Right);
+            if (inferredProviderType is not null)
+            {
+                if (inferredProviderType is "time" or "date" or "datetime" or "datetime2" or "datetimeoffset")
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+            }
+            else if (DateTimeClrTypes.Contains(translatedBinary.Left.Type)
+                || DateTimeClrTypes.Contains(translatedBinary.Right.Type))
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+        }
+
+        if (translation == QueryCompilationContext.NotTranslatedExpression
+            && binaryExpression.NodeType == ExpressionType.ArrayIndex
             && binaryExpression.Left.Type == typeof(byte[]))
         {
             return TranslateByteArrayElementAccess(
@@ -116,32 +89,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 binaryExpression.Type);
         }
 
-        var visitedExpression = base.VisitBinary(binaryExpression);
-
-        if (visitedExpression is SqlBinaryExpression sqlBinaryExpression
-            && ArithmeticOperatorTypes.Contains(sqlBinaryExpression.OperatorType))
-        {
-            var inferredProviderType = GetProviderType(sqlBinaryExpression.Left) ?? GetProviderType(sqlBinaryExpression.Right);
-            if (inferredProviderType != null)
-            {
-                if (DateTimeDataTypes.Contains(inferredProviderType))
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
-            }
-            else
-            {
-                var leftType = sqlBinaryExpression.Left.Type;
-                var rightType = sqlBinaryExpression.Right.Type;
-                if (DateTimeClrTypes.Contains(leftType)
-                    || DateTimeClrTypes.Contains(rightType))
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
-            }
-        }
-
-        return visitedExpression;
+        return translation;
     }
 
     /// <summary>
@@ -152,10 +100,16 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     /// </summary>
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
+        if (base.VisitUnary(unaryExpression) is var translation
+            && translation != QueryCompilationContext.NotTranslatedExpression)
+        {
+            return translation;
+        }
+
         if (unaryExpression.NodeType == ExpressionType.ArrayLength
             && unaryExpression.Operand.Type == typeof(byte[]))
         {
-            if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
+            if (base.Visit(unaryExpression.Operand) is not SqlExpression sqlExpression)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -173,7 +127,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 : dataLengthSqlFunction;
         }
 
-        return base.VisitUnary(unaryExpression);
+        return QueryCompilationContext.NotTranslatedExpression;
     }
 
     /// <summary>
@@ -184,103 +138,118 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
+        if (base.VisitMethodCall(methodCallExpression) is var translation
+            && translation != QueryCompilationContext.NotTranslatedExpression)
+        {
+            return translation;
+        }
+
         var method = methodCallExpression.Method;
+        var declaringType = method.DeclaringType;
+        var @object = methodCallExpression.Object;
+        var arguments = methodCallExpression.Arguments;
 
-        if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition() == EnumerableMethods.ElementAt
-            && methodCallExpression.Arguments[0].Type == typeof(byte[]))
+        switch (method.Name)
         {
-            return TranslateByteArrayElementAccess(
-                methodCallExpression.Arguments[0],
-                methodCallExpression.Arguments[1],
-                methodCallExpression.Type);
-        }
+            // https://learn.microsoft.com/dotnet/api/system.linq.enumerable.elementat#system-linq-enumerable-elementat-1(system-collections-generic-ienumerable((-0))-system-int32)
+            case nameof(Enumerable.ElementAt)
+                when declaringType == typeof(Enumerable)
+                    && @object is null
+                    && arguments is [Expression source, Expression index]
+                    && source.Type == typeof(byte[]) && index.Type == typeof(int):
+                return TranslateByteArrayElementAccess(source, index, methodCallExpression.Type);
 
-        if ((method == StringStartsWithMethodInfoString || method == StringStartsWithMethodInfoChar)
-            && TryTranslateStartsEndsWithContains(
-                methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.StartsWith, out var translation1))
-        {
-            return translation1;
-        }
-
-        if ((method == StringEndsWithMethodInfoString || method == StringEndsWithMethodInfoChar)
-            && TryTranslateStartsEndsWithContains(
-                methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.EndsWith, out var translation2))
-        {
-            return translation2;
-        }
-
-        if ((method == StringContainsMethodInfoString || method == StringContainsMethodInfoChar)
-            && TryTranslateStartsEndsWithContains(
-                methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.Contains, out var translation3))
-        {
-            return translation3;
-        }
-
-        // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
-        if (method == StringJoinMethodInfo
-            && methodCallExpression.Arguments[1] is NewArrayExpression newArrayExpression
-            && ((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
-                    && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140)
-                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
-                    && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140)
-                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse)))
-        {
-            if (TranslationFailed(methodCallExpression.Arguments[0], Visit(methodCallExpression.Arguments[0]), out var delimiter))
+            // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-char)
+            // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-char)
+            // https://learn.microsoft.com/dotnet/api/system.string.contains#system-string-contains(system-string)
+            // https://learn.microsoft.com/dotnet/api/system.string.contains#system-string-contains(system-char)
+            case nameof(string.StartsWith) or nameof(string.EndsWith) or nameof(string.Contains)
+                when declaringType == typeof(string)
+                    && @object is not null
+                    && arguments is [Expression value]
+                    && (value.Type == typeof(string) || value.Type == typeof(char)):
             {
-                return QueryCompilationContext.NotTranslatedExpression;
+                return TranslateStartsEndsWithContains(
+                    @object,
+                    value,
+                    method.Name switch
+                    {
+                        nameof(string.StartsWith) => StartsEndsWithContains.StartsWith,
+                        nameof(string.EndsWith) => StartsEndsWithContains.EndsWith,
+                        nameof(string.Contains) => StartsEndsWithContains.Contains,
+                        _ => throw new UnreachableException()
+                    });
             }
 
-            var arguments = new SqlExpression[newArrayExpression.Expressions.Count + 1];
-            arguments[0] = delimiter!;
-
-            var isUnicode = delimiter!.TypeMapping?.IsUnicode == true;
-
-            for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
+            // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
+            // https://learn.microsoft.com/dotnet/api/system.string.join#system-string-join(system-string-system-string())
+            case nameof(string.Join)
+                when declaringType == typeof(string)
+                    && @object is null
+                    && arguments is [Expression separator, NewArrayExpression value]
+                    && separator.Type == typeof(string) && value.Type == typeof(string[])
+                    && _sqlServerSingletonOptions.EngineType switch
+                    {
+                        SqlServerEngineType.SqlServer => _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140,
+                        SqlServerEngineType.AzureSql => _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140,
+                        SqlServerEngineType.AzureSynapse => true,
+                        _ => throw new UnreachableException()
+                    }:
             {
-                var argument = newArrayExpression.Expressions[i];
-                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                if (TranslationFailed(separator, Visit(separator), out var translatedSeparator))
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                // CONCAT_WS returns a type with a length that varies based on actual inputs (i.e. the sum of all argument lengths, plus
-                // the length needed for the delimiters). We don't know column values (or even parameter values, so we always return max.
-                // We do vary return varchar(max) or nvarchar(max) based on whether we saw any nvarchar mapping.
-                if (sqlArgument!.TypeMapping?.IsUnicode == true)
+                var translatedArguments = new SqlExpression[value.Expressions.Count + 1];
+                translatedArguments[0] = translatedSeparator!;
+
+                var isUnicode = translatedSeparator!.TypeMapping?.IsUnicode == true;
+
+                for (var i = 0; i < value.Expressions.Count; i++)
                 {
-                    isUnicode = true;
+                    var argument = value.Expressions[i];
+                    if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    // CONCAT_WS returns a type with a length that varies based on actual inputs (i.e. the sum of all argument lengths, plus
+                    // the length needed for the delimiters). We don't know column values (or even parameter values, so we always return max.
+                    // We do vary return varchar(max) or nvarchar(max) based on whether we saw any nvarchar mapping.
+                    if (sqlArgument!.TypeMapping?.IsUnicode == true)
+                    {
+                        isUnicode = true;
+                    }
+
+                    // CONCAT_WS filters out nulls, but string.Join treats them as empty strings; so coalesce (which is a no-op for non-nullable
+                    // arguments).
+                    translatedArguments[i + 1] = Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty));
                 }
 
-                // CONCAT_WS filters out nulls, but string.Join treats them as empty strings; so coalesce (which is a no-op for non-nullable
-                // arguments).
-                arguments[i + 1] = Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty));
+                // CONCAT_WS never returns null; a null delimiter is interpreted as an empty string, and null arguments are skipped
+                // (but we coalesce them above in any case).
+                return Dependencies.SqlExpressionFactory.Function(
+                    "CONCAT_WS",
+                    translatedArguments,
+                    nullable: false,
+                    argumentsPropagateNullability: new bool[translatedArguments.Length],
+                    typeof(string),
+                    _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
             }
 
-            // CONCAT_WS never returns null; a null delimiter is interpreted as an empty string, and null arguments are skipped
-            // (but we coalesce them above in any case).
-            return Dependencies.SqlExpressionFactory.Function(
-                "CONCAT_WS",
-                arguments,
-                nullable: false,
-                argumentsPropagateNullability: new bool[arguments.Length],
-                typeof(string),
-                _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
+            default:
+                return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        return base.VisitMethodCall(methodCallExpression);
-
-        bool TryTranslateStartsEndsWithContains(
-            Expression instance,
-            Expression pattern,
-            StartsEndsWithContains methodType,
-            [NotNullWhen(true)] out SqlExpression? translation)
+        Expression TranslateStartsEndsWithContains(Expression instance, Expression pattern, StartsEndsWithContains methodType)
         {
             if (Visit(instance) is not SqlExpression translatedInstance
                 || Visit(pattern) is not SqlExpression translatedPattern)
             {
-                translation = null;
-                return false;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             var stringTypeMapping = ExpressionExtensions.InferTypeMapping(translatedInstance, translatedPattern);
@@ -294,7 +263,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 {
                     // The pattern is constant. Aside from null and empty string, we escape all special characters (%, _, \) and send a
                     // simple LIKE
-                    translation = patternConstant.Value switch
+                    return patternConstant.Value switch
                     {
                         null => _sqlExpressionFactory.Like(
                             translatedInstance,
@@ -365,8 +334,6 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
                         _ => throw new UnreachableException()
                     };
-
-                    return true;
                 }
 
                 // Azure Synapse does not support ESCAPE clause in LIKE
@@ -388,19 +355,16 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         _queryCompilationContext.RegisterRuntimeParameter(
                             $"{patternParameter.Name}_{methodType.ToString().ToLower(CultureInfo.InvariantCulture)}", lambda);
 
-                    translation = _sqlExpressionFactory.Like(
+                    return _sqlExpressionFactory.Like(
                         translatedInstance,
                         new SqlParameterExpression(escapedPatternParameter.Name!, escapedPatternParameter.Type, stringTypeMapping),
                         _sqlExpressionFactory.Constant(LikeEscapeString));
-
-                    return true;
                 }
 
                 default:
                     // The pattern is a column or a complex expression; the possible special characters in the pattern cannot be escaped,
                     // preventing us from translating to LIKE.
-                    translation = TranslateWithoutLike();
-                    return true;
+                    return TranslateWithoutLike();
             }
 
             SqlExpression TranslateWithoutLike(bool patternIsNonEmptyConstantString = false)

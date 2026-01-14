@@ -241,7 +241,7 @@ public class CosmosTestStore : TestStore
                                                     document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -339,7 +339,7 @@ public class CosmosTestStore : TestStore
         {
             if (!created)
             {
-                await DeleteContainers(context).ConfigureAwait(false);
+                await DeleteContainersAsync(context).ConfigureAwait(false);
             }
 
             if (!TestEnvironment.UseTokenCredential)
@@ -508,7 +508,7 @@ public class CosmosTestStore : TestStore
             : [CosmosClientWrapper.DefaultPartitionKey];
     }
 
-    private async Task DeleteContainers(DbContext context)
+    private async Task DeleteContainersAsync(DbContext context)
     {
         if (!TestEnvironment.UseTokenCredential)
         {

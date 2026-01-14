@@ -2175,9 +2175,11 @@ WHERE ((c["$type"] = "Order") AND c["OrderID"] IN (10248, 10249))
 
                 AssertSql(
                     """
+@ids='["ALFKI"]'
+
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = "ALFKI")
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
@@ -2189,9 +2191,11 @@ WHERE (c["id"] = "ALFKI")
 
                 AssertSql(
                     """
+@ids='["ALFKI"]'
+
 SELECT VALUE c
 FROM root c
-WHERE (c["id"] = "ALFKI")
+WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 

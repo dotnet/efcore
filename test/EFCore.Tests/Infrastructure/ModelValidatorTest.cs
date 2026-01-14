@@ -57,6 +57,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
@@ -71,6 +72,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 "CoreEventId.AccidentalEntityType"),
             modelBuilder);
     }
+#pragma warning restore EF8001
 
     protected class MyEntity<T>
     {

@@ -2242,6 +2242,19 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 7);
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_split_entity_to_null(bool async)
+    {
+        await InitializeContextFactoryAsync(mb => mb
+            .Entity<EntityOne>()
+            .SplitToTable("SplitEntityOnePart", tb => tb.Property(e => e.IntValue3)));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<EntityOne>().Where(e => e != null),
+            entryCount: 5);
+    }
+
     #region TestHelpers
 
     protected async Task AssertQuery<TResult>(
