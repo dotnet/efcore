@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>$(NetCurrent);$(NetFrameworkToolCurrent)</TargetFrameworks>
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
-    <TargetFrameworks>$(NetToolCurrent);net472</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IncludeSymbols>false</IncludeSymbols>
@@ -48,11 +48,11 @@
     <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
     <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="Runtime" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="System.Text.Json" PrivateAssets="All" />
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
@@ -74,10 +74,9 @@
     <ItemGroup>
       <NuspecProperty Include="AssemblyName=$(AssemblyName)" />
       <NuspecProperty Include="OutputPath=$(OutputPath)" />
-      <NuspecProperty Include="ArtifactsBinDir=$(ArtifactsBinDir)" />
-      <NuspecProperty Include="NetToolCurrent=$(NetToolCurrent)" />
-      <NuspecProperty Include="NetToolMinimum=$(NetToolMinimum)" />
-      <NuspecProperty Include="Configuration=$(Configuration)" />
+      <NuspecProperty Include="NetCurrent=$(NetCurrent)" />
+      <NuspecProperty Include="NetFrameworkToolCurrent=$(NetFrameworkToolCurrent)" />
+      <NuspecProperty Include="EFOutputPath=$(ArtifactsBinDir)ef\$(Configuration)\$(NetToolMinimum)" />
     </ItemGroup>
   </Target>
 
