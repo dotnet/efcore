@@ -88,7 +88,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
     private static readonly HashSet<string> _floatTypes = new(StringComparer.OrdinalIgnoreCase) { "SINGLE" };
 
-    private static readonly HashSet<string> _halfTypes = new(StringComparer.OrdinalIgnoreCase) { "HALF", "FLOAT16" };
+    private static readonly HashSet<string> _halfTypes = new(StringComparer.OrdinalIgnoreCase) { "HALF" };
 
     private static readonly HashSet<string> _decimalTypes = new(StringComparer.OrdinalIgnoreCase) { "DECIMAL" };
 
