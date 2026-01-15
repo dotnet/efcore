@@ -20,7 +20,6 @@ public class MigrationsAssembly : IMigrationsAssembly
     private bool _modelSnapshotInitialized;
     private readonly Type _contextType;
     private readonly List<Assembly> _additionalAssemblies = new();
-    private static readonly ModelSnapshot NoSnapshot = new NullModelSnapshot();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -121,24 +120,18 @@ public class MigrationsAssembly : IMigrationsAssembly
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ModelSnapshot? ModelSnapshot
-        => ReferenceEquals(
-            NonCapturingLazyInitializer.EnsureInitialized(
-                ref _modelSnapshot,
-                ref _modelSnapshotInitialized,
-                this,
-                static self => self.GetOrCreateModelSnapshot()),
-            NoSnapshot)
-            ? null
-            : _modelSnapshot;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _modelSnapshot,
+            ref _modelSnapshotInitialized,
+            this,
+            static self => self.GetOrCreateModelSnapshot());
 
-    private ModelSnapshot GetOrCreateModelSnapshot()
+    private ModelSnapshot? GetOrCreateModelSnapshot()
     {
         // Check additional assemblies first - latest added should have the snapshot
-        var snapshot = _additionalAssemblies.Count > 0
+        return _additionalAssemblies.Count > 0
             ? GetModelSnapshotFromAssembly(_additionalAssemblies[^1])
             : GetModelSnapshotFromAssembly(Assembly);
-
-        return snapshot ?? NoSnapshot;
     }
 
     private ModelSnapshot? GetModelSnapshotFromAssembly(Assembly assembly)
@@ -199,9 +192,4 @@ public class MigrationsAssembly : IMigrationsAssembly
         _modelSnapshotInitialized = false;
     }
 
-    private sealed class NullModelSnapshot : ModelSnapshot
-    {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-            => throw new InvalidOperationException("No model snapshot is available.");
-    }
 }

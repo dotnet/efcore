@@ -93,6 +93,8 @@ public class MigrationsOperations
             bool dryRun,
             IServiceProvider services)
     {
+        EnsureMigrationsAssembly(services);
+
         if (outputDir != null)
         {
             outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
@@ -314,7 +316,7 @@ public class MigrationsOperations
         _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
 
         var (scaffolder, migration, resolvedOutputDir) =
-            CreateScaffoldedMigration(name, outputDir, @namespace, dryRun: true, scope.ServiceProvider);
+            CreateScaffoldedMigration(name, outputDir, @namespace, dryRun: false, scope.ServiceProvider);
 
         var files = scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun: false);
 
@@ -356,7 +358,6 @@ public class MigrationsOperations
 
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
-        EnsureMigrationsAssembly(services);
 
         return services;
     }
