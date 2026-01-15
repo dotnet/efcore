@@ -256,6 +256,33 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase(NonSharedFixtur
         public int Foo { get; set; }
     }
 
+    [ConditionalFact] // #37478
+    public virtual async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<BaseType>();
+                mb.Entity<SubType>();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        _ = await context.Set<BaseType>()
+            .Where(x => ((SubType)x).Ints.Any())
+            .ToListAsync();
+    }
+
+    public abstract class BaseType
+    {
+        public int Id { get; set; }
+    }
+
+    public class SubType : BaseType
+    {
+        public required int[] Ints { get; set; }
+    }
+
     /// <summary>
     ///     A utility that allows easy testing of querying out arbitrary element types from a primitive collection, provided two distinct
     ///     element values.
