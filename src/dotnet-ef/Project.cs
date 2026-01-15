@@ -102,8 +102,8 @@ internal class Project
             .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture));
         var properties = metadata.Properties;
 
-        var outputPath = Path.GetFullPath(Path.Combine(properties[nameof(ProjectDir)]!, properties[nameof(OutputPath)]!))
-            .Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedOutputPath = properties[nameof(OutputPath)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var outputPath = Path.GetFullPath(Path.Combine(properties[nameof(ProjectDir)]!, normalizedOutputPath));
         CopyBuildHost(runtimeCopyLocalItems, outputPath);
 
         var platformTarget = properties[nameof(PlatformTarget)];
@@ -117,7 +117,7 @@ internal class Project
             AssemblyName = properties[nameof(AssemblyName)],
             DesignAssembly = designAssembly,
             Language = properties[nameof(Language)],
-            OutputPath = properties[nameof(OutputPath)],
+            OutputPath = normalizedOutputPath,
             PlatformTarget = platformTarget,
             ProjectAssetsFile = properties[nameof(ProjectAssetsFile)],
             ProjectDir = properties[nameof(ProjectDir)],
