@@ -932,6 +932,22 @@ SELECT 2;
 """);
     }
 
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_line_comment_with_block_comment_start()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- /*" + EOL + "SELECT 1;" + EOL + "GO" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- /*
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
     public override void InsertDataOperation_all_args_spatial()
     {
         base.InsertDataOperation_all_args_spatial();
