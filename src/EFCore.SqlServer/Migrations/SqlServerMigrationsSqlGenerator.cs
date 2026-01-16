@@ -1418,7 +1418,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             var trimmed = line.TrimStart();
             
-            // Reset "Maybe" states at line start, but preserve Quoted and InBlockComment across lines
+            // Reset "Maybe" states at line start
             if (state == ParsingState.MaybeLineComment
                 || state == ParsingState.MaybeBlockCommentStart
                 || state == ParsingState.MaybeBlockCommentEnd)
@@ -1448,34 +1448,30 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 foreach (var c in trimmed)
                 {
+                    // Handle MaybeLineComment and MaybeBlockCommentStart first
+                    // When transitioning to Normal, fall through to process the current character
+                    if (state == ParsingState.MaybeLineComment)
+                    {
+                        if (c == '-')
+                        {
+                            goto LineEnd;
+                        }
+                        state = ParsingState.Normal;
+                        // Fall through to process c with Normal state
+                    }
+                    else if (state == ParsingState.MaybeBlockCommentStart)
+                    {
+                        if (c == '*')
+                        {
+                            state = ParsingState.InBlockComment;
+                            continue;
+                        }
+                        state = ParsingState.Normal;
+                        // Fall through to process c with Normal state
+                    }
+
                     switch (state)
                     {
-                        case ParsingState.MaybeLineComment when c == '-':
-                            goto LineEnd;
-                        
-                        case ParsingState.MaybeLineComment:
-                            state = ParsingState.Normal;
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentStart when c == '*':
-                            state = ParsingState.InBlockComment;
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentStart:
-                            state = ParsingState.Normal;
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentEnd when c == '/':
-                            state = ParsingState.Normal;
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentEnd when c == '*':
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentEnd:
-                            state = ParsingState.InBlockComment;
-                            break;
-
                         case ParsingState.Normal when c == '/':
                             state = ParsingState.MaybeBlockCommentStart;
                             break;
@@ -1487,14 +1483,41 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         case ParsingState.Normal when c == '-':
                             state = ParsingState.MaybeLineComment;
                             break;
+                        
+                        case ParsingState.Normal:
+                            // Normal state with no special character - just continue
+                            break;
 
                         case ParsingState.Quoted when c == '\'':
                             state = ParsingState.Normal;
+                            break;
+                        
+                        case ParsingState.Quoted:
+                            // Inside quoted string - just continue
                             break;
 
                         case ParsingState.InBlockComment when c == '*':
                             state = ParsingState.MaybeBlockCommentEnd;
                             break;
+                        
+                        case ParsingState.InBlockComment:
+                            // Inside block comment - just continue
+                            break;
+
+                        case ParsingState.MaybeBlockCommentEnd when c == '/':
+                            state = ParsingState.Normal;
+                            break;
+                        
+                        case ParsingState.MaybeBlockCommentEnd when c == '*':
+                            // Stay in MaybeBlockCommentEnd for consecutive asterisks
+                            break;
+                        
+                        case ParsingState.MaybeBlockCommentEnd:
+                            state = ParsingState.InBlockComment;
+                            break;
+
+                        default:
+                            throw new UnreachableException();
                     }
                 }
 
