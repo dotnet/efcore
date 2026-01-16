@@ -76,7 +76,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                         variable = Parameter(shaper.StructuralType.ClrType);
                         _variables.Add(variable);
                         var innerShaper =
-                            _inMemoryShapedQueryCompilingExpressionVisitor.InjectEntityMaterializers(shaper);
+                            _inMemoryShapedQueryCompilingExpressionVisitor.InjectStructuralTypeMaterializers(shaper);
                         innerShaper = Visit(innerShaper);
                         _expressions.Add(Assign(variable, innerShaper));
                         _mapping[key] = variable;
@@ -215,7 +215,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     = queryExpression.GetProjection(projectionBindingExpression).GetConstantValue<Dictionary<IProperty, int>>();
 
                 var updatedExpression = newExpression.Update(
-                    new[] { Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
+                    [Constant(ValueBuffer.Empty), newExpression.Arguments[1]]);
 
                 return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
             }

@@ -8,20 +8,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture) : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Inline_collection_Count_with_zero_values(bool async)
+    [ConditionalFact]
+    public override async Task Inline_collection_Count_with_zero_values()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Count_with_zero_values(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Count_with_zero_values());
 
         Assert.Equal(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot, exception.Message);
     }
 
-    public override Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Concat_parameter_collection_equality_inline_collection(async));
+    public override Task Column_collection_Concat_parameter_collection_equality_inline_collection()
+        => AssertTranslationFailed(base.Column_collection_Concat_parameter_collection_equality_inline_collection);
 
-    public override Task Column_collection_equality_inline_collection_with_parameters(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_equality_inline_collection_with_parameters(async));
+    public override Task Column_collection_equality_inline_collection_with_parameters()
+        => AssertTranslationFailed(base.Column_collection_equality_inline_collection_with_parameters);
 
     [ConditionalFact]
     public override void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
@@ -36,24 +35,23 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixt
         Assert.Contains("in the SQL tree does not have a type mapping assigned", exception.Message);
     }
 
-    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
+    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query()
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async))).Message;
+            base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query)).Message;
 
         Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
     }
 
-    public override async Task Project_inline_collection_with_Concat(bool async)
+    public override async Task Project_inline_collection_with_Concat()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Project_inline_collection_with_Concat(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_inline_collection_with_Concat)).Message;
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
     // TODO: Requires converting the results of a subquery (relational rowset) to a primitive collection for comparison,
     // not yet supported (#33792)
-    public override async Task Column_collection_Where_equality_inline_collection(bool async)
-        => await AssertTranslationFailed(() => base.Column_collection_Where_equality_inline_collection(async));
+    public override async Task Column_collection_Where_equality_inline_collection()
+        => await AssertTranslationFailed(base.Column_collection_Where_equality_inline_collection);
 }

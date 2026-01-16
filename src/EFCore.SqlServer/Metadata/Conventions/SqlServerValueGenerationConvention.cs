@@ -96,26 +96,23 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        // TODO: move to relational?
-        if (property.DeclaringType.IsMappedToJson()
+        var table = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
+        return table.Name != null
+                ? GetValueGenerated(property, table, Dependencies.TypeMappingSource)
+                : property.DeclaringType.IsMappedToJson()
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            && property.IsOrdinalKeyProperty()
+                && property.IsOrdinalKeyProperty()
 #pragma warning restore EF1001 // Internal EF Core API usage.
-            && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false)
-        {
-            return ValueGenerated.OnAdd;
-        }
-
-        var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-        if (declaringTable.Name == null)
-        {
-            return null;
-        }
-
-        // If the first mapping can be value generated then we'll consider all mappings to be value generated
-        // as this is a client-side configuration and can't be specified per-table.
-        return GetValueGenerated(property, declaringTable, Dependencies.TypeMappingSource);
+                && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
+                    ? ValueGenerated.OnAddOrUpdate
+                    : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
+                        ? GetValueGenerated((IReadOnlyProperty)property)
+                        : null;
     }
+
+    /// <inheritdoc/>
+    protected override bool MappingStrategyAllowsValueGeneration(IConventionProperty property, string? mappingStrategy)
+        => true;
 
     /// <summary>
     ///     Returns the store value generation strategy to set for the given property.

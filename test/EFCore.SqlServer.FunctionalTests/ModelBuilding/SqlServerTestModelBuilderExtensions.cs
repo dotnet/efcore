@@ -86,12 +86,12 @@ public static class SqlServerTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<TableBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.IsTemporal(
-                    b => buildAction(new SqlServerModelBuilderTestBase.GenericTestTemporalTableBuilder<TEntity>(b)));
+                genericBuilder.Instance.IsTemporal(b
+                    => buildAction(new SqlServerModelBuilderTestBase.GenericTestTemporalTableBuilder<TEntity>(b)));
                 break;
             case IInfrastructure<TableBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.IsTemporal(
-                    b => buildAction(new SqlServerModelBuilderTestBase.NonGenericTestTemporalTableBuilder<TEntity>(b)));
+                nongenericBuilder.Instance.IsTemporal(b
+                    => buildAction(new SqlServerModelBuilderTestBase.NonGenericTestTemporalTableBuilder<TEntity>(b)));
                 break;
         }
 
@@ -128,16 +128,14 @@ public static class SqlServerTestModelBuilderExtensions
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.IsTemporal(
-                    b => buildAction(
-                        new SqlServerModelBuilderTestBase.GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                genericBuilder.Instance.IsTemporal(b => buildAction(
+                    new SqlServerModelBuilderTestBase.GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
             case IInfrastructure<OwnedNavigationTableBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.IsTemporal(
-                    b => buildAction(
-                        new SqlServerModelBuilderTestBase.NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
-                            b)));
+                nongenericBuilder.Instance.IsTemporal(b => buildAction(
+                    new SqlServerModelBuilderTestBase.NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                        b)));
                 break;
         }
 
