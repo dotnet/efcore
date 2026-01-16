@@ -1430,24 +1430,41 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             else
             {
                 var commentStart = false;
-                for (var i = 0; i < trimmed.Length; i++)
+                var blockCommentStart = false;
+                var blockCommentEnd = false;
+                foreach (var c in trimmed)
                 {
-                    var c = trimmed[i];
+                    if (blockCommentEnd && c == '/')
+                    {
+                        inBlockComment = false;
+                        blockCommentEnd = false;
+                        continue;
+                    }
+
+                    if (blockCommentStart && c == '*')
+                    {
+                        inBlockComment = true;
+                        blockCommentStart = false;
+                        continue;
+                    }
+
+                    blockCommentStart = false;
+                    blockCommentEnd = false;
 
                     switch (c)
                     {
                         case '/':
-                            if (!quoted && !inBlockComment && i + 1 < trimmed.Length && trimmed[i + 1] == '*')
+                            if (!quoted && !inBlockComment)
                             {
-                                inBlockComment = true;
+                                blockCommentStart = true;
                             }
 
                             commentStart = false;
                             break;
                         case '*':
-                            if (inBlockComment && i + 1 < trimmed.Length && trimmed[i + 1] == '/')
+                            if (inBlockComment)
                             {
-                                inBlockComment = false;
+                                blockCommentEnd = true;
                             }
 
                             commentStart = false;
