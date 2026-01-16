@@ -1433,48 +1433,48 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 for (var i = 0; i < trimmed.Length; i++)
                 {
                     var c = trimmed[i];
-                    
-                    // Check for block comment start
-                    if (!quoted && !inBlockComment && c == '/' && i + 1 < trimmed.Length && trimmed[i + 1] == '*')
-                    {
-                        inBlockComment = true;
-                        i++; // Skip the '*'
-                        continue;
-                    }
-                    
-                    // Check for block comment end
-                    if (inBlockComment && c == '*' && i + 1 < trimmed.Length && trimmed[i + 1] == '/')
-                    {
-                        inBlockComment = false;
-                        i++; // Skip the '/'
-                        continue;
-                    }
 
-                    // Only process quotes and line comments if not inside a block comment
-                    if (!inBlockComment)
+                    switch (c)
                     {
-                        switch (c)
-                        {
-                            case '\'':
+                        case '/':
+                            if (!quoted && !inBlockComment && i + 1 < trimmed.Length && trimmed[i + 1] == '*')
+                            {
+                                inBlockComment = true;
+                            }
+
+                            commentStart = false;
+                            break;
+                        case '*':
+                            if (inBlockComment && i + 1 < trimmed.Length && trimmed[i + 1] == '/')
+                            {
+                                inBlockComment = false;
+                            }
+
+                            commentStart = false;
+                            break;
+                        case '\'':
+                            if (!inBlockComment)
+                            {
                                 quoted = !quoted;
-                                commentStart = false;
-                                break;
-                            case '-':
-                                if (!quoted)
-                                {
-                                    if (commentStart)
-                                    {
-                                        goto LineEnd;
-                                    }
+                            }
 
-                                    commentStart = true;
+                            commentStart = false;
+                            break;
+                        case '-':
+                            if (!quoted && !inBlockComment)
+                            {
+                                if (commentStart)
+                                {
+                                    goto LineEnd;
                                 }
 
-                                break;
-                            default:
-                                commentStart = false;
-                                break;
-                        }
+                                commentStart = true;
+                            }
+
+                            break;
+                        default:
+                            commentStart = false;
+                            break;
                     }
                 }
 
