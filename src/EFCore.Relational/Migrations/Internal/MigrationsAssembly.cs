@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -121,21 +120,11 @@ public class MigrationsAssembly : IMigrationsAssembly
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ModelSnapshot? ModelSnapshot
-    {
-        get
-        {
-            if (Volatile.Read(ref _modelSnapshotInitialized))
-            {
-                return Volatile.Read(ref _modelSnapshot);
-            }
-
-            var snapshot = GetOrCreateModelSnapshot();
-            Volatile.Write(ref _modelSnapshot, snapshot);
-            Volatile.Write(ref _modelSnapshotInitialized, true);
-
-            return snapshot;
-        }
-    }
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _modelSnapshot,
+            ref _modelSnapshotInitialized,
+            this,
+            static self => self.GetOrCreateModelSnapshot());
 
     private ModelSnapshot? GetOrCreateModelSnapshot()
     {

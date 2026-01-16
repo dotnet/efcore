@@ -102,7 +102,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             nullable: false,
             args: []);
 
-    protected (IServiceScope Scope, IMigrationsScaffolder Scaffolder, ScaffoldedMigration Migration, string OutputDir)
+    protected (IServiceScope Scope, ScaffoldedMigration Migration)
         CreateScaffoldedMigration(
             RuntimeMigrationDbContext context,
             string migrationName,
@@ -113,14 +113,14 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var operations = CreateMigrationsOperations();
         var services = operations.PrepareForMigration(migrationName, context);
         var scope = services.CreateScope();
-        var (scaffolder, migration, resolvedOutputDir) = operations.CreateScaffoldedMigration(
+        var (migration, _) = operations.CreateScaffoldedMigration(
             migrationName,
             outputDir,
             @namespace,
             dryRun,
             scope.ServiceProvider);
 
-        return (scope, scaffolder, migration, resolvedOutputDir);
+        return (scope, migration);
     }
 
     protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
@@ -144,7 +144,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_scaffold_migration()
     {
         using var context = CreateContext();
-        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "TestMigration");
+        var (scope, migration) = CreateScaffoldedMigration(context, "TestMigration");
         using (scope)
         {
             Assert.NotNull(migration);
@@ -159,7 +159,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_compile_migration()
     {
         using var context = CreateContext();
-        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "CompiledMigration");
+        var (scope, migration) = CreateScaffoldedMigration(context, "CompiledMigration");
         using (scope)
         {
             var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
@@ -177,7 +177,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Can_register_and_apply_compiled_migration()
     {
         using var context = CreateContext();
-        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "AppliedMigration");
+        var (scope, migration) = CreateScaffoldedMigration(context, "AppliedMigration");
         using (scope)
         {
             var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
@@ -200,7 +200,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Compiled_migration_generates_valid_sql()
     {
         using var context = CreateContext();
-        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "SqlGenMigration");
+        var (scope, migration) = CreateScaffoldedMigration(context, "SqlGenMigration");
         using (scope)
         {
             var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
@@ -238,7 +238,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void HasPendingModelChanges_returns_false_after_migration()
     {
         using var context = CreateContext();
-        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "PendingChangesTest");
+        var (scope, migration) = CreateScaffoldedMigration(context, "PendingChangesTest");
         using (scope)
         {
             var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
@@ -259,7 +259,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public void Compiled_migration_contains_correct_operations()
     {
         using var context = CreateContext();
-        var (scope, _, migration, _) = CreateScaffoldedMigration(context, "OperationsTest");
+        var (scope, migration) = CreateScaffoldedMigration(context, "OperationsTest");
         using (scope)
         {
             var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
@@ -286,12 +286,13 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             Directory.CreateDirectory(tempDirectory);
 
             using var context = CreateContext();
-            var (scope, scaffolder, migration, _) = CreateScaffoldedMigration(
+            var (scope, migration) = CreateScaffoldedMigration(
                 context,
                 "SaveToDisk",
                 @namespace: "TestNamespace.Migrations");
             using (scope)
             {
+                var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
                 var files = scaffolder.Save(tempDirectory, migration, outputDir: null, dryRun: false);
 
                 Assert.NotNull(files.MigrationFile);
@@ -416,7 +417,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
 
-        var (_, migration, _) = operations.CreateScaffoldedMigration(
+        var (migration, _) = operations.CreateScaffoldedMigration(
             migrationName,
             outputDir: null,
             @namespace: null,

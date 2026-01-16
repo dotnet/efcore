@@ -77,15 +77,15 @@ public class MigrationsOperations
         var services = PrepareForMigration(name, context);
 
         using var scope = services.CreateScope();
-        var (scaffolder, migration, resolvedOutputDir) =
+        var (_, files) =
             CreateScaffoldedMigration(name, outputDir, @namespace, dryRun, scope.ServiceProvider);
-        return scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun);
+        return files;
     }
 
     /// <summary>
-    ///     Creates a scaffolded migration using the provided services.
+    ///     Creates and saves a scaffolded migration using the provided services.
     /// </summary>
-    public virtual (IMigrationsScaffolder Scaffolder, ScaffoldedMigration Migration, string? OutputDir)
+    public virtual (ScaffoldedMigration Migration, MigrationFiles Files)
         CreateScaffoldedMigration(
             string name,
             string? outputDir,
@@ -109,7 +109,9 @@ public class MigrationsOperations
                 ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun)
                 : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun);
 
-        return (scaffolder, migration, outputDir);
+        var files = scaffolder.Save(_projectDir, migration, outputDir, dryRun);
+
+        return (migration, files);
     }
 
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
@@ -315,10 +317,8 @@ public class MigrationsOperations
 
         _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
 
-        var (scaffolder, migration, resolvedOutputDir) =
+        var (migration, files) =
             CreateScaffoldedMigration(name, outputDir, @namespace, dryRun: false, scope.ServiceProvider);
-
-        var files = scaffolder.Save(_projectDir, migration, resolvedOutputDir, dryRun: false);
 
         var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
         var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
