@@ -877,6 +877,22 @@ CREATE PROCEDURE dbo.proc2 AS SELECT 2;
     }
 
     [ConditionalFact]
+    public virtual void SqlOperation_handles_empty_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/**/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/**/
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
     public virtual void SqlOperation_handles_nested_comments_and_strings()
     {
         Generate(
@@ -941,6 +957,22 @@ SELECT 2;
         AssertSql(
             """
 -- /*
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_line_comment_inside()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* Block comment -- with line comment */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* Block comment -- with line comment */
 SELECT 1;
 GO
 

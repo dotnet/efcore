@@ -1448,50 +1448,34 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 foreach (var c in trimmed)
                 {
-                    // Process Maybe* states before main switch
                     switch (state)
                     {
                         case ParsingState.MaybeLineComment when c == '-':
                             goto LineEnd;
                         
                         case ParsingState.MaybeLineComment:
-                            state = c switch
-                            {
-                                '\'' => ParsingState.Quoted,
-                                '/' or '*' => ParsingState.Normal,
-                                _ => ParsingState.Normal
-                            };
-                            continue;
+                            state = ParsingState.Normal;
+                            break;
                         
                         case ParsingState.MaybeBlockCommentStart when c == '*':
                             state = ParsingState.InBlockComment;
-                            continue;
+                            break;
                         
                         case ParsingState.MaybeBlockCommentStart:
-                            state = c switch
-                            {
-                                '\'' => ParsingState.Quoted,
-                                '/' or '-' => ParsingState.Normal,
-                                _ => ParsingState.Normal
-                            };
-                            continue;
+                            state = ParsingState.Normal;
+                            break;
                         
                         case ParsingState.MaybeBlockCommentEnd when c == '/':
                             state = ParsingState.Normal;
-                            continue;
+                            break;
                         
                         case ParsingState.MaybeBlockCommentEnd when c == '*':
-                            // Stay in MaybeBlockCommentEnd for sequences like ***/
-                            continue;
+                            break;
                         
                         case ParsingState.MaybeBlockCommentEnd:
                             state = ParsingState.InBlockComment;
-                            continue;
-                    }
+                            break;
 
-                    // Main switch for Normal, Quoted, and InBlockComment states
-                    switch (state)
-                    {
                         case ParsingState.Normal when c == '/':
                             state = ParsingState.MaybeBlockCommentStart;
                             break;
