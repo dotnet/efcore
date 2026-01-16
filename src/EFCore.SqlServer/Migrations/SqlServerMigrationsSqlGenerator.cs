@@ -1388,6 +1388,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder.EndCommand();
     }
 
+    private enum ParsingState
+    {
+        Normal,
+        MaybeLineComment,
+        MaybeBlockCommentStart,
+        MaybeBlockCommentEnd
+    }
+
     /// <summary>
     ///     Builds commands for the given <see cref="SqlOperation" /> by making calls on the given
     ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
@@ -1429,45 +1437,46 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                var commentStart = false;
-                var blockCommentStart = false;
-                var blockCommentEnd = false;
+                var state = ParsingState.Normal;
                 foreach (var c in trimmed)
                 {
-                    if (blockCommentEnd && c == '/')
+                    if (state == ParsingState.MaybeBlockCommentEnd && c == '/')
                     {
                         inBlockComment = false;
-                        blockCommentEnd = false;
+                        state = ParsingState.Normal;
                         continue;
                     }
 
-                    if (blockCommentStart && c == '*')
+                    if (state == ParsingState.MaybeBlockCommentStart && c == '*')
                     {
                         inBlockComment = true;
-                        blockCommentStart = false;
+                        state = ParsingState.Normal;
                         continue;
                     }
-
-                    blockCommentStart = false;
-                    blockCommentEnd = false;
 
                     switch (c)
                     {
                         case '/':
                             if (!quoted && !inBlockComment)
                             {
-                                blockCommentStart = true;
+                                state = ParsingState.MaybeBlockCommentStart;
+                            }
+                            else
+                            {
+                                state = ParsingState.Normal;
                             }
 
-                            commentStart = false;
                             break;
                         case '*':
                             if (inBlockComment)
                             {
-                                blockCommentEnd = true;
+                                state = ParsingState.MaybeBlockCommentEnd;
+                            }
+                            else
+                            {
+                                state = ParsingState.Normal;
                             }
 
-                            commentStart = false;
                             break;
                         case '\'':
                             if (!inBlockComment)
@@ -1475,22 +1484,26 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 quoted = !quoted;
                             }
 
-                            commentStart = false;
+                            state = ParsingState.Normal;
                             break;
                         case '-':
                             if (!quoted && !inBlockComment)
                             {
-                                if (commentStart)
+                                if (state == ParsingState.MaybeLineComment)
                                 {
                                     goto LineEnd;
                                 }
 
-                                commentStart = true;
+                                state = ParsingState.MaybeLineComment;
+                            }
+                            else
+                            {
+                                state = ParsingState.Normal;
                             }
 
                             break;
                         default:
-                            commentStart = false;
+                            state = ParsingState.Normal;
                             break;
                     }
                 }
