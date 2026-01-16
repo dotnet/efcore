@@ -1403,11 +1403,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
         var quoted = false;
+        var inBlockComment = false;
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
             if (!quoted
+                && !inBlockComment
                 && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
@@ -1428,29 +1430,51 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             else
             {
                 var commentStart = false;
-                foreach (var c in trimmed)
+                for (var i = 0; i < trimmed.Length; i++)
                 {
-                    switch (c)
+                    var c = trimmed[i];
+                    
+                    // Check for block comment start
+                    if (!quoted && !inBlockComment && c == '/' && i + 1 < trimmed.Length && trimmed[i + 1] == '*')
                     {
-                        case '\'':
-                            quoted = !quoted;
-                            commentStart = false;
-                            break;
-                        case '-':
-                            if (!quoted)
-                            {
-                                if (commentStart)
+                        inBlockComment = true;
+                        i++; // Skip the '*'
+                        continue;
+                    }
+                    
+                    // Check for block comment end
+                    if (inBlockComment && c == '*' && i + 1 < trimmed.Length && trimmed[i + 1] == '/')
+                    {
+                        inBlockComment = false;
+                        i++; // Skip the '/'
+                        continue;
+                    }
+
+                    // Only process quotes and line comments if not inside a block comment
+                    if (!inBlockComment)
+                    {
+                        switch (c)
+                        {
+                            case '\'':
+                                quoted = !quoted;
+                                commentStart = false;
+                                break;
+                            case '-':
+                                if (!quoted)
                                 {
-                                    goto LineEnd;
+                                    if (commentStart)
+                                    {
+                                        goto LineEnd;
+                                    }
+
+                                    commentStart = true;
                                 }
 
-                                commentStart = true;
-                            }
-
-                            break;
-                        default:
-                            commentStart = false;
-                            break;
+                                break;
+                            default:
+                                commentStart = false;
+                                break;
+                        }
                     }
                 }
 

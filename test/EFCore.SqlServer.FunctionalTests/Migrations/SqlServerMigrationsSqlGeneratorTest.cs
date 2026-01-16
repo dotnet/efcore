@@ -800,6 +800,138 @@ GO
 """);
     }
 
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_single_quote()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* It's a comment */" + EOL + "SELECT 1;" + EOL + "GO" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* It's a comment */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_multiline_block_comment_with_single_quote()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* This is" + EOL + "   a multiline comment with ' quote */" + EOL + "SELECT 1;" + EOL + "GO" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* This is
+   a multiline comment with ' quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_multiple_quotes()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* It's a comment with 'multiple' quotes */" + EOL + "SELECT 1;" + EOL + "GO" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* It's a comment with 'multiple' quotes */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_before_procedure()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* It's a procedure */" + EOL + "CREATE PROCEDURE dbo.proc1 AS SELECT 1;" + EOL + "GO" + EOL
+                    + "/* Another one */" + EOL + "CREATE PROCEDURE dbo.proc2 AS SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* It's a procedure */
+CREATE PROCEDURE dbo.proc1 AS SELECT 1;
+GO
+
+/* Another one */
+CREATE PROCEDURE dbo.proc2 AS SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_nested_comments_and_strings()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* Block comment */" + EOL + "SELECT 'string with '' escaped quotes';" + EOL + "GO" + EOL
+                    + "-- Line comment" + EOL + "SELECT 1;"
+            });
+
+        AssertSql(
+            """
+/* Block comment */
+SELECT 'string with '' escaped quotes';
+GO
+
+-- Line comment
+SELECT 1;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_after_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test';" + EOL + "/* It's a comment */" + EOL + "GO" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test';
+/* It's a comment */
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_asterisks()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/** It's a comment with extra stars **/" + EOL + "SELECT 1;" + EOL + "GO" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/** It's a comment with extra stars **/
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
     public override void InsertDataOperation_all_args_spatial()
     {
         base.InsertDataOperation_all_args_spatial();
