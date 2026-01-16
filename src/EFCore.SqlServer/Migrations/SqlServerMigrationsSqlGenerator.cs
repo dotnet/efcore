@@ -1395,9 +1395,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         InBlockComment,
         MaybeLineComment,
         MaybeBlockCommentStart,
-        MaybeBlockCommentEnd,
-        QuotedMaybeBlockCommentStart,
-        QuotedMaybeBlockCommentEnd
+        MaybeBlockCommentEnd
     }
 
     /// <summary>
@@ -1419,10 +1417,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (state != ParsingState.Quoted
-                && state != ParsingState.InBlockComment
-                && state != ParsingState.QuotedMaybeBlockCommentStart
-                && state != ParsingState.QuotedMaybeBlockCommentEnd
+            
+            // Reset "Maybe" states at line start, but preserve Quoted and InBlockComment across lines
+            if (state == ParsingState.MaybeLineComment
+                || state == ParsingState.MaybeBlockCommentStart
+                || state == ParsingState.MaybeBlockCommentEnd)
+            {
+                state = state == ParsingState.MaybeBlockCommentEnd ? ParsingState.InBlockComment : ParsingState.Normal;
+            }
+
+            if (state == ParsingState.Normal
                 && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
@@ -1449,47 +1453,24 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         case '/' when state == ParsingState.MaybeBlockCommentEnd:
                             state = ParsingState.Normal;
                             break;
-                        case '/' when state == ParsingState.QuotedMaybeBlockCommentEnd:
-                            state = ParsingState.Quoted;
-                            break;
                         case '/' when state == ParsingState.Normal:
                             state = ParsingState.MaybeBlockCommentStart;
                             break;
-                        case '/' when state == ParsingState.Quoted:
-                            state = ParsingState.QuotedMaybeBlockCommentStart;
-                            break;
-                        case '/' when state == ParsingState.InBlockComment:
-                            break;
-                        case '/' when state == ParsingState.MaybeLineComment:
+                        case '/' when state == ParsingState.MaybeLineComment || state == ParsingState.MaybeBlockCommentStart:
                             state = ParsingState.Normal;
-                            break;
-                        case '/' when state == ParsingState.MaybeBlockCommentStart:
-                            state = ParsingState.Normal;
-                            break;
-                        case '/' when state == ParsingState.QuotedMaybeBlockCommentStart:
-                            state = ParsingState.Quoted;
                             break;
 
                         case '*' when state == ParsingState.MaybeBlockCommentStart:
                             state = ParsingState.InBlockComment;
                             break;
-                        case '*' when state == ParsingState.QuotedMaybeBlockCommentStart:
-                            state = ParsingState.Quoted;
-                            break;
                         case '*' when state == ParsingState.InBlockComment:
                             state = ParsingState.MaybeBlockCommentEnd;
                             break;
-                        case '*' when state == ParsingState.Normal:
-                            break;
-                        case '*' when state == ParsingState.Quoted:
+                        case '*' when state == ParsingState.MaybeBlockCommentEnd:
+                            // Stay in MaybeBlockCommentEnd for sequences like ***/
                             break;
                         case '*' when state == ParsingState.MaybeLineComment:
                             state = ParsingState.Normal;
-                            break;
-                        case '*' when state == ParsingState.MaybeBlockCommentEnd:
-                            break;
-                        case '*' when state == ParsingState.QuotedMaybeBlockCommentEnd:
-                            state = ParsingState.Quoted;
                             break;
 
                         case '\'' when state == ParsingState.Normal:
@@ -1497,8 +1478,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             break;
                         case '\'' when state == ParsingState.Quoted:
                             state = ParsingState.Normal;
-                            break;
-                        case '\'' when state == ParsingState.InBlockComment:
                             break;
                         case '\'' when state == ParsingState.MaybeLineComment:
                             state = ParsingState.Quoted;
@@ -1509,33 +1488,17 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         case '\'' when state == ParsingState.MaybeBlockCommentEnd:
                             state = ParsingState.InBlockComment;
                             break;
-                        case '\'' when state == ParsingState.QuotedMaybeBlockCommentStart:
-                            state = ParsingState.Normal;
-                            break;
-                        case '\'' when state == ParsingState.QuotedMaybeBlockCommentEnd:
-                            state = ParsingState.Quoted;
-                            break;
 
                         case '-' when state == ParsingState.MaybeLineComment:
                             goto LineEnd;
                         case '-' when state == ParsingState.Normal:
                             state = ParsingState.MaybeLineComment;
                             break;
-                        case '-' when state == ParsingState.Quoted:
-                            break;
-                        case '-' when state == ParsingState.InBlockComment:
-                            break;
                         case '-' when state == ParsingState.MaybeBlockCommentStart:
                             state = ParsingState.Normal;
                             break;
                         case '-' when state == ParsingState.MaybeBlockCommentEnd:
                             state = ParsingState.InBlockComment;
-                            break;
-                        case '-' when state == ParsingState.QuotedMaybeBlockCommentStart:
-                            state = ParsingState.Quoted;
-                            break;
-                        case '-' when state == ParsingState.QuotedMaybeBlockCommentEnd:
-                            state = ParsingState.Quoted;
                             break;
 
                         default:
@@ -1544,8 +1507,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 ParsingState.MaybeLineComment => ParsingState.Normal,
                                 ParsingState.MaybeBlockCommentStart => ParsingState.Normal,
                                 ParsingState.MaybeBlockCommentEnd => ParsingState.InBlockComment,
-                                ParsingState.QuotedMaybeBlockCommentStart => ParsingState.Quoted,
-                                ParsingState.QuotedMaybeBlockCommentEnd => ParsingState.Quoted,
                                 _ => state
                             };
                             break;
