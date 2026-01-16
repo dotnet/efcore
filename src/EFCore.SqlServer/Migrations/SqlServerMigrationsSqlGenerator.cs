@@ -1457,7 +1457,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             goto LineEnd;
                         }
                         state = ParsingState.Normal;
-                        // Fall through to process c with Normal state
                     }
                     else if (state == ParsingState.MaybeBlockCommentStart)
                     {
