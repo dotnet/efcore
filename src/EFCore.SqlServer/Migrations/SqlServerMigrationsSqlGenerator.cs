@@ -1483,7 +1483,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             break;
                         
                         case ParsingState.Normal:
-                            // Normal state with no special character - just continue
                             break;
 
                         case ParsingState.Quoted when c == '\'':
@@ -1491,7 +1490,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             break;
                         
                         case ParsingState.Quoted:
-                            // Inside quoted string - just continue
                             break;
 
                         case ParsingState.InBlockComment when c == '*':
@@ -1499,7 +1497,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             break;
                         
                         case ParsingState.InBlockComment:
-                            // Inside block comment - just continue
                             break;
 
                         case ParsingState.MaybeBlockCommentEnd when c == '/':
