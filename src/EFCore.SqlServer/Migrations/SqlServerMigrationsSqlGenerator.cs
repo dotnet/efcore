@@ -1448,93 +1448,68 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 foreach (var c in trimmed)
                 {
+                    // Process Maybe* states before main switch
                     switch (state)
                     {
-                        case ParsingState.Normal:
-                            switch (c)
-                            {
-                                case '/':
-                                    state = ParsingState.MaybeBlockCommentStart;
-                                    break;
-                                case '\'':
-                                    state = ParsingState.Quoted;
-                                    break;
-                                case '-':
-                                    state = ParsingState.MaybeLineComment;
-                                    break;
-                            }
-                            break;
-
-                        case ParsingState.Quoted:
-                            if (c == '\'')
-                            {
-                                state = ParsingState.Normal;
-                            }
-                            break;
-
-                        case ParsingState.InBlockComment:
-                            if (c == '*')
-                            {
-                                state = ParsingState.MaybeBlockCommentEnd;
-                            }
-                            break;
-
+                        case ParsingState.MaybeLineComment when c == '-':
+                            goto LineEnd;
+                        
                         case ParsingState.MaybeLineComment:
-                            switch (c)
+                            state = c switch
                             {
-                                case '-':
-                                    goto LineEnd;
-                                case '/':
-                                case '*':
-                                    state = ParsingState.Normal;
-                                    break;
-                                case '\'':
-                                    state = ParsingState.Quoted;
-                                    break;
-                                default:
-                                    state = ParsingState.Normal;
-                                    break;
-                            }
-                            break;
-
+                                '\'' => ParsingState.Quoted,
+                                '/' or '*' => ParsingState.Normal,
+                                _ => ParsingState.Normal
+                            };
+                            continue;
+                        
+                        case ParsingState.MaybeBlockCommentStart when c == '*':
+                            state = ParsingState.InBlockComment;
+                            continue;
+                        
                         case ParsingState.MaybeBlockCommentStart:
-                            switch (c)
+                            state = c switch
                             {
-                                case '*':
-                                    state = ParsingState.InBlockComment;
-                                    break;
-                                case '/':
-                                case '-':
-                                    state = ParsingState.Normal;
-                                    break;
-                                case '\'':
-                                    state = ParsingState.Quoted;
-                                    break;
-                                default:
-                                    state = ParsingState.Normal;
-                                    break;
-                            }
+                                '\'' => ParsingState.Quoted,
+                                '/' or '-' => ParsingState.Normal,
+                                _ => ParsingState.Normal
+                            };
+                            continue;
+                        
+                        case ParsingState.MaybeBlockCommentEnd when c == '/':
+                            state = ParsingState.Normal;
+                            continue;
+                        
+                        case ParsingState.MaybeBlockCommentEnd when c == '*':
+                            // Stay in MaybeBlockCommentEnd for sequences like ***/
+                            continue;
+                        
+                        case ParsingState.MaybeBlockCommentEnd:
+                            state = ParsingState.InBlockComment;
+                            continue;
+                    }
+
+                    // Main switch for Normal, Quoted, and InBlockComment states
+                    switch (state)
+                    {
+                        case ParsingState.Normal when c == '/':
+                            state = ParsingState.MaybeBlockCommentStart;
+                            break;
+                        
+                        case ParsingState.Normal when c == '\'':
+                            state = ParsingState.Quoted;
+                            break;
+                        
+                        case ParsingState.Normal when c == '-':
+                            state = ParsingState.MaybeLineComment;
                             break;
 
-                        case ParsingState.MaybeBlockCommentEnd:
-                            switch (c)
-                            {
-                                case '/':
-                                    state = ParsingState.Normal;
-                                    break;
-                                case '*':
-                                    // Stay in MaybeBlockCommentEnd for sequences like ***/
-                                    break;
-                                case '\'':
-                                    state = ParsingState.InBlockComment;
-                                    break;
-                                case '-':
-                                    state = ParsingState.InBlockComment;
-                                    break;
-                                default:
-                                    state = ParsingState.InBlockComment;
-                                    break;
-                            }
+                        case ParsingState.Quoted when c == '\'':
+                            state = ParsingState.Normal;
+                            break;
+
+                        case ParsingState.InBlockComment when c == '*':
+                            state = ParsingState.MaybeBlockCommentEnd;
                             break;
                     }
                 }
