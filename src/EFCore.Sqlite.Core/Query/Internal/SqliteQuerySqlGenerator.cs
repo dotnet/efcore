@@ -200,7 +200,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // expression type for it.
         Sql.Append("json_each(");
 
-        Visit(jsonEachExpression.JsonExpression);
+        Visit(jsonEachExpression.Json);
 
         var path = jsonEachExpression.Path;
 

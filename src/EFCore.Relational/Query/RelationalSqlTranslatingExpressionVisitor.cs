@@ -627,20 +627,25 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     /// <inheritdoc />
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
-        // Fold member access into conditional, i.e. transform
-        // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
-        if (memberExpression.Expression is ConditionalExpression cond)
+        var member = memberExpression.Member;
+
+        switch (memberExpression.Expression)
         {
-            return Visit(
-                Expression.Condition(
-                    cond.Test,
-                    Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
-                    Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)));
+            // Fold member access into conditional, i.e. transform
+            // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
+            case ConditionalExpression conditional:
+                return Visit(
+                    Expression.Condition(
+                        conditional.Test,
+                        Expression.MakeMemberAccess(conditional.IfTrue, member),
+                        Expression.MakeMemberAccess(conditional.IfFalse, member)));
+
+            // Reduce member accesses on new expressions (new { A = 8 }.Select(x => x.A) => 8)
+            case NewExpression @new when @new.Members?.IndexOf(member) is int index && index >= 0:
+                return Visit(@new.Arguments[index]);
         }
 
         var inner = Visit(memberExpression.Expression);
-
-        var member = memberExpression.Member;
 
         // Try binding the member to a property on the structural type
         if (TryBindMember(inner, MemberIdentity.Create(member), out var expression))
