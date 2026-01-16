@@ -1466,7 +1466,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             continue;
                         }
                         state = ParsingState.Normal;
-                        // Fall through to process c with Normal state
                     }
 
                     switch (state)
