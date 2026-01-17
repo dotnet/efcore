@@ -1417,7 +1417,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            
             // Reset "Maybe" states at line start
             if (state == ParsingState.MaybeLineComment
                 || state == ParsingState.MaybeBlockCommentStart
