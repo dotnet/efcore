@@ -818,5 +818,3 @@ WHERE CAST(LEN(UPPER([s].[Value])) AS int) = 0
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
-
-

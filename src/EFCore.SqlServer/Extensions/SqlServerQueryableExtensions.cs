@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-// ReSharper disable once CheckNamespace
+using System.Linq.Expressions;
+using System.Reflection;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -15,6 +17,12 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class SqlServerQueryableExtensions
 {
+    private static readonly MethodInfo _containsTableMethod
+        = typeof(SqlServerQueryableExtensions).GetMethod(nameof(ContainsTable))!;
+
+    private static readonly MethodInfo _freeTextTableMethod
+        = typeof(SqlServerQueryableExtensions).GetMethod(nameof(FreeTextTable))!;
+
     /// <summary>
     ///     Provides a mapping to the SQL Server CONTAINSTABLE full-text search function.
     /// </summary>
@@ -34,7 +42,13 @@ public static class SqlServerQueryableExtensions
         Expression<Func<TEntity, object>> propertySelector,
         string searchCondition)
         where TEntity : class
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsTable)));
+        => source.Provider.CreateQuery<FullTextTableResult<TKey>>(
+            Expression.Call(
+                null,
+                _containsTableMethod.MakeGenericMethod(typeof(TEntity), typeof(TKey)),
+                source.Expression,
+                propertySelector,
+                Expression.Constant(searchCondition)));
 
     /// <summary>
     ///     Provides a mapping to the SQL Server FREETEXTTABLE full-text search function.
@@ -55,34 +69,28 @@ public static class SqlServerQueryableExtensions
         Expression<Func<TEntity, object>> propertySelector,
         string freeText)
         where TEntity : class
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FreeTextTable)));
+        => source.Provider.CreateQuery<FullTextTableResult<TKey>>(
+            Expression.Call(
+                null,
+                _freeTextTableMethod.MakeGenericMethod(typeof(TEntity), typeof(TKey)),
+                source.Expression,
+                propertySelector,
+                Expression.Constant(freeText)));
 
     /// <summary>
     ///     The result type for SQL Server full-text table-valued functions (CONTAINSTABLE / FREETEXTTABLE).
     /// </summary>
     /// <typeparam name="TKey">The type of the key column.</typeparam>
-    public class FullTextTableResult<TKey>
+    public class FullTextTableResult<TKey>(TKey key, int rank)
     {
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FullTextTableResult{TKey}" /> class.
-        /// </summary>
-        /// <param name="key">The key of the row matched.</param>
-        /// <param name="rank">The ranking value assigned to the row.</param>
-        public FullTextTableResult(TKey key, int rank)
-        {
-            Key = key;
-            Rank = rank;
-        }
-
         /// <summary>
         ///     The key of the row matched.
         /// </summary>
-        public TKey Key { get; set; } = default!;
+        public TKey Key { get; } = key;
 
         /// <summary>
         ///     The ranking value assigned to the row.
         /// </summary>
-        public int Rank { get; set; }
+        public int Rank { get; } = rank;
     }
 }
-

@@ -1,9 +1,9 @@
 {
-    "Test": {
-      "SqlServer": {
-        "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0",
-        "ElasticPoolName": "",
-        "SupportsMemoryOptimized": null
-      }
+  "Test": {
+    "SqlServer": {
+      "DefaultConnection": "Server=ABDELRAHMAN\\SQLDEV;Database=Northwind;Trusted_Connection=True;TrustServerCertificate=True;",
+      "ElasticPoolName": "",
+      "SupportsMemoryOptimized": true
     }
+  }
 }

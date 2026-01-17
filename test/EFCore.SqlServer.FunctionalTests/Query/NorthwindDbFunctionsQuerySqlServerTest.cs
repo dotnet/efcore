@@ -1351,77 +1351,75 @@ WHERE CAST(DATALENGTH(N'foo') AS int) = 3
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    [Fact]
-    public virtual void FullText_ContainsTable_queryable_simple()
-    {
-        using var ctx = CreateContext();
-
-        var query = from c in ctx.Set<Customer>()
-                    join ct in ctx.Set<Customer>()
-                        .ContainsTable<Customer, string>(
-                            c => c.ContactName,
-                            "John")
-                    on c.CustomerID equals ct.Key
-                    select new { c.ContactName, ct.Rank };
-
-        var result = query.ToList();
-
-        Assert.NotEmpty(result);
-        AssertSql(
-            """
-SELECT [c].[ContactName], [c0].[Rank]
-FROM [Customers] AS [c]
-INNER JOIN CONTAINSTABLE([Customers], [ContactName], N'John') AS [c0] ON [c].[CustomerID] = [c0].[Key]
-""");
-    }
-
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public virtual void FullText_FreeTextTable_queryable_simple()
-    {
-        using var ctx = CreateContext();
+public virtual void FullText_ContainsTable_queryable_simple()
+{
+    using var ctx = CreateContext();
 
-        var query = from c in ctx.Set<Customer>()
-                    join ct in ctx.Set<Customer>()
-                        .FreeTextTable<Customer, string>(
-                            c => c.ContactName,
-                            "John")
-                    on c.CustomerID equals ct.Key
-                    select new { c.ContactName, ct.Rank };
+    var query = from c in ctx.Set<Customer>()
+                join ct in ctx.Set<Customer>()
+                    .ContainsTable<Customer, string>(
+                        c => c.ContactName,
+                        "John")
+                on c.CustomerID equals ct.Key
+                select new { c.ContactName, ct.Rank };
 
-        var result = query.ToList();
+    var result = query.ToList();
 
-        Assert.NotEmpty(result);
-        AssertSql(
-            """
-SELECT [c].[ContactName], [c0].[Rank]
+    Assert.NotEmpty(result);
+    AssertSql(
+        """
+SELECT [c].[ContactName], [f].[RANK]
 FROM [Customers] AS [c]
-INNER JOIN FREETEXTTABLE([Customers], [ContactName], N'John') AS [c0] ON [c].[CustomerID] = [c0].[Key]
+INNER JOIN CONTAINSTABLE([Customers], [ContactName], N'John') AS [f] ON [c].[CustomerID] = [f].[KEY]
 """);
-    }
+}
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public virtual void FullText_ContainsTable_queryable_int_key()
-    {
-        using var ctx = CreateContext();
+[ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+public virtual void FullText_FreeTextTable_queryable_simple()
+{
+    using var ctx = CreateContext();
 
-        var query = from e in ctx.Set<Employee>()
-                    join ct in ctx.Set<Employee>()
-                        .ContainsTable<Employee, uint>(
-                            e => e.Title,
-                            "Sales")
-                    on e.EmployeeID equals ct.Key
-                    select new { e.Title, ct.Rank };
+    var query = from c in ctx.Set<Customer>()
+                join ct in ctx.Set<Customer>()
+                    .FreeTextTable<Customer, string>(
+                        c => c.ContactName,
+                        "John")
+                on c.CustomerID equals ct.Key
+                select new { c.ContactName, ct.Rank };
 
-        var result = query.ToList();
+    var result = query.ToList();
 
-        Assert.NotEmpty(result);
-        AssertSql(
-            """
-SELECT [e].[Title], [f].[Rank]
+    Assert.NotEmpty(result);
+    AssertSql(
+        """
+SELECT [c].[ContactName], [f].[RANK]
+FROM [Customers] AS [c]
+INNER JOIN FREETEXTTABLE([Customers], [ContactName], N'John') AS [f] ON [c].[CustomerID] = [f].[KEY]
+""");
+}
+
+[ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+public virtual void FullText_ContainsTable_queryable_int_key()
+{
+    using var ctx = CreateContext();
+
+    var query = from e in ctx.Set<Employee>()
+                join ct in ctx.Set<Employee>()
+                    .ContainsTable<Employee, uint>(
+                        e => e.Title,
+                        "Sales")
+                on e.EmployeeID equals ct.Key
+                select new { e.Title, ct.Rank };
+
+    var result = query.ToList();
+
+    Assert.NotEmpty(result);
+    AssertSql(
+        """
+SELECT [e].[Title], [f].[RANK]
 FROM [Employees] AS [e]
-INNER JOIN CONTAINSTABLE([Employees], [Title], N'Sales') AS [f] ON [e].[EmployeeID] = [f].[Key]
+INNER JOIN CONTAINSTABLE([Employees], [Title], N'Sales') AS [f] ON [e].[EmployeeID] = [f].[KEY]
 """);
-    }
-
-    
+}
 }

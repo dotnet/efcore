@@ -622,9 +622,6 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);
-
-            case FullTextTableExpression fullTextTableExpression:
-                return VisitFullTextTable(fullTextTableExpression);
         }
 
         return base.VisitExtension(extensionExpression);
@@ -923,22 +920,31 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Expression VisitFullTextTable(FullTextTableExpression fullTextTableExpression)
+   protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
     {
-        Sql.Append(fullTextTableExpression.FunctionName!).Append("(");
-        Visit(fullTextTableExpression.TableFragment);
+    if (tableValuedFunctionExpression.Name is "CONTAINSTABLE" or "FREETEXTTABLE")
+    {
+        Sql.Append(tableValuedFunctionExpression.Name).Append("(");
+
+        var tableFragment = (SqlFragmentExpression)tableValuedFunctionExpression.Arguments[0];
+        Sql.Append(_sqlGenerationHelper.DelimitIdentifier(tableFragment.Sql));
 
         Sql.Append(", ");
-        Visit(fullTextTableExpression.ColumnFragment);
+
+        var columnFragment = (SqlFragmentExpression)tableValuedFunctionExpression.Arguments[1];
+        Sql.Append(_sqlGenerationHelper.DelimitIdentifier(columnFragment.Sql));
 
         Sql.Append(", ");
-        Visit(fullTextTableExpression.SearchCondition);
+
+        Visit(tableValuedFunctionExpression.Arguments[2]);
 
         Sql.Append(")")
-            .Append(AliasSeparator)
-            .Append(_sqlGenerationHelper.DelimitIdentifier(fullTextTableExpression.Alias!));
+           .Append(AliasSeparator)
+           .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
 
-        return fullTextTableExpression;
+        return tableValuedFunctionExpression;
+    }
+    return base.VisitTableValuedFunction(tableValuedFunctionExpression);
     }
 
     private void GenerateList<T>(

@@ -81,82 +81,108 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-        if (method.DeclaringType == typeof(SqlServerQueryableExtensions)
-            && (method.Name == nameof(SqlServerQueryableExtensions.ContainsTable)
-                || method.Name == nameof(SqlServerQueryableExtensions.FreeTextTable)))
+        
+        if (method.DeclaringType == typeof(Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions)
+            && method.IsGenericMethod
+            && methodCallExpression.Arguments is [var sourceExpression, var selectorExpression, var searchConditionExpression]
+            && (method.Name == nameof(Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions.ContainsTable)
+                || method.Name == nameof(Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions.FreeTextTable)))
         {
-            var functionName = method.Name == nameof(SqlServerQueryableExtensions.ContainsTable)
+            var functionName = method.Name == nameof(Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions.ContainsTable)
                 ? "CONTAINSTABLE"
                 : "FREETEXTTABLE";
 
-            var source = Visit(methodCallExpression.Arguments[0]);
+            var source = Visit(sourceExpression);
             if (source is not ShapedQueryExpression shapedQuery
                 || shapedQuery.QueryExpression is not SelectExpression sourceSelectExpression)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            var lambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+            var lambda = selectorExpression.UnwrapLambdaFromQuote();
             if (lambda is not LambdaExpression lambdaExpression)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
-            
+
             var propertyTranslation = TranslateLambdaExpression(shapedQuery, lambdaExpression);
             if (propertyTranslation is not ColumnExpression columnExpression)
             {
                 AddTranslationErrorDetails(SqlServerStrings.InvalidColumnNameForFreeText);
                 return QueryCompilationContext.NotTranslatedExpression;
             }
-            if (sourceSelectExpression.Tables.Count == 0
-                || sourceSelectExpression.Tables[0] is not TableExpression tableExpression)
+
+            if (sourceSelectExpression is not
+                {
+                    Tables: [TableExpression tableExpression],
+                    Predicate: null,
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Orderings: [],
+                    Limit: null,
+                    Offset: null
+                })
             {
+                AddTranslationErrorDetails("Source must be a simple table scan.");
                 return QueryCompilationContext.NotTranslatedExpression;
             }
+
             var tableName = tableExpression.Name;
             var columnName = columnExpression.Name;
-            var searchCondition = TranslateExpression(methodCallExpression.Arguments[2]);
+            var searchCondition = TranslateExpression(searchConditionExpression);
             if (searchCondition == null)
             {
-                AddTranslationErrorDetails(CoreStrings.TranslationFailed(methodCallExpression.Arguments[2].Print()));
+                AddTranslationErrorDetails(CoreStrings.TranslationFailed(searchConditionExpression.Print()));
                 return QueryCompilationContext.NotTranslatedExpression;
             }
             var keyType = method.GetGenericArguments()[1]; // TKey is the second generic argument
-            var alias = _queryCompilationContext.SqlAliasManager.GenerateTableAlias("ft");
-            var tableFragment = new SqlFragmentExpression($"[{tableName}]");
-            var columnFragment = new SqlFragmentExpression($"[{columnName}]");
-            var fullTextTableExpression = new FullTextTableExpression(
-                functionName,
-                tableFragment,
-                columnFragment,
-                searchCondition,
-                alias);
-            var resultType = typeof(SqlServerQueryableExtensions.FullTextTableResult<>).MakeGenericType(keyType);
+            var alias = _queryCompilationContext.SqlAliasManager.GenerateTableAlias("fts");
+            var tableFragment = new SqlFragmentExpression(tableExpression.Name); 
+            var columnFragment = new SqlFragmentExpression(columnExpression.Name);
+            
+            var arguments = new SqlExpression[] { tableFragment, columnFragment, searchCondition };
+
+            var tvf = new TableValuedFunctionExpression(alias, functionName, arguments);
+            var resultType = method.ReturnType;
             var keyTypeMapping = _typeMappingSource.FindMapping(keyType);
-            var keyColumn = new ColumnExpression("Key", alias, keyType, keyTypeMapping, nullable: false);
-            var rankColumn = new ColumnExpression("Rank", alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false);
-
-#pragma warning disable EF1001
-
+            var keyColumn = new ColumnExpression("KEY", alias, keyType, keyTypeMapping, nullable: false);
+            var rankColumn = new ColumnExpression("RANK", alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false);
+        #pragma warning disable EF1001
+        #pragma warning disable EF1001
             var newSelectExpression = new SelectExpression(
-                [fullTextTableExpression],
-                keyColumn,
-                [(keyColumn, keyTypeMapping?.Comparer ?? ValueComparer.CreateDefault(keyType, favorStructuralComparisons: false))],
-                _queryCompilationContext.SqlAliasManager);
+                alias: null,
+                tables: new List<TableExpressionBase> { tvf },
+                predicate: null,
+                groupBy: new List<SqlExpression>(),
+                having: null,
+                projections: new List<ProjectionExpression>(),
+                distinct: false,
+                orderings: new List<OrderingExpression>(),
+                offset: null,
+                limit: null,
+                sqlAliasManager: _queryCompilationContext.SqlAliasManager);
+        #pragma warning restore EF1001
+        #pragma warning restore EF1001
+            var projectionMap = new Dictionary<ProjectionMember, Expression>();
 
-#pragma warning restore EF1001
-            var rankIndex = newSelectExpression.AddToProjection(rankColumn);
-            var keyBinding = new ProjectionBindingExpression(newSelectExpression, new ProjectionMember(), keyType);
-            var rankBinding = new ProjectionBindingExpression(newSelectExpression, rankIndex, typeof(int));
+            var keyMember = new ProjectionMember();
+            projectionMap.Add(keyMember, keyColumn);
+
+            var rankProperty = resultType.GetProperty("Rank")!;
+            var rankMember = new ProjectionMember().Append(rankProperty);
+            projectionMap.Add(rankMember, rankColumn);
+            newSelectExpression.ReplaceProjection(projectionMap);
+            var keyBinding = new ProjectionBindingExpression(newSelectExpression, keyMember, keyType);
+            var rankBinding = new ProjectionBindingExpression(newSelectExpression, rankMember, typeof(int));
             var shaperExpression = Expression.New(
                 resultType.GetConstructor([keyType, typeof(int)])!,
                 keyBinding,
                 rankBinding);
             return new ShapedQueryExpression(newSelectExpression, shaperExpression);
-
         }
-        return base.VisitMethodCall(methodCallExpression);
 
+        return base.VisitMethodCall(methodCallExpression);
     }
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
