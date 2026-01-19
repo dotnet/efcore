@@ -28,7 +28,7 @@
     <!-- For this prerelease version, see https://github.com/dotnet/roslyn-sdk/issues/1175 -->
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.25564.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.25564.1</MicrosoftCodeAnalysisCSharpTestingVersion>
-    <AzureIdentityVersion>1.14.2</AzureIdentityVersion>
+    <AzureIdentityVersion>1.17.1</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
     <SQLitePCLRawVersion>3.0.2</SQLitePCLRawVersion>
