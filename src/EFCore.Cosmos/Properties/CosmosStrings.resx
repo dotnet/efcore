@@ -391,6 +391,9 @@
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>
   </data>
+  <data name="UnableToDetermineEntityTypeByDiscriminator" xml:space="preserve">
+    <value>Unable to determine entity type from document by discriminator. Try using Deserialize&lt;T&gt; instead.</value>
+  </data>
   <data name="UnsupportedOperatorForSqlExpression" xml:space="preserve">
     <value>Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.</value>
   </data>

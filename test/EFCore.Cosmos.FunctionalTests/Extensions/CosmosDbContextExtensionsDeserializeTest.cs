@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -25,14 +26,38 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        var response = await container.ReadItemAsync<JObject>("0", new Microsoft.Azure.Cosmos.PartitionKey("1"));
+        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
         var deserialized = context.Database.Deserialize(jObject);
         var deserializedCustomer = Assert.IsType<Customer>(deserialized);
 
-        Assert.Equal("Customer 1", deserializedCustomer.Name);
-        Assert.Equal("0", deserializedCustomer.Id);
+        Assert.Equal(customer.Name, deserializedCustomer.Name);
+        Assert.Equal(customer.Id, deserializedCustomer.Id);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Deserializes_typed()
+    {
+        using var context = Fixture.CreateContext();
+
+        var customer = new Customer { Id = "-1", Name = "Customer 1", PartitionKey = "1" };
+        customer.Children.Add(new DummyChild { Id = "1", Name = "Child 1" });
+        context.Customers.Add(customer);
+        await context.SaveChangesAsync();
+
+        var client = context.Database.GetCosmosClient();
+        var container = client.GetContainer(
+            context.Database.GetCosmosDatabaseId(),
+            context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
+
+        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
+        var jObject = response.Resource;
+
+        var deserializedCustomer = context.Database.Deserialize<Customer>(jObject);
+
+        Assert.Equal(customer.Name, deserializedCustomer.Name);
+        Assert.Equal(customer.Id, deserializedCustomer.Id);
     }
 
     [ConditionalFact]
@@ -49,14 +74,14 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        var response = await container.ReadItemAsync<JObject>("CustomerWithIdDiscriminator|1", new Microsoft.Azure.Cosmos.PartitionKey("1"));
+        var response = await container.ReadItemAsync<JObject>("CustomerWithIdDiscriminator|" + customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
         var deserialized = context.Database.Deserialize(jObject);
         var deserializedCustomer = Assert.IsType<CustomerWithIdDiscriminator>(deserialized);
 
-        Assert.Equal("Customer 1", deserializedCustomer.Name);
-        Assert.Equal("1", deserializedCustomer.Id);
+        Assert.Equal(customer.Name, deserializedCustomer.Name);
+        Assert.Equal(customer.Id, deserializedCustomer.Id);
     }
 
     [ConditionalFact]
@@ -74,14 +99,14 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        var response = await container.ReadItemAsync<JObject>("2", new Microsoft.Azure.Cosmos.PartitionKey("2"));
+        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
         jObject["$type"] = "DummyChild";
 
         var exception = Assert.Throws<InvalidOperationException>(
             () => context.Database.Deserialize(jObject));
-        Assert.Equal("Unable to determine entity type.", exception.Message);
+        Assert.Equal(CosmosStrings.UnableToDetermineEntityTypeByDiscriminator, exception.Message);
     }
 
     [ConditionalFact]
@@ -99,7 +124,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        var response = await container.ReadItemAsync<JObject>("3", new Microsoft.Azure.Cosmos.PartitionKey("3"));
+        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
         jObject["$type"] = "NotACustomer";
@@ -124,7 +149,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        var response = await container.ReadItemAsync<JObject>("5", new Microsoft.Azure.Cosmos.PartitionKey("3"));
+        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
         jObject.Remove("$type");
@@ -169,8 +194,8 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
 
             var deserializedCustomer = Assert.IsType<Customer>(deserialized!);
 
-            Assert.Equal("Customer 1", deserializedCustomer.Name);
-            Assert.Equal("4", deserializedCustomer.Id);
+            Assert.Equal(customer.Name, deserializedCustomer.Name);
+            Assert.Equal(customer.Id, deserializedCustomer.Id);
         }
         finally
         {

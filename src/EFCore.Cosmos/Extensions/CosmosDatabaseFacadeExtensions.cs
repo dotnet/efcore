@@ -44,23 +44,24 @@ public static class CosmosDatabaseFacadeExtensions
         var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
         var rootEntityTypes = context.Model.GetEntityTypes().Where(x => x.IsDocumentRoot()).ToList();
         var entityType = rootEntityTypes
-            .FirstOrDefault(et =>
-            {
-                var discriminator = et.FindDiscriminatorProperty();
-
-                if (discriminator == null)
+                .FirstOrDefault(et =>
                 {
-                    return rootEntityTypes.Count(static rootEt => rootEt.FindDiscriminatorProperty() == null) == 1;
-                }
-                var discriminatorJsonProperty = discriminator.GetJsonPropertyName();
-                var discriminatorValue = document.Value<string?>(discriminatorJsonProperty);
+                    var discriminator = et.FindDiscriminatorProperty();
 
-                return discriminatorValue == et.GetDiscriminatorValue()!.ToString();
-            });
+                    if (discriminator == null)
+                    {
+                        return false;
+                    }
+
+                    var discriminatorJsonProperty = discriminator.GetJsonPropertyName();
+                    var discriminatorValue = document.Value<string?>(discriminatorJsonProperty);
+
+                    return discriminatorValue == et.GetDiscriminatorValue()!.ToString();
+                });
 
         if (entityType == null)
         {
-            throw new InvalidOperationException("Unable to determine entity type.");
+            throw new InvalidOperationException(CosmosStrings.UnableToDetermineEntityTypeByDiscriminator);
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
