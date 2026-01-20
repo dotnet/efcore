@@ -586,12 +586,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 memberType, member, entityType);
 
         /// <summary>
-        ///     Unable to determine entity type from document by discriminator. Try using Deserialize&lt;T&gt; instead.
-        /// </summary>
-        public static string UnableToDetermineEntityTypeByDiscriminator
-            => GetString("UnableToDetermineEntityTypeByDiscriminator");
-
-        /// <summary>
         ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.
         /// </summary>
         public static string UnsupportedOperatorForSqlExpression(object? nodeType, object? expressionType)

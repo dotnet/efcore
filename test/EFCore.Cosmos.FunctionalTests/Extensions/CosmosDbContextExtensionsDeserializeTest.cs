@@ -39,7 +39,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     {
         using var context = Fixture.CreateContext();
 
-        var customer = new CustomerWithSharedClrType { Id = "1", Name = "Customer 1", PartitionKey = "1" };
+        var customer = new CustomerWithSharedClrType { Id = Guid.NewGuid().ToString(), Name = "Customer 1", PartitionKey = "1" };
         context.Set<CustomerWithSharedClrType>("1").Add(customer);
         await context.SaveChangesAsync();
 
@@ -48,7 +48,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
+        var response = await container.ReadItemAsync<JObject>("1|" + customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
         var deserialized = context.Database.Deserialize<CustomerWithSharedClrType>("1", jObject);
@@ -62,7 +62,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     {
         using var context = Fixture.CreateContext();
 
-        var customer = new CustomerWithIdDiscriminator { Id = "1", Name = "Customer 1", PartitionKey = "1" };
+        var customer = new CustomerWithIdDiscriminator { Id = Guid.NewGuid().ToString(), Name = "Customer 1", PartitionKey = "1" };
         context.Set<CustomerWithIdDiscriminator>().Add(customer);
         await context.SaveChangesAsync();
 
