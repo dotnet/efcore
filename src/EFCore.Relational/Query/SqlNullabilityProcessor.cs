@@ -1910,7 +1910,20 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
             }
 
-            var values = enumerable.Cast<object?>().ToList();
+            IList values;
+            if (enumerable.GetType().GetInterfaces().FirstOrDefault(
+                i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
+                ) is { } genericEnumerableInterface)
+            {
+                var elementType = genericEnumerableInterface.GetGenericArguments()[0];
+                var toListMethod = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList))!.MakeGenericMethod(elementType);
+                values = (IList)toListMethod.Invoke(null, [ enumerable ])!;
+            }
+            else
+            {
+                values = enumerable.Cast<object?>().ToList();
+            }
+
             IList? processedValues = null;
 
             for (var i = 0; i < values.Count; i++)
