@@ -25,9 +25,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Test dependencies">
-    <!-- For this prerelease version, see https://github.com/dotnet/roslyn-sdk/issues/1175 -->
-    <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3-beta1.25564.1</MicrosoftCodeAnalysisAnalyzerTestingVersion>
-    <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.25564.1</MicrosoftCodeAnalysisCSharpTestingVersion>
+    <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.3</MicrosoftCodeAnalysisAnalyzerTestingVersion>
+    <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3</MicrosoftCodeAnalysisCSharpTestingVersion>
     <AzureIdentityVersion>1.17.1</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
