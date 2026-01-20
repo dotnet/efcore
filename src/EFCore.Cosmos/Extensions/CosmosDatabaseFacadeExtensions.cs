@@ -1,14 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Newtonsoft.Json.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -31,51 +32,7 @@ public static class CosmosDatabaseFacadeExtensions
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
     /// <summary>
-    /// Deserializes the given <see cref="JObject"/> document to its root entity type.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
-    /// <returns>The deserialized entity instance</returns>
-    public static object Deserialize(this DatabaseFacade databaseFacade, JObject document)
-    {
-        var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
-        var rootEntityTypes = context.Model.GetEntityTypes().Where(x => x.IsDocumentRoot()).ToList();
-        var entityType = rootEntityTypes
-                .FirstOrDefault(et =>
-                {
-                    var discriminator = et.FindDiscriminatorProperty();
-
-                    if (discriminator == null)
-                    {
-                        return false;
-                    }
-
-                    var discriminatorJsonProperty = discriminator.GetJsonPropertyName();
-                    var discriminatorValue = document.Value<string?>(discriminatorJsonProperty);
-
-                    return discriminatorValue == et.GetDiscriminatorValue()!.ToString();
-                });
-
-        if (entityType == null)
-        {
-            throw new InvalidOperationException(CosmosStrings.UnableToDetermineEntityTypeByDiscriminator);
-        }
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var query = ((IQueryable<object>)context.GetService<IDbSetSource>().Create(context, entityType.ClrType)).AsNoTracking();
-        var queryCompiler = context.GetService<IQueryCompiler>();
-
-        var compiledQuery = (CosmosShapedQueryCompilingExpressionVisitor.ICosmosQueryingEnumerable<object>)queryCompiler.Execute<IAsyncEnumerable<object>>(query.Expression);
-
-        return compiledQuery.Shaper(compiledQuery.QueryContext, document);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-    }
-
-    /// <summary>
-    /// Deserializes the given <see cref="JObject"/> document to the specified root entity type.
+    ///     Deserializes the given <see cref="JObject"/> document to the specified root entity type.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
@@ -87,15 +44,43 @@ public static class CosmosDatabaseFacadeExtensions
     public static T Deserialize<T>(this DatabaseFacade databaseFacade, JObject document)
         where T : class
     {
-        var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var query = context.Set<T>().AsNoTracking();
-        var queryCompiler = context.GetService<IQueryCompiler>();
+        ArgumentNullException.ThrowIfNull(document);
 
+        var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
+        return Deserialize(context, document, context.Set<T>());
+    }
+
+    /// <summary>
+    ///     Deserializes the given <see cref="JObject"/> document to the specified root entity type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="name">The name for the shared-type entity type to use.</param>
+    /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
+    /// <typeparam name="T">The type of entity to deserialize.</typeparam>
+    /// <returns>The deserialized entity instance</returns>
+    public static T Deserialize<T>(this DatabaseFacade databaseFacade, string name, JObject document)
+        where T : class
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(document);
+
+        var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
+        return Deserialize(context, document, context.Set<T>(name));
+    }
+
+    private static T Deserialize<T>(DbContext context, JObject document, DbSet<T> dbSet)
+        where T : class
+    {
+        var query = dbSet.AsNoTracking();
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var queryCompiler = context.GetService<IQueryCompiler>();
         var compiledQuery = (CosmosShapedQueryCompilingExpressionVisitor.ICosmosQueryingEnumerable<T>)queryCompiler.Execute<IAsyncEnumerable<T>>(query.Expression);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         return compiledQuery.Shaper(compiledQuery.QueryContext, document);
-#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
     /// <summary>

@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -16,7 +15,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     {
         using var context = Fixture.CreateContext();
 
-        var customer = new Customer { Id = "0", Name = "Customer 1", PartitionKey = "1" };
+        var customer = new Customer { Id = Guid.NewGuid().ToString(), Name = "Customer 1", PartitionKey = "1" };
         customer.Children.Add(new DummyChild { Id = "1", Name = "Child 1" });
         context.Customers.Add(customer);
         await context.SaveChangesAsync();
@@ -29,21 +28,19 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
         var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
-        var deserialized = context.Database.Deserialize(jObject);
-        var deserializedCustomer = Assert.IsType<Customer>(deserialized);
+        var deserialized = context.Database.Deserialize<Customer>(jObject);
 
-        Assert.Equal(customer.Name, deserializedCustomer.Name);
-        Assert.Equal(customer.Id, deserializedCustomer.Id);
+        Assert.Equal(customer.Name, deserialized.Name);
+        Assert.Equal(customer.Id, deserialized.Id);
     }
 
     [ConditionalFact]
-    public virtual async Task Deserializes_typed()
+    public virtual async Task Deserializes_SharedClrType()
     {
         using var context = Fixture.CreateContext();
 
-        var customer = new Customer { Id = "-1", Name = "Customer 1", PartitionKey = "1" };
-        customer.Children.Add(new DummyChild { Id = "1", Name = "Child 1" });
-        context.Customers.Add(customer);
+        var customer = new CustomerWithSharedClrType { Id = "1", Name = "Customer 1", PartitionKey = "1" };
+        context.Set<CustomerWithSharedClrType>("1").Add(customer);
         await context.SaveChangesAsync();
 
         var client = context.Database.GetCosmosClient();
@@ -54,10 +51,10 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
         var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
-        var deserializedCustomer = context.Database.Deserialize<Customer>(jObject);
+        var deserialized = context.Database.Deserialize<CustomerWithSharedClrType>("1", jObject);
 
-        Assert.Equal(customer.Name, deserializedCustomer.Name);
-        Assert.Equal(customer.Id, deserializedCustomer.Id);
+        Assert.Equal(customer.Name, deserialized.Name);
+        Assert.Equal(customer.Id, deserialized.Id);
     }
 
     [ConditionalFact]
@@ -77,36 +74,10 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
         var response = await container.ReadItemAsync<JObject>("CustomerWithIdDiscriminator|" + customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
         var jObject = response.Resource;
 
-        var deserialized = context.Database.Deserialize(jObject);
-        var deserializedCustomer = Assert.IsType<CustomerWithIdDiscriminator>(deserialized);
+        var deserialized = context.Database.Deserialize<CustomerWithIdDiscriminator>(jObject);
 
-        Assert.Equal(customer.Name, deserializedCustomer.Name);
-        Assert.Equal(customer.Id, deserializedCustomer.Id);
-    }
-
-    [ConditionalFact]
-    public virtual async Task NonRootType_Fails()
-    {
-        using var context = Fixture.CreateContext();
-
-        var customer = new Customer { Id = "2", Name = "Customer 2", PartitionKey = "2" };
-        customer.Children.Add(new DummyChild { Id = "2", Name = "Child 2" });
-        context.Customers.Add(customer);
-        await context.SaveChangesAsync();
-
-        var client = context.Database.GetCosmosClient();
-        var container = client.GetContainer(
-            context.Database.GetCosmosDatabaseId(),
-            context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
-
-        var response = await container.ReadItemAsync<JObject>(customer.Id, new Microsoft.Azure.Cosmos.PartitionKey(customer.PartitionKey));
-        var jObject = response.Resource;
-
-        jObject["$type"] = "DummyChild";
-
-        var exception = Assert.Throws<InvalidOperationException>(
-            () => context.Database.Deserialize(jObject));
-        Assert.Equal(CosmosStrings.UnableToDetermineEntityTypeByDiscriminator, exception.Message);
+        Assert.Equal(customer.Name, deserialized.Name);
+        Assert.Equal(customer.Id, deserialized.Id);
     }
 
     [ConditionalFact]
@@ -114,7 +85,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     {
         using var context = Fixture.CreateContext();
 
-        var customer = new Customer { Id = "3", Name = "Customer 3", PartitionKey = "3" };
+        var customer = new Customer { Id = Guid.NewGuid().ToString(), Name = "Customer 3", PartitionKey = "1" };
         customer.Children.Add(new DummyChild { Id = "3", Name = "Child 3" });
         context.Customers.Add(customer);
         await context.SaveChangesAsync();
@@ -139,7 +110,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     {
         using var context = Fixture.CreateContext();
 
-        var customer = new Customer { Id = "5", Name = "Customer 3", PartitionKey = "3" };
+        var customer = new Customer { Id = Guid.NewGuid().ToString(), Name = "Customer 3", PartitionKey = "1" };
         customer.Children.Add(new DummyChild { Id = "3", Name = "Child 3" });
         context.Customers.Add(customer);
         await context.SaveChangesAsync();
@@ -160,7 +131,7 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     }
 
     [ConditionalFact]
-    public virtual async Task Changefeed_deserialize()
+    public virtual async Task Changefeed()
     {
         using var context = Fixture.CreateContext();
 
@@ -169,17 +140,17 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             context.Database.GetCosmosDatabaseId(),
             context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
 
-        object? deserialized = null;
+        Customer? deserialized = null;
         var processor = container.GetChangeFeedProcessorBuilder("processor", async (IReadOnlyCollection<JObject> changes, CancellationToken ctx) =>
         {
             using var context = Fixture.CreateContext();
-            deserialized = context.Database.Deserialize(changes.Single());
+            deserialized = context.Database.Deserialize<Customer>(changes.Single());
         }).WithInMemoryLeaseContainer().Build();
 
         await processor.StartAsync();
         try
         {
-            var customer = new Customer { Id = "4", Name = "Customer 1", PartitionKey = "1" };
+            var customer = new Customer { Id = Guid.NewGuid().ToString(), Name = "Customer 1", PartitionKey = "1" };
             customer.Children.Add(new DummyChild { Id = "1", Name = "Child 1" });
             context.Customers.Add(customer);
 
@@ -192,10 +163,8 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             }
             Assert.NotNull(deserialized);
 
-            var deserializedCustomer = Assert.IsType<Customer>(deserialized!);
-
-            Assert.Equal(customer.Name, deserializedCustomer.Name);
-            Assert.Equal(customer.Id, deserializedCustomer.Id);
+            Assert.Equal(customer.Name, deserialized.Name);
+            Assert.Equal(customer.Id, deserialized.Id);
         }
         finally
         {
@@ -230,9 +199,26 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
             builder.Entity<CustomerWithIdDiscriminator>(
                 b =>
                 {
-                    b.HasRootDiscriminatorInJsonId();
                     b.HasKey(c => c.Id);
                     b.Property(c => c.Name).ToJsonProperty("custom");
+                    b.HasPartitionKey(c => c.PartitionKey);
+                    b.HasDiscriminatorInJsonId();
+                });
+
+            builder.SharedTypeEntity<CustomerWithSharedClrType>("1",
+                b =>
+                {
+                    b.HasRootDiscriminatorInJsonId();
+                    b.HasKey(c => c.Id);
+                    b.Property(c => c.Name).ToJsonProperty("custom1");
+                    b.HasPartitionKey(c => c.PartitionKey);
+                });
+            builder.SharedTypeEntity<CustomerWithSharedClrType>("2",
+                b =>
+                {
+                    b.HasRootDiscriminatorInJsonId();
+                    b.HasKey(c => c.Id);
+                    b.Property(c => c.Name).ToJsonProperty("custom2");
                     b.HasPartitionKey(c => c.PartitionKey);
                 });
         }
@@ -256,6 +242,15 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
     }
 
     public class CustomerWithIdDiscriminator
+    {
+        public string? Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? PartitionKey { get; set; }
+    }
+
+    public class CustomerWithSharedClrType
     {
         public string? Id { get; set; }
 
