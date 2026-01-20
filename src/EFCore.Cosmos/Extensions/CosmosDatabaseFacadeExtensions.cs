@@ -3,7 +3,12 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -24,6 +29,46 @@ public static class CosmosDatabaseFacadeExtensions
     /// <returns>The <see cref="CosmosClient" /></returns>
     public static CosmosClient GetCosmosClient(this DatabaseFacade databaseFacade)
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
+
+    /// <summary>
+    /// Deserializes the given <see cref="JObject"/> document to it's root entity type.
+    /// </summary>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
+    /// <returns>The deserialized entity instance</returns>
+    public static object Deserialize(this DatabaseFacade databaseFacade, JObject document)
+    {
+        var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
+        var entityType = context.Model.GetEntityTypes().Where(x => x.IsDocumentRoot())
+            .FirstOrDefault(et =>
+            {
+                var discriminator = et.FindDiscriminatorProperty();
+
+                if (discriminator == null)
+                {
+                    return context.Model.GetEntityTypes().Skip(1).Take(1).Count() == 0;
+                }
+                
+                var discriminatorJsonProperty = discriminator.GetJsonPropertyName();
+                var discriminatorValue = document.Value<string?>(discriminatorJsonProperty);
+
+                return discriminatorValue == et.GetDiscriminatorValue()!.ToString();
+            });
+
+        if (entityType == null)
+        {
+            throw new InvalidOperationException("Unable to determine entity type.");
+        }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var query = ((IQueryable<object>)context.GetService<IDbSetSource>().Create(context, entityType.ClrType)).AsNoTracking();
+        var queryCompiler = context.GetService<IQueryCompiler>();
+
+        var compiledQuery = (CosmosShapedQueryCompilingExpressionVisitor.ICosmosQueryingEnumerable<object>)queryCompiler.Execute<IAsyncEnumerable<object>>(query.Expression);
+
+        return compiledQuery.Shaper(compiledQuery.QueryContext, document);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+    }
 
     /// <summary>
     ///     Gets the composite session token for the default container for this <see cref="DbContext" />.

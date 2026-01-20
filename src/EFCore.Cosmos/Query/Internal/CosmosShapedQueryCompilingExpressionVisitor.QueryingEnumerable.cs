@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private sealed class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable
+    private sealed class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable, ICosmosQueryingEnumerable<T>
     {
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -60,6 +60,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _cosmosPartitionKey = GeneratePartitionKey(
                 rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.Parameters);
         }
+
+        public CosmosQueryContext QueryContext
+            => _cosmosQueryContext;
+
+        public Func<CosmosQueryContext, JToken, T> Shaper
+            => _shaper;
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
@@ -190,5 +196,30 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return default;
             }
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public interface ICosmosQueryingEnumerable<out T>
+    {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        CosmosQueryContext QueryContext { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        Func<CosmosQueryContext, JToken, T> Shaper { get; }
     }
 }
