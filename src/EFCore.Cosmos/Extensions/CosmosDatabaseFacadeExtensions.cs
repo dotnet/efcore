@@ -71,6 +71,26 @@ public static class CosmosDatabaseFacadeExtensions
     }
 
     /// <summary>
+    /// Deserializes the given <see cref="JObject"/> document to the specified root entity type.
+    /// </summary>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
+    /// <returns>The deserialized entity instance</returns>
+    public static T Deserialize<T>(this DatabaseFacade databaseFacade, JObject document)
+        where T : class
+    {
+        var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var query = context.Set<T>().AsNoTracking();
+        var queryCompiler = context.GetService<IQueryCompiler>();
+
+        var compiledQuery = (CosmosShapedQueryCompilingExpressionVisitor.ICosmosQueryingEnumerable<T>)queryCompiler.Execute<IAsyncEnumerable<T>>(query.Expression);
+
+        return compiledQuery.Shaper(compiledQuery.QueryContext, document);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+    }
+
+    /// <summary>
     ///     Gets the composite session token for the default container for this <see cref="DbContext" />.
     /// </summary>
     /// <remarks>See https://aka.ms/efcore-docs-cosmos-session for more information.</remarks>
