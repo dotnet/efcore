@@ -153,7 +153,7 @@ public class CosmosDbContextExtensionsDeserializeTest(CosmosDbContextExtensionsD
         }
     }
 
-    public class CosmosFixture : SharedStoreFixtureBase<TransactionalBatchContext>
+    public class CosmosFixture : SharedStoreFixtureBase<CosmosDeserializeContext>
     {
         protected override string StoreName
             => nameof(CosmosDbContextExtensionsDeserializeTest);
@@ -162,7 +162,7 @@ public class CosmosDbContextExtensionsDeserializeTest(CosmosDbContextExtensionsD
             => CosmosTestStoreFactory.Instance;
     }
 
-    public class TransactionalBatchContext(DbContextOptions options) : PoolableDbContext(options)
+    public class CosmosDeserializeContext(DbContextOptions options) : PoolableDbContext(options)
     {
         public DbSet<Customer> Customers { get; set; } = null!;
 
