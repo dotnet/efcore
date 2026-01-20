@@ -31,24 +31,27 @@ public static class CosmosDatabaseFacadeExtensions
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
     /// <summary>
-    /// Deserializes the given <see cref="JObject"/> document to it's root entity type.
+    /// Deserializes the given <see cref="JObject"/> document to its root entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
     /// <returns>The deserialized entity instance</returns>
     public static object Deserialize(this DatabaseFacade databaseFacade, JObject document)
     {
         var context = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context;
-        var entityType = context.Model.GetEntityTypes().Where(x => x.IsDocumentRoot())
+        var rootEntityTypes = context.Model.GetEntityTypes().Where(x => x.IsDocumentRoot()).ToList();
+        var entityType = rootEntityTypes
             .FirstOrDefault(et =>
             {
                 var discriminator = et.FindDiscriminatorProperty();
 
                 if (discriminator == null)
                 {
-                    return context.Model.GetEntityTypes().Skip(1).Take(1).Count() == 0;
+                    return rootEntityTypes.Count(static rootEt => rootEt.FindDiscriminatorProperty() == null) == 1;
                 }
-                
                 var discriminatorJsonProperty = discriminator.GetJsonPropertyName();
                 var discriminatorValue = document.Value<string?>(discriminatorJsonProperty);
 
@@ -75,6 +78,7 @@ public static class CosmosDatabaseFacadeExtensions
     /// </summary>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
+    /// <typeparam name="T">The type of entity to deserialize.</typeparam>
     /// <returns>The deserialized entity instance</returns>
     public static T Deserialize<T>(this DatabaseFacade databaseFacade, JObject document)
         where T : class
