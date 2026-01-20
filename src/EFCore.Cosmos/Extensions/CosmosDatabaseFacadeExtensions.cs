@@ -77,6 +77,9 @@ public static class CosmosDatabaseFacadeExtensions
     /// <summary>
     /// Deserializes the given <see cref="JObject"/> document to the specified root entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="document">The <see cref="JObject"/> document to deserialize.</param>
     /// <typeparam name="T">The type of entity to deserialize.</typeparam>
