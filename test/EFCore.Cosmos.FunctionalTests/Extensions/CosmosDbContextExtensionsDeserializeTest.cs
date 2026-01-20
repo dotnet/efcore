@@ -105,8 +105,33 @@ public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeE
         jObject["$type"] = "NotACustomer";
 
         var exception = Assert.Throws<InvalidOperationException>(
-            () => context.Database.Deserialize(jObject));
-        Assert.Equal("Unable to determine entity type.", exception.Message);
+            () => context.Database.Deserialize<Customer>(jObject));
+        Assert.Equal(CoreStrings.UnableToDiscriminate(nameof(Customer), "NotACustomer"), exception.Message);
+    }
+
+    [ConditionalFact]
+    public virtual async Task No_discriminator_fails()
+    {
+        using var context = Fixture.CreateContext();
+
+        var customer = new Customer { Id = "5", Name = "Customer 3", PartitionKey = "3" };
+        customer.Children.Add(new DummyChild { Id = "3", Name = "Child 3" });
+        context.Customers.Add(customer);
+        await context.SaveChangesAsync();
+
+        var client = context.Database.GetCosmosClient();
+        var container = client.GetContainer(
+            context.Database.GetCosmosDatabaseId(),
+            context.Model.GetEntityTypes().First(x => x.IsDocumentRoot()).GetContainer());
+
+        var response = await container.ReadItemAsync<JObject>("5", new Microsoft.Azure.Cosmos.PartitionKey("3"));
+        var jObject = response.Resource;
+
+        jObject.Remove("$type");
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Database.Deserialize<Customer>(jObject));
+        Assert.Equal(CoreStrings.UnableToDiscriminate(nameof(Customer), ""), exception.Message);
     }
 
     [ConditionalFact]
