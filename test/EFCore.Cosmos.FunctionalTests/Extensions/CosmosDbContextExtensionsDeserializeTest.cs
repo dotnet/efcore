@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Extensions;
 
-public class CosmosDbContextExtensionsDeserializeTest(CosmosDbContextExtensionsDeserializeTest.CosmosFixture fixture) : IClassFixture<CosmosDbContextExtensionsDeserializeTest.CosmosFixture>
+public class CosmosDatabaseFacadeExtensionsDeserializeTest(CosmosDatabaseFacadeExtensionsDeserializeTest.CosmosFixture fixture) : IClassFixture<CosmosDatabaseFacadeExtensionsDeserializeTest.CosmosFixture>
 {
     protected CosmosFixture Fixture { get; } = fixture;
 
@@ -156,7 +156,7 @@ public class CosmosDbContextExtensionsDeserializeTest(CosmosDbContextExtensionsD
     public class CosmosFixture : SharedStoreFixtureBase<CosmosDeserializeContext>
     {
         protected override string StoreName
-            => nameof(CosmosDbContextExtensionsDeserializeTest);
+            => nameof(CosmosDatabaseFacadeExtensionsDeserializeTest);
 
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
