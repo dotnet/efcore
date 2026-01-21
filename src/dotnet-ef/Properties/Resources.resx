@@ -162,6 +162,9 @@
   <data name="DatabaseUpdateDescription" xml:space="preserve">
     <value>Updates the database to a specified migration.</value>
   </data>
+  <data name="DatabaseUpdateAddDescription" xml:space="preserve">
+    <value>Create a new migration with the given name and apply it immediately.</value>
+  </data>
   <data name="DbContextConnectionDescription" xml:space="preserve">
     <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
   </data>
@@ -212,6 +215,9 @@
   </data>
   <data name="MigrationNameDescription" xml:space="preserve">
     <value>The name of the migration.</value>
+  </data>
+  <data name="MissingArgument" xml:space="preserve">
+    <value>Missing required argument '{arg}'.</value>
   </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>

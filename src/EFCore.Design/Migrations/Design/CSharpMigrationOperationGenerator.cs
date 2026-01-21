@@ -1826,8 +1826,16 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     {
         builder
             .Append(".Sql(")
-            .Append(Code.Literal(operation.Sql))
-            .Append(")");
+            .Append(Code.Literal(operation.Sql));
+
+        if (operation.SuppressTransaction)
+        {
+            builder
+                .Append(", suppressTransaction: ")
+                .Append(Code.Literal(true));
+        }
+
+        builder.Append(")");
 
         using (builder.Indent())
         {
