@@ -1391,10 +1391,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private enum ParsingState
     {
         Normal,
-        Quoted,
         InBlockComment,
         InSquareBrackets,
-        InDoubleQuotes
+        InDoubleQuotes,
+        InQuotes
     }
 
     /// <summary>
@@ -1449,12 +1449,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                     state = state switch
                     {
-                        ParsingState.Normal when c == '\'' => ParsingState.Quoted,
+                        ParsingState.Normal when c == '\'' => ParsingState.InQuotes,
                         ParsingState.Normal when c == '[' => ParsingState.InSquareBrackets,
                         ParsingState.Normal when c == '"' => ParsingState.InDoubleQuotes,
                         ParsingState.Normal when c == '/' && next == '*' => ConsumeAndReturn(ref i, ParsingState.InBlockComment),
 
-                        ParsingState.Quoted when c == '\'' => ParsingState.Normal,
+                        ParsingState.InQuotes when c == '\'' => ParsingState.Normal,
 
                         ParsingState.InSquareBrackets when c == ']' && next == ']' => ConsumeAndReturn(ref i, ParsingState.InSquareBrackets),
                         ParsingState.InSquareBrackets when c == ']' => ParsingState.Normal,
