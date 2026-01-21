@@ -1001,6 +1001,141 @@ SELECT 2;
 """);
     }
 
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_square_bracket_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO [go] VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO [go] VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_escaped_square_bracket_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO [g]]o] VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO [g]]o] VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO \"go\" VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO "go" VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_quote_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_forward_slash_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1/2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1/2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_asterisk_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1*2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1*2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_dash_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1-2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1-2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_square_bracket_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT [column];" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT [column];
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT \"column\";" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT "column";
+GO
+
+SELECT 2;
+""");
+    }
+
     public override void InsertDataOperation_all_args_spatial()
     {
         base.InsertDataOperation_all_args_spatial();

@@ -1393,9 +1393,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         Normal,
         Quoted,
         InBlockComment,
-        MaybeLineComment,
-        MaybeBlockCommentStart,
-        MaybeBlockCommentEnd
+        InSquareBrackets,
+        InDoubleQuotes
     }
 
     /// <summary>
@@ -1417,13 +1416,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            // Reset "Maybe" states at line start
-            if (state == ParsingState.MaybeLineComment
-                || state == ParsingState.MaybeBlockCommentStart
-                || state == ParsingState.MaybeBlockCommentEnd)
-            {
-                state = state == ParsingState.MaybeBlockCommentEnd ? ParsingState.InBlockComment : ParsingState.Normal;
-            }
 
             if (state == ParsingState.Normal
                 && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
@@ -1445,74 +1437,34 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                foreach (var c in trimmed)
+                for (var i = 0; i < trimmed.Length; i++)
                 {
-                    // Handle MaybeLineComment and MaybeBlockCommentStart first
-                    // When transitioning to Normal, fall through to process the current character
-                    if (state == ParsingState.MaybeLineComment)
+                    var c = trimmed[i];
+                    var next = i + 1 < trimmed.Length ? trimmed[i + 1] : '\0';
+
+                    if (state == ParsingState.Normal && c == '-' && next == '-')
                     {
-                        if (c == '-')
-                        {
-                            goto LineEnd;
-                        }
-                        state = ParsingState.Normal;
-                    }
-                    else if (state == ParsingState.MaybeBlockCommentStart)
-                    {
-                        if (c == '*')
-                        {
-                            state = ParsingState.InBlockComment;
-                            continue;
-                        }
-                        state = ParsingState.Normal;
+                        goto LineEnd;
                     }
 
-                    switch (state)
+                    state = state switch
                     {
-                        case ParsingState.Normal when c == '/':
-                            state = ParsingState.MaybeBlockCommentStart;
-                            break;
-                        
-                        case ParsingState.Normal when c == '\'':
-                            state = ParsingState.Quoted;
-                            break;
-                        
-                        case ParsingState.Normal when c == '-':
-                            state = ParsingState.MaybeLineComment;
-                            break;
-                        
-                        case ParsingState.Normal:
-                            break;
+                        ParsingState.Normal when c == '\'' => ParsingState.Quoted,
+                        ParsingState.Normal when c == '[' => ParsingState.InSquareBrackets,
+                        ParsingState.Normal when c == '"' => ParsingState.InDoubleQuotes,
+                        ParsingState.Normal when c == '/' && next == '*' => ConsumeAndReturn(ref i, ParsingState.InBlockComment),
 
-                        case ParsingState.Quoted when c == '\'':
-                            state = ParsingState.Normal;
-                            break;
-                        
-                        case ParsingState.Quoted:
-                            break;
+                        ParsingState.Quoted when c == '\'' => ParsingState.Normal,
 
-                        case ParsingState.InBlockComment when c == '*':
-                            state = ParsingState.MaybeBlockCommentEnd;
-                            break;
-                        
-                        case ParsingState.InBlockComment:
-                            break;
+                        ParsingState.InSquareBrackets when c == ']' && next == ']' => ConsumeAndReturn(ref i, ParsingState.InSquareBrackets),
+                        ParsingState.InSquareBrackets when c == ']' => ParsingState.Normal,
 
-                        case ParsingState.MaybeBlockCommentEnd when c == '/':
-                            state = ParsingState.Normal;
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentEnd when c == '*':
-                            // Stay in MaybeBlockCommentEnd for consecutive asterisks
-                            break;
-                        
-                        case ParsingState.MaybeBlockCommentEnd:
-                            state = ParsingState.InBlockComment;
-                            break;
+                        ParsingState.InDoubleQuotes when c == '"' => ParsingState.Normal,
 
-                        default:
-                            throw new UnreachableException();
-                    }
+                        ParsingState.InBlockComment when c == '*' && next == '/' => ConsumeAndReturn(ref i, ParsingState.Normal),
+
+                        _ => state
+                    };
                 }
 
                 LineEnd:
@@ -1521,6 +1473,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         AppendBatch(batchBuilder.ToString());
+
+        ParsingState ConsumeAndReturn(ref int index, ParsingState newState)
+        {
+            index++;
+            return newState;
+        }
 
         void AppendBatch(string batch)
         {
