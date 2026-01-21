@@ -4,7 +4,7 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework="$NetToolCurrent$">
+      <group targetFramework="$NetCurrent$">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$Version$" />
       </group>
     </dependencies>
@@ -13,11 +13,11 @@
   <files>
     $CommonFileElements$
     <file src="PACKAGE.md" target="docs\" />
-    <file src="$OutputPath$$NetToolCurrent$\$AssemblyName$.dll" target="tasks\$NetToolCurrent$\" />
-    <file src="$OutputPath$$NetToolCurrent$\$AssemblyName$.pdb" target="tasks\$NetToolCurrent$\" />
-    <file src="$OutputPath$$NetToolCurrent$\$AssemblyName$.deps.json" target="tasks\$NetToolCurrent$\" />
-    <file src="$OutputPath$net472\*" target="tasks\net472\" />
-    <file src="$ArtifactsBinDir$ef\$Configuration$\$NetToolMinimum$\*" target="tools\$NetToolCurrent$\" />
+    <file src="$OutputPath$$NetCurrent$\$AssemblyName$.dll" target="tasks\$NetCurrent$\" />
+    <file src="$OutputPath$$NetCurrent$\$AssemblyName$.pdb" target="tasks\$NetCurrent$\" />
+    <file src="$OutputPath$$NetCurrent$\$AssemblyName$.deps.json" target="tasks\$NetCurrent$\" />
+    <file src="$OutputPath$$NetFrameworkToolCurrent$\*" target="tasks\$NetFrameworkToolCurrent$\" />
+    <file src="$EFOutputPath$\*" target="tools\$NetCurrent$\" />
     <file src="buildTransitive\*" target="buildTransitive\" />
   </files>
 </package>
