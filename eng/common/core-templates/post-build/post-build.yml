@@ -297,7 +297,7 @@ stages:
             os: windows
           ${{ else }}:
             name: NetCore1ESPool-Publishing-Internal
-            demands: ImageOverride -equals windows.vs2022.amd64          
+            demands: ImageOverride -equals windows.vs2022.amd64
       steps:
       - template: /eng/common/core-templates/post-build/setup-maestro-vars.yml
         parameters:
