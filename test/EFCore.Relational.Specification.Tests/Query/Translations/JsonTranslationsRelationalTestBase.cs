@@ -27,6 +27,14 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
+    [ConditionalFact]
+    public virtual Task JsonExists_on_owned_entity()
+        => AssertQuery(
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => EF.Functions.JsonExists(b.JsonOwnedType, "$.OptionalInt")),
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
+
     public class JsonTranslationsEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -35,9 +43,16 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         public required string JsonString { get; set; }
 
         public required JsonComplexType JsonComplexType { get; set; }
+        public required JsonOwnedType JsonOwnedType { get; set; }
     }
 
     public class JsonComplexType
+    {
+        public required int RequiredInt { get; set; }
+        public int? OptionalInt { get; set; }
+    }
+
+    public class JsonOwnedType
     {
         public required int RequiredInt { get; set; }
         public int? OptionalInt { get; set; }
@@ -48,7 +63,15 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         public DbSet<JsonTranslationsEntity> JsonEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<JsonTranslationsEntity>().ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
+        {
+            modelBuilder.Entity<JsonTranslationsEntity>(b =>
+            {
+                b.ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
+#pragma warning disable EF8001 // ToJson() on owned entities is obsolete
+                b.OwnsOne(j => j.JsonOwnedType, j => j.ToJson());
+#pragma warning restore EF8001
+            });
+        }
     }
 
     // The translation tests usually use BasicTypesQueryFixtureBase, which manages a single database with all the data needed for the tests.
@@ -74,9 +97,14 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 entityType.FindProperty(nameof(JsonTranslationsEntity.Id))!.GetColumnName());
             var complexTypeColumn = sqlGenerationHelper.DelimitIdentifier(
                 entityType.FindComplexProperty(nameof(JsonTranslationsEntity.JsonComplexType))!.ComplexType.GetContainerColumnName()!);
+            var ownedColumn = sqlGenerationHelper.DelimitIdentifier(
+                entityType.FindNavigation(nameof(JsonTranslationsEntity.JsonOwnedType))!.TargetEntityType.GetContainerColumnName()!);
 
             await context.Database.ExecuteSqlRawAsync(
-                $$"""UPDATE {{table}} SET {{complexTypeColumn}} = {{RemoveJsonProperty(complexTypeColumn, "$.OptionalInt")}} WHERE {{idColumn}} = 4""");
+                $$"""
+                UPDATE {{table}} SET {{complexTypeColumn}} = {{RemoveJsonProperty(complexTypeColumn, "$.OptionalInt")}} WHERE {{idColumn}} = 4;
+                UPDATE {{table}} SET {{ownedColumn}} = {{RemoveJsonProperty(ownedColumn, "$.OptionalInt")}} WHERE {{idColumn}} = 4;
+                """);
         }
 
         protected abstract string RemoveJsonProperty(string column, string jsonPath);
@@ -128,14 +156,20 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
 
         public static IReadOnlyList<JsonTranslationsEntity> CreateJsonTranslationsEntities() =>
         [
-            // In the following, JsonString should correspond exactly to JsonComplexType; we don't currently support mapping both
-            // a string scalar property and a complex JSON property to the same column in the database.
+            // In the following, JsonString should correspond exactly to JsonComplexType and JsonOwnedType;
+            // we don't currently support mapping both a string scalar property and a complex/owned JSON property
+            // to the same column in the database.
 
             new()
             {
                 Id = 1,
                 JsonString = """{ "RequiredInt": 8, "OptionalInt": 8 }""",
                 JsonComplexType = new()
+                {
+                    RequiredInt = 8,
+                    OptionalInt = 8
+                },
+                JsonOwnedType = new()
                 {
                     RequiredInt = 8,
                     OptionalInt = 8
@@ -150,6 +184,11 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 {
                     RequiredInt = 9,
                     OptionalInt = 9
+                },
+                JsonOwnedType = new()
+                {
+                    RequiredInt = 9,
+                    OptionalInt = 9
                 }
             },
             // OptionalInt is null.
@@ -161,16 +200,26 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 {
                     RequiredInt = 10,
                     OptionalInt = null
+                },
+                JsonOwnedType = new()
+                {
+                    RequiredInt = 10,
+                    OptionalInt = null
                 }
             },
             // OptionalInt is missing (not null).
-            // Note that this requires a manual SQL update since EF's complex type support always writes out the property (with null);
+            // Note that this requires a manual SQL update since EF's complex/owned type support always writes out the property (with null);
             // any change here requires updating JsonTranslationsQueryContext.SeedAsync as well.
             new()
             {
                 Id = 4,
                 JsonString = """{ "RequiredInt": 10 }""",
                 JsonComplexType = new()
+                {
+                    RequiredInt = 10,
+                    OptionalInt = null // This will be replaced by a missing property
+                },
+                JsonOwnedType = new()
                 {
                     RequiredInt = 10,
                     OptionalInt = null // This will be replaced by a missing property

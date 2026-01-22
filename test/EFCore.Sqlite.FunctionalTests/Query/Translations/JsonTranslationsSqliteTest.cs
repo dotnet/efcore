@@ -19,7 +19,7 @@ public class JsonTranslationsSqliteTest : JsonTranslationsRelationalTestBase<Jso
 
         AssertSql(
             """
-SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType"
+SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
 WHERE json_type("j"."JsonString", '$.OptionalInt') IS NOT NULL
 """);
@@ -32,9 +32,22 @@ WHERE json_type("j"."JsonString", '$.OptionalInt') IS NOT NULL
 
         AssertSql(
             """
-SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType"
+SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
 WHERE json_type("j"."JsonComplexType", '$.OptionalInt') IS NOT NULL
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task JsonExists_on_owned_entity()
+    {
+        await base.JsonExists_on_owned_entity();
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."JsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+FROM "JsonEntities" AS "j"
+WHERE json_type("j"."JsonOwnedType", '$.OptionalInt') IS NOT NULL
 """);
     }
 

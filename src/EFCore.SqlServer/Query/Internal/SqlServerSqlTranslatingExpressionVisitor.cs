@@ -240,8 +240,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
             }
 
-            // We translate EF.Functions.JsonExists here and not in a method translator since we need to support JsonExists over a complex
-            // property, which requires special handling.
+            // We translate EF.Functions.JsonExists here and not in a method translator since we need to support JsonExists over
+            // complex and owned JSON properties, which requires special handling.
             case nameof(RelationalDbFunctionsExtensions.JsonExists)
                 when declaringType == typeof(RelationalDbFunctionsExtensions)
                     && @object is null
@@ -258,8 +258,9 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     // The JSON argument is a scalar string property
                     SqlExpression scalar => scalar,
 
-                    // The JSON argument is a complex JSON property
+                    // The JSON argument is a complex or owned JSON property
                     RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
                     _ => null
                 };
 #pragma warning restore EF1001

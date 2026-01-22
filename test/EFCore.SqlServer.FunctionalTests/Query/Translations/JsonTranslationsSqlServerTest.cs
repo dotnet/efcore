@@ -19,7 +19,7 @@ public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType]
+SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 """);
@@ -32,9 +32,22 @@ WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 
         AssertSql(
             """
-SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType]
+SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
 FROM [JsonEntities] AS [j]
 WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task JsonExists_on_owned_entity()
+    {
+        await base.JsonExists_on_owned_entity();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE JSON_PATH_EXISTS([j].[JsonOwnedType], N'$.OptionalInt') = 1
 """);
     }
 
