@@ -9,7 +9,7 @@ This file should be imported by eng/Versions.props
     <MicrosoftDotNetArcadeSdkPackageVersion>11.0.0-beta.26070.110</MicrosoftDotNetArcadeSdkPackageVersion>
     <MicrosoftDotNetBuildTasksTemplatingPackageVersion>11.0.0-beta.26070.110</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
     <MicrosoftDotNetHelixSdkPackageVersion>11.0.0-beta.26070.110</MicrosoftDotNetHelixSdkPackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>11.0.0-preview.1.26070.110</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>11.0.0-preview.1.26071.105</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsConfigurationPackageVersion>11.0.0-preview.1.26070.110</MicrosoftExtensionsConfigurationPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>11.0.0-preview.1.26070.110</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>11.0.0-preview.1.26070.110</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
