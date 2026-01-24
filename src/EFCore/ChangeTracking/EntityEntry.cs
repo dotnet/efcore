@@ -602,8 +602,9 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     public virtual PropertyValues? GetDatabaseValues()
     {
         var values = Finder.GetDatabaseValues(InternalEntry);
+        var nullComplexPropertyFlags = values == null ? null : CreateNullComplexPropertyFlags(InternalEntry, values);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, nullComplexPropertyFlags);
     }
 
     /// <summary>
@@ -633,8 +634,65 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
     {
         var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
+        var nullComplexPropertyFlags = values == null ? null : CreateNullComplexPropertyFlags(InternalEntry, values);
 
-        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, null);
+        return values == null ? null : new ArrayPropertyValues(InternalEntry, values, nullComplexPropertyFlags);
+    }
+
+    private static bool[]? CreateNullComplexPropertyFlags(InternalEntityEntry entry, object?[] values)
+    {
+        List<IComplexProperty>? nullableComplexProperties = null;
+        foreach (var complexProperty in entry.StructuralType.GetFlattenedComplexProperties())
+        {
+            if (complexProperty.IsCollection || !complexProperty.IsNullable || complexProperty.IsShadowProperty())
+            {
+                continue;
+            }
+
+            (nullableComplexProperties ??= []).Add(complexProperty);
+        }
+
+        if (nullableComplexProperties == null)
+        {
+            return null;
+        }
+
+        var flags = new bool[nullableComplexProperties.Count];
+        for (var i = 0; i < nullableComplexProperties.Count; i++)
+        {
+            var complexProperty = nullableComplexProperties[i];
+            var scalarProperties = complexProperty.ComplexType.GetFlattenedProperties();
+
+            IProperty? requiredProperty = null;
+            foreach (var property in scalarProperties)
+            {
+                if (!property.IsNullable)
+                {
+                    requiredProperty = property;
+                    break;
+                }
+            }
+
+            if (requiredProperty != null)
+            {
+                flags[i] = values[requiredProperty.GetIndex()] == null;
+                continue;
+            }
+
+            var allNull = true;
+            foreach (var property in scalarProperties)
+            {
+                if (values[property.GetIndex()] != null)
+                {
+                    allNull = false;
+                    break;
+                }
+            }
+
+            flags[i] = allNull;
+        }
+
+        return flags;
     }
 
     /// <summary>
