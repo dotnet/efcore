@@ -139,7 +139,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     /// <remarks>
     ///     Finds the type mapping for a given property. This method is overridden to special-case <c>byte[]</c>
-    ///     properties inside JSON columns, returning a mapping that works with Base64-encoded strings.
+    ///     properties inside JSON columns, returning a mapping that works with hex-encoded string representation.
     /// </remarks>
     /// <param name="property">The property for which mapping is to be found.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
