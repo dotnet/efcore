@@ -61,7 +61,7 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         }
         else if (type == typeof(byte[]))
         {
-            // In Sqlite json columns parameter binding for byte[] resulted in a blob being bound to whereas the column is a text column thats why this conversion is needed.
+            // In SQLite JSON columns, parameter binding for byte[] results in a blob being bound, whereas the column is a text column. This conversion is needed to align representations.
             var value1 = (byte[])value;
             if (sqliteType == SqliteType.Text)
             {
