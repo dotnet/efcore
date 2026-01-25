@@ -325,7 +325,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 
     private static string ToHexString(byte[] bytes)
     {
-
         char[] hexChars = new char[bytes.Length * 2];
 
         for (int i = 0; i < bytes.Length; i++)
