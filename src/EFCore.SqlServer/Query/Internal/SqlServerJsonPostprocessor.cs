@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -55,8 +54,7 @@ public sealed class SqlServerJsonPostprocessor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
+    protected override Expression VisitExtension(Expression expression)
     {
         switch (expression)
         {
@@ -128,7 +126,7 @@ public sealed class SqlServerJsonPostprocessor(
                 {
                     Check.DebugAssert(newTables is null, "newTables must be null if columnsToRewrite is null");
 
-                    result = (SelectExpression)base.Visit(result);
+                    result = (SelectExpression)base.VisitExtension(result);
                 }
                 else
                 {
@@ -154,7 +152,7 @@ public sealed class SqlServerJsonPostprocessor(
 
                     // Record the OPENJSON expression and its projected column(s), along with the store type we just removed from the WITH
                     // clause. Then visit the select expression, adding a cast around the matching ColumnExpressions.
-                    result = (SelectExpression)base.Visit(result);
+                    result = (SelectExpression)base.VisitExtension(result);
 
                     foreach (var columnsToRewriteKey in columnsToRewrite.Keys)
                     {
@@ -270,19 +268,30 @@ public sealed class SqlServerJsonPostprocessor(
                 && left is not SqlConstantExpression { Value: null }
                 && right is not SqlConstantExpression { Value: null }:
             {
-                return comparison.Update(
-                    sqlExpressionFactory.Convert(
-                        left,
-                        typeof(string),
-                        typeMappingSource.FindMapping(typeof(string))),
-                    sqlExpressionFactory.Convert(
-                        right,
-                        typeof(string),
-                        typeMappingSource.FindMapping(typeof(string))));
+                var stringTypeMapping = typeMappingSource.FindMapping(typeof(string))!;
+
+                return comparison.Update(ConvertToString(left), ConvertToString(right));
+
+                SqlExpression ConvertToString(SqlExpression expression)
+                {
+                    if (expression.TypeMapping?.StoreType.Equals("json", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        // If the expression happens to be a json literal (CAST('...' AS json)), we can just extract the string inside,
+                        // instead of applying an additional CAST around it
+                        return expression is SqlConstantExpression constant
+                            ? new SqlConstantExpression(
+                                constant.Value,
+                                typeof(string),
+                                (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(constant.TypeMapping!.Converter))
+                            : sqlExpressionFactory.Convert(expression, typeof(string), stringTypeMapping);
+                    }
+
+                    return expression;
+                }
             }
 
             default:
-                return base.Visit(expression);
+                return base.VisitExtension(expression);
         }
 
         static bool IsKeyColumn(SqlExpression sqlExpression, string openJsonTableAlias)
