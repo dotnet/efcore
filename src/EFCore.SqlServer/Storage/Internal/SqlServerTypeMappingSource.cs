@@ -184,7 +184,7 @@ public class SqlServerTypeMappingSource(
                 { "float", [SqlServerDoubleTypeMapping.Default] },
                 { "image", [ImageBinary] },
                 { "int", [IntTypeMapping.Default] },
-                { "json", [SqlServerStringTypeMapping.JsonTypeDefault] },
+                { "json", [SqlServerJsonTypeMapping.Default] },
                 { "money", [Money] },
                 { "national char varying", [VariableLengthUnicodeString] },
                 { "national char varying(max)", [VariableLengthMaxUnicodeString] },
@@ -322,7 +322,7 @@ public class SqlServerTypeMappingSource(
                     return Rowversion;
 
                 case { } t when t == typeof(string) && storeTypeName == "json":
-                    return SqlServerStringTypeMapping.JsonTypeDefault;
+                    return SqlServerJsonTypeMapping.Default;
 
                 case { } t when t == typeof(string):
                 {
