@@ -8,8 +8,9 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 /// <summary>
-///     The Sqlite-specific JsonValueReaderWrite for byte[]. Generates the SQLite representation (e.g. X'0102') rather than base64, in order
-///     to match our SQLite non-JSON representation.
+///     The Sqlite-specific <see cref="JsonValueReaderWriter{TValue}" /> for <see cref="TimeOnly" />. Writes and reads the JSON string
+///     representation of <see cref="TimeOnly" />, using <c>HH:mm:ss</c> when there are no fractional seconds and the round-trip
+///     (<c>"o"</c>) format otherwise, to match the SQLite non-JSON representation.
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
