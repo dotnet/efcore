@@ -9,8 +9,8 @@ public class RelationalQueryAsserter(
     IQueryFixtureBase queryFixture,
     Func<Expression, Expression> rewriteExpectedQueryExpression,
     Func<Expression, Expression> rewriteServerQueryExpression,
-    bool ignoreEntryCount = false) : QueryAsserter(
-    queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
+    bool ignoreEntryCount = false)
+    : QueryAsserter(queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
 {
     private static int ExecuteReader(DbCommand command)
     {
