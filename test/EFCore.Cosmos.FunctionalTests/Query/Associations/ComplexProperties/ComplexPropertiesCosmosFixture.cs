@@ -22,11 +22,9 @@ public class ComplexPropertiesCosmosFixture : ComplexPropertiesFixtureBase
         modelBuilder.Ignore<RootReferencingEntity>();
 
         modelBuilder.Entity<RootEntity>()
-            .ToContainer("RootEntities")
-            .HasNoDiscriminator();
+            .ToContainer("RootEntities");
 
         modelBuilder.Entity<ValueRootEntity>()
-            .ToContainer("ValueRootEntities")
-            .HasNoDiscriminator();
+            .ToContainer("ValueRootEntities");
     }
 }
