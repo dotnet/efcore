@@ -97,11 +97,6 @@ FROM root c
     {
         await base.Select_associate(queryTrackingBehavior);
 
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         AssertSql(
             """
 SELECT VALUE c
@@ -112,11 +107,6 @@ FROM root c
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_optional_associate(queryTrackingBehavior);
-
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
 
         AssertSql(
             """
@@ -129,11 +119,6 @@ FROM root c
     {
         await base.Select_required_nested_on_required_associate(queryTrackingBehavior);
 
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         AssertSql(
             """
 SELECT VALUE c
@@ -145,11 +130,6 @@ FROM root c
     {
         await base.Select_optional_nested_on_required_associate(queryTrackingBehavior);
 
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         AssertSql(
             """
 SELECT VALUE c
@@ -159,11 +139,6 @@ FROM root c
 
     public override async Task Select_required_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.Select_required_nested_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
@@ -175,21 +150,13 @@ FROM root c
 
     public override async Task Select_optional_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.Select_optional_nested_on_optional_associate(queryTrackingBehavior);
 
-        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
-        {
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT VALUE c
 FROM root c
 """);
-        }
     }
 
     public override Task Select_required_associate_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
@@ -199,11 +166,6 @@ FROM root c
     public override async Task Select_unmapped_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_unmapped_associate_scalar_property(queryTrackingBehavior);
-
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
 
         AssertSql(
             """
@@ -232,11 +194,6 @@ FROM root c
     {
         await base.Select_associate_collection(queryTrackingBehavior);
 
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         AssertSql(
             """
 SELECT VALUE c
@@ -247,11 +204,6 @@ ORDER BY c["Id"]
 
     public override async Task Select_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
         AssertSql(
@@ -264,11 +216,6 @@ ORDER BY c["Id"]
 
     public override async Task Select_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.Select_nested_collection_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
@@ -282,11 +229,6 @@ ORDER BY c["Id"]
     [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.SelectMany_associate_collection(queryTrackingBehavior);
 
         AssertSql(
@@ -300,11 +242,6 @@ JOIN a IN c["AssociateCollection"]
     [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
 
         AssertSql(
@@ -318,11 +255,6 @@ JOIN n IN c["RequiredAssociate"]["NestedCollection"]
     [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
         await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
 
         AssertSql(
@@ -352,25 +284,11 @@ FROM root c
 
     #region Subquery
 
-    public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
-    {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
+    public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 
-        await AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
-    }
-
-    public override async Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
-    {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Complex type tracking not supported.");
-        }
-
-        await AssertTranslationFailed(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
-    }
+    public override Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertTranslationFailed(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
 
     #endregion Subquery
 
