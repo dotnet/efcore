@@ -363,11 +363,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
             // Special case for when query is projecting 'nullable.Value' where 'nullable' is of type Nullable<T>
             // In this case we return default(T) when 'nullable' is null
+            var member = memberExpression.Member;
             if (innerExpression.Type.IsNullableType()
                 && !memberExpression.Type.IsNullableType()
-                && memberExpression.Expression is MemberExpression outerMember
-                && outerMember.Type.IsNullableValueType()
-                && memberExpression.Member.Name == nameof(Nullable<>.Value))
+                && member is { Name: nameof(Nullable<>.Value), DeclaringType.IsGenericType: true }
+                && member.DeclaringType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 // Use HasValue property instead of equality comparison
                 // to avoid issues with value types that don't define the == operator
