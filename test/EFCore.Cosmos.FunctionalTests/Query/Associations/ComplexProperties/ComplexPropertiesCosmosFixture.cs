@@ -15,12 +15,6 @@ public class ComplexPropertiesCosmosFixture : ComplexPropertiesFixtureBase
         => base.AddOptions(builder)
             .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedEntityTypeIgnoredWarning));
 
-    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
-
-    public void NoSyncTest(Action testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(testCode);
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
