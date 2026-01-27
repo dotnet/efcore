@@ -733,9 +733,13 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         Visit(collateExpression.Operand);
 
+        // In some databases (e.g. SQL Server), collations aren't regular identifiers (like column or table names), and so shouldn't be
+        // quoted. However, we still default to quoting to prevent cases where arbitrary collation name inputs get integrated into the SQL.
+        // Providers which don't support quoting of collation names should override this method to provide sanitization logic,
+        // e.g. throwing if the name contains any but a restricted set of characters.
         _relationalCommandBuilder
             .Append(" COLLATE ")
-            .Append(collateExpression.Collation);
+            .Append(_sqlGenerationHelper.DelimitIdentifier(collateExpression.Collation));
 
         return collateExpression;
     }

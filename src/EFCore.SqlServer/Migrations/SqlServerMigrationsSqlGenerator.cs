@@ -1646,6 +1646,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation.Collation != null)
         {
+            // SQL Server collation docs: https://learn.microsoft.com/sql/relational-databases/collations/collation-and-unicode-support
+
+            // The default behavior in MigrationsSqlGenerator is to quote collation names, but SQL Server does not support that.
+            // Instead, make sure the collation name only contains a restricted set of characters.
+            foreach (var c in operation.Collation)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidCollationName(operation.Collation));
+                }
+            }
+
             builder
                 .Append(" COLLATE ")
                 .Append(operation.Collation);

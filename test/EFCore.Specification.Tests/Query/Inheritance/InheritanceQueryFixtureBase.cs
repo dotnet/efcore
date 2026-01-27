@@ -340,6 +340,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                         Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                         Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                         Assert.Equal(ee.Carbonation, aa.Carbonation);
+                        Assert.Equal(ee.Ints, aa.Ints);
 
                         AssertComplexType(ee.ParentComplexType, aa.ParentComplexType);
                         AssertComplexType(ee.ChildComplexType, aa.ChildComplexType);

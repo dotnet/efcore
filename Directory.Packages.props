@@ -2,7 +2,6 @@
   <!-- This file gets imported for out-of-tree test runs also where eng/Versions.props isn't
        available -->
   <Import Project="eng/Versions.props" Condition="'$(VersionPrefix)' == '' and Exists('eng/Versions.props')" />
-  <Import Project="eng/dependabot/Directory.Packages.props" Condition="Exists('eng/dependabot/Directory.Packages.props')" />
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -35,5 +34,24 @@
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCoreVersion)" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildTasksCoreVersion)" />
     <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
+
+    <!-- Azure SDK for .NET dependencies -->
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.51.0" />
+
+    <!-- SQL Server dependencies -->
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+    <PackageVersion Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
+
+    <!-- external dependencies -->
+    <PackageVersion Include="Castle.Core" Version="5.2.1" />
+    <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
+    <PackageVersion Include="Mono.TextTemplating" Version="3.0.0" />
+    <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
+    <PackageVersion Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
+    <PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
+    <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
   </ItemGroup>
 </Project>
