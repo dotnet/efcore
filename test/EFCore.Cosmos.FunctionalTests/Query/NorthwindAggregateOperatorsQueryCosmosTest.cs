@@ -833,14 +833,14 @@ OFFSET 0 LIMIT 1
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_complex_selector(async));
+            await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_complex_selector(async));
 
             AssertSql(
 """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] = "Order")
-ORDER BY c["OrderID"] DESC, c["EmployeeID"] DESC
+ORDER BY c["OrderID"], c["EmployeeID"]
 OFFSET 0 LIMIT 1
 """);
         }

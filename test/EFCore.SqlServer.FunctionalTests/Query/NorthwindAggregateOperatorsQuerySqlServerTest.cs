@@ -703,7 +703,7 @@ ORDER BY (
 
     public override async Task MaxBy_over_sum_subquery(bool async)
     {
-        await base.MaxBy_over_nested_subquery(async);
+        await base.MaxBy_over_sum_subquery(async);
 
         AssertSql(
 """
@@ -720,10 +720,9 @@ ORDER BY (
     FROM [Orders] AS [o]
     WHERE [c0].[CustomerID] = [o].[CustomerID]
     ORDER BY 5 + (
-        SELECT TOP(1) [o0].[ProductID]
+        SELECT COALESCE(SUM([o0].[ProductID]), 0)
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [o0].[ProductID] DESC) DESC) DESC
+        WHERE [o].[OrderID] = [o0].[OrderID]) DESC) DESC
 """);
     }
 
