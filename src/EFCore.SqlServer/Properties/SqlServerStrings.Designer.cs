@@ -446,6 +446,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 structuralType, propertyName);
 
         /// <summary>
+        ///     VectorSearch() requires a valid vector column.
+        /// </summary>
+        public static string VectorSearchRequiresColumn
+            => GetString("VectorSearchRequiresColumn");
+
+        /// <summary>
         ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
         /// </summary>
         public static string VectorPropertiesNotSupportedInJson(object? propertyName, object? structuralType)
