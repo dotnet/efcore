@@ -72,7 +72,9 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
     });
 
@@ -86,8 +88,10 @@ FROM root c
 
         AssertSql(
             """
-
-    """);
+SELECT VALUE c
+FROM root c
+WHERE (((c["ShippingAddress"] = null) AND (c["BillingAddress"] = null)) OR ((c["BillingAddress"] != null) AND (((((((c["ShippingAddress"]["Country"] = null) AND (c["BillingAddress"]["Country"] = null)) OR ((c["BillingAddress"]["Country"] != null) AND ((c["ShippingAddress"]["Country"]["Code"] = c["BillingAddress"]["Country"]["Code"]) AND (c["ShippingAddress"]["Country"]["FullName"] = c["BillingAddress"]["Country"]["FullName"])))) AND (c["ShippingAddress"]["AddressLine1"] = c["BillingAddress"]["AddressLine1"])) AND (c["ShippingAddress"]["AddressLine2"] = c["BillingAddress"]["AddressLine2"])) AND (c["ShippingAddress"]["Tags"] = c["BillingAddress"]["Tags"])) AND (c["ShippingAddress"]["ZipCode"] = c["BillingAddress"]["ZipCode"]))))
+""");
     });
 
     public override Task Complex_type_equals_constant(bool async)
@@ -97,8 +101,10 @@ FROM root c
 
         AssertSql(
             """
-
-    """);
+SELECT VALUE c
+FROM root c
+WHERE ((((((c["ShippingAddress"]["Country"]["Code"] = "US") AND (c["ShippingAddress"]["Country"]["FullName"] = "United States")) AND (c["ShippingAddress"]["AddressLine1"] = "804 S. Lakeshore Road")) AND (c["ShippingAddress"]["AddressLine2"] = null)) AND (c["ShippingAddress"]["Tags"] = ["foo","bar"])) AND (c["ShippingAddress"]["ZipCode"] = 38654))
+""");
     });
 
     public override Task Complex_type_equals_parameter(bool async)
@@ -108,8 +114,19 @@ FROM root c
 
         AssertSql(
             """
+@entity_equality_address='{}'
+@entity_equality_entity_equality_address_Country='{}'
+@entity_equality_entity_equality_address_Country_Code='US'
+@entity_equality_entity_equality_address_Country_FullName='United States'
+@entity_equality_address_AddressLine1='804 S. Lakeshore Road'
+@entity_equality_address_AddressLine2=null
+@entity_equality_address_Tags='["foo","bar"]'
+@entity_equality_address_ZipCode='38654'
 
-    """);
+SELECT VALUE c
+FROM root c
+WHERE (((c["ShippingAddress"] = null) AND (@entity_equality_address = null)) OR ((@entity_equality_address != null) AND (((((((c["ShippingAddress"]["Country"] = null) AND (@entity_equality_entity_equality_address_Country = null)) OR ((@entity_equality_entity_equality_address_Country != null) AND ((c["ShippingAddress"]["Country"]["Code"] = @entity_equality_entity_equality_address_Country_Code) AND (c["ShippingAddress"]["Country"]["FullName"] = @entity_equality_entity_equality_address_Country_FullName)))) AND (c["ShippingAddress"]["AddressLine1"] = @entity_equality_address_AddressLine1)) AND (c["ShippingAddress"]["AddressLine2"] = @entity_equality_address_AddressLine2)) AND (c["ShippingAddress"]["Tags"] = @entity_equality_address_Tags)) AND (c["ShippingAddress"]["ZipCode"] = @entity_equality_address_ZipCode))))
+""");
     });
 
     public override Task Subquery_over_complex_type(bool async)
@@ -148,7 +165,9 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
     }
 
@@ -158,7 +177,9 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (c["ShippingAddress"]["Country"]["Code"] = "DE")
 """);
     }
 
@@ -192,7 +213,8 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
 """);
     }
 
@@ -202,7 +224,8 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
 """);
     }
 
@@ -212,7 +235,8 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c["ShippingAddress"]["Country"]["FullName"]
+FROM root c
 """);
     }
 
@@ -222,7 +246,9 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
     }
 
@@ -235,7 +261,9 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (((((c["ShippingAddress"]["Country"]["Code"] = c["BillingAddress"]["Country"]["Code"]) AND (c["ShippingAddress"]["Country"]["FullName"] = c["BillingAddress"]["Country"]["FullName"])) AND (c["ShippingAddress"]["AddressLine1"] = c["BillingAddress"]["AddressLine1"])) AND (c["ShippingAddress"]["AddressLine2"] = c["BillingAddress"]["AddressLine2"])) AND (c["ShippingAddress"]["ZipCode"] = c["BillingAddress"]["ZipCode"]))
 """);
     }
 
@@ -245,7 +273,9 @@ FROM root c
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (((((c["ShippingAddress"]["Country"]["Code"] = "US") AND (c["ShippingAddress"]["Country"]["FullName"] = "United States")) AND (c["ShippingAddress"]["AddressLine1"] = "804 S. Lakeshore Road")) AND (c["ShippingAddress"]["AddressLine2"] = null)) AND (c["ShippingAddress"]["ZipCode"] = 38654))
 """);
     }
 
@@ -255,7 +285,15 @@ FROM root c
 
         AssertSql(
             """
+@entity_equality_entity_equality_address_Country_Code='US'
+@entity_equality_entity_equality_address_Country_FullName='United States'
+@entity_equality_address_AddressLine1='804 S. Lakeshore Road'
+@entity_equality_address_AddressLine2=null
+@entity_equality_address_ZipCode='38654'
 
+SELECT VALUE c
+FROM root c
+WHERE (((((c["ShippingAddress"]["Country"]["Code"] = @entity_equality_entity_equality_address_Country_Code) AND (c["ShippingAddress"]["Country"]["FullName"] = @entity_equality_entity_equality_address_Country_FullName)) AND (c["ShippingAddress"]["AddressLine1"] = @entity_equality_address_AddressLine1)) AND (c["ShippingAddress"]["AddressLine2"] = @entity_equality_address_AddressLine2)) AND (c["ShippingAddress"]["ZipCode"] = @entity_equality_address_ZipCode))
 """);
     }
 
