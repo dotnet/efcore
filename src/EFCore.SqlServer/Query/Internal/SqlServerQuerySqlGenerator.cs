@@ -198,6 +198,82 @@ public class SqlServerQuerySqlGenerator(
 
                 return function;
 
+            // FREETEXTTABLE and CONTAINSTABLE full-text search functions
+            // Syntax: FREETEXTTABLE/CONTAINSTABLE(table, column, 'search_string' [, LANGUAGE language_term] [, top_n_by_rank])
+            case
+            {
+                Name: "FREETEXTTABLE" or "CONTAINSTABLE",
+                Arguments: [TableExpression table, var columnsArgument, SqlExpression searchText, ..]
+            }:
+            {
+                Sql.Append(function.Name).Append("(");
+
+                // Table name
+                Sql.Append(_sqlGenerationHelper.DelimitIdentifier(table.Name, table.Schema));
+                Sql.Append(", ");
+
+                // Column(s) - NewArrayExpression containing ColumnExpressions (empty array means "*")
+                switch (columnsArgument)
+                {
+                    case NewArrayExpression { Expressions: [] }:
+                        // Empty array means all columns
+                        Sql.Append("*");
+                        break;
+
+                    case NewArrayExpression { Expressions: [ColumnExpression singleColumn] }:
+                        // Single column - just write the delimited name
+                        Sql.Append(_sqlGenerationHelper.DelimitIdentifier(singleColumn.Name));
+                        break;
+
+                    case NewArrayExpression { Expressions: IReadOnlyList<Expression> columns }:
+                        // Multiple columns - wrap in parentheses
+                        Sql.Append("(");
+
+                        for (var i = 0; i < columns.Count; i++)
+                        {
+                            if (i > 0)
+                            {
+                                Sql.Append(", ");
+                            }
+
+                            Sql.Append(_sqlGenerationHelper.DelimitIdentifier(((ColumnExpression)columns[i]).Name));
+                        }
+
+                        Sql.Append(")");
+                        break;
+
+                    default:
+                        throw new UnreachableException();
+                }
+
+                Sql.Append(", ");
+
+                // Search text
+                Visit(searchText);
+
+                // Check remaining arguments for LANGUAGE and top_n
+                var arguments = function.Arguments;
+                var argIndex = 3;
+                if (arguments.Count > argIndex && arguments[argIndex] is SqlConstantExpression { Value: string } languageTerm)
+                {
+                    Sql.Append(", LANGUAGE ");
+                    Visit(languageTerm);
+                    argIndex++;
+                }
+
+                if (arguments.Count > argIndex)
+                {
+                    Sql.Append(", ");
+                    Visit(arguments[argIndex]);
+                }
+
+                Sql.Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(function.Alias));
+
+                return function;
+            }
+
             default:
                 return base.VisitTableValuedFunction(function);
         }

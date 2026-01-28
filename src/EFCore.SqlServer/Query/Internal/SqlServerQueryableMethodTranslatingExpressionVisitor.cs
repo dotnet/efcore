@@ -168,14 +168,170 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                             resultType.GetProperty(nameof(VectorSearchResult<>.Value))!,
                             resultType.GetProperty(nameof(VectorSearchResult<>.Distance))!
                         ]);
-
-                    return new ShapedQueryExpression(select, shaper);
+                    {
+                        return new ShapedQueryExpression(select, shaper);
+                    }
 #pragma warning restore EF9105 // VectorSearch is experimental
+                }
+
+                case nameof(SqlServerQueryableExtensions.FreeTextTable) or nameof(SqlServerQueryableExtensions.ContainsTable)
+                    when source is
+                    {
+                        QueryExpression: SelectExpression { Tables: [TableExpression table] } select,
+                        ShaperExpression: StructuralTypeShaperExpression
+                    }:
+                {
+                    return TranslateFullTextTableFunction(methodCallExpression, source, select, table);
                 }
             }
         }
 
         return base.VisitMethodCall(methodCallExpression);
+    }
+
+    private Expression TranslateFullTextTableFunction(
+        MethodCallExpression methodCallExpression,
+        ShapedQueryExpression source,
+        SelectExpression select,
+        TableExpression table)
+    {
+        var method = methodCallExpression.Method;
+        var functionName = method.Name switch
+        {
+            nameof(SqlServerQueryableExtensions.FreeTextTable) => "FREETEXTTABLE",
+            nameof(SqlServerQueryableExtensions.ContainsTable) => "CONTAINSTABLE",
+            _ => throw new UnreachableException()
+        };
+
+        var (columnsExpression, searchText, languageTerm, topN) = methodCallExpression.Arguments switch
+        {
+            // columnSelector overload: (source, columnSelector, searchText, languageTerm?, topN?)
+            [_, UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression columnSelector }, var s, var l, var t]
+                => (ExtractColumnsFromSelector(columnSelector, source)
+                    ?? throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText), s, l, t),
+
+            // No column selector (all-columns overload): (source, searchText, languageTerm?, topN?)
+            // Use an empty array to signal "*" (all columns)
+            [_, var s, var l, var t] => ((Expression)Expression.NewArrayInit(typeof(ColumnExpression)), s, l, t),
+
+            _ => throw new UnreachableException()
+        };
+
+        if (TranslateExpression(searchText) is not { } translatedSearchText
+            || TranslateExpression(languageTerm) is not { } translatedLanguageTerm
+            || TranslateExpression(topN) is not { } translatedTopN)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        // Get the key type from the method's return type: IQueryable<FullTextSearchResult<TKey>>
+        var resultType = method.ReturnType.GetSequenceType();
+        var keyType = resultType.GetGenericArguments()[0];
+
+        List<Expression> arguments = [table, columnsExpression, translatedSearchText];
+        if (translatedLanguageTerm is not SqlConstantExpression { Value: null })
+        {
+            arguments.Add(translatedLanguageTerm);
+        }
+
+        // See note in SqlServerSqlNullabilityProcessor, where we remove the topN argument if it's a NULL parameter.
+        if (translatedTopN is not SqlConstantExpression { Value: null })
+        {
+            arguments.Add(translatedTopN);
+        }
+
+        var fullTextTableFunction = new TableValuedFunctionExpression(
+            _queryCompilationContext.SqlAliasManager.GenerateTableAlias(functionName.ToLowerInvariant()),
+            functionName,
+            arguments);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        select.SetTables([fullTextTableFunction]);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+        var keyProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Key))!);
+        var rankProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Rank))!);
+
+        select.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
+        {
+            [keyProjectionMember] = new ColumnExpression("KEY", fullTextTableFunction.Alias, keyType, _typeMappingSource.FindMapping(keyType), nullable: false),
+            [rankProjectionMember] = new ColumnExpression("RANK", fullTextTableFunction.Alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false)
+        });
+
+        var shaper = Expression.New(
+            resultType.GetConstructors().Single(),
+            arguments:
+            [
+                new ProjectionBindingExpression(select, keyProjectionMember, keyType),
+                new ProjectionBindingExpression(select, rankProjectionMember, typeof(int))
+            ],
+            members:
+            [
+                resultType.GetProperty(nameof(FullTextSearchResult<>.Key))!,
+                resultType.GetProperty(nameof(FullTextSearchResult<>.Rank))!
+            ]);
+
+        return new ShapedQueryExpression(select, shaper);
+    }
+
+    private NewArrayExpression? ExtractColumnsFromSelector(LambdaExpression columnSelector, ShapedQueryExpression source)
+    {
+        var body = columnSelector.Body;
+
+        // Handle Convert node (when lambda returns object but property is a value type or different type)
+        if (body is UnaryExpression { NodeType: ExpressionType.Convert } convert)
+        {
+            body = convert.Operand;
+        }
+
+        switch (body)
+        {
+            // Single column: e => e.Property
+            case MemberExpression:
+                // Translate and return the column expression wrapped in an array
+                return TranslateLambdaExpression(source, columnSelector) is ColumnExpression column
+                    ? Expression.NewArrayInit(typeof(string), column)
+                    : null;
+
+            // Multiple columns: e => new { e.Property1, e.Property2 }
+            case NewExpression @new:
+                var columns = new List<ColumnExpression>();
+                foreach (var argument in @new.Arguments)
+                {
+                    var argBody = argument;
+                    if (argBody is UnaryExpression { NodeType: ExpressionType.Convert } argConvert)
+                    {
+                        argBody = argConvert.Operand;
+                    }
+
+                    if (argBody is MemberExpression)
+                    {
+                        // Create a lambda for this single member to translate it
+                        var param = columnSelector.Parameters[0];
+                        var singleMemberLambda = Expression.Lambda(argBody, param);
+                        if (TranslateLambdaExpression(source, singleMemberLambda) is ColumnExpression col)
+                        {
+                            columns.Add(col);
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                // Return a NewArrayExpression containing all the ColumnExpressions
+                return columns.Count > 0
+                    ? Expression.NewArrayInit(typeof(string), columns)
+                    : null;
+
+            default:
+                return null;
+        }
     }
 
     /// <summary>
