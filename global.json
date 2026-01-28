@@ -18,7 +18,7 @@
     }
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "10.0.0-beta.26073.110",
-    "Microsoft.DotNet.Helix.Sdk": "10.0.0-beta.26073.110"
+    "Microsoft.DotNet.Arcade.Sdk": "10.0.0-beta.26077.113",
+    "Microsoft.DotNet.Helix.Sdk": "10.0.0-beta.26077.113"
   }
 }
