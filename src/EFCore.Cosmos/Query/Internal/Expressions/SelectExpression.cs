@@ -280,7 +280,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public int AddToProjection(EntityProjectionExpression entityProjection)
+    public int AddToProjection(StructuralTypeProjectionExpression entityProjection)
         => AddToProjection(entityProjection, null);
 
     private int AddToProjection(Expression expression, string? alias)
@@ -504,7 +504,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                 projectionToAdd = expression switch
                 {
                     SqlExpression e => new ScalarReferenceExpression(joinSource.Alias, e.Type, e.TypeMapping),
-                    EntityProjectionExpression e => e.Update(new ObjectReferenceExpression(e.EntityType, joinSource.Alias)),
+                    StructuralTypeProjectionExpression e => e.Update(new ObjectReferenceExpression(e.StructuralType, joinSource.Alias)),
 
                     _ => throw new UnreachableException(
                         $"Unexpected expression type in projection when adding join: {expression.GetType().Name}")

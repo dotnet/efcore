@@ -18,6 +18,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.AddRange(
                     new Context33449.EntityType
                     {
+                        Id = 1,
                         ComplexContainer = new Context33449.ComplexContainer
                         {
                             Id = 1,
@@ -132,14 +133,17 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.AddRange(
                     new ContextShadowDiscriminator.EntityType
                     {
+                        Id = 1,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
+                        Id = 2,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = null }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
+                        Id = 3,
                         AllOptionalsComplexType = null
                     }
                     );
@@ -186,6 +190,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.Add(
                     new Context37162.EntityType
                     {
+                        Id = 1,
                         NonOptionalComplexType = new Context37162.ComplexTypeWithAllNulls
                         {
                             // All properties are null
@@ -231,14 +236,15 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         var contextFactory = await InitializeAsync<Context37337>(
             seed: context =>
             {
-                context.Add(
-                    new Context37337.EntityType
+                var entity = new Context37337.EntityType
+                {
+                    Prop = new Context37337.OptionalComplexProperty
                     {
-                        Prop = new Context37337.OptionalComplexProperty
-                        {
-                            OptionalValue = true
-                        }
-                    });
+                        OptionalValue = true
+                    }
+                };
+                context.Add(entity);
+                context.Entry(entity).Property("CreatedBy").CurrentValue = "Seeder";
                 return context.SaveChangesAsync();
             });
 
@@ -250,9 +256,12 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         var entity = entities[0];
         Assert.NotNull(entity.Prop);
         Assert.True(entity.Prop.OptionalValue);
+
+        var entry = context.Entry(entity);
+        Assert.Equal("Seeder", entry.Property("CreatedBy").CurrentValue);
     }
 
-    private class Context37337(DbContextOptions options) : DbContext(options)
+    protected class Context37337(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
