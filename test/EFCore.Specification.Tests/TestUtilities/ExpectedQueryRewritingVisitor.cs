@@ -69,11 +69,32 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-            && methodCallExpression.Method.IsGenericMethod
-            && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
-                || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin))
+            && methodCallExpression.Method.IsGenericMethod)
         {
-            return RewriteJoinGroupJoin(methodCallExpression);
+            var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+
+            if (genericMethod == QueryableMethods.Join
+                || genericMethod == QueryableMethods.GroupJoin)
+            {
+                return RewriteJoinGroupJoin(methodCallExpression);
+            }
+
+            if (genericMethod == QueryableMethods.MinBy
+                || genericMethod == QueryableMethods.MaxBy)
+            {
+                return RewriteMaxByMinBy(methodCallExpression);
+            }
+        }
+        else if (methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+            && methodCallExpression.Method.IsGenericMethod)
+        {
+            var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+
+            if (genericMethod == EnumerableMethods.MinBy
+                || genericMethod == EnumerableMethods.MaxBy)
+            {
+                return RewriteMaxByMinBy(methodCallExpression);
+            }
         }
 
         if (methodCallExpression.Method.IsEFPropertyMethod())
@@ -165,6 +186,72 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
             leftKeySelector,
             rightKeySelector,
             resultSelector);
+    }
+
+    private static Expression RewriteMaxByMinBy(MethodCallExpression methodCallExpression)
+    {
+        var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+
+        if (keySelector.Body is not NewExpression newExpression || newExpression.Arguments.Count == 0)
+        {
+            return methodCallExpression;
+        }
+
+        /*
+            MaxBy/MinBy(x => new { x.Prop, x.Prop2 }) throws System.ArgumentException: 'At least one object must implement IComparable.'
+            So MaxBy/MinBy is rewriten as OrderBy/Descending(x => x.Prop).ThenBy/Descending(x.Prop2).First/OrDefault()
+        */
+
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+
+        var sourceType = methodCallExpression.Method.GetGenericArguments()[0];
+
+        MethodInfo firstMethod;
+        MethodInfo orderByMethod;
+        MethodInfo thenByMethod;
+        Func<Expression, Expression> transformLamda;
+
+        if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+        {
+            firstMethod = sourceType.IsNullableValueType()
+                ? EnumerableMethods.FirstOrDefaultWithoutPredicate
+                : EnumerableMethods.FirstWithoutPredicate;
+
+            (orderByMethod, thenByMethod) = genericMethod == EnumerableMethods.MinBy
+                ? (EnumerableMethods.OrderBy, EnumerableMethods.ThenBy)
+                : (EnumerableMethods.OrderByDescending, EnumerableMethods.ThenByDescending);
+
+            transformLamda = x => x;
+        }
+        else
+        {
+            firstMethod = sourceType.IsNullableValueType()
+                ? QueryableMethods.FirstOrDefaultWithoutPredicate
+                : QueryableMethods.FirstWithoutPredicate;
+
+            (orderByMethod, thenByMethod) = genericMethod == QueryableMethods.MinBy
+                ? (QueryableMethods.OrderBy, QueryableMethods.ThenBy)
+                : (QueryableMethods.OrderByDescending, QueryableMethods.ThenByDescending);
+
+            transformLamda = Expression.Quote;
+        }
+
+        var source = Expression.Call(
+            orderByMethod.MakeGenericMethod(sourceType, newExpression.Arguments[0].Type),
+            methodCallExpression.Arguments[0],
+            transformLamda(Expression.Lambda(newExpression.Arguments[0], keySelector.Parameters[0])));
+
+        for (var i = 1; i < newExpression.Arguments.Count; i++)
+        {
+            source = Expression.Call(
+                thenByMethod.MakeGenericMethod(sourceType, newExpression.Arguments[i].Type),
+                source,
+                transformLamda(Expression.Lambda(newExpression.Arguments[i], keySelector.Parameters[0])));
+        }
+
+        return Expression.Call(
+             firstMethod.MakeGenericMethod(sourceType),
+             source);
     }
 
     public static TResult GetShadowPropertyValue<TEntity, TResult>(TEntity entity, Func<object, object> shadowPropertyAccessor)
