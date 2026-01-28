@@ -154,8 +154,4 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture>(TFixture fixtu
             RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async))).Message);
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }
