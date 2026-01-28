@@ -646,6 +646,7 @@ FROM [Orders] AS [o]
 ORDER BY [o].[OrderID] DESC, [o].[EmployeeID] DESC
 """);
     }
+
     public override async Task MaxBy_with_coalesce(bool async)
     {
         await base.MaxBy_with_coalesce(async);

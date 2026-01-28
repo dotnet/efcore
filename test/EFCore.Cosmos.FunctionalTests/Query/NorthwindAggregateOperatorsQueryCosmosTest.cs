@@ -657,10 +657,304 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
             });
 
+    public override async Task MaxBy_no_data(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data(async);
+
+            AssertSql(
+"""
+ReadItem(None, Order|-1)
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_nullable(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data_nullable(async);
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY c["SupplierID"] DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_nullable_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_no_data_nullable_source(async));
+
+            AssertSql(
+"""
+SELECT VALUE c["SupplierID"]
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY ((c["SupplierID"] != null) ? c["SupplierID"] : 0) DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_cast_to_nullable(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data_cast_to_nullable(async);
+
+        AssertSql(
+"""
+ReadItem(None, Order|-1)
+""");
+        }
+    }
+
+    public override async Task MaxBy_no_data_subquery(bool async)
+    {
+        await AssertTranslationFailed(() => base.MaxBy_no_data_subquery(async));
+
+        AssertSql();
+    }
+
+    public override Task MaxBy(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.MaxBy(a);
+
+                AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "Order")
+ORDER BY c["OrderID"] DESC
+OFFSET 0 LIMIT 1
+""");
+            });
+
+    public override async Task MaxBy_complex_selector(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_complex_selector(async));
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "Order")
+ORDER BY c["OrderID"] DESC, c["EmployeeID"] DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_with_coalesce(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_with_coalesce(async));
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
+ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0) DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MaxBy_over_subquery(bool async)
+    {
+        //Cosmos subqueries must be correlated, referencing values from the outer query
+        await AssertTranslationFailed(() => base.MaxBy_over_subquery(async));
+
+        AssertSql();
+    }
+    
+    public override async Task MaxBy_over_nested_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
+        await AssertTranslationFailed(() => base.MaxBy_over_nested_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MaxBy_over_sum_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos
+        await AssertTranslationFailed(() => base.MaxBy_over_sum_subquery(async));
+
+        AssertSql();
+    }
+
     public override async Task Min_no_data_subquery(bool async)
     {
         // Aggregates. Issue #16146.
         await AssertTranslationFailed(() => base.Min_no_data_subquery(async));
+
+        AssertSql();
+    }
+
+    public override Task MinBy(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.MinBy(a);
+
+                AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "Order")
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+            });
+
+    public override async Task MinBy_complex_selector(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_complex_selector(async));
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] = "Order")
+ORDER BY c["OrderID"] DESC, c["EmployeeID"] DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data(async);
+
+            AssertSql(
+"""
+ReadItem(None, Order|-1)
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_nullable(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data_nullable(async);
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY c["SupplierID"]
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_nullable_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_no_data_nullable_source(async));
+
+            AssertSql(
+"""
+SELECT VALUE c["SupplierID"]
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY ((c["SupplierID"] != null) ? c["SupplierID"] : 0)
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_cast_to_nullable(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data_cast_to_nullable(async);
+
+            AssertSql(
+"""
+ReadItem(None, Order|-1)
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_subquery(bool async)
+    {
+        await AssertTranslationFailed(() => base.MinBy_no_data_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_with_coalesce(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_with_coalesce(async));
+
+            AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
+ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_over_subquery(bool async)
+    {
+        // Cosmos subqueries must be correlated, referencing values from the outer query.
+        await AssertTranslationFailed(() => base.MinBy_over_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_over_nested_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
+        await AssertTranslationFailed(() => base.MinBy_over_nested_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_over_max_subquery(bool async)
+    {
+        // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
+        await AssertTranslationFailed(() => base.MinBy_over_max_subquery(async));
 
         AssertSql();
     }
@@ -2579,10 +2873,26 @@ FROM root c
         AssertSql();
     }
 
+    public override async Task MaxBy_after_DefaultIfEmpty_does_not_throw(bool async)
+    {
+        // Contains over subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.MaxBy_after_DefaultIfEmpty_does_not_throw(async));
+
+        AssertSql();
+    }
+
     public override async Task Min_after_DefaultIfEmpty_does_not_throw(bool async)
     {
         // Contains over subquery. Issue #17246.
         await AssertTranslationFailed(() => base.Min_after_DefaultIfEmpty_does_not_throw(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_after_DefaultIfEmpty_does_not_throw(bool async)
+    {
+        // Contains over subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.MinBy_after_DefaultIfEmpty_does_not_throw(async));
 
         AssertSql();
     }
