@@ -12,10 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class EntityProjectionExpression : Expression, IPrintableExpression, IAccessExpression
+public class StructuralTypeProjectionExpression : Expression, IPrintableExpression, IAccessExpression
 {
     private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = new();
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsMap = new();
+    private readonly Dictionary<IComplexProperty, StructuralTypeShaperExpression> _complexPropertyExpressionsMap = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,10 +24,10 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityProjectionExpression(Expression @object, IEntityType entityType)
+    public StructuralTypeProjectionExpression(Expression @object, ITypeBase structuralType)
     {
         Object = @object;
-        EntityType = entityType;
+        StructuralType = structuralType;
         PropertyName = (@object as IAccessExpression)?.PropertyName;
     }
 
@@ -46,7 +47,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => EntityType.ClrType;
+        => StructuralType.ClrType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +63,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEntityType EntityType { get; }
+    public virtual ITypeBase StructuralType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,7 +91,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     public virtual Expression Update(Expression @object)
         => ReferenceEquals(@object, Object)
             ? this
-            : new EntityProjectionExpression(@object, EntityType);
+            : new StructuralTypeProjectionExpression(@object, StructuralType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,11 +101,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     /// </summary>
     public virtual Expression BindProperty(IProperty property, bool clientEval)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringType)
-            && !property.DeclaringType.IsAssignableFrom(EntityType))
+        if (!StructuralType.IsAssignableFrom(property.DeclaringType)
+            && !property.DeclaringType.IsAssignableFrom(StructuralType))
         {
             throw new InvalidOperationException(
-                CosmosStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
+                CosmosStrings.UnableToBindMemberToEntityProjection("property", property.Name, StructuralType.DisplayName()));
         }
 
         if (!_propertyExpressionsMap.TryGetValue(property, out var expression))
@@ -136,11 +137,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     /// </summary>
     public virtual Expression BindNavigation(INavigation navigation, bool clientEval)
     {
-        if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
-            && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
+        if (!StructuralType.IsAssignableFrom(navigation.DeclaringEntityType)
+            && !navigation.DeclaringEntityType.IsAssignableFrom(StructuralType))
         {
             throw new InvalidOperationException(
-                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
+                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, StructuralType.DisplayName()));
         }
 
         if (!_navigationExpressionsMap.TryGetValue(navigation, out var expression))
@@ -153,7 +154,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
                     nullable: true)
                 : new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
-                    new EntityProjectionExpression(new ObjectAccessExpression(Object, navigation), navigation.TargetEntityType),
+                    new StructuralTypeProjectionExpression(new ObjectAccessExpression(Object, navigation), navigation.TargetEntityType),
                     nullable: !navigation.ForeignKey.IsRequiredDependent);
 
             _navigationExpressionsMap[navigation] = expression;
@@ -166,6 +167,40 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
         //     // TODO: We shouldn't be returning null from here
         //     return null!;
         // }
+
+        return expression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression BindComplexProperty(IComplexProperty complexProperty, bool clientEval)
+    {
+        if (!StructuralType.IsAssignableFrom(complexProperty.DeclaringType)
+            && !complexProperty.DeclaringType.IsAssignableFrom(StructuralType))
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", complexProperty.Name, StructuralType.DisplayName()));
+        }
+
+        if (!_complexPropertyExpressionsMap.TryGetValue(complexProperty, out var expression))
+        {
+            // TODO: Unify ObjectAccessExpression and ObjectArrayAccessExpression
+            expression = complexProperty.IsCollection
+                ? new StructuralTypeShaperExpression(
+                    complexProperty.ComplexType,
+                    new ObjectArrayAccessExpression(Object, complexProperty),
+                    nullable: true)
+                : new StructuralTypeShaperExpression(
+                    complexProperty.ComplexType,
+                    new StructuralTypeProjectionExpression(new ObjectAccessExpression(Object, complexProperty), complexProperty.ComplexType),
+                    nullable: complexProperty.IsNullable);
+
+            _complexPropertyExpressionsMap[complexProperty] = expression;
+        }
 
         return expression;
     }
@@ -198,29 +233,41 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
 
     private Expression? BindMember(MemberIdentity member, Type? entityClrType, bool clientEval, out IPropertyBase? propertyBase)
     {
-        var entityType = EntityType;
+        var structuralType = StructuralType;
         if (entityClrType != null
-            && !entityClrType.IsAssignableFrom(entityType.ClrType))
+            && !entityClrType.IsAssignableFrom(structuralType.ClrType))
         {
-            entityType = entityType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
+            structuralType = structuralType.GetDerivedTypes().First(e => entityClrType.IsAssignableFrom(e.ClrType));
         }
 
         var property = member.MemberInfo == null
-            ? entityType.FindProperty(member.Name!)
-            : entityType.FindProperty(member.MemberInfo);
+            ? structuralType.FindProperty(member.Name!)
+            : structuralType.FindProperty(member.MemberInfo);
         if (property != null)
         {
             propertyBase = property;
             return BindProperty(property, clientEval);
         }
 
-        var navigation = member.MemberInfo == null
+        if (structuralType is IEntityType entityType)
+        {
+            var navigation = member.MemberInfo == null
             ? entityType.FindNavigation(member.Name!)
             : entityType.FindNavigation(member.MemberInfo);
-        if (navigation != null)
+            if (navigation != null)
+            {
+                propertyBase = navigation;
+                return BindNavigation(navigation, clientEval);
+            }
+        }
+
+        var complex = member.MemberInfo == null
+            ? structuralType.FindComplexProperty(member.Name!)
+            : structuralType.FindComplexProperty(member.MemberInfo);
+        if (complex != null)
         {
-            propertyBase = navigation;
-            return BindNavigation(navigation, clientEval);
+            propertyBase = complex;
+            return BindComplexProperty(complex, clientEval);
         }
 
         // Entity member not found
@@ -234,16 +281,16 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
+    public virtual StructuralTypeProjectionExpression UpdateEntityType(IEntityType derivedType)
     {
-        if (!derivedType.GetAllBaseTypes().Contains(EntityType))
+        if (!derivedType.GetAllBaseTypes().Contains(StructuralType))
         {
             throw new InvalidOperationException(
                 CosmosStrings.InvalidDerivedTypeInEntityProjection(
-                    derivedType.DisplayName(), EntityType.DisplayName()));
+                    derivedType.DisplayName(), StructuralType.DisplayName()));
         }
 
-        return new EntityProjectionExpression(Object, derivedType);
+        return new StructuralTypeProjectionExpression(Object, derivedType);
     }
 
     /// <summary>
@@ -264,11 +311,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is EntityProjectionExpression entityProjectionExpression
+                || obj is StructuralTypeProjectionExpression entityProjectionExpression
                 && Equals(entityProjectionExpression));
 
-    private bool Equals(EntityProjectionExpression entityProjectionExpression)
-        => Equals(EntityType, entityProjectionExpression.EntityType)
+    private bool Equals(StructuralTypeProjectionExpression entityProjectionExpression)
+        => Equals(StructuralType, entityProjectionExpression.StructuralType)
             && Object.Equals(entityProjectionExpression.Object);
 
     /// <summary>
@@ -278,7 +325,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(EntityType, Object);
+        => HashCode.Combine(StructuralType, Object);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -287,5 +334,5 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => $"EntityProjectionExpression: {EntityType.ShortName()}";
+        => $"EntityProjectionExpression: {StructuralType.ShortName()}";
 }

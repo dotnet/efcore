@@ -24,7 +24,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
                 => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression)),
             SelectExpression selectExpression => VisitSelect(selectExpression),
             ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
-            EntityProjectionExpression entityProjectionExpression => VisitEntityProjection(entityProjectionExpression),
+            StructuralTypeProjectionExpression entityProjectionExpression => VisitEntityProjection(entityProjectionExpression),
             ObjectArrayAccessExpression arrayProjectionExpression => VisitObjectArrayAccess(arrayProjectionExpression),
             FromSqlExpression fromSqlExpression => VisitFromSql(fromSqlExpression),
             ObjectReferenceExpression objectReferenceExpression => VisitObjectReference(objectReferenceExpression),
@@ -235,7 +235,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression);
+    protected abstract Expression VisitEntityProjection(StructuralTypeProjectionExpression entityProjectionExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
