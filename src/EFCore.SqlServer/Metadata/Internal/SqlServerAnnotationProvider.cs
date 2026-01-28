@@ -181,6 +181,19 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         // Model validation ensures that these facets are the same on all mapped indexes
         var modelIndex = index.MappedIndexes.First();
         var table = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
+
+#pragma warning disable EF9105 // Vector indexes are experimental
+        if (modelIndex.GetVectorMetric(table) is { } vectorMetric)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.VectorIndexMetric, vectorMetric);
+
+            if (modelIndex.GetVectorIndexType(table) is { } vectorType)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.VectorIndexType, vectorType);
+            }
+        }
+#pragma warning restore EF9105
+
         if (modelIndex.IsClustered(table) is { } isClustered)
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
