@@ -65,16 +65,16 @@ public class QueryAsserter(
     }
 
     public virtual async Task AssertQuery<TResult>(
-        Func<ISetSource, IQueryable<TResult>> actualQuery,
-        Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Func<TResult, object>? elementSorter,
-        Action<TResult, TResult>? elementAsserter,
-        bool assertOrder,
-        bool assertEmpty,
-        bool async,
-        QueryTrackingBehavior? queryTrackingBehavior,
-        string testMethodName,
-        bool filteredQuery = false)
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Func<TResult, object>? elementSorter,
+            Action<TResult, TResult>? elementAsserter,
+            bool assertOrder,
+            bool assertEmpty,
+            bool async,
+            QueryTrackingBehavior? queryTrackingBehavior,
+            string testMethodName,
+            bool filteredQuery = false)
     {
         using var context = _contextCreator();
 
@@ -750,6 +750,63 @@ public class QueryAsserter(
 
         var expectedData = GetExpectedData(context, filteredQuery);
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Max(rewrittenExpectedSelector);
+
+        AssertEqual(expected, actual, asserter);
+    }
+
+    public virtual async Task AssertMinBy<TResult, TSelector>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null,
+        bool async = false,
+        bool filteredQuery = false)
+    {
+        using var context = _contextCreator();
+        var actual = async
+            ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinByAsync(actualSelector)
+            : RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinBy(actualSelector);
+
+        var expectedData = GetExpectedData(context, filteredQuery);
+
+        var query = expectedQuery(expectedData);
+
+        var expected = query.Provider.Execute<TResult>(_rewriteExpectedQueryExpression(Expression.Call(
+            null,
+            QueryableMethods.MinBy.MakeGenericMethod(typeof(TResult), typeof(TSelector)),
+            query.Expression,
+            Expression.Quote(expectedSelector))));
+
+        AssertEqual(expected, actual, asserter);
+    }
+
+    public virtual async Task AssertMaxBy<TResult, TSelector>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null,
+        bool async = false,
+        bool filteredQuery = false)
+    {
+        using var context = _contextCreator();
+        var actual = async
+            ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxByAsync(actualSelector)
+            : RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxBy(actualSelector);
+
+        var rewrittenExpectedSelector =
+            (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+
+        var expectedData = GetExpectedData(context, filteredQuery);
+
+        var query = expectedQuery(expectedData);
+
+        var expected = query.Provider.Execute<TResult>(_rewriteExpectedQueryExpression(Expression.Call(
+            null,
+            QueryableMethods.MaxBy.MakeGenericMethod(typeof(TResult), typeof(TSelector)),
+            query.Expression,
+            Expression.Quote(expectedSelector))));
 
         AssertEqual(expected, actual, asserter);
     }
