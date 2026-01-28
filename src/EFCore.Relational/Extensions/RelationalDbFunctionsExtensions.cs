@@ -31,10 +31,7 @@ public static class RelationalDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="operand">The operand to which to apply the collation.</param>
     /// <param name="collation">The name of the collation.</param>
-    public static TProperty Collate<TProperty>(
-        this DbFunctions _,
-        TProperty operand,
-        [NotParameterized] string collation)
+    public static TProperty Collate<TProperty>(this DbFunctions _, TProperty operand, [NotParameterized] string collation)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
 
     /// <summary>
@@ -42,9 +39,7 @@ public static class RelationalDbFunctionsExtensions
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="values">The list of values from which return the smallest value.</param>
-    public static T Least<T>(
-        this DbFunctions _,
-        [NotParameterized] params T[] values)
+    public static T Least<T>(this DbFunctions _, [NotParameterized] params T[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Least)));
 
     /// <summary>
@@ -52,8 +47,15 @@ public static class RelationalDbFunctionsExtensions
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="values">The list of values from which return the greatest value.</param>
-    public static T Greatest<T>(
-        this DbFunctions _,
-        [NotParameterized] params T[] values)
+    public static T Greatest<T>(this DbFunctions _, [NotParameterized] params T[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Greatest)));
+
+    /// <summary>
+    ///     Returns a value indicating whether a given JSON path exists within the specified JSON.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="json">The JSON value to check.</param>
+    /// <param name="path">The JSON path to look for.</param>
+    public static bool JsonExists(this DbFunctions _, object json, string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExists)));
 }
