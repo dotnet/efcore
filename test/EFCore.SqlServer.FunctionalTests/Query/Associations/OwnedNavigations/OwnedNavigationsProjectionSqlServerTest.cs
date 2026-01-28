@@ -391,6 +391,25 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[A
 """);
     }
 
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r0].[RootEntityId], [r0].[Id], [r0].[Int], [r0].[Ints], [r0].[Name], [r0].[String], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r3].[Id], [r3].[Int], [r3].[Ints], [r3].[Name], [r3].[String], [r1].[Id], [r1].[Int], [r1].[Ints], [r1].[Name], [r1].[String], [r2].[Id], [r2].[Int], [r2].[Ints], [r2].[Name], [r2].[String]
+FROM [RootEntity] AS [r]
+LEFT JOIN [RequiredRelated] AS [r0] ON [r].[Id] = [r0].[RootEntityId]
+LEFT JOIN [RequiredRelated_OptionalNested] AS [r1] ON [r0].[RootEntityId] = [r1].[AssociateTypeRootEntityId]
+LEFT JOIN [RequiredRelated_RequiredNested] AS [r2] ON [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId]
+LEFT JOIN [RequiredRelated_NestedCollection] AS [r3] ON [r0].[RootEntityId] = [r3].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [r1].[AssociateTypeRootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId]
+""");
+        }
+    }
+
     #endregion Multiple
 
     #region Subquery
