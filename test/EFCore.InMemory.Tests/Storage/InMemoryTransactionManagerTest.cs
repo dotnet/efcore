@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
@@ -96,6 +97,14 @@ public class InMemoryTransactionManagerTest
     [ConditionalFact]
     public void Throws_on_RollbackTransactionAsync()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransactionAsync().GetAwaiter().GetResult());
+
+    [ConditionalFact]
+    public void Throws_on_BeginTransaction_with_IsolationLevel()
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction(IsolationLevel.Serializable));
+
+    [ConditionalFact]
+    public void Throws_on_BeginTransactionAsync_with_IsolationLevel()
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter().GetResult());
 
     private static void AssertThrows(Action action)
         => Assert.Equal(
