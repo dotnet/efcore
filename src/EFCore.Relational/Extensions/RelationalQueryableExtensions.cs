@@ -121,6 +121,7 @@ public static class RelationalQueryableExtensions
     /// </param>
     /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
     /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
+    [Obsolete("Use FromSql() instead. This method is obsolete and will be removed in a future release.")]
     public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
         this DbSet<TEntity> source,
         [NotParameterized] FormattableString sql)
