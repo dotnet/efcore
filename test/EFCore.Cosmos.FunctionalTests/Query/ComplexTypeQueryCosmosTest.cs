@@ -159,7 +159,8 @@ WHERE (((c["ShippingAddress"] = null) AND (@entity_equality_address = null)) OR 
     public override Task Union_two_different_complex_type(bool async)
         => AssertTranslationFailed(() => base.Union_two_different_complex_type(async)); // Union not supported
 
-    public override async Task Filter_on_property_inside_struct_complex_type(bool async)
+    public override Task Filter_on_property_inside_struct_complex_type(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Filter_on_property_inside_struct_complex_type(async);
 
@@ -169,9 +170,10 @@ SELECT VALUE c
 FROM root c
 WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
-    }
+    });
 
-    public override async Task Filter_on_property_inside_nested_struct_complex_type(bool async)
+    public override Task Filter_on_property_inside_nested_struct_complex_type(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Filter_on_property_inside_nested_struct_complex_type(async);
 
@@ -181,7 +183,7 @@ SELECT VALUE c
 FROM root c
 WHERE (c["ShippingAddress"]["Country"]["Code"] = "DE")
 """);
-    }
+    });
 
     public override Task Filter_on_property_inside_struct_complex_type_after_subquery(bool async)
         => AssertTranslationFailedWithDetails(() => base.Filter_on_property_inside_struct_complex_type_after_subquery(async), CosmosStrings.LimitOffsetNotSupportedInSubqueries);
@@ -207,18 +209,20 @@ WHERE (c["ShippingAddress"]["Country"]["Code"] = "DE")
     public override Task Load_struct_complex_type_after_subquery_on_entity_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Load_struct_complex_type_after_subquery_on_entity_type(async), CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    public override async Task Select_struct_complex_type(bool async)
+    public override Task Select_struct_complex_type(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Select_struct_complex_type(async);
 
         AssertSql(
-            """
+                """
 SELECT VALUE c
 FROM root c
 """);
-    }
+    });
 
-    public override async Task Select_nested_struct_complex_type(bool async)
+    public override Task Select_nested_struct_complex_type(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Select_nested_struct_complex_type(async);
 
@@ -227,9 +231,10 @@ FROM root c
 SELECT VALUE c
 FROM root c
 """);
-    }
+    });
 
-    public override async Task Select_single_property_on_nested_struct_complex_type(bool async)
+    public override Task Select_single_property_on_nested_struct_complex_type(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Select_single_property_on_nested_struct_complex_type(async);
 
@@ -238,9 +243,10 @@ FROM root c
 SELECT VALUE c["ShippingAddress"]["Country"]["FullName"]
 FROM root c
 """);
-    }
+    });
 
-    public override async Task Select_struct_complex_type_Where(bool async)
+    public override Task Select_struct_complex_type_Where(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Select_struct_complex_type_Where(async);
 
@@ -250,12 +256,13 @@ SELECT VALUE c
 FROM root c
 WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
-    }
+    });
 
     public override Task Select_struct_complex_type_Distinct(bool async)
         => AssertTranslationFailed(() => base.Select_struct_complex_type_Distinct(async));
 
-    public override async Task Struct_complex_type_equals_struct_complex_type(bool async)
+    public override Task Struct_complex_type_equals_struct_complex_type(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Struct_complex_type_equals_struct_complex_type(async);
 
@@ -265,9 +272,10 @@ SELECT VALUE c
 FROM root c
 WHERE (((((c["ShippingAddress"]["Country"]["Code"] = c["BillingAddress"]["Country"]["Code"]) AND (c["ShippingAddress"]["Country"]["FullName"] = c["BillingAddress"]["Country"]["FullName"])) AND (c["ShippingAddress"]["AddressLine1"] = c["BillingAddress"]["AddressLine1"])) AND (c["ShippingAddress"]["AddressLine2"] = c["BillingAddress"]["AddressLine2"])) AND (c["ShippingAddress"]["ZipCode"] = c["BillingAddress"]["ZipCode"]))
 """);
-    }
+    });
 
-    public override async Task Struct_complex_type_equals_constant(bool async)
+    public override Task Struct_complex_type_equals_constant(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Struct_complex_type_equals_constant(async);
 
@@ -277,9 +285,10 @@ SELECT VALUE c
 FROM root c
 WHERE (((((c["ShippingAddress"]["Country"]["Code"] = "US") AND (c["ShippingAddress"]["Country"]["FullName"] = "United States")) AND (c["ShippingAddress"]["AddressLine1"] = "804 S. Lakeshore Road")) AND (c["ShippingAddress"]["AddressLine2"] = null)) AND (c["ShippingAddress"]["ZipCode"] = 38654))
 """);
-    }
+    });
 
-    public override async Task Struct_complex_type_equals_parameter(bool async)
+    public override Task Struct_complex_type_equals_parameter(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
         await base.Struct_complex_type_equals_parameter(async);
 
@@ -295,7 +304,7 @@ SELECT VALUE c
 FROM root c
 WHERE (((((c["ShippingAddress"]["Country"]["Code"] = @entity_equality_entity_equality_address_Country_Code) AND (c["ShippingAddress"]["Country"]["FullName"] = @entity_equality_entity_equality_address_Country_FullName)) AND (c["ShippingAddress"]["AddressLine1"] = @entity_equality_address_AddressLine1)) AND (c["ShippingAddress"]["AddressLine2"] = @entity_equality_address_AddressLine2)) AND (c["ShippingAddress"]["ZipCode"] = @entity_equality_address_ZipCode))
 """);
-    }
+    });
 
     public override Task Subquery_over_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Subquery_over_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
