@@ -800,6 +800,517 @@ GO
 """);
     }
 
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_single_quote()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* It's a comment */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* It's a comment */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_multiline_block_comment_with_single_quote()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* This is" + EOL + "   a multiline comment with ' quote */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* This is
+   a multiline comment with ' quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_multiple_quotes()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* It's a comment with 'multiple' quotes */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* It's a comment with 'multiple' quotes */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_before_procedure()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* It's a procedure */" + EOL + "CREATE PROCEDURE dbo.proc1 AS SELECT 1;" + EOL + "go" + EOL
+                    + "/* Another one */" + EOL + "CREATE PROCEDURE dbo.proc2 AS SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* It's a procedure */
+CREATE PROCEDURE dbo.proc1 AS SELECT 1;
+GO
+
+/* Another one */
+CREATE PROCEDURE dbo.proc2 AS SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_empty_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/**/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/**/
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_nested_comments_and_strings()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* Block comment */" + EOL + "SELECT 'string with '' escaped quotes';" + EOL + "go" + EOL
+                    + "-- Line comment" + EOL + "SELECT 1;"
+            });
+
+        AssertSql(
+            """
+/* Block comment */
+SELECT 'string with '' escaped quotes';
+GO
+
+-- Line comment
+SELECT 1;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_after_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test';" + EOL + "/* It's a comment */" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test';
+/* It's a comment */
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_asterisks()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/** It's a comment with extra stars **/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/** It's a comment with extra stars **/
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_line_comment_with_block_comment_start()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- /*" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- /*
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_block_comment_with_line_comment_inside()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* Block comment -- with line comment */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* Block comment -- with line comment */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_multiline_block_comment_with_go_on_separate_line()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "/* Comment with" + EOL + "go" + EOL + "inside */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
+            });
+
+        AssertSql(
+            """
+/* Comment with
+go
+inside */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_square_bracket_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO [go] VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO [go] VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_escaped_square_bracket_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO [g]]o] VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO [g]]o] VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_identifier()
+    {
+        Generate(
+            new SqlOperation { Sql = "INSERT INTO \"" + EOL + "go" + EOL + "\" VALUES (1);" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+INSERT INTO "
+go
+" VALUES (1);
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_quote_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test\"';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test"';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_forward_slash_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1/2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1/2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_asterisk_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1*2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1*2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_dash_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 1-2;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 1-2;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_square_bracket_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT [" + EOL + "column" + EOL + "];" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT [
+column
+];
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quote_before_go()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT \"go\"\"lum\";" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT "go""lum";
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_line_comment_inside_quotes()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT '-- not a comment';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT '-- not a comment';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_line_comment_inside_square_brackets()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT [-- column];" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT [-- column];
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_line_comment_inside_double_quotes()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT \"-- column\";" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT "-- column";
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_brackets_inside_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* [bracket identifier */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* [bracket identifier */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quotes_inside_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* \"double quote */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* "double quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_single_quote_inside_block_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "/* ' quote */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+/* ' quote */
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_quotes_inside_line_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- 'quote' [bracket] \"double\"" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- 'quote' [bracket] "double"
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_brackets_inside_line_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- [column" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- [column
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_double_quotes_inside_line_comment()
+    {
+        Generate(
+            new SqlOperation { Sql = "-- \"column" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+-- "column
+SELECT 1;
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_escaped_quotes_in_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT 'test''s value';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT 'test''s value';
+GO
+
+SELECT 2;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_multiple_delimiters_in_string()
+    {
+        Generate(
+            new SqlOperation { Sql = "SELECT '[bracket] and \"quote\"';" + EOL + "go" + EOL + "SELECT 2;" });
+
+        AssertSql(
+            """
+SELECT '[bracket] and "quote"';
+GO
+
+SELECT 2;
+""");
+    }
+
     public override void InsertDataOperation_all_args_spatial()
     {
         base.InsertDataOperation_all_args_spatial();
