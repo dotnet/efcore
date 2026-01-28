@@ -153,6 +153,74 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression function)
+    {
+        switch (function)
+        {
+            // The VECTOR_SEARCH() function requires some special syntax (specifically named parameters), as well as
+            // some special handling for its column parameter, which needs to be written out without a table alias.
+            case
+            {
+                Name: "VECTOR_SEARCH",
+                Arguments:
+                [
+                    TableExpression table,
+                    ColumnExpression column,
+                    SqlExpression similarTo,
+                    SqlConstantExpression { Value: string } metric,
+                    SqlExpression topN
+                ]
+            }:
+                // VECTOR_SEARCH(
+                //     TABLE = [Articles] AS t,
+                //     COLUMN = [Vector],
+                //     SIMILAR_TO = @qv,
+                //     METRIC = 'Cosine',
+                //     TOP_N = 3
+                // )
+                Sql.AppendLine("VECTOR_SEARCH(");
+
+                using (Sql.Indent())
+                {
+                    Sql.Append("TABLE = ");
+                    VisitTable(table);
+                    Sql.AppendLine(",");
+
+                    // SQL Server requires only the column name here, without a table alias (COLUMN = [Vector], not COLUMN = [b].[Vector]).
+                    // Since ColumnExpression requires a non-nullable table alias, we handle this here in a special way.
+                    Check.DebugAssert(column.TableAlias == table.Alias);
+                    Sql.Append("COLUMN = ").Append(_sqlGenerationHelper.DelimitIdentifier(column.Name)).AppendLine(",");
+
+                    Sql.Append("SIMILAR_TO = ");
+                    Visit(similarTo);
+                    Sql.AppendLine(",");
+
+                    Sql.Append("METRIC = ");
+                    Visit(metric);
+                    Sql.AppendLine(",");
+
+                    Sql.Append("TOP_N = ");
+                    Visit(topN);
+                    Sql.AppendLine();
+                }
+
+                Sql.Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(function.Alias));
+
+                return function;
+
+            default:
+                return base.VisitTableValuedFunction(function);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitUpdate(UpdateExpression updateExpression)
     {
         var selectExpression = updateExpression.SelectExpression;
@@ -777,7 +845,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         // expression.
         Sql.Append("OPENJSON(");
 
-        Visit(openJsonExpression.JsonExpression);
+        Visit(openJsonExpression.Json);
 
         if (openJsonExpression.Path is not null)
         {
