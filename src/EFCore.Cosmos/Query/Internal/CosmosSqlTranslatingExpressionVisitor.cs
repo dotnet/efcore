@@ -1007,11 +1007,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
         return expression;
     }
 
+    // This is for list.Contains(entity)
     private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
     {
         result = null;
 
-        // @TODO: support composite keys? Then we can support complex types as well.
         if (item is not StructuralTypeReferenceExpression itemEntityReference || itemEntityReference.StructuralType is not IEntityType entityType)
         {
             return false;
@@ -1104,7 +1104,15 @@ public class CosmosSqlTranslatingExpressionVisitor(
             }
 
             // Treat type as object for null comparison
-            var access = new SqlObjectAccessExpression(structuralReference.Object);
+
+            var obj = structuralReference.Object;
+            if (obj is StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression { QueryExpression: SelectExpression select } }) // @TODO: Is this the right way to check if this is a query object reference?
+            {
+                obj = new ObjectReferenceExpression(structuralType, select.Sources.Single().Alias); // @TODO: Probably a better way to get the alais we need here..
+            }
+
+            var access = new SqlObjectAccessExpression(obj);
+            // There is an ValueBufferExpression: ProjectionBindingExpression: EmptyProjectionMember as oppose to ValueBufferExpression: c["OptionalAssociate"] (ObjectAccessExpression?)
             result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object), null)!, typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
@@ -1142,17 +1150,12 @@ public class CosmosSqlTranslatingExpressionVisitor(
         // Complex type equality
         else if (structuralType is IComplexType complexType)
         {
-            if (complexType.ComplexProperty.IsCollection)
+            // We need to know here the difference between
+            // x.Collection == x.Collection (should return null)
+            // x.Collection[1] == x.Collection[1] (should run below)
+            // How can we determine the difference? The structuralReference represents the entire complex type in both scenarios, wich is always of type ComplexType and IsCollection true..
+            if (structuralReference.Parameter?.ValueBufferExpression is ObjectArrayAccessExpression) // @TODO: Is there a better way to do this? It feels like this might not be the right place. What about CosmosQueryableMethodTranslatingExpressionVisitor? What is the difference again?
             {
-                // @TODO: We could compare by:
-                /*
-                    WHERE ARRAY_LENGTH(c.items) = ARRAY_LENGTH(@items)
-                    AND NOT EXISTS (
-                        SELECT VALUE i
-                        FROM i IN c.items
-                        WHERE NOT ARRAY_CONTAINS(@items, i, true)
-                    )
-                 * */
                 result = null;
                 return false;
             }

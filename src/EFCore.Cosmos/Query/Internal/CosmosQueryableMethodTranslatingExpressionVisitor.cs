@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Numerics;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -535,9 +533,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        // @TODO: Without this check, this will generate a query with DISTINCT over a complex type. This does work, but it is a bitwise comparison. Meaning if properties are in different order, or there are extra properties, this will not work as expected for EF Distinct. Currently for owned types this will create a subquery because owned types are translated to Include's. The subquery will be checked for isdistinct and return null due to sub query pushdown not implement.
-        // Are we ok with a bitwise comparison for complex types? If not we need to implement GROUP BY { properties}. However, that could be out of scope for now? Have to discuss
-        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IComplexType })
+        // DISTINCT applies to the SQL projection. If the shaper extracts a subset of the projection
+        // (e.g., a property from an entity), DISTINCT would operate on the wrong columns.
+        // This is valid when the shaper directly binds to projection members without further extraction.
+        // Cosmos: Projecting out nested documents retrieves the entire document #34067
+        if (!IsProjectionCompatibleWithDistinct(source.ShaperExpression))
         {
             return null;
         }
@@ -546,6 +546,28 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         return source;
     }
+
+    private static bool IsProjectionCompatibleWithDistinct(Expression shaperExpression) // @TODO: Is there a better way to do this?  // @TODO: Check if binding is done on client eval..?
+    => shaperExpression switch
+    {
+        // Structural type shaper binding to the root projection
+        StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression } => true,
+
+        // Direct scalar projection binding
+        ProjectionBindingExpression => true,
+
+        // Convert wrapping a valid projection
+        UnaryExpression { NodeType: ExpressionType.Convert, Operand: var operand } =>
+            IsProjectionCompatibleWithDistinct(operand),
+
+        // Anonymous types / DTOs
+        NewExpression newExpr => newExpr.Arguments.All(IsProjectionCompatibleWithDistinct),
+        MemberInitExpression memberInit =>
+            IsProjectionCompatibleWithDistinct(memberInit.NewExpression)
+            && memberInit.Bindings.All(b => b is MemberAssignment ma && IsProjectionCompatibleWithDistinct(ma.Expression)),
+
+        _ => false
+    };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

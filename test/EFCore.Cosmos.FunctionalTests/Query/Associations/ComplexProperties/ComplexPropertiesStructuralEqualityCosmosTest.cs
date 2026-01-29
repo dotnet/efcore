@@ -27,7 +27,7 @@ WHERE (((c["RequiredAssociate"]["RequiredNestedAssociate"] = null) AND (c["Optio
     }
 
     public override Task Not_equals()
-        => AssertTranslationFailed(base.Not_equals);
+        => AssertTranslationFailed(base.Not_equals); // Complex collection equality... Need ALL support
 
     public override async Task Associate_with_inline_null()
     {
@@ -42,7 +42,7 @@ WHERE (c["OptionalAssociate"] = null)
     }
 
     public override Task Associate_with_parameter_null()
-        => AssertTranslationFailed(base.Associate_with_parameter_null);
+        => AssertTranslationFailed(base.Associate_with_parameter_null); // Complex collection equality... Need ALL support
 
     public override async Task Nested_associate_with_inline_null()
     {
@@ -111,13 +111,13 @@ WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_
     }
 
     public override Task Two_nested_collections()
-        => AssertTranslationFailed(base.Two_nested_collections);
+        => AssertTranslationFailed(base.Two_nested_collections); // Complex collection equality... Need ALL support
 
     public override Task Nested_collection_with_inline()
-       => AssertTranslationFailed(base.Nested_collection_with_inline);
+       => AssertTranslationFailed(base.Nested_collection_with_inline); // Complex collection equality... Need ALL support
 
     public override Task Nested_collection_with_parameter()
-       => AssertTranslationFailed(base.Nested_collection_with_parameter);
+       => AssertTranslationFailed(base.Nested_collection_with_parameter); // Complex collection equality... Need ALL support
 
     [ConditionalFact]
     public override async Task Nullable_value_type_with_null()
@@ -136,28 +136,66 @@ WHERE (c["OptionalAssociate"] = null)
 
     public override async Task Contains_with_inline()
     {
-        // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Contains_with_inline());
+        await base.Contains_with_inline();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM n IN c["RequiredAssociate"]["NestedCollection"]
+    WHERE (((((n["Id"] = 1002) AND (n["Int"] = 8)) AND (n["Ints"] = [1,2,3])) AND (n["Name"] = "Root1_RequiredAssociate_NestedCollection_1")) AND (n["String"] = "foo")))
+""");
     }
 
     public override async Task Contains_with_parameter()
     {
+        await base.Contains_with_parameter();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_parameter);
+        AssertSql(
+            """
+@entity_equality_nested='{}'
+@entity_equality_nested_Id='1002'
+@entity_equality_nested_Int='8'
+@entity_equality_nested_Ints='[1,2,3]'
+@entity_equality_nested_Name='Root1_RequiredAssociate_NestedCollection_1'
+@entity_equality_nested_String='foo'
+
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM n IN c["RequiredAssociate"]["NestedCollection"]
+    WHERE (((n = null) AND (@entity_equality_nested = null)) OR ((@entity_equality_nested != null) AND (((((n["Id"] = @entity_equality_nested_Id) AND (n["Int"] = @entity_equality_nested_Int)) AND (n["Ints"] = @entity_equality_nested_Ints)) AND (n["Name"] = @entity_equality_nested_Name)) AND (n["String"] = @entity_equality_nested_String)))))
+""");
     }
 
     public override async Task Contains_with_operators_composed_on_the_collection()
     {
+        await base.Contains_with_operators_composed_on_the_collection();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_operators_composed_on_the_collection);
+        AssertSql(
+            """
+@get_Item_Int='106'
+@entity_equality_get_Item='{}'
+@entity_equality_get_Item_Id='3003'
+@entity_equality_get_Item_Int='108'
+@entity_equality_get_Item_Ints='[8,9,109]'
+@entity_equality_get_Item_Name='Root3_RequiredAssociate_NestedCollection_2'
+@entity_equality_get_Item_String='foo104'
+
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM n IN c["RequiredAssociate"]["NestedCollection"]
+    WHERE ((n["Int"] > @get_Item_Int) AND (((n = null) AND (@entity_equality_get_Item = null)) OR ((@entity_equality_get_Item != null) AND (((((n["Id"] = @entity_equality_get_Item_Id) AND (n["Int"] = @entity_equality_get_Item_Int)) AND (n["Ints"] = @entity_equality_get_Item_Ints)) AND (n["Name"] = @entity_equality_get_Item_Name)) AND (n["String"] = @entity_equality_get_Item_String))))))
+""");
     }
 
     public override async Task Contains_with_nested_and_composed_operators()
-    {
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Contains_with_nested_and_composed_operators);
-    }
+        => await AssertTranslationFailed(base.Contains_with_nested_and_composed_operators); // Complex collection equality... Need ALL support
 
     #endregion Contains
 
