@@ -61,8 +61,17 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         }
         else if (type == typeof(byte[]))
         {
+            // In SQLite JSON columns, parameter binding for byte[] results in a blob being bound, whereas the column is a text column. This conversion is needed to align representations.
             var value1 = (byte[])value;
-            BindBlob(value1);
+            if (sqliteType == SqliteType.Text)
+            {
+                var value = ToHexString(value1);
+                BindText(value);
+            }
+            else
+            {
+                BindBlob(value1);
+            }
         }
         else if (type == typeof(Memory<byte>))
         {
@@ -325,4 +334,23 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 
         return iJD / 86400000.0;
     }
+
+    private static string ToHexString(byte[] bytes)
+    {
+        char[] hexChars = new char[bytes.Length * 2];
+
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            byte b = bytes[i];
+
+            int highNibble = (b >> 4);
+            int lowNibble = (b & 0x0F);
+
+            hexChars[i * 2] = (char)(highNibble < 10 ? highNibble + '0' : highNibble + 'A' - 10);
+            hexChars[i * 2 + 1] = (char)(lowNibble < 10 ? lowNibble + '0' : lowNibble + 'A' - 10);
+        }
+
+        return new string(hexChars);
+    }
+
 }
