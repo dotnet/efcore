@@ -357,12 +357,12 @@ WHERE (s["City"] = "London")
 
                 AssertSql(
                     """
-@p0='London'
-@p1='Sales Representative'
+@p='London'
+@p0='Sales Representative'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p AND c["ContactTitle"] = @p0
 ) s
 """);
             });
@@ -388,12 +388,12 @@ FROM (
 
                 AssertSql(
                     """
-@p0='London'
-@p1='Sales Representative'
+@p='London'
+@p0='Sales Representative'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p AND c["ContactTitle"] = @p0
 ) s
 """);
             });
@@ -418,11 +418,11 @@ FROM (
 
                 AssertSql(
                     """
-@p0=null
+@p=null
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["$type"] = "Employee" AND c["ReportsTo"] = @p0 OR (IS_NULL(c["ReportsTo"]) AND IS_NULL(@p0))
+    SELECT * FROM root c WHERE c["$type"] = "Employee" AND c["ReportsTo"] = @p OR (IS_NULL(c["ReportsTo"]) AND IS_NULL(@p))
 ) s
 """);
             });
@@ -451,12 +451,12 @@ FROM (
 
                 AssertSql(
                     """
-@p0='London'
+@p='London'
 @contactTitle='Sales Representative'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p0
+    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p
 ) s
 WHERE (s["ContactTitle"] = @contactTitle)
 """);
@@ -540,22 +540,22 @@ FROM (
 
                 AssertSql(
                     """
-@p0='London'
-@p1='Sales Representative'
+@p='London'
+@p0='Sales Representative'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p AND c["ContactTitle"] = @p0
 ) s
 """,
                     //
                     """
-@p0='Madrid'
-@p1='Accounting Manager'
+@p='Madrid'
+@p0='Accounting Manager'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+    SELECT * FROM root c WHERE c["$type"] = "Customer" AND c["City"] = @p AND c["ContactTitle"] = @p0
 ) s
 """);
             });
@@ -731,12 +731,12 @@ FROM (
 
                 AssertSql(
                     """
-@p0='London'
-@p1='Sales Representative'
+@p='London'
+@p0='Sales Representative'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["City"] = @p0 AND c["ContactTitle"] = @p1
+    SELECT * FROM root c WHERE c["City"] = @p AND c["ContactTitle"] = @p0
 ) s
 """);
             });
@@ -754,13 +754,50 @@ FROM (
 
                 AssertSql(
                     """
-@p0='London'
-@p1='Sales Representative'
+@p='London'
+@p0='Sales Representative'
 
 SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["City"] = @p0 AND c["ContactTitle"] = @p1
+    SELECT * FROM root c WHERE c["City"] = @p AND c["ContactTitle"] = @p0
 ) s
+""");
+            });
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Both_FromSql_and_regular_parameters(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                var city = "London";
+                var country = "UK";
+
+                await AssertQuery(
+                    a,
+                    ss => ((DbSet<Customer>)ss.Set<Customer>())
+                        .FromSql($"""SELECT * FROM root c WHERE c["City"] = {city} AND c["Country"] = {country}""")
+                        .OrderBy(c => c.CustomerID)
+                        .Skip(1) // Non-lambda parameter, so becomes a SqlParameter
+                        .Take(5),
+                    ss => ss.Set<Customer>()
+                        .Where(x => x.City == city)
+                        .OrderBy(c => c.CustomerID)
+                        .Skip(1)
+                        .Take(5));
+
+                AssertSql(
+                    """
+@p='London'
+@p0='UK'
+@p1='1'
+@p2='5'
+
+SELECT VALUE s
+FROM (
+    SELECT * FROM root c WHERE c["City"] = @p AND c["Country"] = @p0
+) s
+ORDER BY s["id"]
+OFFSET @p1 LIMIT @p2
 """);
             });
 

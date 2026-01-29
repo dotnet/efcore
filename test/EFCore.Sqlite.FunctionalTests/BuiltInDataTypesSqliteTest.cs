@@ -3,6 +3,7 @@
 
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -1475,7 +1476,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
 SELECT "b"."Id"
 FROM "BuiltInDataTypes" AS "b"
 WHERE "b"."PartitionId" = 207
-ORDER BY "b"."TestDecimal" COLLATE EF_DECIMAL
+ORDER BY "b"."TestDecimal" COLLATE "EF_DECIMAL"
 LIMIT 1
 """);
 
@@ -1531,7 +1532,7 @@ LIMIT 1
 SELECT "b"."Id"
 FROM "BuiltInDataTypes" AS "b"
 WHERE "b"."PartitionId" = 208
-ORDER BY "b"."PartitionId", "b"."TestDecimal" COLLATE EF_DECIMAL
+ORDER BY "b"."PartitionId", "b"."TestDecimal" COLLATE "EF_DECIMAL"
 LIMIT 1
 """);
 
@@ -1542,6 +1543,61 @@ LIMIT 1
             .First();
 
         Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact, UseCulture("tr-TR")] // #37432
+    public virtual void Can_query_OrderBy_decimal_with_Turkish_culture()
+    {
+        using var context = CreateContext();
+        var min = new BuiltInDataTypes
+        {
+            Id = 227,
+            TestDecimal = 1.05m
+        };
+        context.Add(min);
+
+        var middle = new BuiltInDataTypes
+        {
+            Id = 228,
+            TestDecimal = 1.5m
+        };
+        context.Add(middle);
+
+        var max = new BuiltInDataTypes
+        {
+            Id = 229,
+            TestDecimal = 2.5m
+        };
+        context.Add(max);
+
+        context.SaveChanges();
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var query = context.Set<BuiltInDataTypes>();
+
+        var results = query
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => new { e.Id, e.TestDecimal })
+            .ToList();
+
+        var expectedResults = query.AsEnumerable()
+            .OrderBy(e => e.TestDecimal)
+            .Select(e => new { e.Id, e.TestDecimal })
+            .ToList();
+
+        Assert.Equal(expectedResults, results);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."TestDecimal"
+FROM "BuiltInDataTypes" AS "b"
+ORDER BY "b"."TestDecimal" COLLATE "EF_DECIMAL"
+""",
+                //
+                """
+SELECT "b"."Id", "b"."Enum16", "b"."Enum32", "b"."Enum64", "b"."Enum8", "b"."EnumS8", "b"."EnumU16", "b"."EnumU32", "b"."EnumU64", "b"."PartitionId", "b"."TestBoolean", "b"."TestByte", "b"."TestCharacter", "b"."TestDateOnly", "b"."TestDateTime", "b"."TestDateTimeOffset", "b"."TestDecimal", "b"."TestDouble", "b"."TestInt16", "b"."TestInt32", "b"."TestInt64", "b"."TestSignedByte", "b"."TestSingle", "b"."TestTimeOnly", "b"."TestTimeSpan", "b"."TestUnsignedInt16", "b"."TestUnsignedInt32", "b"."TestUnsignedInt64"
+FROM "BuiltInDataTypes" AS "b"
+""");
     }
 
     [ConditionalFact]

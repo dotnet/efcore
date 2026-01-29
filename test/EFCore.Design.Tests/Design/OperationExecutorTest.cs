@@ -6,6 +6,7 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design;
@@ -1100,6 +1101,130 @@ namespace My.Gnomespace.Data
         return executor.MigrationsOperations.AddMigration("M", outputDir, nameof(GnomeContext), @namespace, dryRun: true);
     }
 
+    [ConditionalFact]
+    public void AddAndApplyMigration_succeeds_when_no_model_changes()
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteAddAndApplyMigration(
+            tempPath,
+            "TestMigration",
+            null,
+            null);
+
+        // When there are no pending model changes, the operation succeeds
+        // by applying existing migrations without creating a new one
+        Assert.True(resultHandler.HasResult);
+        Assert.Null(resultHandler.ErrorType);
+    }
+
+    [ConditionalTheory, PlatformSkipCondition(
+         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("to fix error: add column"),
+     InlineData(@"A\B\C")]
+    public void AddAndApplyMigration_errors_for_bad_names(string migrationName)
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteAddAndApplyMigration(
+            tempPath,
+            migrationName,
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.Equal(typeof(OperationException).FullName, resultHandler.ErrorType);
+        Assert.Contains(migrationName, resultHandler.ErrorMessage);
+    }
+
+    [ConditionalFact]
+    public void AddAndApplyMigration_errors_for_invalid_context()
+    {
+        using var tempPath = new TempDirectory();
+        var reportHandler = new OperationReportHandler();
+        var resultHandler = new OperationResultHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", tempPath.Path },
+                { "rootNamespace", "My.Gnomespace.Data" },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        new OperationExecutor.AddAndApplyMigration(
+            executor,
+            resultHandler,
+            new Dictionary<string, object?>
+            {
+                { "name", "TestMigration" },
+                { "connectionString", null },
+                { "contextType", "NonExistentContext" },
+                { "outputDir", null },
+                { "namespace", null }
+            });
+
+        Assert.False(resultHandler.HasResult);
+        Assert.NotNull(resultHandler.ErrorType);
+        Assert.Contains("NonExistentContext", resultHandler.ErrorMessage);
+    }
+
+    [ConditionalFact]
+    public void AddAndApplyMigration_errors_for_empty_name()
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteAddAndApplyMigration(
+            tempPath,
+            "",
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.NotNull(resultHandler.ErrorType);
+    }
+
+    private static OperationResultHandler ExecuteAddAndApplyMigration(
+        string tempPath,
+        string migrationName,
+        string? outputDir,
+        string? @namespace)
+    {
+        var reportHandler = new OperationReportHandler();
+        var resultHandler = new OperationResultHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", tempPath },
+                { "rootNamespace", "My.Gnomespace.Data" },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        new OperationExecutor.AddAndApplyMigration(
+            executor,
+            resultHandler,
+            new Dictionary<string, object?>
+            {
+                { "name", migrationName },
+                { "connectionString", null },
+                { "contextType", "GnomeContext" },
+                { "outputDir", outputDir },
+                { "namespace", @namespace }
+            });
+
+        return resultHandler;
+    }
+
     public class OperationBaseTests
     {
         [ConditionalFact]
@@ -1161,9 +1286,21 @@ namespace My.Gnomespace.Data
 
     public class GnomeContext : DbContext
     {
+        // Use an externally opened connection so EF Core doesn't close it during migration steps.
+        // With :memory: SQLite, the database is destroyed when the connection closes, which causes
+        // issues when Migrator.Migrate opens/closes the connection multiple times.
+        private static readonly SqliteConnection _connection = CreateOpenConnection();
+
+        private static SqliteConnection CreateOpenConnection()
+        {
+            var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            return connection;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseSqlite()
+                .UseSqlite(_connection)
                 .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>();
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator

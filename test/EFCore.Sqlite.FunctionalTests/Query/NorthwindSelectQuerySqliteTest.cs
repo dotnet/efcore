@@ -224,12 +224,12 @@ INNER JOIN (
         AssertSql(
             """
 @p='5'
-@p0='3'
+@p1='3'
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 ORDER BY "c"."CustomerID"
-LIMIT min(@p, @p0)
+LIMIT min(@p, @p1)
 """);
     }
 

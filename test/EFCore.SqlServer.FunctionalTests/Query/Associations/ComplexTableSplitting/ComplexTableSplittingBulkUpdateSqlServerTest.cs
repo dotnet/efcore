@@ -186,16 +186,16 @@ SET [r].[OptionalAssociate_Id] = [r].[RequiredAssociate_Id],
     [r].[OptionalAssociate_Ints] = [r].[RequiredAssociate_Ints],
     [r].[OptionalAssociate_Name] = [r].[RequiredAssociate_Name],
     [r].[OptionalAssociate_String] = [r].[RequiredAssociate_String],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = [r].[OptionalAssociate_OptionalNestedAssociate_Id],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = [r].[OptionalAssociate_OptionalNestedAssociate_Int],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = [r].[OptionalAssociate_OptionalNestedAssociate_Ints],
-    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = [r].[OptionalAssociate_OptionalNestedAssociate_Name],
-    [r].[OptionalAssociate_OptionalNestedAssociate_String] = [r].[OptionalAssociate_OptionalNestedAssociate_String],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = [r].[OptionalAssociate_RequiredNestedAssociate_Id],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = [r].[OptionalAssociate_RequiredNestedAssociate_Int],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = [r].[OptionalAssociate_RequiredNestedAssociate_Ints],
-    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = [r].[OptionalAssociate_RequiredNestedAssociate_Name],
-    [r].[OptionalAssociate_RequiredNestedAssociate_String] = [r].[OptionalAssociate_RequiredNestedAssociate_String]
+    [r].[OptionalAssociate_OptionalNestedAssociate_Id] = [r].[RequiredAssociate_OptionalNestedAssociate_Id],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Int] = [r].[RequiredAssociate_OptionalNestedAssociate_Int],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Ints] = [r].[RequiredAssociate_OptionalNestedAssociate_Ints],
+    [r].[OptionalAssociate_OptionalNestedAssociate_Name] = [r].[RequiredAssociate_OptionalNestedAssociate_Name],
+    [r].[OptionalAssociate_OptionalNestedAssociate_String] = [r].[RequiredAssociate_OptionalNestedAssociate_String],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Id] = [r].[RequiredAssociate_RequiredNestedAssociate_Id],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Int] = [r].[RequiredAssociate_RequiredNestedAssociate_Int],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Ints] = [r].[RequiredAssociate_RequiredNestedAssociate_Ints],
+    [r].[OptionalAssociate_RequiredNestedAssociate_Name] = [r].[RequiredAssociate_RequiredNestedAssociate_Name],
+    [r].[OptionalAssociate_RequiredNestedAssociate_String] = [r].[RequiredAssociate_RequiredNestedAssociate_String]
 FROM [RootEntity] AS [r]
 """);
     }
@@ -496,11 +496,11 @@ WHERE (
         AssertExecuteUpdateSql(
             """
 @p='foo_updated' (Size = 4000)
-@p0='20'
+@p1='20'
 
 UPDATE [r]
 SET [r].[RequiredAssociate_String] = @p,
-    [r].[RequiredAssociate_Int] = @p0
+    [r].[RequiredAssociate_Int] = @p1
 FROM [RootEntity] AS [r]
 """);
     }

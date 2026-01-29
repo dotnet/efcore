@@ -85,6 +85,11 @@ internal class Project
         var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
         if (exitCode != 0)
         {
+            if (framework == null && HasMultipleTargetFrameworks(file))
+            {
+                throw new CommandException(Resources.MultipleTargetFrameworks);
+            }
+
             throw new CommandException(Resources.GetMetadataFailed);
         }
 
@@ -129,6 +134,21 @@ internal class Project
     {
         public Dictionary<string, string> Properties { get; set; } = null!;
         public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
+    }
+
+    private static bool HasMultipleTargetFrameworks(string file)
+    {
+        var args = new List<string> { "msbuild", "/getProperty:TargetFrameworks", file };
+
+        var output = new StringBuilder();
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        if (exitCode != 0)
+        {
+            return false;
+        }
+
+        var outputString = output.ToString();
+        return !string.IsNullOrWhiteSpace(outputString);
     }
 
     private static void CopyBuildHost(

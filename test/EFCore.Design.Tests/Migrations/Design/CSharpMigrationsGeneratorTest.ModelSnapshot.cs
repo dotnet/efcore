@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Xunit.Sdk;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -2022,7 +2023,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2354,7 +2355,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2425,7 +2426,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().IsComplete(true).HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").IsComplete(true).HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2500,7 +2501,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntityWithStructDiscriminator", "DefaultSchema");
 
-                    b.HasDiscriminator().IsComplete(true).HasValue("Base");
+                    b.HasDiscriminator<string>("Discriminator").IsComplete(true).HasValue("Base");
 
                     b.UseTphMappingStrategy();
                 });
@@ -2527,13 +2528,18 @@ namespace RootNamespace
 """),
             o =>
             {
+                var baseEntityType = o.FindEntityType(typeof(BaseEntityWithStructDiscriminator));
                 Assert.Equal(
                     "Discriminator",
-                    o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorProperty]);
+                    baseEntityType[CoreAnnotationNames.DiscriminatorProperty]);
 
                 Assert.Equal(
                     "Base",
-                    o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
+                    baseEntityType[CoreAnnotationNames.DiscriminatorValue]);
+
+                var discriminatorProperty = baseEntityType.FindDiscriminatorProperty();
+                Assert.Equal(typeof(string), discriminatorProperty.ClrType);
+                Assert.Equal("Discriminator", discriminatorProperty.Name);
 
                 Assert.Equal(
                     "Another",
@@ -3373,6 +3379,55 @@ namespace RootNamespace
                 var discriminatorProperty = model.GetEntityTypes().First().FindDiscriminatorProperty();
                 Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                 Assert.False(discriminatorProperty.IsNullable);
+            });
+
+    [ConditionalFact]
+    public virtual void Discriminator_with_non_string_default_name_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<DerivedType>().HasBaseType<BaseType>();
+                builder.Entity<BaseType>()
+                    .Ignore(b => b.Navigation)
+                    .HasDiscriminator<int>("Discriminator")
+                    .HasValue<BaseType>(0)
+                    .HasValue<DerivedType>(1);
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Discriminator")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BaseType", "DefaultSchema");
+
+                    b.HasDiscriminator<int>("Discriminator").HasValue(0);
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedType", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseType");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+"""),
+            model =>
+            {
+                var discriminatorProperty = model.FindEntityType(typeof(BaseType))!.FindDiscriminatorProperty();
+                Assert.Equal(typeof(int), discriminatorProperty.ClrType);
+                Assert.Equal("Discriminator", discriminatorProperty.Name);
             });
 
     [ConditionalFact]
@@ -4292,6 +4347,7 @@ namespace RootNamespace
                 Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
             });
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Owned_types_mapped_to_json_are_stored_in_snapshot()
         => Test(
@@ -4347,7 +4403,9 @@ namespace RootNamespace
 
                             b1.ToTable("EntityWithOneProperty", "DefaultSchema");
 
-                            b1.ToJson("EntityWithTwoProperties");
+                            b1
+                                .ToJson("EntityWithTwoProperties")
+                                .HasColumnType("nvarchar(max)");
 
                             b1.WithOwner("EntityWithOneProperty")
                                 .HasForeignKey("EntityWithOnePropertyId");
@@ -4417,6 +4475,7 @@ namespace RootNamespace
 
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
+                Assert.Equal("nvarchar(max)", ownedType1.GetContainerColumnType());
 
                 var ownership2 = ownedType1.FindNavigation(nameof(EntityWithStringKey)).ForeignKey;
                 Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownership2.Properties[0].Name);
@@ -4452,6 +4511,82 @@ namespace RootNamespace
                 Assert.Equal("Id", ownedProperties3[2].Name);
                 Assert.Equal("Name", ownedProperties3[3].Name);
             });
+
+    [ConditionalFact]
+    public virtual void Owned_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.OwnsOne(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson().HasColumnType("json");
+                            bb.Ignore(x => x.Id);
+                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                            bb.WithOwner(e => e.EntityWithOneProperty);
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("EntityWithOnePropertyId");
+
+                            b1.Property<int>("AlternateId")
+                                .HasJsonPropertyName("NotKey");
+
+                            b1.HasKey("EntityWithOnePropertyId");
+
+                            b1.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                            b1
+                                .ToJson("EntityWithTwoProperties")
+                                .HasColumnType("json");
+
+                            b1.WithOwner("EntityWithOneProperty")
+                                .HasForeignKey("EntityWithOnePropertyId");
+
+                            b1.Navigation("EntityWithOneProperty");
+                        });
+
+                    b.Navigation("EntityWithTwoProperties");
+                });
+""", usingSystem: false),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
+
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                    .ForeignKey;
+                var ownedType1 = ownership1.DeclaringEntityType;
+                Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
+                Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
+                Assert.Equal("json", ownedType1.GetContainerColumnType());
+            });
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     private class Order
     {
@@ -4939,7 +5074,7 @@ namespace RootNamespace
 
                     b.ToTable("BarBase", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BarBase");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BarBase");
 
                     b.UseTphMappingStrategy();
                 });
@@ -5155,7 +5290,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseEntity", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseEntity");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
                     b.UseTphMappingStrategy();
                 });
@@ -6152,6 +6287,125 @@ namespace RootNamespace
                     b.ComplexProperty(
                         x => x.EntityWithTwoProperties, bb =>
                         {
+                            bb.ToJson("TwoProps");
+                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                            bb.ComplexProperty(
+                                x => x.EntityWithStringKey, bbb =>
+                                {
+                                    bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                                });
+                            bb.ComplexProperty(
+                                x => x.Coordinates, bbb =>
+                                {
+                                    bbb.Property(c => c.Latitude).HasJsonPropertyName("Lat");
+                                    bbb.Property(c => c.Longitude).HasJsonPropertyName("Lon");
+                                });
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("AlternateId")
+                                .HasJsonPropertyName("NotKey");
+
+                            b1.Property<int>("Id");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Coordinates", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.Coordinates#Coordinates", b2 =>
+                                {
+                                    b2.IsRequired();
+
+                                    b2.Property<decimal>("Latitude")
+                                        .HasJsonPropertyName("Lat");
+
+                                    b2.Property<decimal>("Longitude")
+                                        .HasJsonPropertyName("Lon");
+                                });
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                                {
+                                    b2.Property<string>("Id");
+
+                                    b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                        {
+                                            b3.Property<int>("Id");
+
+                                            b3.Property<string>("Name");
+
+                                            b3.HasJsonPropertyName("JsonProps");
+                                        });
+                                });
+
+                            b1
+                                .ToJson("TwoProps")
+                                .HasColumnType("nvarchar(max)");
+                        });
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
+
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                Assert.False(complexProperty1.IsCollection);
+                Assert.True(complexProperty1.IsNullable);
+                var complexType1 = complexProperty1.ComplexType;
+                Assert.Equal("TwoProps", complexType1.GetContainerColumnName());
+                Assert.Equal("nvarchar(max)", complexType1.GetContainerColumnType());
+
+                var alternateIdProperty = complexType1.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
+                Assert.Equal("NotKey", alternateIdProperty.GetJsonPropertyName());
+
+                var coordinatesComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates));
+                Assert.False(coordinatesComplexProperty.IsCollection);
+                Assert.False(coordinatesComplexProperty.IsNullable);
+                var coordinatesComplexType = coordinatesComplexProperty.ComplexType;
+                var latitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Latitude));
+                Assert.Equal("Lat", latitudeProperty.GetJsonPropertyName());
+                var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude));
+                Assert.Equal("Lon", longitudeProperty.GetJsonPropertyName());
+
+                var entityWithStringKeyComplexProperty =
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                Assert.False(entityWithStringKeyComplexProperty.IsCollection);
+                Assert.True(entityWithStringKeyComplexProperty.IsNullable);
+                var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
+
+                var propertiesComplexCollection =
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                Assert.True(propertiesComplexCollection.IsCollection);
+                Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
+                Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
+            });
+
+    [ConditionalFact]
+    public virtual void Complex_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.ComplexProperty(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
                             bb.ToJson("TwoProps").HasColumnType("json");
                             bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
                             bb.ComplexProperty(
@@ -6257,6 +6511,101 @@ namespace RootNamespace
                 Assert.True(propertiesComplexCollection.IsCollection);
                 Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
                 Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
+            });
+
+    [ConditionalFact]
+    public virtual void Complex_collection_property_annotations_not_supported_by_builder_are_ignored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.ComplexProperty(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson("TwoProps").HasColumnType("json");
+                            bb.ComplexProperty(
+                                x => x.EntityWithStringKey, bbb =>
+                                {
+                                    bbb.ComplexCollection(x => x.Properties, bbbb =>
+                                    {
+                                        bbbb.HasJsonPropertyName("JsonProps");
+                                        // Set annotations directly on the model to simulate convention behavior
+                                        // These should NOT appear in snapshot because ComplexCollectionTypePropertyBuilder
+                                        // doesn't support these methods
+                                        var complexType = bbbb.Metadata.ComplexType;
+                                        var nameProperty = (IMutableProperty)complexType.FindProperty("Name")!;
+                                        nameProperty.SetMaxLength(100);
+                                        nameProperty.SetPrecision(10);
+                                        nameProperty.SetScale(2);
+                                        nameProperty.IsConcurrencyToken = true;
+                                        nameProperty.ValueGenerated = ValueGenerated.OnAdd;
+                                    });
+                                });
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("AlternateId");
+
+                            b1.Property<int>("Id");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                                {
+                                    b2.Property<string>("Id");
+
+                                    b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                        {
+                                            b3.Property<int>("Id");
+
+                                            b3.Property<string>("Name");
+
+                                            b3.HasJsonPropertyName("JsonProps");
+                                        });
+                                });
+
+                            b1
+                                .ToJson("TwoProps")
+                                .HasColumnType("json");
+                        });
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var complexType1 = complexProperty1.ComplexType;
+                var entityWithStringKeyComplexProperty =
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
+
+                var propertiesComplexCollection =
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                Assert.True(propertiesComplexCollection.IsCollection);
+
+                // MaxLength is NOT in the snapshot, so it won't be set on the model created from snapshot
+                // This verifies that the snapshot doesn't contain HasMaxLength which would cause a compile error
+                var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name");
+                Assert.Null(nameProperty.GetMaxLength());
             });
 
     #endregion
@@ -7718,7 +8067,7 @@ namespace RootNamespace
 
                     b.ToTable("BaseType", "DefaultSchema");
 
-                    b.HasDiscriminator().HasValue("BaseType");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
 
                     b.UseTphMappingStrategy();
                 });

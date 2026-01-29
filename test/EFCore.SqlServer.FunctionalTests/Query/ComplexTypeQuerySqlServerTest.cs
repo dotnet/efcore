@@ -213,7 +213,7 @@ FROM [Customer] AS [c]
             """
 SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[OptionalAddress_AddressLine1], [c].[OptionalAddress_AddressLine2], [c].[OptionalAddress_Tags], [c].[OptionalAddress_ZipCode], [c].[OptionalAddress_Country_Code], [c].[OptionalAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
 FROM [Customer] AS [c]
-WHERE [c].[ShippingAddress_AddressLine1] = [c].[BillingAddress_AddressLine1] AND ([c].[ShippingAddress_AddressLine2] = [c].[BillingAddress_AddressLine2] OR ([c].[ShippingAddress_AddressLine2] IS NULL AND [c].[BillingAddress_AddressLine2] IS NULL)) AND [c].[ShippingAddress_Tags] = [c].[BillingAddress_Tags] AND [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode]
+WHERE [c].[ShippingAddress_AddressLine1] = [c].[BillingAddress_AddressLine1] AND ([c].[ShippingAddress_AddressLine2] = [c].[BillingAddress_AddressLine2] OR ([c].[ShippingAddress_AddressLine2] IS NULL AND [c].[BillingAddress_AddressLine2] IS NULL)) AND [c].[ShippingAddress_Tags] = [c].[BillingAddress_Tags] AND [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode] AND [c].[ShippingAddress_Country_Code] = [c].[BillingAddress_Country_Code] AND [c].[ShippingAddress_Country_FullName] = [c].[BillingAddress_Country_FullName]
 """);
     }
 
@@ -589,7 +589,7 @@ FROM [ValuedCustomer] AS [v]
             """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
-WHERE [v].[ShippingAddress_AddressLine1] = [v].[BillingAddress_AddressLine1] AND ([v].[ShippingAddress_AddressLine2] = [v].[BillingAddress_AddressLine2] OR ([v].[ShippingAddress_AddressLine2] IS NULL AND [v].[BillingAddress_AddressLine2] IS NULL)) AND [v].[ShippingAddress_ZipCode] = [v].[BillingAddress_ZipCode]
+WHERE [v].[ShippingAddress_AddressLine1] = [v].[BillingAddress_AddressLine1] AND ([v].[ShippingAddress_AddressLine2] = [v].[BillingAddress_AddressLine2] OR ([v].[ShippingAddress_AddressLine2] IS NULL AND [v].[BillingAddress_AddressLine2] IS NULL)) AND [v].[ShippingAddress_ZipCode] = [v].[BillingAddress_ZipCode] AND [v].[ShippingAddress_Country_Code] = [v].[BillingAddress_Country_Code] AND [v].[ShippingAddress_Country_FullName] = [v].[BillingAddress_Country_FullName]
 """);
     }
 
@@ -1239,7 +1239,7 @@ FROM (
         AssertSql(
             """
 @p='20'
-@p0='30'
+@p1='30'
 
 SELECT [c3].[BillingAddress_ZipCode] AS [Zip1], [c4].[ShippingAddress_ZipCode] AS [Zip2]
 FROM (
@@ -1253,7 +1253,7 @@ FROM (
 LEFT JOIN (
     SELECT DISTINCT [c2].[Id], [c2].[Name], [c2].[BillingAddress_AddressLine1], [c2].[BillingAddress_AddressLine2], [c2].[BillingAddress_Tags], [c2].[BillingAddress_ZipCode], [c2].[BillingAddress_Country_Code], [c2].[BillingAddress_Country_FullName], [c2].[OptionalAddress_AddressLine1], [c2].[OptionalAddress_AddressLine2], [c2].[OptionalAddress_Tags], [c2].[OptionalAddress_ZipCode], [c2].[OptionalAddress_Country_Code], [c2].[OptionalAddress_Country_FullName], [c2].[ShippingAddress_AddressLine1], [c2].[ShippingAddress_AddressLine2], [c2].[ShippingAddress_Tags], [c2].[ShippingAddress_ZipCode], [c2].[ShippingAddress_Country_Code], [c2].[ShippingAddress_Country_FullName]
     FROM (
-        SELECT TOP(@p0) [c1].[Id], [c1].[Name], [c1].[BillingAddress_AddressLine1], [c1].[BillingAddress_AddressLine2], [c1].[BillingAddress_Tags], [c1].[BillingAddress_ZipCode], [c1].[BillingAddress_Country_Code], [c1].[BillingAddress_Country_FullName], [c1].[OptionalAddress_AddressLine1], [c1].[OptionalAddress_AddressLine2], [c1].[OptionalAddress_Tags], [c1].[OptionalAddress_ZipCode], [c1].[OptionalAddress_Country_Code], [c1].[OptionalAddress_Country_FullName], [c1].[ShippingAddress_AddressLine1], [c1].[ShippingAddress_AddressLine2], [c1].[ShippingAddress_Tags], [c1].[ShippingAddress_ZipCode], [c1].[ShippingAddress_Country_Code], [c1].[ShippingAddress_Country_FullName]
+        SELECT TOP(@p1) [c1].[Id], [c1].[Name], [c1].[BillingAddress_AddressLine1], [c1].[BillingAddress_AddressLine2], [c1].[BillingAddress_Tags], [c1].[BillingAddress_ZipCode], [c1].[BillingAddress_Country_Code], [c1].[BillingAddress_Country_FullName], [c1].[OptionalAddress_AddressLine1], [c1].[OptionalAddress_AddressLine2], [c1].[OptionalAddress_Tags], [c1].[OptionalAddress_ZipCode], [c1].[OptionalAddress_Country_Code], [c1].[OptionalAddress_Country_FullName], [c1].[ShippingAddress_AddressLine1], [c1].[ShippingAddress_AddressLine2], [c1].[ShippingAddress_Tags], [c1].[ShippingAddress_ZipCode], [c1].[ShippingAddress_Country_Code], [c1].[ShippingAddress_Country_FullName]
         FROM [Customer] AS [c1]
         ORDER BY [c1].[Id] DESC
     ) AS [c2]

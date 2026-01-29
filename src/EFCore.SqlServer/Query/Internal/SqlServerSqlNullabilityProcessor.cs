@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
-    private const int MaxParameterCount = 2100;
+    private const int MaxParameterCount = 2100 - 2;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -319,7 +319,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         if (_totalParameterCount > MaxParameterCount)
         {
             var parameters = ParametersDecorator.GetAndDisableCaching();
-            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+            var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
 
             if (_sqlServerSingletonOptions.SupportsJsonFunctions)
             {
@@ -404,8 +404,10 @@ public class ParametersCounter(
                 ReferenceEquals(lhs, rhs)
                 || (lhs is not null && rhs is not null
                     && lhs.InvariantName == rhs.InvariantName
+                    && lhs.Type == rhs.Type
+                    && lhs.TypeMapping == rhs.TypeMapping
                     && lhs.TranslationMode == rhs.TranslationMode),
-            x => HashCode.Combine(x.InvariantName, x.TranslationMode)));
+            x => HashCode.Combine(x.InvariantName, x.Type, x.TypeMapping, x.TranslationMode)));
 
     private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
         new(EqualityComparer<QueryParameterExpression>.Create(

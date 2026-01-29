@@ -9783,6 +9783,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Convert_table_from_owned_to_complex_properties_mapped_to_json()
         => Execute(
@@ -9884,6 +9885,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     });
             },
             Assert.Empty);
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
     public virtual void Noop_on_complex_properties()
@@ -9919,6 +9921,39 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     });
             },
             source => { },
+            target => { },
+            Assert.Empty);
+
+    [ConditionalFact]
+    public void Noop_on_complex_collection_property_annotations_not_in_snapshot()
+        => Execute(
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                            "ComplexCollection", cp =>
+                            {
+                                cp.ToJson();
+                                cp.Property(x => x.Value);
+                                cp.Property(x => x.Date);
+                            });
+                    });
+            },
+            source =>
+            {
+                // Simulate convention setting MaxLength on string property in complex collection
+                // This annotation is NOT emitted in the snapshot because ComplexCollectionTypePropertyBuilder
+                // doesn't support HasMaxLength
+                var entity = source.Model.FindEntityType("Entity");
+                var complexProperty = entity!.FindComplexProperty("ComplexCollection")!;
+                var valueProperty = complexProperty.ComplexType.FindProperty("Value")!;
+                ((IMutableProperty)valueProperty).SetMaxLength(255);
+            },
             target => { },
             Assert.Empty);
 

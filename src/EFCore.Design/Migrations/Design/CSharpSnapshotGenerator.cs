@@ -452,7 +452,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (property.IsConcurrencyToken)
+        // ComplexCollectionTypePropertyBuilder doesn't have IsConcurrencyToken method
+        var isInComplexCollection = property.DeclaringType is IComplexType complexType
+            && complexType.ComplexProperty.IsCollection;
+
+        if (!isInComplexCollection && property.IsConcurrencyToken)
         {
             stringBuilder
                 .AppendLine()
@@ -466,7 +470,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsRequired()");
         }
 
-        if (property.ValueGenerated != ValueGenerated.Never)
+        // ComplexCollectionTypePropertyBuilder doesn't have ValueGenerated* methods
+        if (!isInComplexCollection && property.ValueGenerated != ValueGenerated.Never)
         {
             stringBuilder
                 .AppendLine()
@@ -498,8 +503,16 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(property.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
-        GenerateFluentApiForMaxLength(property, stringBuilder);
-        GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        // ComplexCollectionTypePropertyBuilder doesn't have HasMaxLength or HasPrecision methods
+        var isInComplexCollection = property.DeclaringType is IComplexType complexType
+            && complexType.ComplexProperty.IsCollection;
+
+        if (!isInComplexCollection)
+        {
+            GenerateFluentApiForMaxLength(property, stringBuilder);
+            GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        }
+
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
         if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType)
@@ -644,8 +657,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append('.')
                 .Append("HasDiscriminator");
 
-            if (discriminatorProperty.DeclaringType == property.ComplexType
-                && discriminatorProperty.Name != "Discriminator")
+            if (discriminatorProperty.DeclaringType == property.ComplexType)
             {
                 var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                         .MakeNullable(discriminatorProperty.IsNullable)
@@ -690,6 +702,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var typeAnnotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
+        // Add ContainerColumnType annotation if complex type is mapped to JSON but the type annotation is missing
+        if (typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
+            && !typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
+        {
+            var containerColumnType = property.ComplexType.GetContainerColumnType()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+            if (containerColumnType != null)
+            {
+                typeAnnotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
+                    RelationalAnnotationNames.ContainerColumnType,
+                    containerColumnType);
+            }
+        }
 
         GenerateAnnotations(
             propertyBuilderName, property, stringBuilder, propertyAnnotations,
@@ -891,6 +917,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(entityType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
+        // Add ContainerColumnType annotation if entity is mapped to JSON but the type annotation is missing
+        if (annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
+            && !annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
+        {
+            var containerColumnType = entityType.GetContainerColumnType()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+            if (containerColumnType != null)
+            {
+                annotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
+                    RelationalAnnotationNames.ContainerColumnType,
+                    containerColumnType);
+            }
+        }
+
         GenerateTableMapping(entityTypeBuilderName, entityType, stringBuilder, annotations);
         GenerateSplitTableMapping(entityTypeBuilderName, entityType, stringBuilder);
 
@@ -953,8 +993,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .Append('.')
                     .Append("HasDiscriminator");
 
-                if (discriminatorProperty.DeclaringType == entityType
-                    && discriminatorProperty.Name != "Discriminator")
+                if (discriminatorProperty.DeclaringType == entityType)
                 {
                     var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                             .MakeNullable(discriminatorProperty.IsNullable)

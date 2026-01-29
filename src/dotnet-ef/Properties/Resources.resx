@@ -162,6 +162,9 @@
   <data name="DatabaseUpdateDescription" xml:space="preserve">
     <value>Updates the database to a specified migration.</value>
   </data>
+  <data name="DatabaseUpdateAddDescription" xml:space="preserve">
+    <value>Create a new migration with the given name and apply it immediately.</value>
+  </data>
   <data name="DbContextConnectionDescription" xml:space="preserve">
     <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
   </data>
@@ -213,6 +216,9 @@
   <data name="MigrationNameDescription" xml:space="preserve">
     <value>The name of the migration.</value>
   </data>
+  <data name="MissingArgument" xml:space="preserve">
+    <value>Missing required argument '{arg}'.</value>
+  </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
   </data>
@@ -263,6 +269,9 @@
   </data>
   <data name="MultipleStartupProjects" xml:space="preserve">
     <value>More than one project was found in the current working directory. Use the --startup-project option.</value>
+  </data>
+  <data name="MultipleTargetFrameworks" xml:space="preserve">
+    <value>The project targets multiple frameworks. Use the --framework option to specify which target framework to use.</value>
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>

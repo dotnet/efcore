@@ -110,6 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseUpdateDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
         /// </summary>
         public static string DbContextConnectionDescription
@@ -210,6 +216,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationNameDescription
             => GetString("MigrationNameDescription");
+
+        /// <summary>
+        ///     Missing required argument '{arg}'.
+        /// </summary>
+        public static string MissingArgument(object? arg)
+            => string.Format(
+                GetString("MissingArgument", nameof(arg)),
+                arg);
 
         /// <summary>
         ///     Adds a new migration.
@@ -318,13 +332,23 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
+        ///     The project targets multiple frameworks. Use the --framework option to specify which target framework to use.
+        /// </summary>
+        public static string MultipleTargetFrameworks
+            => GetString("MultipleTargetFrameworks");
+
+        /// <summary>
         ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
 
         /// <summary>
-        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
+        ///     Option '--namespace' must be specified with '--add'.
+        /// </summary>
+
+        /// <summary>
+        ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
             => GetString("NativeAotDescription");
@@ -412,6 +436,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     Option '--output-dir' must be specified with '--add'.
+        /// </summary>
 
         /// <summary>
         ///     Generate precompiled queries.
@@ -555,4 +583,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
-

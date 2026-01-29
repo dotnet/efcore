@@ -50,7 +50,7 @@ public class PropertyEntry : MemberEntry
     /// <summary>
     ///     Gets or sets a value indicating whether the value of this property is considered a
     ///     temporary value which will be replaced by a value generated from the store when
-    ///     <see cref="DbContext.SaveChanges()" />is called.
+    ///     <see cref="DbContext.SaveChanges()" /> is called.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
