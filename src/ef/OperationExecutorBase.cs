@@ -145,6 +145,18 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["contextType"] = contextType
             });
 
+    public IDictionary AddAndApplyMigration(string name, string? outputDir, string? contextType, string? @namespace, string? connectionString)
+        => InvokeOperation<IDictionary>(
+            "AddAndApplyMigration",
+            new Dictionary<string, object?>
+            {
+                ["name"] = name,
+                ["outputDir"] = outputDir,
+                ["contextType"] = contextType,
+                ["namespace"] = @namespace,
+                ["connectionString"] = connectionString
+            });
+
     public IEnumerable<IDictionary> GetContextTypes()
         => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 

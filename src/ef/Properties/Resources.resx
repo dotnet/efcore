@@ -177,6 +177,9 @@
   <data name="DatabaseUpdateDescription" xml:space="preserve">
     <value>Updates the database to a specified migration.</value>
   </data>
+  <data name="DatabaseUpdateAddDescription" xml:space="preserve">
+    <value>Create a new migration with the given name and apply it immediately.</value>
+  </data>
   <data name="DataDirDescription" xml:space="preserve">
     <value>The data directory.</value>
   </data>

@@ -362,6 +362,18 @@ WHERE (c["$type"] = "TestEntityWithOwned")
 """);
     }
 
+    public override async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        await base.Subquery_over_primitive_collection_on_inheritance_derived_type();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "SubType") AND (ARRAY_LENGTH(c["Ints"]) > 0))
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

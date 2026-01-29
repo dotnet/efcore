@@ -294,6 +294,64 @@ public class OperationExecutor : MarshalByRefObject
         => MigrationsOperations.UpdateDatabase(targetMigration, connectionString, contextType);
 
     /// <summary>
+    ///     Represents an operation to add and apply a new migration in one step.
+    /// </summary>
+    public class AddAndApplyMigration : OperationBase
+    {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="AddAndApplyMigration" /> class.
+        /// </summary>
+        /// <remarks>
+        ///     <para>The arguments supported by <paramref name="args" /> are:</para>
+        ///     <para><c>name</c>--The name of the migration.</para>
+        ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
+        ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+        ///     <para><c>namespace</c>--The namespace to use for the migration.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
+        /// </remarks>
+        /// <param name="executor">The operation executor.</param>
+        /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+        /// <param name="args">The operation arguments.</param>
+        public AddAndApplyMigration(
+            OperationExecutor executor,
+            IOperationResultHandler resultHandler,
+            IDictionary args)
+            : base(resultHandler)
+        {
+            Check.NotNull(executor);
+            Check.NotNull(args);
+
+            var name = (string)args["name"]!;
+            var outputDir = (string?)args["outputDir"];
+            var contextType = (string?)args["contextType"];
+            var @namespace = (string?)args["namespace"];
+            var connectionString = (string?)args["connectionString"];
+
+            Execute(() => executor.AddAndApplyMigrationImpl(name, outputDir, contextType, @namespace, connectionString));
+        }
+    }
+
+    private IDictionary AddAndApplyMigrationImpl(
+        string name,
+        string? outputDir,
+        string? contextType,
+        string? @namespace,
+        string? connectionString)
+    {
+        var files = MigrationsOperations.AddAndApplyMigration(name, outputDir, contextType, @namespace, connectionString);
+        return new Hashtable
+        {
+            ["MigrationFile"] = files.MigrationFile,
+            ["MetadataFile"] = files.MetadataFile,
+            ["SnapshotFile"] = files.SnapshotFile
+        };
+    }
+
+    /// <summary>
     ///     Represents an operation to generate a SQL script from migrations.
     /// </summary>
     public class ScriptMigration : OperationBase

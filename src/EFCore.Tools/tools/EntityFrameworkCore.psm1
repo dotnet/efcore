@@ -906,6 +906,7 @@ function Script-Migration
 
 Register-TabExpansion Update-Database @{
     Migration = { param($x) GetMigrations $x.Context $x.Project $x.StartupProject }
+    OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
     Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
@@ -920,6 +921,16 @@ Register-TabExpansion Update-Database @{
 
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
+    When used with -Add, this is the name of the new migration to create.
+
+.PARAMETER Add
+    Create a new migration with the given name and apply it immediately.
+
+.PARAMETER OutputDir
+    The directory to put files in. Paths are relative to the project directory. Requires -Add.
+
+.PARAMETER Namespace
+    The namespace to use for the migration. Matches the directory by default. Requires -Add.
 
 .PARAMETER Connection
     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
@@ -946,11 +957,26 @@ function Update-Database
     param(
         [Parameter(Position = 0)]
         [string] $Migration,
+        [switch] $Add,
+        [string] $OutputDir,
+        [string] $Namespace,
         [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
         [string] $Args)
+
+    if (-not $Add)
+    {
+        if ($OutputDir)
+        {
+            throw "The '-OutputDir' parameter requires the '-Add' parameter to be specified."
+        }
+        if ($Namespace)
+        {
+            throw "The '-Namespace' parameter requires the '-Add' parameter to be specified."
+        }
+    }
 
     WarnIfEF6 'Update-Database'
 
@@ -962,6 +988,21 @@ function Update-Database
     if ($Migration)
     {
         $params += $Migration
+    }
+
+    if ($Add)
+    {
+        $params += '--add'
+    }
+
+    if ($OutputDir)
+    {
+        $params += '--output-dir', $OutputDir
+    }
+
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
     }
 
     if ($Connection)
@@ -1253,7 +1294,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
-        $efPath = Join-Path $PSScriptRoot 'net8.0\any\ef.dll'
+        $efPath = Join-Path $PSScriptRoot 'net10.0\any\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 
