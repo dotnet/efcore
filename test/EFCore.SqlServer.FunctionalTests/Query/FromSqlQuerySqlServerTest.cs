@@ -994,6 +994,35 @@ FROM (
 """);
     }
 
+    public override async Task FromSql_GroupBy_non_reducing_Select(bool async)
+    {
+        await base.FromSql_GroupBy_non_reducing_Select(async);
+
+        AssertSql(
+            """
+city='Seattle' (Nullable = false) (Size = 7)
+
+SELECT [m3].[CustomerID], [m3].[Address], [m3].[City], [m3].[CompanyName], [m3].[ContactName], [m3].[ContactTitle], [m3].[Country], [m3].[Fax], [m3].[Phone], [m3].[PostalCode], [m3].[Region]
+FROM (
+    SELECT [m].[CustomerID]
+    FROM (
+        SELECT * FROM "Customers" WHERE "City" = @city
+    ) AS [m]
+    GROUP BY [m].[CustomerID]
+) AS [m1]
+LEFT JOIN (
+    SELECT [m2].[CustomerID], [m2].[Address], [m2].[City], [m2].[CompanyName], [m2].[ContactName], [m2].[ContactTitle], [m2].[Country], [m2].[Fax], [m2].[Phone], [m2].[PostalCode], [m2].[Region]
+    FROM (
+        SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region], ROW_NUMBER() OVER(PARTITION BY [m0].[CustomerID] ORDER BY [m0].[CustomerID]) AS [row]
+        FROM (
+            SELECT * FROM "Customers" WHERE "City" = @city
+        ) AS [m0]
+    ) AS [m2]
+    WHERE [m2].[row] <= 1
+) AS [m3] ON [m1].[CustomerID] = [m3].[CustomerID]
+""");
+    }
+
     public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
     {
         var exception =

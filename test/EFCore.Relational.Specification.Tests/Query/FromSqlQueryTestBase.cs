@@ -1333,6 +1333,29 @@ SELECT * FROM [Customers2]"))
         Assert.Empty(actual);
     }
 
+    // The GroupBy followed by a non-reducing Select causes the base FromSql to get duplicated in the SQL, and so the same DbParameter
+    // to get referenced from multiple FromSqlExpressions. Ensure we only process the DbParameter once. See #37409.
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_GroupBy_non_reducing_Select(bool async)
+    {
+        using var context = CreateContext();
+
+        var dbParameter = CreateDbParameter("city", "Seattle");
+
+        await AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+                    dbParameter)
+                .GroupBy(c => c.CustomerID)
+                .Select(g => g.FirstOrDefault()),
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "Seattle")
+                .GroupBy(c => c.CustomerID)
+                .Select(g => g.FirstOrDefault()));
+    }
+
     protected string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
