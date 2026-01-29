@@ -5,7 +5,6 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -1087,9 +1086,17 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return true;
             }
 
-            // Treat type as object for null comparison
-            var access = new SqlObjectAccessExpression(entityReference.Object);
-            result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object))!, typeMappingSource.FindMapping(typeof(bool)))!;
+            var isNull = sqlExpressionFactory.Function("IS_NULL", [entityReference.Object], typeof(bool));
+            var isDefined = sqlExpressionFactory.Function("IS_DEFINED", [entityReference.Object], typeof(bool));
+            var notDefined = sqlExpressionFactory.Not(isDefined);
+            var check = sqlExpressionFactory.MakeBinary(ExpressionType.OrElse, isNull, notDefined, typeMappingSource.FindMapping(typeof(bool))) ?? throw new UnreachableException();
+
+            if (nodeType == ExpressionType.NotEqual)
+            {
+                check = sqlExpressionFactory.Not(check);
+            }
+
+            result = check;
             return true;
         }
 
