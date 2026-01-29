@@ -83,6 +83,14 @@ public class InMemoryTransactionManagerTest
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync().GetAwaiter().GetResult());
 
     [ConditionalFact]
+    public void Throws_on_BeginTransaction_with_IsolationLevel()
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction(IsolationLevel.Serializable));
+
+    [ConditionalFact]
+    public void Throws_on_BeginTransactionAsync_with_IsolationLevel()
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter().GetResult());
+
+    [ConditionalFact]
     public void Throws_on_CommitTransaction()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).CommitTransaction());
 
@@ -97,14 +105,6 @@ public class InMemoryTransactionManagerTest
     [ConditionalFact]
     public void Throws_on_RollbackTransactionAsync()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransactionAsync().GetAwaiter().GetResult());
-
-    [ConditionalFact]
-    public void Throws_on_BeginTransaction_with_IsolationLevel()
-        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction(IsolationLevel.Serializable));
-
-    [ConditionalFact]
-    public void Throws_on_BeginTransactionAsync_with_IsolationLevel()
-        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter().GetResult());
 
     private static void AssertThrows(Action action)
         => Assert.Equal(
