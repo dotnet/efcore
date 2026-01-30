@@ -362,6 +362,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             }
         }
 
+        if (genericMethodDefinition == EntityFrameworkQueryableExtensions.RefreshMethodInfo)
+        {
+            var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+            _queryCompilationContext.RefreshMergeOption = methodCallExpression.Arguments[1].GetConstantValue<MergeOption>();
+
+            return visitedExpression;
+        }
+
         return null;
     }
 
