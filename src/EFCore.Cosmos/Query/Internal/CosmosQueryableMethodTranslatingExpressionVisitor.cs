@@ -534,8 +534,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         // DISTINCT applies to the SQL projection. If the shaper extracts a subset of the projection
-        // (e.g., a property from an entity), DISTINCT would operate on the wrong columns.
-        // This is valid when the shaper directly binds to projection members without further extraction.
+        // (e.g., a property from an entity), DISTINCT would operate on the wrong type.
+        // Thus we can only apply distinct when the shaper directly binds to projection members without further extraction.
         // Cosmos: Projecting out nested documents retrieves the entire document #34067
         if (!IsProjectionCompatibleWithDistinct(source.ShaperExpression))
         {

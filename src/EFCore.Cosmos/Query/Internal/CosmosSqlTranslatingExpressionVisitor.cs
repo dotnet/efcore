@@ -1007,12 +1007,12 @@ public class CosmosSqlTranslatingExpressionVisitor(
         return expression;
     }
 
-    // This is for list.Contains(entity)
     private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
     {
         result = null;
 
-        if (item is not StructuralTypeReferenceExpression itemEntityReference || itemEntityReference.StructuralType is not IEntityType entityType)
+        if (item is not StructuralTypeReferenceExpression itemEntityReference ||
+            itemEntityReference.StructuralType is not IEntityType entityType) // #36468 ?
         {
             return false;
         }
@@ -1096,23 +1096,21 @@ public class CosmosSqlTranslatingExpressionVisitor(
         // Null equality
         if (IsNullSqlConstantExpression(compareReference))
         {
-            if (structuralType is IEntityType entityType1 && entityType1.IsDocumentRoot() && structuralReference.Subquery == null)
+            if (structuralType is IEntityType entityType1 && entityType1.IsDocumentRoot())
             {
                 // Document root can never be be null
                 result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
                 return true;
             }
 
-            // Treat type as object for null comparison
-
-            var obj = structuralReference.Object;
-            if (obj is StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression { QueryExpression: SelectExpression select } }) // @TODO: Is this the right way to check if this is a query object reference?
+            var obj = structuralReference switch
             {
-                obj = new ObjectReferenceExpression(structuralType, select.Sources.Single().Alias); // @TODO: Probably a better way to get the alais we need here..
-            }
+                { Parameter: { } shaper } => Visit(shaper.ValueBufferExpression),
+                { Subquery: not null } => throw new NotImplementedException("Null comparison on structural type coming out of subquery"),
+                _ => throw new UnreachableException(),
+            };
 
             var access = new SqlObjectAccessExpression(obj);
-            // There is an ValueBufferExpression: ProjectionBindingExpression: EmptyProjectionMember as oppose to ValueBufferExpression: c["OptionalAssociate"] (ObjectAccessExpression?)
             result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object), null)!, typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
@@ -1197,6 +1195,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                                         ? Expression.AndAlso(l, r)
                                         : Expression.OrElse(l, r));
 
+            // Maybe only if structuralReference.StructuralType is nullable? But we can't really determine that, unless collections can not contain null. Then retrieving alias in subquery wouldn't be needed for null comparison translation above
             if (compareReference.Type.IsNullableType() && compareReference is not SqlConstantExpression { Value: not null } &&
                 (structuralReference.StructuralType is not IEntityType entityType1 || !entityType1.IsDocumentRoot())) // Document can never be null so don't compare document to null
             {
@@ -1365,7 +1364,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
             StructuralType = structuralType;
         }
 
-        public Expression Object => (Expression?)Parameter ?? Subquery ?? throw new UnreachableException();
         public new StructuralTypeShaperExpression? Parameter { get; }
         public ShapedQueryExpression? Subquery { get; }
         public ITypeBase StructuralType { get; }
