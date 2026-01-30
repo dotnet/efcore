@@ -27,11 +27,11 @@ OFFSET 0 LIMIT 2
 """);
     }
 
-    [ConditionalFact(Skip = "#34067: Cosmos: Projecting out nested documents retrieves the entire document")]
     public override async Task Projecting_complex_property_does_not_auto_include_owned_types()
     {
         await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
+        // #34067: Cosmos: Projecting out nested documents retrieves the entire document
         AssertSql(
             """
 SELECT VALUE c
@@ -88,4 +88,28 @@ FROM root c
 
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
+
+    protected override Task<ContextFactory<TContext>> InitializeAsync<TContext>(
+        Action<ModelBuilder>? onModelCreating = null,
+        Action<DbContextOptionsBuilder>? onConfiguring = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null,
+        Action<ModelConfigurationBuilder>? configureConventions = null,
+        Func<TContext, Task>? seed = null,
+        Func<string, bool>? shouldLogCategory = null,
+        Func<TestStore>? createTestStore = null,
+        bool usePooling = true,
+        bool useServiceProvider = true)
+        => base.InitializeAsync(model =>
+        {
+            onModelCreating?.Invoke(model);
+            AdHocCosmosTestHelpers.UseTestAutoIncrementIntIds(model);
+        },
+            onConfiguring,
+            addServices,
+            configureConventions,
+            seed,
+            shouldLogCategory,
+            createTestStore,
+            usePooling,
+            useServiceProvider);
 }

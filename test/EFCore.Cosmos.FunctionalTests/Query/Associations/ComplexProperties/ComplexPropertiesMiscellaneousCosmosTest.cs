@@ -75,7 +75,6 @@ WHERE (c["OptionalAssociate"]["Int"] = 8)
 
     public override async Task Where_HasValue_on_nullable_value_type()
     {
-        // @TODO: Structural equality.
         await base.Where_HasValue_on_nullable_value_type();
 
         AssertSql("""
@@ -83,8 +82,6 @@ SELECT VALUE c
 FROM root c
 WHERE (c["OptionalAssociate"] != null)
 """);
-        //var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_HasValue_on_nullable_value_type());
-        //Assert.Equal(CoreStrings.EntityEqualityOnKeylessEntityNotSupported("!=", "ValueRootEntity.OptionalAssociate#ValueAssociateType"), ex.Message);
     }
 
     #endregion Value types

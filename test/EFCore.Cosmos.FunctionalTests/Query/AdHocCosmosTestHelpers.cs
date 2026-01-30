@@ -3,6 +3,7 @@
 
 using System.Net;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,6 +12,29 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocCosmosTestHelpers
 {
+    public static void UseTestAutoIncrementIntIds(ModelBuilder modelBuilder)
+    {
+        foreach (var rootDocument in modelBuilder.Model.GetEntityTypes().Where(x => x.IsDocumentRoot()))
+        {
+            var primaryKey = rootDocument.FindPrimaryKey();
+
+            if (primaryKey != null && primaryKey.Properties.Count == 1 && primaryKey.Properties[0].ClrType == typeof(int))
+            {
+                var valueGenerator = new TestAutoIncerementIntValueGenerator();
+                primaryKey.Properties[0].SetValueGeneratorFactory((_, _) => valueGenerator);
+            }
+        }
+    }
+
+    private class TestAutoIncerementIntValueGenerator : ValueGenerator<int>
+    {
+        private int i;
+
+        public override bool GeneratesTemporaryValues => false;
+
+        public override int Next(EntityEntry entry) => Interlocked.Increment(ref i);
+    }
+
     public static async Task CreateCustomEntityHelperAsync(
         Container container,
         string json,

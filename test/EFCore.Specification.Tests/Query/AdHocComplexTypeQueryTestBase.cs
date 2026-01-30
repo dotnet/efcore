@@ -18,7 +18,6 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.AddRange(
                     new Context33449.EntityType
                     {
-                        Id = 1,
                         ComplexContainer = new Context33449.ComplexContainer
                         {
                             Id = 1,
@@ -133,17 +132,14 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.AddRange(
                     new ContextShadowDiscriminator.EntityType
                     {
-                        Id = 1,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
-                        Id = 2,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = null }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
-                        Id = 3,
                         AllOptionalsComplexType = null
                     }
                     );
@@ -190,7 +186,6 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.Add(
                     new Context37162.EntityType
                     {
-                        Id = 1,
                         NonOptionalComplexType = new Context37162.ComplexTypeWithAllNulls
                         {
                             // All properties are null
