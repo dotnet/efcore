@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -290,6 +292,111 @@ public static class SqlServerEntityTypeBuilderExtensions
         bool temporal = true,
         bool fromDataAnnotation = false)
         => entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.IsTemporal, temporal, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures a vector index on the specified property for SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="indexExpression">
+    ///     A lambda expression representing the property to create the vector index on
+    ///     (<c>blog => blog.Vector</c>).
+    /// </param>
+    /// <param name="metric">
+    ///     <para>
+    ///         A string with the name of the distance metric to use to calculate the distance between the two given vectors.
+    ///         The following distance metrics are supported:
+    ///     </para>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <term>cosine</term>
+    ///             <description>Cosine distance</description>
+    ///         </item>
+    ///         <item>
+    ///             <term>euclidean</term>
+    ///             <description>Euclidean distance</description>
+    ///         </item>
+    ///         <item>
+    ///             <term>dot</term>
+    ///             <description>(Negative) Dot product</description>
+    ///         </item>
+    ///     </list>
+    /// </param>
+    /// <param name="name">The name to assign to the index.</param>
+    /// <returns>A builder to further configure the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static VectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        Expression<Func<TEntity, object?>> indexExpression,
+        string metric,
+        string? name = null)
+        where TEntity : class
+    {
+        Check.NotNull(indexExpression);
+        Check.NotEmpty(metric);
+
+        var indexBuilder = name is null
+            ? entityTypeBuilder.HasIndex(indexExpression)
+            : entityTypeBuilder.HasIndex(indexExpression, name);
+        indexBuilder.Metadata.SetVectorMetric(metric);
+
+        return new VectorIndexBuilder<TEntity>(indexBuilder);
+    }
+
+    /// <summary>
+    ///     Configures a vector index on the specified property for SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="propertyName">The name of the property to create the vector index on.</param>
+    /// <param name="metric">
+    ///     <para>
+    ///         A string with the name of the distance metric to use to calculate the distance between the two given vectors.
+    ///         The following distance metrics are supported:
+    ///     </para>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <term>cosine</term>
+    ///             <description>Cosine distance</description>
+    ///         </item>
+    ///         <item>
+    ///             <term>euclidean</term>
+    ///             <description>Euclidean distance</description>
+    ///         </item>
+    ///         <item>
+    ///             <term>dot</term>
+    ///             <description>(Negative) Dot product</description>
+    ///         </item>
+    ///     </list>
+    /// </param>
+    /// <param name="name">The name to assign to the index.</param>
+    /// <returns>A builder to further configure the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static VectorIndexBuilder HasVectorIndex(
+        this EntityTypeBuilder entityTypeBuilder,
+        string propertyName,
+        string metric,
+        string? name = null)
+    {
+        Check.NotEmpty(propertyName);
+        Check.NotEmpty(metric);
+
+        var indexBuilder = name is null
+            ? entityTypeBuilder.HasIndex(propertyName)
+            : entityTypeBuilder.HasIndex(propertyName, name);
+        indexBuilder.Metadata.SetVectorMetric(metric);
+
+        return new VectorIndexBuilder(indexBuilder);
+    }
 
     /// <summary>
     ///     Configures a history table name for the entity mapped to a temporal table.

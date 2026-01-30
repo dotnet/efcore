@@ -446,6 +446,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 structuralType, propertyName);
 
         /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.
+        /// </summary>
+        public static string VectorIndexOnNonVectorProperty(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("VectorIndexOnNonVectorProperty", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.
+        /// </summary>
+        public static string VectorIndexRequiresSingleProperty(object? index, object? entityType)
+            => string.Format(
+                GetString("VectorIndexRequiresSingleProperty", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
         ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
         /// </summary>
         public static string VectorPropertiesNotSupportedInJson(object? propertyName, object? structuralType)
