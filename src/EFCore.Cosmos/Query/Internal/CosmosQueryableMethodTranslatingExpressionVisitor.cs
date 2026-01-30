@@ -533,11 +533,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        // DISTINCT applies to the SQL projection. If the shaper extracts a subset of the projection
-        // (e.g., a property from an entity), DISTINCT would operate on the wrong type.
-        // Thus we can only apply distinct when the shaper directly binds to projection members without further extraction.
+        // We're extracting a property from a materialized structural type.
+        // If DISTINCT was applied, this is incorrect because SQL DISTINCT operates on the full
+        // structural type, but the shaper extracts only a subset of that data.
         // Cosmos: Projecting out nested documents retrieves the entire document #34067
-        if (!IsProjectionCompatibleWithDistinct(source.ShaperExpression))
+        if (select.UsesClientProjection)
         {
             return null;
         }
@@ -546,28 +546,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         return source;
     }
-
-    private static bool IsProjectionCompatibleWithDistinct(Expression shaperExpression) // @TODO: Is there a better way to do this?  // @TODO: Check if binding is done on client eval..?
-    => shaperExpression switch
-    {
-        // Structural type shaper binding to the root projection
-        StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression } => true,
-
-        // Direct scalar projection binding
-        ProjectionBindingExpression => true,
-
-        // Convert wrapping a valid projection
-        UnaryExpression { NodeType: ExpressionType.Convert, Operand: var operand } =>
-            IsProjectionCompatibleWithDistinct(operand),
-
-        // Anonymous types / DTOs
-        NewExpression newExpr => newExpr.Arguments.All(IsProjectionCompatibleWithDistinct),
-        MemberInitExpression memberInit =>
-            IsProjectionCompatibleWithDistinct(memberInit.NewExpression)
-            && memberInit.Bindings.All(b => b is MemberAssignment ma && IsProjectionCompatibleWithDistinct(ma.Expression)),
-
-        _ => false
-    };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

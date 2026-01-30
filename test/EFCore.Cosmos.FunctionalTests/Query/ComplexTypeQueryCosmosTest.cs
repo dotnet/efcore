@@ -78,8 +78,8 @@ WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
     });
 
-    public override Task Select_complex_type_Distinct(bool async)
-        => AssertTranslationFailed(() => base.Select_complex_type_Distinct(async)); // #34067
+    public override async Task Select_complex_type_Distinct(bool async)
+        => await AssertTranslationFailed(async () => await base.Select_complex_type_Distinct(async)); // Cosmos: Projecting out nested documents retrieves the entire document #34067
 
     public override Task Complex_type_equals_complex_type(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>

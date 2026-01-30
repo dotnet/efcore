@@ -133,6 +133,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             var translation = _sqlTranslator.Translate(expression);
             if (translation == null)
             {
+                _selectExpression.IndicateClientProjection();
                 return base.Visit(expression);
             }
 

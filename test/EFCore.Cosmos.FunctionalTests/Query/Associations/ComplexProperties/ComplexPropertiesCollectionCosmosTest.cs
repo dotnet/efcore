@@ -77,10 +77,10 @@ ORDER BY c["Id"]
     }
 
     public override Task Distinct_over_projected_nested_collection()
-        => AssertTranslationFailed(base.Distinct_over_projected_nested_collection); // Cosmos: Projecting out nested documents retrieves the entire document #34067
+        => AssertTranslationFailed(base.Distinct_over_projected_nested_collection);
 
     public override Task Distinct_over_projected_filtered_nested_collection()
-        => AssertTranslationFailed(base.Distinct_over_projected_nested_collection); // Cosmos: Projecting out nested documents retrieves the entire document #34067
+        => AssertTranslationFailed(base.Distinct_over_projected_nested_collection);
 
     #endregion Distinct
 
