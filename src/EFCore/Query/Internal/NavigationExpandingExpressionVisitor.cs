@@ -1417,6 +1417,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             source.PendingSelector,
             selector.Body);
 
+        selectorBody = new MemberAccessPruningExpressionVisitor().Visit(selectorBody);
+
         source.ApplySelector(selectorBody);
 
         return source;

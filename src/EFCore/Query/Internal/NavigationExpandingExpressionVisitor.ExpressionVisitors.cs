@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -1048,6 +1049,81 @@ public partial class NavigationExpandingExpressionVisitor
                 default:
                     return base.Visit(expression);
             }
+        }
+    }
+
+    /// <summary>
+    ///     Prunes unused members from NavigationTreeExpression containing anonymous types.
+    ///     After parameter replacement in ProcessSelect, member accesses on anonymous types should
+    ///     only preserve the accessed members from nested NavigationTreeExpression nodes.
+    /// </summary>
+    private sealed class MemberAccessPruningExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            var expression = memberExpression.Expression;
+
+            if (expression is NewExpression newExpr && newExpr.Members != null)
+            {
+                var memberIndex = FindMemberIndex(newExpr, memberExpression.Member.Name);
+                if (memberIndex >= 0)
+                {
+                    return Visit(newExpr.Arguments[memberIndex]);
+                }
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+
+        protected override Expression VisitNew(NewExpression newExpression)
+        {
+            if (newExpression.Members != null)
+            {
+                var arguments = new Expression[newExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = Visit(newExpression.Arguments[i]);
+                }
+
+                return newExpression.Update(arguments);
+            }
+
+            return base.VisitNew(newExpression);
+        }
+
+        protected override Expression VisitExtension(Expression expression)
+        {
+            if (expression is NavigationTreeExpression navigationTree)
+            {
+                if (navigationTree.Value is NewExpression newExpr && newExpr.Members != null)
+                {
+                    var arguments = new Expression[newExpr.Arguments.Count];
+                    for (var i = 0; i < arguments.Length; i++)
+                    {
+                        arguments[i] = Visit(newExpr.Arguments[i]);
+                    }
+
+                    return new NavigationTreeExpression(newExpr.Update(arguments));
+                }
+            }
+
+            return base.VisitExtension(expression);
+        }
+
+        private static int FindMemberIndex(NewExpression newExpression, string memberName)
+        {
+            if (newExpression.Members != null)
+            {
+                for (var i = 0; i < newExpression.Members.Count; i++)
+                {
+                    if (newExpression.Members[i].Name == memberName)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
         }
     }
 
