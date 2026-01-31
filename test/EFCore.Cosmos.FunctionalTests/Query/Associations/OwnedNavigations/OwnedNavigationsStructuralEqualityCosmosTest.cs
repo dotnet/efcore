@@ -49,7 +49,7 @@ WHERE false
     }
 
     public override Task Associate_with_inline_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_inline_null());
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_inline_null()); 
 
     public override Task Associate_with_parameter_null()
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_parameter_null());
