@@ -5,7 +5,6 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -1089,20 +1088,24 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
             // Treat type as object for null comparison
             var access = new SqlObjectAccessExpression(entityReference.Object);
-            result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object))!, typeMappingSource.FindMapping(typeof(bool)))!;
+            result = sqlExpressionFactory.MakeBinary(
+                nodeType,
+                access,
+                sqlExpressionFactory.Constant(null, typeof(object))!,
+                typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
 
         if (entityType.FindPrimaryKey()?.Properties is not { } primaryKeyProperties)
         {
             throw new InvalidOperationException(
-            CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                nodeType == ExpressionType.Equal
-                    ? equalsMethod ? nameof(object.Equals) : "=="
-                    : equalsMethod
-                        ? "!" + nameof(object.Equals)
-                        : "!=",
-                entityType.DisplayName()));
+                CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                    nodeType == ExpressionType.Equal
+                        ? equalsMethod ? nameof(object.Equals) : "=="
+                        : equalsMethod
+                            ? "!" + nameof(object.Equals)
+                            : "!=",
+                    entityType.DisplayName()));
         }
 
         if (compareReference is EntityReferenceExpression compareEntityReference)

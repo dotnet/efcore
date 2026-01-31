@@ -3,10 +3,12 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
+// ReSharper disable once CheckNamespace
+
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
-///     Represents an structural type object access on a CosmosJSON object
+///     Represents a structural type object access that represents a CosmosJSON object
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

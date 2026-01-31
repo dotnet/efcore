@@ -53,7 +53,7 @@ WHERE false
         await base.Associate_with_inline_null();
 
         AssertSql(
-    """
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["OptionalAssociate"] = null)
@@ -68,7 +68,7 @@ WHERE (c["OptionalAssociate"] = null)
         await base.Nested_associate_with_inline_null();
 
         AssertSql(
-    """
+            """
 SELECT VALUE c
 FROM root c
 WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = null)
