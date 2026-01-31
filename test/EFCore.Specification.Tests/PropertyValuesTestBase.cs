@@ -3196,6 +3196,21 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [ConditionalFact]
+    public virtual async Task Reloading_optional_complex_property_with_null_does_not_throw()
+    {
+        using var context = CreateContext();
+        var building = Building.Create(Guid.NewGuid(), "Building Null", 123m);
+        building.OptionalMilk = null;
+        context.Add(building);
+        await context.SaveChangesAsync();
+
+        await context.Entry(building).ReloadAsync();
+
+        Assert.Null(building.OptionalMilk);
+        Assert.Equal(EntityState.Unchanged, context.Entry(building).State);
+    }
+
+    [ConditionalFact]
     public virtual void Setting_current_values_from_cloned_values_sets_nullable_complex_property_to_null()
     {
         using var context = CreateContext();
