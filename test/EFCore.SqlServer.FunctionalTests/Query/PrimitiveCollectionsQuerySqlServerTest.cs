@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -2566,6 +2566,26 @@ WHERE (
     FROM (VALUES (CAST(0 AS int)), (1), (2), (3)) AS [v]([Value])
     WHERE [v].[Value] = [p].[Int]) > 0
 """);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_with_null_value_Contains_null_element_Real_Check()
+    {
+        using var context = Fixture.CreateContext();
+
+        var values = Enumerable.Range(1, 2200).Select(i => (int?)i).ToList();
+        values.Add(null);
+
+        var queryResults = await context.Set<PrimitiveCollectionsEntity>()
+            .Where(e => values.Contains(e.NullableInt))
+            .ToListAsync();
+
+        var sql = Fixture.TestSqlLoggerFactory.SqlStatements.Last();
+
+        Assert.NotEmpty(queryResults);
+        Assert.Contains(queryResults, e => e.NullableInt == null);
+        Assert.Contains("OPENJSON", sql);
+        Assert.Contains("IS NULL", sql);
     }
 
     [ConditionalFact]

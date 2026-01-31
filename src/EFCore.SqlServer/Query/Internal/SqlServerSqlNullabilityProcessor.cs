@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -28,6 +28,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     public const string OpenJsonParameterTableName = "__openjson";
 
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     private int _openJsonAliasCounter;
     private int _totalParameterCount;
@@ -39,11 +40,14 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerSqlNullabilityProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        RelationalParameterBasedSqlProcessorParameters parameters,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
-        : base(dependencies, parameters)
-        => _sqlServerSingletonOptions = sqlServerSingletonOptions;
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    RelationalParameterBasedSqlProcessorParameters parameters,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : base(dependencies, parameters)
+    {
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
+        _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -248,6 +252,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
+
                 var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
 
                 if (TryHandleOverLimitParameters(
@@ -258,30 +263,42 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                         out var constants,
                         out var containsNulls))
                 {
-                    inExpression = (openJson, constants) switch
+                    if (openJson != null)
                     {
-                        (not null, null)
-                            => inExpression.Update(
-                                inExpression.Item,
-                                SelectExpression.CreateImmutable(
-                                    null!,
-                                    [openJson],
-                                    [
-                                        new ProjectionExpression(
-                                            new ColumnExpression(
-                                                "value",
-                                                openJson.Alias,
-                                                valuesParameter.Type.GetSequenceType(),
-                                                elementTypeMapping,
-                                                containsNulls!.Value),
-                                            "value")
-                                    ],
-                                    null!)),
+                        var column = new ColumnExpression(
+                            "value",
+                            openJson.Alias,
+                            valuesParameter.Type.GetSequenceType().UnwrapNullableType(),
+                            elementTypeMapping,
+                            containsNulls!.Value);
 
-                        (null, not null) => inExpression.Update(inExpression.Item, constants),
+                        var subquery = SelectExpression.CreateImmutable(
+                            null!,
+                            [openJson],
+                            [new ProjectionExpression(column, "value")],
+                            null!);
 
-                        _ => throw new UnreachableException(),
-                    };
+                        nullable = false;
+
+                        var translatedIn = inExpression.Update(inExpression.Item, subquery);
+
+                        if (containsNulls.GetValueOrDefault())
+                        {
+                            return _sqlExpressionFactory.OrElse(
+                                translatedIn,
+                                _sqlExpressionFactory.IsNull(inExpression.Item));
+                        }
+
+                        return translatedIn;
+                    }
+
+                    if (constants != null)
+                    {
+                        nullable = false;
+                        return inExpression.Update(inExpression.Item, constants);
+                    }
+
+                    throw new UnreachableException("TryHandleOverLimitParameters should return either openJson or constants.");
                 }
 
                 return base.VisitIn(inExpression, allowOptimizedExpansion, out nullable);
