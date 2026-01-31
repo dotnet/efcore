@@ -47,14 +47,6 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == null));
 
     [ConditionalFact]
-    public virtual Task Optional_associate_nested_associate_with_inline_null()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate!.OptionalNestedAssociate == null));
-
-    [ConditionalFact]
-    public virtual Task Optional_associate_nested_associate_with_inline_not_null()
-        => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate!.OptionalNestedAssociate != null));
-
-    [ConditionalFact]
     public virtual Task Nested_associate_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()

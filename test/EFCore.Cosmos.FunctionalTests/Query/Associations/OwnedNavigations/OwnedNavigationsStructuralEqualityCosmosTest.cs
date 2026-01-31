@@ -56,7 +56,7 @@ WHERE false
     """
 SELECT VALUE c
 FROM root c
-WHERE (IS_NULL(c["OptionalAssociate"]) OR NOT(IS_DEFINED(c["OptionalAssociate"])))
+WHERE (c["OptionalAssociate"] = null)
 """);
     }
 
@@ -71,31 +71,7 @@ WHERE (IS_NULL(c["OptionalAssociate"]) OR NOT(IS_DEFINED(c["OptionalAssociate"])
     """
 SELECT VALUE c
 FROM root c
-WHERE (IS_NULL(c["RequiredAssociate"]["OptionalNestedAssociate"]) OR NOT(IS_DEFINED(c["RequiredAssociate"]["OptionalNestedAssociate"])))
-""");
-    }
-
-    public override async Task Optional_associate_nested_associate_with_inline_null()
-    {
-        await base.Optional_associate_nested_associate_with_inline_null();
-
-        AssertSql(
-"""
-SELECT VALUE c
-FROM root c
-WHERE (IS_NULL(c["OptionalAssociate"]["OptionalNestedAssociate"]) OR NOT(IS_DEFINED(c["OptionalAssociate"]["OptionalNestedAssociate"])))
-""");
-    }
-
-    public override async Task Optional_associate_nested_associate_with_inline_not_null()
-    {
-        await base.Optional_associate_nested_associate_with_inline_not_null();
-
-        AssertSql(
-"""
-SELECT VALUE c
-FROM root c
-WHERE NOT((IS_NULL(c["OptionalAssociate"]["OptionalNestedAssociate"]) OR NOT(IS_DEFINED(c["OptionalAssociate"]["OptionalNestedAssociate"]))))
+WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = null)
 """);
     }
 

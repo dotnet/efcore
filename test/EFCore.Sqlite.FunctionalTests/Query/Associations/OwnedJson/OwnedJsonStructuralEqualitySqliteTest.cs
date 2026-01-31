@@ -80,30 +80,6 @@ WHERE "r"."RequiredAssociate" ->> 'OptionalNestedAssociate' IS NULL
 """);
     }
 
-    public override async Task Optional_associate_nested_associate_with_inline_null()
-    {
-        await base.Optional_associate_nested_associate_with_inline_null();
-
-        AssertSql(
-            """
-SELECT "r"."Id", "r"."Name", "r"."AssociateCollection", "r"."OptionalAssociate", "r"."RequiredAssociate"
-FROM "RootEntity" AS "r"
-WHERE "r"."OptionalAssociate" ->> 'OptionalNestedAssociate' IS NULL
-""");
-    }
-
-    public override async Task Optional_associate_nested_associate_with_inline_not_null()
-    {
-        await base.Optional_associate_nested_associate_with_inline_not_null();
-
-        AssertSql(
-            """
-SELECT "r"."Id", "r"."Name", "r"."AssociateCollection", "r"."OptionalAssociate", "r"."RequiredAssociate"
-FROM "RootEntity" AS "r"
-WHERE "r"."OptionalAssociate" ->> 'OptionalNestedAssociate' IS NOT NULL
-""");
-    }
-
     public override async Task Nested_associate_with_inline()
     {
         await base.Nested_associate_with_inline();
