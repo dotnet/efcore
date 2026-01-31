@@ -59,6 +59,19 @@ public class ChangeDetector : IChangeDetector
 
             DetectKeyChange(entry, property);
         }
+        else if (propertyBase is IComplexProperty { IsCollection: false } complexProperty)
+        {
+            // TODO: This requires notification change tracking for complex types
+            // Issue #36175
+            if (entry.EntityState is not EntityState.Deleted 
+                && setModified 
+                && entry is InternalEntryBase entryBase
+                && complexProperty.IsNullable 
+                && complexProperty.GetOriginalValueIndex() >= 0)
+            {
+                DetectComplexPropertyChange(entryBase, complexProperty);
+            }
+        }
         else if (propertyBase.GetRelationshipIndex() != -1
                  && propertyBase is INavigationBase navigation)
         {
@@ -292,9 +305,52 @@ public class ChangeDetector : IChangeDetector
                     changesFound = true;
                 }
             }
+            else if (complexProperty.IsNullable && complexProperty.GetOriginalValueIndex() >= 0)
+            {
+                if (DetectComplexPropertyChange(entry, complexProperty))
+                {
+                    changesFound = true;
+                }
+            }
         }
 
         return changesFound;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool DetectComplexPropertyChange(InternalEntryBase entry, IComplexProperty complexProperty)
+    {
+        Check.DebugAssert(!complexProperty.IsCollection, $"Expected {complexProperty.Name} to not be a collection.");
+
+        var currentValue = entry[complexProperty];
+        var originalValue = entry.GetOriginalValue(complexProperty);
+
+        if ((currentValue == null) != (originalValue == null))
+        {
+            // If it changed from null to non-null, mark all inner properties as modified
+            // to ensure the entity is detected as modified and the complex type properties are persisted
+            if (currentValue != null)
+            {
+                foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
+                {
+                    // Only mark properties that are tracked and can be modified
+                    if (innerProperty.GetOriginalValueIndex() >= 0
+                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                    {
+                        entry.SetPropertyModified(innerProperty);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
