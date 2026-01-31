@@ -1151,8 +1151,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
             // We need to know here the difference between
             // x.Collection == x.Collection (should return null)
             // x.Collection[1] == x.Collection[1] (should run below)
-            // How can we determine the difference? The structuralReference represents the entire complex type in both scenarios, wich is always of type ComplexType and IsCollection true..
-            if (structuralReference.Parameter?.ValueBufferExpression is ObjectArrayAccessExpression) // @TODO: Is there a better way to do this? It feels like this might not be the right place. What about CosmosQueryableMethodTranslatingExpressionVisitor? What is the difference again?
+            // I think the problem is that this would need to be translated into an All expression,
+            // which would be handled by CosmosQueryableMethodTranslatingExpressionVisitor, so the check has to live there kinda.
+            if ((structuralReference.Parameter ??
+                structuralReference.Parameter ??
+                throw new UnreachableException()).ValueBufferExpression is ObjectArrayAccessExpression) // @TODO: Is there a better way to do this? It feels like this might not be the right place.
             {
                 result = null;
                 return false;
