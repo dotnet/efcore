@@ -58,10 +58,10 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
     {
         // Constant queryables are translated to VALUES, no need for JSON.
         // Column queryables have their type mapping from the model, so we don't ever need to apply an inferred mapping on them.
-        if (openJsonExpression.JsonExpression is not SqlParameterExpression { TypeMapping: null } parameterExpression)
+        if (openJsonExpression.Json is not SqlParameterExpression { TypeMapping: null } parameterExpression)
         {
             Check.DebugAssert(
-                openJsonExpression.JsonExpression.TypeMapping is not null,
+                openJsonExpression.Json.TypeMapping is not null,
                 "Non-parameter expression without a type mapping in ApplyTypeMappingsOnOpenJsonExpression");
             return openJsonExpression;
         }
