@@ -14,7 +14,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
+public class SqlServerSqlNullabilityProcessor(
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    RelationalParameterBasedSqlProcessorParameters parameters,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : SqlNullabilityProcessor(dependencies, parameters)
 {
     private const int MaxParameterCount = 2100 - 2;
 
@@ -27,23 +31,11 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     [EntityFrameworkInternal]
     public const string OpenJsonParameterTableName = "__openjson";
 
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
 
     private int _openJsonAliasCounter;
     private int _totalParameterCount;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerSqlNullabilityProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        RelationalParameterBasedSqlProcessorParameters parameters,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
-        : base(dependencies, parameters)
-        => _sqlServerSingletonOptions = sqlServerSingletonOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -226,6 +218,24 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                 }
 
                 return base.VisitExtension(node);
+            }
+
+            case TableValuedFunctionExpression { Name: "FREETEXTTABLE" or "CONTAINSTABLE", IsBuiltIn: true }:
+            {
+                var result = (TableValuedFunctionExpression)base.VisitExtension(node);
+
+                // The last argument to the full-text search TVFs is topn (number of rows to return).
+                // This cannot be null - the argument must be non-null or be omitted entirely.
+                // Since these TVFs are called as top-level LINQ operators, their arguments are always parameterized (like Skip/Take),
+                // since LINQ does not allow us to distinguish between constants and parameters.
+                // As a result, if the topn argument is a null, we simply remove it. This must happen in this visitor since we don't
+                // have access to parameter values earlier.
+                if (result.Arguments[^1] is SqlConstantExpression { Value: null })
+                {
+                    result = result.Update([.. result.Arguments.Take(result.Arguments.Count - 1)]);
+                }
+
+                return result;
             }
 
             default:

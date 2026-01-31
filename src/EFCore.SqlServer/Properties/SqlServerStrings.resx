@@ -380,4 +380,7 @@
   <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
     <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
   </data>
+  <data name="VectorSearchRequiresColumn" xml:space="preserve">
+    <value>VectorSearch() requires a valid vector column.</value>
+  </data>
 </root>

@@ -23,9 +23,7 @@ internal static class EFDiagnostics
     internal const string PrecompiledQueryExperimental = "EF9100";
     internal const string MetricsExperimental = "EF9101";
     internal const string PagingExperimental = "EF9102";
-
-    // These are no longer experimental but keeping the values so we won't re-purpose them
-    internal const string CosmosVectorSearchExperimental = "EF9103";
-    internal const string CosmosFullTextSearchExperimental = "EF9104";
-
+    internal const string CosmosVectorSearchExperimental = "EF9103"; // No longer experimental
+    internal const string CosmosFullTextSearchExperimental = "EF9104"; // No longer experimental
+    internal const string SqlServerVectorSearch = "EF9105";
 }
