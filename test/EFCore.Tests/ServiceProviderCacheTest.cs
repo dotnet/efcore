@@ -335,17 +335,16 @@ public class ServiceProviderCacheTest
         var cache = ServiceProviderCache.Instance;
         var options = new DbContextOptionsBuilder().UseInMemoryDatabase("TestDB").Options;
 
-        cache.GetOrAdd(options, providerRequired: false);
-
-       
-        EntityFrameworkMetrics.ClearServiceProviderCache();
+        var provider1 = cache.GetOrAdd(options, providerRequired: false);
+        cache.Clear(); 
 
         var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance);
         var dict = (System.Collections.IDictionary)field.GetValue(cache);
+        
         Assert.Equal(0, dict.Count);
-
+        
         var provider2 = cache.GetOrAdd(options, providerRequired: false);
-
+        
         Assert.NotNull(provider2);
         Assert.NotSame(provider1, provider2);
     }
