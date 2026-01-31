@@ -5045,6 +5045,18 @@ WHERE (c["id"] = "ALFKI")
         AssertSql();
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Concat_on_entity_queries_throws(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Concat(ss.Set<Customer>())),
+            CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
