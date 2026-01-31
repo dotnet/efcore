@@ -2529,42 +2529,40 @@ WHERE [j].[Id] = 2
         };
 
         AssertSql(
-            @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
-            + characterCollection
-            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
-            + parameterSize
-            + @")
+            """
+@p0='[{"TestBoolean":false,"TestBooleanCollection":[],"TestByte":0,"TestByteArray":null,"TestByteCollection":null,"TestCharacter":"\u0000","TestCharacterCollection":[],"TestDateOnly":"0001-01-01","TestDateOnlyCollection":[],"TestDateTime":"0001-01-01T00:00:00","TestDateTimeCollection":[],"TestDateTimeOffset":"0001-01-01T00:00:00+00:00","TestDateTimeOffsetCollection":[],"TestDecimal":0,"TestDecimalCollection":[],"TestDefaultString":null,"TestDefaultStringCollection":[],"TestDouble":0,"TestDoubleCollection":[],"TestEnum":0,"TestEnumCollection":[],"TestEnumWithIntConverter":0,"TestEnumWithIntConverterCollection":[],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":[],"TestInt16":0,"TestInt16Collection":[],"TestInt32":0,"TestInt32Collection":[],"TestInt64":0,"TestInt64Collection":[],"TestMaxLengthString":null,"TestMaxLengthStringCollection":[],"TestNullableEnum":null,"TestNullableEnumCollection":[],"TestNullableEnumWithConverterThatHandlesNulls":null,"TestNullableEnumWithConverterThatHandlesNullsCollection":[],"TestNullableEnumWithIntConverter":null,"TestNullableEnumWithIntConverterCollection":[],"TestNullableInt32":null,"TestNullableInt32Collection":[],"TestSignedByte":0,"TestSignedByteCollection":[],"TestSingle":0,"TestSingleCollection":[],"TestTimeOnly":"00:00:00.0000000","TestTimeOnlyCollection":[],"TestTimeSpan":"0:00:00","TestTimeSpanCollection":[],"TestUnsignedInt16":0,"TestUnsignedInt16Collection":[],"TestUnsignedInt32":0,"TestUnsignedInt32Collection":[],"TestUnsignedInt64":0,"TestUnsignedInt64Collection":[]}]' (Nullable = false) (Size = 1555)
 @p1='7624'
-@p2='[]' (Size = 8000)
-@p3=NULL (Size = 8000)
-@p4='[]' (Size = 8000)
-@p5='[]' (Size = 8000)
-@p6='[]' (Size = 8000)
-@p7='[]' (Size = 8000)
-@p8='[]' (Size = 8000)
-@p9='[]' (Size = 8000)
-@p10='[]' (Size = 8000)
-@p11='[]' (Size = 8000)
-@p12='[]' (Nullable = false) (Size = 8000)
-@p13='[]' (Size = 8000)
-@p14='[]' (Size = 8000)
-@p15='[]' (Size = 8000)
-@p16='[]' (Size = 8000)
-@p17='[]' (Size = 8000)
-@p18=NULL (Size = 8000)
-@p19='[]' (Size = 8000)
-@p20='[]' (Size = 8000)
-@p21='[]' (Size = 8000)
-@p22='[]' (Size = 8000)
-@p23='[]' (Size = 8000)
-@p24='[]' (Size = 8000)
-@p25='[]' (Size = 8000)
-@p26='[]' (Size = 8000)
+@p2='[]' (Size = 2)
+@p3=NULL
+@p4='[]' (Size = 2)
+@p5='[]' (Size = 2)
+@p6='[]' (Size = 2)
+@p7='[]' (Size = 2)
+@p8='[]' (Size = 2)
+@p9='[]' (Size = 2)
+@p10='[]' (Size = 2)
+@p11='[]' (Size = 2)
+@p12='[]' (Nullable = false) (Size = 2)
+@p13='[]' (Size = 2)
+@p14='[]' (Size = 2)
+@p15='[]' (Size = 2)
+@p16='[]' (Size = 2)
+@p17='[]' (Size = 2)
+@p18=NULL
+@p19='[]' (Size = 2)
+@p20='[]' (Size = 2)
+@p21='[]' (Size = 2)
+@p22='[]' (Size = 2)
+@p23='[]' (Size = 2)
+@p24='[]' (Size = 2)
+@p25='[]' (Size = 2)
+@p26='[]' (Size = 2)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesAllTypes] ([Collection], [Id], [TestBooleanCollection], [TestByteCollection], [TestCharacterCollection], [TestDateTimeCollection], [TestDateTimeOffsetCollection], [TestDecimalCollection], [TestDefaultStringCollection], [TestDoubleCollection], [TestEnumCollection], [TestEnumWithIntConverterCollection], [TestGuidCollection], [TestInt16Collection], [TestInt32Collection], [TestInt64Collection], [TestMaxLengthStringCollection], [TestNullableEnumCollection], [TestNullableEnumWithConverterThatHandlesNullsCollection], [TestNullableEnumWithIntConverterCollection], [TestNullableInt32Collection], [TestSignedByteCollection], [TestSingleCollection], [TestTimeSpanCollection], [TestUnsignedInt16Collection], [TestUnsignedInt32Collection], [TestUnsignedInt64Collection])
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);",
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
+""",
             //
             """
 SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
@@ -2572,17 +2570,16 @@ FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 7624
 """,
             //
-            updatedP0
-            + @"
+            """
+@p0='["Z"]' (Nullable = false) (Size = 5)
 @p1='7624'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestCharacterCollection', "
-+ updatedP0Reference
-+ @")
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestCharacterCollection', JSON_QUERY(@p0))
 OUTPUT 1
-WHERE [Id] = @p1;",
+WHERE [Id] = @p1;
+""",
             //
             """
 SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
@@ -2663,7 +2660,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[true,true,false]' (Size = 8000)
+@p0='[true,true,false]' (Size = 17)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2686,7 +2683,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[25,26]' (Size = 8000)
+@p0='[25,26]' (Size = 7)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2717,7 +2714,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["2000-01-01T12:34:56","3000-01-01T12:34:56","3000-01-01T12:34:56"]' (Size = 8000)
+@p0='["2000-01-01T12:34:56","3000-01-01T12:34:56","3000-01-01T12:34:56"]' (Size = 67)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2740,7 +2737,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["3000-01-01T12:34:56-04:00"]' (Size = 8000)
+@p0='["3000-01-01T12:34:56-04:00"]' (Size = 29)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2763,7 +2760,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-13579.01]' (Size = 8000)
+@p0='[-13579.01]' (Size = 11)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2786,7 +2783,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-1.23456789,1.23456789,0,-1.23579]' (Size = 8000)
+@p0='[-1.23456789,1.23456789,0,-1.23579]' (Size = 35)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2809,7 +2806,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 8000)
+@p0='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 40)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2832,7 +2829,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3234]' (Size = 8000)
+@p0='[-3234]' (Size = 7)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2855,7 +2852,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3234]' (Size = 8000)
+@p0='[-3234]' (Size = 7)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2878,7 +2875,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[]' (Size = 8000)
+@p0='[]' (Size = 2)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2901,7 +2898,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-108]' (Size = 8000)
+@p0='[-108]' (Size = 6)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2924,7 +2921,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[0,-1.234]' (Size = 8000)
+@p0='[0,-1.234]' (Size = 10)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2947,7 +2944,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["10:01:01.007","7:09:08.007"]' (Size = 8000)
+@p0='["10:01:01.007","7:09:08.007"]' (Size = 30)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2970,7 +2967,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[1534]' (Size = 8000)
+@p0='[1534]' (Size = 6)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2993,7 +2990,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[1237775789]' (Size = 8000)
+@p0='[1237775789]' (Size = 12)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3016,7 +3013,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[1234555555123456789]' (Size = 8000)
+@p0='[1234555555123456789]' (Size = 21)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3039,7 +3036,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[null,-2147483648,0,null,2147483647,null,77,null]' (Size = 8000)
+@p0='[null,-2147483648,0,null,2147483647,null,77,null]' (Size = 49)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3062,7 +3059,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3085,7 +3082,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3]' (Size = 8000)
+@p0='[-3]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3108,7 +3105,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3]' (Size = 8000)
+@p0='[-3]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3131,7 +3128,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3]' (Size = 8000)
+@p0='[-3]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3154,7 +3151,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3177,7 +3174,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-1,-3,-7,2]' (Size = 8000)
+@p0='[-1,-3,-7,2]' (Size = 12)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3200,7 +3197,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3223,7 +3220,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-1]' (Size = 8000)
+@p0='[-1]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3246,7 +3243,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
