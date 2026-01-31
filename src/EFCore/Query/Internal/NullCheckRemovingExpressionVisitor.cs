@@ -24,7 +24,9 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
         var visitedExpression = base.VisitBinary(binaryExpression);
 
-        return TryOptimizeConditionalEquality(visitedExpression) ?? visitedExpression;
+        return TryOptimizeConditionalEquality(visitedExpression)
+            ?? TryOptimizeQueryableNullCheck(visitedExpression)
+            ?? visitedExpression;
     }
 
     /// <summary>
@@ -109,6 +111,40 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
                 return Expression.OrElse(
                     conditionalExpression.Test,
                     Expression.Equal(conditionalExpression.IfFalse, comparedExpression));
+            }
+        }
+
+        return null;
+    }
+
+    private static Expression? TryOptimizeQueryableNullCheck(Expression expression)
+    {
+        // Optimize IQueryable/DbSet null checks for expressions that are guaranteed to be non-null:
+        // * queryableMethodCall != null => true
+        // * queryableMethodCall == null => false
+        // This applies to method calls and member accesses that produce IQueryable results, which can never be null.
+        // We do NOT optimize null checks for parameters/variables, as they could legitimately be null.
+        if (expression is BinaryExpression
+            {
+                NodeType: ExpressionType.Equal or ExpressionType.NotEqual
+            } binaryExpression)
+        {
+            var isLeftNull = IsNullConstant(binaryExpression.Left);
+            var isRightNull = IsNullConstant(binaryExpression.Right);
+
+            if (isLeftNull != isRightNull)
+            {
+                var nonNullExpression = isLeftNull ? binaryExpression.Right : binaryExpression.Left;
+
+                // Only optimize if the expression is a query operation that cannot be null
+                // (method call returning IQueryable, DbSet property access, or QueryRootExpression)
+                if (nonNullExpression.Type.IsAssignableTo(typeof(IQueryable))
+                    && (nonNullExpression is MethodCallExpression or QueryRootExpression))
+                        // || (nonNullExpression is MemberExpression { Member.DeclaringType: not null } memberExpression
+                        //     && memberExpression.Member.DeclaringType.IsAssignableTo(typeof(DbContext)))))
+                {
+                    return Expression.Constant(binaryExpression.NodeType == ExpressionType.NotEqual);
+                }
             }
         }
 
