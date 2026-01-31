@@ -335,8 +335,10 @@ public class ServiceProviderCacheTest
         var cache = ServiceProviderCache.Instance;
         var options = new DbContextOptionsBuilder().UseInMemoryDatabase("TestDB").Options;
 
-        var provider1 = cache.GetOrAdd(options, providerRequired: false);
-        cache.Clear();
+        cache.GetOrAdd(options, providerRequired: false);
+
+       
+        EntityFrameworkMetrics.ClearServiceProviderCache();
 
         var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance);
         var dict = (System.Collections.IDictionary)field.GetValue(cache);
