@@ -1059,8 +1059,6 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class NavigationTreeMemberPruningVisitor : ExpressionVisitor
     {
-        private readonly HashSet<NavigationTreeExpression> _processed = [];
-
         protected override Expression VisitMember(MemberExpression node)
         {
             if (node.Expression is NavigationTreeExpression navTree
@@ -1072,9 +1070,9 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     var memberValue = Visit(newExpr.Arguments[memberIndex]);
 
-                    if (memberValue is NavigationTreeExpression innerNavTree)
+                    if (memberValue is NavigationTreeExpression)
                     {
-                        return innerNavTree;
+                        return memberValue;
                     }
 
                     return new NavigationTreeExpression(memberValue);
@@ -1098,6 +1096,20 @@ public partial class NavigationExpandingExpressionVisitor
             }
 
             return base.VisitNew(node);
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is NavigationTreeExpression navTree && navTree.Value is NewExpression newExpr && newExpr.Members != null)
+            {
+                var visitedValue = Visit(navTree.Value);
+                if (visitedValue != navTree.Value)
+                {
+                    return new NavigationTreeExpression(visitedValue);
+                }
+            }
+
+            return base.VisitExtension(node);
         }
 
         private static int FindMemberIndex(NewExpression newExpression, string memberName)
