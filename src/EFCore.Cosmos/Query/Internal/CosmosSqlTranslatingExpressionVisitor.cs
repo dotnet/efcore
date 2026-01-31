@@ -1082,7 +1082,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
         {
             if (entityType.IsDocumentRoot() && entityReference.Subquery == null)
             {
-                // Document root can never be be null
+                // Document root can never be null
                 result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
                 return true;
             }
