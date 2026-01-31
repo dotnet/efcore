@@ -47,4 +47,5 @@ public static class InfrastructureExtensions
 
         return service;
     }
+
 }
