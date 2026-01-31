@@ -597,6 +597,30 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     return memberExpression;
                 }
+
+                // Handle member access on NavigationTreeExpression with NewExpression
+                // When accessing a specific member (like x.Job.Id), only expand that member
+                // instead of reconstructing the entire anonymous type
+                if (memberExpression.Expression is NavigationTreeExpression navigationTreeExpression
+                    && navigationTreeExpression.Value is NewExpression newExpression
+                    && newExpression.Members != null)
+                {
+                    // Find which argument corresponds to the accessed member
+                    for (var i = 0; i < newExpression.Members.Count; i++)
+                    {
+                        if (newExpression.Members[i] == memberExpression.Member)
+                        {
+                            var argument = newExpression.Arguments[i];
+                            
+                            // Visit just this specific argument
+                            var visitedArgument = Visit(argument);
+                            
+                            // Return a member access on the navigation tree expression
+                            // This ensures we don't reconstruct the entire anonymous type
+                            return visitedArgument;
+                        }
+                    }
+                }
             }
 
             return base.VisitMember(memberExpression);
