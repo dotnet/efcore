@@ -48,9 +48,4 @@ public static class InfrastructureExtensions
         return service;
     }
 
-    /// <summary>
-    ///     Clears the internal Entity Framework service provider cache.
-    /// </summary>
-    public static void ClearServiceProviderCache(this DatabaseFacade databaseFacade)
-        => EntityFrameworkMetrics.ClearServiceProviderCache();
 }

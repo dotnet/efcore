@@ -207,5 +207,11 @@ public class ServiceProviderCache
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     This method clears the internal cache of service providers. While the underlying data structure is thread-safe,
+    ///     clearing the cache while other threads are creating or using <see cref="DbContext" /> instances can lead to
+    ///     unexpected behavior. It should only be called when no contexts are actively being created or used, typically in
+    ///     test cleanup scenarios.
+    /// </remarks>
     public virtual void Clear() => _configurations.Clear();
 }
