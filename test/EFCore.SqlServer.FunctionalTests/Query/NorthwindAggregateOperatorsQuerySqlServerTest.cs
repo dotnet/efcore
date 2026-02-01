@@ -338,18 +338,6 @@ ORDER BY [o].[OrderID]
 """);
     }
 
-    public override async Task MinBy_complex_selector(bool async)
-    {
-        await base.MinBy_complex_selector(async);
-
-        AssertSql(
-"""
-SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[OrderID], [o].[EmployeeID]
-""");
-    }
-
     public override async Task MinBy_no_data_value_type(bool async)
     {
         await base.MinBy_no_data_value_type(async);
@@ -662,18 +650,6 @@ FROM [Customers] AS [c]
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID] DESC
-""");
-    }
-
-    public override async Task MaxBy_complex_selector(bool async)
-    {
-        await base.MaxBy_complex_selector(async);
-
-        AssertSql(
-"""
-SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[OrderID] DESC, [o].[EmployeeID] DESC
 """);
     }
 

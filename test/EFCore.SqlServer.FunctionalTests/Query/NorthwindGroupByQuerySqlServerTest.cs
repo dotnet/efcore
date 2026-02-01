@@ -295,52 +295,6 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
-    public override async Task GroupBy_Property_Select_MaxBy_Complex_Selector(bool async)
-    {
-        await base.GroupBy_Property_Select_MaxBy_Complex_Selector(async);
-
-        AssertSql(
-"""
-SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
-FROM (
-    SELECT [o].[CustomerID]
-    FROM [Orders] AS [o]
-    GROUP BY [o].[CustomerID]
-) AS [o1]
-LEFT JOIN (
-    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-    FROM (
-        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID] DESC, [o0].[EmployeeID] DESC) AS [row]
-        FROM [Orders] AS [o0]
-    ) AS [o2]
-    WHERE [o2].[row] <= 1
-) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID]
-""");
-    }
-
-    public override async Task GroupBy_Property_Select_MinBy_Complex_Selector(bool async)
-    {
-        await base.GroupBy_Property_Select_MinBy_Complex_Selector(async);
-
-        AssertSql(
-"""
-SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
-FROM (
-    SELECT [o].[CustomerID]
-    FROM [Orders] AS [o]
-    GROUP BY [o].[CustomerID]
-) AS [o1]
-LEFT JOIN (
-    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-    FROM (
-        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID], [o0].[EmployeeID]) AS [row]
-        FROM [Orders] AS [o0]
-    ) AS [o2]
-    WHERE [o2].[row] <= 1
-) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID]
-""");
-    }
-
     public override async Task GroupBy_Property_Select_Key_with_constant(bool async)
     {
         await base.GroupBy_Property_Select_Key_with_constant(async);

@@ -768,15 +768,11 @@ public class QueryAsserter(
             ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinByAsync(actualSelector)
             : RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinBy(actualSelector);
 
+        var rewrittenExpectedSelector =
+            (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+
         var expectedData = GetExpectedData(context, filteredQuery);
-
-        var query = expectedQuery(expectedData);
-
-        var expected = query.Provider.Execute<TResult>(_rewriteExpectedQueryExpression(Expression.Call(
-            null,
-            QueryableMethods.MinBy.MakeGenericMethod(typeof(TResult), typeof(TSelector)),
-            query.Expression,
-            Expression.Quote(expectedSelector))));
+        var expected = RewriteExpectedQuery(expectedQuery(expectedData)).MinBy(rewrittenExpectedSelector);
 
         AssertEqual(expected, actual, asserter);
     }
@@ -795,15 +791,11 @@ public class QueryAsserter(
             ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxByAsync(actualSelector)
             : RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxBy(actualSelector);
 
+        var rewrittenExpectedSelector =
+            (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+
         var expectedData = GetExpectedData(context, filteredQuery);
-
-        var query = expectedQuery(expectedData);
-
-        var expected = query.Provider.Execute<TResult>(_rewriteExpectedQueryExpression(Expression.Call(
-            null,
-            QueryableMethods.MaxBy.MakeGenericMethod(typeof(TResult), typeof(TSelector)),
-            query.Expression,
-            Expression.Quote(expectedSelector))));
+        var expected = RewriteExpectedQuery(expectedQuery(expectedData)).MaxBy(rewrittenExpectedSelector);
 
         AssertEqual(expected, actual, asserter);
     }

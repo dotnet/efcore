@@ -196,18 +196,6 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             e => e.Key1);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task GroupBy_Property_Select_MaxBy_Complex_Selector(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.MaxBy(o => new { o.OrderID, o.EmployeeID })));
-
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task GroupBy_Property_Select_MinBy_Complex_Selector(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.MinBy(o => new { o.OrderID, o.EmployeeID })));
-
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Property_Select_Key_with_constant(bool async)
         => AssertQuery(
             async,

@@ -759,24 +759,6 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    public override async Task MaxBy_complex_selector(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_complex_selector(async));
-
-            AssertSql(
-"""
-SELECT VALUE c
-FROM root c
-WHERE (c["$type"] = "Order")
-ORDER BY c["OrderID"] DESC, c["EmployeeID"] DESC
-OFFSET 0 LIMIT 1
-""");
-        }
-    }
-
     public override async Task MaxBy_with_coalesce(bool async)
     {
         // Always throws for sync.
@@ -842,24 +824,6 @@ ORDER BY c["OrderID"]
 OFFSET 0 LIMIT 1
 """);
             });
-
-    public override async Task MinBy_complex_selector(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_complex_selector(async));
-
-            AssertSql(
-"""
-SELECT VALUE c
-FROM root c
-WHERE (c["$type"] = "Order")
-ORDER BY c["OrderID"], c["EmployeeID"]
-OFFSET 0 LIMIT 1
-""");
-        }
-    }
 
     public override async Task MinBy_no_data_value_type(bool async)
     {
