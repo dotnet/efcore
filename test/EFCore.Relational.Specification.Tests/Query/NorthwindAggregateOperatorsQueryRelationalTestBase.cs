@@ -36,6 +36,16 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
             "Nullable object must have a value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_no_data_subquery(async))).Message);
 
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MinBy_no_data_subquery_value_type(async))).Message);
+
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MaxBy_no_data_subquery_value_type(async))).Message);
+
     public override async Task Average_no_data_subquery(bool async)
         => Assert.Equal(
             "Nullable object must have a value.",

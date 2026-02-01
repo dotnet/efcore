@@ -271,6 +271,20 @@ public static class QueryableMethods
     public static MethodInfo OrderDescending { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.MaxBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    /// </summary>
+    public static MethodInfo MaxBy { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.MinBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})"/>
+    /// </summary>
+    public static MethodInfo MinBy { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Reverse{TSource}" />
     /// </summary>
     public static MethodInfo Reverse { get; }
@@ -722,6 +736,22 @@ public static class QueryableMethods
             types =>
             [
                 typeof(IQueryable<>).MakeGenericType(types[0])
+            ]);
+
+        MaxBy = GetMethod(
+            nameof(Queryable.MaxBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
+            ]);
+
+        MinBy = GetMethod(
+            nameof(Queryable.MinBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
             ]);
 
         Reverse = GetMethod(nameof(Queryable.Reverse), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);

@@ -229,6 +229,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         {
             visitedMethodCall = TryNormalizeOrderAndOrderDescending(visitedMethodCall);
             visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
+            visitedMethodCall = TryNormalizeMaxByMinBy(visitedMethodCall);
 
             return visitedMethodCall;
         }
@@ -753,6 +754,46 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                 break;
             }
+        }
+
+        return methodCallExpression;
+    }
+
+    private MethodCallExpression TryNormalizeMaxByMinBy(MethodCallExpression methodCallExpression)
+    {
+        /*
+            MinBy(x => x.Prop) --> OrderBy(x => x.Prop).First/FirstOrDefault()
+            MaxBy(x => x.Prop) --> OrderByDescending(x => x.Prop).First/FirstOrDefault()
+
+            MaxBy/MinBy(x => new { x.Prop, x.Prop2 }) --> OrderBy/Descending(x => x.Prop).ThenBy/Descending(x.Prop2).First/OrDefault()
+        */
+
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+        if (genericMethod == QueryableMethods.MinBy
+            || genericMethod == QueryableMethods.MaxBy)
+        {
+            var sourceType = methodCallExpression.Method.GetGenericArguments()[0];
+
+            var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+
+            // {Min,Max}By return null for empty sets when the source is nullable, and throw for
+            // non-nullable (this is the same as the Min/Max behavior).
+            // Mimic this by using FirstOrDefault/First.
+
+            var firstMethod = sourceType.IsNullableType()
+                ? QueryableMethods.FirstOrDefaultWithoutPredicate
+                : QueryableMethods.FirstWithoutPredicate;
+
+            var orderingMethod = genericMethod == QueryableMethods.MinBy
+                ? QueryableMethods.OrderBy
+                : QueryableMethods.OrderByDescending;
+
+            return Expression.Call(
+                firstMethod.MakeGenericMethod(sourceType),
+                Expression.Call(
+                    orderingMethod.MakeGenericMethod(sourceType, keySelector.ReturnType),
+                    methodCallExpression.Arguments[0],
+                    Expression.Quote(keySelector)));
         }
 
         return methodCallExpression;

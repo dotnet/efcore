@@ -754,6 +754,52 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
+    public virtual async Task AssertMinBy<TResult, TSelector>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null,
+        bool async = false,
+        bool filteredQuery = false)
+    {
+        using var context = _contextCreator();
+        var actual = async
+            ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinByAsync(actualSelector)
+            : RewriteServerQuery(actualQuery(SetSourceCreator(context))).MinBy(actualSelector);
+
+        var rewrittenExpectedSelector =
+            (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+
+        var expectedData = GetExpectedData(context, filteredQuery);
+        var expected = RewriteExpectedQuery(expectedQuery(expectedData)).MinBy(rewrittenExpectedSelector);
+
+        AssertEqual(expected, actual, asserter);
+    }
+
+    public virtual async Task AssertMaxBy<TResult, TSelector>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null,
+        bool async = false,
+        bool filteredQuery = false)
+    {
+        using var context = _contextCreator();
+        var actual = async
+            ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxByAsync(actualSelector)
+            : RewriteServerQuery(actualQuery(SetSourceCreator(context))).MaxBy(actualSelector);
+
+        var rewrittenExpectedSelector =
+            (Expression<Func<TResult, TSelector>>)new ExpectedQueryRewritingVisitor().Visit(expectedSelector);
+
+        var expectedData = GetExpectedData(context, filteredQuery);
+        var expected = RewriteExpectedQuery(expectedQuery(expectedData)).MaxBy(rewrittenExpectedSelector);
+
+        AssertEqual(expected, actual, asserter);
+    }
+
     public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<int>> actualQuery,
         Func<ISetSource, IQueryable<int>> expectedQuery,
