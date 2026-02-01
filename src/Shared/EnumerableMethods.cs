@@ -118,6 +118,10 @@ internal static class EnumerableMethods
 
     public static MethodInfo OrderByDescending { get; }
 
+    public static MethodInfo MaxBy { get; }
+
+    public static MethodInfo MinBy { get; }
+
     //public static MethodInfo OrderByDescendingWithComparer { get; }
 
     //public static MethodInfo Prepend { get; }
@@ -457,6 +461,16 @@ internal static class EnumerableMethods
         OrderByDescending = GetMethod(
             nameof(Enumerable.OrderByDescending), 2,
             types => [typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], types[1])]);
+
+        MaxBy = GetMethod(
+            nameof(Enumerable.MaxBy), 2,
+            types =>
+            [typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], types[1])]);
+
+        MinBy = GetMethod(
+            nameof(Enumerable.MinBy), 2,
+            types =>
+            [typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], types[1])]);
 
         Reverse = GetMethod(nameof(Enumerable.Reverse), 1, types => [typeof(IEnumerable<>).MakeGenericType(types[0])]);
 
