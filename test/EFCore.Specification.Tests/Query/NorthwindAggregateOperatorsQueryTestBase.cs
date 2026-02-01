@@ -357,6 +357,13 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             selector: o => o ?? 0 /*non nullable selector*/);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task MinBy_no_data_reference_type_source(bool async)
+        => AssertMinBy(
+            async,
+            ss => ss.Set<Product>().Where(o => o.SupplierID == -1),
+            selector: o => o.ProductID);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task MinBy_no_data_cast_to_nullable(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMinBy(
             async,
@@ -416,6 +423,13 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<Product>().Where(o => o.SupplierID == -1).Select(o => o.SupplierID),
             selector: o => o ?? 0 /*non nullable selector*/);
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task MaxBy_no_data_reference_type_source(bool async)
+        => AssertMaxBy(
+            async,
+            ss => ss.Set<Product>().Where(o => o.SupplierID == -1),
+            selector: o => o.ProductID);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task MaxBy_no_data_cast_to_nullable(bool async)

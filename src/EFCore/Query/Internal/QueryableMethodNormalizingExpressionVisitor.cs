@@ -776,7 +776,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             var keySelector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
 
-            var firstMethod = sourceType.IsNullableValueType()
+            var firstMethod = sourceType.IsNullableType()
                 ? QueryableMethods.FirstOrDefaultWithoutPredicate
                 : QueryableMethods.FirstWithoutPredicate;
 

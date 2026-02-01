@@ -213,7 +213,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
 
         if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
         {
-            firstMethod = sourceType.IsNullableValueType()
+            firstMethod = sourceType.IsNullableType()
                 ? EnumerableMethods.FirstOrDefaultWithoutPredicate
                 : EnumerableMethods.FirstWithoutPredicate;
 
@@ -225,7 +225,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
         }
         else
         {
-            firstMethod = sourceType.IsNullableValueType()
+            firstMethod = sourceType.IsNullableType()
                 ? QueryableMethods.FirstOrDefaultWithoutPredicate
                 : QueryableMethods.FirstWithoutPredicate;
 

@@ -707,6 +707,24 @@ OFFSET 0 LIMIT 1
         }
     }
 
+    public override async Task MaxBy_no_data_reference_type_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MaxBy_no_data_reference_type_source(async);
+
+AssertSql(
+"""
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY c["ProductID"] DESC
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
     public override async Task MaxBy_no_data_cast_to_nullable(bool async)
     {
         // Always throws for sync.
@@ -893,6 +911,24 @@ WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
 ORDER BY ((c["SupplierID"] != null) ? c["SupplierID"] : 0)
 OFFSET 0 LIMIT 1
 """);
+        }
+    }
+
+    public override async Task MinBy_no_data_reference_type_source(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data_reference_type_source(async);
+
+            AssertSql(
+    """
+    SELECT VALUE c
+    FROM root c
+    WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+    ORDER BY c["ProductID"]
+    OFFSET 0 LIMIT 1
+    """);
         }
     }
 

@@ -389,6 +389,19 @@ ORDER BY COALESCE([p].[SupplierID], 0)
 """);
     }
 
+    public override async Task MinBy_no_data_reference_type_source(bool async)
+    {
+        await base.MinBy_no_data_reference_type_source(async);
+
+        AssertSql(
+"""
+SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[SupplierID] = -1
+ORDER BY [p].[ProductID]
+""");
+    }
+
     public override async Task MinBy_no_data_cast_to_nullable(bool async)
     {
         await base.MinBy_no_data_cast_to_nullable(async);
@@ -587,6 +600,19 @@ SELECT TOP(1) [p].[SupplierID]
 FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1
 ORDER BY COALESCE([p].[SupplierID], 0) DESC
+""");
+    }
+
+    public override async Task MaxBy_no_data_reference_type_source(bool async)
+    {
+        await base.MaxBy_no_data_reference_type_source(async);
+
+        AssertSql(
+"""
+SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[SupplierID] = -1
+ORDER BY [p].[ProductID] DESC
 """);
     }
 
