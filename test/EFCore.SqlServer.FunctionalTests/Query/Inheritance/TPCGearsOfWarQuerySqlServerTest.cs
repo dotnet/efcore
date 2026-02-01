@@ -1286,10 +1286,10 @@ ORDER BY [u].[Nickname]
             """
 SELECT [u].[Nickname]
 FROM (
-    SELECT [g].[Nickname], [g].[LeaderNickname]
+    SELECT [g].[Nickname]
     FROM [Gears] AS [g]
     UNION ALL
-    SELECT [o].[Nickname], [o].[LeaderNickname]
+    SELECT [o].[Nickname]
     FROM [Officers] AS [o]
 ) AS [u]
 ORDER BY [u].[Nickname]
