@@ -657,33 +657,19 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 """);
             });
 
-    public override async Task MaxBy_no_data(bool async)
+    public override async Task MaxBy_no_data_value_type(bool async)
     {
         // Always throws for sync.
         if (async)
         {
-            await base.MaxBy_no_data(async);
+            await base.MaxBy_no_data_value_type(async);
 
             AssertSql(
 """
-ReadItem(None, Order|-1)
-""");
-        }
-    }
-
-    public override async Task MaxBy_no_data_nullable(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.MaxBy_no_data_nullable(async);
-
-            AssertSql(
-"""
-SELECT VALUE c
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
-ORDER BY c["SupplierID"] DESC
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"] DESC
 OFFSET 0 LIMIT 1
 """);
         }
@@ -714,7 +700,7 @@ OFFSET 0 LIMIT 1
         {
             await base.MaxBy_no_data_reference_type_source(async);
 
-AssertSql(
+            AssertSql(
 """
 SELECT VALUE c
 FROM root c
@@ -725,23 +711,34 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    public override async Task MaxBy_no_data_cast_to_nullable(bool async)
+    public override async Task MaxBy_no_data_nullable_selector(bool async)
     {
         // Always throws for sync.
         if (async)
         {
-            await base.MaxBy_no_data_cast_to_nullable(async);
+            await base.MaxBy_no_data_nullable_selector(async);
 
-        AssertSql(
+            AssertSql(
 """
-ReadItem(None, Order|-1)
+SELECT VALUE c["OrderID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"] DESC
+OFFSET 0 LIMIT 1
 """);
         }
     }
 
-    public override async Task MaxBy_no_data_subquery(bool async)
+    public override async Task MaxBy_no_data_subquery_reference_type(bool async)
     {
-        await AssertTranslationFailed(() => base.MaxBy_no_data_subquery(async));
+        await AssertTranslationFailed(() => base.MaxBy_no_data_subquery_reference_type(async));
+
+        AssertSql();
+    }
+
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MaxBy_no_data_subquery_value_type(async));
 
         AssertSql();
     }
@@ -864,33 +861,19 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    public override async Task MinBy_no_data(bool async)
+    public override async Task MinBy_no_data_value_type(bool async)
     {
         // Always throws for sync.
         if (async)
         {
-            await base.MinBy_no_data(async);
+            await base.MinBy_no_data_value_type(async);
 
             AssertSql(
 """
-ReadItem(None, Order|-1)
-""");
-        }
-    }
-
-    public override async Task MinBy_no_data_nullable(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.MinBy_no_data_nullable(async);
-
-            AssertSql(
-"""
-SELECT VALUE c
+SELECT VALUE c["OrderID"]
 FROM root c
-WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
-ORDER BY c["SupplierID"]
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"]
 OFFSET 0 LIMIT 1
 """);
         }
@@ -922,33 +905,44 @@ OFFSET 0 LIMIT 1
             await base.MinBy_no_data_reference_type_source(async);
 
             AssertSql(
-    """
-    SELECT VALUE c
-    FROM root c
-    WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
-    ORDER BY c["ProductID"]
-    OFFSET 0 LIMIT 1
-    """);
-        }
-    }
-
-    public override async Task MinBy_no_data_cast_to_nullable(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.MinBy_no_data_cast_to_nullable(async);
-
-            AssertSql(
 """
-ReadItem(None, Order|-1)
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
+ORDER BY c["ProductID"]
+OFFSET 0 LIMIT 1
 """);
         }
     }
 
-    public override async Task MinBy_no_data_subquery(bool async)
+    public override async Task MinBy_no_data_nullable_selector(bool async)
     {
-        await AssertTranslationFailed(() => base.MinBy_no_data_subquery(async));
+        // Always throws for sync.
+        if (async)
+        {
+            await base.MinBy_no_data_nullable_selector(async);
+
+            AssertSql(
+"""
+SELECT VALUE c["OrderID"]
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
+ORDER BY c["OrderID"]
+OFFSET 0 LIMIT 1
+""");
+        }
+    }
+
+    public override async Task MinBy_no_data_subquery_reference_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MinBy_no_data_subquery_reference_type(async));
+
+        AssertSql();
+    }
+
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+    {
+        await AssertTranslationFailed(() => base.MinBy_no_data_subquery_value_type(async));
 
         AssertSql();
     }

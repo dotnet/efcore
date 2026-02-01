@@ -336,18 +336,11 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             selector: o => new { o.OrderID, o.EmployeeID });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MinBy_no_data(bool async)
+    public virtual Task MinBy_no_data_value_type(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMinBy(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID == -1),
-            selector: o => o.OrderID));
-
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MinBy_no_data_nullable(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMinBy(
-            async,
-            ss => ss.Set<Product>().Where(o => o.SupplierID == -1),
-            selector: o => o.SupplierID));
+            ss => ss.Set<Order>().Where(o => o.OrderID == -1).Select(o => o.OrderID),
+            selector: o => o));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task MinBy_no_data_nullable_source(bool async)
@@ -364,17 +357,23 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             selector: o => o.ProductID);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MinBy_no_data_cast_to_nullable(bool async)
+    public virtual Task MinBy_no_data_nullable_selector(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMinBy(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID == -1),
-            selector: o => (int?)o.OrderID));
+            ss => ss.Set<Order>().Where(o => o.OrderID == -1).Select(o => o.OrderID),
+            selector: o => (int?)o));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MinBy_no_data_subquery(bool async)
+    public virtual Task MinBy_no_data_subquery_reference_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.Orders.Where(o => o.OrderID == -1).MinBy(o => o.OrderID)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task MinBy_no_data_subquery_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.Orders.Where(o => o.OrderID == -1).Select(o => o.OrderID).MinBy(o => o)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Max_no_data(bool async)
@@ -404,18 +403,12 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             ss => ss.Set<Customer>().Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MaxBy_no_data(bool async)
+    public virtual Task MaxBy_no_data_value_type(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMaxBy(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID == -1),
-            selector: o => o.OrderID));
+            ss => ss.Set<Order>().Where(o => o.OrderID == -1).Select(o => o.OrderID),
+            selector: o => o));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MaxBy_no_data_nullable(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMaxBy(
-            async,
-            ss => ss.Set<Product>().Where(o => o.SupplierID == -1),
-            selector: o => o.SupplierID));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task MaxBy_no_data_nullable_source(bool async)
@@ -432,17 +425,23 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             selector: o => o.ProductID);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MaxBy_no_data_cast_to_nullable(bool async)
+    public virtual Task MaxBy_no_data_nullable_selector(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertMaxBy(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID == -1),
-            selector: o => (int?)o.OrderID));
+            ss => ss.Set<Order>().Where(o => o.OrderID == -1).Select(x => x.OrderID),
+            selector: o => (int?)o));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task MaxBy_no_data_subquery(bool async)
+    public virtual Task MaxBy_no_data_subquery_reference_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.Orders.Where(o => o.OrderID == -1).MaxBy(o => o.OrderID)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task MaxBy_no_data_subquery_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.Orders.Where(o => o.OrderID == -1).Select(o => o.OrderID).MaxBy(o => o)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Average_no_data(bool async)

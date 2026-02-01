@@ -350,29 +350,16 @@ ORDER BY [o].[OrderID], [o].[EmployeeID]
 """);
     }
 
-    public override async Task MinBy_no_data(bool async)
+    public override async Task MinBy_no_data_value_type(bool async)
     {
-        await base.MinBy_no_data(async);
+        await base.MinBy_no_data_value_type(async);
 
         AssertSql(
-        """
-SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+"""
+SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
 ORDER BY [o].[OrderID]
-""");
-    }
-
-    public override async Task MinBy_no_data_nullable(bool async)
-    {
-        await base.MinBy_no_data_nullable(async);
-
-        AssertSql(
-        """
-SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-FROM [Products] AS [p]
-WHERE [p].[SupplierID] = -1
-ORDER BY [p].[SupplierID]
 """);
     }
 
@@ -402,22 +389,22 @@ ORDER BY [p].[ProductID]
 """);
     }
 
-    public override async Task MinBy_no_data_cast_to_nullable(bool async)
+    public override async Task MinBy_no_data_nullable_selector(bool async)
     {
-        await base.MinBy_no_data_cast_to_nullable(async);
+        await base.MinBy_no_data_nullable_selector(async);
 
         AssertSql(
 """
-SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
 ORDER BY [o].[OrderID]
 """);
     }
 
-    public override async Task MinBy_no_data_subquery(bool async)
+    public override async Task MinBy_no_data_subquery_reference_type(bool async)
     {
-        await base.MinBy_no_data_subquery(async);
+        await base.MinBy_no_data_subquery_reference_type(async);
 
         AssertSql(
 """
@@ -432,6 +419,21 @@ LEFT JOIN (
     ) AS [o0]
     WHERE [o0].[row] <= 1
 ) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+""");
+    }
+
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+    {
+        await base.MinBy_no_data_subquery_value_type(async);
+
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] = -1
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]
 """);
     }
 
@@ -564,29 +566,16 @@ FROM [Customers] AS [c]
 """);
     }
 
-    public override async Task MaxBy_no_data(bool async)
+    public override async Task MaxBy_no_data_value_type(bool async)
     {
-        await base.MaxBy_no_data(async);
-
-        AssertSql(
-        """
-SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderID] = -1
-ORDER BY [o].[OrderID] DESC
-""");
-    }
-
-    public override async Task MaxBy_no_data_nullable(bool async)
-    {
-        await base.MaxBy_no_data_nullable(async);
+        await base.MaxBy_no_data_value_type(async);
 
         AssertSql(
 """
-SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-FROM [Products] AS [p]
-WHERE [p].[SupplierID] = -1
-ORDER BY [p].[SupplierID] DESC
+SELECT TOP(1) [o].[OrderID]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = -1
+ORDER BY [o].[OrderID] DESC
 """);
     }
 
@@ -616,22 +605,22 @@ ORDER BY [p].[ProductID] DESC
 """);
     }
 
-    public override async Task MaxBy_no_data_cast_to_nullable(bool async)
+    public override async Task MaxBy_no_data_nullable_selector(bool async)
     {
-        await base.MaxBy_no_data_cast_to_nullable(async);
+        await base.MaxBy_no_data_nullable_selector(async);
 
         AssertSql(
 """
-SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
 ORDER BY [o].[OrderID] DESC
 """);
     }
 
-    public override async Task MaxBy_no_data_subquery(bool async)
+    public override async Task MaxBy_no_data_subquery_reference_type(bool async)
     {
-        await base.MaxBy_no_data_subquery(async);
+        await base.MaxBy_no_data_subquery_reference_type(async);
 
         AssertSql(
 """
@@ -646,6 +635,21 @@ LEFT JOIN (
     ) AS [o0]
     WHERE [o0].[row] <= 1
 ) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+""");
+    }
+
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+    {
+        await base.MaxBy_no_data_subquery_value_type(async);
+
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] = -1
+    ORDER BY [o].[OrderID] DESC)
+FROM [Customers] AS [c]
 """);
     }
 
