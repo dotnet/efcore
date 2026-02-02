@@ -223,7 +223,7 @@ public class CosmosAliasManager
 
                 SourceExpression { Alias: { } alias } source when aliasRewritingMap.TryGetValue(alias, out var newAlias)
                     => base.VisitExtension(new SourceExpression(source.Expression, newAlias, source.WithIn)),
-                ScalarReferenceExpression reference when reference.Name != null && aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
+                ScalarReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
                     => new ScalarReferenceExpression(newAlias, reference.Type, reference.TypeMapping),
                 ObjectReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
                     => new ObjectReferenceExpression(reference.EntityType, newAlias),

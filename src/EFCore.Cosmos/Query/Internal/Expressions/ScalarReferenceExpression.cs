@@ -3,8 +3,6 @@
 
 // ReSharper disable once CheckNamespace
 
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -17,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class ScalarReferenceExpression : SqlExpression, IAccessExpression
+public class ScalarReferenceExpression(string name, Type clrType, CoreTypeMapping? typeMapping = null)
+    : SqlExpression(clrType, typeMapping), IAccessExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,10 +24,7 @@ public class ScalarReferenceExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ScalarReferenceExpression(string name, Type clrType, CoreTypeMapping? typeMapping = null) : base(clrType, typeMapping)
-    {
-        Name = name;
-    }
+    public virtual string Name { get; } = name;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,34 +32,7 @@ public class ScalarReferenceExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ScalarReferenceExpression(Expression @object) : base(typeof(object), CosmosTypeMapping.Default)
-    {
-        Object = @object;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Expression? Object { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual string? Name { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    string? IAccessExpression.PropertyName
+    string IAccessExpression.PropertyName
         => Name;
 
     /// <summary>
@@ -73,18 +42,7 @@ public class ScalarReferenceExpression : SqlExpression, IAccessExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => Object != null ? Update(visitor.Visit(Object)) : this;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ScalarReferenceExpression Update(Expression @object)
-        => ReferenceEquals(@object, Object)
-            ? this
-            : new ScalarReferenceExpression(@object);
+        => this;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,7 +51,7 @@ public class ScalarReferenceExpression : SqlExpression, IAccessExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => Name ?? base.ToString();
+        => Name;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,17 +60,7 @@ public class ScalarReferenceExpression : SqlExpression, IAccessExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void Print(ExpressionPrinter expressionPrinter)
-    {
-        if (Name != null)
-        {
-            expressionPrinter.Append(Name);
-        }
-        else
-        {
-            expressionPrinter.Visit(Object!);
-        }
-    }
-
+        => expressionPrinter.Append(Name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -124,9 +72,9 @@ public class ScalarReferenceExpression : SqlExpression, IAccessExpression
         => obj is ScalarReferenceExpression other && Equals(other);
 
     private bool Equals(ScalarReferenceExpression other)
-        => ReferenceEquals(this, other) || (base.Equals(other) && Name == other.Name && Object == other.Object);
+        => ReferenceEquals(this, other) || (base.Equals(other) && Name == other.Name);
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Name, Object);
+        => HashCode.Combine(base.GetHashCode(), Name);
 }

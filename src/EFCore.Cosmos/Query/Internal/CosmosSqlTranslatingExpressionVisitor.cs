@@ -802,11 +802,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
     {
         var operand = Visit(unaryExpression.Operand);
 
-        if (operand is SqlConstantExpression { Value: false } && unaryExpression.NodeType == ExpressionType.Not)
-        {
-            return sqlExpressionFactory.Constant(true);
-        }
-
         if (operand is EntityReferenceExpression entityReferenceExpression
             && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
@@ -1084,7 +1079,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
             || IsNullSqlConstantExpression(right))
         {
             var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
-            var shaper = nonNullEntityReference.Parameter ?? (StructuralTypeShaperExpression)(nonNullEntityReference.Subquery ?? throw new UnreachableException()).ShaperExpression;
+            var shaper = nonNullEntityReference.Parameter
+                ?? (StructuralTypeShaperExpression)nonNullEntityReference.Subquery!.ShaperExpression;
 
             if (!shaper.IsNullable)
             {
@@ -1092,11 +1088,12 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return true;
             }
 
-            var access = new ScalarReferenceExpression(Visit(shaper.ValueBufferExpression));
-            result = sqlExpressionFactory.MakeBinary(
+            var access = Visit(shaper.ValueBufferExpression);
+            result = new SqlBinaryExpression(
                 nodeType,
                 access,
                 sqlExpressionFactory.Constant(null, typeof(object))!,
+                typeof(bool),
                 typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
