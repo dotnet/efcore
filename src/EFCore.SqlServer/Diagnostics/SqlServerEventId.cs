@@ -69,6 +69,7 @@ public static class SqlServerEventId
         ColumnWithoutTypeWarning,
         ForeignKeyReferencesUnknownPrincipalTableWarning,
         MissingViewDefinitionRightsWarning,
+        DataverseForeignKeyInvalidWarning,
     }
 
     private static readonly string ValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -271,6 +272,14 @@ public static class SqlServerEventId
     ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
     /// </remarks>
     public static readonly EventId ReflexiveConstraintIgnored = MakeScaffoldingId(Id.ReflexiveConstraintIgnored);
+
+    /// <summary>
+    ///     An invalid foreign key constraint was skipped.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding"/> category.
+    /// </remarks>
+    public static readonly EventId DataverseForeignKeyInvalidWarning = MakeScaffoldingId(Id.DataverseForeignKeyInvalidWarning);
 
     /// <summary>
     ///     A duplicate foreign key constraint was skipped.
