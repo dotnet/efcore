@@ -4,8 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-
+using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -1085,8 +1084,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
             || IsNullSqlConstantExpression(right))
         {
             var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
-
-
             var shaper = nonNullEntityReference.Parameter ?? (StructuralTypeShaperExpression)(nonNullEntityReference.Subquery ?? throw new UnreachableException()).ShaperExpression;
 
             if (!shaper.IsNullable)

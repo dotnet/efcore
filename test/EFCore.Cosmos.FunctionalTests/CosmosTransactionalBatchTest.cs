@@ -13,6 +13,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     private const string DatabaseName = nameof(CosmosTransactionalBatchTest);
 
     protected CosmosFixture Fixture { get; } = fixture;
+
     [ConditionalFact]
     public virtual async Task SaveChanges_fails_for_duplicate_key_in_same_partition_prevents_other_inserts_in_same_partition_even_if_staged_before_add()
     {
