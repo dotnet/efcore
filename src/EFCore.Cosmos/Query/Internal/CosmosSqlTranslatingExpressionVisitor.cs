@@ -3,8 +3,10 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Principal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -27,8 +29,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
 {
     private const string RuntimeParameterPrefix = "entity_equality_";
 
-    private static readonly MethodInfo ParameterPropertyValueExtractorMethod =
-        typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterPropertyValueExtractor))!;
+    private static readonly MethodInfo ParameterValueExtractorMethod =
+        typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
     private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
@@ -1066,28 +1068,31 @@ public class CosmosSqlTranslatingExpressionVisitor(
         bool equalsMethod,
         [NotNullWhen(true)] out Expression? result)
     {
-        var entityReference = left as EntityReferenceExpression ?? right as EntityReferenceExpression;
-        if (entityReference == null)
+        var leftEntityReference = left as EntityReferenceExpression;
+        var rightEntityReference = right as EntityReferenceExpression;
+
+        if (leftEntityReference == null
+            && rightEntityReference == null)
         {
             result = null;
             return false;
         }
 
-        var entityType = entityReference.EntityType;
-        var compareReference = entityReference == left ? right : left;
-
-        // Null equality
-        if (IsNullSqlConstantExpression(compareReference))
+        if (IsNullSqlConstantExpression(left)
+            || IsNullSqlConstantExpression(right))
         {
-            if (entityType.IsDocumentRoot() && entityReference.Subquery == null)
+            var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
+            var entityType1 = nonNullEntityReference.EntityType;
+
+            var shaper = nonNullEntityReference.Parameter ?? (StructuralTypeShaperExpression)(nonNullEntityReference.Subquery ?? throw new UnreachableException()).ShaperExpression;
+
+            if (entityType1.IsDocumentRoot() || !shaper.IsNullable)
             {
-                // Document root can never be null
                 result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
                 return true;
             }
 
-            // Treat type as object for null comparison
-            var access = new SqlObjectAccessExpression(entityReference.Object);
+            var access = new SqlObjectAccessExpression(Visit(shaper.ValueBufferExpression));
             result = sqlExpressionFactory.MakeBinary(
                 nodeType,
                 access,
@@ -1096,7 +1101,22 @@ public class CosmosSqlTranslatingExpressionVisitor(
             return true;
         }
 
-        if (entityType.FindPrimaryKey()?.Properties is not { } primaryKeyProperties)
+        var leftEntityType = leftEntityReference?.EntityType;
+        var rightEntityType = rightEntityReference?.EntityType;
+        var entityType = leftEntityType ?? rightEntityType;
+
+        Check.DebugAssert(entityType != null, "At least either side should be entityReference so entityType should be non-null.");
+
+        if (leftEntityType != null
+            && rightEntityType != null
+            && leftEntityType.GetRootType() != rightEntityType.GetRootType())
+        {
+            result = sqlExpressionFactory.Constant(false);
+            return true;
+        }
+
+        var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
+        if (primaryKeyProperties == null)
         {
             throw new InvalidOperationException(
                 CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
@@ -1106,16 +1126,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
                             ? "!" + nameof(object.Equals)
                             : "!=",
                     entityType.DisplayName()));
-        }
-
-        if (compareReference is EntityReferenceExpression compareEntityReference)
-        {
-            // Comparing of 2 different entity types is always false.
-            if (entityType.GetRootType() != compareEntityReference.EntityType.GetRootType())
-            {
-                result = Visit(Expression.Constant(false));
-                return true;
-            }
         }
 
         result = Visit(
@@ -1142,7 +1152,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
             case SqlParameterExpression sqlParameterExpression:
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        ParameterPropertyValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
@@ -1162,7 +1172,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
         }
     }
 
-    private static T? ParameterPropertyValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
+    private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
     {
         var baseParameter = context.Parameters[baseParameterName];
         return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
@@ -1250,7 +1260,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
             EntityType = (IEntityType)structuralType;
         }
 
-        public Expression Object => (Expression?)Parameter ?? Subquery ?? throw new UnreachableException();
         public new StructuralTypeShaperExpression? Parameter { get; }
         public ShapedQueryExpression? Subquery { get; }
         public IEntityType EntityType { get; }
