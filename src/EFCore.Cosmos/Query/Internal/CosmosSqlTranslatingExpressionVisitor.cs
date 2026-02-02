@@ -803,6 +803,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
     {
         var operand = Visit(unaryExpression.Operand);
 
+        if (operand is SqlConstantExpression { Value: false } && unaryExpression.NodeType == ExpressionType.Not)
+        {
+            return sqlExpressionFactory.Constant(true);
+        }
+
         if (operand is EntityReferenceExpression entityReferenceExpression
             && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
