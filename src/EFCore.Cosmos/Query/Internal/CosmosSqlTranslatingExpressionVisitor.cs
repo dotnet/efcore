@@ -1089,7 +1089,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
             var shaper = nonNullEntityReference.Parameter ?? (StructuralTypeShaperExpression)(nonNullEntityReference.Subquery ?? throw new UnreachableException()).ShaperExpression;
 
-            if (entityType1.IsDocumentRoot() || !shaper.IsNullable)
+            if (!shaper.IsNullable)
             {
                 result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
                 return true;
