@@ -284,7 +284,18 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     /// </summary>
     protected override Expression VisitValueReference(ScalarReferenceExpression scalarReferenceExpression)
     {
-        _sqlBuilder.Append(scalarReferenceExpression.Name);
+        if (scalarReferenceExpression.Object != null)
+        {
+            Visit(scalarReferenceExpression.Object);
+        }
+        else if (scalarReferenceExpression.Name != null)
+        {
+            _sqlBuilder.Append(scalarReferenceExpression.Name);
+        }
+        else
+        {
+            throw new UnreachableException();
+        }
 
         return scalarReferenceExpression;
     }

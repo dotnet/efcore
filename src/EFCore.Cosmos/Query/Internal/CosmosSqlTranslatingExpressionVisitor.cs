@@ -3,10 +3,8 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Principal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -1092,7 +1090,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return true;
             }
 
-            var access = new SqlObjectAccessExpression(Visit(shaper.ValueBufferExpression));
+            var access = new ScalarReferenceExpression(Visit(shaper.ValueBufferExpression));
             result = sqlExpressionFactory.MakeBinary(
                 nodeType,
                 access,
