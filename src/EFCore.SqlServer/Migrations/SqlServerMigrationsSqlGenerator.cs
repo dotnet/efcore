@@ -1388,6 +1388,15 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder.EndCommand();
     }
 
+    private enum ParsingState
+    {
+        Normal,
+        InBlockComment,
+        InSquareBrackets,
+        InDoubleQuotes,
+        InQuotes
+    }
+
     /// <summary>
     ///     Builds commands for the given <see cref="SqlOperation" /> by making calls on the given
     ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
@@ -1402,12 +1411,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Replace("\\\r\n", "")
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
-        var quoted = false;
+        var state = ParsingState.Normal;
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (!quoted
+
+            if (state == ParsingState.Normal
                 && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
@@ -1427,31 +1437,34 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                var commentStart = false;
-                foreach (var c in trimmed)
+                for (var i = 0; i < trimmed.Length; i++)
                 {
-                    switch (c)
+                    var c = trimmed[i];
+                    var next = i + 1 < trimmed.Length ? trimmed[i + 1] : '\0';
+
+                    if (state == ParsingState.Normal && c == '-' && next == '-')
                     {
-                        case '\'':
-                            quoted = !quoted;
-                            commentStart = false;
-                            break;
-                        case '-':
-                            if (!quoted)
-                            {
-                                if (commentStart)
-                                {
-                                    goto LineEnd;
-                                }
-
-                                commentStart = true;
-                            }
-
-                            break;
-                        default:
-                            commentStart = false;
-                            break;
+                        goto LineEnd;
                     }
+
+                    state = state switch
+                    {
+                        ParsingState.Normal when c == '\'' => ParsingState.InQuotes,
+                        ParsingState.Normal when c == '[' => ParsingState.InSquareBrackets,
+                        ParsingState.Normal when c == '"' => ParsingState.InDoubleQuotes,
+                        ParsingState.Normal when c == '/' && next == '*' => ConsumeAndReturn(ref i, ParsingState.InBlockComment),
+
+                        ParsingState.InQuotes when c == '\'' => ParsingState.Normal,
+
+                        ParsingState.InSquareBrackets when c == ']' && next == ']' => ConsumeAndReturn(ref i, ParsingState.InSquareBrackets),
+                        ParsingState.InSquareBrackets when c == ']' => ParsingState.Normal,
+
+                        ParsingState.InDoubleQuotes when c == '"' => ParsingState.Normal,
+
+                        ParsingState.InBlockComment when c == '*' && next == '/' => ConsumeAndReturn(ref i, ParsingState.Normal),
+
+                        _ => state
+                    };
                 }
 
                 LineEnd:
@@ -1460,6 +1473,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         AppendBatch(batchBuilder.ToString());
+
+        ParsingState ConsumeAndReturn(ref int index, ParsingState newState)
+        {
+            index++;
+            return newState;
+        }
 
         void AppendBatch(string batch)
         {
