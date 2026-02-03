@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -1092,7 +1093,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
             result = new SqlBinaryExpression(
                 nodeType,
                 access,
-                sqlExpressionFactory.Constant(null, typeof(object))!,
+                sqlExpressionFactory.Constant(null, typeof(object), CosmosTypeMapping.Default)!,
                 typeof(bool),
                 typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
