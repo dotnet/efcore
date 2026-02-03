@@ -3,6 +3,7 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
@@ -54,6 +55,44 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
 
         return Task.FromResult<IDbContextTransaction>(StubTransaction);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     The <paramref name="isolationLevel" /> parameter is ignored by the in-memory provider since
+    ///     transactions are not supported. This method exists to allow code that uses transactions with
+    ///     isolation levels to work seamlessly with the in-memory provider for testing purposes.
+    /// </remarks>
+    /// <param name="isolationLevel">The <see cref="IsolationLevel" /> to use (ignored by this provider).</param>
+    /// <returns>A <see cref="IDbContextTransaction" /> that represents a no-op transaction.</returns>
+    public virtual IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
+        => BeginTransaction();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     The <paramref name="isolationLevel" /> parameter is ignored by the in-memory provider since
+    ///     transactions are not supported. This method exists to allow code that uses transactions with
+    ///     isolation levels to work seamlessly with the in-memory provider for testing purposes.
+    /// </remarks>
+    /// <param name="isolationLevel">The <see cref="IsolationLevel" /> to use (ignored by this provider).</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains a
+    ///     <see cref="IDbContextTransaction" /> that represents a no-op transaction.
+    /// </returns>
+    public virtual Task<IDbContextTransaction> BeginTransactionAsync(
+        IsolationLevel isolationLevel, 
+        CancellationToken cancellationToken = default)
+        => BeginTransactionAsync(cancellationToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

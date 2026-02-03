@@ -14,9 +14,6 @@ public abstract class ManyToManyNoTrackingQueryTestBase<TFixture>(TFixture fixtu
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking));
 
-    protected override bool IgnoreEntryCount
-        => true;
-
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
