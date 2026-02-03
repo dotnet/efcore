@@ -814,28 +814,32 @@ public class CosmosSqlTranslatingExpressionVisitor(
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        return unaryExpression.NodeType switch
+        return unaryExpression switch
         {
-            ExpressionType.Not
-                => operand is SqlConstantExpression { Value: false } ? sqlExpressionFactory.Constant(true) :  sqlExpressionFactory.Not(sqlOperand!),
+            { NodeType: ExpressionType.Not, Operand: SqlConstantExpression { Value: false } }
+                => sqlExpressionFactory.Constant(true),
+            { NodeType: ExpressionType.Not, Operand: SqlConstantExpression { Value: true } }
+                => sqlExpressionFactory.Constant(false),
+            { NodeType: ExpressionType.Not }
+                => sqlExpressionFactory.Not(sqlOperand!),
 
-            ExpressionType.Negate or ExpressionType.NegateChecked
+            { NodeType: ExpressionType.Negate or ExpressionType.NegateChecked }
                 => sqlExpressionFactory.Negate(sqlOperand!),
 
             // Convert nodes can be an explicit user gesture in the query, or they may get introduced by the compiler (e.g. when a Child is
             // passed as an argument for a parameter of type Parent). The latter type should generally get stripped out as a pure C#/LINQ
             // artifact that shouldn't affect translation, but the latter may be an indication from the user that they want to apply a
             // type change.
-            ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                when operand.Type.IsInterface && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
-                // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
-                || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
-                    && IsReadOnlyMemory(unaryExpression.Type.UnwrapNullableType()))
-                || unaryExpression.Type.UnwrapNullableType() == operand.Type
-                || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
-                // Object convert needs to be converted to explicit cast when mismatching types
-                // But we let it pass here since we don't have explicit cast mechanism here and in some cases object convert is due to value types
-                || unaryExpression.Type == typeof(object)
+            { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs }
+            when unaryExpression.Operand.Type.IsInterface && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+              // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
+              || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
+                  && IsReadOnlyMemory(unaryExpression.Type.UnwrapNullableType()))
+              || unaryExpression.Type.UnwrapNullableType() == operand.Type
+              || unaryExpression.Type.UnwrapNullableType() == typeof(Enum)
+              // Object convert needs to be converted to explicit cast when mismatching types
+              // But we let it pass here since we don't have explicit cast mechanism here and in some cases object convert is due to value types
+              || unaryExpression.Type == typeof(object)
                 => sqlOperand!,
 
             _ => QueryCompilationContext.NotTranslatedExpression
