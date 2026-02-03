@@ -26,14 +26,7 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         => CreateQueryAsserter(Fixture);
 
     protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new(
-            fixture,
-            RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression,
-            IgnoreEntryCount);
-
-    protected virtual bool IgnoreEntryCount
-        => false;
+        => new(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 
     protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         => serverQueryExpression;

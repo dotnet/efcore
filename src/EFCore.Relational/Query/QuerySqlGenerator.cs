@@ -984,27 +984,32 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="negated">Whether the given <paramref name="inExpression" /> is negated.</param>
     protected virtual void GenerateIn(InExpression inExpression, bool negated)
     {
-        Check.DebugAssert(
-            inExpression.ValuesParameter is null,
-            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (i.e. in SqlNullabilityProcessor)");
-
         Visit(inExpression.Item);
         _relationalCommandBuilder.Append(negated ? " NOT IN (" : " IN (");
 
-        if (inExpression.Values is not null)
+        switch (inExpression)
         {
-            GenerateList(inExpression.Values, e => Visit(e));
-        }
-        else
-        {
-            _relationalCommandBuilder.AppendLine();
+            case { Values: IReadOnlyList<SqlExpression> values}:
+                GenerateList(values, e => Visit(e));
+                break;
 
-            using (_relationalCommandBuilder.Indent())
-            {
-                Visit(inExpression.Subquery);
-            }
+            case { Subquery: SelectExpression subquery }:
+                _relationalCommandBuilder.AppendLine();
 
-            _relationalCommandBuilder.AppendLine();
+                using (_relationalCommandBuilder.Indent())
+                {
+                    Visit(inExpression.Subquery);
+                }
+
+                _relationalCommandBuilder.AppendLine();
+                break;
+
+            case { ValuesParameter: not null }:
+                throw new UnreachableException(
+                    "InExpression.ValuesParameter must have been expanded to constants before SQL generation (i.e. in SqlNullabilityProcessor)");
+
+            default:
+                throw new UnreachableException();
         }
 
         _relationalCommandBuilder.Append(")");
@@ -1576,16 +1581,19 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="valuesExpression">The <see cref="ValuesExpression" /> for which to generate SQL.</param>
     protected virtual void GenerateValues(ValuesExpression valuesExpression)
     {
-        Check.DebugAssert(
-            valuesExpression.RowValues is not null,
-            "ValuesExpression.RowValues has to be set before SQL generation (i.e. in SqlNullabilityProcessor)");
-
-        if (valuesExpression.RowValues.Count == 0)
+        var rowValues = valuesExpression switch
         {
-            throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
-        }
+            { RowValues.Count: 0 }
+                => throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot),
 
-        var rowValues = valuesExpression.RowValues;
+            { ValuesParameter: not null }
+                => throw new UnreachableException(
+                    "ValuesExpression.ValuesParameter has to be expanded to constants before SQL generation (i.e. in SqlNullabilityProcessor)"),
+
+            { RowValues: not null } => valuesExpression.RowValues,
+
+            _ => throw new UnreachableException()
+        };
 
         // Some databases support providing the names of columns projected out of VALUES, e.g.
         // SQL Server/PG: (VALUES (1, 3), (2, 4)) AS x(a, b). Others unfortunately don't; so by default, we extract out the first row,
