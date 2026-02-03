@@ -13,16 +13,13 @@ public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocCo
 
         AssertSql(
             """
-@entity_equality_container='{}'
-@entity_equality_entity_equality_container_Containee1='{}'
-@entity_equality_entity_equality_container_Containee1_Id='2'
-@entity_equality_entity_equality_container_Containee2='{}'
-@entity_equality_entity_equality_container_Containee2_Id='3'
 @entity_equality_container_Id='1'
+@entity_equality_entity_equality_container_Containee1_Id='2'
+@entity_equality_entity_equality_container_Containee2_Id='3'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["ComplexContainer"] = null) AND (@entity_equality_container = null)) OR ((@entity_equality_container != null) AND (((((c["ComplexContainer"]["Containee1"] = null) AND (@entity_equality_entity_equality_container_Containee1 = null)) OR ((@entity_equality_entity_equality_container_Containee1 != null) AND (c["ComplexContainer"]["Containee1"]["Id"] = @entity_equality_entity_equality_container_Containee1_Id))) AND (((c["ComplexContainer"]["Containee2"] = null) AND (@entity_equality_entity_equality_container_Containee2 = null)) OR ((@entity_equality_entity_equality_container_Containee2 != null) AND (c["ComplexContainer"]["Containee2"]["Id"] = @entity_equality_entity_equality_container_Containee2_Id)))) AND (c["ComplexContainer"]["Id"] = @entity_equality_container_Id))))
+WHERE (((c["ComplexContainer"]["Id"] = @entity_equality_container_Id) AND (c["ComplexContainer"]["Containee1"]["Id"] = @entity_equality_entity_equality_container_Containee1_Id)) AND (c["ComplexContainer"]["Containee2"]["Id"] = @entity_equality_entity_equality_container_Containee2_Id))
 OFFSET 0 LIMIT 2
 """);
     }

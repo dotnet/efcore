@@ -4,9 +4,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -18,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosSqlTranslatingExpressionVisitor(
+public partial class CosmosSqlTranslatingExpressionVisitor(
     QueryCompilationContext queryCompilationContext,
     ISqlExpressionFactory sqlExpressionFactory,
     ITypeMappingSource typeMappingSource,
@@ -27,17 +24,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
     QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
     : ExpressionVisitor
 {
-    private const string RuntimeParameterPrefix = "entity_equality_";
-
-    private static readonly MethodInfo ParameterPropertyValueExtractorMethod =
-        typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterPropertyValueExtractor))!;
-
-    private static readonly MethodInfo ParameterValueExtractorMethod =
-        typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
-
-    private static readonly MethodInfo ParameterListValueExtractorMethod =
-        typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
-
     private static readonly MethodInfo ConcatMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(object), typeof(object)])!;
 
@@ -184,7 +170,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
         {
             // Visited expression could be null, We need to pass MemberInitExpression
             case { NodeType: ExpressionType.Equal or ExpressionType.NotEqual }
-                when TryRewriteEntityEquality(
+                when TryRewriteStructuralTypeEquality(
                     binaryExpression.NodeType,
                     visitedLeft == QueryCompilationContext.NotTranslatedExpression ? left : visitedLeft,
                     visitedRight == QueryCompilationContext.NotTranslatedExpression ? right : visitedRight,
@@ -563,7 +549,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 var left = Visit(methodCallExpression.Object);
                 var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
 
-                if (TryRewriteEntityEquality(
+                if (TryRewriteStructuralTypeEquality(
                         ExpressionType.Equal,
                         left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
                         right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : right,
@@ -597,7 +583,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 var left = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
                 var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[1]));
 
-                if (TryRewriteEntityEquality(
+                if (TryRewriteStructuralTypeEquality(
                         ExpressionType.Equal,
                         left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : left,
                         right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : right,
@@ -1006,301 +992,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
         return expression;
     }
-
-    private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
-    {
-        result = null;
-
-        if (item is not StructuralTypeReferenceExpression itemEntityReference ||
-            itemEntityReference.StructuralType is not IEntityType entityType) // #36468 ?
-        {
-            return false;
-        }
-
-        var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
-
-        switch (primaryKeyProperties)
-        {
-            case null:
-                throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                        nameof(Queryable.Contains), entityType.DisplayName()));
-
-            case { Count: > 1 }:
-                throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
-                        nameof(Queryable.Contains), entityType.DisplayName()));
-        }
-
-        var property = primaryKeyProperties[0];
-        Expression rewrittenSource;
-        switch (source)
-        {
-            case SqlConstantExpression sqlConstantExpression:
-                var values = (IEnumerable)sqlConstantExpression.Value!;
-                var propertyValueList =
-                    (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(property.ClrType.MakeNullable()))!;
-                var propertyGetter = property.GetGetter();
-                foreach (var value in values)
-                {
-                    propertyValueList.Add(propertyGetter.GetClrValue(value));
-                }
-
-                rewrittenSource = Expression.Constant(propertyValueList);
-                break;
-
-            case SqlParameterExpression sqlParameterExpression:
-                var lambda = Expression.Lambda(
-                    Expression.Call(
-                        ParameterListValueExtractorMethod.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
-                        QueryCompilationContext.QueryContextParameter,
-                        Expression.Constant(sqlParameterExpression.Name, typeof(string)),
-                        Expression.Constant(property, typeof(IProperty))),
-                    QueryCompilationContext.QueryContextParameter
-                );
-
-                var newParameterName = $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
-
-                rewrittenSource = queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
-                break;
-
-            default:
-                return false;
-        }
-
-        result = Visit(
-            Expression.Call(
-                EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
-                rewrittenSource,
-                CreatePropertyAccessExpression(item, property)));
-
-        return true;
-    }
-
-    private bool TryRewriteEntityEquality(
-        ExpressionType nodeType,
-        Expression left,
-        Expression right,
-        bool equalsMethod,
-        [NotNullWhen(true)] out Expression? result)
-    {
-        var structuralReference = left as StructuralTypeReferenceExpression ?? right as StructuralTypeReferenceExpression;
-        if (structuralReference == null)
-        {
-            result = null;
-            return false;
-        }
-        var structuralType = structuralReference.StructuralType;
-        var compareReference = structuralReference == left ? right : left;
-
-        // Null equality
-        if (IsNullSqlConstantExpression(compareReference))
-        {
-            if (structuralType is IEntityType entityType1 && entityType1.IsDocumentRoot())
-            {
-                // Document root can never be be null
-                result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
-                return true;
-            }
-
-            var obj = structuralReference switch
-            {
-                { Parameter: { } shaper } => Visit(shaper.ValueBufferExpression),
-                { Subquery: not null } => throw new NotImplementedException("Null comparison on structural type coming out of subquery"),
-                _ => throw new UnreachableException(),
-            };
-
-            var access = new SqlObjectAccessExpression(obj);
-            result = sqlExpressionFactory.MakeBinary(nodeType, access, sqlExpressionFactory.Constant(null, typeof(object), null)!, typeMappingSource.FindMapping(typeof(bool)))!;
-            return true;
-        }
-
-        // IEntityType type comparison
-        if (structuralType is IEntityType entityType)
-        {
-            if (entityType.FindPrimaryKey()?.Properties is not { } primaryKeyProperties)
-            {
-                throw new InvalidOperationException(
-                CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                    nodeType == ExpressionType.Equal
-                        ? equalsMethod ? nameof(object.Equals) : "=="
-                        : equalsMethod
-                            ? "!" + nameof(object.Equals)
-                            : "!=",
-                    entityType.DisplayName()));
-            }
-
-            if (compareReference is StructuralTypeReferenceExpression compareStructuralTypeReference)
-            {
-                // Comparing of 2 different entity types is always false.
-                if (structuralType.GetRootType() != compareStructuralTypeReference.StructuralType.GetRootType())
-                {
-                    result = Visit(Expression.Constant(false));
-                    return true;
-                }
-            }
-
-            // Compare primary keys of entity type
-            result = CreateStructuralComparison(primaryKeyProperties);
-
-            return result is not null;
-        }
-        // Complex type equality
-        else if (structuralType is IComplexType complexType)
-        {
-            // We need to know here the difference between
-            // x.Collection == x.Collection (should return null)
-            // x.Collection[1] == x.Collection[1] (should run below)
-            // I think the problem is that this would need to be translated into an All expression,
-            // which would be handled by CosmosQueryableMethodTranslatingExpressionVisitor, so the check has to live there kinda.
-            if ((structuralReference.Parameter ??
-                structuralReference.Parameter ??
-                throw new UnreachableException()).ValueBufferExpression is ObjectArrayAccessExpression) // @TODO: Is there a better way to do this? It feels like this might not be the right place.
-            {
-                result = null;
-                return false;
-            }
-
-            // Compare to another structural type reference x => x.ComplexProp1 == x.ComplexProp2 ||
-            // Compare to constant complex type x => x.ComplexProp1 == new ComplexType()
-            // Compare to parameter complex type x => x.ComplexProp1 == param
-            if (compareReference is StructuralTypeReferenceExpression compareStructuralTypeReference && compareStructuralTypeReference.StructuralType.ClrType == structuralType.ClrType ||
-                compareReference is SqlConstantExpression constant && constant.Type.MakeNullable() == structuralType.ClrType.MakeNullable() ||
-                compareReference is SqlParameterExpression parameter && parameter.Type.MakeNullable() == structuralType.ClrType.MakeNullable())
-            {
-                if (compareReference is SqlParameterExpression p)
-                {
-                    compareReference = new SqlParameterExpression(
-                        p.Name,
-                        structuralType.ClrType,
-                        new CosmosTypeMapping(typeof(object), null, null, null, null)
-                    );
-                }
-
-                var allProperties = complexType.GetComplexProperties().Cast<IPropertyBase>().Concat(complexType.GetProperties());
-                result = CreateStructuralComparison(allProperties);
-
-                return result is not null;
-            }
-        }
-
-        Expression? CreateStructuralComparison(IEnumerable<IPropertyBase> properties)
-            => CreateStructuralComparisonBy(properties, p => CreatePropertyAccessExpression(right, p));
-
-        Expression? CreateStructuralComparisonBy(IEnumerable<IPropertyBase> properties, Func<IPropertyBase, Expression> rightValueFactory)
-        {
-            var propertyCompare = properties.Select(p =>
-                                    Expression.MakeBinary(
-                                        nodeType,
-                                        CreatePropertyAccessExpression(left, p),
-                                        rightValueFactory(p)))
-                                    .Aggregate((l, r) => nodeType == ExpressionType.Equal
-                                        ? Expression.AndAlso(l, r)
-                                        : Expression.OrElse(l, r));
-
-            // Maybe only if structuralReference.StructuralType is nullable? But we can't really determine that, unless collections can not contain null. Then retrieving alias in subquery wouldn't be needed for null comparison translation above
-            if (compareReference.Type.IsNullableType() && compareReference is not SqlConstantExpression { Value: not null } &&
-                (structuralReference.StructuralType is not IEntityType entityType1 || !entityType1.IsDocumentRoot())) // Document can never be null so don't compare document to null
-            {
-                var compareNullCompareReference = compareReference;
-                if (compareReference is SqlParameterExpression sqlParameterExpression)
-                {
-                    var lambda = Expression.Lambda(
-                        Expression.Condition(
-                            Expression.Equal(
-                                Expression.Call(ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()), QueryCompilationContext.QueryContextParameter, Expression.Constant(sqlParameterExpression.Name, typeof(string))),
-                                Expression.Constant(null)
-                            ),
-                            Expression.Constant(null),
-                            Expression.Constant(new object())
-                        ),
-                        QueryCompilationContext.QueryContextParameter
-                    );
-
-                    var newParameterName = $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}";
-                    var queryParam = queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
-                    compareNullCompareReference = new SqlParameterExpression(queryParam.Name, queryParam.Type, CosmosTypeMapping.Default);
-                }
-
-                return Visit(Expression.OrElse(
-                        Expression.AndAlso(
-                            Expression.Equal(structuralReference, sqlExpressionFactory.Constant(null, typeof(object), null)!),
-                            Expression.Equal(compareNullCompareReference, sqlExpressionFactory.Constant(null, typeof(object), null)!))
-                    ,
-                        Expression.AndAlso(
-                            Expression.NotEqual(compareNullCompareReference, sqlExpressionFactory.Constant(null, typeof(object), null)!),
-                            propertyCompare
-                        )
-                    )
-                );
-            }
-
-            return Visit(propertyCompare);
-        }
-
-        result = null;
-        return false;
-    }
-
-    private Expression CreatePropertyAccessExpression(Expression target, IPropertyBase property)
-    {
-        switch (target)
-        {
-            case SqlConstantExpression sqlConstantExpression:
-                return Expression.Constant(
-                    property.GetGetter().GetClrValue(sqlConstantExpression.Value!), property.ClrType.MakeNullable());
-
-            case SqlParameterExpression sqlParameterExpression:
-                var lambda = Expression.Lambda(
-                    Expression.Call(
-                        ParameterPropertyValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
-                        QueryCompilationContext.QueryContextParameter,
-                        Expression.Constant(sqlParameterExpression.Name, typeof(string)),
-                        Expression.Constant(property, typeof(IPropertyBase))),
-                    QueryCompilationContext.QueryContextParameter);
-
-                var newParameterName = $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}_{property.Name}";
-
-                return queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
-
-            case MemberInitExpression memberInitExpression
-                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
-                    memberAssignment:
-                return memberAssignment.Expression;
-
-            default:
-                return target.CreateEFPropertyExpression(property);
-        }
-    }
-
-    private static T? ParameterPropertyValueExtractor<T>(QueryContext context, string baseParameterName, IPropertyBase property)
-    {
-        var baseParameter = context.Parameters[baseParameterName];
-        return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
-    }
-
-    private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName)
-    {
-        var baseParameter = context.Parameters[baseParameterName];
-        return (T?)baseParameter;
-    }
-
-    private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
-        QueryContext context,
-        string baseParameterName,
-        IProperty property)
-    {
-        if (context.Parameters[baseParameterName] is not IEnumerable<TEntity> baseListParameter)
-        {
-            return null;
-        }
-
-        var getter = property.GetGetter();
-        return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
-    }
-
-    private static bool IsNullSqlConstantExpression(Expression expression)
-        => expression is SqlConstantExpression { Value: null };
 
     private static bool TryEvaluateToConstant(Expression expression, [NotNullWhen(true)] out SqlConstantExpression? sqlConstantExpression)
     {
