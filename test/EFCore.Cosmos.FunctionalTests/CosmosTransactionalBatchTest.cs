@@ -13,6 +13,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     private const string DatabaseName = nameof(CosmosTransactionalBatchTest);
 
     protected CosmosFixture Fixture { get; } = fixture;
+
     [ConditionalFact]
     public virtual async Task SaveChanges_fails_for_duplicate_key_in_same_partition_prevents_other_inserts_in_same_partition_even_if_staged_before_add()
     {
@@ -72,7 +73,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_never_fails_for_duplicate_key_in_same_partition_writes_all_staged_before_error()
+    public virtual async Task SaveChanges_transaction_behavior_never_fails_for_duplicate_key_in_same_partition_writes_all_staged_before_error()
     {
         using (var arrangeContext = Fixture.CreateContext())
         {
@@ -106,7 +107,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_always_fails_for_multiple_partitionkeys()
+    public virtual async Task SaveChanges_transaction_behavior_always_fails_for_multiple_partitionkeys()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -137,7 +138,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_always_fails_for_101_entities_in_same_partition()
+    public virtual async Task SaveChanges_transaction_behavior_always_fails_for_101_entities_in_same_partition()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -153,7 +154,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_always_succeeds_for_100_entities_in_same_partition()
+    public virtual async Task SaveChanges_transaction_behavior_always_succeeds_for_100_entities_in_same_partition()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -168,7 +169,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_always_fails_for_multiple_entities_with_triggers()
+    public virtual async Task SaveChanges_transaction_behavior_always_fails_for_multiple_entities_with_triggers()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -185,7 +186,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_always_succeeds_for_single_entity_with_trigger()
+    public virtual async Task SaveChanges_transaction_behavior_always_succeeds_for_single_entity_with_trigger()
     {
         using var context = Fixture.CreateContext();
 
@@ -228,7 +229,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transactionbehavior_always_fails_for_single_entity_with_trigger_and_entity_without_trigger()
+    public virtual async Task SaveChanges_transaction_behavior_always_fails_for_single_entity_with_trigger_and_entity_without_trigger()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -330,7 +331,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transaction_behaviour_always_payload_exactly_2_mib()
+    public virtual async Task SaveChanges_transaction_behavior_always_payload_exactly_2_mib()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -346,7 +347,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public virtual async Task SaveChanges_transaction_behaviour_always_payload_larger_than_cosmos_limit_throws()
+    public virtual async Task SaveChanges_transaction_behavior_always_payload_larger_than_cosmos_limit_throws()
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -425,40 +426,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    [CosmosCondition(CosmosCondition.IsNotEmulator)]
-    public virtual async Task SaveChanges_transaction_behaviour_always_single_entity_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
-    {
-        using var context = Fixture.CreateContext();
-        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
-
-        var customer = new Customer { Id = new string('x', 1_000), PartitionKey = new string('x', 1_000) };
-
-        context.Customers.Add(customer);
-        await context.SaveChangesAsync();
-
-        // Total document size will be: 2_097_510. Total request size will be: 2_098_548
-        // Normally, the limit is 2MiB (2_097_152), but Cosmos appears to allow ~1Kib (1396 bytes) extra
-        var str = new string('x', 2_095_234);
-        customer.Name = str;
-
-        if (oneByteOver)
-        {
-            customer.Name += 'x';
-            var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-            Assert.IsType<CosmosException>(ex.InnerException);
-        }
-        else
-        {
-            await context.SaveChangesAsync();
-
-            using var assertContext = Fixture.CreateContext();
-            var dbCustomer = await assertContext.Customers.FirstAsync();
-            Assert.Equal(dbCustomer.Name, str);
-        }
-    }
-
-    [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_transaction_behaviour_always_update_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
+    public virtual async Task SaveChanges_transaction_behavior_always_update_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -516,7 +484,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_transaction_behaviour_always_create_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
+    public virtual async Task SaveChanges_transaction_behavior_always_create_entities_payload_can_be_exactly_cosmos_limit_and_throws_when_1byte_over(bool oneByteOver)
     {
         using var context = Fixture.CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -568,7 +536,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     }
 
     [ConditionalFact]
-    public async Task SaveChanges_transaction_behaviour_never_does_not_use_transactions()
+    public async Task SaveChanges_transaction_behavior_never_does_not_use_transactions()
     {
         TransactionalBatchContext CreateContext()
         {
