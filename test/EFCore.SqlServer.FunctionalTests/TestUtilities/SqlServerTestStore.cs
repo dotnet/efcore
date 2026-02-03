@@ -160,9 +160,9 @@ public class SqlServerTestStore : RelationalTestStore
         return true;
     }
 
-    public override Task CleanAsync(DbContext context)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
     {
-        context.Database.EnsureClean();
+        context.Database.EnsureClean(createTables);
         return Task.CompletedTask;
     }
 

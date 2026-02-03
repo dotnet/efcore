@@ -62,4 +62,8 @@
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="BulkUpdates/Inheritance/" />
+  </ItemGroup>
+
 </Project>

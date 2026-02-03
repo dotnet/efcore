@@ -35,9 +35,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
 
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
-    private static readonly bool UseOldBehavior37252 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37252", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -423,9 +420,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 {
                     // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
                     // be referenced multiple times.
-                    var parameterName = UseOldBehavior37252
-                        ? _parameterNameGenerator.GenerateNext()
-                        : PrefixAndUniquifyParameterName("p");
+                    var parameterName = PrefixAndUniquifyParameterName("p");
                     _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
                     substitutions[i] = parameterName;
                 }
@@ -701,42 +696,22 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     /// </summary>
     protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        if (UseOldBehavior37252)
+        if (!_sqlParametersByOriginalName.TryGetValue(sqlParameterExpression.Name, out var sqlParameter))
         {
-            var parameterName = $"@{sqlParameterExpression.Name}";
+            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-            if (_sqlParameters.All(sp => sp.Name != parameterName))
-            {
-                Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
+            var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
 
-                _sqlParameters.Add(
-                    new SqlParameter(
-                        parameterName,
-                        ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                        .GenerateJToken(_parameterValues[sqlParameterExpression.Name])));
-            }
+            sqlParameter = new SqlParameter(
+                    parameterName,
+                    ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
+                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name]));
 
-            _sqlBuilder.Append(parameterName);
+            _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
+            _sqlParameters.Add(sqlParameter);
         }
-        else
-        {
-            if (!_sqlParametersByOriginalName.TryGetValue(sqlParameterExpression.Name, out var sqlParameter))
-            {
-                Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-                var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
-
-                sqlParameter = new SqlParameter(
-                        parameterName,
-                        ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                        .GenerateJToken(_parameterValues[sqlParameterExpression.Name]));
-
-                _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
-                _sqlParameters.Add(sqlParameter);
-            }
-
-            _sqlBuilder.Append(sqlParameter.Name);
-        }
+        _sqlBuilder.Append(sqlParameter.Name);
 
         return sqlParameterExpression;
     }

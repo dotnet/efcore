@@ -28,12 +28,16 @@ public sealed class ConditionalFactTestCase : XunitTestCase
         object[] constructorArguments,
         ExceptionAggregator aggregator,
         CancellationTokenSource cancellationTokenSource)
-        => await XunitTestCaseExtensions.TrySkipAsync(this, messageBus)
-            ? new RunSummary { Total = 1, Skipped = 1 }
-            : await base.RunAsync(
-                diagnosticMessageSink,
-                messageBus,
-                constructorArguments,
-                aggregator,
-                cancellationTokenSource);
+    {
+        if (await XunitTestCaseExtensions.TrySkipAsync(this, messageBus))
+        {
+            return new RunSummary { Total = 1, Skipped = 1 };
+        }
+
+        var messageBusInterceptor = new SkippableTestMessageBus(messageBus);
+        var result = await base.RunAsync(diagnosticMessageSink, messageBusInterceptor, constructorArguments, aggregator, cancellationTokenSource).ConfigureAwait(false);
+        result.Failed -= messageBusInterceptor.SkippedCount;
+        result.Skipped += messageBusInterceptor.SkippedCount;
+        return result;
+    }
 }

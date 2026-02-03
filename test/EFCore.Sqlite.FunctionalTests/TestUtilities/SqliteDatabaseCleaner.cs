@@ -33,7 +33,7 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
     protected override string BuildCustomEndingSql(DatabaseModel databaseModel)
         => "PRAGMA foreign_keys=ON;";
 
-    public override void Clean(DatabaseFacade facade)
+    public override void Clean(DatabaseFacade facade, bool createTables = true)
     {
         var connection = facade.GetDbConnection();
 
@@ -60,6 +60,6 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
             connection.Close();
         }
 
-        base.Clean(facade);
+        base.Clean(facade, createTables);
     }
 }

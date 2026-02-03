@@ -216,6 +216,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("IndexTableRequired");
 
         /// <summary>
+        ///     Collation name '{collation}' is invalid; collation names may only contain alphanumeric characters and underscores.
+        /// </summary>
+        public static string InvalidCollationName(object? collation)
+            => string.Format(
+                GetString("InvalidCollationName", nameof(collation)),
+                collation);
+
+        /// <summary>
         ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
         /// </summary>
         public static string InvalidColumnNameForFreeText

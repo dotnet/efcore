@@ -313,8 +313,8 @@ namespace System.Runtime.CompilerServices
         var name = Uniquifier.Uniquify(
             Path.GetFileNameWithoutExtension(syntaxTree.FilePath),
             generatedFileNames,
-            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath),
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath));
         return new ScaffoldedFile(name, _code.ToString());
     }
 
