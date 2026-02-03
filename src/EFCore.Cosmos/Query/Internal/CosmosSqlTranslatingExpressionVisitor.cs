@@ -816,7 +816,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
         return unaryExpression.NodeType switch
         {
             ExpressionType.Not
-                => sqlExpressionFactory.Not(sqlOperand!),
+                => operand is SqlConstantExpression { Value: false } ? sqlExpressionFactory.Constant(true) :  sqlExpressionFactory.Not(sqlOperand!),
 
             ExpressionType.Negate or ExpressionType.NegateChecked
                 => sqlExpressionFactory.Negate(sqlOperand!),
