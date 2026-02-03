@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class QueryAsserter(
     IQueryFixtureBase queryFixture,
     Func<Expression, Expression> rewriteExpectedQueryExpression,
-    Func<Expression, Expression> rewriteServerQueryExpression,
-    bool ignoreEntryCount = false)
+    Func<Expression, Expression> rewriteServerQueryExpression)
 {
     private static readonly MethodInfo _assertIncludeEntity =
         typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertIncludeEntity))!;
@@ -28,7 +27,6 @@ public class QueryAsserter(
     private readonly Func<Expression, Expression> _rewriteExpectedQueryExpression = rewriteExpectedQueryExpression;
     private readonly Func<Expression, Expression> _rewriteServerQueryExpression = rewriteServerQueryExpression;
 
-    private readonly bool _ignoreEntryCount = ignoreEntryCount;
     private const bool ProceduralQueryGeneration = false;
     private readonly List<string> _includePath = [];
     private readonly ISetSource _expectedData = queryFixture.GetExpectedData();
@@ -1850,14 +1848,6 @@ public class QueryAsserter(
             PropertyInfo propertyInfo => propertyInfo.GetValue(entity),
             _ => throw new InvalidOperationException(),
         };
-
-    private void AssertEntryCount(DbContext context, int entryCount)
-    {
-        if (!_ignoreEntryCount)
-        {
-            Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-        }
-    }
 
     private IQueryable<T> RewriteServerQuery<T>(IQueryable<T> query)
         => query.Provider.CreateQuery<T>(_rewriteServerQueryExpression(query.Expression));

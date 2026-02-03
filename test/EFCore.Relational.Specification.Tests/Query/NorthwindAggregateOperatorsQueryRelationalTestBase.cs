@@ -50,10 +50,4 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
         => Assert.Equal(
             "Nullable object must have a value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_subquery(async))).Message);
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture,
-            RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression);
 }
