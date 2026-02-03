@@ -1110,9 +1110,9 @@ ORDER BY [r].[Id]
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = from t1 in context.Tests.FromSqlInterpolated(
+            var query = from t1 in context.Tests.FromSql(
                             $"Select * from Tests Where Type = {Context19206.TestType19206.Unit}")
-                        from t2 in context.Tests.FromSqlInterpolated(
+                        from t2 in context.Tests.FromSql(
                             $"Select * from Tests Where Type = {Context19206.TestType19206.Integration}")
                         select new { t1, t2 };
 

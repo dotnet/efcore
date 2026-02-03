@@ -114,8 +114,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor
             ?? (StructuralTypeShaperExpression?)(rightReference?.Subquery)?.ShaperExpression;
         var shaper = leftShaper ?? rightShaper ?? throw new UnreachableException();
 
-        if (IsNullSqlConstantExpression(left)
-            || IsNullSqlConstantExpression(right))
+        if (left is SqlConstantExpression { Value: null }
+            || right is SqlConstantExpression { Value: null })
         {
             var nullComparedStructuralType = reference.StructuralType;
             if (nullComparedStructuralType is IEntityType entityType1 && entityType1.IsDocumentRoot())
@@ -363,7 +363,4 @@ public partial class CosmosSqlTranslatingExpressionVisitor
         var getter = property.GetGetter();
         return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
     }
-
-    private static bool IsNullSqlConstantExpression(Expression expression)
-        => expression is SqlConstantExpression { Value: null };
 }
