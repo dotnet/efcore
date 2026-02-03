@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Numerics;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -533,8 +532,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        // We're extracting a property from a materialized structural type.
-        // If DISTINCT was applied, this is incorrect because SQL DISTINCT operates on the full
+        // We can not apply distinct because SQL DISTINCT operates on the full
         // structural type, but the shaper extracts only a subset of that data.
         // Cosmos: Projecting out nested documents retrieves the entire document #34067
         if (select.UsesClientProjection)
