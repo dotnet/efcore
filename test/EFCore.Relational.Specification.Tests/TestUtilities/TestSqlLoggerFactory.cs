@@ -42,6 +42,24 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         Logger.TestOutputHelper?.WriteLine(Sql);
     }
 
+    public override void WriteTestOutput()
+    {
+        var failedSqlStatements = ((TestSqlLogger)Logger).FailedSqlStatements;
+        if (Logger.TestOutputHelper is ITestOutputHelper outputHelper && failedSqlStatements.Count > 0)
+        {
+            outputHelper.WriteLine("Failed SQL queries that resulted in database errors:");
+            outputHelper.WriteLine("");
+
+            foreach (var sql in failedSqlStatements)
+            {
+                outputHelper.WriteLine(sql);
+                outputHelper.WriteLine("");
+            }
+        }
+
+        base.WriteTestOutput();
+    }
+
     public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
     {
         var offset = forUpdate ? 1 : 0;
@@ -281,6 +299,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         public List<string> SqlStatements { get; } = [];
         public List<string> Parameters { get; } = [];
 
+        public List<string> FailedSqlStatements { get; } = [];
+
         private readonly StringBuilder _stringBuilder = new();
 
         protected override void UnsafeClear()
@@ -289,6 +309,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             SqlStatements.Clear();
             Parameters.Clear();
+            FailedSqlStatements.Clear();
         }
 
         protected override void UnsafeLog<TState>(
@@ -343,7 +364,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         parameters = _stringBuilder.ToString();
                     }
 
-                    SqlStatements.Add(parameters + commandText);
+                    var sqlStatement = parameters + commandText;
+                    SqlStatements.Add(sqlStatement);
+
+                    if (eventId.Id == RelationalEventId.CommandError.Id)
+                    {
+                        FailedSqlStatements.Add(sqlStatement);
+                    }
                 }
             }
             else

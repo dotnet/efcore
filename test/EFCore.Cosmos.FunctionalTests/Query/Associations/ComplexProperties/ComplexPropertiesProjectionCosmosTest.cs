@@ -280,6 +280,18 @@ FROM root c
 """);
     }
 
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
+
+        AssertSql(
+            """
+SELECT c["Id"], c
+FROM root c
+""");
+    }
+
     #endregion Multiple
 
     #region Subquery
@@ -341,7 +353,6 @@ ORDER BY c["Id"]
     }
 
     #endregion Value types
-
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

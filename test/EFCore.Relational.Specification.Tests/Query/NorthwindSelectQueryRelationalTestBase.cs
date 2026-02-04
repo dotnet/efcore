@@ -14,8 +14,4 @@ public abstract class NorthwindSelectQueryRelationalTestBase<TFixture>(TFixture 
     public override Task Reverse_without_explicit_ordering(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Reverse_without_explicit_ordering(async), RelationalStrings.MissingOrderingInSelectExpression);
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

@@ -105,6 +105,10 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
     public override Task Throws_for_single_property_nullable_bool_key_with_default_value_generation(bool async, bool? initialValue)
         => Task.CompletedTask;
 
+    // No owned types
+    public override Task Can_update_many_to_many_and_reference_with_composite_key(bool async)
+        => Task.CompletedTask;
+
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

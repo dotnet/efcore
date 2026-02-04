@@ -32,8 +32,4 @@ public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture>(TFixtu
             return base.VisitExtension(extensionExpression);
         }
     }
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

@@ -40,9 +40,6 @@ public class RelationalParameterProcessor : ExpressionVisitor
     private ParametersCacheDecorator _parametersDecorator;
     private ParameterNameGenerator _parameterNameGenerator;
 
-    private static readonly bool UseOldBehavior37189 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37189", out var enabled37189) && enabled37189;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -123,7 +120,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
             && (existingTypeMapping.Converter is null && typeMapping.Converter is null
                 || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)))
         {
-            return UseOldBehavior37189 ? parameter : existingParameter;
+            return existingParameter;
         }
 
         var uniquifiedName = UniquifyParameterName(parameter.Name);
