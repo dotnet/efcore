@@ -240,6 +240,46 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
             }
 
+            // We translate EF.Functions.JsonExists here and not in a method translator since we need to support JsonExists over
+            // complex and owned JSON properties, which requires special handling.
+            case nameof(RelationalDbFunctionsExtensions.JsonExists)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                    && @object is null
+                    && arguments is [_, var json, var path]:
+            {
+                if (Translate(path) is not SqlExpression translatedPath)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    // The JSON argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The JSON argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                return translatedJson is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Equal(
+                        _sqlExpressionFactory.Function(
+                            "JSON_PATH_EXISTS",
+                            [translatedJson, translatedPath],
+                            nullable: true,
+                            // Note that JSON_PATH_EXISTS() does propagate nullability; however, our query pipeline assumes that if
+                            // arguments propagate nullability, that's the *only* reason for the function to return null; this means that
+                            // if the arguments are non-nullable, the IS NOT NULL wrapping check can be optimized away.
+                            argumentsPropagateNullability: [false, false],
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1));
+            }
+
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
         }
