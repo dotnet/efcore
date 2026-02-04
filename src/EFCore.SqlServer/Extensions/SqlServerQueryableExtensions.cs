@@ -70,21 +70,3 @@ public static class SqlServerQueryableExtensions
         where TVector : unmanaged
         => throw new UnreachableException();
 }
-
-/// <summary>
-///     Represents the results from a call to
-///     <see cref="SqlServerQueryableExtensions.VectorSearch{T, TVector}(DbSet{T}, Expression{Func{T, TVector}}, TVector, string, int)" />.
-/// </summary>
-[Experimental(EFDiagnostics.SqlServerVectorSearch)]
-public readonly struct VectorSearchResult<T>(T value, double distance)
-{
-    /// <summary>
-    ///     The entity instance representing the row with a similar vector.
-    /// </summary>
-    public T Value { get; } = value;
-
-    /// <summary>
-    ///    The distance between the query vector and the similar vector.
-    /// </summary>
-    public double Distance { get; } = distance;
-}

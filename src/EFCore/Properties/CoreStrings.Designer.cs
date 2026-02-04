@@ -1491,7 +1491,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName);
 
         /// <summary>
-        ///     '{function}' can only be used with Entity Framework Core.
+        ///     '{function}' can only be used with Entity Framework Core queries.
         /// </summary>
         public static string FunctionOnNonEfLinqProvider(object? function)
             => string.Format(
