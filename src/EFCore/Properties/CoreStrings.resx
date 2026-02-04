@@ -678,6 +678,9 @@
   <data name="FunctionOnClient" xml:space="preserve">
     <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. This usually happens when the arguments to the method cannot be translated to server. Rewrite the query to avoid client evaluation of arguments so that method can be translated to server.</value>
   </data>
+  <data name="FunctionOnNonEfLinqProvider" xml:space="preserve">
+    <value>'{function}' can only be used with Entity Framework Core queries.</value>
+  </data>
   <data name="GraphDoesNotContainVertex" xml:space="preserve">
     <value>The provided edge cannot be added because the graph does not contain the vertex '{vertex}'.</value>
   </data>

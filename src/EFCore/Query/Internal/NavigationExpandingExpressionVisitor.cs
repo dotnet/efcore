@@ -830,7 +830,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 return ConvertToEnumerable(method, visitedArguments);
             }
 
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+            return ProcessUnknownMethod(methodCallExpression);
         }
 
         // Remove MaterializeCollectionNavigationExpression when applying ToList/ToArray
