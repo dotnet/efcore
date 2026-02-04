@@ -18,9 +18,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
     [ConditionalFact]
     public async Task Triggers_are_executed_on_SaveChanges()
     {
-        var contextFactory = await InitializeAsync<TriggersContext>(
-            shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+        var contextFactory = await InitializeAsync<TriggersContext>(shouldLogCategory: _ => true);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -91,7 +89,7 @@ function preInsertTrigger() {
     var context = getContext();
     var request = context.getRequest();
     var doc = request.getBody();
-    
+
     // Log the trigger execution using the same partition key as the document being created
     var logEntry = {
         id: 'log_' + Math.random().toString().replace('.', ''),
@@ -102,7 +100,7 @@ function preInsertTrigger() {
         ExecutedAt: new Date().toISOString(),
         PartitionKey: doc.PartitionKey // Use the same partition key as the document
     };
-    
+
     // Create a separate document to track trigger execution
     var collection = context.getCollection();
     var accepted = collection.createDocument(collection.getSelfLink(), logEntry);
@@ -128,7 +126,7 @@ function preInsertTrigger() {
             Body = @"
 function postDeleteTrigger() {
     var context = getContext();
-    
+
     // For delete operations, we can't access the deleted document
     // So we'll just create a log entry with a timestamp-based ID
     var logEntry = {
@@ -140,7 +138,7 @@ function postDeleteTrigger() {
         ExecutedAt: new Date().toISOString(),
         PartitionKey: 'Products' // Use the same partition key as Product documents
     };
-    
+
     // Create a separate document to track trigger execution
     var collection = context.getCollection();
     var accepted = collection.createDocument(collection.getSelfLink(), logEntry);
@@ -168,7 +166,7 @@ function updateTrigger() {
     var context = getContext();
     var request = context.getRequest();
     var doc = request.getBody();
-    
+
     // Log the trigger execution using the same partition key as the document being updated
     var logEntry = {
         id: 'log_' + Math.random().toString().replace('.', ''),
@@ -179,7 +177,7 @@ function updateTrigger() {
         ExecutedAt: new Date().toISOString(),
         PartitionKey: doc.PartitionKey // Use the same partition key as the document
     };
-    
+
     // Create a separate document to track trigger execution
     var collection = context.getCollection();
     var accepted = collection.createDocument(collection.getSelfLink(), logEntry);

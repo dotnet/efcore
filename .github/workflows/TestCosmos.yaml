@@ -1,6 +1,11 @@
 name: Test Cosmos
 
 on:
+  push:
+    branches:
+      - main
+      - feature/*
+      - release/*
   pull_request:
     branches:
       - main
@@ -20,7 +25,7 @@ jobs:
           Start-CosmosDbEmulator -Timeout 540 -NoUI -NoTelemetry -NoFirewall -EnablePreview
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Restore
         run: restore.cmd
@@ -35,7 +40,7 @@ jobs:
         shell: cmd
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: test-results

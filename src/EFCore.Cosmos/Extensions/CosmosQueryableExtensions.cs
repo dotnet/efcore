@@ -18,21 +18,6 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosQueryableExtensions
 {
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo1
-        = typeof(CosmosQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(WithPartitionKey))
-            .Single(mi => mi.GetParameters().Length == 2);
-
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo2
-        = typeof(CosmosQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(WithPartitionKey))
-            .Single(mi => mi.GetParameters().Length == 3);
-
-    internal static readonly MethodInfo WithPartitionKeyMethodInfo3
-        = typeof(CosmosQueryableExtensions).GetTypeInfo()
-            .GetDeclaredMethods(nameof(WithPartitionKey))
-            .Single(mi => mi.GetParameters().Length == 4);
-
     /// <summary>
     ///     Specify the partition key for partition used for the query.
     ///     Required when using a resource token that provides permission based on a partition key for authentication,
@@ -55,7 +40,7 @@ public static class CosmosQueryableExtensions
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo1.MakeGenericMethod(typeof(TEntity)),
+                        method: new Func<IQueryable<TEntity>, object, IQueryable<TEntity>>(WithPartitionKey).Method,
                         source.Expression,
                         Expression.Constant(partitionKeyValue, typeof(object))))
                 : source;
@@ -88,7 +73,7 @@ public static class CosmosQueryableExtensions
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo2.MakeGenericMethod(typeof(TEntity)),
+                        method: new Func<IQueryable<TEntity>, object, object, IQueryable<TEntity>>(WithPartitionKey).Method,
                         source.Expression,
                         Expression.Constant(partitionKeyValue1, typeof(object)),
                         Expression.Constant(partitionKeyValue2, typeof(object))))
@@ -125,7 +110,7 @@ public static class CosmosQueryableExtensions
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: WithPartitionKeyMethodInfo3.MakeGenericMethod(typeof(TEntity)),
+                        method: new Func<IQueryable<TEntity>, object, object, object, IQueryable<TEntity>>(WithPartitionKey).Method,
                         source.Expression,
                         Expression.Constant(partitionKeyValue1, typeof(object)),
                         Expression.Constant(partitionKeyValue2, typeof(object)),
@@ -237,9 +222,6 @@ public static class CosmosQueryableExtensions
             Expression.Constant(arguments));
     }
 
-    internal static readonly MethodInfo ToPageAsyncMethodInfo
-        = typeof(CosmosQueryableExtensions).GetMethod(nameof(ToPageAsync))!;
-
     /// <summary>
     ///     Allows paginating through query results by repeatedly executing the same query, passing continuation tokens to retrieve
     ///     successive pages of the result set, and specifying the maximum number of results per page.
@@ -272,7 +254,7 @@ public static class CosmosQueryableExtensions
         return provider.ExecuteAsync<Task<CosmosPage<TSource>>>(
             Expression.Call(
                 instance: null,
-                method: ToPageAsyncMethodInfo.MakeGenericMethod(typeof(TSource)),
+                method: new Func<IQueryable<TSource>, int, string?, int?, CancellationToken, Task<CosmosPage<TSource>>>(ToPageAsync).Method,
                 arguments:
                 [
                     source.Expression,

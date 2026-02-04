@@ -1075,10 +1075,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
             return false;
         }
 
-        if (IsNullSqlConstantExpression(left)
-            || IsNullSqlConstantExpression(right))
+        if (left is SqlConstantExpression { Value: null }
+            || right is SqlConstantExpression { Value: null })
         {
-            var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
+            var nonNullEntityReference = (left is SqlConstantExpression { Value: null } ? rightEntityReference : leftEntityReference)!;
             var entityType1 = nonNullEntityReference.EntityType;
             var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties1 == null)
@@ -1193,9 +1193,6 @@ public class CosmosSqlTranslatingExpressionVisitor(
         var getter = property.GetGetter();
         return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
     }
-
-    private static bool IsNullSqlConstantExpression(Expression expression)
-        => expression is SqlConstantExpression { Value: null };
 
     private static bool TryEvaluateToConstant(Expression expression, [NotNullWhen(true)] out SqlConstantExpression? sqlConstantExpression)
     {

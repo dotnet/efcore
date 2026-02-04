@@ -1110,9 +1110,9 @@ ORDER BY [r].[Id]
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = from t1 in context.Tests.FromSqlInterpolated(
+            var query = from t1 in context.Tests.FromSql(
                             $"Select * from Tests Where Type = {Context19206.TestType19206.Unit}")
-                        from t2 in context.Tests.FromSqlInterpolated(
+                        from t2 in context.Tests.FromSql(
                             $"Select * from Tests Where Type = {Context19206.TestType19206.Integration}")
                         select new { t1, t2 };
 
@@ -1533,6 +1533,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
     {
         public DbSet<Entity30478> Entities { get; set; }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Entity30478>().Property(x => x.Id).ValueGeneratedNever();
@@ -1551,6 +1552,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     nb.OwnsOne(x => x.Nested);
                 });
         }
+#pragma warning restore EF8001
 
         public async Task SeedAsync()
         {
@@ -2620,4 +2622,37 @@ WHERE 1 = [t].[Id]
 """);
         }
     }
+
+    #region 37327
+
+    [ConditionalFact]
+    public virtual async Task SqlFragment_within_GroupBy_subquery_pushdown()
+    {
+        var contextFactory = await InitializeAsync<Context37327>();
+
+        using var context = contextFactory.CreateContext();
+
+        _ = await context.WorkUnits
+            .GroupBy(w => 1)
+            .Select(g => g
+                .Where(wCurrent =>
+                    EF.Functions.DateDiffSecond(wCurrent.StartedAt, wCurrent.CompletedAt) >
+                    EF.Functions.StandardDeviationSample(g.Select(w => EF.Functions.DateDiffSecond(w.StartedAt, w.CompletedAt))))
+                .ToList())
+            .ToListAsync();
+    }
+
+    protected class Context37327(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<WorkUnit> WorkUnits { get; set; }
+
+        public class WorkUnit
+        {
+            public int Id { get; set; }
+            public DateTime StartedAt { get; set; }
+            public DateTime CompletedAt { get; set; }
+        }
+    }
+
+    #endregion
 }

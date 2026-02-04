@@ -349,6 +349,22 @@ ORDER BY [r].[Id], [a].[Id], [n].[Id], [n0].[Id], [a0].[Id], [n1].[Id], [n2].[Id
 """);
     }
 
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [a].[Id], [a].[CollectionRootId], [a].[Int], [a].[Ints], [a].[Name], [a].[OptionalNestedAssociateId], [a].[RequiredNestedAssociateId], [a].[String], [n].[Id], [n0].[Id], [n1].[Id], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n].[CollectionAssociateId], [n].[Int], [n].[Ints], [n].[Name], [n].[String], [n0].[CollectionAssociateId], [n0].[Int], [n0].[Ints], [n0].[Name], [n0].[String]
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+LEFT JOIN [NestedAssociateType] AS [n] ON [a].[OptionalNestedAssociateId] = [n].[Id]
+INNER JOIN [NestedAssociateType] AS [n0] ON [a].[RequiredNestedAssociateId] = [n0].[Id]
+LEFT JOIN [NestedAssociateType] AS [n1] ON [a].[Id] = [n1].[CollectionAssociateId]
+ORDER BY [r].[Id], [a].[Id], [n].[Id], [n0].[Id]
+""");
+    }
+
     #endregion Multiple
 
     #region Subquery
