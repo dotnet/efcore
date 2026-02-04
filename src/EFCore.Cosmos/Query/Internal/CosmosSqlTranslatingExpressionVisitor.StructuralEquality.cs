@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -117,17 +116,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor
         if (left is SqlConstantExpression { Value: null }
             || right is SqlConstantExpression { Value: null })
         {
-            var nullComparedStructuralType = reference.StructuralType;
-            if (nullComparedStructuralType is IEntityType entityType1 && entityType1.IsDocumentRoot())
-            {
-                // Document root can never be be null
-                result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal);
-                return true;
-            }
-
             if (!shaper.IsNullable)
             {
-                result = (SqlExpression)Visit(Expression.Constant(nodeType != ExpressionType.Equal));
+                result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal);
                 return true;
             }
 
@@ -181,20 +172,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                         structuralType.DisplayName()));
             }
 
-            if (primaryKeyProperties.Count > 1
-                && (leftReference?.Subquery != null
-                    || rightReference?.Subquery != null))
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
-                        nodeType == ExpressionType.Equal
-                            ? equalsMethod ? nameof(object.Equals) : "=="
-                            : equalsMethod
-                                ? "!" + nameof(object.Equals)
-                                : "!=",
-                        structuralType.DisplayName()));
-            }
-
             result = Visit(
                 primaryKeyProperties.Select(p => Expression.MakeBinary(nodeType,
                         CreatePropertyAccessExpression(left, p),
@@ -218,6 +195,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 return false;
             }
 
+            // @TODO: Alternative would be a bitwise comparison... But structure and order of properties would matter then.
+
             // Generate an expression that compares each property on the left to the same property on the right; this needs to recursively
             // include all properties in nested complex types.
             var boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
@@ -238,7 +217,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 // x.Collection == x.Collection (should return null, as we need All support)
                 // x.Collection[1] == x.Collection[1] (should run below)
                 // @TODO: Is there a better way to do this? It feels like this might not be the right place.
-                // In relational, this wouldn't have come from a StructuralTypeReferenceExpression, but a CollectionResultExpression
+                // In relational, this wouldn't have come from a StructuralTypeReferenceExpression, but a CollectionResultExpression? At-least if it's json..
+                // See BindMember on StructuralTypeProjectionExpression
                 if ((leftReference?.Parameter ?? leftReference?.Subquery?.ShaperExpression as StructuralTypeShaperExpression)
                     ?.ValueBufferExpression is ObjectArrayAccessExpression
                     ||
@@ -276,8 +256,14 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 if (comparisons != null && (leftShaper?.IsNullable == true || rightShaper?.IsNullable == true))
                 {
                     var nullCompare = compare;
+
                     if (nullCompare is SqlParameterExpression sqlParameterExpression)
                     {
+                        // @TODO: Can we optimize this instead in CosmosQuerySqlGenerator?
+                        // My idea would be to create a SqlParameterComparisonExpression that will hold the comparisons below
+                        // But also hold a sql == null or != null expression
+                        // The CosmosQuerySqlGenerator will check the value of the parameter and chooses which tree to visit at sql generation time
+                        // (or just call a method on SqlParameterComparisonExpression to get which tree to visit, so logic can live there...)
                         var lambda = Expression.Lambda(
                             Expression.Condition(
                                 Expression.Equal(
