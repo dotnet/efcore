@@ -31,7 +31,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
 
         PropertyBase = navigation;
-        TypeBase = navigation.TargetEntityType;
+        StructuralType = navigation.TargetEntityType;
         Object = @object;
     }
 
@@ -46,7 +46,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
         PropertyBase = complexProperty;
         PropertyName = complexProperty.Name;
         Object = @object;
-        TypeBase = complexProperty.ComplexType;
+        StructuralType = complexProperty.ComplexType;
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ITypeBase TypeBase { get; }
+    public virtual ITypeBase StructuralType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
