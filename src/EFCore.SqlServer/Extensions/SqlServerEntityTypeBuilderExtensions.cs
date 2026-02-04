@@ -307,43 +307,24 @@ public static class SqlServerEntityTypeBuilderExtensions
     ///     A lambda expression representing the property to create the vector index on
     ///     (<c>blog => blog.Vector</c>).
     /// </param>
-    /// <param name="metric">
-    ///     <para>
-    ///         A string with the name of the distance metric to use to calculate the distance between the two given vectors.
-    ///         The following distance metrics are supported:
-    ///     </para>
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <term>cosine</term>
-    ///             <description>Cosine distance</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>euclidean</term>
-    ///             <description>Euclidean distance</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>dot</term>
-    ///             <description>(Negative) Dot product</description>
-    ///         </item>
-    ///     </list>
-    /// </param>
     /// <param name="name">The name to assign to the index.</param>
     /// <returns>A builder to further configure the vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static SqlServerVectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         Expression<Func<TEntity, object?>> indexExpression,
-        string metric,
         string? name = null)
         where TEntity : class
     {
         Check.NotNull(indexExpression);
-        Check.NotEmpty(metric);
 
         var indexBuilder = name is null
             ? entityTypeBuilder.HasIndex(indexExpression)
             : entityTypeBuilder.HasIndex(indexExpression, name);
-        indexBuilder.Metadata.SetVectorMetric(metric);
+
+        // Having a vector metric annotation is what marks an index as a vector index.
+        // The metric itself must be set later by the user via the builder API.
+        indexBuilder.Metadata.SetVectorMetric(null);
 
         return new SqlServerVectorIndexBuilder<TEntity>(indexBuilder);
     }
@@ -358,42 +339,23 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="propertyName">The name of the property to create the vector index on.</param>
-    /// <param name="metric">
-    ///     <para>
-    ///         A string with the name of the distance metric to use to calculate the distance between the two given vectors.
-    ///         The following distance metrics are supported:
-    ///     </para>
-    ///     <list type="bullet">
-    ///         <item>
-    ///             <term>cosine</term>
-    ///             <description>Cosine distance</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>euclidean</term>
-    ///             <description>Euclidean distance</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>dot</term>
-    ///             <description>(Negative) Dot product</description>
-    ///         </item>
-    ///     </list>
-    /// </param>
     /// <param name="name">The name to assign to the index.</param>
     /// <returns>A builder to further configure the vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static SqlServerVectorIndexBuilder HasVectorIndex(
         this EntityTypeBuilder entityTypeBuilder,
         string propertyName,
-        string metric,
         string? name = null)
     {
         Check.NotEmpty(propertyName);
-        Check.NotEmpty(metric);
 
         var indexBuilder = name is null
             ? entityTypeBuilder.HasIndex(propertyName)
             : entityTypeBuilder.HasIndex(propertyName, name);
-        indexBuilder.Metadata.SetVectorMetric(metric);
+
+        // Having a vector metric annotation is what marks an index as a vector index.
+        // The metric itself must be set later by the user via the builder API.
+        indexBuilder.Metadata.SetVectorMetric(null);
 
         return new SqlServerVectorIndexBuilder(indexBuilder);
     }

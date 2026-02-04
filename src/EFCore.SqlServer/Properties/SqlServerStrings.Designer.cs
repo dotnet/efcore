@@ -454,11 +454,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, property);
 
         /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.
+        /// </summary>
+        public static string VectorIndexRequiresMetric(object? index, object? entityType)
+            => string.Format(
+                GetString("VectorIndexRequiresMetric", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
         ///     Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.
         /// </summary>
         public static string VectorIndexRequiresSingleProperty(object? index, object? entityType)
             => string.Format(
                 GetString("VectorIndexRequiresSingleProperty", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.
+        /// </summary>
+        public static string VectorIndexRequiresType(object? index, object? entityType)
+            => string.Format(
+                GetString("VectorIndexRequiresType", nameof(index), nameof(entityType)),
                 index, entityType);
 
         /// <summary>

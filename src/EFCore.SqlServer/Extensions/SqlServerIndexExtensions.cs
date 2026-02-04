@@ -442,7 +442,7 @@ public static class SqlServerIndexExtensions
     public static bool IsVectorIndex(this IReadOnlyIndex index)
         => index is RuntimeIndex
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : index[SqlServerAnnotationNames.VectorIndexMetric] is not null;
+            : index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric) is not null;
 
     /// <summary>
     ///     Returns the similarity metric for the vector index.

@@ -2747,7 +2747,7 @@ EXEC sp_rename N'[People].[Foo]', N'foo', 'INDEX';
                     e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
                 }),
             builder => { },
-            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector", "cosine"),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("cosine"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2777,7 +2777,7 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
                     e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
                 }),
             builder => { },
-            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector", "euclidean").UseType("DiskANN"),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("euclidean").UseType("DiskANN"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2806,7 +2806,7 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
                     e.Property<int>("Id");
                     e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
                 }),
-            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector", "cosine"),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("cosine"),
             builder => { },
             model =>
             {
