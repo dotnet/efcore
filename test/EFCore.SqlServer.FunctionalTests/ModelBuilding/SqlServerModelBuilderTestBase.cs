@@ -3,6 +3,9 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.SqlTypes;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -254,6 +257,45 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("Latin1_General_CI_AI", entityType.FindProperty("Charm")!.GetCollation());
         }
 
+        [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+        [Experimental("EF9105")]
+        public virtual void Can_configure_vector_index_with_fluent_api()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<VectorIndexEntity>(b =>
+            {
+                b.Property(e => e.Vector).HasColumnType("vector(3)");
+
+                if (b is IInfrastructure<EntityTypeBuilder<VectorIndexEntity>> genericBuilder)
+                {
+                    genericBuilder.Instance
+                        .HasVectorIndex(e => e.Vector)
+                        .HasDatabaseName("IX_VectorIndexEntity_Vector")
+                        .UseMetric("cosine")
+                        .UseType("DiskANN");
+                }
+                else
+                {
+                    ((IInfrastructure<EntityTypeBuilder>)b).Instance
+                        .HasVectorIndex(nameof(VectorIndexEntity.Vector))
+                        .HasDatabaseName("IX_VectorIndexEntity_Vector")
+                        .UseMetric("cosine")
+                        .UseType("DiskANN");
+                }
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(VectorIndexEntity))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsVectorIndex());
+            Assert.Equal("IX_VectorIndexEntity_Vector", index.GetDatabaseName());
+            Assert.Equal("cosine", index.GetVectorMetric());
+            Assert.Equal("DiskANN", index.GetVectorIndexType());
+            Assert.Equal(nameof(VectorIndexEntity.Vector), index.Properties.Single().Name);
+        }
+
         [ConditionalTheory, InlineData(true), InlineData(false)]
         public virtual void Can_avoid_attributes_when_discovering_properties(bool useAttributes)
         {
@@ -284,6 +326,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             [Column(TypeName = "sql_variant")]
             public object? Value { get; set; }
+        }
+
+        protected class VectorIndexEntity
+        {
+            public int Id { get; set; }
+            public SqlVector<float>? Vector { get; set; }
         }
     }
 
