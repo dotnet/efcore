@@ -31,27 +31,11 @@ public class SqlServerSqlNullabilityProcessor(
     [EntityFrameworkInternal]
     public const string OpenJsonParameterTableName = "__openjson";
 
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
     private int _openJsonAliasCounter;
     private int _totalParameterCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerSqlNullabilityProcessor(
-    RelationalParameterBasedSqlProcessorDependencies dependencies,
-    RelationalParameterBasedSqlProcessorParameters parameters,
-    ISqlServerSingletonOptions sqlServerSingletonOptions)
-    : base(dependencies, parameters)
-    {
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
-        _sqlExpressionFactory = dependencies.SqlExpressionFactory;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
