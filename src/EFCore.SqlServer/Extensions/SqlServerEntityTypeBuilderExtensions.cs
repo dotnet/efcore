@@ -330,7 +330,7 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// <param name="name">The name to assign to the index.</param>
     /// <returns>A builder to further configure the vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
-    public static VectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(
+    public static SqlServerVectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         Expression<Func<TEntity, object?>> indexExpression,
         string metric,
@@ -345,7 +345,7 @@ public static class SqlServerEntityTypeBuilderExtensions
             : entityTypeBuilder.HasIndex(indexExpression, name);
         indexBuilder.Metadata.SetVectorMetric(metric);
 
-        return new VectorIndexBuilder<TEntity>(indexBuilder);
+        return new SqlServerVectorIndexBuilder<TEntity>(indexBuilder);
     }
 
     /// <summary>
@@ -381,7 +381,7 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// <param name="name">The name to assign to the index.</param>
     /// <returns>A builder to further configure the vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
-    public static VectorIndexBuilder HasVectorIndex(
+    public static SqlServerVectorIndexBuilder HasVectorIndex(
         this EntityTypeBuilder entityTypeBuilder,
         string propertyName,
         string metric,
@@ -395,7 +395,7 @@ public static class SqlServerEntityTypeBuilderExtensions
             : entityTypeBuilder.HasIndex(propertyName, name);
         indexBuilder.Metadata.SetVectorMetric(metric);
 
-        return new VectorIndexBuilder(indexBuilder);
+        return new SqlServerVectorIndexBuilder(indexBuilder);
     }
 
     /// <summary>

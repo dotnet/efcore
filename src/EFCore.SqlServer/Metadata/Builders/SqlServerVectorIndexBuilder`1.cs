@@ -13,9 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
+/// <typeparam name="TEntity">The entity type being configured.</typeparam>
 /// <param name="indexBuilder">The index builder.</param>
+/// <seealso href="https://learn.microsoft.com/sql/t-sql/statements/create-vector-index-transact-sql">
+///     SQL Server documentation for <c>CREATE VECTOR INDEX</c>.
+/// </seealso>
+/// <seealso href="https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server">Vectors in the SQL Database Engine.</seealso>
 [Experimental(EFDiagnostics.SqlServerVectorSearch)]
-public class VectorIndexBuilder(IndexBuilder indexBuilder)
+public class SqlServerVectorIndexBuilder<TEntity>(IndexBuilder<TEntity> indexBuilder)
 {
     /// <summary>
     ///     The index being configured.
@@ -31,7 +36,7 @@ public class VectorIndexBuilder(IndexBuilder indexBuilder)
     /// </remarks>
     /// <param name="name">The name of the index.</param>
     /// <returns>A builder to further configure the index.</returns>
-    public virtual VectorIndexBuilder HasDatabaseName(string? name)
+    public virtual SqlServerVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
     {
         Metadata.SetDatabaseName(name);
 
@@ -48,7 +53,7 @@ public class VectorIndexBuilder(IndexBuilder indexBuilder)
     /// </remarks>
     /// <param name="metric">The similarity metric for the vector index (e.g. "cosine", "euclidean", "dot").</param>
     /// <returns>A builder to further configure the vector index.</returns>
-    public virtual VectorIndexBuilder UseMetric(string metric)
+    public virtual SqlServerVectorIndexBuilder<TEntity> UseMetric(string metric)
     {
         Check.NotEmpty(metric);
 
@@ -67,7 +72,7 @@ public class VectorIndexBuilder(IndexBuilder indexBuilder)
     /// </remarks>
     /// <param name="type">The type of the vector index (e.g. "DiskANN").</param>
     /// <returns>A builder to further configure the vector index.</returns>
-    public virtual VectorIndexBuilder UseType(string? type)
+    public virtual SqlServerVectorIndexBuilder<TEntity> UseType(string? type)
     {
         Metadata.SetVectorIndexType(type);
 
