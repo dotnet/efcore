@@ -139,8 +139,6 @@ namespace TestNamespace
 
             var index = runtimeEntityType.AddIndex(
                 new[] { vector });
-            index.AddAnnotation("SqlServer:VectorIndexMetric", "cosine");
-            index.AddAnnotation("SqlServer:VectorIndexType", "DiskANN");
 
             return runtimeEntityType;
         }

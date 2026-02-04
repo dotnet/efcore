@@ -84,8 +84,6 @@ namespace TestNamespace
             var iX_VectorIndexEntity_Vector = new TableIndex(
             "IX_VectorIndexEntity_Vector", vectorIndexEntityTable, new[] { vectorColumn }, false);
             iX_VectorIndexEntity_Vector.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<SqlVector<float>>(iX_VectorIndexEntity_Vector));
-            iX_VectorIndexEntity_Vector.AddAnnotation("SqlServer:VectorIndexMetric", "cosine");
-            iX_VectorIndexEntity_Vector.AddAnnotation("SqlServer:VectorIndexType", "DiskANN");
             var iX_VectorIndexEntity_VectorIx = RelationalModel.GetIndex(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelSqlServerTest+VectorIndexEntity",
                 new[] { "Vector" });

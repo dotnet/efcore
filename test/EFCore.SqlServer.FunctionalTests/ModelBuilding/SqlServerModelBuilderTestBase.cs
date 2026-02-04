@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -267,22 +268,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             {
                 b.Property(e => e.Vector).HasColumnType("vector(3)");
 
-                if (b is IInfrastructure<EntityTypeBuilder<VectorIndexEntity>> genericBuilder)
-                {
-                    genericBuilder.Instance
-                        .HasVectorIndex(e => e.Vector)
-                        .HasDatabaseName("IX_VectorIndexEntity_Vector")
-                        .UseMetric("cosine")
-                        .UseType("DiskANN");
-                }
-                else
-                {
-                    ((IInfrastructure<EntityTypeBuilder>)b).Instance
-                        .HasVectorIndex(nameof(VectorIndexEntity.Vector))
-                        .HasDatabaseName("IX_VectorIndexEntity_Vector")
-                        .UseMetric("cosine")
-                        .UseType("DiskANN");
-                }
+                b.HasVectorIndex(e => e.Vector)
+                    .HasDatabaseName("IX_VectorIndexEntity_Vector")
+                    .UseMetric("cosine")
+                    .UseType("DiskANN");
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -2247,4 +2236,67 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public TestOwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
     }
+
+#pragma warning disable EF9105 // Vector indexes are experimental
+    public abstract class TestVectorIndexBuilder<TEntity>
+        where TEntity : class
+    {
+        public abstract IMutableIndex Metadata { get; }
+        public abstract TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name);
+        public abstract TestVectorIndexBuilder<TEntity> UseMetric(string metric);
+        public abstract TestVectorIndexBuilder<TEntity> UseType(string? type);
+    }
+
+    public class GenericTestVectorIndexBuilder<TEntity>(SqlServerVectorIndexBuilder<TEntity> vectorIndexBuilder)
+        : TestVectorIndexBuilder<TEntity>,
+            IInfrastructure<SqlServerVectorIndexBuilder<TEntity>>
+        where TEntity : class
+    {
+        private SqlServerVectorIndexBuilder<TEntity> VectorIndexBuilder { get; } = vectorIndexBuilder;
+
+        SqlServerVectorIndexBuilder<TEntity> IInfrastructure<SqlServerVectorIndexBuilder<TEntity>>.Instance
+            => VectorIndexBuilder;
+
+        public override IMutableIndex Metadata
+            => VectorIndexBuilder.Metadata;
+
+        protected virtual TestVectorIndexBuilder<TEntity> Wrap(SqlServerVectorIndexBuilder<TEntity> vectorIndexBuilder)
+            => new GenericTestVectorIndexBuilder<TEntity>(vectorIndexBuilder);
+
+        public override TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
+            => Wrap(VectorIndexBuilder.HasDatabaseName(name));
+
+        public override TestVectorIndexBuilder<TEntity> UseMetric(string metric)
+            => Wrap(VectorIndexBuilder.UseMetric(metric));
+
+        public override TestVectorIndexBuilder<TEntity> UseType(string? type)
+            => Wrap(VectorIndexBuilder.UseType(type));
+    }
+
+    public class NonGenericTestVectorIndexBuilder<TEntity>(SqlServerVectorIndexBuilder vectorIndexBuilder)
+        : TestVectorIndexBuilder<TEntity>,
+            IInfrastructure<SqlServerVectorIndexBuilder>
+        where TEntity : class
+    {
+        private SqlServerVectorIndexBuilder VectorIndexBuilder { get; } = vectorIndexBuilder;
+
+        SqlServerVectorIndexBuilder IInfrastructure<SqlServerVectorIndexBuilder>.Instance
+            => VectorIndexBuilder;
+
+        public override IMutableIndex Metadata
+            => VectorIndexBuilder.Metadata;
+
+        protected virtual TestVectorIndexBuilder<TEntity> Wrap(SqlServerVectorIndexBuilder vectorIndexBuilder)
+            => new NonGenericTestVectorIndexBuilder<TEntity>(vectorIndexBuilder);
+
+        public override TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
+            => Wrap(VectorIndexBuilder.HasDatabaseName(name));
+
+        public override TestVectorIndexBuilder<TEntity> UseMetric(string metric)
+            => Wrap(VectorIndexBuilder.UseMetric(metric));
+
+        public override TestVectorIndexBuilder<TEntity> UseType(string? type)
+            => Wrap(VectorIndexBuilder.UseType(type));
+    }
+#pragma warning restore EF9105
 }
