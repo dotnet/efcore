@@ -125,15 +125,15 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         {
                             StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
                            SqlExpression mappedSqlExpression => AddClientProjection(
-                                mappedSqlExpression,
-                                (mappedSqlExpression switch
-                                {
-                                    ColumnExpression c => c.IsNullable,
-                                    SqlFunctionExpression f => f.IsNullable,
-                                    _ => mappedSqlExpression.Type.IsNullableType()
-                                })
-                                    ? expression.Type.MakeNullable()
-                                    : expression.Type),
+                            mappedSqlExpression,
+                            (mappedSqlExpression switch
+                            {
+                                ColumnExpression c => c.IsNullable,
+                                SqlFunctionExpression f => f.IsNullable,
+                                _ => true 
+                            })
+                                ? expression.Type.MakeNullable()
+                                : expression.Type),
                             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
                         };
 
@@ -242,20 +242,19 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
-                        _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
-                        
-                        // فحص ذكي للـ Nullability يغطي العمود والدالة وأي تعبير آخر
-                        var isNullable = sqlExpression switch
-                        {
-                            ColumnExpression c => c.IsNullable,
-                            SqlFunctionExpression f => f.IsNullable,
-                            _ => sqlExpression.Type.IsNullableType()
-                        };
+                    _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
 
-                        return new ProjectionBindingExpression(
-                            _selectExpression,
-                            _projectionMembers.Peek(),
-                            isNullable ? expression.Type.MakeNullable() : expression.Type);
+                    var isNullable = sqlExpression switch
+                    {
+                        ColumnExpression c => c.IsNullable,
+                        SqlFunctionExpression f => f.IsNullable,
+                        _ => true
+                    };
+
+                    return new ProjectionBindingExpression(
+                        _selectExpression,
+                        _projectionMembers.Peek(),
+                        isNullable ? expression.Type.MakeNullable() : expression.Type);
 
                     // This handles the case of a complex type being projected out of a Select.
                     // Note that an entity type being projected is (currently) handled differently
