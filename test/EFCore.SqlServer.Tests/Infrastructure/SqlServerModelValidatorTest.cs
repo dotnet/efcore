@@ -1159,7 +1159,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             {
                 b.Property(e => e.Vector1).HasMaxLength(3);
                 b.Property(e => e.Vector2).HasMaxLength(3);
-                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }, "cosine");
+                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).UseMetric("cosine");
             });
 
         VerifyError(
@@ -1175,7 +1175,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty, "cosine"));
+        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty).UseMetric("cosine"));
 
         VerifyError(
             SqlServerStrings.VectorIndexOnNonVectorProperty(
