@@ -120,22 +120,19 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     case ParameterExpression parameterExpression:
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
-                    case ProjectionBindingExpression projectionBindingExpression:
-                        return _selectExpression.GetProjection(projectionBindingExpression) switch
-                        {
-                            StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
-                           SqlExpression mappedSqlExpression => AddClientProjection(
-                            mappedSqlExpression,
-                            (mappedSqlExpression switch
-                            {
-                                ColumnExpression c => c.IsNullable,
-                                SqlFunctionExpression f => f.IsNullable,
-                                _ => true 
-                            })
-                                ? expression.Type.MakeNullable()
-                                : expression.Type),
-                            _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
-                        };
+                    case SqlExpression mappedSqlExpression:
+                    var isNullable = mappedSqlExpression switch
+                    {
+                        ColumnExpression c => c.IsNullable,
+                        SqlFunctionExpression f => f.IsNullable,
+                        _ => true
+                    };
+
+                    return AddClientProjection(
+                        mappedSqlExpression,
+                        isNullable && expression.Type.IsValueType && !expression.Type.IsNullableType()
+                            ? expression.Type.MakeNullable()
+                            : expression.Type);
 
                     case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                         if (materializeCollectionNavigationExpression.Navigation.TargetEntityType.IsMappedToJson())
@@ -243,7 +240,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     case SqlExpression sqlExpression:
                     _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
-
                     var isNullable = sqlExpression switch
                     {
                         ColumnExpression c => c.IsNullable,
@@ -254,7 +250,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     return new ProjectionBindingExpression(
                         _selectExpression,
                         _projectionMembers.Peek(),
-                        isNullable ? expression.Type.MakeNullable() : expression.Type);
+                        isNullable && expression.Type.IsValueType && !expression.Type.IsNullableType()
+                            ? expression.Type.MakeNullable()
+                            : expression.Type);
 
                     // This handles the case of a complex type being projected out of a Select.
                     // Note that an entity type being projected is (currently) handled differently
