@@ -103,6 +103,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
             annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
+            annotations.Remove(SqlServerAnnotationNames.VectorIndexMetric);
+            annotations.Remove(SqlServerAnnotationNames.VectorIndexType);
         }
 
         base.Generate(index, parameters);
@@ -120,6 +122,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
             annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
+            annotations.Remove(SqlServerAnnotationNames.VectorIndexMetric);
+            annotations.Remove(SqlServerAnnotationNames.VectorIndexType);
         }
 
         base.Generate(index, parameters);

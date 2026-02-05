@@ -377,7 +377,22 @@
   <data name="VectorDimensionsMissing" xml:space="preserve">
     <value>Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.</value>
   </data>
+  <data name="VectorIndexOnNonVectorProperty" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.</value>
+  </data>
+  <data name="VectorIndexRequiresMetric" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.</value>
+  </data>
+  <data name="VectorIndexRequiresSingleProperty" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.</value>
+  </data>
+  <data name="VectorIndexRequiresType" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.</value>
+  </data>
   <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
     <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
+  </data>
+  <data name="VectorSearchRequiresColumn" xml:space="preserve">
+    <value>VectorSearch() requires a valid vector column.</value>
   </data>
 </root>

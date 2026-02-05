@@ -1036,6 +1036,100 @@ public static class EntityFrameworkQueryableExtensions
 
     #endregion
 
+    #region MinBy
+
+    /// <summary>
+    ///     Asynchronously returns the minimum value in a generic <see cref="IQueryable{T}"/> according to a specified key selector function.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
+    ///         that any asynchronous operations have completed before calling another method on this context.
+    ///         See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information and examples.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-async-linq">Querying data with EF Core</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TKey">
+    ///     The type of the value returned by the function represented by <paramref name="keySelector" />.
+    /// </typeparam>
+    /// <param name="source">A sequence of values to determine the minimum value of.</param>
+    /// <param name="keySelector">A function to extract the key for each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation.
+    ///     The task contains the value with the minimum key in the sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
+    /// </exception>
+    /// <exception cref="InvalidOperationException"><paramref name="source" /> contains no elements.</exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static Task<TSource> MinByAsync<TSource, TKey>(
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        CancellationToken cancellationToken = default)
+    {
+        Check.NotNull(keySelector);
+
+        return ExecuteAsync<TSource, Task<TSource>>(
+            method: new Func<IQueryable<TSource>, Expression<Func<TSource, TKey>>, TSource?>(Queryable.MinBy).Method,
+            source,
+            keySelector,
+            cancellationToken);
+    }
+
+    #endregion
+
+    #region MaxBy
+
+    /// <summary>
+    ///     Asynchronously returns the maximum value in a generic <see cref="IQueryable{T}"/> according to a specified key selector function.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
+    ///         that any asynchronous operations have completed before calling another method on this context.
+    ///         See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information and examples.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-async-linq">Querying data with EF Core</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TKey">
+    ///     The type of the value returned by the function represented by <paramref name="keySelector" />.
+    /// </typeparam>
+    /// <param name="source">A sequence of values to determine the maximum value of.</param>
+    /// <param name="keySelector">A function to extract the key for each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation.
+    ///     The task contains the value with the maximum key in the sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
+    /// </exception>
+    /// <exception cref="InvalidOperationException"><paramref name="source" /> contains no elements.</exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static Task<TSource> MaxByAsync<TSource, TKey>(
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        CancellationToken cancellationToken = default)
+    {
+        Check.NotNull(keySelector);
+
+        return ExecuteAsync<TSource, Task<TSource>>(
+            method: new Func<IQueryable<TSource>, Expression<Func<TSource, TKey>>, TSource?>(Queryable.MaxBy).Method,
+            source,
+            keySelector,
+            cancellationToken);
+    }
+
+    #endregion
+
     #region Sum
 
     /// <summary>

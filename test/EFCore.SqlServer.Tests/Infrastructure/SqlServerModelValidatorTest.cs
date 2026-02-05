@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -1126,6 +1127,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 #pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
+    [Experimental("EF9105")]
     public virtual void Throws_for_vector_property_inside_JSON_complex_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1146,6 +1148,43 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [ConditionalFact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_multiple_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorEntityWithTwoVectors>(
+            b =>
+            {
+                b.Property(e => e.Vector1).HasMaxLength(3);
+                b.Property(e => e.Vector2).HasMaxLength(3);
+                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).UseMetric("cosine");
+            });
+
+        VerifyError(
+            SqlServerStrings.VectorIndexRequiresSingleProperty(
+                "{'Vector1', 'Vector2'}",
+                nameof(VectorEntityWithTwoVectors)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_non_vector_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty).UseMetric("cosine"));
+
+        VerifyError(
+            SqlServerStrings.VectorIndexOnNonVectorProperty(
+                "{'NonVectorProperty'}",
+                nameof(VectorEntityWithNonVector),
+                nameof(VectorEntityWithNonVector.NonVectorProperty)),
+            modelBuilder);
+    }
+
     public class VectorWithoutDimensionsEntity
     {
         public int Id { get; set; }
@@ -1161,6 +1200,19 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class VectorContainer
     {
         public SqlVector<float> Vector { get; set; }
+    }
+
+    public class VectorEntityWithTwoVectors
+    {
+        public int Id { get; set; }
+        public SqlVector<float> Vector1 { get; set; }
+        public SqlVector<float> Vector2 { get; set; }
+    }
+
+    public class VectorEntityWithNonVector
+    {
+        public int Id { get; set; }
+        public string NonVectorProperty { get; set; }
     }
 
     #endregion Vector

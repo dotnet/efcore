@@ -1491,6 +1491,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName);
 
         /// <summary>
+        ///     '{function}' can only be used with Entity Framework Core queries.
+        /// </summary>
+        public static string FunctionOnNonEfLinqProvider(object? function)
+            => string.Format(
+                GetString("FunctionOnNonEfLinqProvider", nameof(function)),
+                function);
+
+        /// <summary>
         ///     The provided edge cannot be added because the graph does not contain the vertex '{vertex}'.
         /// </summary>
         public static string GraphDoesNotContainVertex(object? vertex)
