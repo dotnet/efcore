@@ -41,6 +41,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     private int _openJsonAliasCounter;
     private int _totalParameterCount;
 
+    private static readonly bool UseOldBehavior37569 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37569", out var enabled37569) && enabled37569;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -270,6 +273,10 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                         out var constants,
                         out var containsNulls))
                 {
+                    var columnName = UseOldBehavior37569
+                        ? "value"
+                        : RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName;
+
                     inExpression = (openJson, constants) switch
                     {
                         (not null, null)
@@ -281,12 +288,12 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                                     [
                                         new ProjectionExpression(
                                             new ColumnExpression(
-                                                "value",
+                                                columnName,
                                                 openJson.Alias,
                                                 valuesParameter.Type.GetSequenceType(),
                                                 elementTypeMapping,
                                                 containsNulls!.Value),
-                                            "value")
+                                            columnName)
                                     ],
                                     null!)),
 
@@ -344,7 +351,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                     [
                         new SqlServerOpenJsonExpression.ColumnInfo
                         {
-                            Name = "value",
+                            Name = UseOldBehavior37569
+                                ? "value"
+                                : RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName,
                             TypeMapping = typeMapping,
                             Path = [],
                         }
