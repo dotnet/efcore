@@ -3199,10 +3199,8 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     public virtual async Task Reloading_optional_complex_property_with_null_does_not_throw()
     {
         using var context = CreateContext();
-        var building = Building.Create(Guid.NewGuid(), "Building Null", 123m);
-        building.OptionalMilk = null;
-        context.Add(building);
-        await context.SaveChangesAsync();
+        var building = context.Set<Building>().Single(b => b.Name == "Building Two");
+        Assert.Null(building.OptionalMilk);
 
         await context.Entry(building).ReloadAsync();
 
@@ -4005,10 +4003,13 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
 
         protected override Task SeedAsync(PoolableDbContext context)
         {
+            var buildingTwo = Building.Create(Guid.NewGuid(), "Building Two", 1000000m);
+            buildingTwo.OptionalMilk = null;
+
             var buildings = new List<Building>
             {
                 Building.Create(new Guid("21EC2020-3AEA-1069-A2DD-08002B30309D"), "Building One", 1500000),
-                Building.Create(Guid.NewGuid(), "Building Two", 1000000m)
+                buildingTwo
             };
 
             foreach (var building in buildings)

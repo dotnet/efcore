@@ -858,12 +858,25 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         foreach (var property in entityType.GetFlattenedProperties())
         {
             var path = new List<IPropertyBase> { property };
+            var isInNullableComplexProperty = false;
             while (path[^1].DeclaringType is IComplexType complexType)
             {
-                path.Add(complexType.ComplexProperty);
+                var complexProperty = complexType.ComplexProperty;
+                path.Add(complexProperty);
+
+                if (!complexProperty.IsCollection && complexProperty.IsNullable)
+                {
+                    isInNullableComplexProperty = true;
+                }
             }
 
-            var readType = GetReadType(property);
+            var readType = property.ClrType;
+            if (readType.IsValueType
+                && !readType.IsNullableType()
+                && isInNullableComplexProperty)
+            {
+                readType = typeof(Nullable<>).MakeGenericType(readType);
+            }
 
             Expression instanceExpression = entityParameter;
             for (var i = path.Count - 1; i >= 0; i--)
@@ -885,35 +898,6 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 : Expression.Convert(instanceExpression, typeof(object));
 
             projections.Add(projection);
-        }
-
-        static Type GetReadType(IProperty property)
-        {
-            if (property.ClrType.IsValueType
-                && !property.ClrType.IsNullableType()
-                && IsInNullableComplexProperty(property))
-            {
-                return typeof(Nullable<>).MakeGenericType(property.ClrType);
-            }
-
-            return property.ClrType;
-        }
-
-        static bool IsInNullableComplexProperty(IProperty property)
-        {
-            var declaringType = property.DeclaringType;
-            while (declaringType is IComplexType complexType)
-            {
-                var complexProperty = complexType.ComplexProperty;
-                if (!complexProperty.IsCollection && complexProperty.IsNullable)
-                {
-                    return true;
-                }
-
-                declaringType = complexProperty.DeclaringType;
-            }
-
-            return false;
         }
 
         return Expression.Lambda<Func<object, object[]>>(
