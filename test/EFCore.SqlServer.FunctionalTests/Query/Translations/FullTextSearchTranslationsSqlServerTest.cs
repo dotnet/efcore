@@ -82,6 +82,56 @@ FROM FREETEXTTABLE([Articles], ([Title], [Content]), @p) AS [f]
     }
 
     [ConditionalFact]
+    public async Task FreeTextTable_join_as_inner()
+    {
+        using var context = CreateContext();
+
+        var results = await context.Articles
+            .Join(
+                context.Articles.FreeTextTable<Article, int>("database"),
+                a => a.Id,
+                ft => ft.Key,
+                (a, ft) => new { Article = a, ft.Rank })
+            .ToListAsync();
+
+        Assert.Single(results);
+
+        AssertSql(
+            """
+@p='database' (Size = 4000)
+
+SELECT [a].[Id], [a].[Content], [a].[Title], [f].[RANK] AS [Rank]
+FROM [Articles] AS [a]
+INNER JOIN FREETEXTTABLE([Articles], *, @p) AS [f] ON [a].[Id] = [f].[KEY]
+""");
+    }
+
+    [ConditionalFact]
+    public async Task FreeTextTable_join_as_outer()
+    {
+        using var context = CreateContext();
+
+        var results = await context.Articles.FreeTextTable<Article, int>("database")
+            .Join(
+                context.Articles,
+                ft => ft.Key,
+                a => a.Id,
+                (ft, a) => new { ft.Rank, Article = a })
+            .ToListAsync();
+
+        Assert.Single(results);
+
+        AssertSql(
+            """
+@p='database' (Size = 4000)
+
+SELECT [f].[RANK] AS [Rank], [a0].[Id], [a0].[Content], [a0].[Title]
+FROM FREETEXTTABLE([Articles], *, @p) AS [f]
+INNER JOIN [Articles] AS [a0] ON [f].[KEY] = [a0].[Id]
+""");
+    }
+
+    [ConditionalFact]
     public async Task FreeTextTable_with_language_term()
     {
         using var context = CreateContext();
@@ -303,28 +353,52 @@ FROM CONTAINSTABLE([Articles], [Content], @p, @p1) AS [c]
     }
 
     [ConditionalFact]
-    public async Task ContainsTable_join_to_get_entity()
+    public async Task ContainsTable_join_as_inner()
     {
         using var context = CreateContext();
 
-        var results = await (
-            from ft in context.Articles.ContainsTable<Article, int>(a => a.Title, "database")
-            join a in context.Articles on ft.Key equals a.Id
-            orderby ft.Rank descending
-            select new { Article = a, ft.Rank })
+        var results = await context.Articles
+            .Join(
+                context.Articles.ContainsTable<Article, int>("database"),
+                a => a.Id,
+                ft => ft.Key,
+                (a, ft) => new { Article = a, ft.Rank })
             .ToListAsync();
 
         Assert.Single(results);
-        Assert.NotNull(results[0].Article);
 
         AssertSql(
             """
 @p='database' (Size = 4000)
 
-SELECT [a0].[Id], [a0].[Content], [a0].[Title], [c].[RANK] AS [Rank]
-FROM CONTAINSTABLE([Articles], [Title], @p) AS [c]
+SELECT [a].[Id], [a].[Content], [a].[Title], [c].[RANK] AS [Rank]
+FROM [Articles] AS [a]
+INNER JOIN CONTAINSTABLE([Articles], *, @p) AS [c] ON [a].[Id] = [c].[KEY]
+""");
+    }
+
+    [ConditionalFact]
+    public async Task ContainsTable_join_as_outer()
+    {
+        using var context = CreateContext();
+
+        var results = await context.Articles.ContainsTable<Article, int>("database")
+            .Join(
+                context.Articles,
+                ft => ft.Key,
+                a => a.Id,
+                (ft, a) => new { ft.Rank, Article = a })
+            .ToListAsync();
+
+        Assert.Single(results);
+
+        AssertSql(
+            """
+@p='database' (Size = 4000)
+
+SELECT [c].[RANK] AS [Rank], [a0].[Id], [a0].[Content], [a0].[Title]
+FROM CONTAINSTABLE([Articles], *, @p) AS [c]
 INNER JOIN [Articles] AS [a0] ON [c].[KEY] = [a0].[Id]
-ORDER BY [c].[RANK] DESC
 """);
     }
 

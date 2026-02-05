@@ -842,6 +842,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 null, [UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0]))]);
         }
 
+        // HACK: Nav expansion isn't properly extensible for new queryable operators; so we need to do the following to support
+        // SQL Server TVFs. Should be fixed by fully removing nav expansion (#32957).
+        if (methodCallExpression is
+            {
+                Method.Name: "FreeTextTable" or "ContainsTable" or "VectorSearch",
+                Method.DeclaringType.Name: "SqlServerQueryableExtensions",
+                Method.DeclaringType.Namespace: "Microsoft.EntityFrameworkCore"
+            })
+        {
+            var visited = ProcessUnknownMethod(methodCallExpression);
+            var currentTree = new NavigationTreeExpression(Expression.Default(methodCallExpression.Method.ReturnType.GetSequenceType()));
+            var parameterName = GetParameterName(methodCallExpression.Method.Name[0].ToString().ToLowerInvariant());
+
+            return new NavigationExpansionExpression(visited, currentTree, currentTree, parameterName);
+        }
+
         return ProcessUnknownMethod(methodCallExpression);
     }
 
