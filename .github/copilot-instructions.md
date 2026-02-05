@@ -139,12 +139,6 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 
 - Write code that is secure by default. Avoid exposing potentially private or sensitive data
 - Make code NativeAOT compatible when possible. This means avoiding dynamic code generation, reflection, and other features that are not compatible with NativeAOT. If not possible, mark the code with an appropriate annotation or throw an exception
-
-### Code Refactoring
-
-- When implementing state machines or parsers, prefer using enums over multiple boolean flags to track state
-- Consolidate related switch statements and avoid duplicating logic across multiple code paths
-- When logic requires look-ahead (e.g., detecting multi-character tokens like `/*` or `--`), prefer using indexed `for` loops over `foreach` to enable peeking at the next character
 - After implementing a fix, review the surrounding code for similar patterns that might need the same change
 
 ### Entity Framework Core Specific guidelines
@@ -173,7 +167,6 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 ## Pull Request Guidelines
 
 - **ALWAYS** target the `main` branch for new PRs unless explicitly instructed otherwise
-- PRs targeting `release/*` or `feature/*` branches require special permission and are typically only for approved servicing fixes
 - For servicing PRs (fixes targeting release branches), use the following PR description template:
 ```
 Fixes #{issue_number}
