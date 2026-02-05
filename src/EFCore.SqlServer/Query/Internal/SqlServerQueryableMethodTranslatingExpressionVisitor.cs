@@ -614,6 +614,71 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
+    {
+        // Attempt to translate to JSON_CONTAINS for SQL Server 2025+ (compatibility level 170+).
+        // JSON_CONTAINS is more efficient than IN (SELECT ... FROM OPENJSON(...)) for primitive collections.
+        if (_sqlServerSingletonOptions.SupportsJsonType
+            && source.QueryExpression is SelectExpression
+            {
+                // Primitive collection over OPENJSON (e.g. [p].[Ints])
+                Tables:
+                [
+                    SqlServerOpenJsonExpression
+                    {
+                        // JSON_CONTAINS() is only supported over json, not nvarchar
+                        Json: { TypeMapping: SqlServerJsonTypeMapping } json,
+                        Path: null,
+                        ColumnInfos: [{ Name: "value" }]
+                    }
+                ],
+                Predicate: null,
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null
+            }
+            && TranslateExpression(item, applyDefaultTypeMapping: false) is { } translatedItem
+            // Literal untyped NULL not supported as item by JSON_CONTAINS().
+            // For any other nullable item, SqlServerNullabilityProcessor will add a null check around the JSON_CONTAINS call.
+            && translatedItem is not SqlConstantExpression { Value: null }
+            // Note: JSON_CONTAINS doesn't allow searching for null items within a JSON collection (returns 0)
+            // As a result, we only translate to JSON_CONTAINS when we know that either the item is non-nullable or the collection's elements are.
+            && (
+                translatedItem is ColumnExpression { IsNullable: false } or SqlConstantExpression { Value: not null }
+                || !translatedItem.Type.IsNullableType()
+                || json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType()))
+        {
+            // JSON_CONTAINS returns 1 if found, 0 if not found. It's a search condition expression.
+            var jsonContains = _sqlExpressionFactory.Equal(
+                _sqlExpressionFactory.Function(
+                    "JSON_CONTAINS",
+                    [json, translatedItem],
+                    nullable: true,
+                    argumentsPropagateNullability: [false, true],
+                    typeof(int)),
+                _sqlExpressionFactory.Constant(1));
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var selectExpression = new SelectExpression(jsonContains, _queryCompilationContext.SqlAliasManager);
+            return source.Update(
+                selectExpression,
+                Expression.Convert(
+                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        }
+
+        return base.TranslateContains(source, item);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateElementAtOrDefault(
         ShapedQueryExpression source,
         Expression index,
@@ -623,8 +688,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             switch (source.QueryExpression)
             {
-                // index on parameter using a column
-                // translate via JSON because it is a better translation
+                // Index on parameter using a column
+                // Translate via JSON_VALUE() instead of via a VALUES subquery
                 case SelectExpression
                 {
                     Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
@@ -938,15 +1003,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
                     // as a constant argument; it will be unpacked and handled in SQL generation.
                     _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
-
-                    // If an inline JSON object (complex type) is being assigned, it would be rendered here as a simple string:
-                    // [column].modify('$.foo', '{ "x": 8 }')
-                    // Since it's untyped, modify would treat is as a string rather than a JSON object, and insert it as such into
-                    // the enclosing object, escaping all the special JSON characters - that's not what we want.
-                    // We add a cast to JSON to have it interpreted as a JSON object.
-                    value is SqlConstantExpression { TypeMapping.StoreType: "json" }
-                        ? _sqlExpressionFactory.Convert(value, value.Type, _typeMappingSource.FindMapping("json")!)
-                        : value
+                    value
                 ],
                 nullable: true,
                 instancePropagatesNullability: true,
