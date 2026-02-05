@@ -344,16 +344,20 @@ END
         bool useTransaction,
         object[]? parameters)
     {
+        var wasOpen = false;
+
         if (connection.State != ConnectionState.Closed)
         {
+            wasOpen = true;
             connection.Close();
         }
+
+        T result;
 
         connection.Open();
         try
         {
             using var transaction = useTransaction ? connection.BeginTransaction() : null;
-            T result;
             using (var command = CreateCommand(connection, sql, parameters))
             {
                 command.Transaction = transaction;
@@ -361,8 +365,6 @@ END
             }
 
             transaction?.Commit();
-
-            return result;
         }
         finally
         {
@@ -371,6 +373,13 @@ END
                 connection.Close();
             }
         }
+
+        if (wasOpen)
+        {
+            connection.Open();
+        }
+
+        return result;
     }
 
     private static Task<T> ExecuteAsync<T>(
@@ -397,16 +406,20 @@ END
         bool useTransaction,
         IReadOnlyList<object>? parameters)
     {
+        var wasOpen = false;
+
         if (connection.State != ConnectionState.Closed)
         {
+            wasOpen = true;
             await connection.CloseAsync();
         }
+
+        T result;
 
         await connection.OpenAsync();
         try
         {
             using var transaction = useTransaction ? await connection.BeginTransactionAsync() : null;
-            T result;
             using (var command = CreateCommand(connection, sql, parameters))
             {
                 result = await executeAsync(command);
@@ -416,8 +429,6 @@ END
             {
                 await transaction.CommitAsync();
             }
-
-            return result;
         }
         finally
         {
@@ -426,6 +437,13 @@ END
                 await connection.CloseAsync();
             }
         }
+
+        if (wasOpen)
+        {
+            await connection.OpenAsync();
+        }
+
+        return result;
     }
 
     private static DbCommand CreateCommand(

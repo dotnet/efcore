@@ -17,21 +17,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerModelValidator : RelationalModelValidator
+public class SqlServerModelValidator(ModelValidatorDependencies dependencies, RelationalModelValidatorDependencies relationalDependencies)
+    : RelationalModelValidator(dependencies, relationalDependencies)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerModelValidator(
-        ModelValidatorDependencies dependencies,
-        RelationalModelValidatorDependencies relationalDependencies)
-        : base(dependencies, relationalDependencies)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -41,6 +29,7 @@ public class SqlServerModelValidator : RelationalModelValidator
     public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         ValidateIndexIncludeProperties(model, logger);
+        ValidateVectorIndexes(model, logger);
 
         base.Validate(model, logger);
 
@@ -266,6 +255,60 @@ public class SqlServerModelValidator : RelationalModelValidator
             }
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+#pragma warning disable EF9105 // Vector indexes are experimental
+    protected virtual void ValidateVectorIndexes(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
+        {
+            if (index.IsVectorIndex())
+            {
+                if (index.Properties is not [var property])
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.VectorIndexRequiresSingleProperty(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName()));
+                }
+
+                if (index.GetVectorMetric() is null or "")
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.VectorIndexRequiresMetric(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName()));
+                }
+
+                if (index.GetVectorIndexType() is "")
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.VectorIndexRequiresType(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName()));
+                }
+
+                var typeMapping = property.FindTypeMapping();
+
+                if (typeMapping is not SqlServerVectorTypeMapping)
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.VectorIndexOnNonVectorProperty(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName(),
+                            property.Name));
+                }
+            }
+        }
+    }
+#pragma warning restore EF9105
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
