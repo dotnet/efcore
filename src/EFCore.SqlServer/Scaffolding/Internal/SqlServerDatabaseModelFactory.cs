@@ -1000,6 +1000,13 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
     {
         using var command = connection.CreateCommand();
         var commandText = $"""
+WITH [TablesAndViews] AS (
+    SELECT [object_id], [schema_id], [name], [type], [is_ms_shipped], [temporal_type] 
+    FROM [sys].[tables]
+    UNION ALL
+    SELECT [object_id], [schema_id], [name], [type], [is_ms_shipped], 0 AS [temporal_type] 
+    FROM [sys].[views]
+)
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
@@ -1018,7 +1025,7 @@ SELECT
     {(SupportsVectorIndexes ? "[vi].[vector_index_type]" : "NULL as [vector_index_type]")}
 FROM [sys].[indexes] AS [i]
 {(SupportsVectorIndexes ? "LEFT JOIN [sys].[vector_indexes] AS [vi] ON [i].[object_id] = [vi].[object_id] AND [i].[index_id] = [vi].[index_id]" : "")}
-JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
+JOIN [TablesAndViews] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
 JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
 WHERE [i].[is_hypothetical] = 0

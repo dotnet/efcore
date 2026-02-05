@@ -2013,6 +2013,74 @@ CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
             "DROP TABLE IndexTable;");
 
     [ConditionalFact]
+    public void Create_indexes_on_views()
+    => Test(
+        @"
+CREATE TABLE dbo.BaseTable (
+    Id int NOT NULL,
+    Name int NOT NULL
+);
+
+-- Use EXEC to ensure CREATE VIEW is the start of its own batch
+EXEC('
+    CREATE VIEW dbo.TestView
+    WITH SCHEMABINDING
+    AS
+    SELECT
+        Id,
+        Name,
+        COUNT_BIG(*) AS C
+    FROM dbo.BaseTable
+    GROUP BY Id, Name;
+');
+
+CREATE UNIQUE CLUSTERED INDEX IX_TestView_Id
+ON dbo.TestView (Id);
+",
+        [],
+        [],
+        (dbModel, scaffoldingFactory) =>
+        {
+            var view = dbModel.Tables.Single(t => t.Name == "TestView");
+
+            Assert.Single(view.Indexes);
+
+            var index = view.Indexes.Single();
+            Assert.True(index.IsUnique);
+            Assert.Collection(
+                index.Columns,
+                c => Assert.Equal("Id", c.Name));
+
+            var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+            var viewEntity = model.GetEntityTypes()
+                .Single(e => e.Name == "TestView");
+
+            var properties = viewEntity.GetProperties().ToList();
+            Assert.Contains(properties, p => p.Name == "Id");
+            Assert.Contains(properties, p => p.Name == "Name");
+
+            Assert.Empty(viewEntity.GetKeys());
+
+            Assert.Collection(
+                viewEntity.GetIndexes(),
+                i =>
+                {
+                    Assert.True(i.IsUnique);
+                    Assert.Collection(
+                        i.Properties,
+                        p => Assert.Equal("Id", p.Name));
+                });
+
+            Assert.Empty(viewEntity.GetForeignKeys());
+            Assert.Empty(viewEntity.GetNavigations());
+            Assert.Empty(viewEntity.GetSkipNavigations());
+        },
+        @"
+DROP VIEW dbo.TestView;
+DROP TABLE dbo.BaseTable;");
+
+    [ConditionalFact]
     public void Create_foreign_keys()
         => Test(
             @"
