@@ -67,7 +67,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
-                body: `Thank you for your contribution! However, this PR targets the \`${targetBranch}\` branch.\n\nExternal contributions should target the \`main\` branch only. Please close this PR and resubmit it with \`main\` as the target branch.\n\nFor more information, see our [contribution guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
+                body: `Thank you for your contribution! However, this PR targets the \`${targetBranch}\` branch.\n\nExternal contributions should target the \`main\` branch only. This pull request has been closed automatically; please open a new pull request with \`main\` as the target branch.\n\nFor more information, see our [contribution guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
               });
               
               await github.rest.pulls.update({
