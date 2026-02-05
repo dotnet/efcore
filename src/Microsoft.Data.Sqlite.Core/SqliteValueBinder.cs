@@ -246,13 +246,11 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
 #if NET7_0_OR_GREATER
         else if (type == typeof(Int128))
         {
-            var value1 = (Int128)value;   
-            BindText((value1).ToString(CultureInfo.InvariantCulture));
+            BindText(((Int128)value).ToString(CultureInfo.InvariantCulture));
         }
         else if (type == typeof(UInt128))
         {
-            var value1 = (UInt128)value;
-            BindText((value1).ToString(CultureInfo.InvariantCulture));
+            BindText(((UInt128)value).ToString(CultureInfo.InvariantCulture));
         }
 #endif
         else
