@@ -12,7 +12,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Use the rules defined in the .editorconfig file in the root of the repository for any ambiguous cases
 - Write code that is clean, maintainable, and easy to understand
 - Favor readability over brevity, but keep methods focused and concise
-- Only add comments rarely to explain why a non-intuitive solution was used. The code should be self-explanatory otherwise
+- **Avoid adding comments** - The code should be self-explanatory. Only add comments in exceptional cases to explain *why* a non-intuitive solution was necessary. Do not add comments that describe *what* the code does, as that should be evident from the code itself
 - Add license header to all files:
 ```
     // Licensed to the .NET Foundation under one or more agreements.
@@ -48,12 +48,16 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Use `var` for local variables
 - Use expression-bodied members where appropriate
 - Prefer using collection expressions when possible
-- Use `is` pattern matching instead of `as` and null checks
+- Use `is` pattern matching instead of `as` and null checks (e.g., `is ParsingState.MaybeLineComment or ParsingState.MaybeBlockCommentStart`)
 - Prefer `switch` expressions over `switch` statements when appropriate
+- Prefer pattern matching with `when` clauses in switch statements for conditional logic
 - Prefer field-backed property declarations using field contextual keyword instead of an explicit field.
 - Prefer range and index from end operators for indexer access
 - The projects use implicit namespaces, so do not add `using` directives for namespaces that are already imported by the project
 - When verifying that a file doesn't produce compiler errors rebuild the whole project
+- Prefer using an `enum` over multiple `bool` variables when tracking state with more than two possible values
+- Consider using `for` loops with look-ahead for multi-character token parsing instead of state machine approaches with "Maybe" states
+- When fixing a bug in one location, look for similar code patterns elsewhere and apply the same fix consistently
 
 ### Naming Conventions
 
@@ -89,6 +93,8 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Create both unit tests and functional tests where appropriate
 - Fix `SQL` and `C#` baselines for tests when necessary by setting the `EF_TEST_REWRITE_BASELINES` env var to `1`
 - Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
+- When testing cross-platform code (e.g., file paths, path separators), verify the fix works on both Windows and Linux/macOS
+- When testing `dotnet-ef` tool changes, create a test project and manually run the affected commands to verify behavior
 
 #### Environment Setup
 - **ALWAYS** run `restore.cmd` (Windows) or `. ./restore.sh` (Linux/Mac) first to restore dependencies
@@ -110,6 +116,13 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - **ALL** user-facing error messages must use string resources from the `.resx` (and the generated `.Designer.cs`) file corresponding to the project
 - Avoid catching exceptions without rethrowing them
 
+## Dependency and Version Management
+
+- **NEVER** hardcode package versions in `.csproj` files if a centralized version property already exists
+- Check `eng/Versions.props` for existing version properties (e.g., `$(SQLitePCLRawVersion)`) before adding or updating package references
+- Use `Directory.Packages.props` for NuGet package version management with Central Package Management (CPM)
+- Packages listed in `eng/Version.Details.xml` are managed by Maestro dependency flow and should not be updated manually or by Dependabot
+
 ## Asynchronous Programming
 
 - Provide both synchronous and asynchronous versions of methods where appropriate
@@ -129,6 +142,13 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 
 - Write code that is secure by default. Avoid exposing potentially private or sensitive data
 - Make code NativeAOT compatible when possible. This means avoiding dynamic code generation, reflection, and other features that are not compatible with NativeAOT. If not possible, mark the code with an appropriate annotation or throw an exception
+
+### Code Refactoring
+
+- When implementing state machines or parsers, prefer using enums over multiple boolean flags to track state
+- Consolidate related switch statements and avoid duplicating logic across multiple code paths
+- When logic requires look-ahead (e.g., detecting multi-character tokens like `/*` or `--`), prefer using indexed `for` loops over `foreach` to enable peeking at the next character
+- After implementing a fix, review the surrounding code for similar patterns that might need the same change
 
 ### Entity Framework Core Specific guidelines
 
@@ -152,6 +172,33 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - docs/: Documentation files for contributors and users. Full documentation is available at [EF Core | Learn](https://learn.microsoft.com/ef/core/)
 - .github/: GitHub-specific files, workflows, and Copilot instructions
 - .config/: AzDo pipelines configuration files
+
+## Pull Request Guidelines
+
+- **ALWAYS** target the `main` branch for new PRs unless explicitly instructed otherwise
+- PRs targeting `release/*` or `feature/*` branches require special permission and are typically only for servicing fixes that have been approved
+- For servicing PRs (fixes targeting release branches), use the following PR description template:
+```
+Fixes #{issue_number}
+
+**Description**
+{Brief description of the issue and fix}
+
+**Customer impact**
+{How does the reported issue affect customers? Are there workarounds?}
+
+**How found**
+{Was it customer reported or found during verification? How many customers are affected?}
+
+**Regression**
+{Is it a regression from a released version? Which one?}
+
+**Testing**
+{How the changes were tested}
+
+**Risk**
+{Low/Medium/High, with justification}
+```
 
 ## Overview of Entity Framework Core
 
