@@ -268,6 +268,8 @@ public class SqlServerSqlNullabilityProcessor(
                         out var constants,
                         out var containsNulls))
                 {
+                    var columnName = RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName;
+
                     inExpression = (openJson, constants) switch
                     {
                         (not null, null)
@@ -279,12 +281,12 @@ public class SqlServerSqlNullabilityProcessor(
                                     [
                                         new ProjectionExpression(
                                             new ColumnExpression(
-                                                "value",
+                                                columnName,
                                                 openJson.Alias,
                                                 valuesParameter.Type.GetSequenceType(),
                                                 elementTypeMapping,
                                                 containsNulls!.Value),
-                                            "value")
+                                            columnName)
                                     ],
                                     null!)),
 
@@ -340,7 +342,7 @@ public class SqlServerSqlNullabilityProcessor(
                     [
                         new SqlServerOpenJsonExpression.ColumnInfo
                         {
-                            Name = "value",
+                            Name = RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName,
                             TypeMapping = typeMapping,
                             Path = [],
                         }
