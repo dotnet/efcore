@@ -115,7 +115,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 
 ## Dependency and Version Management
 
-- **NEVER** hardcode package versions in `.csproj` files if a centralized version property already exists
+- **NEVER** hardcode package versions in `.csproj` files
 - Check `eng/Versions.props` for existing version properties (e.g., `$(SQLitePCLRawVersion)`) before adding or updating package references
 - Use `Directory.Packages.props` for NuGet package version management with Central Package Management (CPM)
 - Packages listed in `eng/Version.Details.xml` are managed by Maestro dependency flow and should not be updated manually or by Dependabot
