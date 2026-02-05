@@ -843,7 +843,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
 
         // HACK: Nav expansion isn't properly extensible for new queryable operators; so we need to do the following to support
-        // SQL Server TVFs:
+        // SQL Server TVFs. Should be fixed by fully removing nav expansion (#32957).
         if (methodCallExpression is
             {
                 Method.Name: "FreeTextTable" or "ContainsTable" or "VectorSearch",
