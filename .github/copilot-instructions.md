@@ -50,7 +50,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Prefer using collection expressions when possible
 - Use `is` pattern matching instead of `as` followed by null checks (e.g., `if (obj is SomeType typed)` instead of `var typed = obj as SomeType; if (typed != null)`)
 - Prefer `switch` expressions over `switch` statements when appropriate
-- Prefer pattern matching with `when` clauses in switch statements for conditional logic
+- Prefer pattern matching with `when` clauses in switch expressions for conditional logic
 - Prefer field-backed property declarations using field contextual keyword instead of an explicit field.
 - Prefer range and index from end operators for indexer access
 - The projects use implicit namespaces, so do not add `using` directives for namespaces that are already imported by the project
