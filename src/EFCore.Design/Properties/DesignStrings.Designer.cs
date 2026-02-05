@@ -20,6 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
+        ///     Failed to create and apply migration '{name}'. {message}
+        /// </summary>
+        public static string AddAndApplyMigrationFailed(object? name, object? message)
+            => string.Format(
+                GetString("AddAndApplyMigrationFailed", nameof(name), nameof(message)),
+                name, message);
+
+        /// <summary>
         ///     Failed creating connection: {exceptionMessage}
         /// </summary>
         public static string BadConnection(object? exceptionMessage)
@@ -34,6 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("BadMigrationName", nameof(name), nameof(characters)),
                 name, characters);
+
+        /// <summary>
+        ///     A migration name must be specified.
+        /// </summary>
+        public static string MigrationNameRequired
+            => GetString("MigrationNameRequired");
 
         /// <summary>
         ///     Sequence '{sequenceName}' cannot be scaffolded because it uses type '{typeName}' which is unsupported.
@@ -589,6 +603,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("NoPendingModelChanges");
 
         /// <summary>
+        ///     No dynamic migrations have been applied in the current session. Only migrations applied using CreateAndApplyMigration can be reverted with RevertMigration.
+        /// </summary>
+        public static string NoDynamicMigrationsToRevert
+            => GetString("NoDynamicMigrationsToRevert");
+
+        /// <summary>
+        ///     The dynamic migration '{migrationId}' was not found. Only migrations applied in the current session using CreateAndApplyMigration can be reverted.
+        /// </summary>
+        public static string DynamicMigrationNotFound(object? migrationId)
+            => string.Format(
+                GetString("DynamicMigrationNotFound", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
         ///     No referenced design-time services were found.
         /// </summary>
         public static string NoReferencedServices
@@ -909,6 +937,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("WritingSnapshot", nameof(file)),
                 file);
+
+        /// <summary>
+        ///     Failed to compile migration '{migrationId}'. Errors:
+        ///     {errors}
+        /// </summary>
+        public static string MigrationCompilationFailed(object? migrationId, object? errors)
+            => string.Format(
+                GetString("MigrationCompilationFailed", nameof(migrationId), nameof(errors)),
+                migrationId, errors);
+
+        /// <summary>
+        ///     Could not find migration type with ID '{migrationId}' in the compiled assembly.
+        /// </summary>
+        public static string MigrationTypeNotFound(object? migrationId)
+            => string.Format(
+                GetString("MigrationTypeNotFound", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
+        ///     Creating and applying migration '{migrationName}'.
+        /// </summary>
+        public static string CreatingAndApplyingMigration(object? migrationName)
+            => string.Format(
+                GetString("CreatingAndApplyingMigration", nameof(migrationName)),
+                migrationName);
+
+        /// <summary>
+        ///     Migration '{migrationId}' was successfully created and applied.
+        /// </summary>
+        public static string MigrationCreatedAndApplied(object? migrationId)
+            => string.Format(
+                GetString("MigrationCreatedAndApplied", nameof(migrationId)),
+                migrationId);
 
         private static string GetString(string name, params string[] formatterNames)
         {

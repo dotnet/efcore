@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -70,12 +73,27 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
-        var invalidPathChars = Path.GetInvalidFileNameChars();
-        if (name.Any(c => invalidPathChars.Contains(c)))
-        {
-            throw new OperationException(
-                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
-        }
+        using var context = _contextOperations.CreateContext(contextType);
+        var services = PrepareForMigration(name, context);
+
+        using var scope = services.CreateScope();
+        var (_, files) =
+            CreateScaffoldedMigration(name, outputDir, @namespace, dryRun, scope.ServiceProvider);
+        return files;
+    }
+
+    /// <summary>
+    ///     Creates and saves a scaffolded migration using the provided services.
+    /// </summary>
+    public virtual (ScaffoldedMigration Migration, MigrationFiles Files)
+        CreateScaffoldedMigration(
+            string name,
+            string? outputDir,
+            string? @namespace,
+            bool dryRun,
+            IServiceProvider services)
+    {
+        EnsureMigrationsAssembly(services);
 
         if (outputDir != null)
         {
@@ -84,26 +102,16 @@ public class MigrationsOperations
 
         var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
-        using var context = _contextOperations.CreateContext(contextType);
-        var contextClassName = context.GetType().Name;
-        if (string.Equals(name, contextClassName, StringComparison.Ordinal))
-        {
-            throw new OperationException(
-                DesignStrings.ConflictingContextAndMigrationName(name));
-        }
-
-        var services = _servicesBuilder.Build(context);
-        EnsureServices(services);
-        EnsureMigrationsAssembly(services);
-
-        using var scope = services.CreateScope();
-        var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+        var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
         var migration =
             string.IsNullOrEmpty(@namespace)
                 // TODO: Honor _nullable (issue #18950)
                 ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun)
                 : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun);
-        return scaffolder.Save(_projectDir, migration, outputDir, dryRun);
+
+        var files = scaffolder.Save(_projectDir, migration, outputDir, dryRun);
+
+        return (migration, files);
     }
 
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
@@ -270,6 +278,88 @@ public class MigrationsOperations
         }
 
         _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [RequiresDynamicCode("Runtime migration compilation requires dynamic code generation.")]
+    public virtual MigrationFiles AddAndApplyMigration(
+        string name,
+        string? outputDir,
+        string? contextType,
+        string? @namespace,
+        string? connectionString)
+    {
+        using var context = _contextOperations.CreateContext(contextType);
+        var services = PrepareForMigration(name, context);
+
+        if (connectionString != null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
+        using var scope = services.CreateScope();
+        var migrator = scope.ServiceProvider.GetRequiredService<IMigrator>();
+
+        if (!migrator.HasPendingModelChanges())
+        {
+            _reporter.WriteInformation(DesignStrings.NoPendingModelChanges);
+            migrator.Migrate(null);
+            _reporter.WriteInformation(DesignStrings.Done);
+            // Return empty MigrationFiles to indicate no migration was created.
+            // When serialized to JSON (with --json), all file path properties will be null.
+            return new MigrationFiles();
+        }
+
+        _reporter.WriteInformation(DesignStrings.CreatingAndApplyingMigration(name));
+
+        var (migration, files) =
+            CreateScaffoldedMigration(name, outputDir, @namespace, dryRun: false, scope.ServiceProvider);
+
+        var compiler = scope.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+        var migrationsAssembly = scope.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var compiledAssembly = compiler.CompileMigration(migration, context.GetType());
+        migrationsAssembly.AddMigrations(compiledAssembly);
+
+        migrator.Migrate(migration.MigrationId);
+
+        _reporter.WriteInformation(DesignStrings.MigrationCreatedAndApplied(migration.MigrationId));
+
+        return files;
+    }
+
+    /// <summary>
+    ///     Prepares common resources for migration operations.
+    /// </summary>
+    public virtual IServiceProvider PrepareForMigration(string name, DbContext context)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new OperationException(DesignStrings.MigrationNameRequired);
+        }
+
+        var invalidPathChars = Path.GetInvalidFileNameChars();
+        if (name.Any(c => invalidPathChars.Contains(c)))
+        {
+            throw new OperationException(
+                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
+        }
+
+        var contextClassName = context.GetType().Name;
+        if (string.Equals(name, contextClassName, StringComparison.Ordinal))
+        {
+            throw new OperationException(
+                DesignStrings.ConflictingContextAndMigrationName(name));
+        }
+
+        var services = _servicesBuilder.Build(context);
+        EnsureServices(services);
+
+        return services;
     }
 
     private static void EnsureServices(IServiceProvider services)

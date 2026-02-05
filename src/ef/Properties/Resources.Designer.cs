@@ -148,6 +148,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseUpdateDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     The data directory.
         /// </summary>
         public static string DataDirDescription
@@ -410,6 +416,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
+        ///     The '--namespace' option requires the '--add' option to be specified.
+        /// </summary>
+
+        /// <summary>
         ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
@@ -488,6 +498,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     The '--output-dir' option requires the '--add' option to be specified.
+        /// </summary>
 
         /// <summary>
         ///      (Pending)
@@ -711,4 +725,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
-

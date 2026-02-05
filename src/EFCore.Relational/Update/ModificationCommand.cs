@@ -37,9 +37,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private EntityState _entityState;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
 
-    private static readonly bool UseOldBehavior37373 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37373", out var enabled) && enabled;
-
     /// <summary>
     ///     Initializes a new <see cref="ModificationCommand" /> instance.
     /// </summary>
@@ -291,7 +288,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
-        if ((!deleting || UseOldBehavior37373) && _entries.Any(e => e.EntityType is { } entityType
+        if (!deleting && _entries.Any(e => e.EntityType is { } entityType
                 && (entityType.IsMappedToJson()
                     || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
                     || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))))
@@ -746,8 +743,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         continue;
                     }
 
-                    var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(complexType.GetContainerColumnName()!)!;
-                    if (!jsonColumnsUpdateMap.ContainsKey(jsonColumn))
+                    var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(complexType.GetContainerColumnName()!);
+                    if (jsonColumn is not null && !jsonColumnsUpdateMap.ContainsKey(jsonColumn))
                     {
                         var jsonPartialUpdateInfo = new List<JsonPartialUpdatePathEntry> { new("$", null, entry, complexProperty) };
                         jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;

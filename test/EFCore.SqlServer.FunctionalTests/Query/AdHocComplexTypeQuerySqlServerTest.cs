@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocComplexTypeQuerySqlServerTest(NonSharedFixture fixture) : AdHocComplexTypeQueryRelationalTestBase(fixture)
@@ -32,9 +34,60 @@ FROM [EntityType] AS [e]
 """);
     }
 
-    public override async Task Complex_type_equality_with_non_default_type_mapping()
+    #region 36837
+
+    #region 35025
+
+    public override async Task Select_TPC_base_with_ComplexType()
     {
-        await base.Complex_type_equality_with_non_default_type_mapping();
+        await base.Select_TPC_base_with_ComplexType();
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
+FROM [TpcChild1] AS [t]
+UNION ALL
+SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
+FROM [TpcChild2] AS [t0]
+""");
+    }
+
+    #endregion 35025
+
+    #region 34706
+
+    public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        await base.Complex_type_on_an_entity_mapped_to_view_and_table();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[ComplexThing_Prop1], [b].[ComplexThing_Prop2]
+FROM [BlogsView] AS [b]
+""");
+    }
+
+    #endregion 34706
+
+    [ConditionalFact]
+    public virtual async Task Complex_type_equality_with_non_default_type_mapping()
+    {
+        var contextFactory = await InitializeAsync<Context36837>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context36837.EntityType
+                    {
+                        ComplexThing = new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1) }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var count = await context.Set<Context36837.EntityType>()
+            .CountAsync(b => b.ComplexThing == new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1, 1, 1, 1, 999, 999) });
+        Assert.Equal(0, count);
 
         AssertSql(
             """
@@ -44,11 +97,25 @@ WHERE [e].[ComplexThing_DateTime] = '2020-01-01T01:01:01.999'
 """);
     }
 
-    protected TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
+    private class Context36837(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.ComplexThing);
 
-    protected void AssertSql(params string[] expected)
-        => TestSqlLoggerFactory.AssertBaseline(expected);
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public ComplexThing ComplexThing { get; set; } = null!;
+        }
+
+        public class ComplexThing
+        {
+            [Column(TypeName = "datetime")] // Non-default type mapping
+            public DateTime DateTime { get; set; }
+        }
+    }
+
+    #endregion 36837
 
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

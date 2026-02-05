@@ -1,6 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public static class SqlServerTestModelBuilderExtensions
@@ -140,5 +144,30 @@ public static class SqlServerTestModelBuilderExtensions
         }
 
         return builder;
+    }
+
+    [Experimental("EF9105")]
+    public static SqlServerModelBuilderTestBase.TestVectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        Expression<Func<TEntity, object?>> indexExpression,
+        string? name = null)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                return new SqlServerModelBuilderTestBase.GenericTestVectorIndexBuilder<TEntity>(
+                    genericBuilder.Instance.HasVectorIndex(indexExpression, name));
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                var member = indexExpression.GetMemberAccessList().Single();
+                var memberName = member.Name;
+                // For explicit interface implementations, the name may be prefixed with the interface name
+                var dotIndex = memberName.LastIndexOf('.');
+                var propertyName = dotIndex >= 0 ? memberName[(dotIndex + 1)..] : memberName;
+                return new SqlServerModelBuilderTestBase.NonGenericTestVectorIndexBuilder<TEntity>(
+                    nonGenericBuilder.Instance.HasVectorIndex(propertyName, name));
+            default:
+                throw new InvalidOperationException();
+        }
     }
 }

@@ -15,6 +15,7 @@ internal interface IOperationExecutor : IDisposable
     void DropDatabase(string? contextType);
     IDictionary GetContextInfo(string? name);
     void UpdateDatabase(string? migration, string? connectionString, string? contextType);
+    IDictionary AddAndApplyMigration(string name, string? outputDir, string? contextType, string? @namespace, string? connectionString);
     IEnumerable<IDictionary> GetContextTypes();
 
     IEnumerable<string> OptimizeContext(

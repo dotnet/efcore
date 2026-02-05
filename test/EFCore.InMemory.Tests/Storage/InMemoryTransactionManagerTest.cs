@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -80,6 +81,14 @@ public class InMemoryTransactionManagerTest
     [ConditionalFact]
     public void Throws_on_BeginTransactionAsync()
         => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync().GetAwaiter().GetResult());
+
+    [ConditionalFact]
+    public void Throws_on_BeginTransaction_with_IsolationLevel()
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransaction(IsolationLevel.Serializable));
+
+    [ConditionalFact]
+    public void Throws_on_BeginTransactionAsync_with_IsolationLevel()
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter().GetResult());
 
     [ConditionalFact]
     public void Throws_on_CommitTransaction()

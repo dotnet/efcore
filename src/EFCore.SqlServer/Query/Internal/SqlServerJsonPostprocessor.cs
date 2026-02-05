@@ -88,7 +88,7 @@ public sealed class SqlServerJsonPostprocessor(
                     {
                         // Remove the WITH clause from the OPENJSON expression
                         var newOpenJsonExpression = openJsonExpression.Update(
-                            openJsonExpression.JsonExpression,
+                            openJsonExpression.Json,
                             openJsonExpression.Path,
                             columnInfos: null);
 
