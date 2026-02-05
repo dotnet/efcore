@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -32,10 +32,10 @@ public class SqlServerSqlNullabilityProcessor(
     public const string OpenJsonParameterTableName = "__openjson";
 
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
     private int _openJsonAliasCounter;
     private int _totalParameterCount;
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -258,6 +258,7 @@ public class SqlServerSqlNullabilityProcessor(
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
+
                 var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
 
                 if (TryHandleOverLimitParameters(
@@ -268,30 +269,42 @@ public class SqlServerSqlNullabilityProcessor(
                         out var constants,
                         out var containsNulls))
                 {
-                    inExpression = (openJson, constants) switch
+                    if (openJson != null)
                     {
-                        (not null, null)
-                            => inExpression.Update(
-                                inExpression.Item,
-                                SelectExpression.CreateImmutable(
-                                    null!,
-                                    [openJson],
-                                    [
-                                        new ProjectionExpression(
-                                            new ColumnExpression(
-                                                "value",
-                                                openJson.Alias,
-                                                valuesParameter.Type.GetSequenceType(),
-                                                elementTypeMapping,
-                                                containsNulls!.Value),
-                                            "value")
-                                    ],
-                                    null!)),
+                        var column = new ColumnExpression(
+                            "value",
+                            openJson.Alias,
+                            valuesParameter.Type.GetSequenceType().UnwrapNullableType(),
+                            elementTypeMapping,
+                            containsNulls!.Value);
 
-                        (null, not null) => inExpression.Update(inExpression.Item, constants),
+                        var subquery = SelectExpression.CreateImmutable(
+                            null!,
+                            [openJson],
+                            [new ProjectionExpression(column, "value")],
+                            null!);
 
-                        _ => throw new UnreachableException(),
-                    };
+                        nullable = false;
+
+                        var translatedIn = inExpression.Update(inExpression.Item, subquery);
+
+                        if (containsNulls.GetValueOrDefault())
+                        {
+                            return _sqlExpressionFactory.OrElse(
+                                translatedIn,
+                                _sqlExpressionFactory.IsNull(inExpression.Item));
+                        }
+
+                        return translatedIn;
+                    }
+
+                    if (constants != null)
+                    {
+                        nullable = false;
+                        return inExpression.Update(inExpression.Item, constants);
+                    }
+
+                    throw new UnreachableException("TryHandleOverLimitParameters should return either openJson or constants.");
                 }
 
                 return base.VisitIn(inExpression, allowOptimizedExpansion, out nullable);
