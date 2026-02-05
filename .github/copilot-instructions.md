@@ -12,7 +12,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Use the rules defined in the .editorconfig file in the root of the repository for any ambiguous cases
 - Write code that is clean, maintainable, and easy to understand
 - Favor readability over brevity, but keep methods focused and concise
-- **Avoid adding comments** - The code should be self-explanatory. Only add comments in exceptional cases to explain *why* a non-intuitive solution was necessary. Do not add comments that describe *what* the code does, as that should be evident from the code itself
+- **Prefer minimal comments** - The code should be self-explanatory. Add comments sparingly and only to explain *why* a non-intuitive solution was necessary, not *what* the code does. Comments are appropriate for complex logic, public APIs, or domain-specific implementations where context would otherwise be unclear
 - Add license header to all files:
 ```
     // Licensed to the .NET Foundation under one or more agreements.
@@ -48,16 +48,13 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Use `var` for local variables
 - Use expression-bodied members where appropriate
 - Prefer using collection expressions when possible
-- Use `is` pattern matching instead of `as` and null checks (e.g., `is ParsingState.MaybeLineComment or ParsingState.MaybeBlockCommentStart`)
+- Use `is` pattern matching instead of `as` followed by null checks (e.g., `if (obj is SomeType typed)` instead of `var typed = obj as SomeType; if (typed != null)`)
 - Prefer `switch` expressions over `switch` statements when appropriate
 - Prefer pattern matching with `when` clauses in switch statements for conditional logic
 - Prefer field-backed property declarations using field contextual keyword instead of an explicit field.
 - Prefer range and index from end operators for indexer access
 - The projects use implicit namespaces, so do not add `using` directives for namespaces that are already imported by the project
 - When verifying that a file doesn't produce compiler errors rebuild the whole project
-- Prefer using an `enum` over multiple `bool` variables when tracking state with more than two possible values
-- Consider using `for` loops with look-ahead for multi-character token parsing instead of state machine approaches with "Maybe" states
-- When fixing a bug in one location, look for similar code patterns elsewhere and apply the same fix consistently
 
 ### Naming Conventions
 
@@ -176,7 +173,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 ## Pull Request Guidelines
 
 - **ALWAYS** target the `main` branch for new PRs unless explicitly instructed otherwise
-- PRs targeting `release/*` or `feature/*` branches require special permission and are typically only for servicing fixes that have been approved
+- PRs targeting `release/*` or `feature/*` branches require special permission and are typically only for approved servicing fixes
 - For servicing PRs (fixes targeting release branches), use the following PR description template:
 ```
 Fixes #{issue_number}
