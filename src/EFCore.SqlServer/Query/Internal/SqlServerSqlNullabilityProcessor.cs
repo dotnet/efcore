@@ -144,6 +144,48 @@ public class SqlServerSqlNullabilityProcessor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override SqlExpression VisitSqlFunction(
+        SqlFunctionExpression sqlFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        if (sqlFunctionExpression is { Name: "JSON_CONTAINS", Arguments: [var collection, var item] } jsonContains)
+        {
+            // JSON_CONTAINS() does not allow searching for NULL within a JSON collection (always returns zero when the item is NULL).
+            // As a result, we do not translate to JSON_CONTAINS() in SqlServerQueryableMethodTranslatingExpressionVisitor unless we know that
+            // either the item or the collection's elements are non-nullable.
+            // When the item argument is nullable, we add a null check around JSON_CONTAINS():
+            // CASE WHEN @item IS NULL THEN NULL ELSE JSON_CONTAINS(collection, @item) END
+            item = Visit(item, out var itemNullable);
+            collection = Visit(collection, out var collectionNullable);
+
+            sqlFunctionExpression = jsonContains.Update(instance: null, arguments: [collection, item]);
+
+            if (itemNullable && !UseRelationalNulls)
+            {
+                nullable = true;
+                return Dependencies.SqlExpressionFactory.Case(
+                    [
+                        new CaseWhenClause(
+                            Dependencies.SqlExpressionFactory.IsNull(item),
+                            Dependencies.SqlExpressionFactory.Constant(null, typeof(bool?), jsonContains.TypeMapping))
+                    ],
+                    jsonContains);
+            }
+
+            nullable = itemNullable || collectionNullable;
+            return sqlFunctionExpression;
+        }
+
+        return base.VisitSqlFunction(sqlFunctionExpression, allowOptimizedExpansion, out nullable);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool PreferExistsToInWithCoalesce
         => true;
 

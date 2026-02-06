@@ -101,14 +101,15 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
             elementTypeMapping = e;
         }
 
-        if (parameterTypeMapping is not SqlServerStringTypeMapping { ElementTypeMapping: not null })
+        if (parameterTypeMapping is not SqlServerStringTypeMapping { ElementTypeMapping: not null }
+            and not SqlServerJsonTypeMapping { ElementTypeMapping: not null })
         {
-            throw new UnreachableException("A SqlServerStringTypeMapping collection type mapping could not be found");
+            throw new UnreachableException("A string/JSON collection type mapping was not found");
         }
 
         return openJsonExpression.Update(
             parameterExpression.ApplyTypeMapping(parameterTypeMapping),
             path: null,
-            [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, [])]);
+            [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, Path: [])]);
     }
 }
