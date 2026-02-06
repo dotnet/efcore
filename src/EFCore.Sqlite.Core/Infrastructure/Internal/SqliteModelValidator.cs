@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
@@ -11,21 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteModelValidator : RelationalModelValidator
+public class SqliteModelValidator(
+    ModelValidatorDependencies dependencies,
+    RelationalModelValidatorDependencies relationalDependencies)
+    : RelationalModelValidator(dependencies, relationalDependencies)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteModelValidator(
-        ModelValidatorDependencies dependencies,
-        RelationalModelValidatorDependencies relationalDependencies)
-        : base(dependencies, relationalDependencies)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -35,10 +26,21 @@ public class SqliteModelValidator : RelationalModelValidator
     public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         base.Validate(model, logger);
+    }
 
-        ValidateNoSchemas(model, logger);
-        ValidateNoSequences(model, logger);
-        ValidateNoStoredProcedures(model, logger);
+    /// <inheritdoc />
+    protected override void ValidateEntityType(
+        IEntityType entityType,
+        IConventionModel? conventionModel,
+        bool requireFullNotifications,
+        HashSet<IEntityType> validEntityTypes,
+        Dictionary<IKey, IIdentityMap> identityMaps,
+        bool sensitiveDataLogged,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateEntityType(entityType, conventionModel, requireFullNotifications, validEntityTypes, identityMaps, sensitiveDataLogged, logger);
+
+        ValidateNoSchema(entityType, logger);
     }
 
     /// <summary>
@@ -47,14 +49,25 @@ public class SqliteModelValidator : RelationalModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void ValidateNoSchemas(
-        IModel model,
+    protected virtual void ValidateNoSchema(
+        IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
+        var schema = entityType.GetSchema();
+        if (schema != null)
         {
-            logger.SchemaConfiguredWarning(entityType, entityType.GetSchema()!);
+            logger.SchemaConfiguredWarning(entityType, schema);
         }
+    }
+
+    /// <inheritdoc />
+    protected override void ValidateSequence(
+        ISequence sequence,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateSequence(sequence, logger);
+
+        logger.SequenceConfiguredWarning(sequence);
     }
 
     /// <summary>
@@ -63,36 +76,18 @@ public class SqliteModelValidator : RelationalModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void ValidateNoSequences(
-        IModel model,
+    protected override void ValidateStoredProcedures(
+        IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var sequence in model.GetSequences())
+        if (entityType.GetInsertStoredProcedure() is not null
+            || entityType.GetUpdateStoredProcedure() is not null
+            || entityType.GetDeleteStoredProcedure() is not null)
         {
-            logger.SequenceConfiguredWarning(sequence);
+            throw new InvalidOperationException(SqliteStrings.StoredProceduresNotSupported(entityType.DisplayName()));
         }
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual void ValidateNoStoredProcedures(
-        IModel model,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-    {
-        foreach (var entityType in model.GetEntityTypes())
-        {
-            if (entityType.GetInsertStoredProcedure() is not null
-                || entityType.GetUpdateStoredProcedure() is not null
-                || entityType.GetDeleteStoredProcedure() is not null)
-            {
-                throw new InvalidOperationException(SqliteStrings.StoredProceduresNotSupported(entityType.DisplayName()));
-            }
-        }
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -863,7 +863,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().ToTable("Animal");
-        modelBuilder.Entity<Cat>().ToTable("Cat").SplitToTable("CatDetails", s => s.Property(a => a.Name));
+        modelBuilder.Entity<Cat>().ToTable("Cat").SplitToTable("CatDetails", s => s.Property(c => c.Breed));
 
         VerifyError(
             RelationalStrings.EntitySplittingHierarchy(nameof(Cat), "CatDetails"),
@@ -2880,7 +2880,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Detects_multiple_entity_types_mapped_to_the_same_stored_procedure()
+    public virtual void Detects_multiple_entity_types_mapped_to_the_same_stored_procedure()
     {
         var modelBuilder = CreateConventionModelBuilder();
 

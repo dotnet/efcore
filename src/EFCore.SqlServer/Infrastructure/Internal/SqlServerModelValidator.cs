@@ -1,8 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Microsoft.Data.SqlTypes;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -17,26 +18,37 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerModelValidator(ModelValidatorDependencies dependencies, RelationalModelValidatorDependencies relationalDependencies)
+public class SqlServerModelValidator(
+    ModelValidatorDependencies dependencies,
+    RelationalModelValidatorDependencies relationalDependencies)
     : RelationalModelValidator(dependencies, relationalDependencies)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    /// <inheritdoc />
+    protected override void ValidateEntityType(
+        IEntityType entityType,
+        IConventionModel? conventionModel,
+        bool requireFullNotifications,
+        HashSet<IEntityType> validEntityTypes,
+        Dictionary<IKey, IIdentityMap> identityMaps,
+        bool sensitiveDataLogged,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        ValidateIndexIncludeProperties(model, logger);
-        ValidateVectorIndexes(model, logger);
+        base.ValidateEntityType(entityType, conventionModel, requireFullNotifications, validEntityTypes, identityMaps, sensitiveDataLogged, logger);
 
-        base.Validate(model, logger);
+        ValidateTemporalTable(entityType, logger);
+    }
 
-        ValidateDecimalColumns(model, logger);
-        ValidateVectorColumns(model, logger);
-        ValidateByteIdentityMapping(model, logger);
-        ValidateTemporalTables(model, logger);
+    /// <inheritdoc />
+    protected override void ValidateProperty(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateProperty(property, structuralType, logger);
+
+        ValidateDecimalColumn(property, logger);
+        ValidateByteIdentityMapping(property, logger);
+        ValidateVectorProperty(property, logger);
     }
 
     /// <summary>
@@ -45,38 +57,44 @@ public class SqlServerModelValidator(ModelValidatorDependencies dependencies, Re
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void ValidateDecimalColumns(
-        IModel model,
+    protected virtual void ValidateDecimalColumn(
+        IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (IConventionProperty property in model.GetEntityTypes()
-                     .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                         && !p.IsForeignKey()))
+        if (property.DeclaringType.IsMappedToJson())
         {
-            var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
-            var valueConverterProviderType = property.GetValueConverter()?.ProviderClrType;
-            if (!ConfigurationSource.Convention.Overrides(valueConverterConfigurationSource)
-                && typeof(decimal) != valueConverterProviderType)
-            {
-                continue;
-            }
+            return;
+        }
 
-            var columnTypeConfigurationSource = property.GetColumnTypeConfigurationSource();
-            if (((columnTypeConfigurationSource == null
-                        && ConfigurationSource.Convention.Overrides(property.GetTypeMappingConfigurationSource()))
-                    || (columnTypeConfigurationSource != null
-                        && ConfigurationSource.Convention.Overrides(columnTypeConfigurationSource)))
-                && (ConfigurationSource.Convention.Overrides(property.GetPrecisionConfigurationSource())
-                    || ConfigurationSource.Convention.Overrides(property.GetScaleConfigurationSource())))
-            {
-                logger.DecimalTypeDefaultWarning((IProperty)property);
-            }
+        if (property is not IConventionProperty conventionProperty
+            || conventionProperty.ClrType.UnwrapNullableType() != typeof(decimal)
+            || conventionProperty.IsForeignKey())
+        {
+            return;
+        }
 
-            if (property.IsKey())
-            {
-                logger.DecimalTypeKeyWarning((IProperty)property);
-            }
+        var valueConverterConfigurationSource = conventionProperty.GetValueConverterConfigurationSource();
+        var valueConverterProviderType = conventionProperty.GetValueConverter()?.ProviderClrType;
+        if (!ConfigurationSource.Convention.Overrides(valueConverterConfigurationSource)
+            && typeof(decimal) != valueConverterProviderType)
+        {
+            return;
+        }
+
+        var columnTypeConfigurationSource = conventionProperty.GetColumnTypeConfigurationSource();
+        if (((columnTypeConfigurationSource == null
+                    && ConfigurationSource.Convention.Overrides(conventionProperty.GetTypeMappingConfigurationSource()))
+                || (columnTypeConfigurationSource != null
+                    && ConfigurationSource.Convention.Overrides(columnTypeConfigurationSource)))
+            && (ConfigurationSource.Convention.Overrides(conventionProperty.GetPrecisionConfigurationSource())
+                || ConfigurationSource.Convention.Overrides(conventionProperty.GetScaleConfigurationSource())))
+        {
+            logger.DecimalTypeDefaultWarning(property);
+        }
+
+        if (conventionProperty.IsKey())
+        {
+            logger.DecimalTypeKeyWarning(property);
         }
     }
 
@@ -86,38 +104,22 @@ public class SqlServerModelValidator(ModelValidatorDependencies dependencies, Re
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void ValidateVectorColumns(
-        IModel model,
+    protected virtual void ValidateVectorProperty(
+        IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var entityType in model.GetEntityTypes())
+        if (property.FindTypeMapping() is SqlServerVectorTypeMapping vectorTypeMapping)
         {
-            ValidateVectorColumns(entityType);
-        }
-
-        void ValidateVectorColumns(ITypeBase typeBase)
-        {
-            foreach (var property in typeBase.GetDeclaredProperties())
+            if (property.DeclaringType.IsMappedToJson())
             {
-                if (property.FindTypeMapping() is SqlServerVectorTypeMapping vectorTypeMapping)
-                {
-                    if (property.DeclaringType.IsMappedToJson())
-                    {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
-                    }
-
-                    if (vectorTypeMapping.Size is null)
-                    {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
-                    }
-                }
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorPropertiesNotSupportedInJson(property.DeclaringType.DisplayName(), property.Name));
             }
 
-            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            if (vectorTypeMapping.Size is null)
             {
-                ValidateVectorColumns(complexProperty.ComplexType);
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorDimensionsMissing(property.DeclaringType.DisplayName(), property.Name));
             }
         }
     }
@@ -129,18 +131,19 @@ public class SqlServerModelValidator(ModelValidatorDependencies dependencies, Re
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual void ValidateByteIdentityMapping(
-        IModel model,
+        IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var entityType in model.GetEntityTypes())
+        if (property.DeclaringType.IsMappedToJson())
         {
-            // TODO: Validate this per table
-            foreach (var property in entityType.GetDeclaredProperties()
-                         .Where(p => p.ClrType.UnwrapNullableType() == typeof(byte)
-                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
-            {
-                logger.ByteIdentityColumnWarning(property);
-            }
+            return;
+        }
+
+        // TODO: Validate this per table
+        if (property.ClrType.UnwrapNullableType() == typeof(byte)
+            && property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+        {
+            logger.ByteIdentityColumnWarning(property);
         }
     }
 
@@ -167,148 +170,45 @@ public class SqlServerModelValidator(ModelValidatorDependencies dependencies, Re
     }
 
     /// <inheritdoc />
-    protected override void ValidateTypeMappings(
-        IModel model,
+    protected override void ValidateTypeMapping(
+        IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateTypeMappings(model, logger);
+        base.ValidateTypeMapping(property, logger);
 
-        foreach (var entityType in model.GetEntityTypes())
+        var strategy = property.GetValueGenerationStrategy();
+        var propertyType = property.ClrType;
+
+        if (strategy == SqlServerValueGenerationStrategy.IdentityColumn
+            && !SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(property))
         {
-            foreach (var property in entityType.GetFlattenedDeclaredProperties())
-            {
-                var strategy = property.GetValueGenerationStrategy();
-                var propertyType = property.ClrType;
+            throw new InvalidOperationException(
+                SqlServerStrings.IdentityBadType(
+                    property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
+        }
 
-                if (strategy == SqlServerValueGenerationStrategy.IdentityColumn
-                    && !SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(property))
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.IdentityBadType(
-                            property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
-                }
-
-                if (strategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
-                    && !SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(property))
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.SequenceBadType(
-                            property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
-                }
-            }
+        if (strategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
+            && !SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(property))
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.SequenceBadType(
+                    property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
         }
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual void ValidateIndexIncludeProperties(
-        IModel model,
+    /// <inheritdoc />
+    protected override void ValidateIndex(
+        IIndex index,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
-        {
-            var includeProperties = index.GetIncludeProperties();
-            if (includeProperties?.Count > 0)
-            {
-                var notFound = includeProperties
-                    .FirstOrDefault(i => index.DeclaringEntityType.FindProperty(i) == null);
+        base.ValidateIndex(index, logger);
 
-                if (notFound != null)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.IncludePropertyNotFound(
-                            notFound,
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName()));
-                }
+        ValidateIndexIncludeProperties(index);
 
-                var duplicateProperty = includeProperties
-                    .GroupBy(i => i)
-                    .Where(g => g.Count() > 1)
-                    .Select(y => y.Key)
-                    .FirstOrDefault();
-
-                if (duplicateProperty != null)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.IncludePropertyDuplicated(
-                            index.DeclaringEntityType.DisplayName(),
-                            duplicateProperty,
-                            index.DisplayName()));
-                }
-
-                var coveredProperty = includeProperties
-                    .FirstOrDefault(i => index.Properties.Any(p => i == p.Name));
-
-                if (coveredProperty != null)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.IncludePropertyInIndex(
-                            index.DeclaringEntityType.DisplayName(),
-                            coveredProperty,
-                            index.DisplayName()));
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
 #pragma warning disable EF9105 // Vector indexes are experimental
-    protected virtual void ValidateVectorIndexes(
-        IModel model,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-    {
-        foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
-        {
-            if (index.IsVectorIndex())
-            {
-                if (index.Properties is not [var property])
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.VectorIndexRequiresSingleProperty(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName()));
-                }
-
-                if (index.GetVectorMetric() is null or "")
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.VectorIndexRequiresMetric(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName()));
-                }
-
-                if (index.GetVectorIndexType() is "")
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.VectorIndexRequiresType(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName()));
-                }
-
-                var typeMapping = property.FindTypeMapping();
-
-                if (typeMapping is not SqlServerVectorTypeMapping)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.VectorIndexOnNonVectorProperty(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName(),
-                            property.Name));
-                }
-            }
-        }
-    }
+        ValidateVectorIndex(index);
 #pragma warning restore EF9105
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -316,27 +216,128 @@ public class SqlServerModelValidator(ModelValidatorDependencies dependencies, Re
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void ValidateTemporalTables(
-        IModel model,
+    protected virtual void ValidateIndexIncludeProperties(IIndex index)
+    {
+        var includeProperties = index.GetIncludeProperties();
+        if (includeProperties?.Count > 0)
+        {
+            var notFound = includeProperties
+                .FirstOrDefault(i => index.DeclaringEntityType.FindProperty(i) == null);
+
+            if (notFound != null)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.IncludePropertyNotFound(
+                        notFound,
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName()));
+            }
+
+            var duplicateProperty = includeProperties
+                .GroupBy(i => i)
+                .Where(g => g.Count() > 1)
+                .Select(y => y.Key)
+                .FirstOrDefault();
+
+            if (duplicateProperty != null)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.IncludePropertyDuplicated(
+                        index.DeclaringEntityType.DisplayName(),
+                        duplicateProperty,
+                        index.DisplayName()));
+            }
+
+            var coveredProperty = includeProperties
+                .FirstOrDefault(i => index.Properties.Any(p => i == p.Name));
+
+            if (coveredProperty != null)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.IncludePropertyInIndex(
+                        index.DeclaringEntityType.DisplayName(),
+                        coveredProperty,
+                        index.DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    protected virtual void ValidateVectorIndex(IIndex index)
+    {
+        if (index.IsVectorIndex())
+        {
+            if (index.Properties is not [var property])
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorIndexRequiresSingleProperty(
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName()));
+            }
+
+            if (index.GetVectorMetric() is null or "")
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorIndexRequiresMetric(
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName()));
+            }
+
+            if (index.GetVectorIndexType() is "")
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorIndexRequiresType(
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName()));
+            }
+
+            var typeMapping = property.FindTypeMapping();
+
+            if (typeMapping is not SqlServerVectorTypeMapping)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.VectorIndexOnNonVectorProperty(
+                        index.DisplayName(),
+                        index.DeclaringEntityType.DisplayName(),
+                        property.Name));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateTemporalTable(
+        IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var temporalEntityTypes = model.GetEntityTypes().Where(t => t.IsTemporal()).ToList();
-        foreach (var temporalEntityType in temporalEntityTypes)
+        if (!entityType.IsTemporal())
         {
-            if (temporalEntityType.BaseType != null)
-            {
-                throw new InvalidOperationException(SqlServerStrings.TemporalOnlyOnRoot(temporalEntityType.DisplayName()));
-            }
+            return;
+        }
 
-            ValidateTemporalPeriodProperty(temporalEntityType, periodStart: true);
-            ValidateTemporalPeriodProperty(temporalEntityType, periodStart: false);
+        if (entityType.BaseType != null)
+        {
+            throw new InvalidOperationException(SqlServerStrings.TemporalOnlyOnRoot(entityType.DisplayName()));
+        }
 
-            var derivedTableMappings = temporalEntityType.GetDerivedTypes().Select(t => t.GetTableName()).Distinct().ToList();
-            if (derivedTableMappings.Count > 0
-                && (derivedTableMappings.Count != 1 || derivedTableMappings.First() != temporalEntityType.GetTableName()))
-            {
-                throw new InvalidOperationException(SqlServerStrings.TemporalOnlySupportedForTPH(temporalEntityType.DisplayName()));
-            }
+        ValidateTemporalPeriodProperty(entityType, periodStart: true);
+        ValidateTemporalPeriodProperty(entityType, periodStart: false);
+
+        var derivedTableMappings = entityType.GetDerivedTypes().Select(t => t.GetTableName()).Distinct().ToList();
+        if (derivedTableMappings.Count > 0
+            && (derivedTableMappings.Count != 1 || derivedTableMappings.First() != entityType.GetTableName()))
+        {
+            throw new InvalidOperationException(SqlServerStrings.TemporalOnlySupportedForTPH(entityType.DisplayName()));
         }
     }
 
