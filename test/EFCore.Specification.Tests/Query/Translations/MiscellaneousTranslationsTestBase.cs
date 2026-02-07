@@ -236,6 +236,50 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
     #endregion Convert
 
+    #region Parse
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_Parse(bool async) =>
+        AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.Int >= 0 && o.Int <= 255 && byte.Parse(Convert.ToString(o.Int)) == 12));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Decimal_Parse(bool async) =>
+        AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => decimal.Parse(Convert.ToString(o.Int)) == 8));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Double_Parse(bool async) =>
+        AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => double.Parse(Convert.ToString(o.Int)) == 8));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Short_Parse(bool async) =>
+        AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => short.Parse(Convert.ToString(o.Int)) == 12));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Int_Parse(bool async) =>
+        AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => int.Parse(Convert.ToString(o.Int)) == 12));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Long_Parse(bool async) =>
+        AssertQuery(
+            async,
+            ss => ss.Set<BasicTypesEntity>().Where(o => long.Parse(Convert.ToString(o.Int)) == 12));
+    #endregion
+
     #region Compare
 
     [ConditionalFact]
