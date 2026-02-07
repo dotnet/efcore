@@ -1428,6 +1428,31 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(SqlOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
+        if (Options.HasFlag(MigrationsSqlGenerationOptions.Script))
+        {
+            var scriptLines = operation.Sql
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+            var builderSql = new StringBuilder();
+
+            foreach (var line in scriptLines)
+            {
+                builderSql.AppendLine(line);
+
+                var trimmed = line.Trim();
+
+                if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                    && (trimmed.Length == 2 || char.IsWhiteSpace(trimmed[2])))
+                {
+                    builderSql.AppendLine();
+                }
+            }
+
+            builder.Append(builderSql.ToString());
+            EndStatement(builder, operation.SuppressTransaction);
+            return;
+        }
+
         var preBatched = operation.Sql
             .Replace("\\\n", "")
             .Replace("\\\r\n", "")

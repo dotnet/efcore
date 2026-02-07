@@ -1798,6 +1798,31 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
         Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("TestTable", "TestColumn", "FileStream"), ex.Message);
     }
 
+    [ConditionalFact]
+    public virtual void Script_migration_does_not_treat_GO_as_batch_delimiter()
+    {
+        var sqlInput =
+            "CREATE TABLE T1 (Id int);" + Environment.NewLine +
+            "GO" + Environment.NewLine +
+            "INSERT INTO T1 VALUES (1);" + Environment.NewLine +
+            "GO 2" + Environment.NewLine +
+            "INSERT INTO T1 VALUES (2);";
+
+        Generate(
+            modelBuilder => { },
+            migrationBuilder => migrationBuilder.Sql(sqlInput),
+            options: MigrationsSqlGenerationOptions.Script);
+
+        var expected =
+            "CREATE TABLE T1 (Id int);" + Environment.NewLine +
+            "GO" + Environment.NewLine + Environment.NewLine +
+            "INSERT INTO T1 VALUES (1);" + Environment.NewLine +
+            "GO 2" + Environment.NewLine + Environment.NewLine +
+            "INSERT INTO T1 VALUES (2);";
+
+        AssertSql(expected);
+    }
+
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>
