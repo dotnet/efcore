@@ -120,13 +120,19 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     case ParameterExpression parameterExpression:
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
-                    case ProjectionBindingExpression projectionBindingExpression:
-                        return _selectExpression.GetProjection(projectionBindingExpression) switch
-                        {
-                            StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
-                            SqlExpression mappedSqlExpression => AddClientProjection(mappedSqlExpression, expression.Type.MakeNullable()),
-                            _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
-                        };
+                    case SqlExpression mappedSqlExpression:
+                    var isNullable = mappedSqlExpression switch
+                    {
+                        ColumnExpression c => c.IsNullable,
+                        SqlFunctionExpression f => f.IsNullable,
+                        _ => true
+                    };
+
+                    return AddClientProjection(
+                        mappedSqlExpression,
+                        isNullable && expression.Type.IsValueType && !expression.Type.IsNullableType()
+                            ? expression.Type.MakeNullable()
+                            : expression.Type);
 
                     case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                         if (materializeCollectionNavigationExpression.Navigation.TargetEntityType.IsMappedToJson())
@@ -241,9 +247,20 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
-                        _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
-                        return new ProjectionBindingExpression(
-                            _selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+                    _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
+                    var isNullable = sqlExpression switch
+                    {
+                        ColumnExpression c => c.IsNullable,
+                        SqlFunctionExpression f => f.IsNullable,
+                        _ => true
+                    };
+
+                    return new ProjectionBindingExpression(
+                        _selectExpression,
+                        _projectionMembers.Peek(),
+                        isNullable && expression.Type.IsValueType && !expression.Type.IsNullableType()
+                            ? expression.Type.MakeNullable()
+                            : expression.Type);
 
                     // This handles the case of a complex type being projected out of a Select.
                     // Note that an entity type being projected is (currently) handled differently
@@ -687,18 +704,16 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         if (targetType != expression.Type
             && targetType.TryGetElementType(typeof(IQueryable<>)) == null)
         {
-            Check.DebugAssert(
-                targetType.MakeNullable() == expression.Type,
-                $"expression has type {expression.Type.Name}, but must be nullable over {targetType.Name}");
-
-            return expression switch
+            if (expression is ProjectionBindingExpression projectionBindingExpression)
             {
-#pragma warning disable EF1001
-                RelationalStructuralTypeShaperExpression structuralShaper => structuralShaper.MakeClrTypeNonNullable(),
-#pragma warning restore EF1001
+                return projectionBindingExpression.UpdateType(targetType);
+            }
 
-                _ =>  Expression.Convert(expression, targetType),
-            };
+            if (expression is RelationalStructuralTypeShaperExpression structuralShaper)
+            {
+                return structuralShaper.MakeClrTypeNonNullable();
+            }
+            return Expression.Convert(expression, targetType);
         }
 
         return expression;
