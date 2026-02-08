@@ -28,4 +28,15 @@ public readonly struct FullTextSearchResult<TKey>(TKey key, int rank)
     ///     the number of unique words matching, and other factors depending on the search method used.
     /// </remarks>
     public int Rank { get; } = rank;
+
+    /// <summary>
+    ///     Deconstructs the result into the key and rank.
+    /// </summary>
+    /// <param name="key">The full-text key value of the matching row.</param>
+    /// <param name="rank">The rank value indicating the relevance of the match.</param>
+    public void Deconstruct(out TKey key, out int rank)
+    {
+        key = Key;
+        rank = Rank;
+    }
 }

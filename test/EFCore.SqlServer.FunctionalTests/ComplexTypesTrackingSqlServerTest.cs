@@ -338,6 +338,10 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     {
     }
 
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+        => Task.CompletedTask;
+
     public class SqlServerFixture : SqlServerFixtureBase
     {
         protected override string StoreName

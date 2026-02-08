@@ -21,4 +21,15 @@ public readonly struct VectorSearchResult<T>(T value, double distance)
     ///    The distance between the query vector and the similar vector.
     /// </summary>
     public double Distance { get; } = distance;
+
+    /// <summary>
+    ///     Deconstructs the result into the returned entity and the distance.
+    /// </summary>
+    /// <param name="value">The entity instance representing the row with a similar vector.</param>
+    /// <param name="distance">The distance between the query vector and the similar vector.</param>
+    public void Deconstruct(out T value, out double distance)
+    {
+        value = Value;
+        distance = Distance;
+    }
 }
