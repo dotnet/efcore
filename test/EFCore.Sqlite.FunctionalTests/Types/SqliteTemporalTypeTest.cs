@@ -57,9 +57,9 @@ public class SqliteDateOnlyTypeTest(SqliteDateOnlyTypeTest.DateTypeFixture fixtu
 public class SqliteTimeOnlyTypeTest(SqliteTimeOnlyTypeTest.TimeTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<TimeOnly, SqliteTimeOnlyTypeTest.TimeTypeFixture>(fixture, testOutputHelper)
 {
-    // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
+
     public override Task Query_property_within_json()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Query_property_within_json());
+        => base.Query_property_within_json();
 
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
