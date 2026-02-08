@@ -91,10 +91,15 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
             SqlUnaryExpression sqlUnaryExpression
                 => sqlUnaryExpression.Update(TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand)),
 
-            SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } sqlBinaryExpression
+            SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse,
+                Left: SqlExpression left,
+                Right: SqlExpression right
+            } sqlBinaryExpression
                 => sqlBinaryExpression.Update(
-                    TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),
-                    TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Right)),
+                    TryCompensateForBoolWithValueConverter(left),
+                    TryCompensateForBoolWithValueConverter(right)),
 
             _ => sqlExpression
         };

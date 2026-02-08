@@ -217,7 +217,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 return node;
             }
 
-            case SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: var left, Right: var right } binary:
+            case SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: SqlExpression left, Right: SqlExpression right } binary:
             {
                 // TODO: Handle property accesses into complex types/owned entity types, #25548
                 var (scalarAccess, propertyValue) =
