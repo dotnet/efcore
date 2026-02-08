@@ -26,6 +26,19 @@ WHERE (ARRAY_LENGTH(c["AssociateCollection"]) = 2)
 """);
     }
 
+    [ConditionalFact]
+    public async Task Where_first_inline_not_null()
+    {
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection.FirstOrDefault() != null));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["AssociateCollection"][0] ?? null) != null)
+""");
+    }
+
     public override async Task Where()
     {
         await base.Where();
