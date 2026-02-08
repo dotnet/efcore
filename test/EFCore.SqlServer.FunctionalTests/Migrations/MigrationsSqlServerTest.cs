@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable UnusedParameter.Local
@@ -283,6 +284,9 @@ CREATE TABLE [People] (
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Create_memory_optimized_temporal_table()
     {
         await Test(
@@ -1585,6 +1589,9 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Alter_column_memoryOptimized_with_index()
     {
         await Test(
@@ -2611,6 +2618,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
         await Test(
@@ -2688,6 +2698,9 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Create_index_memoryOptimized_unique_nonclustered_not_nullable()
     {
         await Test(
