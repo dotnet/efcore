@@ -104,16 +104,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseDropForceDescription");
 
         /// <summary>
-        ///     Updates the database to a specified migration.
-        /// </summary>
-        public static string DatabaseUpdateDescription
-            => GetString("DatabaseUpdateDescription");
-
-        /// <summary>
         ///     Create a new migration with the given name and apply it immediately.
         /// </summary>
         public static string DatabaseUpdateAddDescription
             => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
+        ///     Updates the database to a specified migration.
+        /// </summary>
+        public static string DatabaseUpdateDescription
+            => GetString("DatabaseUpdateDescription");
 
         /// <summary>
         ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
@@ -218,14 +218,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationNameDescription");
 
         /// <summary>
-        ///     Missing required argument '{arg}'.
-        /// </summary>
-        public static string MissingArgument(object? arg)
-            => string.Format(
-                GetString("MissingArgument", nameof(arg)),
-                arg);
-
-        /// <summary>
         ///     Adds a new migration.
         /// </summary>
         public static string MigrationsAddDescription
@@ -304,6 +296,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationToDescription");
 
         /// <summary>
+        ///     Missing required argument '{arg}'.
+        /// </summary>
+        public static string MissingArgument(object? arg)
+            => string.Format(
+                GetString("MissingArgument", nameof(arg)),
+                arg);
+
+        /// <summary>
         ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
         /// </summary>
         public static string MissingConditionalOption(object? requiredOption, object? conditionalOption)
@@ -342,10 +342,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
-
-        /// <summary>
-        ///     Option '--namespace' must be specified with '--add'.
-        /// </summary>
 
         /// <summary>
         ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
@@ -438,10 +434,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("OutputDirDescription");
 
         /// <summary>
-        ///     Option '--output-dir' must be specified with '--add'.
-        /// </summary>
-
-        /// <summary>
         ///     Generate precompiled queries.
         /// </summary>
         public static string PrecompileQueriesDescription
@@ -476,6 +468,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string ProviderDescription
             => GetString("ProviderDescription");
+
+        /// <summary>
+        ///     Running '{command}'
+        /// </summary>
+        public static string RunningCommand(object? command)
+            => string.Format(
+                GetString("RunningCommand", nameof(command)),
+                command);
 
         /// <summary>
         ///     The runtime to use.
@@ -583,3 +583,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
+

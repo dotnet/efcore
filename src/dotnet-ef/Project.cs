@@ -82,6 +82,8 @@ internal class Project
 
         var output = new StringBuilder();
 
+        Reporter.WriteVerbose(Resources.RunningCommand("dotnet " + string.Join(" ", args)));
+
         var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
         if (exitCode != 0)
         {
@@ -92,6 +94,8 @@ internal class Project
 
             throw new CommandException(Resources.GetMetadataFailed);
         }
+
+        Reporter.WriteVerbose(output.ToString());
 
         var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;
 
