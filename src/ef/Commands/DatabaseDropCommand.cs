@@ -38,7 +38,7 @@ internal partial class DatabaseDropCommand
             }
         }
 
-        executor.DropDatabase(Context!.Value());
+        executor.DropDatabase(Context!.Value(), _connection!.Value());
 
         return base.Execute(args);
     }

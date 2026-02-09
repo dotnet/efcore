@@ -11,7 +11,8 @@ internal partial class MigrationsRemoveCommand
     protected override int Execute(string[] args)
     {
         using var executor = CreateExecutor(args);
-        var result = executor.RemoveMigration(Context!.Value(), _force!.HasValue());
+        var force = _force!.HasValue() || _offline!.HasValue();
+        var result = executor.RemoveMigration(Context!.Value(), force, _connection!.Value());
 
         if (_json!.HasValue())
         {

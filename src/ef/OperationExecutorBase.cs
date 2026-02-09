@@ -110,10 +110,10 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["namespace"] = @namespace
             });
 
-    public IDictionary RemoveMigration(string? contextType, bool force)
+    public IDictionary RemoveMigration(string? contextType, bool force, string? connectionString)
         => InvokeOperation<IDictionary>(
             "RemoveMigration",
-            new Dictionary<string, object?> { ["contextType"] = contextType, ["force"] = force });
+            new Dictionary<string, object?> { ["contextType"] = contextType, ["force"] = force, ["connectionString"] = connectionString });
 
     public IEnumerable<IDictionary> GetMigrations(string? contextType, string? connectionString, bool noConnect)
         => InvokeOperation<IEnumerable<IDictionary>>(
@@ -125,10 +125,10 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["noConnect"] = noConnect
             });
 
-    public void DropDatabase(string? contextType)
+    public void DropDatabase(string? contextType, string? connectionString)
         => InvokeOperation(
             "DropDatabase",
-            new Dictionary<string, object?> { ["contextType"] = contextType });
+            new Dictionary<string, object?> { ["contextType"] = contextType, ["connectionString"] = connectionString });
 
     public IDictionary GetContextInfo(string? name)
         => InvokeOperation<IDictionary>(

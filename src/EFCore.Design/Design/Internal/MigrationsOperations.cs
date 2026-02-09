@@ -243,9 +243,16 @@ public class MigrationsOperations
     public virtual MigrationFiles RemoveMigration(
         string? contextType,
         bool force,
-        bool dryRun)
+        bool dryRun,
+        string? connectionString)
     {
         using var context = _contextOperations.CreateContext(contextType);
+
+        if (connectionString != null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
         EnsureMigrationsAssembly(services);
