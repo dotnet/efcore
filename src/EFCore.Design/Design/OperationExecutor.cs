@@ -215,6 +215,11 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -229,13 +234,14 @@ public class OperationExecutor : MarshalByRefObject
             Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
-            Execute(() => executor.GetContextInfoImpl(contextType));
+            var connectionString = (string?)args["connectionString"];
+            Execute(() => executor.GetContextInfoImpl(contextType, connectionString));
         }
     }
 
-    private IDictionary GetContextInfoImpl(string? contextType)
+    private IDictionary GetContextInfoImpl(string? contextType, string? connectionString)
     {
-        var info = ContextOperations.GetContextInfo(contextType);
+        var info = ContextOperations.GetContextInfo(contextType, connectionString);
         return new Hashtable
         {
             ["Type"] = info.Type,

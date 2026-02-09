@@ -303,6 +303,9 @@
   <data name="MissingOption" xml:space="preserve">
     <value>Missing required option '--{option}'.</value>
   </data>
+  <data name="OfflineForceConflict" xml:space="preserve">
+    <value>The --offline and --force options cannot be used together.</value>
+  </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
   </data>

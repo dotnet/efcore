@@ -416,6 +416,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 option);
 
         /// <summary>
+        ///     The --offline and --force options cannot be used together.
+        /// </summary>
+        public static string OfflineForceConflict
+            => GetString("OfflineForceConflict");
+
+        /// <summary>
         ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription

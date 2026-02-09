@@ -140,10 +140,14 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["connectionString"] = connectionString
             });
 
-    public IDictionary GetContextInfo(string? name)
+    public IDictionary GetContextInfo(string? name, string? connectionString)
         => InvokeOperation<IDictionary>(
             "GetContextInfo",
-            new Dictionary<string, object?> { ["contextType"] = name });
+            new Dictionary<string, object?>
+            {
+                ["contextType"] = name,
+                ["connectionString"] = connectionString
+            });
 
     public void UpdateDatabase(string? migration, string? connectionString, string? contextType)
         => InvokeOperation(
