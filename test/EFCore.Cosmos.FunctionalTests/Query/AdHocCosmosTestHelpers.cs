@@ -28,11 +28,11 @@ public class AdHocCosmosTestHelpers
 
     private class TestAutoIncrementIntValueGenerator : ValueGenerator<int>
     {
-        private int i;
+        private int _autoIncrementingId;
 
         public override bool GeneratesTemporaryValues => false;
 
-        public override int Next(EntityEntry entry) => Interlocked.Increment(ref i);
+        public override int Next(EntityEntry entry) => Interlocked.Increment(ref _autoIncrementingId);
     }
 
     public static async Task CreateCustomEntityHelperAsync(
