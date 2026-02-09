@@ -8,7 +8,7 @@ name: Validate PR Target Branch
 
 on:
   pull_request_target:
-    types: [opened, edited]
+    types: [opened, edited, reopened]
 
 permissions:
   pull-requests: write
