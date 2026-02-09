@@ -159,6 +159,9 @@
   <data name="DatabaseDropForceDescription" xml:space="preserve">
     <value>Don't confirm.</value>
   </data>
+  <data name="DatabaseDropConnectionDescription" xml:space="preserve">
+    <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
+  </data>
   <data name="DatabaseUpdateDescription" xml:space="preserve">
     <value>Updates the database to a specified migration.</value>
   </data>
@@ -251,6 +254,9 @@
   </data>
   <data name="MigrationsRemoveForceDescription" xml:space="preserve">
     <value>Revert the migration if it has been applied to the database.</value>
+  </data>
+  <data name="MigrationsRemoveOfflineDescription" xml:space="preserve">
+    <value>Remove the migration without connecting to the database.</value>
   </data>
   <data name="MigrationsScriptDescription" xml:space="preserve">
     <value>Generates a SQL script from migrations.</value>
