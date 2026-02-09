@@ -32,15 +32,23 @@ jobs:
             console.log(`PR #${prNumber} by ${prAuthor} targets branch: ${targetBranch}`);
             console.log(`Action: ${action}, triggered by: ${triggeredBy}`);
             
+            // Helper function to check if a user is a bot
+            const isBot = (username) => {
+              return username === 'copilot' || 
+                     username === 'dotnet-bot' || 
+                     username.startsWith('app/') || 
+                     username.includes('[bot]');
+            };
+            
             // If action is 'edited', check if the base branch was actually changed
             if (action === 'edited' && !context.payload.changes?.base) {
               console.log('PR was edited but base branch was not changed - skipping');
               return;
             }
             
-            // Skip if triggered by a bot
-            if (triggeredBy === 'copilot' || triggeredBy === 'dotnet-bot' || triggeredBy.startsWith('app/') || triggeredBy.includes('[bot]')) {
-              console.log('Triggered by a bot - skipping');
+            // Skip if triggered by a bot or PR is authored by a bot
+            if (isBot(triggeredBy) || isBot(prAuthor)) {
+              console.log('Bot detected - skipping');
               return;
             }
             
@@ -56,7 +64,7 @@ jobs:
                 
                 const authorHasWriteAccess = ['admin', 'write'].includes(authorPermissions.permission);
                 
-                if (!authorHasWriteAccess && !prAuthor.includes('[bot]')) {
+                if (!authorHasWriteAccess) {
                   console.log('Adding community-contribution label');
                   await github.rest.issues.addLabels({
                     owner: context.repo.owner,
@@ -99,7 +107,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
-                body: `Thank you for your contribution! However, this PR targets the \`${targetBranch}\` branch.\n\nExternal contributions should not target release branches. This pull request has been closed automatically; please open a new pull request with a different target branch (such as \`main\`).\n\nFor more information, see our [contribution guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
+                body: `Thank you for your contribution! However, this PR targets the \`${targetBranch}\` branch.\n\nExternal contributions should not target release branches. This pull request has been closed automatically; please open a new pull request targeting \`main\` or another non-release branch.\n\nFor more information, see our [contribution guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
               });
               
               await github.rest.pulls.update({
