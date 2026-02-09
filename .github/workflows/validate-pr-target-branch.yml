@@ -1,15 +1,14 @@
 # This workflow automatically closes PRs from external contributors (those without push permissions)
-# that target branches other than 'main'. It posts a comment asking them to resubmit with the
-# correct target branch.
+# that target release/* branches. It posts a comment asking them to resubmit with the correct target branch.
 #
-# External contributors should always target the 'main' branch per our contribution guidelines.
-# Internal contributors (with push permissions) can target release/* and feature/* branches as needed.
+# External contributors should not target release/* branches per our contribution guidelines.
+# Internal contributors (with push permissions) can target any branch as needed.
 
 name: Validate PR Target Branch
 
 on:
   pull_request_target:
-    types: [opened, edited, reopened]
+    types: [opened, edited]
 
 permissions:
   pull-requests: write
@@ -28,9 +27,10 @@ jobs:
             const prNumber = pr.number;
             const prAuthor = pr.user.login;
             const action = context.payload.action;
+            const triggeredBy = context.actor;
             
             console.log(`PR #${prNumber} by ${prAuthor} targets branch: ${targetBranch}`);
-            console.log(`Action: ${action}`);
+            console.log(`Action: ${action}, triggered by: ${triggeredBy}`);
             
             // If action is 'edited', check if the base branch was actually changed
             if (action === 'edited' && !context.payload.changes?.base) {
@@ -38,36 +38,68 @@ jobs:
               return;
             }
             
-            // Check if target branch is main - if so, allow it
-            if (targetBranch === 'main') {
-              console.log('PR targets main branch - allowed');
+            // Skip if triggered by a bot
+            if (triggeredBy === 'copilot' || triggeredBy === 'dotnet-bot' || triggeredBy.startsWith('app/') || triggeredBy.includes('[bot]')) {
+              console.log('Triggered by a bot - skipping');
               return;
             }
             
-            // Check if the PR author has push permissions to the repository
+            // For new PRs by external contributors, add community-contribution label
+            if (action === 'opened') {
+              try {
+                // Check if PR author is external contributor
+                const { data: authorPermissions } = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  username: prAuthor
+                });
+                
+                const authorHasWriteAccess = ['admin', 'write'].includes(authorPermissions.permission);
+                
+                if (!authorHasWriteAccess && !prAuthor.includes('[bot]')) {
+                  console.log('Adding community-contribution label');
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    labels: ['community-contribution']
+                  });
+                }
+              } catch (error) {
+                console.error('Error adding label:', error);
+              }
+            }
+            
+            // Check if target branch is a release branch
+            if (!targetBranch.startsWith('release/')) {
+              console.log('PR does not target a release branch - allowed');
+              return;
+            }
+            
+            // Check if the user who triggered the action has push permissions
             try {
               const { data: permissions } = await github.rest.repos.getCollaboratorPermissionLevel({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                username: prAuthor
+                username: triggeredBy
               });
               
               const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
-              console.log(`User ${prAuthor} has permission level: ${permissions.permission}`);
+              console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
               
               if (hasWriteAccess) {
                 console.log('User has write access - allowed');
                 return;
               }
               
-              // External contributor targeting non-main branch - close and comment
-              console.log('External contributor targeting non-main branch - closing PR');
+              // External contributor targeting release branch - close and comment
+              console.log('External contributor targeting release branch - closing PR');
               
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: prNumber,
-                body: `Thank you for your contribution! However, this PR targets the \`${targetBranch}\` branch.\n\nExternal contributions should target the \`main\` branch only. This pull request has been closed automatically; please open a new pull request with \`main\` as the target branch.\n\nFor more information, see our [contribution guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
+                body: `Thank you for your contribution! However, this PR targets the \`${targetBranch}\` branch.\n\nExternal contributions should not target release branches. This pull request has been closed automatically; please open a new pull request with a different target branch (such as \`main\`).\n\nFor more information, see our [contribution guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
               });
               
               await github.rest.pulls.update({
