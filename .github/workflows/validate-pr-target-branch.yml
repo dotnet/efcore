@@ -40,6 +40,11 @@ jobs:
                      username.includes('[bot]');
             };
             
+            // Helper function to check if a user has write access
+            const hasWriteAccess = (permission) => {
+              return ['admin', 'write'].includes(permission);
+            };
+            
             // If action is 'edited', check if the base branch was actually changed
             if (action === 'edited' && !context.payload.changes?.base) {
               console.log('PR was edited but base branch was not changed - skipping');
@@ -62,9 +67,7 @@ jobs:
                   username: prAuthor
                 });
                 
-                const authorHasWriteAccess = ['admin', 'write'].includes(authorPermissions.permission);
-                
-                if (!authorHasWriteAccess) {
+                if (!hasWriteAccess(authorPermissions.permission)) {
                   console.log('Adding community-contribution label');
                   await github.rest.issues.addLabels({
                     owner: context.repo.owner,
@@ -92,10 +95,9 @@ jobs:
                 username: triggeredBy
               });
               
-              const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
               console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
               
-              if (hasWriteAccess) {
+              if (hasWriteAccess(permissions.permission)) {
                 console.log('User has write access - allowed');
                 return;
               }
