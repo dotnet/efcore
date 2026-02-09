@@ -20,13 +20,13 @@ public class AdHocCosmosTestHelpers
 
             if (primaryKey != null && primaryKey.Properties.Count == 1 && primaryKey.Properties[0].ClrType == typeof(int))
             {
-                var valueGenerator = new TestAutoIncerementIntValueGenerator();
+                var valueGenerator = new TestAutoIncrementIntValueGenerator();
                 primaryKey.Properties[0].SetValueGeneratorFactory((_, _) => valueGenerator);
             }
         }
     }
 
-    private class TestAutoIncerementIntValueGenerator : ValueGenerator<int>
+    private class TestAutoIncrementIntValueGenerator : ValueGenerator<int>
     {
         private int i;
 
