@@ -117,6 +117,23 @@ WHERE false
 
     #region Contains
 
+    [ConditionalFact]
+    public async Task Contains_with_inline_null()
+    {
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RequiredAssociate.NestedCollection.Contains(null!)), assertEmpty: true);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM n IN c["RequiredAssociate"]["NestedCollection"]
+    WHERE false)
+""");
+    }
+
     public override async Task Contains_with_inline()
     {
         // No backing field could be found for property 'RootEntity.RequiredRelated#RelatedType.NestedCollection#NestedType.RelatedTypeRootEntityId' and the property does not have a getter.

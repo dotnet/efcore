@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -820,6 +821,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         return unaryExpression.NodeType switch
         {
+            ExpressionType.Not when operand is SqlConstantExpression { Value: bool boolValue }
+                => sqlExpressionFactory.Constant(!boolValue),
             ExpressionType.Not
                 => sqlExpressionFactory.Not(sqlOperand!),
 

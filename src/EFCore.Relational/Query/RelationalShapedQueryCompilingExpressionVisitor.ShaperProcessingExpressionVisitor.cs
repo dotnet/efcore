@@ -2918,9 +2918,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Type type,
             IPropertyBase? property = null)
         {
-            Check.DebugAssert(
-                property != null || type.IsNullableType(), "Must read nullable value from database if property is not specified.");
-
             var getMethod = typeMapping.GetDataReaderMethod();
 
             Expression indexExpression = Constant(index);

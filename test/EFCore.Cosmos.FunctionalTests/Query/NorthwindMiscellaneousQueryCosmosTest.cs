@@ -2894,7 +2894,7 @@ WHERE STARTSWITH(c["id"], @prefix)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (STARTSWITH(c["id"], "A") AND NOT(false))
+WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"]
 """);
             });

@@ -118,15 +118,16 @@ public partial class CosmosSqlTranslatingExpressionVisitor
         {
             if (!shaper.IsNullable)
             {
-                result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal);
+                result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal, typeMappingSource.FindMapping(typeof(bool)));
                 return true;
             }
 
-            var access = new SqlObjectAccessExpression(Visit(shaper.ValueBufferExpression)); // @TODO
-            result = sqlExpressionFactory.MakeBinary(
+            var access = Visit(shaper.ValueBufferExpression);
+            result = new SqlBinaryExpression(
                 nodeType,
                 access,
-                sqlExpressionFactory.Constant(null, typeof(object))!,
+                sqlExpressionFactory.Constant(null, typeof(object), CosmosTypeMapping.Default)!,
+                typeof(bool),
                 typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
