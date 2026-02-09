@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -340,6 +339,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             case QueryParameterExpression queryParameter:
                 return new SqlParameterExpression(queryParameter.Name, queryParameter.Type, null);
 
+            case StructuralTypeShaperExpression { StructuralType: IComplexType { ComplexProperty.IsCollection: true } } shaper:
+                return new CollectionResultExpression(shaper);
             case StructuralTypeShaperExpression shaper:
                 return new StructuralTypeReferenceExpression(shaper);
 
@@ -385,7 +386,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                     && (convertedType == null
                         || convertedType.IsAssignableFrom(ese.Type)))
                 {
-                    return new StructuralTypeReferenceExpression(shapedQuery.UpdateShaperExpression(innerExpression));
+                    return ese.StructuralType is IComplexType { ComplexProperty.IsCollection: true }
+                        ? new CollectionResultExpression(shapedQuery.UpdateShaperExpression(innerExpression))
+                        : new StructuralTypeReferenceExpression(shapedQuery.UpdateShaperExpression(innerExpression));
                 }
 
                 if (innerExpression is ProjectionBindingExpression pbe
@@ -952,19 +955,20 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         Check.DebugAssert(property is not null, "Property cannot be null if binding result was non-null");
 
-        switch (expression)
+        if (wrapResultExpressionInReferenceExpression)
         {
-            case StructuralTypeShaperExpression shaper when wrapResultExpressionInReferenceExpression:
-                expression = new StructuralTypeReferenceExpression(shaper);
-                return true;
-            // case ObjectArrayAccessExpression objectArrayProjectionExpression:
-            //     expression = objectArrayProjectionExpression;
-            //     return true;
-            default:
-                return true;
+            switch (expression)
+            {
+                case StructuralTypeShaperExpression { StructuralType: IComplexType { ComplexProperty.IsCollection: true } } shaper:
+                    expression = new CollectionResultExpression(shaper);
+                    return true;
+                case StructuralTypeShaperExpression shaper:
+                    expression = new StructuralTypeReferenceExpression(shaper);
+                    return true;                    
+            }
         }
 
-        // return true;
+        return true;
     }
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
@@ -1084,6 +1088,41 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                     ? new StructuralTypeReferenceExpression(this, derivedEntityType)
                     : QueryCompilationContext.NotTranslatedExpression;
         }
+
+        private string DebuggerDisplay()
+            => this switch
+            {
+                { Parameter: not null } => Parameter.DebuggerDisplay(),
+                { Subquery: not null } => ExpressionPrinter.Print(Subquery!),
+                _ => throw new UnreachableException()
+            };
+    }
+
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
+    private sealed class CollectionResultExpression : Expression
+    {
+        public CollectionResultExpression(StructuralTypeShaperExpression parameter)
+        {
+            Parameter = parameter;
+            ComplexProperty = ((IComplexType)parameter.StructuralType).ComplexProperty;
+        }
+
+        public CollectionResultExpression(ShapedQueryExpression subquery)
+        {
+            Subquery = subquery;
+            ComplexProperty = ((IComplexType)((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType).ComplexProperty;
+        }
+
+        public new StructuralTypeShaperExpression? Parameter { get; }
+        public ShapedQueryExpression? Subquery { get; }
+
+        public IComplexProperty ComplexProperty { get; }
+
+        public override Type Type
+            => ComplexProperty.ComplexType.ClrType;
+
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         private string DebuggerDisplay()
             => this switch

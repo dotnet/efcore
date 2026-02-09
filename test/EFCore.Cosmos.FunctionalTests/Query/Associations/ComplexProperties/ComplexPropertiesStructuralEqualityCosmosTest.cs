@@ -7,12 +7,22 @@ public class ComplexPropertiesStructuralEqualityCosmosTest : ComplexPropertiesSt
 {
     public ComplexPropertiesStructuralEqualityCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
     {
+        Environment.SetEnvironmentVariable("EF_TEST_REWRITE_BASELINES", "1");
+
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
     }
 
-    public override Task Two_associates()
-        => AssertTranslationFailed(base.Two_associates);
+    public override async Task Two_associates()
+    {
+        await base.Two_associates();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"] = c["OptionalAssociate"])
+""");
+    }
 
     public override async Task Two_nested_associates()
     {
@@ -22,68 +32,20 @@ public class ComplexPropertiesStructuralEqualityCosmosTest : ComplexPropertiesSt
             """
 SELECT VALUE c
 FROM root c
-WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = c["OptionalAssociate"]["RequiredNestedAssociate"]["Id"]) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"] = c["OptionalAssociate"]["RequiredNestedAssociate"]["Int"])) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"] = c["OptionalAssociate"]["RequiredNestedAssociate"]["Ints"])) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"] = c["OptionalAssociate"]["RequiredNestedAssociate"]["Name"])) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["String"] = c["OptionalAssociate"]["RequiredNestedAssociate"]["String"]))
+WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = c["OptionalAssociate"]["RequiredNestedAssociate"])
 """);
     }
 
-    [ConditionalFact]
-    public virtual async Task Required_two_nested_associates()
+    public override async Task Not_equals()
     {
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == e.RequiredAssociate.RequiredNestedAssociate));
-
+        await base.Not_equals();
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"]) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["String"])))
+WHERE (c["RequiredAssociate"] != c["OptionalAssociate"])
 """);
     }
-
-    [ConditionalFact]
-    public virtual async Task Two_nested_associates_not_equal()
-    {
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate != e.RequiredAssociate.RequiredNestedAssociate));
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE ((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) OR ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"]) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["String"]))))
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Two_nested_optional_associates()
-    {
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate != null && e.RequiredAssociate.OptionalNestedAssociate == e.OptionalAssociate.OptionalNestedAssociate));
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE ((c["OptionalAssociate"] != null) AND (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] = null)) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Id"]) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Ints"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Name"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["String"])))))
-""");
-    }
-
-    [ConditionalFact]
-    public virtual async Task Two_nested_optional_associates_not_equal()
-    {
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate != null && e.RequiredAssociate.OptionalNestedAssociate != e.OptionalAssociate.OptionalNestedAssociate));
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE ((c["OptionalAssociate"] != null) AND ((((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null)) OR ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] = null))) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Id"]) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Ints"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Name"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["String"])))))
-""");
-    }
-
-    public override Task Not_equals()
-        => AssertTranslationFailed(base.Not_equals); // Complex collection equality... Need ALL support
 
     public override async Task Associate_with_inline_null()
     {
@@ -97,8 +59,19 @@ WHERE (c["OptionalAssociate"] = null)
 """);
     }
 
-    public override Task Associate_with_parameter_null()
-        => AssertTranslationFailed(base.Associate_with_parameter_null); // Complex collection equality... Need ALL support
+    public override async Task Associate_with_parameter_null()
+    {
+        await base.Associate_with_parameter_null();
+
+        AssertSql(
+            """
+@entity_equality_related='null'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["OptionalAssociate"] = @entity_equality_related)
+""");
+    }
 
     public override async Task Nested_associate_with_inline_null()
     {
@@ -120,7 +93,7 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = null)
             """
 SELECT VALUE c
 FROM root c
-WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = 1000) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"] = 8)) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"] = [1,2,3])) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"] = "Root1_RequiredAssociate_RequiredNestedAssociate")) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["String"] = "foo"))
+WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = {"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"})
 """);
     }
 
@@ -130,15 +103,11 @@ WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = 1000) AND (
 
         AssertSql(
             """
-@entity_equality_nested_Id='1000'
-@entity_equality_nested_Int='8'
-@entity_equality_nested_Ints='[1,2,3]'
-@entity_equality_nested_Name='Root1_RequiredAssociate_RequiredNestedAssociate'
-@entity_equality_nested_String='foo'
+@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}'
 
 SELECT VALUE c
 FROM root c
-WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = @entity_equality_nested_Id) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"] = @entity_equality_nested_Int)) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"] = @entity_equality_nested_Ints)) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"] = @entity_equality_nested_Name)) AND (c["RequiredAssociate"]["RequiredNestedAssociate"]["String"] = @entity_equality_nested_String))
+WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = @entity_equality_nested)
 """);
     }
 
@@ -151,16 +120,11 @@ WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = @entity_equ
 
         AssertSql(
             """
-@entity_equality_nested=null
-@entity_equality_nested_Id=null
-@entity_equality_nested_Int=null
-@entity_equality_nested_Ints=null
-@entity_equality_nested_Name=null
-@entity_equality_nested_String=null
+@entity_equality_nested='null'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_equality_nested = null)) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = @entity_equality_nested_Id) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = @entity_equality_nested_Int)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = @entity_equality_nested_Ints)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = @entity_equality_nested_Name)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = @entity_equality_nested_String))))
+WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = @entity_equality_nested)
 """);
     }
 
@@ -173,27 +137,43 @@ WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_
 
         AssertSql(
             """
-@entity_equality_nested=null
-@entity_equality_nested_Id=null
-@entity_equality_nested_Int=null
-@entity_equality_nested_Ints=null
-@entity_equality_nested_Name=null
-@entity_equality_nested_String=null
+@entity_equality_nested='null'
 
 SELECT VALUE c
 FROM root c
-WHERE ((((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_equality_nested != null)) OR ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested = null))) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != @entity_equality_nested_Id) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != @entity_equality_nested_Int)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != @entity_equality_nested_Ints)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != @entity_equality_nested_Name)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != @entity_equality_nested_String))))
+WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] != @entity_equality_nested)
 """);
     }
 
-    public override Task Two_nested_collections()
-        => AssertTranslationFailed(base.Two_nested_collections); // Complex collection equality... Need ALL support
+    public override async Task Two_nested_collections()
+    {
+        await base.Two_nested_collections();
 
-    public override Task Nested_collection_with_inline()
-       => AssertTranslationFailed(base.Nested_collection_with_inline); // Complex collection equality... Need ALL support
+        AssertSql(
+            """
 
-    public override Task Nested_collection_with_parameter()
-       => AssertTranslationFailed(base.Nested_collection_with_parameter); // Complex collection equality... Need ALL support
+""");
+}
+
+    public override async Task Nested_collection_with_inline()
+    {
+        await base.Nested_collection_with_inline();
+
+        AssertSql(
+            """
+
+""");
+    }
+
+    public override async Task Nested_collection_with_parameter()
+    {
+        await base.Nested_collection_with_parameter();
+
+        AssertSql(
+            """
+
+""");
+    }
 
     [ConditionalFact]
     public override async Task Nullable_value_type_with_null()
@@ -221,7 +201,7 @@ FROM root c
 WHERE EXISTS (
     SELECT 1
     FROM n IN c["RequiredAssociate"]["NestedCollection"]
-    WHERE (((((n["Id"] = 1002) AND (n["Int"] = 8)) AND (n["Ints"] = [1,2,3])) AND (n["Name"] = "Root1_RequiredAssociate_NestedCollection_1")) AND (n["String"] = "foo")))
+    WHERE (n = {"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"}))
 """);
     }
 
@@ -231,18 +211,14 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@entity_equality_nested_Id='1002'
-@entity_equality_nested_Int='8'
-@entity_equality_nested_Ints='[1,2,3]'
-@entity_equality_nested_Name='Root1_RequiredAssociate_NestedCollection_1'
-@entity_equality_nested_String='foo'
+@entity_equality_nested='{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"}'
 
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
     FROM n IN c["RequiredAssociate"]["NestedCollection"]
-    WHERE (((((n["Id"] = @entity_equality_nested_Id) AND (n["Int"] = @entity_equality_nested_Int)) AND (n["Ints"] = @entity_equality_nested_Ints)) AND (n["Name"] = @entity_equality_nested_Name)) AND (n["String"] = @entity_equality_nested_String)))
+    WHERE (n = @entity_equality_nested))
 """);
     }
 
@@ -253,23 +229,34 @@ WHERE EXISTS (
         AssertSql(
             """
 @get_Item_Int='106'
-@entity_equality_get_Item_Id='3003'
-@entity_equality_get_Item_Int='108'
-@entity_equality_get_Item_Ints='[8,9,109]'
-@entity_equality_get_Item_Name='Root3_RequiredAssociate_NestedCollection_2'
-@entity_equality_get_Item_String='foo104'
+@entity_equality_get_Item='{"Id":3003,"Int":108,"Ints":[8,9,109],"Name":"Root3_RequiredAssociate_NestedCollection_2","String":"foo104"}'
 
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
     SELECT 1
     FROM n IN c["RequiredAssociate"]["NestedCollection"]
-    WHERE ((n["Int"] > @get_Item_Int) AND (((((n["Id"] = @entity_equality_get_Item_Id) AND (n["Int"] = @entity_equality_get_Item_Int)) AND (n["Ints"] = @entity_equality_get_Item_Ints)) AND (n["Name"] = @entity_equality_get_Item_Name)) AND (n["String"] = @entity_equality_get_Item_String))))
+    WHERE ((n["Int"] > @get_Item_Int) AND (n = @entity_equality_get_Item)))
 """);
     }
 
     public override async Task Contains_with_nested_and_composed_operators()
-        => await AssertTranslationFailed(base.Contains_with_nested_and_composed_operators); // Complex collection equality... Need ALL support
+    {
+        await base.Contains_with_nested_and_composed_operators();
+
+        AssertSql(
+            """
+@get_Item_Id='302'
+@entity_equality_get_Item='{"Id":303,"Int":130,"Ints":[8,9,131],"Name":"Root3_AssociateCollection_2","String":"foo115","NestedCollection":[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}],"OptionalNestedAssociate":{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"},"RequiredNestedAssociate":{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}}'
+
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM a IN c["AssociateCollection"]
+    WHERE ((a["Id"] > @get_Item_Id) AND (a = @entity_equality_get_Item)))
+""");
+    }
 
     #endregion Contains
 

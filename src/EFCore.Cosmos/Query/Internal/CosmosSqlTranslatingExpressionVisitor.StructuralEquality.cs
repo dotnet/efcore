@@ -4,7 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -98,27 +98,39 @@ public partial class CosmosSqlTranslatingExpressionVisitor
         bool equalsMethod,
         [NotNullWhen(true)] out SqlExpression? result)
     {
-        var leftReference = left as StructuralTypeReferenceExpression;
-        var rightReference = right as StructuralTypeReferenceExpression;
-        var reference = leftReference ?? rightReference;
-        if (reference == null)
+        switch (left, right)
         {
-            result = null;
-            return false;
+            case (StructuralTypeReferenceExpression, SqlConstantExpression { Value: null }):
+            case (SqlConstantExpression { Value: null }, StructuralTypeReferenceExpression):
+                return RewriteNullEquality(out result);
+
+            case (StructuralTypeReferenceExpression { StructuralType: IEntityType }, _):
+            case (_, StructuralTypeReferenceExpression { StructuralType: IEntityType }):
+                return TryRewriteEntityEquality(out result);
+
+            case (StructuralTypeReferenceExpression { StructuralType: IComplexType }, _):
+            case (_, StructuralTypeReferenceExpression { StructuralType: IComplexType }):
+                return TryRewriteComplexTypeEquality(collection: false, out result);
+
+            case (CollectionResultExpression, _):
+            case (_, CollectionResultExpression):
+                return TryRewriteComplexTypeEquality(collection: true, out result);
+
+            default:
+                result = null;
+                return false;
         }
 
-        var leftShaper = leftReference?.Parameter
-            ?? (StructuralTypeShaperExpression?)(leftReference?.Subquery)?.ShaperExpression;
-        var rightShaper = rightReference?.Parameter
-            ?? (StructuralTypeShaperExpression?)(rightReference?.Subquery)?.ShaperExpression;
-        var shaper = leftShaper ?? rightShaper ?? throw new UnreachableException();
-
-        if (left is SqlConstantExpression { Value: null }
-            || right is SqlConstantExpression { Value: null })
+        bool RewriteNullEquality(out SqlExpression? result)
         {
+            var reference = left as StructuralTypeReferenceExpression ?? (StructuralTypeReferenceExpression)right;
+            var boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
+
+            var shaper = reference.Parameter ??
+                (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression;
             if (!shaper.IsNullable)
             {
-                result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal, typeMappingSource.FindMapping(typeof(bool)));
+                result = sqlExpressionFactory.Constant(nodeType != ExpressionType.Equal, boolTypeMapping);
                 return true;
             }
 
@@ -128,33 +140,24 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 access,
                 sqlExpressionFactory.Constant(null, typeof(object), CosmosTypeMapping.Default)!,
                 typeof(bool),
-                typeMappingSource.FindMapping(typeof(bool)))!;
+                boolTypeMapping)!;
             return true;
         }
 
-        var leftStructuralType = leftReference?.StructuralType;
-        var rightStructuralType = rightReference?.StructuralType;
-        var structuralType = reference.StructuralType;
-
-        Check.DebugAssert(structuralType != null, "We checked that at least one side is an entity type");
-
-        switch (structuralType)
+        bool TryRewriteEntityEquality(out SqlExpression? result)
         {
-            case IEntityType entityType:
-                return TryRewriteEntityEquality(entityType, out result);
-            case IComplexType complexType:
-                return TryRewriteComplexTypeEquality(
-                    complexType, out result);
-        }
+            var leftReference = left as StructuralTypeReferenceExpression;
+            var rightReference = right as StructuralTypeReferenceExpression;
 
-        result = null;
-        return false;
+            var leftEntityType = leftReference?.StructuralType as IEntityType;
+            var rightEntityType = rightReference?.StructuralType as IEntityType;
+            var entityType = leftEntityType ?? rightEntityType;
 
-        bool TryRewriteEntityEquality(IEntityType entityType, [NotNullWhen(true)] out SqlExpression? result)
-        {
-            if (leftStructuralType != null
-            && rightStructuralType != null
-            && leftStructuralType.GetRootType() != rightStructuralType.GetRootType())
+            Check.DebugAssert(entityType != null, "We checked that at least one side is an entity type before calling this function");
+
+            if (leftEntityType != null
+                && rightEntityType != null
+                && leftEntityType.GetRootType() != rightEntityType.GetRootType())
             {
                 result = sqlExpressionFactory.Constant(false);
                 return true;
@@ -170,7 +173,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                             : equalsMethod
                                 ? "!" + nameof(object.Equals)
                                 : "!=",
-                        structuralType.DisplayName()));
+                        entityType.DisplayName()));
             }
 
             result = Visit(
@@ -182,13 +185,24 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                         : Expression.OrElse(l, r))) as SqlExpression;
 
             return result is not null;
+
         }
 
-        bool TryRewriteComplexTypeEquality(IComplexType complexType, [NotNullWhen(true)] out SqlExpression? result)
+        bool TryRewriteComplexTypeEquality(bool collection, out SqlExpression? result)
         {
-            if (leftStructuralType is not null
-                && rightStructuralType is not null
-                && leftStructuralType.ClrType != rightStructuralType.ClrType)
+            var (leftAccess, leftComplexType) = ParseComplexAccess(left);
+            var (rightAccess, rightComplexType) = ParseComplexAccess(right);
+
+            if (leftAccess is null || leftAccess == QueryCompilationContext.NotTranslatedExpression ||
+                rightAccess is null || rightAccess == QueryCompilationContext.NotTranslatedExpression)
+            {
+                result = null;
+                return false;
+            }
+
+            if (leftComplexType is not null
+                && rightComplexType is not null
+                && leftComplexType.ClrType != rightComplexType.ClrType)
             {
                 // Currently only support comparing complex types of the same CLR type.
                 // We could allow any case where the complex types have the same properties (some may be shadow).
@@ -196,127 +210,45 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 return false;
             }
 
-            // @TODO: Alternative would be a bitwise comparison... But structure and order of properties would matter then.
-
-            // Generate an expression that compares each property on the left to the same property on the right; this needs to recursively
-            // include all properties in nested complex types.
             var boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
-            SqlExpression? comparisons = null;
-
-            if (!TryGeneratePropertyComparisons(ref comparisons))
-            {
-                result = null;
-                return false;
-            }
-
-            result = comparisons;
+            result = new SqlBinaryExpression(
+                    nodeType,
+                    leftAccess,
+                    rightAccess,
+                    typeof(bool),
+                    boolTypeMapping)!;
             return true;
 
-            bool TryGeneratePropertyComparisons([NotNullWhen(true)] ref SqlExpression? comparisons)
+            (Expression?, IComplexType?) ParseComplexAccess(Expression expression)
+                => expression switch
+                {
+                    StructuralTypeReferenceExpression { StructuralType: IComplexType type } reference
+                        => (Visit((reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression).ValueBufferExpression), type),
+                    CollectionResultExpression { ComplexProperty: IComplexProperty { ComplexType: var type } } collectionResult
+                        => (Visit((collectionResult.Parameter ?? (StructuralTypeShaperExpression)collectionResult.Subquery!.ShaperExpression).ValueBufferExpression), type),
+
+                    SqlParameterExpression sqlParameterExpression
+                        => (CreateJsonQueryParameter(sqlParameterExpression), null),
+                    SqlConstantExpression constant
+                        => (sqlExpressionFactory.Constant(
+                            CosmosSerializationUtilities.SerializeObjectToComplexProperty(type, constant.Value, collectionResult != null),
+                            CosmosTypeMapping.Default), null),
+
+                    _ => (null, null)
+                };
+
+            Expression CreateJsonQueryParameter(SqlParameterExpression sqlParameterExpression)
             {
-                // We need to know here the difference between
-                // x.Collection == x.Collection (should return null, as we need All support)
-                // x.Collection[1] == x.Collection[1] (should run below)
-                // @TODO: Is there a better way to do this? It feels like this might not be the right place.
-                // In relational, this wouldn't have come from a StructuralTypeReferenceExpression, but a CollectionResultExpression? At-least if it's json..
-                // See BindMember on StructuralTypeProjectionExpression
-                if ((leftReference?.Parameter ?? leftReference?.Subquery?.ShaperExpression as StructuralTypeShaperExpression)
-                    ?.ValueBufferExpression is ObjectArrayAccessExpression
-                    ||
-                    (rightReference?.Parameter ?? rightReference?.Subquery?.ShaperExpression as StructuralTypeShaperExpression)
-                    ?.ValueBufferExpression is ObjectArrayAccessExpression)
-                {
-                    return false;
-                }
-
-                foreach (var property in complexType.GetProperties().Cast<IPropertyBase>().Concat(complexType.GetComplexProperties()))
-                {
-                    var leftAccess = CreatePropertyAccessExpression(left, property);
-                    var rightAccess = CreatePropertyAccessExpression(right, property);
-
-                    var comparison = Visit(Expression.MakeBinary(nodeType, leftAccess, rightAccess)) as SqlExpression;
-                    if (comparison == null || comparison == QueryCompilationContext.NotTranslatedExpression)
-                    {
-                        return false;
-                    }
-
-                    if (comparison is SqlConstantExpression { Value: false } && nodeType == ExpressionType.Equal)
-                    {
-                        comparisons = comparison;
-                        return true;
-                    }
-
-                    comparisons = comparisons is null
-                    ? comparison
-                    : nodeType == ExpressionType.Equal
-                        ? sqlExpressionFactory.AndAlso(comparisons, comparison)
-                        : sqlExpressionFactory.OrElse(comparisons, comparison);
-                }
-
-                var compare = reference == rightReference ? left : right;
-                if (comparisons != null && (leftShaper?.IsNullable == true || rightShaper?.IsNullable == true))
-                {
-                    var nullCompare = compare;
-
-                    if (nullCompare is SqlParameterExpression sqlParameterExpression)
-                    {
-                        // @TODO: Can we optimize this instead in CosmosQuerySqlGenerator?
-                        // My idea would be to create a SqlParameterComparisonExpression that will hold the comparisons below
-                        // But also hold a sql == null or != null expression
-                        // The CosmosQuerySqlGenerator will check the value of the parameter and chooses which tree to visit at sql generation time
-                        // (or just call a method on SqlParameterComparisonExpression to get which tree to visit, so logic can live there...)
-                        var lambda = Expression.Lambda(
-                            Expression.Condition(
-                                Expression.Equal(
+                var lambda = Expression.Lambda(
+                                Expression.Call(
+                                    CosmosSerializationUtilities.SerializeObjectToComplexPropertyMethod,
+                                    Expression.Constant(type, typeof(IComplexType)),
                                     Expression.Call(ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()), QueryCompilationContext.QueryContextParameter, Expression.Constant(sqlParameterExpression.Name, typeof(string))),
-                                    Expression.Constant(null)),
-                                Expression.Constant(null),
-                                Expression.Constant(new object())),
-                            QueryCompilationContext.QueryContextParameter);
+                                    Expression.Constant(collectionResult != null)),
+                                QueryCompilationContext.QueryContextParameter);
 
-                        var newParameterName = $"{RuntimeParameterPrefix}{sqlParameterExpression.Name}";
-                        var queryParam = queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
-                        nullCompare = new SqlParameterExpression(queryParam.Name, queryParam.Type, CosmosTypeMapping.Default);
-                    }
-
-                    if (nodeType == ExpressionType.Equal)
-                    {
-                        // left == null AND right == null OR (left != null AND right != null AND (left.Prop1 == right.Prop1))
-                        comparisons = (SqlExpression)Visit(
-                            Expression.OrElse(
-                                Expression.AndAlso(
-                                    Expression.Equal(reference, Expression.Constant(null)),
-                                    Expression.Equal(nullCompare, Expression.Constant(null))),
-                                Expression.AndAlso(
-                                    Expression.AndAlso(
-                                        Expression.NotEqual(reference, Expression.Constant(null)),
-                                        Expression.NotEqual(nullCompare, Expression.Constant(null))),
-                                    comparisons)));
-                    }
-                    else
-                    {
-                        // (left == null AND right != null) OR 
-                        // (left != null AND right == null) OR 
-                        // (left != null AND right != null AND (left.Prop1 != right.Prop1))
-                        comparisons = (SqlExpression)Visit(
-                            Expression.OrElse(
-                                Expression.OrElse(
-                                    Expression.AndAlso(
-                                        Expression.Equal(reference, Expression.Constant(null)),
-                                        Expression.NotEqual(nullCompare, Expression.Constant(null))),
-                                    Expression.AndAlso(
-                                        Expression.NotEqual(reference, Expression.Constant(null)),
-                                        Expression.Equal(nullCompare, Expression.Constant(null)))),
-                                Expression.AndAlso(
-                                    Expression.AndAlso(
-                                        Expression.NotEqual(reference, Expression.Constant(null)),
-                                        Expression.NotEqual(nullCompare, Expression.Constant(null))),
-                                    comparisons)));
-
-                    }
-                }
-
-                return comparisons is not null;
+                var param = queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
+                return new SqlParameterExpression(param.Name, param.Type, CosmosTypeMapping.Default);
             }
         }
     }

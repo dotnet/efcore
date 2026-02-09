@@ -183,7 +183,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             && !complexProperty.DeclaringType.IsAssignableFrom(StructuralType))
         {
             throw new InvalidOperationException(
-                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", complexProperty.Name, StructuralType.DisplayName()));
+                CosmosStrings.UnableToBindMemberToEntityProjection("complex property", complexProperty.Name, StructuralType.DisplayName()));
         }
 
         if (!_complexPropertyExpressionsMap.TryGetValue(complexProperty, out var expression))
@@ -334,5 +334,5 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => $"EntityProjectionExpression: {StructuralType.ShortName()}";
+        => $"StructuralTypeProjectionExpression: {StructuralType.ShortName()}";
 }
