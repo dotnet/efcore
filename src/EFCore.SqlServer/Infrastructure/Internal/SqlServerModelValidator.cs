@@ -22,11 +22,23 @@ public class SqlServerModelValidator(
     RelationalModelValidatorDependencies relationalDependencies)
     : RelationalModelValidator(dependencies, relationalDependencies)
 {
+    private int _entityFullTextIndexCount;
+
+    /// <inheritdoc />
+    public override void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.Validate(model, logger);
+
+        ValidateFullTextCatalogs(model, logger);
+    }
+
     /// <inheritdoc />
     protected override void ValidateEntityType(
         IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        _entityFullTextIndexCount = 0;
+
         base.ValidateEntityType(entityType, logger);
 
         ValidateTemporalTable(entityType, logger);
@@ -214,6 +226,7 @@ public class SqlServerModelValidator(
         base.ValidateIndex(index, logger);
 
         ValidateIndexIncludeProperties(index);
+        ValidateFullTextIndex(index);
 
 #pragma warning disable EF9105 // Vector indexes are experimental
         ValidateVectorIndex(index);
@@ -268,6 +281,69 @@ public class SqlServerModelValidator(
                         index.DeclaringEntityType.DisplayName(),
                         coveredProperty,
                         index.DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateFullTextIndex(
+        IIndex index)
+    {
+        if (!index.IsFullTextIndex())
+        {
+            return;
+        }
+
+        var entityType = index.DeclaringEntityType;
+
+        if (++_entityFullTextIndexCount > 1)
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.FullTextIndexDuplicateOnTable(
+                    entityType.DisplayName()));
+        }
+
+        // Validate that a KEY INDEX name has been configured
+        if (index.GetFullTextKeyIndex() is null)
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.FullTextIndexMissingKeyIndex(
+                    index.DisplayName(),
+                    entityType.DisplayName()));
+        }
+
+        // Validate that FTS columns are text or varbinary types
+        foreach (var property in index.Properties)
+        {
+            var typeMapping = (RelationalTypeMapping?)property.FindTypeMapping();
+            if (typeMapping?.StoreTypeNameBase is not ("varchar" or "nvarchar" or "varbinary" or "binary"))
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.FullTextIndexOnInvalidColumn(
+                        index.DisplayName(),
+                        entityType.DisplayName(),
+                        property.Name));
+            }
+        }
+
+        // Validate that language properties are part of the index
+        if (index.GetFullTextLanguages() is { } languages)
+        {
+            foreach (var propertyName in languages.Keys)
+            {
+                if (!index.Properties.Any(p => p.Name == propertyName))
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.FullTextIndexLanguagePropertyNotInIndex(
+                            index.DisplayName(),
+                            entityType.DisplayName(),
+                            propertyName));
+                }
             }
         }
     }
@@ -732,5 +808,32 @@ public class SqlServerModelValidator(
         base.ValidateCompatible(index, duplicateIndex, indexName, table, logger);
 
         index.AreCompatibleForSqlServer(duplicateIndex, table, shouldThrow: true);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateFullTextCatalogs(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        // Validate that at most one catalog is marked as default
+        var defaultCatalogCount = 0;
+
+        foreach (var catalog in model.GetFullTextCatalogs())
+        {
+            if (catalog.IsDefault)
+            {
+                defaultCatalogCount++;
+
+                if (defaultCatalogCount > 1)
+                {
+                    throw new InvalidOperationException(SqlServerStrings.FullTextMultipleDefaultCatalogs);
+                }
+            }
+        }
     }
 }

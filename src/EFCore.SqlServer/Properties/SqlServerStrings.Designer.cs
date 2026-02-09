@@ -162,6 +162,44 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer");
 
         /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.
+        /// </summary>
+        public static string FullTextIndexOnInvalidColumn(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("FullTextIndexOnInvalidColumn", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.
+        /// </summary>
+        public static string FullTextIndexMissingKeyIndex(object? index, object? entityType)
+            => string.Format(
+                GetString("FullTextIndexMissingKeyIndex", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has multiple full-text indexes configured. SQL Server supports only one full-text index per table.
+        /// </summary>
+        public static string FullTextIndexDuplicateOnTable(object? entityType)
+            => string.Format(
+                GetString("FullTextIndexDuplicateOnTable", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' specifies a language for property '{property}', but that property is not part of the index.
+        /// </summary>
+        public static string FullTextIndexLanguagePropertyNotInIndex(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("FullTextIndexLanguagePropertyNotInIndex", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.
+        /// </summary>
+        public static string FullTextMultipleDefaultCatalogs
+            => GetString("FullTextMultipleDefaultCatalogs");
+
+        /// <summary>
         ///     Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
         public static string IdentityBadType(object? property, object? entityType, object? propertyType)
