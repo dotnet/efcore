@@ -52,29 +52,34 @@ jobs:
               return;
             }
             
+            // Check if the user who triggered the action has push permissions
+            let hasWriteAccess = false;
+            try {
+              const { data: permissions } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: triggeredBy
+              });
+              
+              hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
+              console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
+            } catch (error) {
+              console.error('Error checking permissions:', error);
+              // If we can't determine permissions, assume external contributor
+            }
+            
             // Check if target branch is a release branch
             if (!targetBranch.startsWith('release/')) {
               // For new PRs by external contributors, add community-contribution label
-              if (action === 'opened') {
+              if (action === 'opened' && !hasWriteAccess) {
                 try {
-                  // Check if the user who triggered the action has push permissions
-                  const { data: permissions } = await github.rest.repos.getCollaboratorPermissionLevel({
+                  console.log('Adding community-contribution label');
+                  await github.rest.issues.addLabels({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    username: triggeredBy
+                    issue_number: prNumber,
+                    labels: ['community-contribution']
                   });
-                  
-                  const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
-                  
-                  if (!hasWriteAccess) {
-                    console.log('Adding community-contribution label');
-                    await github.rest.issues.addLabels({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: prNumber,
-                      labels: ['community-contribution']
-                    });
-                  }
                 } catch (error) {
                   console.error('Error adding label:', error);
                 }
@@ -83,25 +88,16 @@ jobs:
               return;
             }
             
-            // Check if the user who triggered the action has push permissions
+            // If user has write access, allow PR to release branch
+            if (hasWriteAccess) {
+              console.log('User has write access - allowed');
+              return;
+            }
+            
+            // External contributor targeting release branch - close and comment
+            console.log('External contributor targeting release branch - closing PR');
+            
             try {
-              const { data: permissions } = await github.rest.repos.getCollaboratorPermissionLevel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                username: triggeredBy
-              });
-              
-              const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
-              console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
-              
-              if (hasWriteAccess) {
-                console.log('User has write access - allowed');
-                return;
-              }
-              
-              // External contributor targeting release branch - close and comment
-              console.log('External contributor targeting release branch - closing PR');
-              
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -117,8 +113,6 @@ jobs:
               });
               
               console.log('PR closed successfully');
-              
             } catch (error) {
-              console.error('Error checking permissions or closing PR:', error);
-              // If we can't determine permissions, don't close the PR
+              console.error('Error closing PR:', error);
             }
