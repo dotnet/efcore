@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
