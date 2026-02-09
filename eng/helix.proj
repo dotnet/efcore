@@ -13,6 +13,7 @@
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
     <FailOnTestFailure>true</FailOnTestFailure>
     <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.SqlServer.HierarchyId.Tests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.AspNet.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.VisualBasic.FunctionalTests/*.vbproj</SqlServerTests>
+    <CosmosTests>$(RepoRoot)/test/EFCore.Cosmos.FunctionalTests/*.csproj;</CosmosTests>
   </PropertyGroup>
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
@@ -70,7 +71,14 @@
   <!-- Remove test projects which requires SqlServer from Ubuntu/OSX. -->
   <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL'">
     <XUnitProject Remove="$(SqlServerTests)"/>
-  </ItemGroup>
+  </ItemGroup>  
+  
+  <!-- Set Cosmos emulator connection on Windows  -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
+    <XUnitProject Update="$(CosmosTests)">
+      <PreCommands>$(PreCommands);set Test__Cosmos__SkipConnectionCheck=true;set Test__Cosmos__DefaultConnection=https://localhost:8800</PreCommands>
+    </XUnitProject>
+  </ItemGroup>  
 
   <PropertyGroup>
     <XUnitPublishTargetFramework>$(NetCurrent)</XUnitPublishTargetFramework>
