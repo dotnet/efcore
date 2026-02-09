@@ -227,7 +227,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The removed migration files.</returns>
     public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force, bool dryRun)
-        => RemoveMigration(projectDir, rootNamespace, force, offline: false, language: null, dryRun: false);
+        => RemoveMigration(projectDir, rootNamespace, force, language: null, dryRun: dryRun, offline: false);
 
     /// <summary>
     ///     Removes the previous migration.
@@ -237,24 +237,15 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
     /// <param name="language">The project's language.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
+    /// <param name="offline">Remove the migration without connecting to the database.</param>
     /// <returns>The removed migration files.</returns>
-    [Obsolete("Use the overload that accepts the offline parameter.")]
     public virtual MigrationFiles RemoveMigration(
         string projectDir,
         string? rootNamespace,
         bool force,
         string? language,
-        bool dryRun)
-        => RemoveMigration(projectDir, rootNamespace, force, offline: false, language, dryRun);
-
-    /// <inheritdoc />
-    public virtual MigrationFiles RemoveMigration(
-        string projectDir,
-        string? rootNamespace,
-        bool force,
-        bool offline,
-        string? language,
-        bool dryRun)
+        bool dryRun = false,
+        bool offline = false)
     {
         var files = new MigrationFiles();
 

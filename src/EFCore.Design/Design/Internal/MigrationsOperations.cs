@@ -261,7 +261,7 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, offline, _language, dryRun);
+        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline);
 
         _reporter.WriteInformation(DesignStrings.Done);
 
