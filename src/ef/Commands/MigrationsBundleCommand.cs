@@ -45,7 +45,7 @@ internal partial class MigrationsBundleCommand
                 throw new CommandException(Resources.VersionRequired("6.0.0"));
             }
 
-            context = (string)executor.GetContextInfo(Context!.Value(), connectionString: null)["Type"]!;
+            context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
 
         Reporter.WriteInformation(Resources.BuildBundleStarted);

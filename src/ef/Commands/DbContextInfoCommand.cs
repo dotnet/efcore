@@ -12,7 +12,7 @@ internal partial class DbContextInfoCommand
     protected override int Execute(string[] args)
     {
         using var executor = CreateExecutor(args);
-        var result = executor.GetContextInfo(Context!.Value(), connectionString: null);
+        var result = executor.GetContextInfo(Context!.Value());
 
         if (_json!.HasValue())
         {

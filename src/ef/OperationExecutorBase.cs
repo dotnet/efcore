@@ -140,7 +140,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["connectionString"] = connectionString
             });
 
-    public IDictionary GetContextInfo(string? name, string? connectionString)
+    public IDictionary GetContextInfo(string? name, string? connectionString = null)
         => InvokeOperation<IDictionary>(
             "GetContextInfo",
             new Dictionary<string, object?>
