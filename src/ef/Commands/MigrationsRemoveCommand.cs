@@ -10,6 +10,12 @@ internal partial class MigrationsRemoveCommand
 {
     protected override int Execute(string[] args)
     {
+        if (_offline!.HasValue() && _force!.HasValue())
+        {
+            Reporter.WriteError("The --offline and --force options cannot be used together.");
+            return 1;
+        }
+
         using var executor = CreateExecutor(args);
         var result = executor.RemoveMigration(Context!.Value(), _force!.HasValue(), _offline!.HasValue(), _connection!.Value());
 

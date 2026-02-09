@@ -245,12 +245,12 @@ function Drop-Database
     if ($PSCmdlet.ShouldProcess("database '$($info.databaseName)' on server '$($info.dataSource)'"))
     {
         $params = 'database', 'drop', '--force'
-        
+
         if ($Connection)
         {
             $params += '--connection', $Connection
         }
-        
+
         $params += GetParams $Context
 
         EF $dteProject $dteStartupProject $params $Args -skipBuild

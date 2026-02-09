@@ -15,10 +15,17 @@ internal partial class DatabaseDropCommand
 
         void LogDropCommand(Func<object?, object?, string> resource)
         {
-            var result = executor.GetContextInfo(Context!.Value());
-            var databaseName = result["DatabaseName"] as string;
-            var dataSource = result["DataSource"] as string;
-            Reporter.WriteInformation(resource(databaseName, dataSource));
+            if (_connection!.HasValue())
+            {
+                Reporter.WriteInformation("Warning: Using custom connection string. Database information cannot be displayed.");
+            }
+            else
+            {
+                var result = executor.GetContextInfo(Context!.Value());
+                var databaseName = result["DatabaseName"] as string;
+                var dataSource = result["DataSource"] as string;
+                Reporter.WriteInformation(resource(databaseName, dataSource));
+            }
         }
 
         if (_dryRun!.HasValue())
@@ -30,7 +37,15 @@ internal partial class DatabaseDropCommand
 
         if (!_force!.HasValue())
         {
-            LogDropCommand(Resources.DatabaseDropPrompt);
+            if (_connection!.HasValue())
+            {
+                Reporter.WriteInformation("Are you sure you want to drop the database specified by the connection string? (y/N)");
+            }
+            else
+            {
+                LogDropCommand(Resources.DatabaseDropPrompt);
+            }
+            
             var response = Console.ReadLine()!.Trim().ToUpperInvariant();
             if (response != "Y")
             {

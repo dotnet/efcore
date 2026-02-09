@@ -223,7 +223,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// </summary>
     /// <param name="projectDir">The project's root directory.</param>
     /// <param name="rootNamespace">The project's root namespace.</param>
-    /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The removed migration files.</returns>
     public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force, bool dryRun)
@@ -234,7 +234,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// </summary>
     /// <param name="projectDir">The project's root directory.</param>
     /// <param name="rootNamespace">The project's root namespace.</param>
-    /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
     /// <param name="language">The project's language.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <param name="offline">Remove the migration without connecting to the database.</param>
