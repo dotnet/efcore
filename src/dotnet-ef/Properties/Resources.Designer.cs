@@ -104,12 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseDropForceDescription");
 
         /// <summary>
-        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
-        /// </summary>
-        public static string DatabaseDropConnectionDescription
-            => GetString("DatabaseDropConnectionDescription");
-
-        /// <summary>
         ///     Updates the database to a specified migration.
         /// </summary>
         public static string DatabaseUpdateDescription

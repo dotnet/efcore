@@ -243,6 +243,7 @@ public class MigrationsOperations
     public virtual MigrationFiles RemoveMigration(
         string? contextType,
         bool force,
+        bool offline,
         bool dryRun,
         string? connectionString)
     {
@@ -260,7 +261,7 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun);
+        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, offline, _language, dryRun);
 
         _reporter.WriteInformation(DesignStrings.Done);
 

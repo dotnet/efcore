@@ -10,7 +10,7 @@ internal interface IOperationExecutor : IDisposable
     string? EFCoreVersion { get; }
 
     IDictionary AddMigration(string name, string? outputDir, string? contextType, string? @namespace);
-    IDictionary RemoveMigration(string? contextType, bool force, string? connectionString);
+    IDictionary RemoveMigration(string? contextType, bool force, bool offline, string? connectionString);
     IEnumerable<IDictionary> GetMigrations(string? contextType, string? connectionString, bool noConnect);
     void DropDatabase(string? contextType, string? connectionString);
     IDictionary GetContextInfo(string? name);

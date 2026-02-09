@@ -18,7 +18,7 @@ internal partial class DatabaseDropCommand : ContextCommandBase
 
         _force = command.Option("-f|--force", Resources.DatabaseDropForceDescription);
         _dryRun = command.Option("--dry-run", Resources.DatabaseDropDryRunDescription);
-        _connection = command.Option("--connection <CONNECTION>", Resources.DatabaseDropConnectionDescription);
+        _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
 
         base.Configure(command);
     }

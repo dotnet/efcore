@@ -126,12 +126,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseDropForceDescription");
 
         /// <summary>
-        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
-        /// </summary>
-        public static string DatabaseDropConnectionDescription
-            => GetString("DatabaseDropConnectionDescription");
-
-        /// <summary>
         ///     Are you sure you want to drop the database '{database}' on server '{dataSource}'? (y/N)
         /// </summary>
         public static string DatabaseDropPrompt(object? database, object? dataSource)

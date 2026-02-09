@@ -425,7 +425,8 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-        ///     <para><c>force</c>--Don't check to see if the migration has been applied to the database.</para>
+        ///     <para><c>force</c>--Revert the migration if it has been applied to the database.</para>
+        ///     <para><c>offline</c>--Remove the migration without connecting to the database.</para>
         ///     <para>
         ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
         ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
@@ -446,16 +447,17 @@ public class OperationExecutor : MarshalByRefObject
 
             var contextType = (string?)args["contextType"];
             var force = (bool)args["force"]!;
+            var offline = (bool?)args["offline"];
             var dryRun = (bool?)args["dryRun"]!;
             var connectionString = (string?)args["connectionString"];
 
-            Execute(() => executor.RemoveMigrationImpl(contextType, force, dryRun == true, connectionString));
+            Execute(() => executor.RemoveMigrationImpl(contextType, force, offline == true, dryRun == true, connectionString));
         }
     }
 
-    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool dryRun, string? connectionString)
+    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool offline, bool dryRun, string? connectionString)
     {
-        var files = MigrationsOperations.RemoveMigration(contextType, force, dryRun, connectionString);
+        var files = MigrationsOperations.RemoveMigration(contextType, force, offline, dryRun, connectionString);
 
         return new Hashtable
         {
