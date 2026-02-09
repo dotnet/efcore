@@ -40,11 +40,6 @@ jobs:
                      username.includes('[bot]');
             };
             
-            // Helper function to check if a user has write access
-            const hasWriteAccess = (permission) => {
-              return ['admin', 'write'].includes(permission);
-            };
-            
             // If action is 'edited', check if the base branch was actually changed
             if (action === 'edited' && !context.payload.changes?.base) {
               console.log('PR was edited but base branch was not changed - skipping');
@@ -57,32 +52,33 @@ jobs:
               return;
             }
             
-            // For new PRs by external contributors, add community-contribution label
-            if (action === 'opened') {
-              try {
-                // Check if PR author is external contributor
-                const { data: authorPermissions } = await github.rest.repos.getCollaboratorPermissionLevel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  username: prAuthor
-                });
-                
-                if (!hasWriteAccess(authorPermissions.permission)) {
-                  console.log('Adding community-contribution label');
-                  await github.rest.issues.addLabels({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: prNumber,
-                    labels: ['community-contribution']
-                  });
-                }
-              } catch (error) {
-                console.error('Error adding label:', error);
-              }
-            }
-            
             // Check if target branch is a release branch
             if (!targetBranch.startsWith('release/')) {
+              // For new PRs by external contributors, add community-contribution label
+              if (action === 'opened') {
+                try {
+                  // Check if the user who triggered the action has push permissions
+                  const { data: permissions } = await github.rest.repos.getCollaboratorPermissionLevel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    username: triggeredBy
+                  });
+                  
+                  const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
+                  
+                  if (!hasWriteAccess) {
+                    console.log('Adding community-contribution label');
+                    await github.rest.issues.addLabels({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: prNumber,
+                      labels: ['community-contribution']
+                    });
+                  }
+                } catch (error) {
+                  console.error('Error adding label:', error);
+                }
+              }
               console.log('PR does not target a release branch - allowed');
               return;
             }
@@ -95,9 +91,10 @@ jobs:
                 username: triggeredBy
               });
               
+              const hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
               console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
               
-              if (hasWriteAccess(permissions.permission)) {
+              if (hasWriteAccess) {
                 console.log('User has write access - allowed');
                 return;
               }
