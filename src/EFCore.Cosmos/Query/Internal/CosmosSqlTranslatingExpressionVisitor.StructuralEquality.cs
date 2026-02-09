@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -278,14 +279,41 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                         nullCompare = new SqlParameterExpression(queryParam.Name, queryParam.Type, CosmosTypeMapping.Default);
                     }
 
-                    comparisons = (SqlExpression)Visit(
-                        Expression.OrElse(
-                            Expression.AndAlso(
-                                Expression.MakeBinary(nodeType, reference, Expression.Constant(null)),
-                                Expression.MakeBinary(nodeType, nullCompare, Expression.Constant(null))),
+                    if (nodeType == ExpressionType.Equal)
+                    {
+                        // left == null AND right == null OR (left != null AND right != null AND (left.Prop1 == right.Prop1))
+                        comparisons = (SqlExpression)Visit(
                             Expression.OrElse(
-                                Expression.NotEqual(nullCompare, Expression.Constant(null)),
-                                comparisons)));
+                                Expression.AndAlso(
+                                    Expression.Equal(reference, Expression.Constant(null)),
+                                    Expression.Equal(nullCompare, Expression.Constant(null))),
+                                Expression.AndAlso(
+                                    Expression.AndAlso(
+                                        Expression.NotEqual(reference, Expression.Constant(null)),
+                                        Expression.NotEqual(nullCompare, Expression.Constant(null))),
+                                    comparisons)));
+                    }
+                    else
+                    {
+                        // (left == null AND right != null) OR 
+                        // (left != null AND right == null) OR 
+                        // (left != null AND right != null AND (left.Prop1 != right.Prop1))
+                        comparisons = (SqlExpression)Visit(
+                            Expression.OrElse(
+                                Expression.OrElse(
+                                    Expression.AndAlso(
+                                        Expression.Equal(reference, Expression.Constant(null)),
+                                        Expression.NotEqual(nullCompare, Expression.Constant(null))),
+                                    Expression.AndAlso(
+                                        Expression.NotEqual(reference, Expression.Constant(null)),
+                                        Expression.Equal(nullCompare, Expression.Constant(null)))),
+                                Expression.AndAlso(
+                                    Expression.AndAlso(
+                                        Expression.NotEqual(reference, Expression.Constant(null)),
+                                        Expression.NotEqual(nullCompare, Expression.Constant(null))),
+                                    comparisons)));
+
+                    }
                 }
 
                 return comparisons is not null;

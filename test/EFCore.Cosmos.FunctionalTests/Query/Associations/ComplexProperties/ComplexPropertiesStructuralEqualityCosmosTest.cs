@@ -26,6 +26,62 @@ WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = c["Optional
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Required_two_nested_associates()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == e.RequiredAssociate.RequiredNestedAssociate));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"]) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = c["RequiredAssociate"]["RequiredNestedAssociate"]["String"])))
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Two_nested_associates_not_equal()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate != e.RequiredAssociate.RequiredNestedAssociate));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) OR ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"]) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["Name"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != c["RequiredAssociate"]["RequiredNestedAssociate"]["String"]))))
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Two_nested_optional_associates()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate != null && e.RequiredAssociate.OptionalNestedAssociate == e.OptionalAssociate.OptionalNestedAssociate));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["OptionalAssociate"] != null) AND (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] = null)) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Id"]) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Ints"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["Name"])) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = c["OptionalAssociate"]["OptionalNestedAssociate"]["String"])))))
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Two_nested_optional_associates_not_equal()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate != null && e.RequiredAssociate.OptionalNestedAssociate != e.OptionalAssociate.OptionalNestedAssociate));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["OptionalAssociate"] != null) AND ((((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null)) OR ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] = null))) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (c["OptionalAssociate"]["OptionalNestedAssociate"] != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Id"]) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Int"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Ints"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["Name"])) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != c["OptionalAssociate"]["OptionalNestedAssociate"]["String"])))))
+""");
+    }
+
     public override Task Not_equals()
         => AssertTranslationFailed(base.Not_equals); // Complex collection equality... Need ALL support
 
@@ -104,7 +160,7 @@ WHERE (((((c["RequiredAssociate"]["RequiredNestedAssociate"]["Id"] = @entity_equ
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_equality_nested = null)) OR ((@entity_equality_nested != null) OR (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = @entity_equality_nested_Id) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = @entity_equality_nested_Int)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = @entity_equality_nested_Ints)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = @entity_equality_nested_Name)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = @entity_equality_nested_String))))
+WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_equality_nested = null)) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] = @entity_equality_nested_Id) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] = @entity_equality_nested_Int)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] = @entity_equality_nested_Ints)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] = @entity_equality_nested_Name)) AND (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] = @entity_equality_nested_String))))
 """);
     }
 
@@ -126,7 +182,7 @@ WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested != null)) OR ((@entity_equality_nested != null) OR (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != @entity_equality_nested_Id) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != @entity_equality_nested_Int)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != @entity_equality_nested_Ints)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != @entity_equality_nested_Name)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != @entity_equality_nested_String))))
+WHERE ((((c["RequiredAssociate"]["OptionalNestedAssociate"] = null) AND (@entity_equality_nested != null)) OR ((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested = null))) OR (((c["RequiredAssociate"]["OptionalNestedAssociate"] != null) AND (@entity_equality_nested != null)) AND (((((c["RequiredAssociate"]["OptionalNestedAssociate"]["Id"] != @entity_equality_nested_Id) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Int"] != @entity_equality_nested_Int)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Ints"] != @entity_equality_nested_Ints)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["Name"] != @entity_equality_nested_Name)) OR (c["RequiredAssociate"]["OptionalNestedAssociate"]["String"] != @entity_equality_nested_String))))
 """);
     }
 
