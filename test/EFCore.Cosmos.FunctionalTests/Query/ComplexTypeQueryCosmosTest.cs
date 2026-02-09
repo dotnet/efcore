@@ -133,35 +133,27 @@ WHERE (((((c["ShippingAddress"]["AddressLine1"] = @entity_equality_address_Addre
     public override Task Contains_over_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Contains_over_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_entity_type_containing_complex_property(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_entity_type_containing_complex_property(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_entity_type_containing_complex_property(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_entity_type_containing_complex_property(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_property_in_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_property_in_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_property_in_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_property_in_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_two_different_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_two_different_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_two_different_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_two_different_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
@@ -318,35 +310,27 @@ WHERE ((((c["ShippingAddress"]["AddressLine1"] = @entity_equality_address_Addres
     public override Task Contains_over_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Contains_over_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_entity_type_containing_struct_complex_property(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_entity_type_containing_struct_complex_property(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_entity_type_containing_struct_complex_property(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_entity_type_containing_struct_complex_property(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_property_in_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_property_in_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_property_in_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_property_in_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Concat_two_different_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Concat_two_different_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
-    [ConditionalTheory(Skip = "Cosmos: Subquery not detected #37583")]
     public override Task Union_two_different_struct_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_two_different_struct_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
