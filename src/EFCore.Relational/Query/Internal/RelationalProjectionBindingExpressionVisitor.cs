@@ -125,6 +125,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     {
                         ColumnExpression c => c.IsNullable,
                         SqlFunctionExpression f => f.IsNullable,
+                        AtTimeZoneExpression a => a.IsNullable,
                         _ => true
                     };
 
@@ -244,6 +245,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     {
                         ColumnExpression c => c.IsNullable,
                         SqlFunctionExpression f => f.IsNullable,
+                        AtTimeZoneExpression a => a.IsNullable,
                         _ => true
                     };
 

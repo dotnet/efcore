@@ -2908,7 +2908,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             => _selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
 
         private static bool IsNullableProjection(ProjectionExpression projection)
-            => projection.Expression is not ColumnExpression column || column.IsNullable;
+            => projection.Expression switch
+            {
+                ColumnExpression column => column.IsNullable,
+                SqlFunctionExpression function => function.IsNullable,
+                AtTimeZoneExpression atTimeZone => atTimeZone.IsNullable,
+                JsonScalarExpression jsonScalar => jsonScalar.IsNullable,
+                _ => true
+            };
 
         private Expression CreateGetValueExpression(
             ParameterExpression dbDataReader,
@@ -2919,7 +2926,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             IPropertyBase? property = null)
         {
             Check.DebugAssert(
-                property != null || type.IsNullableType(), "Must read nullable value from database if property is not specified.");
+                property != null || !nullable || type.IsNullableType(),
+                "Must read nullable value from database if property is not specified and nullable is true.");
 
             var getMethod = typeMapping.GetDataReaderMethod();
 
