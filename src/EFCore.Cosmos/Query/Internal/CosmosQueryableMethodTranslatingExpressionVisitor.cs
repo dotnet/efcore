@@ -1386,9 +1386,21 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
             switch (translatedExpression)
             {
-                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }
-                                                                         or IComplexProperty { IsCollection: true }:
+                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }:
                 {
+                    var targetStructuralType = shaper.StructuralType;
+                    var projection = new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);
+                    var select = SelectExpression.CreateForCollection(
+                        shaper.ValueBufferExpression,
+                        sourceAlias,
+                        projection);
+                    return CreateShapedQueryExpression(targetStructuralType, select);
+                }
+
+                case CollectionResultExpression collectionResult:
+                {
+                    var shaper = (StructuralTypeShaperExpression)(collectionResult.Parameter ?? ((StructuralTypeShaperExpression)collectionResult.Subquery!.ShaperExpression).ValueBufferExpression);
                     var targetStructuralType = shaper.StructuralType;
                     var projection = new StructuralTypeProjectionExpression(
                         new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);

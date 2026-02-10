@@ -7,8 +7,6 @@ public class ComplexPropertiesStructuralEqualityCosmosTest : ComplexPropertiesSt
 {
     public ComplexPropertiesStructuralEqualityCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
     {
-        Environment.SetEnvironmentVariable("EF_TEST_REWRITE_BASELINES", "1");
-
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
     }
@@ -151,7 +149,9 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] != @entity_equality_nes
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["NestedCollection"] = c["OptionalAssociate"]["NestedCollection"])
 """);
 }
 
@@ -161,7 +161,9 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] != @entity_equality_nes
 
         AssertSql(
             """
-
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["NestedCollection"] = [{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}])
 """);
     }
 
@@ -171,7 +173,11 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] != @entity_equality_nes
 
         AssertSql(
             """
+@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]'
 
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["NestedCollection"] = @entity_equality_nestedCollection)
 """);
     }
 

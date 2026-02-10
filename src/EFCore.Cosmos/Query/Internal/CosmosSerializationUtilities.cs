@@ -32,7 +32,7 @@ public static class CosmosSerializationUtilities
     /// </summary>
     public static JToken SerializeObjectToComplexProperty(IComplexType type, object? value, bool collection) // #34567
     {
-        if (value is null)
+        if (value == null)
         {
             return JValue.CreateNull();
         }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -16,7 +17,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
 {
     private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = new();
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsMap = new();
-    private readonly Dictionary<IComplexProperty, StructuralTypeShaperExpression> _complexPropertyExpressionsMap = new();
+    private readonly Dictionary<IComplexProperty, Expression> _complexPropertyExpressionsMap = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -190,10 +191,11 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
         {
             // TODO: Unify ObjectAccessExpression and ObjectArrayAccessExpression
             expression = complexProperty.IsCollection
-                ? new StructuralTypeShaperExpression(
-                    complexProperty.ComplexType,
-                    new ObjectArrayAccessExpression(Object, complexProperty),
-                    nullable: true)
+                ? new CollectionResultExpression(
+                    new StructuralTypeShaperExpression(
+                        complexProperty.ComplexType,
+                        new ObjectArrayAccessExpression(Object, complexProperty),
+                        nullable: true))
                 : new StructuralTypeShaperExpression(
                     complexProperty.ComplexType,
                     new StructuralTypeProjectionExpression(new ObjectAccessExpression(Object, complexProperty), complexProperty.ComplexType),
