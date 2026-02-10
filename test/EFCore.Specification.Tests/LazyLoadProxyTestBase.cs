@@ -2601,7 +2601,6 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
             blogs,
             new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented });
 
-
         Assert.Equal(SerializedBlogs1, serialized, ignoreLineEndingDifferences: true);
 
         var newBlogs = JsonConvert.DeserializeObject<List<Blog>>(serialized)!;
