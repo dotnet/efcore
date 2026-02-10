@@ -208,6 +208,9 @@ Register-TabExpansion Drop-Database @{
 .DESCRIPTION
     Drops the database.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -228,6 +231,7 @@ function Drop-Database
 {
     [CmdletBinding(PositionalBinding = $false, SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -241,6 +245,12 @@ function Drop-Database
     if ($PSCmdlet.ShouldProcess("database '$($info.databaseName)' on server '$($info.dataSource)'"))
     {
         $params = 'database', 'drop', '--force'
+
+        if ($Connection)
+        {
+            $params += '--connection', $Connection
+        }
+
         $params += GetParams $Context
 
         EF $dteProject $dteStartupProject $params $Args -skipBuild
@@ -412,6 +422,12 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER Force
     Revert the migration if it has been applied to the database.
 
+.PARAMETER Offline
+    Remove the migration without connecting to the database.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -434,6 +450,8 @@ function Remove-Migration
     [CmdletBinding(PositionalBinding = $false)]
     param(
         [switch] $Force,
+        [switch] $Offline,
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -447,6 +465,16 @@ function Remove-Migration
     if ($Force)
     {
         $params += '--force'
+    }
+
+    if ($Offline)
+    {
+        $params += '--offline'
+    }
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
     }
 
     $params += GetParams $Context
