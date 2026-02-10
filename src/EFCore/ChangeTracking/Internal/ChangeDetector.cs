@@ -35,32 +35,6 @@ public class ChangeDetector : IChangeDetector
         _loggingOptions = loggingOptions;
     }
 
-    private static bool ShouldDetectComplexPropertyChange(
-        IInternalEntry entry,
-        IComplexProperty complexProperty,
-        bool setModified,
-        out InternalEntryBase? entryBase)
-    {
-        entryBase = null;
-
-        if (UseOldBehavior37387
-            || entry.EntityState is EntityState.Deleted
-            || !setModified
-            || !complexProperty.IsNullable
-            || complexProperty.GetOriginalValueIndex() < 0)
-        {
-            return false;
-        }
-
-        if (entry is not InternalEntryBase internalEntryBase)
-        {
-            return false;
-        }
-
-        entryBase = internalEntryBase;
-        return true;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -94,9 +68,14 @@ public class ChangeDetector : IChangeDetector
                 // TODO: Automatic detection of complex property changes requires notification change tracking.
                 // Currently only works with snapshot change tracking through DetectChanges.
                 // Issue #36175
-                if (ShouldDetectComplexPropertyChange(entry, complexProperty, setModified, out var entryBase))
+                if (!UseOldBehavior37387
+                    && entry.EntityState is not EntityState.Deleted
+                    && setModified
+                    && complexProperty.IsNullable
+                    && complexProperty.GetOriginalValueIndex() >= 0
+                    && entry is InternalEntryBase entryBase)
                 {
-                    DetectComplexPropertyChange(entryBase!, complexProperty);
+                    DetectComplexPropertyChange(entryBase, complexProperty);
                 }
                 break;
 
@@ -332,7 +311,9 @@ public class ChangeDetector : IChangeDetector
                     changesFound = true;
                 }
             }
-            else if (ShouldDetectComplexPropertyChange(entry, complexProperty, setModified: true, out _))
+            else if (!UseOldBehavior37387
+                && complexProperty.IsNullable
+                && complexProperty.GetOriginalValueIndex() >= 0)
             {
                 if (DetectComplexPropertyChange(entry, complexProperty))
                 {
