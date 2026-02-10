@@ -4,19 +4,20 @@
 namespace Microsoft.EntityFrameworkCore.Update;
 
 /// <summary>
-///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-///     any release. You should only use it directly in your code with extreme caution and knowing that
-///     doing so can result in application failures when updating to a new Entity Framework Core release.
+///     Extension methods for <see cref="IProperty" />.
 /// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///     for more information and examples.
+/// </remarks>
 public static class PropertyExtensions
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Converts the value of a property to the provider-expected value.
     /// </summary>
+    /// <param name="value">The value to convert.</param>
+    /// <param name="property">The property the <paramref name="value"/> is for.</param>
+    /// <returns>The converted value.</returns>
     public static object? ConvertToProviderValue(this IProperty property, object? value)
     {
         var typeMapping = property.GetTypeMapping();
