@@ -13,13 +13,11 @@ public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocCo
 
         AssertSql(
             """
-@entity_equality_container_Id='1'
-@entity_equality_entity_equality_container_Containee1_Id='2'
-@entity_equality_entity_equality_container_Containee2_Id='3'
+@entity_equality_container='{"Id":1,"Containee1":{"Id":2},"Containee2":{"Id":3}}'
 
 SELECT VALUE c
 FROM root c
-WHERE (((c["ComplexContainer"]["Id"] = @entity_equality_container_Id) AND (c["ComplexContainer"]["Containee1"]["Id"] = @entity_equality_entity_equality_container_Containee1_Id)) AND (c["ComplexContainer"]["Containee2"]["Id"] = @entity_equality_entity_equality_container_Containee2_Id))
+WHERE (c["ComplexContainer"] = @entity_equality_container)
 OFFSET 0 LIMIT 2
 """);
     }
