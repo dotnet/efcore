@@ -41,6 +41,52 @@ WHERE ((
 """);
     }
 
+    [ConditionalFact]
+    public async Task Where_subquery_structural_equality()
+    {
+        var param = new AssociateType
+        {
+            Id = 1,
+            Name = "Name 1",
+            Int = 8,
+            String = "String 1",
+            Ints = new List<int> { 1, 2, 3 },
+            RequiredNestedAssociate = new NestedAssociateType
+            {
+                Id = 1,
+                Name = "Name 1",
+                Int = 8,
+                String = "String 1",
+                Ints = new List<int> { 1, 2, 3 }
+            },
+            NestedCollection = new List<NestedAssociateType>
+            {
+                new NestedAssociateType
+                {
+                    Id = 1,
+                    Name = "Name 1",
+                    Int = 8,
+                    String = "String 1",
+                    Ints = new List<int> { 1, 2, 3 }
+                }
+            }
+        };
+
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection[0] != param),
+            ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection.Count > 0 && e.AssociateCollection[0] != param));
+
+
+        AssertSql(
+            """
+@entity_equality_param='{"Id":1,"Int":8,"Ints":[1,2,3],"Name":"Name 1","String":"String 1","NestedCollection":[{"Id":1,"Int":8,"Ints":[1,2,3],"Name":"Name 1","String":"String 1"}],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1,"Int":8,"Ints":[1,2,3],"Name":"Name 1","String":"String 1"}}'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["AssociateCollection"][0] != @entity_equality_param)
+""");
+    }
+
     public override async Task OrderBy_ElementAt()
     {
         // 'ORDER BY' is not supported in subqueries.

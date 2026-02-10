@@ -1400,7 +1400,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                 case CollectionResultExpression collectionResult:
                 {
-                    var shaper = (StructuralTypeShaperExpression)(collectionResult.Parameter ?? ((StructuralTypeShaperExpression)collectionResult.Subquery!.ShaperExpression).ValueBufferExpression);
+                    Debug.Assert(collectionResult.Parameter != null, "CollectionResultExpression can't be bound to member without parameter.");
+
+                    var shaper = collectionResult.Parameter;
                     var targetStructuralType = shaper.StructuralType;
                     var projection = new StructuralTypeProjectionExpression(
                         new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);

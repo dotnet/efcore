@@ -387,9 +387,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                     && (convertedType == null
                         || convertedType.IsAssignableFrom(ese.Type)))
                 {
-                    return ese.StructuralType is IComplexType { ComplexProperty.IsCollection: true }
-                        ? new CollectionResultExpression(shapedQuery.UpdateShaperExpression(innerExpression))
-                        : new StructuralTypeReferenceExpression(shapedQuery.UpdateShaperExpression(innerExpression));
+                    return new StructuralTypeReferenceExpression(shapedQuery.UpdateShaperExpression(innerExpression));
                 }
 
                 if (innerExpression is ProjectionBindingExpression pbe
