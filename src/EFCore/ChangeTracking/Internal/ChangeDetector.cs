@@ -65,15 +65,14 @@ public class ChangeDetector : IChangeDetector
                 break;
 
             case IComplexProperty { IsCollection: false } complexProperty:
-                // TODO: Automatic detection of complex property changes requires notification change tracking.
-                // Currently only works with snapshot change tracking through DetectChanges.
+                // TODO: This requires notification change tracking for complex types
                 // Issue #36175
                 if (!UseOldBehavior37387
                     && entry.EntityState is not EntityState.Deleted
                     && setModified
-                    && complexProperty.IsNullable
-                    && complexProperty.GetOriginalValueIndex() >= 0
-                    && entry is InternalEntryBase entryBase)
+                    && entry is InternalEntryBase entryBase
+                    && complexProperty.IsNullable 
+                    && complexProperty.GetOriginalValueIndex() >= 0)
                 {
                     DetectComplexPropertyChange(entryBase, complexProperty);
                 }
