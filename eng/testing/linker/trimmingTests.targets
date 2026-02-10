@@ -77,12 +77,25 @@
       </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition="'@(PackageReference)' != ''">
-      <_packageReferences Include="@(PackageReference)" Exclude="Microsoft.DotNet.ILCompiler;Microsoft.NET.ILLink.Tasks" />
+    <ItemGroup>
+      <PackageReferenceWithRealVersionCross Include="@(PackageReference)">
+        <Identity2>%(PackageVersion.Identity)</Identity2>
+        <RealVersion>%(PackageVersion.Version)</RealVersion>
+      </PackageReferenceWithRealVersionCross>
+    </ItemGroup>
+    <ItemGroup>
+      <!-- PackageReferenceWithRealVersionCross contains cartesian product, because in MSBuild we can't index into collection, and this will filter proper items, besically doing inner join manually. -->
+      <PackageReferenceWithRealVersion Include="@(PackageReferenceWithRealVersionCross)" KeepMetadata="Version;PrivateAssets" Condition="'%(PackageReferenceWithRealVersionCross.Identity)' == '%(PackageReferenceWithRealVersionCross.Identity2)'">
+        <Version>%(PackageReferenceWithRealVersionCross.RealVersion)</Version>
+      </PackageReferenceWithRealVersion>
+    </ItemGroup>
+
+    <ItemGroup Condition="'@(PackageReferenceWithRealVersion)' != ''">
+      <_packageReferences Include="@(PackageReferenceWithRealVersion)" Exclude="Microsoft.DotNet.ILCompiler;Microsoft.NET.ILLink.Tasks" />
     </ItemGroup>
 
     <ItemGroup Condition="'@(_packageReferences)' != ''">
-      <_additionalPackageReference Include="&lt;PackageReference Include=&quot;%(_packageReferences.Identity)&quot; Version=&quot;%(_packageReferences.Version)&quot; &gt; &#xA;        &lt;PrivateAssets&gt;%(_packageReferences.PrivateAssets)&lt;/PrivateAssets&gt;&#xA;    &lt;/PackageReference&gt;" />
+      <_additionalPackageReference Include="&lt;PackageReference Include=&quot;%(_packageReferences.Identity)&quot; Version=&quot;%(_packageReferences.Version)&quot;&gt;&#xA;        &lt;PrivateAssets&gt;%(_packageReferences.PrivateAssets)&lt;/PrivateAssets&gt;&#xA;    &lt;/PackageReference&gt;" />
     </ItemGroup>
 
     <PropertyGroup>

@@ -20,9 +20,8 @@ public class ShoppingCart
     public async Task AddToCart(Album album)
     {
         // Get the matching cart and album instances
-        var cartItem = await _dbContext.CartItems.SingleOrDefaultAsync(
-            c => c.CartId == _shoppingCartId
-                && c.AlbumId == album.AlbumId);
+        var cartItem = await _dbContext.CartItems.SingleOrDefaultAsync(c => c.CartId == _shoppingCartId
+            && c.AlbumId == album.AlbumId);
 
         if (cartItem == null)
         {
@@ -47,9 +46,8 @@ public class ShoppingCart
     public int RemoveFromCart(int id)
     {
         // Get the cart
-        var cartItem = _dbContext.CartItems.SingleOrDefault(
-            cart => cart.CartId == _shoppingCartId
-                && cart.CartItemId == id);
+        var cartItem = _dbContext.CartItems.SingleOrDefault(cart => cart.CartId == _shoppingCartId
+            && cart.CartItemId == id);
 
         var itemCount = 0;
 
