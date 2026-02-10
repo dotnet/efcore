@@ -23,7 +23,7 @@ public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.I
     }
 
     public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
-        // InMemory provider has issues with complex type query compilation
+        // InMemory provider has issues with complex type query compilation and materialization
         // See https://github.com/dotnet/efcore/issues/31464
         => Task.CompletedTask;
 

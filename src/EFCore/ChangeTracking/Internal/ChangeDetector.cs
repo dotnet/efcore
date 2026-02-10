@@ -39,9 +39,9 @@ public class ChangeDetector : IChangeDetector
         IInternalEntry entry,
         IComplexProperty complexProperty,
         bool setModified,
-        out InternalEntryBase entryBase)
+        out InternalEntryBase? entryBase)
     {
-        entryBase = null!;
+        entryBase = null;
 
         if (UseOldBehavior37387
             || entry.EntityState is EntityState.Deleted
@@ -91,11 +91,12 @@ public class ChangeDetector : IChangeDetector
                 break;
 
             case IComplexProperty { IsCollection: false } complexProperty:
-                // TODO: This requires notification change tracking for complex types
+                // TODO: Automatic detection of complex property changes requires notification change tracking.
+                // Currently only works with snapshot change tracking through DetectChanges.
                 // Issue #36175
                 if (ShouldDetectComplexPropertyChange(entry, complexProperty, setModified, out var entryBase))
                 {
-                    DetectComplexPropertyChange(entryBase, complexProperty);
+                    DetectComplexPropertyChange(entryBase!, complexProperty);
                 }
                 break;
 
