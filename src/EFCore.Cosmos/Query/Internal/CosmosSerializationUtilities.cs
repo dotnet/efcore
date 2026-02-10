@@ -3,6 +3,7 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -53,7 +54,9 @@ public static class CosmosSerializationUtilities
             var jsonPropertyName = property.GetJsonPropertyName();
 
             var propertyValue = property.GetGetter().GetClrValue(value);
+#pragma warning disable EF1001 // Internal EF Core API usage.
             var providerValue = property.ConvertToProviderValue(propertyValue);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             if (providerValue is null)
             {
                 if (!property.IsNullable)
