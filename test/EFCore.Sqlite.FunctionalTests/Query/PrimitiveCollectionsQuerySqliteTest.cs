@@ -1082,7 +1082,15 @@ WHERE EXISTS (
     {
         await base.Column_collection_of_strings_Contains();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE '10' IN (
+    SELECT "s"."value"
+    FROM json_each("p"."Strings") AS "s"
+)
+""");
     }
 
     public override async Task Column_collection_of_strings_Contains_null()
