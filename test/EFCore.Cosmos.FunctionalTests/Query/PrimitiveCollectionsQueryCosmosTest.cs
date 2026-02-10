@@ -1039,9 +1039,9 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
     }
 
-    public override async Task Column_collection_of_strings_contains_null()
+    public override async Task Column_collection_of_strings_Contains_null()
     {
-        await base.Column_collection_of_strings_contains_null();
+        await base.Column_collection_of_strings_Contains_null();
 
         AssertSql(
             """

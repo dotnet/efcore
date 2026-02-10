@@ -1071,11 +1071,14 @@ WHERE [p].[Int] NOT IN (10, 999)
     public override Task Column_collection_of_nullable_ints_Contains_null()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains_null());
 
-    public override Task Column_collection_of_strings_contains_null()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null());
+    public override Task Column_collection_of_strings_Contains()
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains());
+
+    public override Task Column_collection_of_strings_Contains_null()
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains_null());
 
     public override Task Column_collection_of_nullable_strings_contains_null()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null());
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains_null());
 
     public override Task Column_collection_of_bools_Contains()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains());
