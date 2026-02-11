@@ -1402,7 +1402,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     $previousErrorActionPreference = $ErrorActionPreference
     try
     {
-        if ($ErrorActionPreference -eq 'Stop')
+        if ($previousErrorActionPreference -eq 'Stop')
         {
             $ErrorActionPreference = 'Continue'
         }
