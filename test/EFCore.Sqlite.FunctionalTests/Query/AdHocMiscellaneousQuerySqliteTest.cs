@@ -145,4 +145,19 @@ WHERE 1 = "t"."Id"
 """);
         }
     }
+
+    public override async Task Coalesce_in_conditional_with_value_conversion(bool async)
+    {
+        await base.Coalesce_in_conditional_with_value_conversion(async);
+
+        AssertSql(
+            """
+SELECT "d"."Id", CASE
+    WHEN COALESCE("d"."Foo", 99) = 10 THEN 'A'
+    ELSE 'B'
+END AS "Foo"
+FROM "Data" AS "d"
+ORDER BY "d"."Id"
+""");
+    }
 }
