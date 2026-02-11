@@ -1261,7 +1261,10 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $previousErrorActionPreference = $ErrorActionPreference
         try
         {
-            $ErrorActionPreference = 'Continue'
+            if ($ErrorActionPreference -eq 'Stop')
+            {
+                $ErrorActionPreference = 'Continue'
+            }
             $solutionBuild.Build(<# WaitForBuildToFinish: #> $true)
         }
         finally
