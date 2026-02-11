@@ -1258,6 +1258,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
 
         # TODO: Only build startup project. Don't use BuildProject, you can't specify platform
         $solutionBuild = $DTE.Solution.SolutionBuild
+        $previousErrorActionPreference = $ErrorActionPreference
         try
         {
             $ErrorActionPreference = 'Continue'
@@ -1265,7 +1266,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         }
         finally
         {
-            $ErrorActionPreference = 'Stop'
+            $ErrorActionPreference = $previousErrorActionPreference
         }
         if ($solutionBuild.LastBuildInfo)
         {
