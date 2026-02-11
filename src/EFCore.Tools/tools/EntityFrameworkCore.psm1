@@ -1258,19 +1258,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
 
         # TODO: Only build startup project. Don't use BuildProject, you can't specify platform
         $solutionBuild = $DTE.Solution.SolutionBuild
-        $previousErrorActionPreference = $ErrorActionPreference
-        try
-        {
-            if ($ErrorActionPreference -eq 'Stop')
-            {
-                $ErrorActionPreference = 'Continue'
-            }
-            $solutionBuild.Build(<# WaitForBuildToFinish: #> $true)
-        }
-        finally
-        {
-            $ErrorActionPreference = $previousErrorActionPreference
-        }
+        $solutionBuild.Build(<# WaitForBuildToFinish: #> $true)
         if ($solutionBuild.LastBuildInfo)
         {
             throw 'Build failed.'
