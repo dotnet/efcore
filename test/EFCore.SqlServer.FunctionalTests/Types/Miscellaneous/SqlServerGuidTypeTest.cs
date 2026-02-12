@@ -14,7 +14,7 @@ public class SqlServerGuidTypeTest(SqlServerGuidTypeTest.GuidTypeFixture fixture
             """
 @Fixture_Value='8f7331d6-cde9-44fb-8611-81fff686f280'
 
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = @Fixture_Value
 """);
@@ -26,9 +26,26 @@ WHERE [t].[Value] = @Fixture_Value
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = '8f7331d6-cde9-44fb-8611-81fff686f280'
+""");
+    }
+
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+
+        AssertSql(
+            """
+@value='8f7331d6-cde9-44fb-8611-81fff686f280'
+
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
+FROM [TypeEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[ArrayValue]) WITH ([value] uniqueidentifier '$') AS [a]
+    WHERE [a].[value] = @value) = 2
 """);
     }
 

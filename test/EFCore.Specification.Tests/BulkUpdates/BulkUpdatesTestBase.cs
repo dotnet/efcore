@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 #nullable disable
 
 public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
-    where TFixture : class, IBulkUpdatesFixtureBase, new()
+    where TFixture : class, IQueryFixtureBase, new()
 {
     protected BulkUpdatesTestBase(TFixture fixture)
     {

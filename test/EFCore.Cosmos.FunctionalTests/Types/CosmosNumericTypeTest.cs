@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 public class CosmosByteTypeTest(CosmosByteTypeTest.ByteTypeFixture fixture)
     : TypeTestBase<byte, CosmosByteTypeTest.ByteTypeFixture>(fixture)
 {
+    // Cosmos can't translate byte.Equals() in primitive collection queries
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
+
     public class ByteTypeFixture : CosmosTypeFixtureBase<byte>
     {
         public override byte Value { get; } = byte.MinValue;

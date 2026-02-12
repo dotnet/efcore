@@ -14,7 +14,7 @@ public class SqlServerShortTypeTest(SqlServerShortTypeTest.ShortTypeFixture fixt
             """
 @Fixture_Value='-32768'
 
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = @Fixture_Value
 """);
@@ -26,9 +26,26 @@ WHERE [t].[Value] = @Fixture_Value
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[OtherValue], [t].[Value]
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
 FROM [TypeEntity] AS [t]
 WHERE [t].[Value] = CAST(-32768 AS smallint)
+""");
+    }
+
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+
+        AssertSql(
+            """
+@value='-32768'
+
+SELECT TOP(2) [t].[Id], [t].[ArrayValue], [t].[OtherValue], [t].[Value]
+FROM [TypeEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[ArrayValue]) WITH ([value] smallint '$') AS [a]
+    WHERE [a].[value] = @value) = 2
 """);
     }
 
