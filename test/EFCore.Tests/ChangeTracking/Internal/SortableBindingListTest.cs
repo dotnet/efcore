@@ -9,34 +9,10 @@ public class SortableBindingListTest
 {
     private void SortTest(string property, ListSortDirection direction)
     {
-        var list = new List<ListElement>
-        {
-            3,
-            1,
-            4,
-            1,
-            5,
-            9
-        };
-        var sortedList = direction == ListSortDirection.Ascending
-            ? new List<ListElement>
-            {
-                1,
-                1,
-                3,
-                4,
-                5,
-                9
-            }
-            : new List<ListElement>
-            {
-                9,
-                5,
-                4,
-                3,
-                1,
-                1
-            };
+        List<ListElement> list = [3, 1, 4, 1, 5, 9];
+        List<ListElement> sortedList = direction == ListSortDirection.Ascending
+            ? [1, 1, 3, 4, 5, 9]
+            : [9, 5, 4, 3, 1, 1];
 
         var bindingList = new SortableBindingList<ListElement>(list);
 
@@ -72,24 +48,8 @@ public class SortableBindingListTest
     [ConditionalFact]
     public void SortableBindingList_does_not_sort_for_non_XNode_that_does_not_implement_IComparable()
     {
-        var list = new List<ListElement>
-        {
-            3,
-            1,
-            4,
-            1,
-            5,
-            9
-        };
-        var unsortedList = new List<ListElement>
-        {
-            3,
-            1,
-            4,
-            1,
-            5,
-            9
-        };
+        List<ListElement> list = [3, 1, 4, 1, 5, 9];
+        List<ListElement> unsortedList = [3, 1, 4, 1, 5, 9];
         var bindingList = new SortableBindingList<ListElement>(list);
 
         ((IBindingList)bindingList).ApplySort(ListElement.Property("Random"), ListSortDirection.Ascending);
@@ -100,24 +60,8 @@ public class SortableBindingListTest
     [ConditionalFact]
     public void SortableBindingList_does_not_sort_for_byte_arrays()
     {
-        var list = new List<ListElement>
-        {
-            3,
-            1,
-            4,
-            1,
-            5,
-            9
-        };
-        var unsortedList = new List<ListElement>
-        {
-            3,
-            1,
-            4,
-            1,
-            5,
-            9
-        };
+        List<ListElement> list = [3, 1, 4, 1, 5, 9];
+        List<ListElement> unsortedList = [3, 1, 4, 1, 5, 9];
         var bindingList = new SortableBindingList<ListElement>(list);
 
         ((IBindingList)bindingList).ApplySort(ListElement.Property("ByteArray"), ListSortDirection.Descending);
@@ -183,7 +127,7 @@ public class SortableBindingListTest
             NullableInt = i;
             String = i.ToString();
             Random = Random.Shared;
-            ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
+            ByteArray = [(byte)i, (byte)i, (byte)i, (byte)i];
         }
 
         public static implicit operator ListElement(int i)

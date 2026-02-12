@@ -6,13 +6,10 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class TPTTableSplittingTestBase : TableSplittingTestBase
-{
-    protected TPTTableSplittingTestBase(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
+#nullable disable
 
+public abstract class TPTTableSplittingTestBase(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
+{
     public override Task Can_use_optional_dependents_with_shared_concurrency_tokens()
         // TODO: Issue #22060
         => Task.CompletedTask;

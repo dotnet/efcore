@@ -32,9 +32,7 @@ public class EventDefinition<TParam1, TParam2, TParam3, TParam4, TParam5, TParam
         string eventIdCode,
         Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception?>> logActionFunc)
         : base(loggingOptions, eventId, level, eventIdCode)
-    {
-        _logAction = logActionFunc(Level);
-    }
+        => _logAction = logActionFunc(Level);
 
     /// <summary>
     ///     Generates the message that would be logged without logging it.

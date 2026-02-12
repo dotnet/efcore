@@ -5,14 +5,14 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
 public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
 {
     public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
@@ -223,9 +223,9 @@ User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
     }
 
     [ConditionalFact]
-    public override void Value_conversion_is_appropriately_used_for_join_condition()
+    public override async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
-        base.Value_conversion_is_appropriately_used_for_join_condition();
+        await base.Value_conversion_is_appropriately_used_for_join_condition();
 
         AssertSql(
             """
@@ -239,9 +239,9 @@ WHERE [b].[IsVisible] = N'Y'
     }
 
     [ConditionalFact]
-    public override void Value_conversion_is_appropriately_used_for_left_join_condition()
+    public override async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
-        base.Value_conversion_is_appropriately_used_for_left_join_condition();
+        await base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
         AssertSql(
             """
@@ -255,9 +255,9 @@ WHERE [b].[IsVisible] = N'Y'
     }
 
     [ConditionalFact]
-    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
-        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+        await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
             """
@@ -268,9 +268,9 @@ WHERE [b].[IsVisible] = N'Y'
     }
 
     [ConditionalFact]
-    public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    public override async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
-        base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
+        await base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
             """
@@ -280,9 +280,9 @@ WHERE [b].[IsVisible] = N'N'
 """);
     }
 
-    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
-        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+        await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
         AssertSql(
             """
@@ -292,9 +292,9 @@ WHERE [b].[IsVisible] = N'Y'
 """);
     }
 
-    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
-        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+        await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
         AssertSql(
             """
@@ -304,14 +304,13 @@ WHERE [b].[IndexerVisible] = N'Nay'
 """);
     }
 
-    public override void Object_to_string_conversion()
-    {
+    public override Task Object_to_string_conversion()
         // Return values are not string
-    }
+        => Task.CompletedTask;
 
-    public override void Id_object_as_entity_key()
+    public override async Task Id_object_as_entity_key()
     {
-        base.Id_object_as_entity_key();
+        await base.Id_object_as_entity_key();
 
         AssertSql(
             """
