@@ -1215,7 +1215,10 @@ namespace System.Runtime.CompilerServices
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
         }
 
-        return settersBuilder.BuildSettersExpression();
+        // The expression tree is nested inside-out (last SetProperty call is the outermost node),
+        // so setters were added in reverse order. Reverse to restore source code order.
+        var settersArray = settersBuilder.BuildSettersExpression();
+        return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
     }
 
     /// <summary>
