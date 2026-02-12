@@ -12,19 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
+public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -38,56 +27,56 @@ public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
-            && arguments[0].Type == typeof(byte[]))
+            && method.DeclaringType == typeof(Enumerable)
+            && method.Name == nameof(Enumerable.Contains)
+            && arguments is [var source, var item]
+            && source.Type == typeof(byte[]))
         {
-            var source = arguments[0];
-
-            var value = arguments[1] is SqlConstantExpression constantValue
-                ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
-                : _sqlExpressionFactory.Function(
+            var value = item is SqlConstantExpression constantValue
+                ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
+                : sqlExpressionFactory.Function(
                     "char",
-                    [arguments[1]],
+                    [item],
                     nullable: false,
                     argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(string));
 
-            return _sqlExpressionFactory.GreaterThan(
-                _sqlExpressionFactory.Function(
+            return sqlExpressionFactory.GreaterThan(
+                sqlExpressionFactory.Function(
                     "instr",
                     [source, value],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[2],
                     typeof(int)),
-                _sqlExpressionFactory.Constant(0));
+                sqlExpressionFactory.Constant(0));
         }
-
-        // See issue#16428
-        //if (method.IsGenericMethod
-        //    && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
-        //    && arguments[0].Type == typeof(byte[]))
-        //{
-        //    return _sqlExpressionFactory.Function(
-        //        "unicode",
-        //        new SqlExpression[]
-        //        {
-        //            _sqlExpressionFactory.Function(
-        //                "substr",
-        //                new SqlExpression[]
-        //                {
-        //                    arguments[0],
-        //                    _sqlExpressionFactory.Constant(1),
-        //                    _sqlExpressionFactory.Constant(1)
-        //                },
-        //                nullable: true,
-        //                argumentsPropagateNullability: new[] { true, true, true },
-        //                typeof(byte[]))
-        //        },
-        //        nullable: true,
-        //        argumentsPropagateNullability: new[] { true },
-        //        method.ReturnType);
-        //}
 
         return null;
     }
+
+    // See issue#16428
+    //if (method.IsGenericMethod
+    //    && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
+    //    && arguments[0].Type == typeof(byte[]))
+    //{
+    //    return _sqlExpressionFactory.Function(
+    //        "unicode",
+    //        new SqlExpression[]
+    //        {
+    //            _sqlExpressionFactory.Function(
+    //                "substr",
+    //                new SqlExpression[]
+    //                {
+    //                    arguments[0],
+    //                    _sqlExpressionFactory.Constant(1),
+    //                    _sqlExpressionFactory.Constant(1)
+    //                },
+    //                nullable: true,
+    //                argumentsPropagateNullability: new[] { true, true, true },
+    //                typeof(byte[]))
+    //        },
+    //        nullable: true,
+    //        argumentsPropagateNullability: new[] { true },
+    //        method.ReturnType);
+    //}
 }
