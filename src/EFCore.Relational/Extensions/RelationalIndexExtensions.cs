@@ -35,7 +35,20 @@ public static class RelationalIndexExtensions
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The name of the index in the database.</returns>
     public static string? GetDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
-        => index.GetDatabaseName(storeObject, null);
+    {
+        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
+        var defaultName = index.GetDefaultDatabaseName(storeObject);
+        var annotation = index.FindAnnotation(RelationalAnnotationNames.Name);
+        return annotation != null && defaultName != null
+            ? (string?)annotation.Value
+            : defaultName != null
+                ? index.Name ?? defaultName
+                : defaultName;
+    }
 
     /// <summary>
     ///     Returns the default name that would be used for this index.
@@ -67,7 +80,60 @@ public static class RelationalIndexExtensions
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The default name that would be used for this index.</returns>
     public static string? GetDefaultDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
-        => index.GetDefaultDatabaseName(storeObject, null);
+    {
+        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
+        var columnNames = index.Properties.GetColumnNames(storeObject);
+        if (columnNames == null)
+        {
+            return null;
+        }
+
+        var rootIndex = index;
+
+        // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
+        // Using a hashset is detrimental to the perf when there are no cycles
+        for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
+        {
+            IReadOnlyIndex? linkedIndex = null;
+            foreach (var otherIndex in rootIndex.DeclaringEntityType
+                         .FindRowInternalForeignKeys(storeObject)
+                         .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
+            {
+                var otherColumnNames = otherIndex.Properties.GetColumnNames(storeObject);
+                if ((otherColumnNames != null)
+                    && otherColumnNames.SequenceEqual(columnNames))
+                {
+                    linkedIndex = otherIndex;
+                    break;
+                }
+            }
+
+            if (linkedIndex == null)
+            {
+                break;
+            }
+
+            rootIndex = linkedIndex;
+        }
+
+        if (rootIndex != index)
+        {
+            return rootIndex.GetDatabaseName(storeObject);
+        }
+
+        var baseName = new StringBuilder()
+            .Append("IX_")
+            .Append(storeObject.Name)
+            .Append('_')
+            .AppendJoin(columnNames, "_")
+            .ToString();
+
+        return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    }
 
     /// <summary>
     ///     Sets the name of the index in the database.
