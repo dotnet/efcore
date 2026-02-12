@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -37,14 +36,9 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
     /// </summary>
     protected override void ValidateEntityType(
         IEntityType entityType,
-        IConventionModel? conventionModel,
-        bool requireFullNotifications,
-        HashSet<IEntityType> validEntityTypes,
-        Dictionary<IKey, IIdentityMap> identityMaps,
-        bool sensitiveDataLogged,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateEntityType(entityType, conventionModel, requireFullNotifications, validEntityTypes, identityMaps, sensitiveDataLogged, logger);
+        base.ValidateEntityType(entityType, logger);
 
         ValidateKeys(entityType, logger);
         ValidateDatabaseProperties(entityType, logger);
@@ -466,53 +460,93 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
     {
         base.ValidateIndex(index, logger);
 
-        var entityType = index.DeclaringEntityType;
-
         if (index.GetVectorIndexType() != null)
         {
-            if (index.Properties.Count > 1)
-            {
-                throw new InvalidOperationException(
-                    CosmosStrings.CompositeVectorIndex(
-                        entityType.DisplayName(),
-                        string.Join(",", index.Properties.Select(e => e.Name))));
-            }
-
-            if (index.Properties[0].GetVectorDistanceFunction() == null
-                || index.Properties[0].GetVectorDimensions() == null)
-            {
-                throw new InvalidOperationException(
-                    CosmosStrings.VectorIndexOnNonVector(
-                        entityType.DisplayName(),
-                        index.Properties[0].Name));
-            }
+            ValidateVectorIndex(index, logger);
         }
         else if (index.IsFullTextIndex() == true)
         {
-            if (index.Properties.Count > 1)
-            {
-                throw new InvalidOperationException(
-                    CosmosStrings.CompositeFullTextIndex(
-                        index.DeclaringEntityType.DisplayName(),
-                        string.Join(",", index.Properties.Select(e => e.Name))));
-            }
-
-            if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
-            {
-                throw new InvalidOperationException(
-                    CosmosStrings.FullTextIndexOnNonFullTextProperty(
-                        index.DeclaringEntityType.DisplayName(),
-                        index.Properties[0].Name,
-                        nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)));
-            }
+            ValidateFullTextIndex(index, logger);
         }
         else
         {
+            ValidateUnsupportedIndex(index, logger);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateVectorIndex(
+        IIndex index,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        var entityType = index.DeclaringEntityType;
+
+        if (index.Properties.Count > 1)
+        {
             throw new InvalidOperationException(
-                CosmosStrings.IndexesExist(
+                CosmosStrings.CompositeVectorIndex(
                     entityType.DisplayName(),
                     string.Join(",", index.Properties.Select(e => e.Name))));
         }
+
+        if (index.Properties[0].GetVectorDistanceFunction() == null
+            || index.Properties[0].GetVectorDimensions() == null)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.VectorIndexOnNonVector(
+                    entityType.DisplayName(),
+                    index.Properties[0].Name));
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateFullTextIndex(
+        IIndex index,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (index.Properties.Count > 1)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.CompositeFullTextIndex(
+                    index.DeclaringEntityType.DisplayName(),
+                    string.Join(",", index.Properties.Select(e => e.Name))));
+        }
+
+        if (index.Properties[0].GetIsFullTextSearchEnabled() != true)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.FullTextIndexOnNonFullTextProperty(
+                    index.DeclaringEntityType.DisplayName(),
+                    index.Properties[0].Name,
+                    nameof(CosmosPropertyBuilderExtensions.EnableFullTextSearch)));
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateUnsupportedIndex(
+        IIndex index,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        var entityType = index.DeclaringEntityType;
+        throw new InvalidOperationException(
+            CosmosStrings.IndexesExist(
+                entityType.DisplayName(),
+                string.Join(",", index.Properties.Select(e => e.Name))));
     }
 
     /// <summary>
@@ -528,13 +562,41 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
     {
         base.ValidateProperty(property, structuralType, logger);
 
+        ValidateVectorProperty(property, structuralType, logger);
+        ValidateElementConverters(property, structuralType, logger);
+        ValidateConcurrencyToken(property, structuralType, logger);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateVectorProperty(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (property.GetVectorDistanceFunction() is not null
             && property.GetVectorDimensions() is not null)
         {
             // Will throw if the data type is not set and cannot be inferred.
             CosmosVectorType.CreateDefaultVectorDataType(property.ClrType);
         }
+    }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateElementConverters(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         var typeMapping = property.GetElementType()?.GetTypeMapping();
         while (typeMapping != null)
         {
@@ -550,7 +612,19 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
 
             typeMapping = typeMapping.ElementTypeMapping;
         }
+    }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateConcurrencyToken(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (property.IsConcurrencyToken)
         {
             var storeName = property.GetJsonPropertyName();
@@ -581,18 +655,58 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
     {
         base.ValidateTrigger(trigger, entityType, logger);
 
+        ValidateTriggerOnRootType(trigger, entityType, logger);
+        ValidateTriggerType(trigger, entityType, logger);
+        ValidateTriggerOperation(trigger, entityType, logger);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateTriggerOnRootType(
+        ITrigger trigger,
+        IEntityType entityType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (entityType.BaseType != null)
         {
             throw new InvalidOperationException(
                 CosmosStrings.TriggerOnDerivedType(trigger.ModelName, entityType.DisplayName(), entityType.BaseType.DisplayName()));
         }
+    }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateTriggerType(
+        ITrigger trigger,
+        IEntityType entityType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (trigger.GetTriggerType() == null)
         {
             throw new InvalidOperationException(
                 CosmosStrings.TriggerMissingType(trigger.ModelName, entityType.DisplayName()));
         }
+    }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateTriggerOperation(
+        ITrigger trigger,
+        IEntityType entityType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (trigger.GetTriggerOperation() == null)
         {
             throw new InvalidOperationException(

@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -26,14 +25,9 @@ public class SqlServerModelValidator(
     /// <inheritdoc />
     protected override void ValidateEntityType(
         IEntityType entityType,
-        IConventionModel? conventionModel,
-        bool requireFullNotifications,
-        HashSet<IEntityType> validEntityTypes,
-        Dictionary<IKey, IIdentityMap> identityMaps,
-        bool sensitiveDataLogged,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateEntityType(entityType, conventionModel, requireFullNotifications, validEntityTypes, identityMaps, sensitiveDataLogged, logger);
+        base.ValidateEntityType(entityType, logger);
 
         ValidateTemporalTable(entityType, logger);
     }
@@ -47,7 +41,6 @@ public class SqlServerModelValidator(
         base.ValidateProperty(property, structuralType, logger);
 
         ValidateDecimalColumn(property, logger);
-        ValidateByteIdentityMapping(property, logger);
         ValidateVectorProperty(property, logger);
     }
 
@@ -132,6 +125,7 @@ public class SqlServerModelValidator(
     /// </summary>
     protected virtual void ValidateByteIdentityMapping(
         IProperty property,
+        in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         if (property.DeclaringType.IsMappedToJson())
@@ -139,11 +133,27 @@ public class SqlServerModelValidator(
             return;
         }
 
-        // TODO: Validate this per table
         if (property.ClrType.UnwrapNullableType() == typeof(byte)
-            && property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+            && property.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
         {
             logger.ByteIdentityColumnWarning(property);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override void ValidateTable(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateTable(mappedTypes, table, logger);
+
+        foreach (var entityType in mappedTypes)
+        {
+            foreach (var property in entityType.GetDeclaredProperties())
+            {
+                ValidateByteIdentityMapping(property, table, logger);
+            }
         }
     }
 
@@ -154,10 +164,10 @@ public class SqlServerModelValidator(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void ValidateValueGeneration(
-        IEntityType entityType,
         IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        var entityType = key.DeclaringEntityType;
         if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
             && entityType.BaseType == null)
         {
@@ -417,7 +427,25 @@ public class SqlServerModelValidator(
     /// </summary>
     protected override void ValidateSharedTableCompatibility(
         IReadOnlyList<IEntityType> mappedTypes,
-        in StoreObjectIdentifier storeObject,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateSharedTableCompatibility(mappedTypes, table, logger);
+
+        ValidateMemoryOptimized(mappedTypes, table, logger);
+        ValidateSqlOutputClause(mappedTypes, table, logger);
+        ValidateTemporalTableSplitting(mappedTypes, table, logger);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateMemoryOptimized(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var firstMappedType = mappedTypes[0];
@@ -428,14 +456,26 @@ public class SqlServerModelValidator(
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
-                        storeObject.DisplayName(), firstMappedType.DisplayName(), otherMappedType.DisplayName(),
+                        table.DisplayName(), firstMappedType.DisplayName(), otherMappedType.DisplayName(),
                         isMemoryOptimized ? firstMappedType.DisplayName() : otherMappedType.DisplayName(),
                         !isMemoryOptimized ? firstMappedType.DisplayName() : otherMappedType.DisplayName()));
             }
         }
+    }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateSqlOutputClause(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         bool? firstSqlOutputSetting = null;
-        firstMappedType = null;
+        IEntityType? firstMappedType = null;
         foreach (var mappedType in mappedTypes)
         {
             if (((IConventionEntityType)mappedType).GetUseSqlOutputClauseConfigurationSource() is null)
@@ -451,70 +491,82 @@ public class SqlServerModelValidator(
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.IncompatibleSqlOutputClauseMismatch(
-                        storeObject.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
+                        table.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
                         firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName(),
                         !firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName()));
             }
         }
+    }
 
-        if (mappedTypes.Any(t => t.IsTemporal())
-            && mappedTypes.Select(t => t.GetRootType()).Distinct().Count() > 1)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateTemporalTableSplitting(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (!mappedTypes.Any(t => t.IsTemporal())
+            || mappedTypes.Select(t => t.GetRootType()).Distinct().Count() <= 1)
         {
-            // table splitting is only supported when all entities mapped to this table have consistent temporal period mappings also
-            var expectedPeriodStartColumnName = default(string);
-            var expectedPeriodEndColumnName = default(string);
-
-            foreach (var mappedType in mappedTypes.Where(t => t.BaseType == null))
-            {
-                if (!mappedType.IsTemporal())
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalAllEntitiesMappedToSameTableMustBeTemporal(
-                            mappedType.DisplayName()));
-                }
-
-                var periodStartPropertyName = mappedType.GetPeriodStartPropertyName();
-                var periodEndPropertyName = mappedType.GetPeriodEndPropertyName();
-
-                var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
-                var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
-
-                var periodStartColumnName = periodStartProperty.GetColumnName(storeObject);
-                var periodEndColumnName = periodEndProperty.GetColumnName(storeObject);
-
-                if (expectedPeriodStartColumnName == null)
-                {
-                    expectedPeriodStartColumnName = periodStartColumnName;
-                }
-                else if (expectedPeriodStartColumnName != periodStartColumnName)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
-                            "start",
-                            mappedType.DisplayName(),
-                            periodStartPropertyName,
-                            periodStartColumnName,
-                            expectedPeriodStartColumnName));
-                }
-
-                if (expectedPeriodEndColumnName == null)
-                {
-                    expectedPeriodEndColumnName = periodEndColumnName;
-                }
-                else if (expectedPeriodEndColumnName != periodEndColumnName)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
-                            "end",
-                            mappedType.DisplayName(),
-                            periodEndPropertyName,
-                            periodEndColumnName,
-                            expectedPeriodEndColumnName));
-                }
-            }
+            return;
         }
 
-        base.ValidateSharedTableCompatibility(mappedTypes, storeObject, logger);
+        // table splitting is only supported when all entities mapped to this table have consistent temporal period mappings also
+        var expectedPeriodStartColumnName = default(string);
+        var expectedPeriodEndColumnName = default(string);
+
+        foreach (var mappedType in mappedTypes.Where(t => t.BaseType == null))
+        {
+            if (!mappedType.IsTemporal())
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.TemporalAllEntitiesMappedToSameTableMustBeTemporal(
+                        mappedType.DisplayName()));
+            }
+
+            var periodStartPropertyName = mappedType.GetPeriodStartPropertyName();
+            var periodEndPropertyName = mappedType.GetPeriodEndPropertyName();
+
+            var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
+            var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
+
+            var periodStartColumnName = periodStartProperty.GetColumnName(table);
+            var periodEndColumnName = periodEndProperty.GetColumnName(table);
+
+            if (expectedPeriodStartColumnName == null)
+            {
+                expectedPeriodStartColumnName = periodStartColumnName;
+            }
+            else if (expectedPeriodStartColumnName != periodStartColumnName)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
+                        "start",
+                        mappedType.DisplayName(),
+                        periodStartPropertyName,
+                        periodStartColumnName,
+                        expectedPeriodStartColumnName));
+            }
+
+            if (expectedPeriodEndColumnName == null)
+            {
+                expectedPeriodEndColumnName = periodEndColumnName;
+            }
+            else if (expectedPeriodEndColumnName != periodEndColumnName)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
+                        "end",
+                        mappedType.DisplayName(),
+                        periodEndPropertyName,
+                        periodEndColumnName,
+                        expectedPeriodEndColumnName));
+            }
+        }
     }
 
     /// <summary>
@@ -661,12 +713,12 @@ public class SqlServerModelValidator(
         IKey key,
         IKey duplicateKey,
         string keyName,
-        in StoreObjectIdentifier storeObject,
+        in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateCompatible(key, duplicateKey, keyName, storeObject, logger);
+        base.ValidateCompatible(key, duplicateKey, keyName, table, logger);
 
-        key.AreCompatibleForSqlServer(duplicateKey, storeObject, shouldThrow: true);
+        key.AreCompatibleForSqlServer(duplicateKey, table, shouldThrow: true);
     }
 
     /// <inheritdoc />
@@ -674,11 +726,11 @@ public class SqlServerModelValidator(
         IIndex index,
         IIndex duplicateIndex,
         string indexName,
-        in StoreObjectIdentifier storeObject,
+        in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateCompatible(index, duplicateIndex, indexName, storeObject, logger);
+        base.ValidateCompatible(index, duplicateIndex, indexName, table, logger);
 
-        index.AreCompatibleForSqlServer(duplicateIndex, storeObject, shouldThrow: true);
+        index.AreCompatibleForSqlServer(duplicateIndex, table, shouldThrow: true);
     }
 }

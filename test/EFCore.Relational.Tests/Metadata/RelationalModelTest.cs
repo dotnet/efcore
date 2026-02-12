@@ -3252,7 +3252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 configureContext: b =>
                     b.ConfigureWarnings(w => w.Default(WarningBehavior.Throw)
                         .Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning)
-                        .Ignore(RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable)));
+                        .Ignore(RelationalEventId.AllIndexPropertiesNotMappedToAnyTable)));
 
         public static void AssertEqual(IRelationalModel expectedModel, IRelationalModel actualModel)
             => RelationalModelAsserter.Instance.AssertEqual(expectedModel, actualModel);

@@ -36,43 +36,22 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
 
     /// <inheritdoc />
     public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        => ValidateEntityTypes(model, logger);
-
-    /// <summary>
-    ///     Validates all entity types in the model with a single iteration.
-    /// </summary>
-    /// <param name="model">The model to validate.</param>
-    /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateEntityTypes(
-        IModel model,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var conventionModel = model as IConventionModel;
-        var requireFullNotifications = (bool?)model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] == true;
         var validEntityTypes = new HashSet<IEntityType>();
         var identityMaps = new Dictionary<IKey, IIdentityMap>();
-        var sensitiveDataLogged = logger.ShouldLogSensitiveData();
         var identifyingFkGraph = new Multigraph<IEntityType, IForeignKey>();
+        var sensitiveDataLogged = logger.ShouldLogSensitiveData();
 
         foreach (var entityType in model.GetEntityTypes())
         {
-            ValidateEntityType(entityType, conventionModel, requireFullNotifications, validEntityTypes, identityMaps, sensitiveDataLogged, logger);
-            AddIdentifyingFkEdges(entityType, identifyingFkGraph);
-        }
-
-        identifyingFkGraph.TopologicalSort(
-            tryBreakEdge: null,
-            formatCycle: c => c.Select(d => d.Item1.DisplayName()).Join(" -> "),
-            CoreStrings.IdentifyingRelationshipCycle);
-
-        static void AddIdentifyingFkEdges(
-            IEntityType entityType,
-            Multigraph<IEntityType, IForeignKey> graph)
-        {
+            ValidateEntityType(entityType, logger);
+            ValidateClrInheritance(entityType, validEntityTypes);
+            ValidateData(entityType, identityMaps, sensitiveDataLogged, logger);
+            
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null)
             {
-                return;
+                continue;
             }
 
             foreach (var foreignKey in entityType.GetForeignKeys())
@@ -85,43 +64,45 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                     continue;
                 }
 
-                graph.AddVertex(entityType);
-                graph.AddVertex(principalType);
-                graph.AddEdge(entityType, principalType, foreignKey);
+                identifyingFkGraph.AddVertex(entityType);
+                identifyingFkGraph.AddVertex(principalType);
+                identifyingFkGraph.AddEdge(entityType, principalType, foreignKey);
             }
         }
+
+        ValidateNoIdentifyingRelationshipCycles(identifyingFkGraph);
+    }
+
+    private static void ValidateNoIdentifyingRelationshipCycles(Multigraph<IEntityType, IForeignKey> graph)
+    {
+        graph.TopologicalSort(
+            tryBreakEdge: null,
+            formatCycle: c => c.Select(d => d.Item1.DisplayName()).Join(" -> "),
+            CoreStrings.IdentifyingRelationshipCycle);
     }
 
     /// <summary>
     ///     Validates a single entity type.
     /// </summary>
     /// <param name="entityType">The entity type to validate.</param>
-    /// <param name="conventionModel">The convention model, or <see langword="null" /> if the model is not a convention model.</param>
-    /// <param name="requireFullNotifications">Whether full change tracking notifications are required.</param>
-    /// <param name="validEntityTypes">Set of validated entity types for CLR inheritance checks.</param>
-    /// <param name="identityMaps">Shared identity maps for detecting duplicate seed data.</param>
-    /// <param name="sensitiveDataLogged">Whether sensitive data should be logged.</param>
     /// <param name="logger">The logger to use.</param>
     protected virtual void ValidateEntityType(
         IEntityType entityType,
-        IConventionModel? conventionModel,
-        bool requireFullNotifications,
-        HashSet<IEntityType> validEntityTypes,
-        Dictionary<IKey, IIdentityMap> identityMaps,
-        bool sensitiveDataLogged,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         ValidateEntityClrType(entityType, logger);
+        ValidateChangeTrackingStrategy(entityType, logger);
+        ValidateIgnoredMembers(entityType, logger);
+        ValidatePropertyMapping(entityType, logger);
+        ValidateOwnership(entityType, logger);
+        ValidateNonNullPrimaryKey(entityType, logger);
+        ValidateInheritanceMapping(entityType, logger);
+        ValidateFieldMapping(entityType, logger);
+        ValidateQueryFilters(entityType, logger);
 
-        if (conventionModel != null && entityType is IConventionEntityType conventionEntityType)
+        foreach (var property in entityType.GetDeclaredProperties())
         {
-            ValidateIgnoredMembers(conventionEntityType, logger);
-            ValidatePropertyMapping(conventionEntityType, conventionModel, logger);
-        }
-
-        foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
-        {
-            ValidateRelationship(foreignKey, logger);
+            ValidateProperty(property, entityType, logger);
         }
 
         foreach (var skipNavigation in entityType.GetDeclaredSkipNavigations())
@@ -129,26 +110,15 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateSkipNavigation(skipNavigation, logger);
         }
 
-        ValidateOwnership(entityType, logger);
-        ValidateNonNullPrimaryKey(entityType, logger);
-
-        foreach (var key in entityType.GetDeclaredKeys())
-        {
-            ValidateKey(key, logger);
-        }
-
-        ValidateClrInheritance(entityType, validEntityTypes);
-        ValidateInheritanceMapping(entityType, logger);
-        ValidateChangeTrackingStrategy(entityType, requireFullNotifications, logger);
-
         foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
         {
             ValidateForeignKey(foreignKey, logger);
         }
 
-        ValidateFieldMapping(entityType, logger);
-        ValidateQueryFilters(entityType, logger);
-        ValidateData(entityType, identityMaps, sensitiveDataLogged, logger);
+        foreach (var key in entityType.GetDeclaredKeys())
+        {
+            ValidateKey(key, logger);
+        }
 
         foreach (var index in entityType.GetDeclaredIndexes())
         {
@@ -160,14 +130,9 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateTrigger(trigger, entityType, logger);
         }
 
-        foreach (var property in entityType.GetDeclaredProperties())
-        {
-            ValidateProperty(property, entityType, logger);
-        }
-
         foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
         {
-            ValidateComplexProperty(complexProperty, entityType, requireFullNotifications, logger);
+            ValidateComplexProperty(complexProperty, logger);
         }
 
         LogShadowProperties(entityType, logger);
@@ -208,30 +173,23 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     ///     Validates a single complex property and its nested members.
     /// </summary>
     /// <param name="complexProperty">The complex property to validate.</param>
-    /// <param name="structuralType">The structural type containing the complex property.</param>
-    /// <param name="requireFullNotifications">Whether full change tracking notifications are required.</param>
     /// <param name="logger">The logger to use.</param>
     protected virtual void ValidateComplexProperty(
         IComplexProperty complexProperty,
-        ITypeBase structuralType,
-        bool requireFullNotifications,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var complexType = complexProperty.ComplexType;
 
-        // Validate change tracking for complex type
-        ValidateChangeTrackingStrategy(complexType, requireFullNotifications, logger);
+        ValidateChangeTrackingStrategy(complexType, logger);
 
-        // Validate all properties in the complex type
         foreach (var property in complexType.GetDeclaredProperties())
         {
             ValidateProperty(property, complexType, logger);
         }
 
-        // Recursively validate nested complex properties
         foreach (var nestedComplexProperty in complexType.GetDeclaredComplexProperties())
         {
-            ValidateComplexProperty(nestedComplexProperty, complexType, requireFullNotifications, logger);
+            ValidateComplexProperty(nestedComplexProperty, logger);
         }
     }
 
@@ -260,11 +218,11 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Validates a relationship on a foreign key.
+    ///     Validates that a one-to-one relationship has an unambiguous principal end.
     /// </summary>
     /// <param name="foreignKey">The foreign key to validate.</param>
     /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateRelationship(
+    protected virtual void ValidateAmbiguousOneToOneRelationship(
         IForeignKey foreignKey,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
@@ -294,20 +252,54 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ISkipNavigation skipNavigation,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        ValidateSkipNavigationIsCollection(skipNavigation, logger);
+        ValidateSkipNavigationForeignKey(skipNavigation, logger);
+        ValidateSkipNavigationInverse(skipNavigation, logger);
+    }
+
+    /// <summary>
+    ///     Validates that a skip navigation is a collection navigation.
+    /// </summary>
+    /// <param name="skipNavigation">The skip navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateSkipNavigationIsCollection(
+        ISkipNavigation skipNavigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (!skipNavigation.IsCollection)
         {
             throw new InvalidOperationException(
                 CoreStrings.SkipNavigationNonCollection(
                     skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
         }
+    }
 
+    /// <summary>
+    ///     Validates that a skip navigation has a foreign key configured.
+    /// </summary>
+    /// <param name="skipNavigation">The skip navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateSkipNavigationForeignKey(
+        ISkipNavigation skipNavigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (skipNavigation.ForeignKey == null)
         {
             throw new InvalidOperationException(
                 CoreStrings.SkipNavigationNoForeignKey(
                     skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
         }
+    }
 
+    /// <summary>
+    ///     Validates that a skip navigation has an inverse navigation configured.
+    /// </summary>
+    /// <param name="skipNavigation">The skip navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateSkipNavigationInverse(
+        ISkipNavigation skipNavigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (skipNavigation.Inverse == null)
         {
             throw new InvalidOperationException(
@@ -320,14 +312,15 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     ///     Validates property mappings for a given type.
     /// </summary>
     /// <param name="structuralType">The type base to validate.</param>
-    /// <param name="model">The model to validate.</param>
     /// <param name="logger">The logger to use.</param>
     protected virtual void ValidatePropertyMapping(
-        IConventionTypeBase structuralType,
-        IConventionModel model,
+        ITypeBase structuralType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var unmappedProperty = structuralType.GetDeclaredProperties().FirstOrDefault(p
+        var conventionTypeBase = (IConventionTypeBase)structuralType;
+        var conventionModel = (IConventionModel)structuralType.Model;
+
+        var unmappedProperty = conventionTypeBase.GetDeclaredProperties().FirstOrDefault(p
             => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
                 // Use a better condition for non-persisted properties when issue #14121 is implemented
                 || !p.IsImplicitlyCreated())
@@ -338,14 +331,13 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ThrowPropertyNotMappedException(
                 (unmappedProperty.GetValueConverter()?.ProviderClrType ?? unmappedProperty.ClrType).ShortDisplayName(),
                 structuralType,
-                unmappedProperty);
+                (IProperty)unmappedProperty);
         }
 
-        foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
+        foreach (var complexProperty in conventionTypeBase.GetDeclaredComplexProperties())
         {
-            ValidatePropertyMapping(complexProperty, logger);
-
-            ValidatePropertyMapping(complexProperty.ComplexType, model, logger);
+            ValidatePropertyMapping((IComplexProperty)complexProperty, logger);
+            ValidatePropertyMapping((ITypeBase)complexProperty.ComplexType, logger);
         }
 
         if (structuralType.ClrType == Model.DefaultPropertyBagType)
@@ -374,7 +366,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
 
         foreach (var clrPropertyName in clrProperties)
         {
-            if (structuralType.FindIgnoredConfigurationSource(clrPropertyName) != null)
+            if (conventionTypeBase.FindIgnoredConfigurationSource(clrPropertyName) != null)
             {
                 continue;
             }
@@ -383,30 +375,30 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             var propertyType = clrProperty.PropertyType;
             var targetSequenceType = propertyType.TryGetSequenceType();
 
-            if (model.FindIgnoredConfigurationSource(propertyType) != null
-                || model.IsIgnoredType(propertyType)
+            if (conventionModel.FindIgnoredConfigurationSource(propertyType) != null
+                || conventionModel.IsIgnoredType(propertyType)
                 || (targetSequenceType != null
-                    && (model.FindIgnoredConfigurationSource(targetSequenceType) != null
-                        || model.IsIgnoredType(targetSequenceType))))
+                    && (conventionModel.FindIgnoredConfigurationSource(targetSequenceType) != null
+                        || conventionModel.IsIgnoredType(targetSequenceType))))
             {
                 continue;
             }
 
             var targetType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                clrProperty, model, useAttributes: true, out var targetOwned);
+                clrProperty, conventionModel, useAttributes: true, out var targetOwned);
             if (targetType == null
                 && clrProperty.FindSetterProperty() == null)
             {
                 continue;
             }
 
-            var isAdHoc = Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true);
+            var isAdHoc = Equals(conventionModel.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true);
             if (targetType != null)
             {
-                var targetShared = model.IsShared(targetType);
-                targetOwned ??= IsOwned(targetType, model);
+                var targetShared = conventionModel.IsShared(targetType);
+                targetOwned ??= IsOwned(targetType, structuralType.Model);
 
-                if (structuralType is not IConventionEntityType entityType)
+                if (conventionTypeBase is not IEntityType entityType)
                 {
                     if (!((IReadOnlyComplexType)structuralType).IsContainedBy(targetType))
                     {
@@ -421,7 +413,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 // ReSharper disable CheckForReferenceEqualityInstead.1
                 // ReSharper disable CheckForReferenceEqualityInstead.3
                 if ((isAdHoc
-                        || !entityType.IsKeyless
+                        || !((IConventionEntityType)entityType).IsKeyless
                         || targetSequenceType == null)
                     && entityType.GetDerivedTypes().All(dt
                         => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == clrProperty.GetSimpleMemberName())
@@ -481,7 +473,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     /// <param name="complexProperty">The complex property to validate.</param>
     /// <param name="logger">The logger to use.</param>
     protected virtual void ValidatePropertyMapping(
-        IConventionComplexProperty complexProperty,
+        IComplexProperty complexProperty,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var structuralType = complexProperty.DeclaringType;
@@ -548,8 +540,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     /// <param name="unmappedProperty">The property.</param>
     protected virtual void ThrowPropertyNotMappedException(
         string propertyType,
-        IConventionTypeBase structuralType,
-        IConventionProperty unmappedProperty)
+        ITypeBase structuralType,
+        IProperty unmappedProperty)
         => throw new InvalidOperationException(
             CoreStrings.PropertyNotMapped(
                 propertyType,
@@ -560,11 +552,14 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     ///     Returns a value indicating whether that target CLR type would correspond to an owned entity type.
     /// </summary>
     /// <param name="targetType">The target CLR type.</param>
-    /// <param name="conventionModel">The model.</param>
+    /// <param name="model">The model.</param>
     /// <returns><see langword="true" /> if the given CLR type corresponds to an owned entity type.</returns>
-    protected virtual bool IsOwned(Type targetType, IConventionModel conventionModel)
-        => conventionModel.FindIsOwnedConfigurationSource(targetType) != null
+    protected virtual bool IsOwned(Type targetType, IModel model)
+    {
+        var conventionModel = (IConventionModel)model;
+        return conventionModel.FindIsOwnedConfigurationSource(targetType) != null
             || conventionModel.FindEntityTypes(targetType).Any(t => t.IsOwned());
+    }
 
     /// <summary>
     ///     Validates that no attempt is made to ignore inherited properties on an entity type.
@@ -572,12 +567,17 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     /// <param name="entityType">The entity type to validate.</param>
     /// <param name="logger">The logger to use.</param>
     protected virtual void ValidateIgnoredMembers(
-        IConventionEntityType entityType,
+        IEntityType entityType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var ignoredMember in entityType.GetIgnoredMembers())
+        if (entityType is not IConventionEntityType conventionEntityType)
         {
-            if (entityType.FindIgnoredConfigurationSource(ignoredMember) != ConfigurationSource.Explicit)
+            return;
+        }
+
+        foreach (var ignoredMember in conventionEntityType.GetIgnoredMembers())
+        {
+            if (conventionEntityType.FindIgnoredConfigurationSource(ignoredMember) != ConfigurationSource.Explicit)
             {
                 continue;
             }
@@ -585,53 +585,33 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             var property = entityType.FindProperty(ignoredMember);
             if (property != null)
             {
-                if (property.DeclaringType != entityType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.InheritedPropertyCannotBeIgnored(
-                            ignoredMember, entityType.DisplayName(), property.DeclaringType.DisplayName()));
-                }
-
-                Check.DebugFail("Should never get here...");
+                throw new InvalidOperationException(
+                    CoreStrings.InheritedPropertyCannotBeIgnored(
+                        ignoredMember, entityType.DisplayName(), property.DeclaringType.DisplayName()));
             }
 
             var navigation = entityType.FindNavigation(ignoredMember);
             if (navigation != null)
             {
-                if (navigation.DeclaringEntityType != entityType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.InheritedPropertyCannotBeIgnored(
-                            ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
-                }
-
-                Check.DebugFail("Should never get here...");
+                throw new InvalidOperationException(
+                    CoreStrings.InheritedPropertyCannotBeIgnored(
+                        ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
             }
 
             var skipNavigation = entityType.FindSkipNavigation(ignoredMember);
             if (skipNavigation != null)
             {
-                if (skipNavigation.DeclaringEntityType != entityType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.InheritedPropertyCannotBeIgnored(
-                            ignoredMember, entityType.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
-                }
-
-                Check.DebugFail("Should never get here...");
+                throw new InvalidOperationException(
+                    CoreStrings.InheritedPropertyCannotBeIgnored(
+                        ignoredMember, entityType.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var serviceProperty = entityType.FindServiceProperty(ignoredMember);
             if (serviceProperty != null)
             {
-                if (serviceProperty.DeclaringEntityType != entityType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.InheritedPropertyCannotBeIgnored(
-                            ignoredMember, entityType.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
-                }
-
-                Check.DebugFail("Should never get here...");
+                throw new InvalidOperationException(
+                    CoreStrings.InheritedPropertyCannotBeIgnored(
+                        ignoredMember, entityType.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
             }
         }
     }
@@ -886,18 +866,12 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             discriminatorValues[discriminatorValue] = derivedType;
         }
     }
-
-    /// <summary>
-    ///     Validates change tracking configuration for a structural type.
-    /// </summary>
-    /// <param name="structuralType">The structural type to validate.</param>
-    /// <param name="requireFullNotifications">Whether full change tracking notifications are required.</param>
-    /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateChangeTrackingStrategy(
+    private void ValidateChangeTrackingStrategy(
         ITypeBase structuralType,
-        bool requireFullNotifications,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        var requireFullNotifications =
+            (bool?)structuralType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] == true;
         var errorMessage = TypeBase.CheckChangeTrackingStrategy(
             structuralType, structuralType.GetChangeTrackingStrategy(), requireFullNotifications);
 
@@ -988,11 +962,35 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IForeignKey foreignKey,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        ValidateAmbiguousOneToOneRelationship(foreignKey, logger);
+        ValidateRedundantForeignKey(foreignKey, logger);
+        ValidateForeignKeyPropertyInKey(foreignKey, logger);
+    }
+
+    /// <summary>
+    ///     Validates that a foreign key is not redundant and logs a warning if it is.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateRedundantForeignKey(
+        IForeignKey foreignKey,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (IsRedundant(foreignKey))
         {
             logger.RedundantForeignKeyWarning(foreignKey);
         }
+    }
 
+    /// <summary>
+    ///     Validates that foreign key properties are not part of an inherited key that would cause issues.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateForeignKeyPropertyInKey(
+        IForeignKey foreignKey,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
         if (foreignKey.DeclaringEntityType.BaseType == null
             || foreignKey.IsBaseLinking())
         {

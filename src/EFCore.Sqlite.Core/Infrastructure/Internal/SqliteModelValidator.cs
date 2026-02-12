@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
@@ -31,14 +30,9 @@ public class SqliteModelValidator(
     /// <inheritdoc />
     protected override void ValidateEntityType(
         IEntityType entityType,
-        IConventionModel? conventionModel,
-        bool requireFullNotifications,
-        HashSet<IEntityType> validEntityTypes,
-        Dictionary<IKey, IIdentityMap> identityMaps,
-        bool sensitiveDataLogged,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateEntityType(entityType, conventionModel, requireFullNotifications, validEntityTypes, identityMaps, sensitiveDataLogged, logger);
+        base.ValidateEntityType(entityType, logger);
 
         ValidateNoSchema(entityType, logger);
     }
@@ -126,12 +120,12 @@ public class SqliteModelValidator(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void ValidateValueGeneration(
-        IEntityType entityType,
         IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        base.ValidateValueGeneration(entityType, key, logger);
+        base.ValidateValueGeneration(key, logger);
 
+        var entityType = key.DeclaringEntityType;
         var keyProperties = key.Properties;
         if (!entityType.IsMappedToJson()
             && key.IsPrimaryKey()
@@ -154,7 +148,23 @@ public class SqliteModelValidator(
     /// </summary>
     protected override void ValidateSharedTableCompatibility(
         IReadOnlyList<IEntityType> mappedTypes,
-        in StoreObjectIdentifier storeObject,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateSharedTableCompatibility(mappedTypes, table, logger);
+
+        ValidateSqlReturningClause(mappedTypes, table, logger);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateSqlReturningClause(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         bool? firstSqlOutputSetting = null;
@@ -174,12 +184,10 @@ public class SqliteModelValidator(
             {
                 throw new InvalidOperationException(
                     SqliteStrings.IncompatibleSqlReturningClauseMismatch(
-                        storeObject.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
+                        table.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
                         firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName(),
                         !firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName()));
             }
         }
-
-        base.ValidateSharedTableCompatibility(mappedTypes, storeObject, logger);
     }
 }
