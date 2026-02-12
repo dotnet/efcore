@@ -1399,7 +1399,19 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $references = (dotnet build $startupProject.FullName /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems) -join "`n" | ConvertFrom-Json
+    $previousErrorActionPreference = $ErrorActionPreference
+    try
+    {
+        if ($previousErrorActionPreference -eq 'Stop')
+        {
+            $ErrorActionPreference = 'Continue'
+        }
+        $references = (dotnet build $startupProject.FullName /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems) -join "`n" | ConvertFrom-Json
+    }
+    finally
+    {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
 
     $designReference = $references.Items.RuntimeCopyLocalItems | ? { $_.FullPath.EndsWith('Microsoft.EntityFrameworkCore.Design.dll') }
     if ($designReference -ne $null)
