@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
+using static System.Linq.Expressions.Expression;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
@@ -250,6 +252,25 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Count(i => i > c.Id) == 2),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Count(i => i > c.Id) == 2));
+
+    [ConditionalFact]
+    public virtual async Task Inline_collection_in_query_filter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>().HasQueryFilter(t => new[] { 1, 2, 3 }.Count(i => i > t.Id) == 1),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<TestEntity>().SingleAsync();
+        Assert.Equal(2, result.Id);
+    }
 
     [ConditionalFact]
     public virtual Task Parameter_collection_Count()
@@ -995,6 +1016,94 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual Task Column_collection_of_bools_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Bools.Contains(true)));
 
+    [ConditionalFact]
+    public virtual async Task Column_with_custom_converter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>()
+                .Property(m => m.Ints)
+                .HasConversion(
+                    i => string.Join(",", i!),
+                    s => s.Split(",", StringSplitOptions.None).Select(int.Parse).ToArray(),
+                    new ValueComparer<int[]>(favorStructuralComparisons: true)),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1, Ints = [1, 2, 3] },
+                    new TestEntity { Id = 2, Ints = [1, 2, 4] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 1, 2, 3 };
+        var result = await context.Set<TestEntity>().SingleAsync(m => m.Ints == ints);
+        Assert.Equal(1, result.Id);
+
+        // Custom converters allow reading/writing, but not querying, as we have no idea about the internal representation
+        await AssertTranslationFailed(() => context.Set<TestEntity>().SingleAsync(m => m.Ints!.Length == 2));
+    }
+
+    [ConditionalFact(
+        Skip =
+            "Currently fails because we don't use the element mapping when serializing to JSON, but just do JsonSerializer.Serialize, #30677")]
+    public virtual async Task Parameter_with_inferred_value_converter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb
+                .Entity<TestEntity>()
+                .Property<IntWrapper>("PropertyWithValueConverter")
+                .HasConversion(w => w.Value, i => new IntWrapper(i)),
+            seed: context =>
+            {
+                var entry1 = context.Add(new TestEntity { Id = 1 });
+                entry1.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(8);
+                var entry2 = context.Add(new TestEntity { Id = 2 });
+                entry2.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(9);
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new IntWrapper[] { new(1), new(8) };
+        var result = await context.Set<TestEntity>()
+            .SingleAsync(m => ints.Count(i => i == EF.Property<IntWrapper>(m, "PropertyWithValueConverter")) == 1);
+        Assert.Equal(1, result.Id);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Constant_with_inferred_value_converter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb
+                .Entity<TestEntity>()
+                .Property<IntWrapper>("PropertyWithValueConverter")
+                .HasConversion(w => w.Value, i => new IntWrapper(i)),
+            seed: context =>
+            {
+                var entry1 = context.Add(new TestEntity { Id = 1 });
+                entry1.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(8);
+                var entry2 = context.Add(new TestEntity { Id = 2 });
+                entry2.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(9);
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<TestEntity>()
+            .SingleAsync(m
+                => new IntWrapper[] { new(1), new(8) }.Count(i => i == EF.Property<IntWrapper>(m, "PropertyWithValueConverter")) == 1);
+        Assert.Equal(1, result.Id);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Multidimensional_array_is_not_supported()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>().Property(typeof(int[,]), "MultidimensionalArray")));
+        Assert.Equal(CoreStrings.PropertyNotMapped("int[,]", "TestEntity", "MultidimensionalArray"), exception.Message);
+    }
+
     // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
     // The following tests that the various overloads are all supported.
     [ConditionalFact]
@@ -1627,19 +1736,67 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual async Task Project_collection_from_entity_type_with_owned()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithOwned>(b =>
+            {
+                b.Property(b => b.Id).ValueGeneratedNever();
+                b.OwnsOne(b => b.Owned);
+            }),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntityWithOwned
+                    {
+                        Id = 1,
+                        Ints = [1, 2],
+                        Owned = new Owned { Foo = 0 }
+                    },
+                    new TestEntityWithOwned
+                    {
+                        Id = 2,
+                        Ints = [3, 4],
+                        Owned = new Owned { Foo = 1 }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Set<TestEntityWithOwned>().Select(t => t.Ints).ToListAsync();
+        Assert.Contains(results, r => r?.SequenceEqual([1, 2]) ?? false);
+        Assert.Contains(results, r => r?.SequenceEqual([3, 4]) ?? false);
+    }
+
+    [ConditionalFact] // #37478
+    public virtual async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<BaseType>();
+                mb.Entity<SubType>();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        _ = await context.Set<BaseType>()
+            .Where(x => ((SubType)x).Ints.Any())
+            .ToListAsync();
+    }
+
+    [ConditionalFact]
     public virtual Task Values_of_enum_casted_to_underlying_value()
         => AssertQuery(ss
             => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Count(y => y == x.Int) > 0));
 
-    public abstract class PrimitiveCollectionsQueryFixtureBase : SharedStoreFixtureBase<PrimitiveCollectionsContext>, IQueryFixtureBase
+    public abstract class PrimitiveCollectionsQueryFixtureBase : QueryFixtureBase<PrimitiveCollectionsContext>
     {
         private PrimitiveCollectionsData? _expectedData;
 
         protected override string StoreName
             => "PrimitiveCollectionsTest";
-
-        public Func<DbContext> GetContextCreator()
-            => () => CreateContext();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<PrimitiveCollectionsEntity>(b =>
@@ -1663,15 +1820,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             return context.SaveChangesAsync();
         }
 
-        public virtual ISetSource GetExpectedData()
+        public override ISetSource GetExpectedData()
             => _expectedData ??= new PrimitiveCollectionsData();
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
         {
             { typeof(PrimitiveCollectionsEntity), e => ((PrimitiveCollectionsEntity?)e)?.Id }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
         {
             {
                 typeof(PrimitiveCollectionsEntity), (e, a) =>
@@ -1878,6 +2035,49 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 }
             };
     }
+
+    #region Non-shared test resources
+
+    protected class TestContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<TestEntity>().Property(e => e.Id).ValueGeneratedNever();
+    }
+
+    protected class TestEntity
+    {
+        public int Id { get; set; }
+        public int[]? Ints { get; set; }
+    }
+
+    private class IntWrapper(int value)
+    {
+        public int Value { get; } = value;
+    }
+
+    private class TestEntityWithOwned
+    {
+        public int Id { get; set; }
+        public int[]? Ints { get; set; }
+        public Owned Owned { get; set; } = default!;
+    }
+
+    private class Owned
+    {
+        public int Foo { get; set; }
+    }
+
+    public abstract class BaseType
+    {
+        public int Id { get; set; }
+    }
+
+    public class SubType : BaseType
+    {
+        public required int[] Ints { get; set; }
+    }
+
+    #endregion
 }
 
 // Keep it outside so it does not inherit the TFixture.

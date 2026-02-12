@@ -36,6 +36,11 @@ WHERE [t].[Value].STEquals('LINESTRING (10 20, 15 25)') = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

@@ -58,10 +58,24 @@ public abstract class SqlServerSpatialTypeTestBase<T, TFixture>(TFixture fixture
         Assert.Equal(Fixture.Value, result.JsonContainer.Value, Fixture.Comparer);
     }
 
+    // Spatial types aren't supported as primitive collections
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
+
     public abstract class SqlServerSpatialTypeFixture : SqlServerTypeFixture<T>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(o => o.UseNetTopologySuite());
+            => base.AddOptions(builder)
+                .UseSqlServer(o => o.UseNetTopologySuite())
+                .ConfigureWarnings(w => w.Ignore(CoreEventId.MappedPropertyIgnoredWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            // Spatial types aren't supported as primitive collections
+            modelBuilder.Entity<TypeEntity<T>>().Ignore(e => e.ArrayValue);
+        }
     }
 }
 
