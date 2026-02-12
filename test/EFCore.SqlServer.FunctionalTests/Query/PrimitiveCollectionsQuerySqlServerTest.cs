@@ -726,6 +726,23 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
 """);
     }
 
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
+
+        AssertSql(
+            """
+@nullableInts_without_nulls='[999]' (Size = 4000)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[NullableInt] IN (
+    SELECT [n].[value]
+    FROM OPENJSON(@nullableInts_without_nulls) AS [n]
+) OR [p].[NullableInt] IS NULL
+""");
+    }
+
     public override async Task Parameter_collection_of_strings_Contains_string()
     {
         await base.Parameter_collection_of_strings_Contains_string();
@@ -2581,6 +2598,19 @@ WHERE (
     FROM (VALUES (CAST(0 AS int)), (1), (2), (3)) AS [v]([Value])
     WHERE [v].[Value] = [p].[Int]) > 0
 """);
+    }
+
+    [ConditionalFact] // #37605
+    public virtual async Task Parameter_collection_with_null_value_Contains_null_2201_values()
+    {
+        using var context = Fixture.CreateContext();
+
+        var values = Enumerable.Range(1, 2200).Select(i => (int?)i).ToList();
+        values.Add(null);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => values.Contains(e.NullableInt)));
+
+        // No SQL assertion as the SQL is huge
     }
 
     [ConditionalFact]
