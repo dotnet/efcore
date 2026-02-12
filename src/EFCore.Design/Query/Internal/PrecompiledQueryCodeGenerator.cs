@@ -742,6 +742,7 @@ namespace System.Runtime.CompilerServices
                                 code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
                                 declaredQueryContextVariable = true;
                             }
+
                             code.AppendLine($"queryContext.CancellationToken = {parameterName};");
                             continue;
                         }
