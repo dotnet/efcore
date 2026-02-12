@@ -708,6 +708,35 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal(nameof(ComplexProperties.Customer), complexType.GetContainerColumnName());
         }
 
+        [ConditionalFact]
+        public virtual void Complex_collection_mapped_to_json_with_nested_complex_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
+                .ComplexCollection(
+                    e => e.Customers, b =>
+                    {
+                        b.ToJson("customers_data");
+                        b.Ignore(c => c.Orders);
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.True(complexType.IsMappedToJson());
+            Assert.Equal("customers_data", complexType.GetContainerColumnName());
+
+            var nestedComplexProperty = complexType.FindComplexProperty(nameof(Customer.Details));
+            Assert.NotNull(nestedComplexProperty);
+            Assert.True(nestedComplexProperty.ComplexType.IsMappedToJson());
+        }
+
         // Complex collections must be mapped to JSON
         public override void Complex_properties_can_be_configured_by_type()
             => Assert.Throws<InvalidOperationException>(base.Complex_properties_can_be_configured_by_type);

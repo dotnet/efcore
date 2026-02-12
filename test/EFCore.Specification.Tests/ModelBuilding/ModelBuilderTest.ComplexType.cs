@@ -1693,6 +1693,60 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Nested_complex_properties_discovered_by_convention_in_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Product>()
+                .Ignore<Order>()
+                .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.Ignore(c => c.Orders);
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!
+                .FindComplexProperty(nameof(ComplexProperties.Customer))!;
+            var customerType = complexProperty.ComplexType;
+
+            var nestedComplexProperty = customerType.FindComplexProperty(nameof(Customer.Details));
+            Assert.NotNull(nestedComplexProperty);
+            Assert.Equal(typeof(CustomerDetails), nestedComplexProperty.ComplexType.ClrType);
+        }
+
+        [ConditionalFact]
+        public virtual void Nested_complex_properties_discovered_by_convention_do_not_propagate_to_entity_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Product>()
+                .Ignore<Order>()
+                .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.Ignore(c => c.Orders);
+                    });
+
+            modelBuilder
+                .Entity<Customer>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Null(entityType.FindComplexProperty(nameof(Customer.Details)));
+            Assert.NotNull(entityType.FindNavigation(nameof(Customer.Details)));
+        }
+
+        [ConditionalFact]
         protected virtual void Mapping_throws_for_non_ignored_navigations_on_complex_types()
         {
             var modelBuilder = CreateModelBuilder();
