@@ -1170,11 +1170,6 @@ namespace System.Runtime.CompilerServices
         var settersParameter = settersLambda.Parameters.Single();
         var expression = settersLambda.Body;
 
-        // Use a Stack to reverse the order of processing.
-        // The expression tree is nested (Last Call is the Outer-most node).
-        // We want to process them First -> Last.
-        var calls = new Stack<MethodCallExpression>();
-
         while (expression != settersParameter)
         {
             if (expression is MethodCallExpression
@@ -1192,8 +1187,19 @@ namespace System.Runtime.CompilerServices
                 } methodCallExpression
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(UpdateSettersBuilder<>))
             {
-                // Push to stack to process later
-                calls.Push(methodCallExpression);
+                if (valueSelector is UnaryExpression
+                    {
+                        NodeType: ExpressionType.Quote,
+                        Operand: LambdaExpression unwrappedValueSelector
+                    })
+                {
+                    settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
+                }
+                else
+                {
+                    settersBuilder.SetProperty(propertySelector, valueSelector);
+                }
+
                 expression = methodCallExpression.Object;
                 continue;
             }
@@ -1201,28 +1207,10 @@ namespace System.Runtime.CompilerServices
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
         }
 
-        // Process the stack (First-In, Last-Out) effectively reversing the tree traversal
-        // so setters are added in the order they were written in source code.
-        foreach (var methodCallExpression in calls)
-        {
-            var propertySelector = (LambdaExpression)((UnaryExpression)methodCallExpression.Arguments[0]).Operand;
-            var valueSelector = methodCallExpression.Arguments[1];
-    
-            if (valueSelector is UnaryExpression
-                {
-                    NodeType: ExpressionType.Quote,
-                    Operand: LambdaExpression unwrappedValueSelector
-                })
-            {
-                settersBuilder.SetProperty(propertySelector, unwrappedValueSelector);
-            }
-            else
-            {
-                settersBuilder.SetProperty(propertySelector, valueSelector);
-            }
-        }
-
-        return settersBuilder.BuildSettersExpression();
+        // The expression tree is nested inside-out (last SetProperty call is the outermost node),
+        // so setters were added in reverse order. Reverse to restore source code order.
+        var settersArray = settersBuilder.BuildSettersExpression();
+        return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
     }
 
     /// <summary>
