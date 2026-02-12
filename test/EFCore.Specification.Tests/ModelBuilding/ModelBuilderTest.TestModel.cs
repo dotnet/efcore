@@ -263,6 +263,7 @@ public abstract partial class ModelBuilderTest
     }
 
     // INotify interfaces not really implemented; just marking the classes to test metadata construction
+    [ComplexType]
     protected class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
     {
         private int _forUp;

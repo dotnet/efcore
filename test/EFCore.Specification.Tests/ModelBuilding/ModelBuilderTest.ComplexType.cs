@@ -2285,5 +2285,97 @@ public abstract partial class ModelBuilderTest
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
             Assert.Equal(BasicEnum.Two, complexType.GetDiscriminatorValue());
         }
+
+        [ConditionalFact]
+        public virtual void ComplexType_attribute_on_reference_type_creates_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Entity<ComplexProperties>();
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties));
+
+            var indexedClassProperty = entityType.GetComplexProperties().FirstOrDefault(p => p.Name == nameof(ComplexProperties.IndexedClass));
+            Assert.NotNull(indexedClassProperty);
+            Assert.Equal(typeof(IndexedClass), indexedClassProperty.ClrType);
+            Assert.False(indexedClassProperty.IsNullable);
+
+            var complexType = indexedClassProperty.ComplexType;
+            Assert.Equal(typeof(IndexedClass), complexType.ClrType);
+            Assert.NotNull(complexType.FindProperty(nameof(IndexedClass.Id)));
+
+            var nestedProperty = complexType.GetComplexProperties().FirstOrDefault(p => p.Name == nameof(IndexedClass.Nested));
+            Assert.NotNull(nestedProperty);
+            Assert.Equal(typeof(NestedComplexType), nestedProperty.ClrType);
+        }
+
+        [ConditionalFact]
+        public virtual void ComplexType_attribute_on_nested_types_are_discovered()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Entity<ComplexProperties>();
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties));
+
+            var indexedClassProperty = entityType.GetComplexProperties().FirstOrDefault(p => p.Name == nameof(ComplexProperties.IndexedClass));
+            Assert.NotNull(indexedClassProperty);
+
+            var nestedProperty = indexedClassProperty.ComplexType.GetComplexProperties()
+                .FirstOrDefault(p => p.Name == nameof(IndexedClass.Nested));
+            Assert.NotNull(nestedProperty);
+            Assert.Equal(typeof(NestedComplexType), nestedProperty.ClrType);
+
+            var doubleNestedProperty = nestedProperty.ComplexType.GetComplexProperties()
+                .FirstOrDefault(p => p.Name == nameof(NestedComplexType.DoubleNested));
+            Assert.NotNull(doubleNestedProperty);
+            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedProperty.ClrType);
+        }
+
+        [ConditionalFact]
+        public virtual void ComplexType_attribute_on_class_with_required_property_creates_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>();
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties));
+
+            var quarksProperty = entityType.GetComplexProperties().FirstOrDefault(p => p.Name == nameof(ComplexProperties.Quarks));
+            Assert.NotNull(quarksProperty);
+            Assert.Equal(typeof(Quarks), quarksProperty.ClrType);
+            Assert.False(quarksProperty.IsNullable);
+
+            var complexType = quarksProperty.ComplexType;
+            Assert.NotNull(complexType.FindProperty(nameof(Quarks.Up)));
+            Assert.NotNull(complexType.FindProperty(nameof(Quarks.Down)));
+        }
+
+        [ConditionalFact]
+        public virtual void ComplexType_attribute_can_be_overridden_with_fluent_API()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Entity<ComplexProperties>()
+                .Ignore(e => e.IndexedClass);
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties));
+
+            var indexedClassProperty = entityType.GetComplexProperties().FirstOrDefault(p => p.Name == nameof(ComplexProperties.IndexedClass));
+            Assert.Null(indexedClassProperty);
+        }
     }
 }
