@@ -292,26 +292,21 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         {
             builder
                 .AppendLine("protected override void BuildModel(ModelBuilder modelBuilder)")
-                .AppendLine("{");
+                .AppendLine("{")
+                .DecrementIndent()
+                .DecrementIndent();
             
             if (!string.IsNullOrEmpty(latestMigrationId))
             {
                 builder
-                    .IncrementIndent()
-                    .IncrementIndent()
-                    .IncrementIndent()
                     .Append("// LatestMigrationId = ").AppendLine(Code.Literal(latestMigrationId))
                     .AppendLine("// If you encounter a merge conflict in the line above, it means you need to")
                     .AppendLine("// discard one of the migration branches and recreate its migrations on top of")
                     .AppendLine("// the other branch. See https://aka.ms/efcore-docs-merge-conflicts for more info.")
-                    .DecrementIndent()
-                    .DecrementIndent()
-                    .DecrementIndent();
+                    .AppendLine();
             }
 
             builder
-                .DecrementIndent()
-                .DecrementIndent()
                 .AppendLine("#pragma warning disable 612, 618")
                 .IncrementIndent()
                 .IncrementIndent();
