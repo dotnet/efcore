@@ -304,16 +304,16 @@ public class PropertyAccessorsFactory
         }
         else if (!fromDeclaringType
                  || !addNullCheck
-                 || property is not IComplexProperty complexProperty
+                 || property?.DeclaringType is not IRuntimeComplexType declaringComplexType
                  || instanceExpression.Type.IsValueType
-                 || complexProperty.ClrType.IsValueType)
+                 || declaringComplexType.ClrType.IsValueType)
         {
             // Disable null check for all cases except:
             // - fromDeclaringType is true AND
             // - addNullCheck is true AND  
-            // - property is a complex property AND
+            // - property is declared in a complex type AND
             // - instance is a reference type AND
-            // - complex property type is a reference type
+            // - declaring complex type is a reference type
             addNullCheck = false;
         }
 
