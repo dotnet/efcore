@@ -498,8 +498,8 @@ public static class SqlServerModelExtensions
     /// <param name="model">The model.</param>
     /// <param name="name">The name of the full-text catalog.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The <see cref="IConventionSqlServerFullTextCatalog" /> added to the model.</returns>
-    public static IConventionSqlServerFullTextCatalog AddFullTextCatalog(
+    /// <returns>The <see cref="IConventionSqlServerFullTextCatalog" /> added to the model, or <see langword="null" /> if the catalog could not be added.</returns>
+    public static IConventionSqlServerFullTextCatalog? AddFullTextCatalog(
         this IConventionModel model,
         string name,
         bool fromDataAnnotation = false)

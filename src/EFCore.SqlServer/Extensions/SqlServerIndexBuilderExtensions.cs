@@ -844,29 +844,27 @@ public static class SqlServerIndexBuilderExtensions
         => (IndexBuilder<TEntity>)HasFullTextLanguage((IndexBuilder)indexBuilder, propertyName, language);
 
     /// <summary>
-    ///     Configures the language for a specific property in the full-text index when targeting SQL Server.
+    ///     Configures the languages for properties in the full-text index when targeting SQL Server.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
     ///     for more information on SQL Server full-text search.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="propertyName">The name of the property.</param>
-    /// <param name="language">The language term (e.g. "English", "1033").</param>
+    /// <param name="languages">A dictionary of property names to language terms, or <see langword="null" /> to remove all.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    public static IConventionIndexBuilder? HasFullTextLanguage(
+    public static IConventionIndexBuilder? HasFullTextLanguages(
         this IConventionIndexBuilder indexBuilder,
-        string propertyName,
-        string? language,
+        IReadOnlyDictionary<string, string>? languages,
         bool fromDataAnnotation = false)
     {
-        if (indexBuilder.CanSetFullTextLanguage(propertyName, language, fromDataAnnotation))
+        if (indexBuilder.CanSetFullTextLanguages(languages, fromDataAnnotation))
         {
-            indexBuilder.Metadata.SetFullTextLanguage(propertyName, language, fromDataAnnotation);
+            indexBuilder.Metadata.SetFullTextLanguages(languages, fromDataAnnotation);
 
             return indexBuilder;
         }
@@ -875,7 +873,7 @@ public static class SqlServerIndexBuilderExtensions
     }
 
     /// <summary>
-    ///     Returns a value indicating whether the language for a specific property in the full-text index can be set
+    ///     Returns a value indicating whether the languages for properties in the full-text index can be set
     ///     when targeting SQL Server.
     /// </summary>
     /// <remarks>
@@ -883,17 +881,14 @@ public static class SqlServerIndexBuilderExtensions
     ///     for more information on SQL Server full-text search.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="propertyName">The name of the property.</param>
-    /// <param name="language">The language term (e.g. "English", "1033").</param>
+    /// <param name="languages">A dictionary of property names to language terms.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
-    ///     <see langword="true" /> if the language for the specified property can be set when targeting SQL Server.
+    ///     <see langword="true" /> if the languages for properties can be set when targeting SQL Server.
     /// </returns>
-    public static bool CanSetFullTextLanguage(
+    public static bool CanSetFullTextLanguages(
         this IConventionIndexBuilder indexBuilder,
-        string propertyName,
-        string? language,
+        IReadOnlyDictionary<string, string>? languages,
         bool fromDataAnnotation = false)
-        // TODO: Per-property configuration source tracking may be needed for finer-grained control.
-        => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.FullTextLanguages, language, fromDataAnnotation);
+        => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.FullTextLanguages, languages, fromDataAnnotation);
 }
