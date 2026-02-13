@@ -5,5 +5,7 @@
 
 [assembly: CosmosDbConfiguredCondition]
 
-// Waiting on Task causes deadlocks when run in parallel
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+// Emulator could experience performance degradation with more than 10 concurrent containers,
+// some tests might create multiple containers
+// https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
+[assembly: CollectionBehavior(MaxParallelThreads = 4)]

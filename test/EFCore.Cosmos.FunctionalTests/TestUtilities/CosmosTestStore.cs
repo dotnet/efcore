@@ -75,9 +75,25 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
-            ? name
-            : name + _runId;
+    {
+        if (name == "Northwind" || name == "Northwind2" || name == "Northwind3" || name == "NonExistent")
+        {
+            return name;
+        }
+
+        if (TestEnvironment.IsEmulator)
+        {
+            // We delete and recreate the database for each test run in the emulator.
+            // This is due to limitations in the emulator.
+            // Since the databases are deleted, they can't be shared across test runs, so we generate a new name for each run.
+            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
+            return Guid.NewGuid().ToString();
+        }
+        else
+        {
+            return name + _runId;
+        }
+    }
 
     public string ConnectionUri { get; }
     public string AuthToken { get; }
@@ -556,8 +572,7 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized
-            && _dataFilePath == null)
+        if (_initialized)
         {
             if (_connectionAvailable == false)
             {
