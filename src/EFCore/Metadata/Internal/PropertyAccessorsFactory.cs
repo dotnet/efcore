@@ -302,8 +302,18 @@ public class PropertyAccessorsFactory
                     break;
             }
         }
-        else
+        else if (!fromDeclaringType
+                 || !addNullCheck
+                 || property is not IComplexProperty complexProperty
+                 || instanceExpression.Type.IsValueType
+                 || complexProperty.ClrType.IsValueType)
         {
+            // Disable null check for all cases except:
+            // - fromDeclaringType is true AND
+            // - addNullCheck is true AND  
+            // - property is a complex property AND
+            // - instance is a reference type AND
+            // - complex property type is a reference type
             addNullCheck = false;
         }
 
