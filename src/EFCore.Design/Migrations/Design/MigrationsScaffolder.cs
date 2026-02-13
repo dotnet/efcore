@@ -187,7 +187,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             modelSnapshotNamespace,
             _contextType,
             modelSnapshotName,
-            Dependencies.Model);
+            Dependencies.Model,
+            migrationId);
 
         return new ScaffoldedMigration(
             codeGenerator.FileExtension,
@@ -346,6 +347,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             }
         }
 
+        var latestMigrationId = migrations.Count > 1 ? migrations[^2].GetId() : null;
+
         var modelSnapshotName = modelSnapshot.GetType().Name;
         var modelSnapshotFileName = modelSnapshotName + codeGenerator.FileExtension;
         var modelSnapshotFile = TryGetProjectFile(projectDir, modelSnapshotFileName);
@@ -378,7 +381,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 modelSnapshotNamespace,
                 _contextType,
                 modelSnapshotName,
-                model);
+                model,
+                latestMigrationId);
 
             modelSnapshotFile ??= Path.Combine(
                 GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
