@@ -32,7 +32,7 @@ public abstract class ModelSnapshot
     ///     The ID of the latest migration applied to the model when the snapshot was created.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations-conflicts">Database migrations</see> for more information and examples.
     /// </remarks>
     public virtual string? LatestMigrationId
         => null;
