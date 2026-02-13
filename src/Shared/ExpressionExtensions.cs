@@ -55,15 +55,15 @@ internal static class ExpressionExtensions
             _ => throw new InvalidOperationException()
         };
 
-    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true)][MaybeNullWhen(false)]out T value)
+    public static bool TryGetNonNullConstantValue<T>(this Expression expression, [NotNullWhen(true), MaybeNullWhen(false)] out T value)
     {
         switch (expression)
         {
-            case ConstantExpression constant when constant.Value is T typedValue:
+            case ConstantExpression { Value: T typedValue }:
                 value = typedValue;
                 return true;
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
-            case LiftableConstantExpression liftableConstant when liftableConstant.OriginalExpression.Value is T typedValue:
+            case LiftableConstantExpression { OriginalExpression.Value: T typedValue }:
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
                 value = typedValue;
                 return true;

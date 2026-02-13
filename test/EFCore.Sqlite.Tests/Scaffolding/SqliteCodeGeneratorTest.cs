@@ -12,7 +12,7 @@ public class SqliteCodeGeneratorTest
     {
         var codeGenerator = new SqliteCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
 
@@ -28,7 +28,7 @@ public class SqliteCodeGeneratorTest
     {
         var codeGenerator = new SqliteCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var providerOptions = new MethodCallCodeFragment(_setProviderOptionMethodInfo);
 
@@ -53,7 +53,7 @@ public class SqliteCodeGeneratorTest
     {
         var codeGenerator = new SqliteCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                new[] { new SqliteNetTopologySuiteCodeGeneratorPlugin() }));
+                [new SqliteNetTopologySuiteCodeGeneratorPlugin()]));
 
         var result = ((IProviderConfigurationCodeGenerator)codeGenerator).GenerateUseProvider("Data Source=Test");
 

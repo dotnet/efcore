@@ -27,8 +27,7 @@ public class WarningsTest
                 InMemoryEventId.TransactionIgnoredWarning,
                 InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                 "InMemoryEventId.TransactionIgnoredWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.BeginTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction()).Message);
     }
 
     [ConditionalFact]
@@ -45,8 +44,7 @@ public class WarningsTest
                 InMemoryEventId.TransactionIgnoredWarning,
                 InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                 "InMemoryEventId.TransactionIgnoredWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
     }
 
     [ConditionalFact]
@@ -92,8 +90,7 @@ public class WarningsTest
                 CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
                     .GenerateMessage("WarningAsErrorEntity", "Nav"),
                 "CoreEventId.LazyLoadOnDisposedContextWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => entity.Nav).Message);
+            Assert.Throws<InvalidOperationException>(() => entity.Nav).Message);
     }
 
     [ConditionalFact]
@@ -128,11 +125,10 @@ public class WarningsTest
 
         Assert.Null(entity.Nav);
 
-        var log = loggerFactory.Log.Single(
-            l => l.Message
-                == CoreResources
-                    .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                    .GenerateMessage("WarningAsErrorEntity", "Nav"));
+        var log = loggerFactory.Log.Single(l => l.Message
+            == CoreResources
+                .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                .GenerateMessage("WarningAsErrorEntity", "Nav"));
 
         Assert.Equal(LogLevel.Warning, log.Level);
     }
@@ -169,11 +165,10 @@ public class WarningsTest
 
         Assert.Null(entity.Nav);
 
-        var log = loggerFactory.Log.Single(
-            l => l.Message
-                == CoreResources
-                    .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                    .GenerateMessage("WarningAsErrorEntity", "Nav"));
+        var log = loggerFactory.Log.Single(l => l.Message
+            == CoreResources
+                .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                .GenerateMessage("WarningAsErrorEntity", "Nav"));
 
         Assert.Equal(LogLevel.Debug, log.Level);
     }
@@ -254,26 +249,25 @@ public class WarningsTest
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInternalServiceProvider(_serviceProvider)
-                .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
-                    c =>
+                .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(c =>
+                {
+                    if (_toThrow != null)
                     {
-                        if (_toThrow != null)
-                        {
-                            c.Throw(_toThrow.Value);
-                        }
-                        else if (_toLog != null)
-                        {
-                            c.Log(_toLog.Value);
-                        }
-                        else if (_toChangeLevel != null)
-                        {
-                            c.Log(_toChangeLevel.Value);
-                        }
-                        else if (_defaultThrow)
-                        {
-                            c.Default(WarningBehavior.Throw);
-                        }
-                    });
+                        c.Throw(_toThrow.Value);
+                    }
+                    else if (_toLog != null)
+                    {
+                        c.Log(_toLog.Value);
+                    }
+                    else if (_toChangeLevel != null)
+                    {
+                        c.Log(_toChangeLevel.Value);
+                    }
+                    else if (_defaultThrow)
+                    {
+                        c.Default(WarningBehavior.Throw);
+                    }
+                });
     }
 
     private class WarningAsErrorEntity
