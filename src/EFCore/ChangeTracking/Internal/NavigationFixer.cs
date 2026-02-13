@@ -1361,14 +1361,11 @@ public class NavigationFixer : INavigationFixer
             // a new entity (Added) rather than a modified entity
             var entityType = dependentEntry.EntityType;
             var ownership = entityType.FindOwnership();
-            if (ownership is { PrincipalToDependent.IsCollection: true })
+            if (ownership is { PrincipalToDependent.IsCollection: true }
+                && entityType.FindPrimaryKey()?.Properties.Any(p => ownership.Properties.Contains(p)) == true)
             {
-                var keyProperties = entityType.FindPrimaryKey()?.Properties;
-                if (keyProperties != null && keyProperties.Any(p => ownership.Properties.Contains(p)))
-                {
-                    dependentEntry.SetEntityState(EntityState.Added);
-                    return;
-                }
+                dependentEntry.SetEntityState(EntityState.Added);
+                return;
             }
 
             dependentEntry.SetEntityState(EntityState.Modified);
