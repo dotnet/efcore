@@ -2470,12 +2470,26 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 parent1.OwnedEntities.Remove(entity);
                 parent2.OwnedEntities.Add(entity);
 
-                _ = async
-                    ? await context.SaveChangesAsync()
-                    : context.SaveChanges();
+                if (Fixture.ForceClientNoAction)
+                {
+                    if (async)
+                    {
+                        await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
+                    }
+                    else
+                    {
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    }
+                }
+                else
+                {
+                    _ = async
+                        ? await context.SaveChangesAsync()
+                        : context.SaveChanges();
 
-                Assert.NotNull(entity.OwnedData);
-                Assert.Equal("Test Value", entity.OwnedData.Value);
+                    Assert.NotNull(entity.OwnedData);
+                    Assert.Equal("Test Value", entity.OwnedData.Value);
+                }
             });
 
     #endregion

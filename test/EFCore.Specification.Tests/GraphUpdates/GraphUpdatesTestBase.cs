@@ -429,7 +429,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
             {
                 b.OwnsMany(e => e.OwnedEntities, cb =>
                 {
-                    cb.OwnsOne(e => e.OwnedData);
+                    cb.OwnsOne(e => e.OwnedData, ob =>
+                    {
+                        ob.Property(e => e.Value).IsRequired();
+                    });
                 });
             });
 

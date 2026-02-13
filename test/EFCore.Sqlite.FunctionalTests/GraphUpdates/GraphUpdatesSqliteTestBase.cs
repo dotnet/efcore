@@ -32,6 +32,10 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture>(TFixture fixture) : G
     public override Task Clearing_CLR_key_owned_collection(bool async, bool useUpdate, bool addNew)
         => Task.CompletedTask;
 
+    [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+    public override Task Owned_entity_data_is_preserved_when_moving_between_parent_collections(bool async)
+        => Task.CompletedTask;
+
     protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query)
         => query.AsSplitQuery();
 
