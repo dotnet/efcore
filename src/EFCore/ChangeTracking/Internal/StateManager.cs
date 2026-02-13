@@ -1267,8 +1267,12 @@ public class StateManager : IStateManager
 
                         foreach (var dependentProperty in fkProperties)
                         {
+                            var valueToSet = fk.DeleteBehavior is DeleteBehavior.SetDefault or DeleteBehavior.ClientSetDefault
+                                ? dependentProperty.Sentinel
+                                : null;
+
                             dependent.SetProperty(
-                                dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
+                                dependentProperty, valueToSet, isMaterialization: false, setModified: true, isCascadeDelete: true);
                         }
 
                         if (dependent.HasConceptualNull)

@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Can_apply_range_of_migrations();
 
-            var sql = @"CREATE DATABASE TransactionSuppressed;
-";
+            var sql = @"CREATE DATABASE TransactionSuppressed;" + Environment.NewLine;
+
             Assert.Equal(
                 RelationalResources.LogNonTransactionalMigrationOperationWarning(new TestLogger<TestRelationalLoggingDefinitions>())
                     .GenerateMessage(sql, "Migration3"),

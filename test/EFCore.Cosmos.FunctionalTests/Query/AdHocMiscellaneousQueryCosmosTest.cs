@@ -386,6 +386,60 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #endregion 36329
 
+    #region 37653
+
+    [ConditionalFact]
+    public virtual async Task Coalesce_in_conditional_with_value_conversion()
+    {
+        var contextFactory = await InitializeAsync<Context37653>();
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Set<Context37653.Data>()
+            .OrderBy(e => e.Id)
+            .Select(e => new
+            {
+                e.Id,
+                Foo = e.Foo ?? false ? 'A' : 'B',
+            });
+
+        var result = await query.ToListAsync();
+        Assert.Equal('A', result[0].Foo);
+        Assert.Equal('B', result[1].Foo);
+        Assert.Equal('B', result[2].Foo);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context37653(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Data>(builder =>
+            {
+                builder.Property(a => a.Foo).HasConversion<FooConverter>();
+                builder.HasData(
+                    new Data { Id = 1, Foo = true },
+                    new Data { Id = 2, Foo = false },
+                    new Data { Id = 3, Foo = null });
+            });
+
+        public class Data
+        {
+            public int Id { get; set; }
+            public bool? Foo { get; set; }
+        }
+
+        public class FooConverter : ValueConverter<bool?, short?>
+        {
+            public FooConverter()
+                : base(
+                    x => x == true ? (short?)10 : (short?)99,
+                    x => x == 10 ? true : x == 99 ? false : null,
+                    convertsNulls: true)
+            { }
+        }
+    }
+
+    #endregion
+
     protected override string StoreName
         => "AdHocMiscellaneousQueryTests";
 
