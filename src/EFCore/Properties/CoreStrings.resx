@@ -336,6 +336,9 @@
   <data name="ComplexCollectionNotInitialized" xml:space="preserve">
     <value>The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.</value>
   </data>
+  <data name="ComplexCollectionOrdinalOutOfRange" xml:space="preserve">
+    <value>The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).</value>
+  </data>
   <data name="ComplexCollectionNullElementSetter" xml:space="preserve">
     <value>The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.</value>
   </data>
