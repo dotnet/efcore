@@ -295,7 +295,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
                 .AppendLine("{")
                 .DecrementIndent()
                 .DecrementIndent();
-            
+
             if (!string.IsNullOrEmpty(latestMigrationId))
             {
                 builder
