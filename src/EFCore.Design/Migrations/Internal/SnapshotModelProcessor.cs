@@ -129,14 +129,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
 
     private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
     {
-        if ((!version.StartsWith("1.", StringComparison.Ordinal)
-                && !version.StartsWith("2.", StringComparison.Ordinal)
-                && !version.StartsWith("3.", StringComparison.Ordinal)
-                && !version.StartsWith("5.", StringComparison.Ordinal)
-                && !version.StartsWith("6.", StringComparison.Ordinal)
-                && !version.StartsWith("7.", StringComparison.Ordinal)
-                && !version.StartsWith("8.", StringComparison.Ordinal)
-                && !version.StartsWith("9.", StringComparison.Ordinal))
+        if (!IsPreEFCore10Version(version)
             || complexProperty is not ComplexProperty mutableComplexPropertyInternal)
         {
             return;
@@ -148,6 +141,16 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             mutableComplexPropertyInternal.SetIsNullable(false, ConfigurationSource.Explicit);
         }
     }
+
+    private static bool IsPreEFCore10Version(string version)
+        => version.StartsWith("1.", StringComparison.Ordinal)
+            || version.StartsWith("2.", StringComparison.Ordinal)
+            || version.StartsWith("3.", StringComparison.Ordinal)
+            || version.StartsWith("5.", StringComparison.Ordinal)
+            || version.StartsWith("6.", StringComparison.Ordinal)
+            || version.StartsWith("7.", StringComparison.Ordinal)
+            || version.StartsWith("8.", StringComparison.Ordinal)
+            || version.StartsWith("9.", StringComparison.Ordinal);
 
     private void ProcessElement(IReadOnlyAnnotatable? metadata, string version)
     {

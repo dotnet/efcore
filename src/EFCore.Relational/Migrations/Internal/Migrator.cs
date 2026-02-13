@@ -797,14 +797,7 @@ public class Migrator : IMigrator
     private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
     {
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        if ((!version.StartsWith("1.", StringComparison.Ordinal)
-                && !version.StartsWith("2.", StringComparison.Ordinal)
-                && !version.StartsWith("3.", StringComparison.Ordinal)
-                && !version.StartsWith("5.", StringComparison.Ordinal)
-                && !version.StartsWith("6.", StringComparison.Ordinal)
-                && !version.StartsWith("7.", StringComparison.Ordinal)
-                && !version.StartsWith("8.", StringComparison.Ordinal)
-                && !version.StartsWith("9.", StringComparison.Ordinal))
+        if (!IsPreEFCore10Version(version)
             || complexProperty is not ComplexProperty mutableComplexPropertyInternal)
         {
             return;
@@ -817,6 +810,16 @@ public class Migrator : IMigrator
         }
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
+
+    private static bool IsPreEFCore10Version(string version)
+        => version.StartsWith("1.", StringComparison.Ordinal)
+            || version.StartsWith("2.", StringComparison.Ordinal)
+            || version.StartsWith("3.", StringComparison.Ordinal)
+            || version.StartsWith("5.", StringComparison.Ordinal)
+            || version.StartsWith("6.", StringComparison.Ordinal)
+            || version.StartsWith("7.", StringComparison.Ordinal)
+            || version.StartsWith("8.", StringComparison.Ordinal)
+            || version.StartsWith("9.", StringComparison.Ordinal);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
