@@ -129,28 +129,13 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
 
     private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
     {
-        if (!IsPreEFCore10Version(version)
-            || complexProperty is not ComplexProperty mutableComplexPropertyInternal)
-        {
-            return;
-        }
-
-        if (mutableComplexPropertyInternal.GetIsNullableConfigurationSource() == null
+        if ((version.StartsWith("8.", StringComparison.Ordinal)
+                || version.StartsWith("9.", StringComparison.Ordinal))
             && !complexProperty.ClrType.IsNullableType())
         {
-            mutableComplexPropertyInternal.SetIsNullable(false, ConfigurationSource.Explicit);
+            complexProperty.IsNullable = false;
         }
     }
-
-    private static bool IsPreEFCore10Version(string version)
-        => version.StartsWith("1.", StringComparison.Ordinal)
-            || version.StartsWith("2.", StringComparison.Ordinal)
-            || version.StartsWith("3.", StringComparison.Ordinal)
-            || version.StartsWith("5.", StringComparison.Ordinal)
-            || version.StartsWith("6.", StringComparison.Ordinal)
-            || version.StartsWith("7.", StringComparison.Ordinal)
-            || version.StartsWith("8.", StringComparison.Ordinal)
-            || version.StartsWith("9.", StringComparison.Ordinal);
 
     private void ProcessElement(IReadOnlyAnnotatable? metadata, string version)
     {
