@@ -2433,4 +2433,50 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         }
     }
     #endregion
+
+    #region Issue36206
+
+    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #36206
+    public virtual async Task Owned_entity_data_is_preserved_when_moving_between_parent_collections(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var parent1 = new OwnerWithOwnedCollectionAndNestedOwned();
+                var parent2 = new OwnerWithOwnedCollectionAndNestedOwned();
+
+                parent1.OwnedEntities.Add(
+                    new OwnedEntityWithNestedOwned
+                    {
+                        Name = "TestEntity",
+                        OwnedData = new NestedOwnedData { Value = "Test Value" }
+                    });
+
+                if (async)
+                {
+                    await context.AddRangeAsync(parent1, parent2);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.AddRange(parent1, parent2);
+                    context.SaveChanges();
+                }
+
+                var entity = parent1.OwnedEntities.Single();
+                Assert.NotNull(entity.OwnedData);
+                Assert.Equal("Test Value", entity.OwnedData.Value);
+
+                // Move entity to new parent
+                parent1.OwnedEntities.Remove(entity);
+                parent2.OwnedEntities.Add(entity);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                Assert.NotNull(entity.OwnedData);
+                Assert.Equal("Test Value", entity.OwnedData.Value);
+            });
+
+    #endregion
 }

@@ -470,25 +470,10 @@ public abstract partial class InternalEntryBase : IInternalEntry
             && isModified
             && !StateManager.SavingChanges
             && property.IsKey()
-            && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
+            && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
+            && !property.IsOwnedCollectionForeignKey())
         {
-            // Allow key changes for owned entities when changing parent relationship in collections
-            var isOwnedCollectionFk = false;
-            if (StructuralType is IEntityType entityType)
-            {
-                var ownershipForeignKey = entityType.FindOwnership();
-                if (ownershipForeignKey != null
-                    && ownershipForeignKey.Properties.Contains(property)
-                    && ownershipForeignKey.PrincipalToDependent is { IsCollection: true })
-                {
-                    isOwnedCollectionFk = true;
-                }
-            }
-
-            if (!isOwnedCollectionFk)
-            {
-                throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, StructuralType.DisplayName()));
-            }
+            throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, StructuralType.DisplayName()));
         }
 
         if (currentState == EntityState.Deleted)

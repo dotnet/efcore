@@ -425,6 +425,14 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
                     });
             });
 
+            modelBuilder.Entity<OwnerWithOwnedCollectionAndNestedOwned>(b =>
+            {
+                b.OwnsMany(e => e.OwnedEntities, cb =>
+                {
+                    cb.OwnsOne(e => e.OwnedData);
+                });
+            });
+
             modelBuilder.Entity<Provider>().HasData(
                 new Provider { Id = "prov1" },
                 new Provider { Id = "prov2" });
@@ -4606,6 +4614,53 @@ public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) :
         {
             get => _primaryGroup;
             set => SetWithNotify(value, ref _primaryGroup);
+        }
+    }
+
+    protected class OwnerWithOwnedCollectionAndNestedOwned : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<OwnedEntityWithNestedOwned> _ownedEntities = new ObservableHashSet<OwnedEntityWithNestedOwned>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public ICollection<OwnedEntityWithNestedOwned> OwnedEntities
+        {
+            get => _ownedEntities;
+            set => SetWithNotify(value, ref _ownedEntities);
+        }
+    }
+
+    protected class OwnedEntityWithNestedOwned : NotifyingEntity
+    {
+        private string _name;
+        private NestedOwnedData _ownedData;
+
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public NestedOwnedData OwnedData
+        {
+            get => _ownedData;
+            set => SetWithNotify(value, ref _ownedData);
+        }
+    }
+
+    protected class NestedOwnedData : NotifyingEntity
+    {
+        private string _value;
+
+        public string Value
+        {
+            get => _value;
+            set => SetWithNotify(value, ref _value);
         }
     }
 
