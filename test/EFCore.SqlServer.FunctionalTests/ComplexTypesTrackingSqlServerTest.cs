@@ -23,7 +23,7 @@ public class ComplexTypesTrackingSqlServerTest(
                 await context.SaveChangesAsync();
 
                 context.ChangeTracker.Clear();
-                var item = await context.Set<InheritedItemBase>().FirstAsync();
+                var item = await context.Set<InheritedItemBase>().Where(i => i.Name == "Item1").FirstAsync();
                 var entry = context.ChangeTracker.Entries().First();
                 var originalItem = (InheritedItemBase)entry.OriginalValues.ToObject();
 
@@ -47,7 +47,7 @@ public class ComplexTypesTrackingSqlServerTest(
                 await context.SaveChangesAsync();
 
                 context.ChangeTracker.Clear();
-                var item = await context.Set<InheritedItem1>().FirstAsync();
+                var item = await context.Set<InheritedItem1>().Where(i => i.Name == "Item1").FirstAsync();
                 var entry = context.ChangeTracker.Entries().First();
                 var originalItem = (InheritedItemBase)entry.OriginalValues.ToObject();
 
