@@ -1477,7 +1477,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 var storeGeneratedIndex = property.GetStoreGeneratedIndex();
                 if (storeGeneratedIndex != -1
                     && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
-                    && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value))
+                    && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value)
+                    && (property.DeclaringType is not IComplexType complexType
+                        || GetCurrentValue(complexType.ComplexProperty) != null))
                 {
                     this[property] = value;
                 }
