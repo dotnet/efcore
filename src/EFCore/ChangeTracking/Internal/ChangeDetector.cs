@@ -86,6 +86,20 @@ public class ChangeDetector : IChangeDetector
         if (property.IsKey()
             && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
         {
+            // Allow key changes for owned entities when changing parent relationship in collections
+            // This is necessary when moving owned entities between different parent entity collections
+            if (entry is InternalEntityEntry entityEntry)
+            {
+                var entityType = entityEntry.EntityType;
+                var ownershipForeignKey = entityType.FindOwnership();
+                if (ownershipForeignKey != null
+                    && ownershipForeignKey.Properties.Contains(property)
+                    && ownershipForeignKey.PrincipalToDependent is { IsCollection: true })
+                {
+                    return;
+                }
+            }
+
             throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.StructuralType.DisplayName()));
         }
     }

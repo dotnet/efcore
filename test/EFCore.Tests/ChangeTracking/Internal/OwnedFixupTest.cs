@@ -2505,13 +2505,7 @@ public class OwnedFixupTest
         principal2.ChildCollection1 = principal1.ChildCollection1;
         principal1.ChildCollection1 = null;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-        }
-        else
+        if (entityState == EntityState.Added)
         {
             context.ChangeTracker.DetectChanges();
 
@@ -2568,6 +2562,10 @@ public class OwnedFixupTest
             Assert.Contains(principal2.ChildCollection1, e => ReferenceEquals(e, dependent));
             Assert.Null(principal2.ChildCollection2);
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
+        }
+        else
+        {
+            context.ChangeTracker.DetectChanges();
         }
     }
 
@@ -2627,13 +2625,7 @@ public class OwnedFixupTest
         principal2.ChildCollection1 = principal1.ChildCollection1;
         principal1.ChildCollection1 = null;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-        }
-        else
+        if (entityState == EntityState.Added)
         {
             context.ChangeTracker.DetectChanges();
 
@@ -2692,6 +2684,10 @@ public class OwnedFixupTest
             Assert.Null(principal2.ChildCollection2);
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
             Assert.Same(dependent, subDependent.Parent);
+        }
+        else
+        {
+            context.ChangeTracker.DetectChanges();
         }
     }
 
@@ -3658,14 +3654,6 @@ public class OwnedFixupTest
         principal2.ChildCollection1 = principal1.ChildCollection2;
         principal1.ChildCollection2 = null;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-            return;
-        }
-
         context.ChangeTracker.DetectChanges();
 
         Assert.True(context.ChangeTracker.HasChanges());
@@ -4202,15 +4190,12 @@ public class OwnedFixupTest
             .FindEntry(subDependent2);
         newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
 
+        context.ChangeTracker.DetectChanges();
+
         if (entityState != EntityState.Added)
         {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             return;
         }
-
-        context.ChangeTracker.DetectChanges();
 
         Assert.True(context.ChangeTracker.HasChanges());
 
@@ -5516,6 +5501,80 @@ public class OwnedFixupTest
             {
                 optionsBuilder.ConfigureWarnings(w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
             }
+        }
+    }
+
+    [ConditionalFact]
+    public void Nullable_owned_entity_data_is_preserved_when_moving_between_parents()
+    {
+        using var context = new NullableOwnedContext();
+
+        var parent1 = new ParentWithNullableOwned { Id = 1 };
+        var parent2 = new ParentWithNullableOwned { Id = 2 };
+
+        var entityWithOwned = new EntityWithNullableOwned
+        {
+            Name = "TestEntity",
+            OwnedData = new NullableOwnedData { Value = "Test Value" }
+        };
+
+        parent1.Entities = new List<EntityWithNullableOwned> { entityWithOwned };
+        parent2.Entities = new List<EntityWithNullableOwned>();
+
+        context.Add(parent1);
+        context.Add(parent2);
+        context.SaveChanges();
+
+        Assert.NotNull(entityWithOwned.OwnedData);
+        Assert.Equal("Test Value", entityWithOwned.OwnedData.Value);
+
+        // Move entity to new parent
+        parent1.Entities.Remove(entityWithOwned);
+        parent2.Entities.Add(entityWithOwned);
+        context.SaveChanges();
+
+        Assert.NotNull(entityWithOwned.OwnedData);
+        Assert.Equal("Test Value", entityWithOwned.OwnedData.Value);
+    }
+
+    private class ParentWithNullableOwned
+    {
+        public int Id { get; set; }
+        public ICollection<EntityWithNullableOwned> Entities { get; set; }
+    }
+
+    private class EntityWithNullableOwned
+    {
+        public string Name { get; set; }
+        public ParentWithNullableOwned Parent { get; set; }
+        public NullableOwnedData OwnedData { get; set; }
+    }
+
+    private class NullableOwnedData
+    {
+        public string Value { get; set; }
+    }
+
+    private class NullableOwnedContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(NullableOwnedContext))
+                .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider());
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ParentWithNullableOwned>(pb =>
+            {
+                pb.Property(p => p.Id).ValueGeneratedNever();
+                pb.OwnsMany(p => p.Entities, cb =>
+                {
+                    cb.Property<int>("ParentId");
+                    cb.WithOwner(e => e.Parent)
+                        .HasForeignKey("ParentId");
+                    cb.OwnsOne(e => e.OwnedData);
+                });
+            });
         }
     }
 
