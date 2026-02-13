@@ -76,11 +76,6 @@ public class CosmosTestStore : TestStore
 
     private static string CreateName(string name)
     {
-        if (name == "Northwind" || name == "Northwind2" || name == "Northwind3" || name == "NonExistent")
-        {
-            return name;
-        }
-
         if (TestEnvironment.IsEmulator)
         {
             // We delete and recreate the database for each test run in the emulator.
@@ -91,7 +86,9 @@ public class CosmosTestStore : TestStore
         }
         else
         {
-            return name + _runId;
+            return name == "Northwind" || name == "Northwind2" || name == "Northwind3" || name == "NonExistent"
+                ? name
+                : name + _runId;
         }
     }
 
