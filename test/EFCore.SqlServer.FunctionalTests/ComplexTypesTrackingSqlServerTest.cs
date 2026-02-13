@@ -263,6 +263,16 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     }
 
     // Issue #36175: Complex types with notification change tracking are not supported
+    public override void Can_remove_from_complex_collection_with_nested_complex_collection(bool trackFromQuery)
+    {
+    }
+
+    // Fields can't be proxied
+    public override void Can_remove_from_complex_field_collection_with_nested_complex_collection(bool trackFromQuery)
+    {
+    }
+
+    // Issue #36175: Complex types with notification change tracking are not supported
     public override void Throws_when_accessing_complex_entries_using_incorrect_cardinality()
     {
     }
