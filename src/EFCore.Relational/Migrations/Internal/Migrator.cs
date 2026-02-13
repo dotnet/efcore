@@ -3,6 +3,7 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -754,9 +755,68 @@ public class Migrator : IMigrator
     }
 
     private IModel? FinalizeModel(IModel? model)
-        => model == null
-            ? null
-            : _modelRuntimeInitializer.Initialize(model);
+    {
+        if (model == null)
+        {
+            return null;
+        }
+
+        ProcessSnapshotModel(model);
+        return _modelRuntimeInitializer.Initialize(model);
+    }
+
+    private static void ProcessSnapshotModel(IModel model)
+    {
+        var version = model.GetProductVersion();
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        if (version != null
+            && model is Model mutableModel
+            && !mutableModel.IsReadOnly)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                ProcessComplexProperties(entityType, version);
+            }
+        }
+    }
+
+    private static void ProcessComplexProperties(IReadOnlyTypeBase typeBase, string version)
+    {
+        foreach (var complexProperty in typeBase.GetComplexProperties())
+        {
+            if (complexProperty is IMutableComplexProperty mutableComplexProperty)
+            {
+                UpdateComplexPropertyNullability(mutableComplexProperty, version);
+            }
+
+            ProcessComplexProperties(complexProperty.ComplexType, version);
+        }
+    }
+
+    private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
+    {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        if ((!version.StartsWith("1.", StringComparison.Ordinal)
+                && !version.StartsWith("2.", StringComparison.Ordinal)
+                && !version.StartsWith("3.", StringComparison.Ordinal)
+                && !version.StartsWith("5.", StringComparison.Ordinal)
+                && !version.StartsWith("6.", StringComparison.Ordinal)
+                && !version.StartsWith("7.", StringComparison.Ordinal)
+                && !version.StartsWith("8.", StringComparison.Ordinal)
+                && !version.StartsWith("9.", StringComparison.Ordinal))
+            || complexProperty is not ComplexProperty mutableComplexPropertyInternal)
+        {
+            return;
+        }
+
+        if (mutableComplexPropertyInternal.GetIsNullableConfigurationSource() == null
+            && !complexProperty.ClrType.IsNullableType())
+        {
+            mutableComplexPropertyInternal.SetIsNullable(false, ConfigurationSource.Explicit);
+        }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
