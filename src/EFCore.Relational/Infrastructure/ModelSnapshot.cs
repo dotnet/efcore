@@ -29,6 +29,15 @@ public abstract class ModelSnapshot
         => _model ??= CreateModel();
 
     /// <summary>
+    ///     The ID of the latest migration applied to the model when the snapshot was created.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    public virtual string? LatestMigrationId
+        => null;
+
+    /// <summary>
     ///     Called lazily by <see cref="Model" /> to build the model snapshot
     ///     the first time it is requested.
     /// </summary>
