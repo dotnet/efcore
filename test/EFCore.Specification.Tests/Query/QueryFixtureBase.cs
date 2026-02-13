@@ -41,9 +41,6 @@ public abstract class QueryFixtureBase<TContext> : SharedStoreFixtureBase<TConte
     public ITestStoreFactory GetTestStoreFactory()
         => TestStoreFactory;
 
-    public TestStore NonSharedTestStore
-        => _nonSharedTestStore ?? throw new InvalidOperationException("No non-shared test store has been created, call GetOrCreateNonSharedTestStore() first.");
-
     public override async Task DisposeAsync()
     {
         await base.DisposeAsync();

@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Query_when_null_key_in_database_should_throw()
         {
-            var contextFactory = await InitializeAsync<Context2951>(
+            var contextFactory = await InitializeNonSharedTest<Context2951>(
                 onConfiguring: o => o.EnableDetailedErrors(),
                 seed: Seed2951);
 
-            using var context = contextFactory.CreateContext();
+            using var context = contextFactory.CreateDbContext();
 
             Assert.Equal(
                 RelationalStrings.ErrorMaterializingPropertyNullReference(nameof(Context2951.ZeroKey2951), "Id", typeof(int)),
@@ -63,11 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination()
         {
-            var contextFactory = await InitializeAsync<Context11818>(
+            var contextFactory = await InitializeNonSharedTest<Context11818>(
                 onConfiguring:
                 o => o.ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)));
 
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 var query = (from e in context.Set<Context11818.Entity11818>()
                              join a in context.Set<Context11818.AnotherEntity11818>()
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Empty(query);
             }
 
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 var query = (from e in context.Set<Context11818.Entity11818>()
                              join a in context.Set<Context11818.AnotherEntity11818>()
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Empty(query);
             }
 
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 var query = (from e in context.Set<Context11818.Entity11818>()
                              join a in context.Set<Context11818.AnotherEntity11818>()
@@ -163,8 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Multiple_different_entity_type_from_different_namespaces(bool async)
         {
-            var contextFactory = await InitializeAsync<Context23981>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<Context23981>();
+            using var context = contextFactory.CreateDbContext();
             //var good1 = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             //var good2 = context.Set<NameSpace2.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             var bad = context.Set<TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
@@ -195,8 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory, MemberData(nameof(IsAsyncData))]
         public virtual async Task StoreType_for_UDF_used(bool async)
         {
-            var contextFactory = await InitializeAsync<Context27954>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<Context27954>();
+            using var context = contextFactory.CreateDbContext();
 
             var date = new DateTime(2012, 12, 12);
             var query1 = context.Set<Context27954.MyEntity>().Where(x => x.SomeDate == date);
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<Context34752>())).Message;
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<Context34752>())).Message;
 
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(nameof(Context34752.Entity), nameof(Context34752.Entity.Json), nameof(JsonElement)),
@@ -269,13 +269,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory, MemberData(nameof(InlinedRedactingData))]
         public virtual async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
         {
-            var contextFactory = await InitializeAsync<InlinedRedactingContext>(
+            var contextFactory = await InitializeNonSharedTest<InlinedRedactingContext>(
                 onConfiguring: o =>
                 {
                     SetParameterizedCollectionMode(o, ParameterTranslationMode.Constant);
                     o.EnableSensitiveDataLogging(enableSensitiveDataLogging);
                 });
-            using var context = contextFactory.CreateContext();
+            using var context = contextFactory.CreateDbContext();
 
             var id = 1;
             var ids = new[] { id, 2, 3 };
@@ -317,9 +317,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory, MemberData(nameof(IsAsyncData))]
         public async Task Entity_equality_with_Contains_and_Parameter(bool async)
         {
-            var contextFactory = await InitializeAsync<Context36311>(
+            var contextFactory = await InitializeNonSharedTest<Context36311>(
                 onConfiguring: o => SetParameterizedCollectionMode(o, ParameterTranslationMode.Parameter));
-            using var context = contextFactory.CreateContext();
+            using var context = contextFactory.CreateDbContext();
 
             List<Context36311.BlogDetails> details = [new() { Id = 1 }, new() { Id = 2 }];
             var query = context.Blogs.Where(b => details.Contains(b.Details));

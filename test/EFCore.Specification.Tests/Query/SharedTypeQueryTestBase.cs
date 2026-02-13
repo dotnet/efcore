@@ -7,16 +7,16 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class SharedTypeQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "SharedTypeQueryTests";
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext24601>(
+        var contextFactory = await InitializeNonSharedTest<MyContext24601>(
             seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<ViewQuery24601>();
         var result = async
             ? await query.ToListAsync()

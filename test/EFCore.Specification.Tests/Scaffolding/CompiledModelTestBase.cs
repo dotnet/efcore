@@ -1989,7 +1989,7 @@ namespace TestNamespace
 
     protected abstract TestHelpers TestHelpers { get; }
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "CompiledModelTest";
 
     private string _filePath = "";
@@ -2070,7 +2070,7 @@ namespace TestNamespace
             onConfiguring,
             addServices,
             skipValidation: skipValidation);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
         options ??= new CompiledModelCodeGenerationOptions { ForNativeAot = true };
@@ -2117,7 +2117,7 @@ namespace TestNamespace
 
         if (useContext != null)
         {
-            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
+            await NonSharedTestStore.InitializeAsync(NonSharedServiceProvider, contextFactory.CreateDbContext);
             ListLoggerFactory.Clear();
 
             using var compiledModelContext = CreateContextFactory<TContext>(
@@ -2127,7 +2127,7 @@ namespace TestNamespace
                         options.UseModel(compiledModel);
                     },
                     addServices: addServices)
-                .CreateContext();
+                .CreateDbContext();
             await useContext(compiledModelContext);
         }
 

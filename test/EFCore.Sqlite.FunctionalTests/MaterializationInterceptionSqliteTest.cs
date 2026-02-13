@@ -27,6 +27,6 @@ public class MaterializationInterceptionSqliteTest(NonSharedFixture fixture) :
 #pragma warning restore EF8001
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

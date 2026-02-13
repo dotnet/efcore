@@ -5,8 +5,6 @@ using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
-using static System.Linq.Expressions.Expression;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)

@@ -39,7 +39,7 @@ public class OperatorsProceduralSqlServerTest : OperatorsProceduralQueryTestBase
         ExpectedQueryRewriter = new SqlServerExpectedQueryRewritingVisitor();
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     protected override bool DivideByZeroException(Exception ex)

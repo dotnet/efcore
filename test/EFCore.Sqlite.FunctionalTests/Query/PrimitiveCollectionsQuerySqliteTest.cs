@@ -1442,6 +1442,33 @@ LIMIT 2
 """);
     }
 
+    public override async Task Parameter_with_inferred_value_converter()
+    {
+        await base.Parameter_with_inferred_value_converter();
+
+        AssertSql("");
+    }
+
+    public override async Task Constant_with_inferred_value_converter()
+    {
+        await base.Constant_with_inferred_value_converter();
+
+        AssertSql(
+            """
+SELECT "t"."Id", "t"."Ints", "t"."PropertyWithValueConverter"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (8)) AS "v"
+    WHERE "v"."Value" = "t"."PropertyWithValueConverter") = 1
+LIMIT 2
+""");
+    }
+
+    [ConditionalFact]
+    public override Task Multidimensional_array_is_not_supported()
+        => base.Multidimensional_array_is_not_supported();
+
     public override async Task Contains_on_Enumerable()
     {
         await base.Contains_on_Enumerable();
@@ -2509,6 +2536,29 @@ WHERE CASE
     WHEN "p"."Int" IN (@ints1, @ints2, @ints3) THEN 'one'
     ELSE 'two'
 END IN (@strings1, @strings2, @strings3)
+""");
+    }
+
+    public override async Task Project_collection_from_entity_type_with_owned()
+    {
+        await base.Project_collection_from_entity_type_with_owned();
+
+        AssertSql(
+            """
+SELECT "t"."Ints"
+FROM "TestEntityWithOwned" AS "t"
+""");
+    }
+
+    public override async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        await base.Subquery_over_primitive_collection_on_inheritance_derived_type();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Discriminator", "b"."Ints"
+FROM "BaseType" AS "b"
+WHERE json_array_length("b"."Ints") > 0
 """);
     }
 

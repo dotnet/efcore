@@ -3663,7 +3663,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         var contextFactory = CreateContextFactory<DbContext>(
             buildModel,
             configureConventions: configureConventions);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var property = context.Model.FindEntityType(typeof(TEntity))!.GetProperty(propertyName);
 
@@ -3738,7 +3738,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         return Task.CompletedTask;
     }
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "JsonTypesTest";
 
     protected virtual void AssertElementFacets(IElementType element, Dictionary<string, object?>? facets)
