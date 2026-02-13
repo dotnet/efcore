@@ -299,10 +299,10 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
             if (!string.IsNullOrEmpty(latestMigrationId))
             {
                 builder
-                    .Append("// LatestMigrationId = ").AppendLine(Code.Literal(latestMigrationId))
-                    .AppendLine("// If you encounter a merge conflict in the line above, it means you need to")
+                    .AppendLine("// If you encounter a merge conflict in the line below, it means you need to")
                     .AppendLine("// discard one of the migration branches and recreate its migrations on top of")
-                    .AppendLine("// the other branch. See https://aka.ms/efcore-docs-merge-conflicts for more info.")
+                    .AppendLine("// the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.")
+                    .Append("modelBuilder.HasAnnotation(\"LatestMigrationId\", ").Append(Code.Literal(latestMigrationId)).AppendLine(");")
                     .AppendLine();
             }
 

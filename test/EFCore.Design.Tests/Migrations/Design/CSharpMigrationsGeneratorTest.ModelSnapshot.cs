@@ -142,13 +142,14 @@ namespace MyNamespace
             finalizedModel,
             "20240101120000_InitialCreate");
 
-        Assert.Contains("// LatestMigrationId = \"20240101120000_InitialCreate\"", modelSnapshotCode);
-        Assert.Contains("// If you encounter a merge conflict in the line above, it means you need to", modelSnapshotCode);
+        Assert.Contains("modelBuilder.HasAnnotation(\"LatestMigrationId\", \"20240101120000_InitialCreate\");", modelSnapshotCode);
+        Assert.Contains("// If you encounter a merge conflict in the line below, it means you need to", modelSnapshotCode);
         Assert.Contains("// discard one of the migration branches and recreate its migrations on top of", modelSnapshotCode);
-        Assert.Contains("// the other branch. See https://aka.ms/efcore-docs-merge-conflicts for more info.", modelSnapshotCode);
+        Assert.Contains("// the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.", modelSnapshotCode);
 
         var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
         Assert.NotNull(snapshot.Model);
+        Assert.Equal("20240101120000_InitialCreate", snapshot.Model.FindAnnotation("LatestMigrationId")?.Value);
     }
 
     [ConditionalFact]
