@@ -44,8 +44,7 @@ WHERE (c["DateTimeOffset"] != GetCurrentDateTime())
 
     public override async Task Year()
     {
-        // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Year());
+        await base.Year();
 
         AssertSql(
             """
@@ -78,8 +77,7 @@ WHERE (DateTimePart("mm", c["DateTimeOffset"]) = 5)
 
     public override async Task Day()
     {
-        // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Day());
+        await base.Day();
 
         AssertSql(
             """
@@ -117,8 +115,7 @@ WHERE (DateTimePart("mi", c["DateTimeOffset"]) = 30)
 
     public override async Task Second()
     {
-        // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Second());
+        await base.Second();
 
         AssertSql(
             """
@@ -130,8 +127,7 @@ WHERE (DateTimePart("ss", c["DateTimeOffset"]) = 10)
 
     public override async Task Millisecond()
     {
-        // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Millisecond());
+        await base.Millisecond();
 
         AssertSql(
             """
@@ -143,8 +139,7 @@ WHERE (DateTimePart("ms", c["DateTimeOffset"]) = 123)
 
     public override async Task Microsecond()
     {
-        // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Microsecond());
+        await base.Microsecond();
 
         AssertSql(
             """
