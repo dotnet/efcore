@@ -4380,7 +4380,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"])
         };
 
-    [ConditionalTheory(), InlineData(false), InlineData(true)]
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public virtual async Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(
