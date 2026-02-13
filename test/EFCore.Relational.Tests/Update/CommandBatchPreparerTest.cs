@@ -1209,30 +1209,33 @@ FakeEntity [Deleted]"
     [ConditionalFact]
     public void BatchCommands_sorts_FK_dependencies_correctly_when_replacing_owned_entity()
     {
-        // Reproduces issue #36059: FK dependency ordering wrong when replacing an inline owned entity
+        // Reproduces issue #36059: FK dependency ordering wrong when replacing an owned entity with FK to non-owner
         var model = CreateOwnedEntityWithFKModel();
         var configuration = CreateContextServices(model);
         var stateManager = configuration.GetRequiredService<IStateManager>();
 
-        // Create original content and document
+        // Create original content
         var originalContent = new ContentEntity { Id = 1, Data = "original data" };
-        var document = new DocumentEntity { Id = 1, Name = "Test Doc", FileId = 1, FileName = "original.txt", FileContentId = 1 };
-
         var originalContentEntry = stateManager.GetOrCreateEntry(originalContent);
         originalContentEntry.SetEntityState(EntityState.Unchanged);
 
+        // Create document with owned file that references original content
+        var document = new DocumentEntity 
+        { 
+            Id = 1, 
+            Name = "Test Doc",
+            File = new FileEntity { Id = 1, FileName = "original.txt", ContentId = 1 }
+        };
         var documentEntry = stateManager.GetOrCreateEntry(document);
         documentEntry.SetEntityState(EntityState.Unchanged);
 
-        // Now create new content
+        // Create new content
         var newContent = new ContentEntity { Id = 2, Data = "new data" };
         var newContentEntry = stateManager.GetOrCreateEntry(newContent);
         newContentEntry.SetEntityState(EntityState.Added);
 
-        // Simulate replacing the owned entity by updating document properties to reference new content
-        document.FileId = 2;
-        document.FileName = "new.txt";
-        document.FileContentId = 2;
+        // Replace the owned file - manually mark document as modified
+        document.File = new FileEntity { Id = 2, FileName = "new.txt", ContentId = 2 };
         documentEntry.SetEntityState(EntityState.Modified);
 
         // Delete the original content
@@ -1255,7 +1258,7 @@ FakeEntity [Deleted]"
         var updateIndex = commands.IndexOf(updateDocumentCmd);
         var deleteIndex = commands.IndexOf(deleteContentCmd);
 
-        // The correct order should be: INSERT new content, UPDATE document, DELETE old content
+        // The correct order should be: INSERT new content, UPDATE document (with new file), DELETE old content
         // This ensures the FK constraint is not violated
         Assert.True(insertIndex < updateIndex, 
             $"INSERT Content should come before UPDATE Document, but got INSERT at {insertIndex} and UPDATE at {updateIndex}");
@@ -1273,10 +1276,14 @@ FakeEntity [Deleted]"
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        // Properties that would typically come from an owned File entity (inlined into Document table)
-        public int? FileId { get; set; }
+        public FileEntity File { get; set; }
+    }
+
+    private class FileEntity
+    {
+        public int Id { get; set; }
         public string FileName { get; set; }
-        public int? FileContentId { get; set; }
+        public int? ContentId { get; set; }
     }
 
     private class ContentEntity
@@ -1293,9 +1300,19 @@ FakeEntity [Deleted]"
         {
             b.HasKey(d => d.Id);
             b.Property(d => d.Name);
-            b.Property(d => d.FileId);
-            b.Property(d => d.FileName);
-            b.Property(d => d.FileContentId);
+            
+            // Configure File as owned entity
+            b.OwnsOne(d => d.File, fb =>
+            {
+                fb.Property(f => f.Id);
+                fb.Property(f => f.FileName);
+                fb.Property(f => f.ContentId);
+                
+                // Add FK from owned File to non-owned Content
+                fb.HasOne<ContentEntity>()
+                    .WithMany()
+                    .HasForeignKey(f => f.ContentId);
+            });
         });
 
         modelBuilder.Entity<ContentEntity>(b =>
@@ -1303,12 +1320,6 @@ FakeEntity [Deleted]"
             b.HasKey(c => c.Id);
             b.Property(c => c.Data);
         });
-
-        // Add FK relationship from Document to Content through FileContentId
-        modelBuilder.Entity<DocumentEntity>()
-            .HasOne<ContentEntity>()
-            .WithMany()
-            .HasForeignKey(d => d.FileContentId);
 
         return modelBuilder.Model.FinalizeModel();
     }
