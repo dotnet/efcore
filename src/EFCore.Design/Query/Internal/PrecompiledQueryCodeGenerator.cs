@@ -313,8 +313,8 @@ namespace System.Runtime.CompilerServices
         var name = Uniquifier.Uniquify(
             Path.GetFileNameWithoutExtension(syntaxTree.FilePath),
             generatedFileNames,
-            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath),
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath));
         return new ScaffoldedFile(name, _code.ToString());
     }
 
@@ -736,6 +736,14 @@ namespace System.Runtime.CompilerServices
 
                         if (parameterType == typeof(CancellationToken))
                         {
+                            // Set the cancellation token on the query context
+                            if (!declaredQueryContextVariable)
+                            {
+                                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
+                                declaredQueryContextVariable = true;
+                            }
+
+                            code.AppendLine($"queryContext.CancellationToken = {parameterName};");
                             continue;
                         }
 
@@ -1207,7 +1215,10 @@ namespace System.Runtime.CompilerServices
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
         }
 
-        return settersBuilder.BuildSettersExpression();
+        // The expression tree is nested inside-out (last SetProperty call is the outermost node),
+        // so setters were added in reverse order. Reverse to restore source code order.
+        var settersArray = settersBuilder.BuildSettersExpression();
+        return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
     }
 
     /// <summary>

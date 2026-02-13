@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -431,4 +432,155 @@ public static class SqlServerIndexExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the data compression the index uses.</returns>
     public static ConfigurationSource? GetDataCompressionConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.DataCompression)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns whether the index is a vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>Whether the index is a vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static bool IsVectorIndex(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric) is not null;
+
+    /// <summary>
+    ///     Returns the similarity metric for the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The similarity metric for the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static string? GetVectorMetric(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)index[SqlServerAnnotationNames.VectorIndexMetric];
+
+    /// <summary>
+    ///     Returns the similarity metric for the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The similarity metric for the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static string? GetVectorMetric(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetVectorMetric(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the similarity metric for the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="metric">The value to set.</param>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static void SetVectorMetric(this IMutableIndex index, string? metric)
+        => index.SetAnnotation(SqlServerAnnotationNames.VectorIndexMetric, metric);
+
+    /// <summary>
+    ///     Sets the similarity metric for the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="metric">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static string? SetVectorMetric(
+        this IConventionIndex index,
+        string? metric,
+        bool fromDataAnnotation = false)
+        => (string?)index.SetAnnotation(
+            SqlServerAnnotationNames.VectorIndexMetric,
+            metric,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the similarity metric of the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the similarity metric of the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static ConfigurationSource? GetVectorMetricConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the type of the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The type of the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static string? GetVectorIndexType(this IReadOnlyIndex index)
+        => (index is RuntimeIndex)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)index[SqlServerAnnotationNames.VectorIndexType];
+
+    /// <summary>
+    ///     Returns the type of the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The type of the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static string? GetVectorIndexType(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.VectorIndexType);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetVectorIndexType(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the type of the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="type">The value to set.</param>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static void SetVectorIndexType(this IMutableIndex index, string? type)
+        => index.SetAnnotation(SqlServerAnnotationNames.VectorIndexType, type);
+
+    /// <summary>
+    ///     Sets the type of the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="type">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static string? SetVectorIndexType(
+        this IConventionIndex index,
+        string? type,
+        bool fromDataAnnotation = false)
+        => (string?)index.SetAnnotation(
+            SqlServerAnnotationNames.VectorIndexType,
+            type,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the type of the vector index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the type of the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static ConfigurationSource? GetVectorIndexTypeConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.VectorIndexType)?.GetConfigurationSource();
 }

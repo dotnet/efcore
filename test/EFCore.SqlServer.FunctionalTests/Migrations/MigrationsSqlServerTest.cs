@@ -1,11 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable UnusedParameter.Local
@@ -281,6 +284,9 @@ CREATE TABLE [People] (
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Create_memory_optimized_temporal_table()
     {
         await Test(
@@ -1583,6 +1589,9 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Alter_column_memoryOptimized_with_index()
     {
         await Test(
@@ -2609,6 +2618,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
         await Test(
@@ -2686,6 +2698,9 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
     public virtual async Task Create_index_memoryOptimized_unique_nonclustered_not_nullable()
     {
         await Test(
@@ -2731,6 +2746,88 @@ DROP INDEX [IX_People_SomeField] ON [People];
             """
 EXEC sp_rename N'[People].[Foo]', N'foo', 'INDEX';
 """);
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [Experimental("EF9105")]
+    public virtual async Task Create_vector_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "VectorEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
+                }),
+            builder => { },
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("cosine"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var indexColumn = Assert.Single(index.Columns);
+
+                Assert.Same(table.Columns.Single(c => c.Name == "Vector"), indexColumn);
+                Assert.Equal("COSINE", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
+            });
+
+        AssertSql(
+            """
+CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WITH (METRIC = 'cosine');
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [Experimental("EF9105")]
+    public virtual async Task Create_vector_index_with_type()
+    {
+        await Test(
+            builder => builder.Entity(
+                "VectorEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
+                }),
+            builder => { },
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("euclidean").UseType("DiskANN"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var indexColumn = Assert.Single(index.Columns);
+
+                Assert.Same(table.Columns.Single(c => c.Name == "Vector"), indexColumn);
+                Assert.Equal("EUCLIDEAN", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
+            });
+
+        AssertSql(
+            """
+CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WITH (METRIC = 'euclidean', TYPE = 'DiskANN');
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [Experimental("EF9105")]
+    public virtual async Task Drop_vector_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "VectorEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
+                }),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("cosine"),
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql("DROP INDEX [IX_VectorEntities_Vector] ON [VectorEntities];");
     }
 
     public override async Task Add_primary_key_int()
@@ -3716,6 +3813,10 @@ WHERE name = '{connection.Database}';";
             : null;
     }
 
+    // Required for the SqlVector<T> type, which is in the SqlClient assembly
+    protected override ICollection<BuildReference> GetAdditionalReferences()
+        => [BuildReference.ByName("Microsoft.Data.SqlClient")];
+
     public class MigrationsSqlServerFixture : MigrationsFixtureBase
     {
         protected override string StoreName
@@ -3730,5 +3831,16 @@ WHERE name = '{connection.Database}';";
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(serviceCollection)
                 .AddScoped<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
+
+        public override async Task InitializeAsync()
+        {
+            await base.InitializeAsync();
+
+            if (TestEnvironment.IsVectorTypeSupported)
+            {
+                await ((SqlServerTestStore)TestStore).ExecuteNonQueryAsync(
+                    "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON");
+            }
+        }
     }
 }

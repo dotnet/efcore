@@ -104,6 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseDropForceDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     Updates the database to a specified migration.
         /// </summary>
         public static string DatabaseUpdateDescription
@@ -278,6 +284,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsRemoveForceDescription");
 
         /// <summary>
+        ///     Remove the migration without connecting to the database.
+        /// </summary>
+        public static string MigrationsRemoveOfflineDescription
+            => GetString("MigrationsRemoveOfflineDescription");
+
+        /// <summary>
         ///     Generates a SQL script from migrations.
         /// </summary>
         public static string MigrationsScriptDescription
@@ -288,6 +300,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationToDescription
             => GetString("MigrationToDescription");
+
+        /// <summary>
+        ///     Missing required argument '{arg}'.
+        /// </summary>
+        public static string MissingArgument(object? arg)
+            => string.Format(
+                GetString("MissingArgument", nameof(arg)),
+                arg);
 
         /// <summary>
         ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
@@ -454,6 +474,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string ProviderDescription
             => GetString("ProviderDescription");
+
+        /// <summary>
+        ///     Running '{command}'
+        /// </summary>
+        public static string RunningCommand(object? command)
+            => string.Format(
+                GetString("RunningCommand", nameof(command)),
+                command);
 
         /// <summary>
         ///     The runtime to use.

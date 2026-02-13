@@ -43,8 +43,7 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         => expression switch
         {
             SqlServerOpenJsonExpression openJsonExpression
-                when TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var typeMapping)
-                => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression, [typeMapping]),
+                => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression),
 
             _ => base.VisitExtension(expression)
         };
@@ -55,19 +54,14 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SqlServerOpenJsonExpression ApplyTypeMappingsOnOpenJsonExpression(
-        SqlServerOpenJsonExpression openJsonExpression,
-        IReadOnlyList<RelationalTypeMapping> typeMappings)
+    protected virtual SqlServerOpenJsonExpression ApplyTypeMappingsOnOpenJsonExpression(SqlServerOpenJsonExpression openJsonExpression)
     {
-        Check.DebugAssert(typeMappings.Count == 1);
-        var elementTypeMapping = typeMappings[0];
-
         // Constant queryables are translated to VALUES, no need for JSON.
         // Column queryables have their type mapping from the model, so we don't ever need to apply an inferred mapping on them.
-        if (openJsonExpression.JsonExpression is not SqlParameterExpression { TypeMapping: null } parameterExpression)
+        if (openJsonExpression.Json is not SqlParameterExpression { TypeMapping: null } parameterExpression)
         {
             Check.DebugAssert(
-                openJsonExpression.JsonExpression.TypeMapping is not null,
+                openJsonExpression.Json.TypeMapping is not null,
                 "Non-parameter expression without a type mapping in ApplyTypeMappingsOnOpenJsonExpression");
             return openJsonExpression;
         }
@@ -77,22 +71,45 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         Check.DebugAssert(
             openJsonExpression.ColumnInfos is null, "OpenJsonExpression has no ColumnInfos when applying an inferred type mapping");
 
-        // We need to apply the inferred type mapping in two places: the collection type mapping on the parameter expanded by OPENJSON,
-        // and on the WITH clause determining the conversion out on the SQL Server side
+        // In the usual case, some operation performed against the elements of the collection (e.g. comparison to a column) provides us with
+        // an element type mapping; infer the collection's type mapping from that.
+        // NOTE: This assumes that the OPENJSON always returns only a single column, which is currently true but won't always be.
+        RelationalTypeMapping? parameterTypeMapping;
 
-        // First, find the collection type mapping and apply it to the parameter
-        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping) is not SqlServerStringTypeMapping
-                {
-                    ElementTypeMapping: not null
-                }
-                parameterTypeMapping)
+        if (TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var elementTypeMapping))
         {
-            throw new UnreachableException("A SqlServerStringTypeMapping collection type mapping could not be found");
+            // We need to apply the inferred type mapping in two places: the collection type mapping on the parameter expanded by OPENJSON,
+            // and on the WITH clause determining the conversion out on the SQL Server side
+
+            // First, find the collection type mapping and apply it to the parameter
+            parameterTypeMapping = _typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping);
+        }
+        else
+        {
+            // We have no inferred type mapping for the element type. This means that there was nothing in the query done
+            // against the elements of the collection (e.g. comparison to a column), which tells us what type mapping it is.
+            // In normal circumstances, such an expression would get client-evaluated in the funceltizer (no reference to a
+            // column/database-side object), but with compiled queries the collection parameter gets preserved as-is.
+            // The only thing we can do is apply the default type mapping.
+            parameterTypeMapping = _typeMappingSource.FindMapping(parameterExpression.Type, QueryCompilationContext.Model);
+
+            if (parameterTypeMapping is not { ElementTypeMapping: RelationalTypeMapping e })
+            {
+                throw new UnreachableException("Default type mapping has no element type mapping");
+            }
+
+            elementTypeMapping = e;
+        }
+
+        if (parameterTypeMapping is not SqlServerStringTypeMapping { ElementTypeMapping: not null }
+            and not SqlServerJsonTypeMapping { ElementTypeMapping: not null })
+        {
+            throw new UnreachableException("A string/JSON collection type mapping was not found");
         }
 
         return openJsonExpression.Update(
             parameterExpression.ApplyTypeMapping(parameterTypeMapping),
             path: null,
-            [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, [])]);
+            [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, Path: [])]);
     }
 }

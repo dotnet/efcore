@@ -831,6 +831,28 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationCommandListBuilder builder,
         bool terminate = true)
     {
+        if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string vectorMetric)
+        {
+            builder.Append("CREATE VECTOR INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(");
+            GenerateIndexColumnList(operation, model, builder);
+            builder.Append(")");
+
+            IndexOptions(operation, model, builder);
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+
+            return;
+        }
+
         var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
         var hasNullableColumns = operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
@@ -1665,6 +1687,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation.Collation != null)
         {
+            // SQL Server collation docs: https://learn.microsoft.com/sql/relational-databases/collations/collation-and-unicode-support
+
+            // The default behavior in MigrationsSqlGenerator is to quote collation names, but SQL Server does not support that.
+            // Instead, make sure the collation name only contains a restricted set of characters.
+            foreach (var c in operation.Collation)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidCollationName(operation.Collation));
+                }
+            }
+
             builder
                 .Append(" COLLATE ")
                 .Append(operation.Collation);
@@ -1903,11 +1937,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
-        IndexWithOptions(operation, builder);
-    }
-
-    private static void IndexWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
-    {
         var options = new List<string>();
 
         if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
@@ -1927,17 +1956,27 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation[SqlServerAnnotationNames.DataCompression] is DataCompressionType dataCompressionType)
         {
-            switch (dataCompressionType)
+            options.Add("DATA_COMPRESSION = " + dataCompressionType switch
             {
-                case DataCompressionType.None:
-                    options.Add("DATA_COMPRESSION = NONE");
-                    break;
-                case DataCompressionType.Row:
-                    options.Add("DATA_COMPRESSION = ROW");
-                    break;
-                case DataCompressionType.Page:
-                    options.Add("DATA_COMPRESSION = PAGE");
-                    break;
+                DataCompressionType.None => "NONE",
+                DataCompressionType.Row => "ROW",
+                DataCompressionType.Page => "PAGE",
+
+                _ => throw new UnreachableException(),
+            });
+        }
+
+        // Vector index options.
+        // Note that the metric facet is mandatory, and used to determine if the index is a vector index.
+        if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string vectorMetric)
+        {
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping("varchar(max)");
+
+            options.Add("METRIC = " + stringTypeMapping.GenerateSqlLiteral(vectorMetric));
+
+            if (operation[SqlServerAnnotationNames.VectorIndexType] is string vectorType)
+            {
+                options.Add("TYPE = " + stringTypeMapping.GenerateSqlLiteral(vectorType));
             }
         }
 

@@ -15,7 +15,7 @@ internal partial class DatabaseDropCommand
 
         void LogDropCommand(Func<object?, object?, string> resource)
         {
-            var result = executor.GetContextInfo(Context!.Value());
+            var result = executor.GetContextInfo(Context!.Value(), _connection!.Value());
             var databaseName = result["DatabaseName"] as string;
             var dataSource = result["DataSource"] as string;
             Reporter.WriteInformation(resource(databaseName, dataSource));
@@ -38,7 +38,7 @@ internal partial class DatabaseDropCommand
             }
         }
 
-        executor.DropDatabase(Context!.Value());
+        executor.DropDatabase(Context!.Value(), _connection!.Value());
 
         return base.Execute(args);
     }
