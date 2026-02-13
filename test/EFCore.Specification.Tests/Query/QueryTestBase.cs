@@ -5,12 +5,13 @@ using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>, IAsyncLifetime
+public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFixture<TFixture>
     where TFixture : class, IQueryFixtureBase, new()
 {
     private readonly Lazy<QueryAsserter> _queryAsserterCache;
 
     protected QueryTestBase(TFixture fixture)
+        : base(new QueryNonSharedFixtureAdapter(fixture))
     {
         Fixture = fixture;
 
@@ -33,8 +34,6 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>, IAsyncL
 
     protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
-
-    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     public static readonly IEnumerable<object[]> TrackingData =
     [
@@ -1186,110 +1185,25 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>, IAsyncL
 
     #region Non-shared test support
 
-    private ServiceProvider? _nonSharedServiceProvider;
-
-    protected virtual string NonSharedStoreName
+    protected override string NonSharedStoreName
         => Fixture.StoreName + "_NonShared";
 
-    public virtual Task InitializeAsync()
-        => Task.CompletedTask;
+    protected override ITestStoreFactory NonSharedTestStoreFactory
+        => Fixture.GetTestStoreFactory();
 
-    public virtual async Task DisposeAsync()
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => Fixture.AddOptions(base.AddNonSharedOptions(builder));
+
+    protected override ILoggerFactory CreateNonSharedLoggerFactory(Func<string, bool> shouldLogCategory)
+        => new NonDisposingLoggerFactoryWrapper(Fixture.ListLoggerFactory);
+
+    protected override ListLoggerFactory ListLoggerFactory
+        => Fixture.ListLoggerFactory;
+
+    private sealed class QueryNonSharedFixtureAdapter(IQueryFixtureBase fixture) : NonSharedFixture
     {
-        _nonSharedServiceProvider?.Dispose();
-        _nonSharedServiceProvider = null;
-    }
-
-    protected virtual async Task<IDbContextFactory<TContext>> InitializeNonSharedTest<TContext>(
-        Action<ModelBuilder>? onModelCreating = null,
-        Action<DbContextOptionsBuilder>? onConfiguring = null,
-        Func<IServiceCollection, IServiceCollection>? addServices = null,
-        Action<ModelConfigurationBuilder>? configureConventions = null,
-        Func<TContext, Task>? seed = null,
-        bool usePooling = true,
-        bool useServiceProvider = true)
-        where TContext : DbContext
-    {
-        _nonSharedServiceProvider?.Dispose();
-        _nonSharedServiceProvider = null;
-
-        var testStoreFactory = Fixture.GetTestStoreFactory();
-        var testStore = Fixture.GetOrCreateNonSharedTestStore(() => testStoreFactory.Create(NonSharedStoreName));
-
-        IServiceCollection services = new ServiceCollection();
-
-        if (useServiceProvider)
-        {
-            testStoreFactory.AddProviderServices(services);
-        }
-
-        services = services.AddSingleton<ILoggerFactory>(new NonDisposingLoggerFactoryWrapper(Fixture.ListLoggerFactory));
-
-        if (onModelCreating != null)
-        {
-            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating, configureConventions));
-        }
-
-        addServices?.Invoke(services);
-
-        services = usePooling
-            ? services.AddPooledDbContextFactory(
-                typeof(TContext), (s, b) => ConfigureNonSharedOptions(useServiceProvider ? s : null, b, onConfiguring, testStore))
-            : services.AddDbContext(
-                typeof(TContext),
-                (s, b) => ConfigureNonSharedOptions(useServiceProvider ? s : null, b, onConfiguring, testStore),
-                ServiceLifetime.Transient,
-                ServiceLifetime.Singleton);
-
-        _nonSharedServiceProvider = services.BuildServiceProvider(validateScopes: true);
-
-        var contextFactory = new ContextFactory<TContext>(_nonSharedServiceProvider, usePooling);
-
-        await testStore.InitializeAsync(
-            _nonSharedServiceProvider, contextFactory.CreateDbContext, seed == null ? null : c => seed((TContext)c));
-
-        Fixture.ListLoggerFactory.Clear();
-
-        return contextFactory;
-
-        DbContextOptionsBuilder ConfigureNonSharedOptions(
-            IServiceProvider? serviceProvider,
-            DbContextOptionsBuilder optionsBuilder,
-            Action<DbContextOptionsBuilder>? onConfiguring,
-            TestStore testStore)
-        {
-            optionsBuilder = Fixture.AddOptions(testStore.AddProviderOptions(optionsBuilder))
-                .ConfigureWarnings(w => w.Ignore(
-                    CoreEventId.MappedEntityTypeIgnoredWarning,
-                    CoreEventId.MappedPropertyIgnoredWarning,
-                    CoreEventId.MappedNavigationIgnoredWarning));
-            if (serviceProvider == null)
-            {
-                optionsBuilder.EnableServiceProviderCaching(false);
-            }
-            else
-            {
-                optionsBuilder.UseInternalServiceProvider(serviceProvider);
-            }
-
-            onConfiguring?.Invoke(optionsBuilder);
-            return optionsBuilder;
-        }
-    }
-
-    private sealed class ContextFactory<TContext>(IServiceProvider serviceProvider, bool usePooling)
-        : IDbContextFactory<TContext>
-        where TContext : DbContext
-    {
-        private IDbContextFactory<TContext>? PooledContextFactory { get; }
-            = usePooling
-                ? (IDbContextFactory<TContext>)serviceProvider.GetRequiredService(typeof(IDbContextFactory<TContext>))
-                : null;
-
-        public TContext CreateDbContext()
-            => usePooling
-                ? PooledContextFactory!.CreateDbContext()
-                : (TContext)serviceProvider.GetRequiredService(typeof(TContext));
+        public override TestStore GetOrCreateTestStore(Func<TestStore> createTestStore)
+            => fixture.GetOrCreateNonSharedTestStore(createTestStore);
     }
 
     private sealed class NonDisposingLoggerFactoryWrapper(ILoggerFactory inner) : ILoggerFactory

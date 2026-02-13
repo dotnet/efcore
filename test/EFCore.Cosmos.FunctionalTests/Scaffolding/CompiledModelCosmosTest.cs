@@ -667,7 +667,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")

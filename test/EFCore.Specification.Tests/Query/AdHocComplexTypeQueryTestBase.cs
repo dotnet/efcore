@@ -12,7 +12,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
-        var contextFactory = await InitializeAsync<Context33449>(
+        var contextFactory = await InitializeNonSharedTest<Context33449>(
             seed: context =>
             {
                 context.AddRange(
@@ -28,7 +28,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var container = new Context33449.ComplexContainer
         {
@@ -82,9 +82,9 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Projecting_complex_property_does_not_auto_include_owned_types()
     {
-        var contextFactory = await InitializeAsync<Context34749>();
+        var contextFactory = await InitializeNonSharedTest<Context34749>();
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         _ = await context.Set<Context34749.EntityType>().Select(x => x.Complex).ToListAsync();
     }
@@ -126,7 +126,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Optional_complex_type_with_discriminator()
     {
-        var contextFactory = await InitializeAsync<ContextShadowDiscriminator>(
+        var contextFactory = await InitializeNonSharedTest<ContextShadowDiscriminator>(
             seed: context =>
             {
                 context.AddRange(
@@ -146,7 +146,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>().SingleAsync(b => b.AllOptionalsComplexType == null);
         Assert.Null(complexTypeNull.AllOptionalsComplexType);
@@ -180,7 +180,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Non_optional_complex_type_with_all_nullable_properties()
     {
-        var contextFactory = await InitializeAsync<Context37162>(
+        var contextFactory = await InitializeNonSharedTest<Context37162>(
             seed: context =>
             {
                 context.Add(
@@ -194,7 +194,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = await context.Set<Context37162.EntityType>().SingleAsync();
 
@@ -228,7 +228,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_and_shadow_property()
     {
-        var contextFactory = await InitializeAsync<Context37337>(
+        var contextFactory = await InitializeNonSharedTest<Context37337>(
             seed: context =>
             {
                 context.Add(
@@ -242,7 +242,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entities = await context.Set<Context37337.EntityType>().ToArrayAsync();
 
@@ -282,6 +282,6 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion Issue37337
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocComplexTypeQueryTest";
 }

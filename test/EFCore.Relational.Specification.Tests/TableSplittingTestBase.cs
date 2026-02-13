@@ -810,10 +810,10 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Optional_dependent_without_required_property(bool async)
     {
-        var contextFactory = await InitializeAsync<Context29196>(
+        var contextFactory = await InitializeNonSharedTest<Context29196>(
             onConfiguring: e => e.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)));
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.DetailedOrders.Where(o => o.Status == OrderStatus.Pending);
 
@@ -894,7 +894,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "TableSplittingTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -972,11 +972,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     }
 
     protected async Task InitializeAsync(Action<ModelBuilder> onModelCreating, bool seed = true)
-        => ContextFactory = await InitializeAsync<TransportationContext>(
+        => ContextFactory = await InitializeNonSharedTest<TransportationContext>(
             onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.SeedAsync() : null);
 
     protected async Task InitializeSharedAsync(Action<ModelBuilder> onModelCreating, bool sensitiveLogEnabled = true)
-        => SharedContextFactory = await InitializeAsync<SharedTableContext>(
+        => SharedContextFactory = await InitializeNonSharedTest<SharedTableContext>(
             onModelCreating,
             shouldLogCategory: _ => true,
             onConfiguring: options =>
@@ -988,10 +988,10 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
         );
 
     protected virtual TransportationContext CreateContext()
-        => ContextFactory.CreateContext();
+        => ContextFactory.CreateDbContext();
 
     protected virtual SharedTableContext CreateSharedContext()
-        => SharedContextFactory.CreateContext();
+        => SharedContextFactory.CreateDbContext();
 
     public override async Task DisposeAsync()
     {

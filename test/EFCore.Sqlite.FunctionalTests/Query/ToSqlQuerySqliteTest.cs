@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class ToSqlQuerySqliteTest(NonSharedFixture fixture) : ToSqlQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     [ConditionalFact]
