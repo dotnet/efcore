@@ -1273,7 +1273,7 @@ FakeEntity [Deleted]"
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        // Owned File entity properties (flattened)
+        // Properties that would typically come from an owned File entity (inlined into Document table)
         public int? FileId { get; set; }
         public string FileName { get; set; }
         public int? FileContentId { get; set; }
