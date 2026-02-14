@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
@@ -88,6 +89,9 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     }
 
     [ConditionalFact]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Test is very environment-dependent; when running the Cosmos emulator in a VM on Mac, ConnectionMode.Direct causes severe issues")]
     public async Task Should_not_throw_if_specified_connection_mode_is_right()
     {
         var connectionMode = ConnectionMode.Direct;

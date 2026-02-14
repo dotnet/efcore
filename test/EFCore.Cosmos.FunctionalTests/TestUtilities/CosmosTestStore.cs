@@ -78,6 +78,7 @@ public class CosmosTestStore : TestStore
 
     private static string CreateName(string name)
     {
+        // Northwind database is static and huge so we don't want to create a new one for each test run.
         if (name == "Northwind" || name == "Northwind2" || name == "Northwind3")
         {
             return name;
@@ -85,6 +86,10 @@ public class CosmosTestStore : TestStore
 
         if (TestEnvironment.IsEmulator)
         {
+            // We delete and recreate the database for each test run in the emulator.
+            // This is due to limitations in the emulator.
+            // Since the databases are deleted, they can't be shared across test runs, so we generate a new name for each test store.
+            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
             return "EF-" + Guid.NewGuid().ToString();
         }
 
@@ -135,6 +140,9 @@ public class CosmosTestStore : TestStore
 
             if (TestEnvironment.IsEmulator)
             {
+                // Clean up old emulator databases that tests might have left behind.
+                // We do this because the emulator will stop responding with much more than ~10 concurrent containers,
+                // and test runs might have been stopped in the middle leaving databases and containers behind.
                 var client = testStore.CreateDefaultContext().Database.GetCosmosClient();
                 using var iterator = client.GetDatabaseQueryIterator<DatabaseProperties>();
 
@@ -142,12 +150,16 @@ public class CosmosTestStore : TestStore
                 {
                     var response = await iterator.ReadNextAsync();
 
+                    // This code will run after the first fixtures are initialized,
+                    // so we keep track of the databases we created in order to not delete them here.
                     foreach (var db in response.Where(x => x.Id.StartsWith("EF-") && !_createdDatabases!.Contains(x.Id)))
                     {
                         await client.GetDatabase(db.Id).DeleteAsync();
                     }
                 }
 
+                // We do not need to track created databases anymore,
+                // Since this code only runs once on startup.
                 _createdDatabases = null;
             }
 
@@ -216,6 +228,8 @@ public class CosmosTestStore : TestStore
         var aquired = false;
         if (TestEnvironment.IsEmulator)
         {
+            // The emulator has a race condition when creating containers concurrently,
+            // so we need to lock around EnsureCreated
             aquired = await _collectionsSemaphore.WaitAsync(60_000);
         }
         try
@@ -322,6 +336,8 @@ public class CosmosTestStore : TestStore
             var r = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
             if (r)
             {
+                // Keep track of created databases, to prevent them from being deleted in cleanup function,
+                // that could run after the creation of this database, due to xunit creating the first test fixtures before checking the availability of the connection.
                 _createdDatabases?.Add(Name);
             }
 
@@ -617,6 +633,7 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
+        // We don't delete the database if it was created from a data file, because importing it is really slow.
         if (_initialized
             && _dataFilePath == null)
         {
@@ -630,6 +647,8 @@ public class CosmosTestStore : TestStore
                 GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
             }
 
+            // We always delete the database because the emulator will stop responding with much more than ~10 concurrent containers,
+            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
             await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
         }
 
