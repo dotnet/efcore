@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CosmosTestStore : TestStore
 {
+    private static List<string>? _createdDatabases = [];
+    private static readonly SemaphoreSlim _collectionsSemaphore = new(1);
     private readonly TestStoreContext _storeContext;
     private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
@@ -78,18 +80,15 @@ public class CosmosTestStore : TestStore
     {
         if (TestEnvironment.IsEmulator)
         {
-            // We delete and recreate the database for each test run in the emulator.
-            // This is due to limitations in the emulator.
-            // Since the databases are deleted, they can't be shared across test runs, so we generate a new name for each run.
-            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
-            return Guid.NewGuid().ToString();
+            return "EF-" + Guid.NewGuid().ToString();
         }
-        else
+
+        if (name == "Northwind" || name == "Northwind2" || name == "Northwind3")
         {
-            return name == "Northwind" || name == "Northwind2" || name == "Northwind3" || name == "NonExistent"
-                ? name
-                : name + _runId;
+            return name;
         }
+
+        return name + _runId;
     }
 
     public string ConnectionUri { get; }
@@ -121,6 +120,7 @@ public class CosmosTestStore : TestStore
             {
                 _connectionSemaphore.Release();
             }
+
         }
 
         return _connectionAvailable.Value;
@@ -132,6 +132,25 @@ public class CosmosTestStore : TestStore
         try
         {
             testStore = await CreateInitializedAsync("NonExistent").ConfigureAwait(false);
+
+            if (TestEnvironment.IsEmulator)
+            {
+                var client = testStore.CreateDefaultContext().Database.GetCosmosClient();
+                using var iterator = client.GetDatabaseQueryIterator<DatabaseProperties>();
+
+                while (iterator.HasMoreResults)
+                {
+                    var response = await iterator.ReadNextAsync();
+
+                    foreach (var db in response.Where(x => x.Id.StartsWith("EF-") && !_createdDatabases!.Contains(x.Id)))
+                    {
+                        await client.GetDatabase(db.Id).DeleteAsync();
+                    }
+                }
+
+                _createdDatabases = null;
+            }
+
 
             return true;
         }
@@ -192,13 +211,33 @@ public class CosmosTestStore : TestStore
         }
     }
 
+    private async Task<bool> ContextEnsureCreated(DbContext context)
+    {
+        var aquired = false;
+        if (TestEnvironment.IsEmulator)
+        {
+            aquired = await _collectionsSemaphore.WaitAsync(60_000);
+        }
+        try
+        {
+            return await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            if (aquired)
+            {
+                _collectionsSemaphore.Release();
+            }
+        }
+    }
+
     private async Task CreateFromFile(DbContext context)
     {
         if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
             if (!TestEnvironment.UseTokenCredential)
             {
-                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+                await ContextEnsureCreated(context).ConfigureAwait(false);
             }
             else
             {
@@ -280,7 +319,13 @@ public class CosmosTestStore : TestStore
         if (!TestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
+            var r = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
+            if (r)
+            {
+                _createdDatabases?.Add(Name);
+            }
+
+            return r;
         }
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
@@ -306,7 +351,8 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -362,7 +408,8 @@ public class CosmosTestStore : TestStore
 
             if (!TestEnvironment.UseTokenCredential)
             {
-                created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+                created = await ContextEnsureCreated(context).ConfigureAwait(false);
+
                 if (!created)
                 {
                     await SeedAsync(context).ConfigureAwait(false);
@@ -419,7 +466,8 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
                 };
             }
 
@@ -569,7 +617,8 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized)
+        if (_initialized
+            && _dataFilePath == null)
         {
             if (_connectionAvailable == false)
             {
