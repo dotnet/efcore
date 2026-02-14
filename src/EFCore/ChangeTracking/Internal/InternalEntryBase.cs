@@ -208,7 +208,9 @@ public abstract partial class InternalEntryBase : IInternalEntry
             return false;
         }
 
-        if (EntityState == EntityState.Modified)
+        var oldState = EntityState;
+
+        if (oldState == EntityState.Modified)
         {
             _stateData.FlagAllProperties(
                 StructuralType.PropertyCount, PropertyFlag.Modified,
@@ -218,6 +220,30 @@ public abstract partial class InternalEntryBase : IInternalEntry
         // Temporarily change the internal state to unknown so that key generation, including setting key values
         // can happen without constraints on changing read-only values kicking in
         _stateData.EntityState = EntityState.Detached;
+
+        // For owned entities in collections transitioning from Deleted to Added (re-parenting),
+        // reset store-generated key properties that are not part of the ownership FK
+        // so that new values will be generated on insert
+        if (oldState == EntityState.Deleted
+            && StructuralType is IEntityType entityType)
+        {
+            var ownership = entityType.FindOwnership();
+            if (ownership is { PrincipalToDependent.IsCollection: true })
+            {
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey != null)
+                {
+                    foreach (var keyProperty in primaryKey.Properties)
+                    {
+                        if (!ownership.Properties.Contains(keyProperty)
+                            && keyProperty.ValueGenerated.ForAdd())
+                        {
+                            this[keyProperty] = keyProperty.Sentinel;
+                        }
+                    }
+                }
+            }
+        }
 
         return true;
     }
