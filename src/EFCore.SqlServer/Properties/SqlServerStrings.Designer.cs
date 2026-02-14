@@ -162,6 +162,44 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer");
 
         /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.
+        /// </summary>
+        public static string FullTextIndexOnInvalidColumn(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("FullTextIndexOnInvalidColumn", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.
+        /// </summary>
+        public static string FullTextIndexMissingKeyIndex(object? index, object? entityType)
+            => string.Format(
+                GetString("FullTextIndexMissingKeyIndex", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has multiple full-text indexes configured. SQL Server supports only one full-text index per table.
+        /// </summary>
+        public static string FullTextIndexDuplicateOnTable(object? entityType)
+            => string.Format(
+                GetString("FullTextIndexDuplicateOnTable", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' specifies a language for property '{property}', but that property is not part of the index.
+        /// </summary>
+        public static string FullTextIndexLanguagePropertyNotInIndex(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("FullTextIndexLanguagePropertyNotInIndex", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.
+        /// </summary>
+        public static string FullTextMultipleDefaultCatalogs
+            => GetString("FullTextMultipleDefaultCatalogs");
+
+        /// <summary>
         ///     Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
         public static string IdentityBadType(object? property, object? entityType, object? propertyType)
@@ -446,12 +484,50 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 structuralType, propertyName);
 
         /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.
+        /// </summary>
+        public static string VectorIndexOnNonVectorProperty(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("VectorIndexOnNonVectorProperty", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.
+        /// </summary>
+        public static string VectorIndexRequiresMetric(object? index, object? entityType)
+            => string.Format(
+                GetString("VectorIndexRequiresMetric", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.
+        /// </summary>
+        public static string VectorIndexRequiresSingleProperty(object? index, object? entityType)
+            => string.Format(
+                GetString("VectorIndexRequiresSingleProperty", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.
+        /// </summary>
+        public static string VectorIndexRequiresType(object? index, object? entityType)
+            => string.Format(
+                GetString("VectorIndexRequiresType", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
         ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
         /// </summary>
         public static string VectorPropertiesNotSupportedInJson(object? propertyName, object? structuralType)
             => string.Format(
                 GetString("VectorPropertiesNotSupportedInJson", nameof(propertyName), nameof(structuralType)),
                 propertyName, structuralType);
+
+        /// <summary>
+        ///     VectorSearch() requires a valid vector column.
+        /// </summary>
+        public static string VectorSearchRequiresColumn
+            => GetString("VectorSearchRequiresColumn");
 
         private static string GetString(string name, params string[] formatterNames)
         {

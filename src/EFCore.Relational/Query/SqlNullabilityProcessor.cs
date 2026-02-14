@@ -1921,7 +1921,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 {
                     if (processedValues is null)
                     {
-                        var elementClrType = values.GetType().GetSequenceType();
+                        // We found the first null value - we need to start copying values to a new list which will be used for the rewritten parameter.
+                        // The type of the new list must match that of the original enumerable parameter, as there may be value converters involved which
+                        // rely on the precise element type (see #37605). We therefore get the type of the element from the original list if it implements
+                        // IEnumerable<T>, or default to object.
+                        var elementClrType = enumerable.GetType().TryGetElementType(typeof(IEnumerable<>)) ?? typeof(object);
                         processedValues = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementClrType), values.Count)!;
                         for (var j = 0; j < i; j++)
                         {

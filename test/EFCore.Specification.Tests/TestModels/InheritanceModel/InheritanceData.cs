@@ -218,6 +218,7 @@ public class InheritanceData : ISetSource
                 SugarGrams = 6,
                 CaffeineGrams = 4,
                 Carbonation = 5,
+                Ints = [8, 9],
                 ChildComplexType = new ComplexType
                 {
                     UniqueInt = 100,

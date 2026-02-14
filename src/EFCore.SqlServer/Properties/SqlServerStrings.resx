@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -170,6 +170,21 @@
   </data>
   <data name="ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer" xml:space="preserve">
     <value>'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022. If you're on SQL Server 2022 and above, your compatibility level may be set to a lower value; consider raising it.</value>
+  </data>
+  <data name="FullTextIndexOnInvalidColumn" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.</value>
+  </data>
+  <data name="FullTextIndexMissingKeyIndex" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.</value>
+  </data>
+  <data name="FullTextIndexDuplicateOnTable" xml:space="preserve">
+    <value>Entity type '{entityType}' has multiple full-text indexes configured. SQL Server supports only one full-text index per table.</value>
+  </data>
+  <data name="FullTextIndexLanguagePropertyNotInIndex" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' specifies a language for property '{property}', but that property is not part of the index.</value>
+  </data>
+  <data name="FullTextMultipleDefaultCatalogs" xml:space="preserve">
+    <value>Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.</value>
   </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
@@ -377,7 +392,22 @@
   <data name="VectorDimensionsMissing" xml:space="preserve">
     <value>Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.</value>
   </data>
+  <data name="VectorIndexOnNonVectorProperty" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.</value>
+  </data>
+  <data name="VectorIndexRequiresMetric" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.</value>
+  </data>
+  <data name="VectorIndexRequiresSingleProperty" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.</value>
+  </data>
+  <data name="VectorIndexRequiresType" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.</value>
+  </data>
   <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
     <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
+  </data>
+  <data name="VectorSearchRequiresColumn" xml:space="preserve">
+    <value>VectorSearch() requires a valid vector column.</value>
   </data>
 </root>

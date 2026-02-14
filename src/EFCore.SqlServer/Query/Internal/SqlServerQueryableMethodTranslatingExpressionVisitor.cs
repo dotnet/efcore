@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.VisualBasic;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -70,6 +69,270 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new SqlServerQueryableMethodTranslatingExpressionVisitor(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        var method = methodCallExpression.Method;
+
+        if (method.DeclaringType == typeof(SqlServerQueryableExtensions)
+            && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
+        {
+            switch (method.Name)
+            {
+                case nameof(SqlServerQueryableExtensions.VectorSearch)
+                    when methodCallExpression.Arguments is
+                    [
+                        _, // source, translated above
+                        UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression vectorPropertySelector },
+                        var similarTo,
+                        var metric,
+                        var topN
+                    ]
+                    && source is
+                    {
+                        // Since EF.Functions.VectorSearch() is an extension over DbSet directly (not IQueryable<T>), we know the query
+                        // expression is an empty SelectExpression
+                        QueryExpression: SelectExpression { Tables: [TableExpression table] } select,
+                        ShaperExpression: StructuralTypeShaperExpression
+                        {
+                            StructuralType: IEntityType entityType,
+                            ValueBufferExpression: ProjectionBindingExpression projectionBinding,
+                        } entityShaper
+                    }:
+                {
+#pragma warning disable EF9105 // VectorSearch is experimental
+                    if (TranslateLambdaExpression(source, vectorPropertySelector) is not ColumnExpression vectorColumn)
+                    {
+                        throw new InvalidOperationException(SqlServerStrings.VectorSearchRequiresColumn);
+                    }
+
+                    if (TranslateExpression(similarTo) is not { } translatedSimilarTo
+                        || TranslateExpression(metric, applyDefaultTypeMapping: false) is not { } translatedMetric
+                        || TranslateExpression(topN) is not { } translatedTopN)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    // Apply varchar instead of the default nvarchar to avoid the N'...' syntax
+                    translatedMetric = _sqlExpressionFactory.ApplyTypeMapping(
+                        translatedMetric, _typeMappingSource.FindMapping("varchar(max)"));
+
+                    var vectorSearchFunction = new TableValuedFunctionExpression(
+                        _queryCompilationContext.SqlAliasManager.GenerateTableAlias("vector_search"),
+                        "VECTOR_SEARCH",
+                        [
+                            // Note that SQL Server VECTOR_SEARCH() really does accept a full table expression as its first
+                            // argument, including a table alias which is then used to refer to the original table's columns:
+                            // VECTOR_SEARCH([Blogs] AS b, ...)
+                            table,
+                            // We pass the column as a regular ColumnExpression (in SQL generation we'll only write out the name, without the table alias,
+                            // as required by SQL Server)
+                            vectorColumn,
+                            translatedSimilarTo,
+                            translatedMetric,
+                            translatedTopN
+                        ]);
+
+                    // We have the VECTOR_SEARCH() function call. Modify the SelectExpression and shaper to use it and project
+                    // the appropriate things.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    select.SetTables([vectorSearchFunction]);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                    var resultType = methodCallExpression.Method.ReturnType.GetSequenceType();
+                    var entityProjection = select.GetProjection(projectionBinding);
+                    var valueProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Value))!);
+                    var distanceProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Distance))!);
+
+                    select.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
+                    {
+                        [valueProjectionMember] = entityProjection,
+                        [distanceProjectionMember] = new ColumnExpression("Distance", vectorSearchFunction.Alias, typeof(double), _typeMappingSource.FindMapping(typeof(double)), nullable: false)
+                    });
+
+                    var shaper = Expression.New(
+                        resultType.GetConstructors().Single(),
+                        arguments:
+                        [
+                            entityShaper.Update(new ProjectionBindingExpression(select, valueProjectionMember, typeof(ValueBuffer))),
+                            new ProjectionBindingExpression(select, distanceProjectionMember, typeof(double))
+                        ],
+                        members:
+                        [
+                            resultType.GetProperty(nameof(VectorSearchResult<>.Value))!,
+                            resultType.GetProperty(nameof(VectorSearchResult<>.Distance))!
+                        ]);
+                    {
+                        return new ShapedQueryExpression(select, shaper);
+                    }
+#pragma warning restore EF9105 // VectorSearch is experimental
+                }
+
+                case nameof(SqlServerQueryableExtensions.FreeTextTable) or nameof(SqlServerQueryableExtensions.ContainsTable)
+                    when source is
+                    {
+                        QueryExpression: SelectExpression { Tables: [TableExpression table] } select,
+                        ShaperExpression: StructuralTypeShaperExpression
+                    }:
+                {
+                    return TranslateFullTextTableFunction(methodCallExpression, source, select, table);
+                }
+            }
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
+    }
+
+    private Expression TranslateFullTextTableFunction(
+        MethodCallExpression methodCallExpression,
+        ShapedQueryExpression source,
+        SelectExpression select,
+        TableExpression table)
+    {
+        var method = methodCallExpression.Method;
+        var functionName = method.Name switch
+        {
+            nameof(SqlServerQueryableExtensions.FreeTextTable) => "FREETEXTTABLE",
+            nameof(SqlServerQueryableExtensions.ContainsTable) => "CONTAINSTABLE",
+            _ => throw new UnreachableException()
+        };
+
+        var (columnsExpression, searchText, languageTerm, topN) = methodCallExpression.Arguments switch
+        {
+            // columnSelector overload: (source, columnSelector, searchText, languageTerm?, topN?)
+            [_, UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression columnSelector }, var s, var l, var t]
+                => (ExtractColumnsFromSelector(columnSelector, source)
+                    ?? throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText), s, l, t),
+
+            // No column selector (all-columns overload): (source, searchText, languageTerm?, topN?)
+            // Use an empty array to signal "*" (all columns)
+            [_, var s, var l, var t] => ((Expression)Expression.NewArrayInit(typeof(ColumnExpression)), s, l, t),
+
+            _ => throw new UnreachableException()
+        };
+
+        if (TranslateExpression(searchText) is not { } translatedSearchText
+            || TranslateExpression(languageTerm) is not { } translatedLanguageTerm
+            || TranslateExpression(topN) is not { } translatedTopN)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        // Get the key type from the method's return type: IQueryable<FullTextSearchResult<TKey>>
+        var resultType = method.ReturnType.GetSequenceType();
+        var keyType = resultType.GetGenericArguments()[0];
+
+        List<Expression> arguments = [table, columnsExpression, translatedSearchText];
+        if (translatedLanguageTerm is not SqlConstantExpression { Value: null })
+        {
+            arguments.Add(translatedLanguageTerm);
+        }
+
+        // See note in SqlServerSqlNullabilityProcessor, where we remove the topN argument if it's a NULL parameter.
+        if (translatedTopN is not SqlConstantExpression { Value: null })
+        {
+            arguments.Add(translatedTopN);
+        }
+
+        var fullTextTableFunction = new TableValuedFunctionExpression(
+            _queryCompilationContext.SqlAliasManager.GenerateTableAlias(functionName.ToLowerInvariant()),
+            functionName,
+            arguments);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        select.SetTables([fullTextTableFunction]);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+        var keyProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Key))!);
+        var rankProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Rank))!);
+
+        select.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
+        {
+            [keyProjectionMember] = new ColumnExpression("KEY", fullTextTableFunction.Alias, keyType, _typeMappingSource.FindMapping(keyType), nullable: false),
+            [rankProjectionMember] = new ColumnExpression("RANK", fullTextTableFunction.Alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false)
+        });
+
+        var shaper = Expression.New(
+            resultType.GetConstructors().Single(),
+            arguments:
+            [
+                new ProjectionBindingExpression(select, keyProjectionMember, keyType),
+                new ProjectionBindingExpression(select, rankProjectionMember, typeof(int))
+            ],
+            members:
+            [
+                resultType.GetProperty(nameof(FullTextSearchResult<>.Key))!,
+                resultType.GetProperty(nameof(FullTextSearchResult<>.Rank))!
+            ]);
+
+        return new ShapedQueryExpression(select, shaper);
+    }
+
+    private NewArrayExpression? ExtractColumnsFromSelector(LambdaExpression columnSelector, ShapedQueryExpression source)
+    {
+        var body = columnSelector.Body;
+
+        // Handle Convert node (when lambda returns object but property is a value type or different type)
+        if (body is UnaryExpression { NodeType: ExpressionType.Convert } convert)
+        {
+            body = convert.Operand;
+        }
+
+        switch (body)
+        {
+            // Single column: e => e.Property
+            case MemberExpression:
+                // Translate and return the column expression wrapped in an array
+                return TranslateLambdaExpression(source, columnSelector) is ColumnExpression column
+                    ? Expression.NewArrayInit(typeof(string), column)
+                    : null;
+
+            // Multiple columns: e => new { e.Property1, e.Property2 }
+            case NewExpression @new:
+                var columns = new List<ColumnExpression>();
+                foreach (var argument in @new.Arguments)
+                {
+                    var argBody = argument;
+                    if (argBody is UnaryExpression { NodeType: ExpressionType.Convert } argConvert)
+                    {
+                        argBody = argConvert.Operand;
+                    }
+
+                    if (argBody is MemberExpression)
+                    {
+                        // Create a lambda for this single member to translate it
+                        var param = columnSelector.Parameters[0];
+                        var singleMemberLambda = Expression.Lambda(argBody, param);
+                        if (TranslateLambdaExpression(source, singleMemberLambda) is ColumnExpression col)
+                        {
+                            columns.Add(col);
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                // Return a NewArrayExpression containing all the ColumnExpressions
+                return columns.Count > 0
+                    ? Expression.NewArrayInit(typeof(string), columns)
+                    : null;
+
+            default:
+                return null;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -351,6 +614,71 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
+    {
+        // Attempt to translate to JSON_CONTAINS for SQL Server 2025+ (compatibility level 170+).
+        // JSON_CONTAINS is more efficient than IN (SELECT ... FROM OPENJSON(...)) for primitive collections.
+        if (_sqlServerSingletonOptions.SupportsJsonType
+            && source.QueryExpression is SelectExpression
+            {
+                // Primitive collection over OPENJSON (e.g. [p].[Ints])
+                Tables:
+                [
+                    SqlServerOpenJsonExpression
+                    {
+                        // JSON_CONTAINS() is only supported over json, not nvarchar
+                        Json: { TypeMapping: SqlServerJsonTypeMapping } json,
+                        Path: null,
+                        ColumnInfos: [{ Name: "value" }]
+                    }
+                ],
+                Predicate: null,
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null
+            }
+            && TranslateExpression(item, applyDefaultTypeMapping: false) is { } translatedItem
+            // Literal untyped NULL not supported as item by JSON_CONTAINS().
+            // For any other nullable item, SqlServerNullabilityProcessor will add a null check around the JSON_CONTAINS call.
+            && translatedItem is not SqlConstantExpression { Value: null }
+            // Note: JSON_CONTAINS doesn't allow searching for null items within a JSON collection (returns 0)
+            // As a result, we only translate to JSON_CONTAINS when we know that either the item is non-nullable or the collection's elements are.
+            && (
+                translatedItem is ColumnExpression { IsNullable: false } or SqlConstantExpression { Value: not null }
+                || !translatedItem.Type.IsNullableType()
+                || json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType()))
+        {
+            // JSON_CONTAINS returns 1 if found, 0 if not found. It's a search condition expression.
+            var jsonContains = _sqlExpressionFactory.Equal(
+                _sqlExpressionFactory.Function(
+                    "JSON_CONTAINS",
+                    [json, translatedItem],
+                    nullable: true,
+                    argumentsPropagateNullability: [false, true],
+                    typeof(int)),
+                _sqlExpressionFactory.Constant(1));
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var selectExpression = new SelectExpression(jsonContains, _queryCompilationContext.SqlAliasManager);
+            return source.Update(
+                selectExpression,
+                Expression.Convert(
+                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        }
+
+        return base.TranslateContains(source, item);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateElementAtOrDefault(
         ShapedQueryExpression source,
         Expression index,
@@ -360,8 +688,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             switch (source.QueryExpression)
             {
-                // index on parameter using a column
-                // translate via JSON because it is a better translation
+                // Index on parameter using a column
+                // Translate via JSON_VALUE() instead of via a VALUES subquery
                 case SelectExpression
                 {
                     Tables: [ValuesExpression { ValuesParameter: { } valuesParameter }],
@@ -383,7 +711,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 // Index on JSON array
                 case SelectExpression
                 {
-                    Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
+                    Tables: [SqlServerOpenJsonExpression openJson],
                     Predicate: null,
                     GroupBy: [],
                     Having: null,
@@ -404,9 +732,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         }
                         ]
                 } selectExpression
-                    when orderingTableAlias == openJsonExpression.Alias
+                    when orderingTableAlias == openJson.Alias
                     && TranslateExpression(index) is { } translatedIndex
-                    && TryTranslate(selectExpression, jsonArrayColumn, openJsonExpression.Path, translatedIndex, out var result):
+                    && TryTranslate(selectExpression, openJson.Json, openJson.Path, translatedIndex, out var result):
                     return result;
             }
         }
@@ -675,15 +1003,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     // IReadOnlyList<PathSegment> (just like Json{Scalar,Query}Expression), but instead we do the slight hack of packaging it
                     // as a constant argument; it will be unpacked and handled in SQL generation.
                     _sqlExpressionFactory.Constant(path, RelationalTypeMapping.NullMapping),
-
-                    // If an inline JSON object (complex type) is being assigned, it would be rendered here as a simple string:
-                    // [column].modify('$.foo', '{ "x": 8 }')
-                    // Since it's untyped, modify would treat is as a string rather than a JSON object, and insert it as such into
-                    // the enclosing object, escaping all the special JSON characters - that's not what we want.
-                    // We add a cast to JSON to have it interpreted as a JSON object.
-                    value is SqlConstantExpression { TypeMapping.StoreType: "json" }
-                        ? _sqlExpressionFactory.Convert(value, value.Type, _typeMappingSource.FindMapping("json")!)
-                        : value
+                    value
                 ],
                 nullable: true,
                 instancePropagatesNullability: true,

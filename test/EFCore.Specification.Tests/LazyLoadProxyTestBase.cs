@@ -2589,7 +2589,7 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
 
-        var blogs = context.Set<Blog>().OrderBy(e => e.Host!.HostName).ToList();
+        var blogs = context.Set<Blog>().OrderBy(e => e.Id).ToList();
 
         VerifyBlogs(blogs);
         foreach (var blog in blogs)

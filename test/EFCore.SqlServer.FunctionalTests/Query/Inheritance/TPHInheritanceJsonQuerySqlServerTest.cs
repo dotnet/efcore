@@ -12,7 +12,7 @@ public class TPHInheritanceJsonQuerySqlServerTest(TPHInheritanceJsonQuerySqlServ
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Int') AS int) = 10
 """);
@@ -24,7 +24,7 @@ WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Int
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
 WHERE CAST(JSON_VALUE([d].[ParentComplexType], '$.Int') AS int) = 8
 """);
@@ -36,7 +36,7 @@ WHERE CAST(JSON_VALUE([d].[ParentComplexType], '$.Int') AS int) = 8
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
 WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Nested.NestedInt') AS int) = 58
 """);
@@ -48,7 +48,7 @@ WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Nes
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
 WHERE CAST(JSON_VALUE([d].[ParentComplexType], '$.Nested.NestedInt') AS int) = 50
 """);
@@ -106,7 +106,7 @@ FROM [Drinks] AS [d]
 
         AssertSql(
             """
-SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
+SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
 WHERE (
     SELECT COUNT(*)

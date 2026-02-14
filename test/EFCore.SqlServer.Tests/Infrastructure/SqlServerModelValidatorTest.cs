@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -1126,6 +1127,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 #pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
+    [Experimental("EF9105")]
     public virtual void Throws_for_vector_property_inside_JSON_complex_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1146,6 +1148,43 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [ConditionalFact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_multiple_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorEntityWithTwoVectors>(
+            b =>
+            {
+                b.Property(e => e.Vector1).HasMaxLength(3);
+                b.Property(e => e.Vector2).HasMaxLength(3);
+                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).UseMetric("cosine");
+            });
+
+        VerifyError(
+            SqlServerStrings.VectorIndexRequiresSingleProperty(
+                "{'Vector1', 'Vector2'}",
+                nameof(VectorEntityWithTwoVectors)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_non_vector_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty).UseMetric("cosine"));
+
+        VerifyError(
+            SqlServerStrings.VectorIndexOnNonVectorProperty(
+                "{'NonVectorProperty'}",
+                nameof(VectorEntityWithNonVector),
+                nameof(VectorEntityWithNonVector.NonVectorProperty)),
+            modelBuilder);
+    }
+
     public class VectorWithoutDimensionsEntity
     {
         public int Id { get; set; }
@@ -1163,7 +1202,165 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public SqlVector<float> Vector { get; set; }
     }
 
+    public class VectorEntityWithTwoVectors
+    {
+        public int Id { get; set; }
+        public SqlVector<float> Vector1 { get; set; }
+        public SqlVector<float> Vector2 { get; set; }
+    }
+
+    public class VectorEntityWithNonVector
+    {
+        public int Id { get; set; }
+        public string NonVectorProperty { get; set; }
+    }
+
     #endregion Vector
+
+    #region Full-text search
+
+    [ConditionalFact]
+    public virtual void Throws_for_multiple_full_text_indexes_on_same_entity()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithTwoIndexes>(
+            b =>
+            {
+                b.HasFullTextIndex(e => e.Title).HasKeyIndex("PK_FullTextEntityWithTwoIndexes");
+                b.HasFullTextIndex(e => e.Body).HasKeyIndex("PK_FullTextEntityWithTwoIndexes");
+            });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexDuplicateOnTable(
+                nameof(FullTextEntityWithTwoIndexes)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_full_text_index_missing_key_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(b =>
+        {
+            var indexBuilder = b.HasIndex(e => e.Title);
+            // Set the annotation with a null value to simulate a missing KEY INDEX
+            indexBuilder.Metadata.SetAnnotation(SqlServerAnnotationNames.FullTextIndex, null);
+        });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexMissingKeyIndex(
+                "{'Title'}",
+                nameof(FullTextEntityValid)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_full_text_index_on_invalid_column_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithIntColumn>(
+            b => b.HasFullTextIndex(e => e.Count).HasKeyIndex("PK_FullTextEntityWithIntColumn"));
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexOnInvalidColumn(
+                "{'Count'}",
+                nameof(FullTextEntityWithIntColumn),
+                nameof(FullTextEntityWithIntColumn.Count)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_full_text_index_on_string_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(
+            b => b.HasFullTextIndex(e => e.Title).HasKeyIndex("PK_FullTextEntityValid"));
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_full_text_index_on_byte_array_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithBinary>(
+            b => b.HasFullTextIndex(e => e.Document).HasKeyIndex("PK_FullTextEntityWithBinary"));
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_full_text_index_on_mixed_string_and_binary_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithMixedColumns>(
+            b => b.HasFullTextIndex(e => new { e.Title, e.Document }).HasKeyIndex("PK_FullTextEntityWithMixedColumns"));
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_full_text_index_with_mixed_valid_and_invalid_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithMixedValidInvalid>(
+            b => b.HasFullTextIndex(e => new { e.Title, e.Count }).HasKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexOnInvalidColumn(
+                "{'Title', 'Count'}",
+                nameof(FullTextEntityWithMixedValidInvalid),
+                nameof(FullTextEntityWithMixedValidInvalid.Count)),
+            modelBuilder);
+    }
+
+    public class FullTextEntityWithTwoIndexes
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Body { get; set; }
+    }
+
+    public class FullTextEntityWithIntColumn
+    {
+        public int Id { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class FullTextEntityValid
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+    }
+
+    public class FullTextEntityWithBinary
+    {
+        public int Id { get; set; }
+        public byte[] Document { get; set; }
+    }
+
+    public class FullTextEntityWithMixedColumns
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public byte[] Document { get; set; }
+    }
+
+    public class FullTextEntityWithMixedValidInvalid
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public int Count { get; set; }
+    }
+
+    #endregion Full-text search
 
     public class Human
     {

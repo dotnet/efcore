@@ -12,22 +12,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
+public class SqlServerIsDateFunctionTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    private static readonly MethodInfo MethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsDate), [typeof(DbFunctions), typeof(string)])!;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerIsDateFunctionTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -39,14 +25,15 @@ public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => MethodInfo.Equals(method)
-            ? _sqlExpressionFactory.Convert(
-                _sqlExpressionFactory.Function(
-                    "ISDATE",
-                    [arguments[1]],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    MethodInfo.ReturnType),
-                MethodInfo.ReturnType)
-            : null;
+        => method.DeclaringType == typeof(SqlServerDbFunctionsExtensions)
+            && method.Name == nameof(SqlServerDbFunctionsExtensions.IsDate)
+                ? sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Function(
+                        "ISDATE",
+                        [arguments[1]],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        method.ReturnType),
+                    method.ReturnType)
+                : null;
 }

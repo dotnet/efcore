@@ -2471,8 +2471,7 @@ public static class SqlServerDbFunctionsExtensions
     ///     Vector distance is always exact and doesn't use any vector index, even if available.
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql">
-    ///     SQL Server documentation for
-    ///     <c>VECTOR_DISTANCE</c>.
+    ///     SQL Server documentation for <c>VECTOR_DISTANCE()</c>.
     /// </seealso>
     /// <seealso href="https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server">Vectors in the SQL Database Engine.</seealso>
     public static double VectorDistance<T>(

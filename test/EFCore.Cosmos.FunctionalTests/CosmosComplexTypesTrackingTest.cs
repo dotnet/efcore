@@ -21,11 +21,10 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         var last = pub.Activities.Last();
         await context.SaveChangesAsync();
 
-        // TODO: Can be asserted after binding has been implemented.
-        //await using var assertContext = CreateContext();
-        //var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        //Assert.Equivalent(first, dbPub.Activities[0]);
-        //Assert.Equivalent(last, dbPub.Activities.Last());
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equivalent(first, dbPub.Activities[0]);
+        Assert.Equivalent(last, dbPub.Activities.Last());
     }
 
     [ConditionalFact]
@@ -39,10 +38,9 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         pub.Activities[0].Name = "Changed123";
         await context.SaveChangesAsync();
 
-        // TODO: Can be asserted after binding has been implemented.
-        //await using var assertContext = CreateContext();
-        //var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        //Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equivalent("Changed123", dbPub.Activities[0].Name);
     }
 
     [ConditionalFact]
@@ -56,11 +54,10 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         pub.Activities.Add(new ActivityWithCollection { Name = "NewActivity" });
         await context.SaveChangesAsync();
 
-        // TODO: Can be asserted after binding has been implemented.
-        //await using var assertContext = CreateContext();
-        //var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        //Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
-        //Assert.Equivalent(pub.Activities.Count, dbPub.Activities.Count);
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
+        Assert.Equivalent(pub.Activities.Count, dbPub.Activities.Count);
     }
 
     [ConditionalFact]
@@ -114,7 +111,12 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         return base.TrackAndSaveTest(state, async, createPub);
     }
 
-    protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null)
+    public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+        // Optional complex properties are not supported on Cosmos
+        // See https://github.com/dotnet/efcore/issues/31253
+        => Task.CompletedTask;
+
+    protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
         await c.Database.CreateExecutionStrategy().ExecuteAsync(
@@ -144,6 +146,16 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
                 {
                     await nestedTestOperation2(innerContext2);
                 }
+
+                if (nestedTestOperation3 == null)
+                {
+                    return;
+                }
+
+                using (var innerContext3 = CreateContext())
+                {
+                    await nestedTestOperation3(innerContext3);
+                }
             });
     }
 
@@ -164,6 +176,7 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
             modelBuilder.Entity<PubWithArrayCollections>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<PubWithRecordArrayCollections>().HasPartitionKey(x => x.Id);
             modelBuilder.Entity<PubWithPropertyBagCollections>().HasPartitionKey(x => x.Id);
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>().HasPartitionKey(x => x.Id);
             if (!UseProxies)
             {
                 modelBuilder.Entity<FieldPub>().HasPartitionKey(x => x.Id);

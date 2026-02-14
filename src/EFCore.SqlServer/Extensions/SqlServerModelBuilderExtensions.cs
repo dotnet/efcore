@@ -718,4 +718,39 @@ public static class SqlServerModelBuilderExtensions
         bool value,
         bool fromDataAnnotation = false)
         => modelBuilder.CanSetAnnotation(RelationalAnnotationNames.UseNamedDefaultConstraints, value, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures a full-text catalog in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="name">The name of the full-text catalog.</param>
+    /// <returns>A builder to further configure the full-text catalog.</returns>
+    public static SqlServerFullTextCatalogBuilder HasFullTextCatalog(
+        this ModelBuilder modelBuilder,
+        string name)
+    {
+        Check.NotEmpty(name);
+
+        var catalog = HasFullTextCatalog(modelBuilder.Model, name, ConfigurationSource.Explicit);
+        return new SqlServerFullTextCatalogBuilder(catalog);
+    }
+
+    private static SqlServerFullTextCatalog HasFullTextCatalog(
+        IMutableModel model,
+        string name,
+        ConfigurationSource configurationSource)
+    {
+        var catalog = SqlServerFullTextCatalog.FindFullTextCatalog(model, name);
+        if (catalog != null)
+        {
+            catalog.UpdateConfigurationSource(configurationSource);
+            return catalog;
+        }
+
+        return SqlServerFullTextCatalog.AddFullTextCatalog(model, name, configurationSource);
+    }
 }

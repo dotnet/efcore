@@ -109,8 +109,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         SqlBinaryExpression sqlBinaryExpression,
         CoreTypeMapping? typeMapping)
     {
-        var left = sqlBinaryExpression.Left;
-        var right = sqlBinaryExpression.Right;
+        var left = sqlBinaryExpression.Left as SqlExpression ?? throw new UnreachableException();
+        var right = sqlBinaryExpression.Right as SqlExpression ?? throw new UnreachableException();
 
         Type resultType;
         CoreTypeMapping? resultTypeMapping;
