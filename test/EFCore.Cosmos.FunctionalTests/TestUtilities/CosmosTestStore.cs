@@ -78,14 +78,14 @@ public class CosmosTestStore : TestStore
 
     private static string CreateName(string name)
     {
-        if (TestEnvironment.IsEmulator)
-        {
-            return "EF-" + Guid.NewGuid().ToString();
-        }
-
         if (name == "Northwind" || name == "Northwind2" || name == "Northwind3")
         {
             return name;
+        }
+
+        if (TestEnvironment.IsEmulator)
+        {
+            return "EF-" + Guid.NewGuid().ToString();
         }
 
         return name + _runId;
