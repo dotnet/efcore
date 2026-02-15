@@ -782,7 +782,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                     }
 
-                    // json entity collection at the root
                     var (jsonReaderDataVariable, keyValuesParameter) = JsonShapingPreProcess(
                         jsonProjectionInfo,
                         relatedStructuralType,
@@ -809,44 +808,125 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         collectionResult.Type);
                 }
 
-                case ProjectionBindingExpression projectionBindingExpression
-                    when _inline:
+                case ProjectionBindingExpression projectionBindingExpression when _inline:
                 {
-                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
+                    var projectionIndex = System.Convert.ToInt32(GetProjectionIndex(projectionBindingExpression));
                     var projection = _selectExpression.Projection[projectionIndex];
+                    var nullable = IsNullableProjection(projection);
+                    var type = projectionBindingExpression.Type;
 
-                    return CreateGetValueExpression(
+                    var isJsonScalar = projection.Expression is JsonScalarExpression;
+                    var readType = (type.IsValueType && (isJsonScalar || !type.IsNullableType())) ? typeof(object) : type;
+
+                    var getValueExpression = CreateGetValueExpression(
                         _dataReaderParameter,
                         projectionIndex,
-                        IsNullableProjection(projection),
+                        nullable,
                         projection.Expression.TypeMapping!,
-                        projectionBindingExpression.Type);
+                        readType);
+
+                    if (type.IsValueType)
+                    {
+                        var isMemberAccess = projectionBindingExpression.ProjectionMember != null;
+
+                        if (!type.IsNullableType())
+                        {
+                            return Condition(
+                                Expression.Call(
+                                    _dataReaderParameter,
+                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
+                                    Constant(projectionIndex)),
+                                isMemberAccess 
+                                    ? Expression.Block(
+                                        Expression.Call(typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod("ThrowInvalidOperationException", BindingFlags.NonPublic | BindingFlags.Static)!),
+                                        Expression.Default(type))
+                                    : Expression.Default(type),
+                                Convert(getValueExpression, type));
+                        }
+                        if (isJsonScalar)
+                        {
+                            var underlyingType = Nullable.GetUnderlyingType(type)!;
+                            return Condition(
+                                Expression.Call(
+                                    _dataReaderParameter,
+                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
+                                    Constant(projectionIndex)),
+                                Expression.Default(type),
+                                Expression.Convert(
+                                    Expression.Convert(getValueExpression, underlyingType),
+                                    type));
+                        }
+                    }
+
+                    return Convert(getValueExpression, type);
                 }
 
-                case ProjectionBindingExpression projectionBindingExpression
-                    when !_inline:
+                case ProjectionBindingExpression projectionBindingExpression when !_inline:
                 {
                     if (_variableShaperMapping.TryGetValue(projectionBindingExpression, out var accessor))
                     {
                         return accessor;
                     }
 
-                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
+                    var projectionIndex = System.Convert.ToInt32(GetProjectionIndex(projectionBindingExpression));
                     var projection = _selectExpression.Projection[projectionIndex];
                     var nullable = IsNullableProjection(projection);
+                    var type = projectionBindingExpression.Type;
 
-                    var valueParameter = Parameter(projectionBindingExpression.Type, "value" + (_variables.Count + 1));
+                    var valueParameter = Parameter(type, "value" + (_variables.Count + 1));
                     _variables.Add(valueParameter);
+                    var isJsonScalar = projection.Expression is JsonScalarExpression;
+                    var readType = (type.IsValueType && (isJsonScalar || !type.IsNullableType())) ? typeof(object) : type;
 
-                    _expressions.Add(
-                        Assign(
-                            valueParameter,
-                            CreateGetValueExpression(
-                                _dataReaderParameter,
-                                projectionIndex,
-                                nullable,
-                                projection.Expression.TypeMapping!,
-                                valueParameter.Type)));
+                    Expression getValueExpression = CreateGetValueExpression(
+                        _dataReaderParameter,
+                        projectionIndex,
+                        nullable,
+                        projection.Expression.TypeMapping!,
+                        readType);
+
+                    if (type.IsValueType)
+                    {
+                        var isMemberAccess = projectionBindingExpression.ProjectionMember != null;
+
+                        if (!type.IsNullableType())
+                        {
+                            getValueExpression = Condition(
+                                Expression.Call(
+                                    _dataReaderParameter,
+                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
+                                    Constant(projectionIndex)),
+                                isMemberAccess
+                                    ? Expression.Block(
+                                        Expression.Call(typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod("ThrowInvalidOperationException", BindingFlags.NonPublic | BindingFlags.Static)!),
+                                        Expression.Default(type))
+                                    : Expression.Default(type),
+                                Convert(getValueExpression, type));
+                        }
+                        else if (isJsonScalar)
+                        {
+                            var underlyingType = Nullable.GetUnderlyingType(type)!;
+                            getValueExpression = Condition(
+                                Expression.Call(
+                                    _dataReaderParameter,
+                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
+                                    Constant(projectionIndex)),
+                                Expression.Default(type),
+                                Expression.Convert(
+                                    Expression.Convert(getValueExpression, underlyingType),
+                                    type));
+                        }
+                        else
+                        {
+                            getValueExpression = Convert(getValueExpression, type);
+                        }
+                    }
+                    else
+                    {
+                        getValueExpression = Convert(getValueExpression, type);
+                    }
+
+                    _expressions.Add(Assign(valueParameter, getValueExpression));
 
                     if (_containsCollectionMaterialization)
                     {
