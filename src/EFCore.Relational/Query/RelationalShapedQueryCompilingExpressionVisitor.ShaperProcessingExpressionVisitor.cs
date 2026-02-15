@@ -809,127 +809,44 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         collectionResult.Type);
                 }
 
-                case ProjectionBindingExpression projectionBindingExpression when _inline:
+                case ProjectionBindingExpression projectionBindingExpression
+                    when _inline:
                 {
-                    var projectionIndex = System.Convert.ToInt32(GetProjectionIndex(projectionBindingExpression));
+                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
                     var projection = _selectExpression.Projection[projectionIndex];
-                    var nullable = IsNullableProjection(projection);
-                    var type = projectionBindingExpression.Type;
 
-                    var isJsonScalar = projection.Expression is JsonScalarExpression;
-                    var readType = (type.IsValueType && (isJsonScalar || !type.IsNullableType())) ? typeof(object) : type;
-
-                    var getValueExpression = CreateGetValueExpression(
+                    return CreateGetValueExpression(
                         _dataReaderParameter,
                         projectionIndex,
-                        nullable,
+                        IsNullableProjection(projection),
                         projection.Expression.TypeMapping!,
-                        readType);
-
-                    if (type.IsValueType)
-                    {
-                        var isMemberAccess = projectionBindingExpression.ProjectionMember != null;
-
-                        if (!type.IsNullableType())
-                        {
-                            return Condition(
-                                Expression.Call(
-                                    _dataReaderParameter,
-                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
-                                    Constant(projectionIndex)),
-                                isMemberAccess 
-                                    ? Expression.Block(
-                                        Expression.Throw(Expression.New(typeof(InvalidOperationException))),
-                                        Expression.Default(type))
-                                    : Expression.Default(type),
-                                Convert(getValueExpression, type));
-                        }
-                        
-                        // For nullable value types from JSON scalars, we need proper numeric conversion
-                        else if (isJsonScalar)
-                        {
-                            var underlyingType = Nullable.GetUnderlyingType(type)!;
-                            return Condition(
-                                Expression.Call(
-                                    _dataReaderParameter,
-                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
-                                    Constant(projectionIndex)),
-                                Expression.Default(type),
-                                Expression.Convert(
-                                    Expression.Convert(getValueExpression, underlyingType),
-                                    type));
-                        }
-                    }
-
-                    return Convert(getValueExpression, type);
+                        projectionBindingExpression.Type);
                 }
 
-                case ProjectionBindingExpression projectionBindingExpression when !_inline:
+                case ProjectionBindingExpression projectionBindingExpression
+                    when !_inline:
                 {
                     if (_variableShaperMapping.TryGetValue(projectionBindingExpression, out var accessor))
                     {
                         return accessor;
                     }
 
-                    var projectionIndex = System.Convert.ToInt32(GetProjectionIndex(projectionBindingExpression));
+                    var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
                     var projection = _selectExpression.Projection[projectionIndex];
                     var nullable = IsNullableProjection(projection);
-                    var type = projectionBindingExpression.Type;
 
-                    var valueParameter = Parameter(type, "value" + (_variables.Count + 1));
+                    var valueParameter = Parameter(projectionBindingExpression.Type, "value" + (_variables.Count + 1));
                     _variables.Add(valueParameter);
-                    var isJsonScalar = projection.Expression is JsonScalarExpression;
-                    var readType = (type.IsValueType && (isJsonScalar || !type.IsNullableType())) ? typeof(object) : type;
 
-                    Expression getValueExpression = CreateGetValueExpression(
-                        _dataReaderParameter,
-                        projectionIndex,
-                        nullable,
-                        projection.Expression.TypeMapping!,
-                        readType);
-
-                    if (type.IsValueType)
-                    {
-                        var isMemberAccess = projectionBindingExpression.ProjectionMember != null;
-
-                        if (!type.IsNullableType())
-                        {
-                            getValueExpression = Condition(
-                                Expression.Call(
-                                    _dataReaderParameter,
-                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
-                                    Constant(projectionIndex)),
-                                isMemberAccess
-                                    ? Expression.Block(
-                                        Expression.Throw(Expression.New(typeof(InvalidOperationException))),
-                                        Expression.Default(type))
-                                    : Expression.Default(type),
-                                Convert(getValueExpression, type));
-                        }
-                        else if (isJsonScalar)
-                        {
-                            var underlyingType = Nullable.GetUnderlyingType(type)!;
-                            getValueExpression = Condition(
-                                Expression.Call(
-                                    _dataReaderParameter,
-                                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!,
-                                    Constant(projectionIndex)),
-                                Expression.Default(type),
-                                Expression.Convert(
-                                    Expression.Convert(getValueExpression, underlyingType),
-                                    type));
-                        }
-                        else
-                        {
-                            getValueExpression = Convert(getValueExpression, type);
-                        }
-                    }
-                    else
-                    {
-                        getValueExpression = Convert(getValueExpression, type);
-                    }
-
-                    _expressions.Add(Assign(valueParameter, getValueExpression));
+                    _expressions.Add(
+                        Assign(
+                            valueParameter,
+                            CreateGetValueExpression(
+                                _dataReaderParameter,
+                                projectionIndex,
+                                nullable,
+                                projection.Expression.TypeMapping!,
+                                valueParameter.Type)));
 
                     if (_containsCollectionMaterialization)
                     {
