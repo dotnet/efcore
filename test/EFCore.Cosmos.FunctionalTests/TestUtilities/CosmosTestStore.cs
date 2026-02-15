@@ -19,8 +19,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CosmosTestStore : TestStore
 {
+    /// <summary>
+    /// The emulator has race conditions when creating containers concurrently, so we need to lock around container creation.
+    /// </summary>
+    public static readonly SemaphoreSlim EmulatorCreateCollectionSemaphore = new(1);
+
     private static List<string>? _createdDatabases = [];
-    private static readonly SemaphoreSlim _collectionsSemaphore = new(1);
     private readonly TestStoreContext _storeContext;
     private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
@@ -88,7 +92,8 @@ public class CosmosTestStore : TestStore
         {
             // We delete and recreate the database for each test run in the emulator.
             // This is due to limitations in the emulator.
-            // Since the databases are deleted, they can't be shared across test runs, so we generate a new name for each test store.
+            // Since the databases are deleted, they can't be shared across test runs.
+            // So we have to generate a new name for each test store, otherwhise we would have name conflicts when running tests in parallel.
             // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
             return "EF-" + Guid.NewGuid().ToString();
         }
@@ -223,14 +228,13 @@ public class CosmosTestStore : TestStore
         }
     }
 
-    private async Task<bool> ContextEnsureCreated(DbContext context)
+    public static async Task<bool> DatabaseEnsureCreated(DbContext context)
     {
-        var aquired = false;
         if (TestEnvironment.IsEmulator)
         {
             // The emulator has a race condition when creating containers concurrently,
             // so we need to lock around EnsureCreated
-            aquired = await _collectionsSemaphore.WaitAsync(60_000);
+            await EmulatorCreateCollectionSemaphore.WaitAsync();
         }
         try
         {
@@ -238,9 +242,9 @@ public class CosmosTestStore : TestStore
         }
         finally
         {
-            if (aquired)
+            if (TestEnvironment.IsEmulator)
             {
-                _collectionsSemaphore.Release();
+                EmulatorCreateCollectionSemaphore.Release();
             }
         }
     }
@@ -251,7 +255,7 @@ public class CosmosTestStore : TestStore
         {
             if (!TestEnvironment.UseTokenCredential)
             {
-                await ContextEnsureCreated(context).ConfigureAwait(false);
+                await DatabaseEnsureCreated(context).ConfigureAwait(false);
             }
             else
             {
@@ -424,7 +428,7 @@ public class CosmosTestStore : TestStore
 
             if (!TestEnvironment.UseTokenCredential)
             {
-                created = await ContextEnsureCreated(context).ConfigureAwait(false);
+                created = await DatabaseEnsureCreated(context).ConfigureAwait(false);
 
                 if (!created)
                 {

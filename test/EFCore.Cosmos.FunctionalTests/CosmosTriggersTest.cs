@@ -68,8 +68,6 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
     private async Task CreateTriggersInCosmosAsync(TriggersContext context)
     {
-        await context.Database.EnsureCreatedAsync();
-
         var cosmosClient = context.Database.GetCosmosClient();
         var databaseId = context.Database.GetCosmosDatabaseId();
         var database = cosmosClient.GetDatabase(databaseId);
