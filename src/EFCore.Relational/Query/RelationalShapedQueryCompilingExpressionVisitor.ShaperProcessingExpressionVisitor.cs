@@ -782,6 +782,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                     }
 
+                    // json entity collection at the root
                     var (jsonReaderDataVariable, keyValuesParameter) = JsonShapingPreProcess(
                         jsonProjectionInfo,
                         relatedStructuralType,
@@ -838,12 +839,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     Constant(projectionIndex)),
                                 isMemberAccess 
                                     ? Expression.Block(
-                                        Expression.Call(typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod("ThrowInvalidOperationException", BindingFlags.NonPublic | BindingFlags.Static)!),
+                                        Expression.Throw(Expression.New(typeof(InvalidOperationException))),
                                         Expression.Default(type))
                                     : Expression.Default(type),
                                 Convert(getValueExpression, type));
                         }
-                        if (isJsonScalar)
+                        
+                        // For nullable value types from JSON scalars, we need proper numeric conversion
+                        else if (isJsonScalar)
                         {
                             var underlyingType = Nullable.GetUnderlyingType(type)!;
                             return Condition(
@@ -898,7 +901,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     Constant(projectionIndex)),
                                 isMemberAccess
                                     ? Expression.Block(
-                                        Expression.Call(typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod("ThrowInvalidOperationException", BindingFlags.NonPublic | BindingFlags.Static)!),
+                                        Expression.Throw(Expression.New(typeof(InvalidOperationException))),
                                         Expression.Default(type))
                                     : Expression.Default(type),
                                 Convert(getValueExpression, type));
