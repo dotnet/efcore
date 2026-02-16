@@ -76,6 +76,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Use nullable reference types
 - Use proper null-checking patterns
 - Use the null-conditional operator (`?.`) and null-coalescing operator (`??`) when appropriate
+- Don't disable nullability with a preprocessor directive (`#nullable disable`)
 
 ## Architecture and Design Patterns
 

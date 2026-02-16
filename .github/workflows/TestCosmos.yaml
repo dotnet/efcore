@@ -31,12 +31,8 @@ jobs:
         run: restore.cmd
         shell: cmd
 
-      - name: Build
-        run: build.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
-        shell: cmd
-
       - name: Test on Cosmos
-        run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
 
       - name: Publish Test Results

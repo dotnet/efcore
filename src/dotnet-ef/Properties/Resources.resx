@@ -159,11 +159,11 @@
   <data name="DatabaseDropForceDescription" xml:space="preserve">
     <value>Don't confirm.</value>
   </data>
-  <data name="DatabaseUpdateDescription" xml:space="preserve">
-    <value>Updates the database to a specified migration.</value>
-  </data>
   <data name="DatabaseUpdateAddDescription" xml:space="preserve">
     <value>Create a new migration with the given name and apply it immediately.</value>
+  </data>
+  <data name="DatabaseUpdateDescription" xml:space="preserve">
+    <value>Updates the database to a specified migration.</value>
   </data>
   <data name="DbContextConnectionDescription" xml:space="preserve">
     <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
@@ -216,9 +216,6 @@
   <data name="MigrationNameDescription" xml:space="preserve">
     <value>The name of the migration.</value>
   </data>
-  <data name="MissingArgument" xml:space="preserve">
-    <value>Missing required argument '{arg}'.</value>
-  </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
   </data>
@@ -252,11 +249,17 @@
   <data name="MigrationsRemoveForceDescription" xml:space="preserve">
     <value>Revert the migration if it has been applied to the database.</value>
   </data>
+  <data name="MigrationsRemoveOfflineDescription" xml:space="preserve">
+    <value>Remove the migration without connecting to the database.</value>
+  </data>
   <data name="MigrationsScriptDescription" xml:space="preserve">
     <value>Generates a SQL script from migrations.</value>
   </data>
   <data name="MigrationToDescription" xml:space="preserve">
     <value>The target migration. Defaults to the last migration.</value>
+  </data>
+  <data name="MissingArgument" xml:space="preserve">
+    <value>Missing required argument '{arg}'.</value>
   </data>
   <data name="MissingConditionalOption" xml:space="preserve">
     <value>Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.</value>
@@ -335,6 +338,9 @@
   </data>
   <data name="ProviderDescription" xml:space="preserve">
     <value>The provider to use. (E.g. Microsoft.EntityFrameworkCore.SqlServer)</value>
+  </data>
+  <data name="RunningCommand" xml:space="preserve">
+    <value>Running '{command}'</value>
   </data>
   <data name="RuntimeDescription" xml:space="preserve">
     <value>The runtime to use.</value>

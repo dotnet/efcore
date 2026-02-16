@@ -1858,7 +1858,11 @@ public class InternalEntityTypeBuilderTest
             ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
             et => et.Metadata.FindProperty(Order.CustomerIdProperty.Name) != null,
             et => et.Property(Order.CustomerIdProperty, addConfigurationSource) != null,
-            et => et.Property(Order.CustomerIdProperty, ignoreConfigurationSource) != null,
+            modelBuilder => modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention).HasRelationship(
+                modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata,
+                Order.CustomerProperty,
+                Customer.OrdersProperty,
+                ConfigurationSource.Convention),
             Order.CustomerIdProperty.Name);
 
     private void VerifyIgnoreMember(
@@ -1869,14 +1873,19 @@ public class InternalEntityTypeBuilderTest
         bool setBaseFirst,
         Func<InternalEntityTypeBuilder, bool> findMember,
         Func<InternalEntityTypeBuilder, bool> addMember,
-        Func<InternalEntityTypeBuilder, bool> unignoreMember,
+        Action<InternalModelBuilder> configureModel,
         string memberToIgnore)
     {
-        var modelBuilder = CreateModelBuilder();
+        var testModelBuilder = CreateConventionlessModelBuilder();
+        var modelBuilder = (InternalModelBuilder)testModelBuilder.GetInfrastructure();
+        configureModel(modelBuilder);
         var customerTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
         customerTypeBuilder.PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
         var productTypeBuilder = modelBuilder.Entity(typeof(Product), ConfigurationSource.Convention);
         productTypeBuilder.PrimaryKey([Product.IdProperty], ConfigurationSource.Convention);
+        customerTypeBuilder.Ignore(Customer.NotCollectionOrdersProperty.Name, ConfigurationSource.Convention);
+        customerTypeBuilder.Ignore(Customer.SpecialOrdersProperty.Name, ConfigurationSource.Convention);
+        customerTypeBuilder.Ignore(Customer.UniqueProperty.Name, ConfigurationSource.Convention);
 
         if (setBaseFirst)
         {
@@ -1933,8 +1942,6 @@ public class InternalEntityTypeBuilderTest
             ConfigureOrdersHierarchy(modelBuilder);
         }
 
-        var modelValidator = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
-
         if (exceptionExpected)
         {
             Assert.Equal(
@@ -1942,11 +1949,7 @@ public class InternalEntityTypeBuilderTest
                     memberToIgnore,
                     typeof(ExtraSpecialOrder).ShortDisplayName(),
                     typeof(SpecialOrder).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelValidator.Validate(
-                    modelBuilder.Metadata,
-                    new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>())).Message);
-
-            Assert.True(unignoreMember(ignoredEntityTypeBuilder));
+                Assert.Throws<InvalidOperationException>(() => testModelBuilder.FinalizeModel(designTime: true)).Message);
         }
         else
         {
@@ -2345,12 +2348,7 @@ public class InternalEntityTypeBuilderTest
                     Customer.OrdersProperty,
                     addConfigurationSource)
                 != null,
-            et => et.HasRelationship(
-                    et.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit).Metadata,
-                    Order.CustomerProperty,
-                    Customer.OrdersProperty,
-                    ignoreConfigurationSource)
-                != null,
+            modelBuilder => { },
             Order.CustomerProperty.Name);
 
     [ConditionalFact]
@@ -2429,11 +2427,11 @@ public class InternalEntityTypeBuilderTest
                     et.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit).Metadata,
                     addConfigurationSource)
                 != null,
-            et => et.HasSkipNavigation(
-                    MemberIdentity.Create(Order.ProductsProperty),
-                    et.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit).Metadata,
-                    ignoreConfigurationSource)
-                != null,
+            modelBuilder => modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention).HasRelationship(
+                modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata,
+                Order.CustomerProperty,
+                Customer.OrdersProperty,
+                ConfigurationSource.Convention),
             nameof(Order.Products));
 
     [ConditionalTheory, MemberData(
@@ -3399,6 +3397,16 @@ public class InternalEntityTypeBuilderTest
 
     private InternalModelBuilder CreateModelBuilder(Model model = null)
         => new(model ?? new Model());
+
+    protected virtual TestHelpers.TestModelBuilder CreateConventionlessModelBuilder(
+        Action<ModelConfigurationBuilder> configure = null,
+        bool sensitiveDataLoggingEnabled = false)
+        => InMemoryTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: configurationBuilder =>
+            {
+                configure?.Invoke(configurationBuilder);
+                configurationBuilder.RemoveAllConventions();
+            });
 
     private InternalModelBuilder CreateConventionalModelBuilder()
         => (InternalModelBuilder)InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();

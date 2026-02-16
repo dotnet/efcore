@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -815,6 +816,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
 
         return unaryExpression.NodeType switch
         {
+            ExpressionType.Not when operand is SqlConstantExpression { Value: bool boolValue }
+                => sqlExpressionFactory.Constant(!boolValue),
             ExpressionType.Not
                 => sqlExpressionFactory.Not(sqlOperand!),
 
@@ -1079,27 +1082,22 @@ public class CosmosSqlTranslatingExpressionVisitor(
             || right is SqlConstantExpression { Value: null })
         {
             var nonNullEntityReference = (left is SqlConstantExpression { Value: null } ? rightEntityReference : leftEntityReference)!;
-            var entityType1 = nonNullEntityReference.EntityType;
-            var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
-            if (primaryKeyProperties1 == null)
+            var shaper = nonNullEntityReference.Parameter
+                ?? (StructuralTypeShaperExpression)nonNullEntityReference.Subquery!.ShaperExpression;
+
+            if (!shaper.IsNullable)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                        nodeType == ExpressionType.Equal
-                            ? equalsMethod ? nameof(object.Equals) : "=="
-                            : equalsMethod
-                                ? "!" + nameof(object.Equals)
-                                : "!=",
-                        entityType1.DisplayName()));
+                result = Visit(Expression.Constant(nodeType != ExpressionType.Equal));
+                return true;
             }
 
-            result = Visit(
-                primaryKeyProperties1.Select(p =>
-                        Expression.MakeBinary(
-                            nodeType, CreatePropertyAccessExpression(nonNullEntityReference, p),
-                            Expression.Constant(null, p.ClrType.MakeNullable())))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
-
+            var access = Visit(shaper.ValueBufferExpression);
+            result = new SqlBinaryExpression(
+                nodeType,
+                access,
+                sqlExpressionFactory.Constant(null, typeof(object), CosmosTypeMapping.Default)!,
+                typeof(bool),
+                typeMappingSource.FindMapping(typeof(bool)))!;
             return true;
         }
 

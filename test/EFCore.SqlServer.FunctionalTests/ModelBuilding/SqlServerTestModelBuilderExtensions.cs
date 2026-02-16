@@ -170,4 +170,34 @@ public static class SqlServerTestModelBuilderExtensions
                 throw new InvalidOperationException();
         }
     }
+
+    public static SqlServerModelBuilderTestBase.TestFullTextIndexBuilder<TEntity> HasFullTextIndex<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        Expression<Func<TEntity, object?>> indexExpression)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                return new SqlServerModelBuilderTestBase.GenericTestFullTextIndexBuilder<TEntity>(
+                    genericBuilder.Instance.HasFullTextIndex(indexExpression));
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                var members = indexExpression.GetMemberAccessList();
+                var propertyNames = members.Select(m =>
+                {
+                    var name = m.Name;
+                    var dot = name.LastIndexOf('.');
+                    return dot >= 0 ? name[(dot + 1)..] : name;
+                }).ToArray();
+                return new SqlServerModelBuilderTestBase.NonGenericTestFullTextIndexBuilder<TEntity>(
+                    nonGenericBuilder.Instance.HasFullTextIndex(propertyNames));
+            default:
+                throw new InvalidOperationException();
+        }
+    }
+
+    public static SqlServerModelBuilderTestBase.TestFullTextCatalogBuilder HasFullTextCatalog(
+        this ModelBuilderTest.TestModelBuilder builder,
+        string name)
+        => new(((IInfrastructure<ModelBuilder>)builder).Instance.HasFullTextCatalog(name));
 }

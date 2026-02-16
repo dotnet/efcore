@@ -285,6 +285,9 @@
   <data name="MigrationsRemoveForceDescription" xml:space="preserve">
     <value>Revert the migration if it has been applied to the database.</value>
   </data>
+  <data name="MigrationsRemoveOfflineDescription" xml:space="preserve">
+    <value>Remove the migration without connecting to the database.</value>
+  </data>
   <data name="MigrationsScriptDescription" xml:space="preserve">
     <value>Generates a SQL script from migrations.</value>
   </data>
@@ -299,6 +302,9 @@
   </data>
   <data name="MissingOption" xml:space="preserve">
     <value>Missing required option '--{option}'.</value>
+  </data>
+  <data name="OfflineForceConflict" xml:space="preserve">
+    <value>The --offline and --force options cannot be used together.</value>
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>

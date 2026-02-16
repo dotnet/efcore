@@ -345,6 +345,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
     }
 
+    [ConditionalFact] // #37605
+    public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        var nullableInts = new int?[] { null, 999 };
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(nullableInts).Contains(c.NullableInt)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
+    }
+
     [ConditionalFact]
     public virtual async Task Parameter_collection_of_structs_Contains_struct()
     {
@@ -968,7 +978,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
 
     [ConditionalFact]
-    public virtual Task Column_collection_of_strings_contains_null()
+    public virtual Task Column_collection_of_strings_Contains()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains("10")));
+
+    [ConditionalFact]
+    public virtual Task Column_collection_of_strings_Contains_null()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((string?[])c.Strings).Contains(null)),
             assertEmpty: true);
