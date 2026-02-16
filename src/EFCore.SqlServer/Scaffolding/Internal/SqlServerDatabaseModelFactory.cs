@@ -104,6 +104,11 @@ public class SqlServerDatabaseModelFactory(
 
             GetTables(connection, databaseModel, tableFilter, typeAliases, databaseCollation);
 
+            if (SupportsFullTextSearch)
+            {
+                GetFullTextCatalogs(connection, databaseModel);
+            }
+
             foreach (var schema in schemaList
                          .Except(
                              databaseModel.Sequences.Select(s => s.Schema)
@@ -655,6 +660,11 @@ AND [v].[is_date_correlation_view] = 0
             GetIndexes(connection, tables, tableFilterSql);
         }
 
+        if (SupportsFullTextSearch)
+        {
+            GetFullTextIndexes(connection, tables, tableFilterSql);
+        }
+
         GetForeignKeys(connection, tables, tableFilterSql);
 
         if (SupportsTriggers)
@@ -1001,10 +1011,10 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         using var command = connection.CreateCommand();
         var commandText = $"""
 WITH [TablesAndViews] AS (
-    SELECT [object_id], [schema_id], [name], [type], [is_ms_shipped], [temporal_type] 
+    SELECT [object_id], [schema_id], [name], [type], [is_ms_shipped], [temporal_type]
     FROM [sys].[tables]
     UNION ALL
-    SELECT [object_id], [schema_id], [name], [type], [is_ms_shipped], 0 AS [temporal_type] 
+    SELECT [object_id], [schema_id], [name], [type], [is_ms_shipped], 0 AS [temporal_type]
     FROM [sys].[views]
 )
 SELECT
@@ -1225,6 +1235,146 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];
         }
     }
 
+    private void GetFullTextCatalogs(DbConnection connection, DatabaseModel databaseModel)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+SELECT [name], [is_default], [is_accent_sensitivity_on]
+FROM [sys].[fulltext_catalogs];
+""";
+
+        using var reader = command.ExecuteReader();
+        var catalogs = new Dictionary<string, SqlServerFullTextCatalog>();
+
+        while (reader.Read())
+        {
+            var name = reader.GetFieldValue<string>("name");
+            var isDefault = reader.GetFieldValue<bool>("is_default");
+            var isAccentSensitive = reader.GetFieldValue<bool>("is_accent_sensitivity_on");
+
+            var catalog = new SqlServerFullTextCatalog(name, model: null!, ConfigurationSource.DataAnnotation);
+            if (isDefault)
+            {
+                catalog.IsDefault = true;
+            }
+
+            if (!isAccentSensitive)
+            {
+                catalog.IsAccentSensitive = false;
+            }
+
+            catalogs.Add(name, catalog);
+        }
+
+        if (catalogs.Count > 0)
+        {
+            databaseModel[SqlServerAnnotationNames.FullTextCatalogs] = catalogs;
+        }
+    }
+
+    private void GetFullTextIndexes(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = $"""
+SELECT
+    SCHEMA_NAME([t].[schema_id]) AS [table_schema],
+    [t].[name] AS [table_name],
+    [i].[name] AS [key_index_name],
+    [fc].[name] AS [catalog_name],
+    [fi].[change_tracking_state_desc] AS [change_tracking],
+    COL_NAME([fic].[object_id], [fic].[column_id]) AS [column_name],
+    [l].[name] AS [language_name]
+FROM [sys].[fulltext_indexes] AS [fi]
+JOIN [sys].[tables] AS [t] ON [fi].[object_id] = [t].[object_id]
+JOIN [sys].[indexes] AS [i] ON [fi].[object_id] = [i].[object_id] AND [fi].[unique_index_id] = [i].[index_id]
+JOIN [sys].[fulltext_index_columns] AS [fic] ON [fi].[object_id] = [fic].[object_id]
+LEFT JOIN [sys].[fulltext_catalogs] AS [fc] ON [fi].[fulltext_catalog_id] = [fc].[fulltext_catalog_id]
+LEFT JOIN [sys].[fulltext_languages] AS [l] ON [fic].[language_id] = [l].[lcid]
+WHERE {tableFilter}
+ORDER BY [table_schema], [table_name], [fic].[column_id];
+""";
+
+        using var reader = command.ExecuteReader();
+        var tableGroups = reader.Cast<DbDataRecord>()
+            .GroupBy(r => (
+                tableSchema: r.GetValueOrDefault<string>("table_schema"),
+                tableName: r.GetFieldValue<string>("table_name")))
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        foreach (var ((tableSchema, tableName), records) in tableGroups)
+        {
+            var table = tables.SingleOrDefault(t => t.Schema == tableSchema && t.Name == tableName);
+            if (table is null)
+            {
+                continue;
+            }
+
+            var firstRecord = records[0];
+            var keyIndexName = firstRecord.GetFieldValue<string>("key_index_name");
+            var catalogName = firstRecord.GetValueOrDefault<string>("catalog_name");
+            var changeTrackingDesc = firstRecord.GetValueOrDefault<string>("change_tracking");
+
+            var index = new DatabaseIndex
+            {
+                Table = table,
+                Name = null,
+                IsUnique = false
+            };
+
+            index[SqlServerAnnotationNames.FullTextIndex] = keyIndexName;
+
+            if (catalogName is not null)
+            {
+                index[SqlServerAnnotationNames.FullTextCatalog] = catalogName;
+            }
+
+            var changeTracking = changeTrackingDesc switch
+            {
+                "MANUAL" => FullTextChangeTracking.Manual,
+                "OFF" => FullTextChangeTracking.Off,
+                // AUTO is the default, don't scaffold it
+                _ => (FullTextChangeTracking?)null
+            };
+
+            if (changeTracking is not null)
+            {
+                index[SqlServerAnnotationNames.FullTextChangeTracking] = changeTracking.Value;
+            }
+
+            var languages = new Dictionary<string, string>();
+
+            foreach (var record in records)
+            {
+                var columnName = record.GetValueOrDefault<string>("column_name");
+                var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                    ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+
+                if (column is null)
+                {
+                    continue;
+                }
+
+                index.Columns.Add(column);
+
+                var languageName = record.GetValueOrDefault<string>("language_name");
+                if (languageName is not null)
+                {
+                    languages[column.Name!] = languageName;
+                }
+            }
+
+            if (languages.Count > 0)
+            {
+                index[SqlServerAnnotationNames.FullTextLanguages] = languages;
+            }
+
+            if (index.Columns.Count > 0)
+            {
+                table.Indexes.Add(index);
+            }
+        }
+    }
+
     private void GetForeignKeys(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
     {
         using var command = connection.CreateCommand();
@@ -1419,6 +1569,9 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
     private bool SupportsIndexes
         => _engineEdition != EngineEdition.DynamicsCrm;
+
+    private bool SupportsFullTextSearch
+        => IsFullFeaturedEngineEdition;
 
     private bool SupportsVectorIndexes
         => _compatibilityLevel >= 170 && IsFullFeaturedEngineEdition;
