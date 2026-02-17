@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
@@ -131,7 +132,11 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
 
                         Assert.Equal(ee.Id, aa.Id);
 
-                        Assert.Equal(ee.JsonString, aa.JsonString);
+                        // The database may normalize the JSON representation, e.g. removing whitespace and the like.
+                        // Compare JSON DOM representations to ignore such differences.
+                        using var expectedJson = JsonDocument.Parse(ee.JsonString);
+                        using var actualJson = JsonDocument.Parse(aa.JsonString);
+                        Assert.True(JsonElement.DeepEquals(expectedJson.RootElement, actualJson.RootElement));
                     }
                 }
             }
