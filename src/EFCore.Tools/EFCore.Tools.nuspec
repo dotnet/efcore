@@ -12,6 +12,7 @@
   </metadata>
   <files>
     $CommonFileElements$
+    <file src="lib\**\*" target="lib/" />
     <file src="PACKAGE.md" target="docs\" />
     <file src="tools\**\*" target="tools/" />
     <file src="$intermediateOutputPath$*.psd1" target="tools/" />
