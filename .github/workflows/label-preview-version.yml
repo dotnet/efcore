@@ -5,13 +5,14 @@
 name: Label issues with preview/RC version
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches: [main]
 
 permissions:
   issues: write
   contents: read
+  pull-requests: read
 
 jobs:
   label:
@@ -26,17 +27,18 @@ jobs:
             const repo = context.repo.repo;
             const prNumber = context.payload.pull_request.number;
 
-            // Fetch all branches with pagination
-            let allBranches = [];
+            // Fetch only release branches using the Git refs API
+            let releaseRefs = [];
             for (let page = 1; ; page++) {
-              const { data: branches } = await github.rest.repos.listBranches({
+              const { data: refs } = await github.rest.git.listMatchingRefs({
                 owner,
                 repo,
+                ref: 'heads/release/',
                 per_page: 100,
                 page
               });
-              allBranches = allBranches.concat(branches);
-              if (branches.length < 100) break;
+              releaseRefs = releaseRefs.concat(refs);
+              if (refs.length < 100) break;
             }
 
             // Parse release branches to find preview/rc numbers per major version
@@ -46,8 +48,9 @@ jobs:
             // Map: major version -> { previews: Set<number>, rcs: Set<number> }
             const versions = new Map();
 
-            for (const branch of allBranches) {
-              let match = branch.name.match(previewRegex);
+            for (const ref of releaseRefs) {
+              const branchName = ref.ref.replace('refs/heads/', '');
+              let match = branchName.match(previewRegex);
               if (match) {
                 const major = parseInt(match[1]);
                 if (!versions.has(major)) versions.set(major, { previews: new Set(), rcs: new Set() });
@@ -55,7 +58,7 @@ jobs:
                 continue;
               }
 
-              match = branch.name.match(rcRegex);
+              match = branchName.match(rcRegex);
               if (match) {
                 const major = parseInt(match[1]);
                 if (!versions.has(major)) versions.set(major, { previews: new Set(), rcs: new Set() });
@@ -99,7 +102,6 @@ jobs:
                     closingIssuesReferences(first: 50) {
                       nodes {
                         number
-                        state
                       }
                     }
                   }
@@ -110,16 +112,14 @@ jobs:
             const result = await github.graphql(query, { owner, repo, prNumber });
             const closingIssues = result.repository.pullRequest.closingIssuesReferences.nodes;
 
-            // Filter to only issues that are closed (they were closed by this merge)
-            const closedIssues = closingIssues.filter(issue => issue.state === 'CLOSED');
-
-            if (closedIssues.length === 0) {
-              console.log('No closed issues linked to this PR, skipping labeling');
+            if (closingIssues.length === 0) {
+              console.log('No closing issues linked to this PR, skipping labeling');
               return;
             }
 
-            // Add the label to each closed issue
-            for (const issue of closedIssues) {
+            // Label all closing issues (don't filter by state to avoid race conditions
+            // where GitHub hasn't closed the issue yet when this workflow runs)
+            for (const issue of closingIssues) {
               console.log(`Adding label '${label}' to issue #${issue.number}`);
               try {
                 await github.rest.issues.addLabels({
@@ -133,4 +133,4 @@ jobs:
               }
             }
 
-            console.log(`Done. Labeled ${closedIssues.length} issue(s) with '${label}'`);
+            console.log(`Done. Labeled ${closingIssues.length} issue(s) with '${label}'`);
