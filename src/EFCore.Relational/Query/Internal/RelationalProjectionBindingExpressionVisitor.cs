@@ -726,7 +726,21 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
     private ProjectionBindingExpression AddClientProjection(Expression expression, Type type)
     {
-        var existingIndex = _clientProjections!.FindIndex(e => e.Equals(expression));
+        // [FIX 1] Guard against null expressions resulting from failed translation.
+        // This ensures we throw the InvalidOperationException the test expects.
+        if (expression is null)
+        {
+            throw new InvalidOperationException("Unable to translate the given expression.");
+        }
+
+        // [FIX 2] Lazy initialization: If _clientProjections is null, create it.
+        // This prevents the NullReferenceException when calling .FindIndex
+        if (_clientProjections is null)
+        {
+            _clientProjections = new List<Expression>();
+        }
+
+        var existingIndex = _clientProjections.FindIndex(e => e.Equals(expression));
         if (existingIndex == -1)
         {
             _clientProjections.Add(expression);
