@@ -42,13 +42,6 @@ Update-Database
     <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="lib\**\*">
-      <Pack>True</Pack>
-      <PackagePath>lib</PackagePath>
-    </None>
-  </ItemGroup>
-
   <!--
     Workaround for insufficient support for tools packages by NuGet Pack: https://github.com/NuGet/Home/issues/6321.
   -->
