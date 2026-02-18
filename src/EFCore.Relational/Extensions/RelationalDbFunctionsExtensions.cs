@@ -56,6 +56,6 @@ public static class RelationalDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="json">The JSON value to check.</param>
     /// <param name="path">The JSON path to look for.</param>
-    public static bool JsonExists(this DbFunctions _, object json, string path)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExists)));
+    public static bool JsonPathExists(this DbFunctions _, object json, string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonPathExists)));
 }
