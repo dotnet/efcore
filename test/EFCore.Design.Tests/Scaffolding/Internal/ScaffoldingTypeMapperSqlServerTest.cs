@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable CheckNamespace
@@ -32,7 +33,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("decimal(18,2)", isKeyOrIndex, rowVersion: false);
 
         AssertMapping<decimal>(
-            mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
@@ -40,7 +41,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("decimal(14,3)", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<decimal>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: 14, scale: 3);
+        AssertMapping<decimal>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
@@ -383,7 +384,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         Assert.Equal(scale, mapping.ScaffoldScale);
     }
 
-    private static ScaffoldingTypeMapper CreateMapper()
+    private static SqlServerScaffoldingTypeMapper CreateMapper()
         => new(
             new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
