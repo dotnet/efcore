@@ -15,8 +15,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public partial class InternalEntryBase
 {
+    internal static readonly bool UseOldBehavior37724 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37724", out var enabled) && enabled;
+
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
+
         private List<InternalComplexEntry?>? _entries;
         private List<InternalComplexEntry?>? _originalEntries;
         private bool _isModified;
@@ -448,7 +452,7 @@ public partial class InternalEntryBase
                 }
 
                 // When going from Deleted to Unchanged, restore the currentEntry to the original collection
-                if (newState == EntityState.Unchanged)
+                if (UseOldBehavior37724 && newState == EntityState.Unchanged)
                 {
                     InsertEntry(entry, original: true);
                 }
@@ -614,8 +618,12 @@ public partial class InternalEntryBase
             }
 
             var ordinal = ValidateOrdinal(entry, original, entries);
-            if (entries[ordinal] == entry
-                || entries[ordinal] == null)
+            if (entries[ordinal] == entry)
+            {
+                return;
+            }
+
+            if (entries[ordinal] == null)
             {
                 entries[ordinal] = entry;
                 return;
