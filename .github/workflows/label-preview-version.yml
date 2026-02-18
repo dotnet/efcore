@@ -1,0 +1,136 @@
+# This workflow automatically labels issues with the preview/RC version when their fixing PR
+# is merged into main. It determines the current preview/RC by inspecting which release branches
+# exist (e.g. if release/11.0-preview2 exists but not release/11.0-preview3, the label is preview-3).
+
+name: Label issues with preview/RC version
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  label:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine preview/RC version and label issues
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Fetch all branches with pagination
+            let allBranches = [];
+            for (let page = 1; ; page++) {
+              const { data: branches } = await github.rest.repos.listBranches({
+                owner,
+                repo,
+                per_page: 100,
+                page
+              });
+              allBranches = allBranches.concat(branches);
+              if (branches.length < 100) break;
+            }
+
+            // Parse release branches to find preview/rc numbers per major version
+            const previewRegex = /^release\/(\d+)\.0-preview(\d+)$/;
+            const rcRegex = /^release\/(\d+)\.0-rc(\d+)$/;
+
+            // Map: major version -> { previews: Set<number>, rcs: Set<number> }
+            const versions = new Map();
+
+            for (const branch of allBranches) {
+              let match = branch.name.match(previewRegex);
+              if (match) {
+                const major = parseInt(match[1]);
+                if (!versions.has(major)) versions.set(major, { previews: new Set(), rcs: new Set() });
+                versions.get(major).previews.add(parseInt(match[2]));
+                continue;
+              }
+
+              match = branch.name.match(rcRegex);
+              if (match) {
+                const major = parseInt(match[1]);
+                if (!versions.has(major)) versions.set(major, { previews: new Set(), rcs: new Set() });
+                versions.get(major).rcs.add(parseInt(match[2]));
+              }
+            }
+
+            if (versions.size === 0) {
+              console.log('No release branches found, skipping labeling');
+              return;
+            }
+
+            // Find the highest major version
+            const maxMajor = Math.max(...versions.keys());
+            const { previews, rcs } = versions.get(maxMajor);
+
+            // Determine the next preview/rc label
+            let label;
+            if (rcs.size > 0) {
+              // Once any rc branch exists, main is targeting preview-1 of the next major version
+              label = 'preview-1';
+            } else if (previews.size > 0) {
+              const maxPreview = Math.max(...previews);
+              if (maxPreview >= 7) {
+                label = 'rc-1';
+              } else {
+                label = `preview-${maxPreview + 1}`;
+              }
+            } else {
+              console.log('No preview or rc branches found for latest major version, skipping labeling');
+              return;
+            }
+
+            console.log(`Determined label: ${label}`);
+
+            // Find issues closed by this PR using GraphQL
+            const query = `
+              query($owner: String!, $repo: String!, $prNumber: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $prNumber) {
+                    closingIssuesReferences(first: 50) {
+                      nodes {
+                        number
+                        state
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, { owner, repo, prNumber });
+            const closingIssues = result.repository.pullRequest.closingIssuesReferences.nodes;
+
+            // Filter to only issues that are closed (they were closed by this merge)
+            const closedIssues = closingIssues.filter(issue => issue.state === 'CLOSED');
+
+            if (closedIssues.length === 0) {
+              console.log('No closed issues linked to this PR, skipping labeling');
+              return;
+            }
+
+            // Add the label to each closed issue
+            for (const issue of closedIssues) {
+              console.log(`Adding label '${label}' to issue #${issue.number}`);
+              try {
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  labels: [label]
+                });
+              } catch (error) {
+                console.error(`Failed to add label to issue #${issue.number}: ${error.message}`);
+              }
+            }
+
+            console.log(`Done. Labeled ${closedIssues.length} issue(s) with '${label}'`);
