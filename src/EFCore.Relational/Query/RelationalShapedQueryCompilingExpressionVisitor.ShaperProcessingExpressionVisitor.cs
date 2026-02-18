@@ -605,17 +605,25 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     } shaper
                     when !_inline:
                 {
+                    // we can't cache ProjectionBindingExpression results for non-tracking queries
+                    // JSON entities must be read and re-shaped every time (streaming)
+                    // as part of the process we do fixup to the parents, so those JSON entities would be potentially fixed up multiple times
+                    // it's ok for references (overwrite) but for collections they would be added multiple times if we were to cache the parent
+                    // by creating every entity every time we guarantee this doesn't happen
                     if (!_isTracking || !_variableShaperMapping.TryGetValue(projectionBindingExpression, out var accessor))
                     {
                         switch (GetProjectionIndex(projectionBindingExpression))
                         {
                             case JsonProjectionInfo jsonProjectionInfo:
                             {
+                                // Disallow tracking queries to project owned entities (but not complex types)
                                 if (shaper.StructuralType is IEntityType && _isTracking)
                                 {
+                                    // TODO: Update
                                     throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                                 }
 
+                                // json entity at the root
                                 var (jsonReaderDataVariable, keyValuesParameter) = JsonShapingPreProcess(
                                     jsonProjectionInfo,
                                     shaper.StructuralType,
@@ -643,11 +651,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                             case QueryableJsonProjectionInfo queryableJsonEntityProjectionInfo:
                             {
+                                // Disallow tracking queries to project owned entities (but not complex types)
                                 if (shaper.StructuralType is IEntityType && _isTracking)
                                 {
                                     throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                                 }
 
+                                // json entity converted to query root and projected
                                 var entityParameter = Parameter(shaper.Type);
                                 _variables.Add(entityParameter);
                                 var entityMaterializationExpression =
@@ -698,6 +708,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     && entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                                 {
                                     var concreteTypes = entityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract()).ToArray();
+                                    // Single concrete TPC entity type won't have discriminator column.
+                                    // We store the value here and inject it directly rather than reading from server.
                                     if (concreteTypes.Length == 1)
                                     {
                                         _singleEntityTypeDiscriminatorValues[projectionBindingExpression] = concreteTypes[0].ShortName();
@@ -733,6 +745,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                     {
                         var concreteTypes = entityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract()).ToArray();
+                        // Single concrete TPC entity type won't have discriminator column.
+                        // We store the value here and inject it directly rather than reading from server.
                         if (concreteTypes.Length == 1)
                         {
                             _singleEntityTypeDiscriminatorValues[
@@ -762,11 +776,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         _ => throw new UnreachableException()
                     };
 
+                    // Disallow tracking queries to project owned entities (but not complex types)
                     if (relatedStructuralType is IEntityType && _isTracking)
                     {
                         throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
                     }
 
+                    // json entity collection at the root
                     var (jsonReaderDataVariable, keyValuesParameter) = JsonShapingPreProcess(
                         jsonProjectionInfo,
                         relatedStructuralType,
@@ -793,7 +809,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         collectionResult.Type);
                 }
 
-                 case ProjectionBindingExpression projectionBindingExpression
+                case ProjectionBindingExpression projectionBindingExpression
                     when _inline:
                 {
                     var projectionIndex = (int)GetProjectionIndex(projectionBindingExpression);
@@ -2887,26 +2903,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 entity,
                 relatedEntity,
                 Constant(true));
-
         private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            => projectionBindingExpression.Index != null
-                ? projectionBindingExpression.Index
-                : _selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
+        {
+            return _selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
+        }
 
         private static bool IsNullableProjection(ProjectionExpression projection)
-            => projection.Expression switch
-            {
-                ColumnExpression column => column.IsNullable,
-                SqlFunctionExpression function => function.IsNullable,
-                AtTimeZoneExpression atTimeZone => atTimeZone.IsNullable,
-                JsonScalarExpression jsonScalar => jsonScalar.IsNullable,
-                SqlBinaryExpression binary =>
-                    // SqlBinaryExpression does not expose an IsNullable property. Determining exact nullability would require
-                    // inspecting the left/right expressions recursively. For the purposes of the bitwise operator tests a
-                    // conservative "nullable" result is sufficient, so we treat binary expressions as nullable.
-                    true,
-                _ => true
-            };
+            => projection.Expression is not ColumnExpression column || column.IsNullable;
 
         private Expression CreateGetValueExpression(
             ParameterExpression dbDataReader,
@@ -2917,8 +2920,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             IPropertyBase? property = null)
         {
             Check.DebugAssert(
-                property != null || !nullable || type.IsNullableType(),
-                "Must read nullable value from database if property is not specified and nullable is true.");
+                property != null || type.IsNullableType() || type.IsValueType, 
+                "Must read nullable value from database if property is not specified.");
+
+            var getMethod = typeMapping.GetDataReaderMethod();
 
             Expression indexExpression = Constant(index);
             if (_indexMapParameter != null)
@@ -2926,61 +2931,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 indexExpression = ArrayIndex(_indexMapParameter, indexExpression);
             }
 
-            // === [تعديل الـ PR الخاص بك هنا] ===
-            // نتحقق إذا كان النوع يستحق قراءة آمنة (ValueType، غير قابل للـ Null، وليس Bool لحماية Bitwise)
-            bool isSafeReadCandidate = type.IsValueType && !type.IsNullableType() && Type.GetTypeCode(type) != TypeCode.Boolean;
-
-            Expression valueExpression;
-
-            if (isSafeReadCandidate)
-            {
-                // قراءة القيمة كـ object لتجنب انهيار الـ Driver عند اصطدامه بـ NULL
-                valueExpression = Call(
-                    dbDataReader,
-                    typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetValue))!,
-                    indexExpression);
-
-                // بناء فحص الـ NULL اليدوي
-                var isMemberAccess = property != null;
-                var shouldThrow = !nullable || isMemberAccess;
-
-                valueExpression = Condition(
-                    Call(
-                        dbDataReader,
-                        IsDbNullMethod,
-                        indexExpression),
-                    shouldThrow
-                        ? Throw(
-                            New(
-                                typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
-                                Constant("Nullable object must have a value.")),
-                            typeof(object)) // إرجاع object للـ Throw ليتطابق مع GetValue
-                        : Default(typeof(object)),
-                    valueExpression);
-
-                // تحويل النتيجة النهائية (object) إلى النوع المطلوب
-                valueExpression = Convert(valueExpression, type);
-            }
-            else
-            {
-                // === [الطريقة الأصلية لـ EF Core لباقي الأنواع] ===
-                var getMethod = typeMapping.GetDataReaderMethod();
-
-                valueExpression = Call(
+            // القراءة الأصلية تحافظ على الـ Value Converters وتمنع خطأ DateOnly
+            Expression valueExpression
+                = Call(
                     getMethod.DeclaringType != typeof(DbDataReader)
                         ? Convert(dbDataReader, getMethod.DeclaringType!)
                         : dbDataReader,
                     getMethod,
                     indexExpression);
-            }
-            // ===================================
 
             var buffering = false;
 
             if (_readerColumns != null)
             {
                 buffering = true;
-                // ... باقي الكود الأصلي الخاص بالـ buffering يبقى كما هو ...
                 var columnType = valueExpression.Type;
                 var bufferedColumnType = columnType;
                 if (!bufferedColumnType.IsValueType
@@ -3023,7 +2987,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var converterExpression = default(Expression);
             if (converter != null)
             {
-                // ... باقي الكود الأصلي الخاص بالـ converter يبقى كما هو ...
                 if (property != null)
                 {
                     var typeMappingExpression = Call(
@@ -3090,12 +3053,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 valueExpression = Convert(valueExpression, type);
             }
 
-            if (nullable && !isSafeReadCandidate) // تجاوز هذا الجزء إذا قمنا بـ SafeRead لأنه يعالجه بالفعل
+            if (nullable)
             {
                 Expression replaceExpression;
                 if (converter?.ConvertsNulls == true)
                 {
-                    // ... [الكود الأصلي للـ Null Converter] ...
                     if (converterExpression != null)
                     {
                         var converterType = converter.GetType();
@@ -3140,7 +3102,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 else
                 {
-                    replaceExpression = Default(valueExpression.Type);
+                    // [تعديل 2 الأهم]: تحقيق هدف الـ PR برمي خطأ صريح عند مجيء Null لنوع Non-Nullable
+                    if (type.IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(bool))
+                    {
+                        replaceExpression = Throw(
+                            New(
+                                typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                                Constant("Nullable object must have a value.")),
+                            valueExpression.Type);
+                    }
+                    else
+                    {
+                        replaceExpression = Default(valueExpression.Type);
+                    }
                 }
 
                 valueExpression = Condition(
@@ -3151,7 +3125,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (_detailedErrorsEnabled && !buffering)
             {
-                // ... [الكود الأصلي] ...
                 var exceptionParameter = Parameter(typeof(Exception), name: "e");
 
                 var catchBlock = Catch(
@@ -3172,7 +3145,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             return valueExpression;
         }
-
         private Expression CreateReadJsonPropertyValueExpression(
             ParameterExpression jsonReaderManagerParameter,
             IProperty property)

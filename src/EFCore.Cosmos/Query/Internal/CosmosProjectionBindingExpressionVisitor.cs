@@ -137,7 +137,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             }
 
             return new ProjectionBindingExpression(
-                _selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
+                _selectExpression, _selectExpression.AddToProjection(translation), translation.Type);
         }
         else
         {
@@ -149,7 +149,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
             _projectionMapping[_projectionMembers.Peek()] = translation;
 
-            return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type);
+            return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), translation.Type);
         }
     }
 
