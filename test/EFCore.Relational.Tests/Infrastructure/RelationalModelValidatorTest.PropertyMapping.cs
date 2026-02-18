@@ -30,30 +30,14 @@ public partial class RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionlessModelBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
-        entityTypeBuilder.Property(typeof(global::NetTopologySuite.Geometries.FakePoint), "Location");
+        entityTypeBuilder.Property(typeof(NetTopologySuite.Geometries.FakePoint), "Location");
         entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
 
         Assert.Equal(
             RelationalStrings.PropertyNotMappedSpatial(
-                typeof(global::NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
                 typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
                 "Location"),
-            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
-    }
-
-    [ConditionalFact]
-    public void Throws_hierarchyid_message_when_hierarchyid_property_is_not_mapped()
-    {
-        var modelBuilder = CreateConventionlessModelBuilder();
-        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
-        entityTypeBuilder.Property(typeof(global::Microsoft.SqlServer.Types.SqlHierarchyId), "TreeNode");
-        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
-
-        Assert.Equal(
-            RelationalStrings.PropertyNotMappedHierarchyId(
-                typeof(global::Microsoft.SqlServer.Types.SqlHierarchyId).ShortDisplayName(),
-                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
-                "TreeNode"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
@@ -61,13 +45,13 @@ public partial class RelationalModelValidatorTest
     public void Throws_spatial_message_when_declaring_type_is_geometry()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
-        var entityTypeBuilder = modelBuilder.Entity(typeof(global::NetTopologySuite.Geometries.FakePoint));
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NetTopologySuite.Geometries.FakePoint));
         entityTypeBuilder.Property(typeof(Tuple<long>), "SomeProperty");
 
         Assert.Equal(
             RelationalStrings.PropertyNotMappedSpatial(
                 typeof(Tuple<long>).ShortDisplayName(),
-                typeof(global::NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
                 "SomeProperty"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }

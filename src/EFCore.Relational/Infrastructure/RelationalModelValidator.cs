@@ -3253,22 +3253,11 @@ public class RelationalModelValidator(
         ITypeBase typeBase,
         IProperty unmappedProperty)
     {
-        var clrType = unmappedProperty.ClrType;
-        var declaringClrType = typeBase.ClrType;
-
-        if (IsSpatialType(clrType) || IsSpatialType(declaringClrType))
+        if (unmappedProperty.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true
+            || typeBase.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true)
         {
             throw new InvalidOperationException(
                 RelationalStrings.PropertyNotMappedSpatial(
-                    propertyType,
-                    typeBase.DisplayName(),
-                    unmappedProperty.Name));
-        }
-
-        if (IsHierarchyIdType(clrType) || IsHierarchyIdType(declaringClrType))
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.PropertyNotMappedHierarchyId(
                     propertyType,
                     typeBase.DisplayName(),
                     unmappedProperty.Name));
@@ -3286,12 +3275,5 @@ public class RelationalModelValidator(
         }
 
         base.ThrowPropertyNotMappedException(propertyType, typeBase, unmappedProperty);
-
-        static bool IsSpatialType(Type type)
-            => type.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true;
-
-        static bool IsHierarchyIdType(Type type)
-            => type.FullName is "Microsoft.EntityFrameworkCore.HierarchyId"
-                or "Microsoft.SqlServer.Types.SqlHierarchyId";
     }
 }

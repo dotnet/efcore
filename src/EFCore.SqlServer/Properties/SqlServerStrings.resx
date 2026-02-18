@@ -323,6 +323,9 @@
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.</value>
   </data>
+  <data name="PropertyNotMappedHierarchyId" xml:space="preserve">
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped because the required HierarchyId services have not been configured. Install the 'Microsoft.EntityFrameworkCore.SqlServer.HierarchyId' NuGet package and call 'UseHierarchyId' in your SQL Server provider configuration. See https://learn.microsoft.com/ef/core/providers/sql-server/hierarchyid for more information.</value>
+  </data>
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
