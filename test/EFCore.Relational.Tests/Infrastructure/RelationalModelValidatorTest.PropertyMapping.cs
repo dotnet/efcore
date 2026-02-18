@@ -26,6 +26,53 @@ public partial class RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public void Throws_spatial_message_when_geometry_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(global::NetTopologySuite.Geometries.FakePoint), "Location");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedSpatial(
+                typeof(global::NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "Location"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [ConditionalFact]
+    public void Throws_hierarchyid_message_when_hierarchyid_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(global::Microsoft.SqlServer.Types.SqlHierarchyId), "TreeNode");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedHierarchyId(
+                typeof(global::Microsoft.SqlServer.Types.SqlHierarchyId).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "TreeNode"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [ConditionalFact]
+    public void Throws_spatial_message_when_declaring_type_is_geometry()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(global::NetTopologySuite.Geometries.FakePoint));
+        entityTypeBuilder.Property(typeof(Tuple<long>), "SomeProperty");
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedSpatial(
+                typeof(Tuple<long>).ShortDisplayName(),
+                typeof(global::NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                "SomeProperty"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [ConditionalFact]
     public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
