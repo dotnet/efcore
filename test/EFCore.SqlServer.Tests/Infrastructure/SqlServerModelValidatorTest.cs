@@ -1388,6 +1388,22 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public string Name { get; set; }
     }
 
+    [ConditionalFact]
+    public void Throws_hierarchyid_message_when_hierarchyid_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(Microsoft.SqlServer.Types.SqlHierarchyId), "TreeNode");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            SqlServerStrings.PropertyNotMappedHierarchyId(
+                typeof(Microsoft.SqlServer.Types.SqlHierarchyId).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "TreeNode"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 }
