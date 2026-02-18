@@ -312,6 +312,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoInitialCatalog");
 
         /// <summary>
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because the required HierarchyId services have not been configured. Install the 'Microsoft.EntityFrameworkCore.SqlServer.HierarchyId' NuGet package and call 'UseHierarchyId' in your SQL Server provider configuration. See https://learn.microsoft.com/ef/core/providers/sql-server/hierarchyid for more information.
+        /// </summary>
+        public static string PropertyNotMappedHierarchyId(object? propertyType, object? entityType, object? property)
+            => string.Format(
+                GetString("PropertyNotMappedHierarchyId", nameof(propertyType), nameof(entityType), nameof(property)),
+                propertyType, entityType, property);
+
+        /// <summary>
         ///     SQL Server does not support releasing a savepoint.
         /// </summary>
         public static string NoSavepointRelease
