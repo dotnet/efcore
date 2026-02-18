@@ -1738,6 +1738,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertyType, entityType, property, storeType);
 
         /// <summary>
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because the required HierarchyId services have not been configured. Install the 'Microsoft.EntityFrameworkCore.SqlServer.HierarchyId' NuGet package and call 'UseHierarchyId' in your SQL Server provider configuration. See https://learn.microsoft.com/ef/core/providers/sql-server/hierarchyid for more information.
+        /// </summary>
+        public static string PropertyNotMappedHierarchyId(object? propertyType, object? entityType, object? property)
+            => string.Format(
+                GetString("PropertyNotMappedHierarchyId", nameof(propertyType), nameof(entityType), nameof(property)),
+                propertyType, entityType, property);
+
+        /// <summary>
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because it is a spatial type and the required spatial services have not been configured. Install the appropriate spatial NuGet package for your provider (e.g. 'Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite' or 'Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite') and call 'UseNetTopologySuite' in your provider configuration. See https://aka.ms/efcore-docs-spatial for more information.
+        /// </summary>
+        public static string PropertyNotMappedSpatial(object? propertyType, object? entityType, object? property)
+            => string.Format(
+                GetString("PropertyNotMappedSpatial", nameof(propertyType), nameof(entityType), nameof(property)),
+                propertyType, entityType, property);
+
+        /// <summary>
         ///     The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.
         /// </summary>
         public static string PropertyNotMappedToTable(object? property, object? entityType, object? table)
