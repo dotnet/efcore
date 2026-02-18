@@ -3102,19 +3102,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 else
                 {
-                    // [تعديل 2 الأهم]: تحقيق هدف الـ PR برمي خطأ صريح عند مجيء Null لنوع Non-Nullable
-                    if (type.IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(bool))
-                    {
-                        replaceExpression = Throw(
-                            New(
-                                typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
-                                Constant("Nullable object must have a value.")),
-                            valueExpression.Type);
-                    }
-                    else
-                    {
-                        replaceExpression = Default(valueExpression.Type);
-                    }
+                    replaceExpression = Default(valueExpression.Type);
                 }
 
                 valueExpression = Condition(
