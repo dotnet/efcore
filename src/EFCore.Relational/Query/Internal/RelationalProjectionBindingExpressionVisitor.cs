@@ -172,7 +172,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
-                        return AddClientProjection(sqlExpression, sqlExpression.Type);
+                        return AddClientProjection(sqlExpression, expression.Type);
 
                     // This handles the case of a complex type being projected out of a Select.
                     case RelationalStructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
@@ -237,7 +237,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     case SqlExpression mappedSqlExpression:
                         _projectionMapping[_projectionMembers.Peek()] = mappedSqlExpression;
                         return new ProjectionBindingExpression(
-                            _selectExpression, _projectionMembers.Peek(), mappedSqlExpression.Type);
+                            _selectExpression, _projectionMembers.Peek(), expression.Type);
                     // This handles the case of a complex type being projected out of a Select.
                     // Note that an entity type being projected is (currently) handled differently
                     case RelationalStructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
