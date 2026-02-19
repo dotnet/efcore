@@ -412,7 +412,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         private readonly bool _queryStateManager =
             queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
 
-        private readonly MergeOption _MergeOption = mergeOption;
+        private readonly MergeOption _mergeOption = mergeOption;
 
         private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
         private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter = new(liftableConstantFactory);
@@ -530,7 +530,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                         clrType)),
                                 // Update the existing entity with new property values from the database
                                 // if the merge option is not AppendOnly
-                                _MergeOption != MergeOption.AppendOnly
+                                _mergeOption != MergeOption.AppendOnly
                                 ? UpdateExistingEntityWithDatabaseValues(
                                     entryVariable,
                                     concreteEntityTypeVariable,
@@ -813,7 +813,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             // Update original values similar to EntityEntry.Reload()
             // This ensures that the original values snapshot reflects the database state
-            var dbProperties = propertiesToUpdate.Where(p => !p.IsShadowProperty());
+            var dbProperties = propertiesToUpdate;
             int count = dbProperties.Count();
             int i = 0;
             foreach (var property in dbProperties)
@@ -831,7 +831,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     property.ClrType.IsValueType && property.IsNullable
                         ? (Expression)Convert(newValue, typeof(object))
                         : Convert(newValue, typeof(object)),
-                    Constant(_MergeOption),
+                    Constant(_mergeOption),
                     Constant(i == count));
 
                 updateExpressions.Add(setOriginalValueExpression);

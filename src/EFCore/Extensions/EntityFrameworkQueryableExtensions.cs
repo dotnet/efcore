@@ -2892,27 +2892,12 @@ public static class EntityFrameworkQueryableExtensions
         this IQueryable<T> source,
         [NotParameterized] MergeOption mergeOption)
     {
-        bool isNotTracked = false;
-
-        string[] expressionNames = source.Expression.ToString().Split('.');
-        if (
-            expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)))
-            || expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution)))
-            || expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.IgnoreAutoIncludes)))
-           )
-        {
-            isNotTracked = true;
-        }
-
-        if (isNotTracked)
+        if (HasNonTrackingOrIgnoreAutoIncludes(source.Expression))
         {
             throw new InvalidOperationException(CoreStrings.RefreshNonTrackingQuery);
         }
 
-        MergeOption[] otherMergeOptions = Enum.GetValues<MergeOption>().Where(v => v != mergeOption).ToArray();
-
-        bool anyOtherMergeOption = expressionNames.Any(c => otherMergeOptions.Any(o => c.Contains(o.ToString())));
-        if (anyOtherMergeOption)
+        if (HasMultipleMergeOptions(source.Expression))
         {
             throw new InvalidOperationException(CoreStrings.RefreshMultipleMergeOptions);
         }
@@ -2926,6 +2911,47 @@ public static class EntityFrameworkQueryableExtensions
                         arg0: source.Expression,
                         arg1: Expression.Constant(mergeOption)))
                 : source;
+    }
+
+    private static bool HasNonTrackingOrIgnoreAutoIncludes(Expression expression)
+    {
+        Expression? current = expression;
+        while (current is MethodCallExpression call)
+        {
+            var method = call.Method;
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+            {
+                var name = method.Name;
+                if (name == nameof(AsNoTracking)
+                    || name == nameof(AsNoTrackingWithIdentityResolution)
+                    || name == nameof(IgnoreAutoIncludes))
+                {
+                    return true;
+                }
+            }
+
+            current = call.Arguments.Count > 0 ? call.Arguments[0] : null;
+        }
+
+        return false;
+    }
+
+    private static bool HasMultipleMergeOptions(Expression expression)
+    {
+        Expression? current = expression;
+        while (current is MethodCallExpression call)
+        {
+            var method = call.Method;
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && method.Name == nameof(Refresh))
+            {
+                return true;
+            }
+
+            current = call.Arguments.Count > 0 ? call.Arguments[0] : null;
+        }
+
+        return false;
     }
 
     #endregion
