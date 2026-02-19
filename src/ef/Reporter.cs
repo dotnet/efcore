@@ -23,13 +23,13 @@ internal static class Reporter
         => NoColor ? value : colorizeFunc(value);
 
     public static void WriteError(string? message)
-        => WriteLine(Prefix(ErrorPrefix, Colorize(message, x => Bold + Red + x + Reset)));
+        => WriteStdErr(Prefix(ErrorPrefix, Colorize(message, x => Bold + Red + x + Reset)));
 
     public static void WriteWarning(string? message)
-        => WriteLine(Prefix(WarningPrefix, Colorize(message, x => Bold + Yellow + x + Reset)));
+        => WriteStdErr(Prefix(WarningPrefix, Colorize(message, x => Bold + Yellow + x + Reset)));
 
     public static void WriteInformation(string? message)
-        => WriteLine(Prefix(InfoPrefix, message));
+        => WriteStdErr(Prefix(InfoPrefix, message));
 
     public static void WriteData(string? message)
         => WriteLine(Prefix(DataPrefix, Colorize(message, x => Bold + Gray + x + Reset)));
@@ -38,7 +38,7 @@ internal static class Reporter
     {
         if (IsVerbose)
         {
-            WriteLine(Prefix(VerbosePrefix, Colorize(message, x => Bold + Black + x + Reset)));
+            WriteStdErr(Prefix(VerbosePrefix, Colorize(message, x => Bold + Black + x + Reset)));
         }
     }
 
@@ -59,7 +59,25 @@ internal static class Reporter
         }
         else
         {
-            AnsiConsole.WriteLine(value);
+            AnsiConsole.Out.WriteLine(value);
+        }
+    }
+
+    private static void WriteStdErr(string? value)
+    {
+        if (PrefixOutput)
+        {
+            WriteLine(value);
+            return;
+        }
+
+        if (NoColor)
+        {
+            Console.Error.WriteLine(value);
+        }
+        else
+        {
+            AnsiConsole.Error.WriteLine(value);
         }
     }
 }

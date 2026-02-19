@@ -54,7 +54,7 @@ internal class RootCommand : CommandBase
     {
         var commands = _args!.TakeWhile(a => a[0] != '-').ToList();
         if (_help!.HasValue()
-            || ShouldHelp(commands))
+            || ShouldHelp(commands, _args!))
         {
             return ShowHelp(_help.HasValue(), commands);
         }
@@ -333,9 +333,9 @@ internal class RootCommand : CommandBase
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
 
-    private static bool ShouldHelp(IReadOnlyList<string> commands)
-        => commands.Count == 0
-            || (commands.Count == 1
+    private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
+        => args.Count == 0
+            || (args.Count == 1
                 && (commands[0] == "database"
                     || commands[0] == "dbcontext"
                     || commands[0] == "migrations"));
