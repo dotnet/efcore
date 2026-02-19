@@ -2710,9 +2710,7 @@ public static class EntityFrameworkQueryableExtensions
                 Expression.Call(
                     instance: null,
                     method: IgnoreNamedQueryFiltersMethodInfo.MakeGenericMethod(typeof(TEntity)),
-                    // converting the collection to an array if it isn't already one to ensure consistent caching. Fixes #37112.
-                    // #37212 may be a possible future solution providing broader capabilities around parameterizing collections.
-                    arguments: [source.Expression, Expression.Constant(filterKeys is string[] ? filterKeys : filterKeys.ToArray())]))
+                    arguments: [source.Expression, Expression.Constant(filterKeys)]))
             : source;
 
     #endregion
@@ -2894,27 +2892,12 @@ public static class EntityFrameworkQueryableExtensions
         this IQueryable<T> source,
         [NotParameterized] MergeOption mergeOption)
     {
-        bool isNotTracked = false;
-
-        string[] expressionNames = source.Expression.ToString().Split('.');
-        if (
-            expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)))
-            || expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution)))
-            || expressionNames.Any(c => c.Contains(nameof(EntityFrameworkQueryableExtensions.IgnoreAutoIncludes)))
-           )
-        {
-            isNotTracked = true;
-        }
-
-        if (isNotTracked)
+        if (HasNonTrackingOrIgnoreAutoIncludes(source.Expression))
         {
             throw new InvalidOperationException(CoreStrings.RefreshNonTrackingQuery);
         }
 
-        MergeOption[] otherMergeOptions = Enum.GetValues<MergeOption>().Where(v => v != mergeOption).ToArray();
-
-        bool anyOtherMergeOption = expressionNames.Any(c => otherMergeOptions.Any(o => c.Contains(o.ToString())));
-        if (anyOtherMergeOption)
+        if (HasMultipleMergeOptions(source.Expression))
         {
             throw new InvalidOperationException(CoreStrings.RefreshMultipleMergeOptions);
         }
@@ -2928,6 +2911,47 @@ public static class EntityFrameworkQueryableExtensions
                         arg0: source.Expression,
                         arg1: Expression.Constant(mergeOption)))
                 : source;
+    }
+
+    private static bool HasNonTrackingOrIgnoreAutoIncludes(Expression expression)
+    {
+        Expression? current = expression;
+        while (current is MethodCallExpression call)
+        {
+            var method = call.Method;
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+            {
+                var name = method.Name;
+                if (name == nameof(AsNoTracking)
+                    || name == nameof(AsNoTrackingWithIdentityResolution)
+                    || name == nameof(IgnoreAutoIncludes))
+                {
+                    return true;
+                }
+            }
+
+            current = call.Arguments.Count > 0 ? call.Arguments[0] : null;
+        }
+
+        return false;
+    }
+
+    private static bool HasMultipleMergeOptions(Expression expression)
+    {
+        Expression? current = expression;
+        while (current is MethodCallExpression call)
+        {
+            var method = call.Method;
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && method.Name == nameof(Refresh))
+            {
+                return true;
+            }
+
+            current = call.Arguments.Count > 0 ? call.Arguments[0] : null;
+        }
+
+        return false;
     }
 
     #endregion
@@ -3454,7 +3478,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
     [DynamicDependency(
-        "ExecuteUpdate``1(System.Linq.IQueryable{``0},System.Collections.Generic.IReadOnlyList{System.Runtime.CompilerServices.ITuple})",
+        "ExecuteUpdate``1(System.Linq.IQueryable{``1},System.Collections.Generic.IReadOnlyList{ITuple})",
         typeof(EntityFrameworkQueryableExtensions))]
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
