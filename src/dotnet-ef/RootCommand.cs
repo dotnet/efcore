@@ -335,7 +335,9 @@ internal class RootCommand : CommandBase
 
     private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
         => args.Count == 0
+            || commands.Count == 0
             || (args.Count == 1
+                && commands.Count == 1
                 && (commands[0] == "database"
                     || commands[0] == "dbcontext"
                     || commands[0] == "migrations"));
