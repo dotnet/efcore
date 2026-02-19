@@ -4,6 +4,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Runtime.CompilerServices;
+using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -190,6 +191,63 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             ],
             model.GetEntityTypes());
     }
+
+    [ConditionalFact]
+    public virtual Task Vector_index()
+        => Test(
+            modelBuilder =>
+            {
+#pragma warning disable EF9105
+                modelBuilder.Entity<VectorIndexEntity>(b =>
+                {
+                    b.Property(e => e.Vector).HasColumnType("vector(3)");
+                    b.HasVectorIndex(e => e.Vector)
+                        .UseMetric("cosine")
+                        .UseType("DiskANN");
+                });
+#pragma warning restore EF9105
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(VectorIndexEntity))!;
+                var index = entityType.GetIndexes().Single();
+                // Vector index annotations are not used at runtime, so they are not included in the compiled model
+                Assert.Null(index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Null(index[SqlServerAnnotationNames.VectorIndexType]);
+            },
+            useContext: null,
+            additionalSourceFiles: []);
+
+    [ConditionalFact]
+    public virtual Task Full_text_index()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.HasFullTextCatalog("MyCatalog");
+
+                modelBuilder.Entity<FullTextEntity>(b =>
+                {
+                    b.HasFullTextIndex(e => e.Title)
+                        .HasKeyIndex("PK_FullTextEntity")
+                        .OnCatalog("MyCatalog")
+                        .WithChangeTracking(FullTextChangeTracking.Manual)
+                        .HasLanguage("Title", "English");
+                });
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(FullTextEntity))!;
+                var index = entityType.GetIndexes().Single();
+                // Full-text index annotations are not used at runtime, so they are not included in the compiled model
+                Assert.Null(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextChangeTracking]);
+                Assert.Null(index[SqlServerAnnotationNames.FullTextLanguages]);
+                // Full-text catalogs should also be absent at runtime
+                Assert.Null(model[SqlServerAnnotationNames.FullTextCatalogs]);
+            },
+            useContext: null,
+            additionalSourceFiles: []);
 
     protected override bool UseSprocReturnValue
         => true;
@@ -443,7 +501,20 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
         base.AddReferences(build);
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"));
+        build.References.Add(BuildReference.ByName("Microsoft.Data.SqlClient"));
         build.References.Add(BuildReference.ByName("NetTopologySuite"));
         return build;
+    }
+
+    public class VectorIndexEntity
+    {
+        public int Id { get; set; }
+        public SqlVector<float>? Vector { get; set; }
+    }
+
+    public class FullTextEntity
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
     }
 }

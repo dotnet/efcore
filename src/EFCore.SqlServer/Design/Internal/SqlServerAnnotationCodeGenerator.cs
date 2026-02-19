@@ -147,6 +147,34 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
             nameof(TemporalPeriodPropertyBuilder.HasColumnName), [typeof(string)])!;
 
+    private static readonly MethodInfo ModelHasFullTextCatalogMethodInfo
+        = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerModelBuilderExtensions.HasFullTextCatalog), [typeof(ModelBuilder), typeof(string)])!;
+
+    private static readonly MethodInfo FullTextCatalogIsDefaultMethodInfo
+        = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextCatalogBuilder.IsDefault), [typeof(bool)])!;
+
+    private static readonly MethodInfo FullTextCatalogIsAccentSensitiveMethodInfo
+        = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextCatalogBuilder.IsAccentSensitive), [typeof(bool)])!;
+
+    private static readonly MethodInfo IndexHasFullTextKeyIndexMethodInfo
+        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerIndexBuilderExtensions.HasFullTextKeyIndex), [typeof(IndexBuilder), typeof(string)])!;
+
+    private static readonly MethodInfo IndexHasFullTextCatalogMethodInfo
+        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerIndexBuilderExtensions.HasFullTextCatalog), [typeof(IndexBuilder), typeof(string)])!;
+
+    private static readonly MethodInfo IndexHasFullTextChangeTrackingMethodInfo
+        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerIndexBuilderExtensions.HasFullTextChangeTracking), [typeof(IndexBuilder), typeof(FullTextChangeTracking)])!;
+
+    private static readonly MethodInfo IndexHasFullTextLanguageMethodInfo
+        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerIndexBuilderExtensions.HasFullTextLanguage), [typeof(IndexBuilder), typeof(string), typeof(string)])!;
+
     #endregion MethodInfos
 
     /// <summary>
@@ -192,6 +220,28 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             SqlServerAnnotationNames.PerformanceLevelSql, ModelHasPerformanceLevelSqlMethodInfo,
             fragments);
 
+        if (annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs, out var catalogsAnnotation)
+            && catalogsAnnotation.Value is Dictionary<string, SqlServerFullTextCatalog> catalogs)
+        {
+            foreach (var catalog in catalogs.Values.OrderBy(c => c.Name))
+            {
+                var catalogCall = new MethodCallCodeFragment(ModelHasFullTextCatalogMethodInfo, catalog.Name);
+
+                if (catalog.IsDefault)
+                {
+                    catalogCall = catalogCall.Chain(new MethodCallCodeFragment(FullTextCatalogIsDefaultMethodInfo));
+                }
+
+                if (!catalog.IsAccentSensitive)
+                {
+                    catalogCall = catalogCall.Chain(
+                        new MethodCallCodeFragment(FullTextCatalogIsAccentSensitiveMethodInfo, false));
+                }
+
+                fragments.Add(catalogCall);
+            }
+        }
+
         return fragments;
     }
 
@@ -233,17 +283,16 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         defaultValueAnnotation.Value,
                         defaultConstraintNameAnnotation.Value));
             }
-            else
+            else if (defaultValueSqlAnnotation != null)
             {
-                Check.DebugAssert(
-                    defaultValueSqlAnnotation != null,
-                    $"Default constraint name was set for {property.Name}, but DefaultValue and DefaultValueSql are both null.");
                 fragments.Add(
                     new MethodCallCodeFragment(
                         nameof(SqlServerPropertyBuilderExtensions.HasDefaultValueSql),
                         defaultValueSqlAnnotation.Value,
                         defaultConstraintNameAnnotation.Value));
             }
+            // If neither DefaultValue nor DefaultValueSql annotation exists (e.g., they were already removed
+            // because the default value equals the CLR default), skip generating code for the constraint name
         }
 
         var isPrimitiveCollection = property.IsPrimitiveCollection;
@@ -426,6 +475,30 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IIndex index,
+        IDictionary<string, IAnnotation> annotations)
+    {
+        var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(index, annotations));
+
+        if (annotations.Remove(SqlServerAnnotationNames.FullTextLanguages, out var languagesAnnotation)
+            && languagesAnnotation.Value is Dictionary<string, string> languages)
+        {
+            foreach (var (propertyName, language) in languages.OrderBy(l => l.Key))
+            {
+                fragments.Add(new MethodCallCodeFragment(IndexHasFullTextLanguageMethodInfo, propertyName, language));
+            }
+        }
+
+        return fragments;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override MethodCallCodeFragment? GenerateFluentApi(IIndex index, IAnnotation annotation)
         => annotation.Name switch
         {
@@ -433,10 +506,21 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 ? new MethodCallCodeFragment(IndexIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(IndexIsClusteredMethodInfo),
 
-            SqlServerAnnotationNames.Include => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.SortInTempDb => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.DataCompression => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.Include
+                => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.FillFactor
+                => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.SortInTempDb
+                => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.DataCompression
+                => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
+
+            SqlServerAnnotationNames.FullTextIndex
+                => new MethodCallCodeFragment(IndexHasFullTextKeyIndexMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.FullTextCatalog
+                => new MethodCallCodeFragment(IndexHasFullTextCatalogMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.FullTextChangeTracking
+                => new MethodCallCodeFragment(IndexHasFullTextChangeTrackingMethodInfo, annotation.Value),
 
             _ => null
         };

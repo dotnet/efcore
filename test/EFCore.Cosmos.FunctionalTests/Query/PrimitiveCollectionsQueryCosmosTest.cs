@@ -467,6 +467,20 @@ WHERE ARRAY_CONTAINS(@p, c["Id"])
 """);
     }
 
+    public override async Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
+    {
+        await base.Inline_collection_Contains_with_IEnumerable_EF_Parameter();
+
+        AssertSql(
+            """
+@Select='["10","a","aa"]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@Select, c["NullableString"])
+""");
+    }
+
     public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
     {
         await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter();
@@ -589,6 +603,50 @@ WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
     }
 
+    public override async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_IReadOnlySet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
     public override async Task Parameter_collection_of_ints_Contains_nullable_int()
     {
         await base.Parameter_collection_of_ints_Contains_nullable_int();
@@ -652,6 +710,20 @@ WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
+""");
+    }
+
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
+
+        AssertSql(
+            """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 """);
     }
 
@@ -799,6 +871,28 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """);
     }
 
+    public override async Task Parameter_collection_empty_Contains()
+    {
+        await base.Parameter_collection_empty_Contains();
+
+        AssertSql(
+            """
+@ints='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""");
+    }
+
+    public override async Task Parameter_collection_empty_Join()
+    {
+        // Cosmos join support. Issue #16920.
+        await AssertTranslationFailed(base.Parameter_collection_empty_Join);
+
+        AssertSql();
+    }
+
     public override async Task Parameter_collection_Contains_with_EF_Constant()
     {
         // #34327
@@ -826,8 +920,48 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
         => base.Parameter_collection_Count_with_huge_number_of_values();
 
     // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+    // nothing to test here
+    public override Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+        => base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
+
+    // nothing to test here
     public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
         => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants();
+
+    // nothing to test here
+    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+        => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
 
     public override async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
@@ -919,9 +1053,21 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
     }
 
-    public override async Task Column_collection_of_strings_contains_null()
+    public override async Task Column_collection_of_strings_Contains()
     {
-        await base.Column_collection_of_strings_contains_null();
+        await base.Column_collection_of_strings_Contains();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["Strings"], "10")
+""");
+    }
+
+    public override async Task Column_collection_of_strings_Contains_null()
+    {
+        await base.Column_collection_of_strings_Contains_null();
 
         AssertSql(
             """
@@ -1662,6 +1808,20 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         AssertSql();
     }
 
+    public override async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        await base.Compiled_query_with_uncorrelated_parameter_collection_expression();
+
+        AssertSql(
+            """
+@ids='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(@ids) > 0)
+""");
+    }
+
     public override async Task Column_collection_in_subquery_Union_parameter_collection()
     {
         await base.Column_collection_in_subquery_Union_parameter_collection();
@@ -2024,6 +2184,42 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
             base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer);
 
         AssertSql();
+    }
+
+    public override async Task Contains_on_Enumerable()
+    {
+        await base.Contains_on_Enumerable();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_on_MemoryExtensions()
+    {
+        await base.Contains_on_MemoryExtensions();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
+    {
+        await base.Contains_with_MemoryExtensions_with_null_comparer();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
     }
 
     [ConditionalFact]

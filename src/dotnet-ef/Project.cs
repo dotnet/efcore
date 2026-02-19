@@ -82,9 +82,20 @@ internal class Project
 
         var output = new StringBuilder();
 
-        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        Reporter.WriteVerbose(Resources.RunningCommand("dotnet " + string.Join(" ", args)));
+
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line =>
+        {
+            output.AppendLine(line);
+            Reporter.WriteVerbose(line);
+        });
         if (exitCode != 0)
         {
+            if (framework == null && HasMultipleTargetFrameworks(file))
+            {
+                throw new CommandException(Resources.MultipleTargetFrameworks);
+            }
+
             throw new CommandException(Resources.GetMetadataFailed);
         }
 
@@ -94,10 +105,14 @@ internal class Project
 
         var designAssembly = runtimeCopyLocalItems
             .Select(i => i["FullPath"])
-            .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture));
+            .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture))
+            ?.Replace('\\', Path.DirectorySeparatorChar);
         var properties = metadata.Properties;
 
-        var outputPath = Path.GetFullPath(Path.Combine(properties[nameof(ProjectDir)]!, properties[nameof(OutputPath)]!));
+        var normalizedOutputPath = properties[nameof(OutputPath)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedProjectDir = properties[nameof(ProjectDir)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedProjectAssetsFile = properties[nameof(ProjectAssetsFile)]?.Replace('\\', Path.DirectorySeparatorChar);
+        var outputPath = Path.GetFullPath(Path.Combine(normalizedProjectDir, normalizedOutputPath));
         CopyBuildHost(runtimeCopyLocalItems, outputPath);
 
         var platformTarget = properties[nameof(PlatformTarget)];
@@ -111,10 +126,10 @@ internal class Project
             AssemblyName = properties[nameof(AssemblyName)],
             DesignAssembly = designAssembly,
             Language = properties[nameof(Language)],
-            OutputPath = properties[nameof(OutputPath)],
+            OutputPath = normalizedOutputPath,
             PlatformTarget = platformTarget,
-            ProjectAssetsFile = properties[nameof(ProjectAssetsFile)],
-            ProjectDir = properties[nameof(ProjectDir)],
+            ProjectAssetsFile = normalizedProjectAssetsFile,
+            ProjectDir = normalizedProjectDir,
             RootNamespace = properties[nameof(RootNamespace)],
             RuntimeFrameworkVersion = properties[nameof(RuntimeFrameworkVersion)],
             TargetFileName = properties[nameof(TargetFileName)],
@@ -129,6 +144,21 @@ internal class Project
     {
         public Dictionary<string, string> Properties { get; set; } = null!;
         public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
+    }
+
+    private static bool HasMultipleTargetFrameworks(string file)
+    {
+        var args = new List<string> { "msbuild", "/getProperty:TargetFrameworks", file };
+
+        var output = new StringBuilder();
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        if (exitCode != 0)
+        {
+            return false;
+        }
+
+        var outputString = output.ToString();
+        return !string.IsNullOrWhiteSpace(outputString);
     }
 
     private static void CopyBuildHost(

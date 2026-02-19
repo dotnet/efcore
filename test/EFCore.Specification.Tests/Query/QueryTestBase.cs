@@ -26,14 +26,7 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         => CreateQueryAsserter(Fixture);
 
     protected virtual QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new(
-            fixture,
-            RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression,
-            IgnoreEntryCount);
-
-    protected virtual bool IgnoreEntryCount
-        => false;
+        => new(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 
     protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         => serverQueryExpression;
@@ -566,6 +559,38 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TSelector?, TSelector?>? asserter = null)
         => TestOutputWrapper(() => QueryAsserter.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+
+    protected Task AssertMinBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Expression<Func<TResult, TSelector>> selector,
+        Action<TResult?, TResult?>? asserter = null)
+        => AssertMinBy(async, query, query, selector, selector, asserter);
+
+    protected Task AssertMinBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null)
+        => TestOutputWrapper(() => QueryAsserter.AssertMinBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+
+    protected Task AssertMaxBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Expression<Func<TResult, TSelector>> selector,
+        Action<TResult?, TResult?>? asserter = null)
+        => AssertMaxBy(async, query, query, selector, selector, asserter);
+
+    protected Task AssertMaxBy<TResult, TSelector>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Expression<Func<TResult, TSelector>> actualSelector,
+        Expression<Func<TResult, TSelector>> expectedSelector,
+        Action<TResult?, TResult?>? asserter = null)
+        => TestOutputWrapper(() => QueryAsserter.AssertMaxBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertSum(
         bool async,

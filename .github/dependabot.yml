@@ -1,12 +1,32 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "/eng/dependabot"
+    directory: "/"
     open-pull-requests-limit: 5
     schedule:
       interval: "weekly"
     labels:
       - "area-infrastructure"
+    ignore:
+      # Packages managed by Maestro dependency flow (eng/Version.Details.props)
+      - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
+      - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
+      - dependency-name: "Microsoft.DotNet.Helix.Sdk"
+      - dependency-name: "Microsoft.Extensions.Caching.Memory"
+      - dependency-name: "Microsoft.Extensions.Configuration"
+      - dependency-name: "Microsoft.Extensions.Configuration.Abstractions"
+      - dependency-name: "Microsoft.Extensions.Configuration.EnvironmentVariables"
+      - dependency-name: "Microsoft.Extensions.Configuration.Json"
+      - dependency-name: "Microsoft.Extensions.DependencyInjection"
+      - dependency-name: "Microsoft.Extensions.DependencyModel"
+      - dependency-name: "Microsoft.Extensions.HostFactoryResolver.Sources"
+      - dependency-name: "Microsoft.Extensions.Logging"
+      - dependency-name: "Microsoft.NETCore.App.Ref"
+      - dependency-name: "Microsoft.NETCore.Platforms"
+      - dependency-name: "System.Formats.Asn1"
+      - dependency-name: "System.Runtime.Caching"
+      - dependency-name: "System.Text.Encodings.Web"
+      - dependency-name: "System.Text.Json"
 
   - package-ecosystem: "github-actions"
     directory: "/"

@@ -1711,11 +1711,11 @@ WHERE CAST(@i AS nvarchar(max)) + [c].[CustomerID] + CAST(@i AS nvarchar(max)) =
         AssertSql(
             """
 @customerId='ANATR' (Size = 5) (DbType = StringFixedLength)
-@customerId0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@customerId1='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId0
+WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId1
 """);
     }
 
@@ -1888,6 +1888,114 @@ WHERE (
     WHERE [o].[CustomerID] = [c].[CustomerID]) = 0
 ORDER BY [c].[CustomerID]
 """);
+    }
+
+    public override async Task Where_Queryable_conditional_not_null_check_with_Contains(bool async, bool withNull)
+    {
+        await base.Where_Queryable_conditional_not_null_check_with_Contains(async, withNull);
+
+        if (withNull)
+        {
+            AssertSql(
+                """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] <> N'ALFKI'
+)
+""");
+        }
+    }
+
+    public override async Task Where_Queryable_conditional_null_check_with_Contains(bool async, bool withNull)
+    {
+        await base.Where_Queryable_conditional_null_check_with_Contains(async, withNull);
+
+        if (withNull)
+        {
+            AssertSql(
+                """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN (
+    SELECT [c0].[CustomerID]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] <> N'ALFKI'
+)
+""");
+        }
+    }
+
+    public override async Task Where_Enumerable_conditional_not_null_check_with_Contains(bool async, bool withNull)
+    {
+        await base.Where_Enumerable_conditional_not_null_check_with_Contains(async, withNull);
+
+        if (withNull)
+        {
+            AssertSql(
+                """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@ids1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@ids2='ANATR' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (@ids1, @ids2)
+""");
+        }
+    }
+
+    public override async Task Where_Enumerable_conditional_null_check_with_Contains(bool async, bool withNull)
+    {
+        await base.Where_Enumerable_conditional_null_check_with_Contains(async, withNull);
+
+        if (withNull)
+        {
+            AssertSql(
+                """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@ids1='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@ids2='ANATR' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN (@ids1, @ids2)
+""");
+        }
     }
 
     public override async Task Where_collection_navigation_ToList_Count(bool async)

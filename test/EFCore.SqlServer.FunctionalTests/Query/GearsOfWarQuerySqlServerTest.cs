@@ -7857,72 +7857,6 @@ WHERE [l].[Discriminator] = N'LocustCommander' AND [g].[Nickname] IS NOT NULL AN
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task FreeText_with_binary_column()
-    {
-        using var context = CreateContext();
-        var result = await context.Missions.SingleAsync(e => EF.Functions.FreeText(EF.Property<byte[]>(e, "BriefingDocument"), "bombing"));
-
-        Assert.Equal(1, result.Id);
-
-        AssertSql(
-            """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
-FROM [Missions] AS [m]
-WHERE FREETEXT([m].[BriefingDocument], N'bombing')
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task FreeText_with_binary_column_and_language_term()
-    {
-        using var context = CreateContext();
-        var result = await context.Missions.SingleAsync(e => EF.Functions.FreeText(
-            EF.Property<byte[]>(e, "BriefingDocument"), "bombing", 1033));
-
-        Assert.Equal(1, result.Id);
-
-        AssertSql(
-            """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
-FROM [Missions] AS [m]
-WHERE FREETEXT([m].[BriefingDocument], N'bombing', LANGUAGE 1033)
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_with_binary_column()
-    {
-        using var context = CreateContext();
-        var result = await context.Missions.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "BriefingDocument"), "bomb"));
-
-        Assert.Equal(1, result.Id);
-
-        AssertSql(
-            """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
-FROM [Missions] AS [m]
-WHERE CONTAINS([m].[BriefingDocument], N'bomb')
-""");
-    }
-
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-    public async Task Contains_with_binary_column_and_language_term()
-    {
-        using var context = CreateContext();
-        var result =
-            await context.Missions.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "BriefingDocument"), "bomb", 1033));
-
-        Assert.Equal(1, result.Id);
-
-        AssertSql(
-            """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
-FROM [Missions] AS [m]
-WHERE CONTAINS([m].[BriefingDocument], N'bomb', LANGUAGE 1033)
-""");
-    }
-
     public override async Task Projecting_property_converted_to_nullable_with_comparison(bool async)
     {
         await base.Projecting_property_converted_to_nullable_with_comparison(async);
@@ -8450,7 +8384,7 @@ LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [s].[Nickname], [s].[SquadId], [s].[AssignedCityName], [s].[CityOfBirthName], [s].[Discriminator], [s].[FullName], [s].[HasSoulPatch], [s].[LeaderNickname], [s].[LeaderSquadId], [s].[Rank], [s].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
@@ -8463,7 +8397,7 @@ FROM (
         GROUP BY [g0].[HasSoulPatch]
     ) AS [g1] ON CAST(LEN([g].[Nickname]) AS int) = [g1].[c]
     ORDER BY [g].[Nickname]
-    OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [s]
 LEFT JOIN [Weapons] AS [w] ON [s].[FullName] = [w].[OwnerFullName]
 ORDER BY [s].[Nickname], [s].[SquadId], [s].[HasSoulPatch0]

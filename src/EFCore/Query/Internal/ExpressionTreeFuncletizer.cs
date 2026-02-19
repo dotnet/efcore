@@ -876,11 +876,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (_state.IsEvaluatable)
         {
             // If the query contains a captured variable that's a nested IQueryable, inline it into the main query.
-            // Otherwise, evaluation of a terminating operator up the call chain will cause us to execute the query and do another
-            // roundtrip.
+            // Note that we do this only for IQueryable; evaluation of a terminating operator up the call chain would cause us to execute
+            // the query and do another roundtrip.
             // Note that we only do this when the MemberExpression is typed as IQueryable/IOrderedQueryable; this notably excludes
             // DbSet captured variables integrated directly into the query, as that also evaluates e.g. context.Order in
-            // context.Order.FromSqlInterpolated(), which fails.
+            // context.Order.FromSql(), which fails.
             if (member.Type.IsConstructedGenericType
                 && member.Type.GetGenericTypeDefinition() is var genericTypeDefinition
                 && (genericTypeDefinition == typeof(IQueryable<>) || genericTypeDefinition == typeof(IOrderedQueryable<>))
@@ -995,20 +995,23 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
             {
-                if (expression is MethodCallExpression
+                switch (expression)
+                {
+                    case MethodCallExpression
                     {
                         Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
                         Arguments: [var unwrapped]
+                    } when implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
+                        && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)):
+                    {
+                        result = unwrapped;
+                        return true;
                     }
-                    && implicitCastDeclaringType.GetGenericTypeDefinition() is var genericTypeDefinition
-                    && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
-                {
-                    result = unwrapped;
-                    return true;
-                }
 
-                result = null;
-                return false;
+                    default:
+                        result = null;
+                        return false;
+                }
             }
         }
 
@@ -2075,35 +2078,48 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         var value = EvaluateCore(expression, ref evaluateAsParameter, out var tempParameterName, out isContextAccessor);
 
-        if (evaluateAsParameter)
+        if (!evaluateAsParameter)
         {
-            parameterName = tempParameterName ?? "p";
+            parameterName = string.Empty;
+            return value;
+        }
 
-            var compilerPrefixIndex = parameterName.LastIndexOf('>');
-            if (compilerPrefixIndex != -1)
-            {
-                parameterName = parameterName[(compilerPrefixIndex + 1)..];
-            }
+        if (tempParameterName is null)
+        {
+            parameterName = "p";
+        }
+        else
+        {
+            parameterName = tempParameterName;
 
             // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
             if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
             {
-                parameterName = parameterName.Substring("$VB$Local_".Length);
+                parameterName = parameterName["$VB$Local_".Length..];
             }
 
-            // Uniquify the parameter name
-            var originalParameterName = parameterName;
-            for (var i = 0; _parameterNames.Contains(parameterName); i++)
+            // In many databases, parameter names must start with a letter or underscore.
+            // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
+            // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
+            if (!char.IsLetter(parameterName[0]) && parameterName[0] != '_')
             {
-                parameterName = originalParameterName + i;
+                parameterName = "_" + parameterName;
             }
 
-            _parameterNames.Add(parameterName);
+            // Just as a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
+            foreach (var c in parameterName)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    parameterName = "p";
+                    break;
+                }
+            }
         }
-        else
-        {
-            parameterName = string.Empty;
-        }
+
+        parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+
+        _parameterNames.Add(parameterName);
 
         return value;
 
@@ -2149,11 +2165,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                                parameterName = parameterName is null ? fieldInfo.Name : $"{parameterName}_{fieldInfo.Name}";
+                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
+                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
 
                             case PropertyInfo propertyInfo:
-                                parameterName = parameterName is null ? propertyInfo.Name : $"{parameterName}_{propertyInfo.Name}";
+                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
+                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
                         }
                     }
@@ -2168,7 +2186,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return constantExpression.Value;
 
                 case MethodCallExpression methodCallExpression:
-                    parameterName = methodCallExpression.Method.Name;
+                    parameterName = SanitizeCompilerGeneratedName(methodCallExpression.Method.Name);
                     break;
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
@@ -2191,6 +2209,25 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         : CoreStrings.ExpressionParameterizationException,
                     exception);
             }
+        }
+
+        static string SanitizeCompilerGeneratedName(string s)
+        {
+            // Compiler-generated field names intentionally contain illegal characters, specifically angle brackets <>.
+            // In cases where there's something within the angle brackets, that tends to be the original user-provided variable name
+            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or it the angle brackets contain no
+            // content, strip them out entirely and take what comes after.
+            var closingBracket = s.IndexOf('>');
+            if (closingBracket == -1)
+            {
+                return s;
+            }
+
+            var openingBracket = s.IndexOf('<');
+
+            return openingBracket != -1 && openingBracket < closingBracket - 1
+                ? s[(openingBracket + 1)..closingBracket]
+                : s[(closingBracket + 1)..];
         }
     }
 

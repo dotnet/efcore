@@ -104,6 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseDropForceDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     Updates the database to a specified migration.
         /// </summary>
         public static string DatabaseUpdateDescription
@@ -278,6 +284,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsRemoveForceDescription");
 
         /// <summary>
+        ///     Remove the migration without connecting to the database.
+        /// </summary>
+        public static string MigrationsRemoveOfflineDescription
+            => GetString("MigrationsRemoveOfflineDescription");
+
+        /// <summary>
         ///     Generates a SQL script from migrations.
         /// </summary>
         public static string MigrationsScriptDescription
@@ -288,6 +300,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationToDescription
             => GetString("MigrationToDescription");
+
+        /// <summary>
+        ///     Missing required argument '{arg}'.
+        /// </summary>
+        public static string MissingArgument(object? arg)
+            => string.Format(
+                GetString("MissingArgument", nameof(arg)),
+                arg);
 
         /// <summary>
         ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
@@ -318,13 +338,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
+        ///     The project targets multiple frameworks. Use the --framework option to specify which target framework to use.
+        /// </summary>
+        public static string MultipleTargetFrameworks
+            => GetString("MultipleTargetFrameworks");
+
+        /// <summary>
         ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
 
         /// <summary>
-        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
+        ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
             => GetString("NativeAotDescription");
@@ -448,6 +474,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string ProviderDescription
             => GetString("ProviderDescription");
+
+        /// <summary>
+        ///     Running '{command}'
+        /// </summary>
+        public static string RunningCommand(object? command)
+            => string.Format(
+                GetString("RunningCommand", nameof(command)),
+                command);
 
         /// <summary>
         ///     The runtime to use.

@@ -245,7 +245,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 SingleUpdateEntries = []
             };
         }
-        
+
         var batches = CreateBatches(batchableEntries);
 
         // For bulk it is important that single writes are always classified as singleUpdateEntries so that they will be executed in parallel

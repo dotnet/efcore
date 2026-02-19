@@ -39,7 +39,7 @@ WHERE "o"."OrderDate" IS NOT NULL AND instr(COALESCE(CAST("o"."EmployeeID" AS TE
         AssertSql(
             """
 @p='10'
-@p0='5'
+@p1='5'
 
 SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
 FROM (
@@ -49,7 +49,7 @@ FROM (
     LIMIT @p
 ) AS "c0"
 ORDER BY "c0"."ContactName"
-LIMIT -1 OFFSET @p0
+LIMIT -1 OFFSET @p1
 """);
     }
 

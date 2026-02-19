@@ -139,5 +139,39 @@ public enum DeleteBehavior
     ///         and examples.
     ///     </para>
     /// </remarks>
-    ClientNoAction
+    ClientNoAction,
+
+    /// <summary>
+    ///     Sets foreign key values to their default values as appropriate when changes are made to tracked entities and creates
+    ///     a foreign key constraint in the database that sets the foreign key values to their default values when the principal
+    ///     is deleted.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Not all databases support SET DEFAULT referential action, and some databases have restrictions
+    ///         on when it can be used. For example, when using SQL Server, columns must have explicit default
+    ///         values defined for SET DEFAULT to work. Consider using <see cref="ClientSetDefault" /> when
+    ///         database restrictions prevent the use of this option.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
+    ///     </para>
+    /// </remarks>
+    SetDefault,
+
+    /// <summary>
+    ///     Sets foreign key values to their sentinel values as appropriate when changes are made to tracked entities,
+    ///     but creates a non-cascading foreign key constraint in the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Consider using this option when database restrictions prevent the use of <see cref="SetDefault" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
+    ///     </para>
+    /// </remarks>
+    ClientSetDefault
 }

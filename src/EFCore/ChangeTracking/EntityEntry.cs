@@ -603,6 +603,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = Finder.GetDatabaseValues(InternalEntry);
 
+        // ArrayPropertyValues will compute null-complex-property flags from the returned value buffer.
         return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
     }
 
@@ -634,6 +635,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
+        // ArrayPropertyValues will compute null-complex-property flags from the returned value buffer.
         return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
     }
 

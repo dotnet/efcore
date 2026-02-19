@@ -35,11 +35,10 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = new();
 
+    private Dictionary<DbParameter, RawRelationalParameter>? _processedDbParameters;
+
     private ParametersCacheDecorator _parametersDecorator;
     private ParameterNameGenerator _parameterNameGenerator;
-
-    private static readonly bool UseOldBehavior37189 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37189", out var enabled37189) && enabled37189;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,6 +75,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         _visitedFromSqlExpressions.Clear();
         _prefixedParameterNames.Clear();
         _sqlParameters.Clear();
+        _processedDbParameters?.Clear();
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
         _parametersDecorator = parametersDecorator;
 
@@ -120,7 +120,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
             && (existingTypeMapping.Converter is null && typeMapping.Converter is null
                 || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)))
         {
-            return UseOldBehavior37189 ? parameter : existingParameter;
+            return existingParameter;
         }
 
         var uniquifiedName = UniquifyParameterName(parameter.Name);
@@ -152,8 +152,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
                 {
                     if (parameterValues[i] is DbParameter dbParameter)
                     {
-                        ProcessDbParameter(dbParameter);
-                        subParameters.Add(new RawRelationalParameter(dbParameter.ParameterName, dbParameter));
+                        subParameters.Add(ProcessDbParameter(dbParameter));
                     }
                     else
                     {
@@ -203,23 +202,32 @@ public class RelationalParameterProcessor : ExpressionVisitor
         }
 
         object ProcessConstantValue(object? existingConstantValue)
+            => existingConstantValue is DbParameter dbParameter
+                ? ProcessDbParameter(dbParameter)
+                : _sqlExpressionFactory.Constant(
+                    existingConstantValue,
+                    existingConstantValue?.GetType() ?? typeof(object),
+                    _typeMappingSource.GetMappingForValue(existingConstantValue));
+
+        RawRelationalParameter ProcessDbParameter(DbParameter dbParameter)
         {
-            if (existingConstantValue is DbParameter dbParameter)
+            _processedDbParameters ??= [];
+
+            // In some situations, we duplicate SQL tree fragments (e.g. in GroupBy translation).
+            // If the duplicated SQL happens to contain a FromSqlExpression referencing a DbParameter, that means we have the same
+            // DbParameter instance referenced multiple times in the tree, and should absolutely not uniquify its name multiple times
+            // (since we'd modify its name multiple times). See #37409.
+            if (_processedDbParameters.TryGetValue(dbParameter, out var existingParameter))
             {
-                ProcessDbParameter(dbParameter);
-                return new RawRelationalParameter(dbParameter.ParameterName, dbParameter);
+                return existingParameter;
             }
 
-            return _sqlExpressionFactory.Constant(
-                existingConstantValue,
-                existingConstantValue?.GetType() ?? typeof(object),
-                _typeMappingSource.GetMappingForValue(existingConstantValue));
-        }
-
-        void ProcessDbParameter(DbParameter dbParameter)
-            => dbParameter.ParameterName = string.IsNullOrEmpty(dbParameter.ParameterName)
+            dbParameter.ParameterName = string.IsNullOrEmpty(dbParameter.ParameterName)
                 ? GenerateNewParameterName()
                 : UniquifyParameterName(dbParameter.ParameterName);
+
+            return _processedDbParameters[dbParameter] = new RawRelationalParameter(dbParameter.ParameterName, dbParameter);
+        }
     }
 
     private string GenerateNewParameterName()

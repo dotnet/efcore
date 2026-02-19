@@ -831,6 +831,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationCommandListBuilder builder,
         bool terminate = true)
     {
+        if (operation[SqlServerAnnotationNames.FullTextIndex] is string keyIndex)
+        {
+            GenerateFullTextIndex(keyIndex);
+            return;
+        }
+
+        if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string)
+        {
+            GenerateVectorIndex();
+            return;
+        }
+
         var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
         var hasNullableColumns = operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
@@ -886,6 +898,79 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: memoryOptimized);
+        }
+
+        void GenerateFullTextIndex(string keyIndex)
+        {
+            builder.Append("CREATE FULLTEXT INDEX ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(");
+
+            var languages = (Dictionary<string, string>?)operation.FindAnnotation(SqlServerAnnotationNames.FullTextLanguages)?.Value;
+
+            for (var i = 0; i < operation.Columns.Length; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append(", ");
+                }
+
+                builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]));
+
+                if (languages is not null && languages.TryGetValue(operation.Columns[i], out var language))
+                {
+                    builder.Append(" LANGUAGE ").Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(language));
+                }
+            }
+
+            builder.Append(") KEY INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(keyIndex));
+
+            if (operation[SqlServerAnnotationNames.FullTextCatalog] is string catalog)
+            {
+                builder.Append(" ON ").Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(catalog));
+            }
+
+            if (operation[SqlServerAnnotationNames.FullTextChangeTracking] is FullTextChangeTracking changeTracking)
+            {
+                builder.Append(" WITH CHANGE_TRACKING = ");
+                builder.Append(changeTracking switch
+                {
+                    FullTextChangeTracking.Auto => "AUTO",
+                    FullTextChangeTracking.Manual => "MANUAL",
+                    FullTextChangeTracking.Off => "OFF",
+                    FullTextChangeTracking.OffNoPopulation => "OFF, NO POPULATION",
+
+                    _ => throw new UnreachableException(),
+                });
+            }
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+        }
+
+        void GenerateVectorIndex()
+        {
+            builder.Append("CREATE VECTOR INDEX ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append("(");
+            GenerateIndexColumnList(operation, model, builder);
+            builder.Append(")");
+
+            IndexOptions(operation, model, builder);
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
         }
     }
 
@@ -1148,6 +1233,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .AppendLine();
         }
 
+        GenerateFullTextCatalogStatements(operation, builder);
+
         if (!IsMemoryOptimized(operation))
         {
             builder.EndCommand(suppressTransaction: true);
@@ -1233,6 +1320,79 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder.EndCommand(suppressTransaction: true);
     }
 
+    private void GenerateFullTextCatalogStatements(
+        AlterDatabaseOperation operation,
+        MigrationCommandListBuilder builder)
+    {
+        var oldCatalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(operation.OldDatabase).ToDictionary(c => c.Name, c => c);
+        var newCatalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(operation).ToDictionary(c => c.Name, c => c);
+
+        // Drop removed catalogs
+        foreach (var (name, _) in oldCatalogs)
+        {
+            if (!newCatalogs.ContainsKey(name))
+            {
+                builder
+                    .Append("DROP FULLTEXT CATALOG ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .AppendLine();
+            }
+        }
+
+        // Create added catalogs
+        foreach (var (name, catalog) in newCatalogs)
+        {
+            if (!oldCatalogs.ContainsKey(name))
+            {
+                builder.Append("CREATE FULLTEXT CATALOG ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name));
+
+                if (!catalog.IsAccentSensitive)
+                {
+                    builder.Append(" WITH ACCENT_SENSITIVITY = OFF");
+                }
+
+                if (catalog.IsDefault)
+                {
+                    builder.Append(" AS DEFAULT");
+                }
+
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .AppendLine();
+            }
+        }
+
+        // Alter changed catalogs
+        foreach (var (name, catalog) in newCatalogs)
+        {
+            if (oldCatalogs.TryGetValue(name, out var oldProps))
+            {
+                if (oldProps.IsAccentSensitive != catalog.IsAccentSensitive)
+                {
+                    builder
+                        .Append("ALTER FULLTEXT CATALOG ")
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                        .Append(" REBUILD WITH ACCENT_SENSITIVITY = ")
+                        .Append(catalog.IsAccentSensitive ? "ON" : "OFF")
+                        .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                        .AppendLine();
+                }
+
+                if (!oldProps.IsDefault && catalog.IsDefault)
+                {
+                    builder
+                        .Append("ALTER FULLTEXT CATALOG ")
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
+                        .Append(" AS DEFAULT")
+                        .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                        .AppendLine();
+                }
+            }
+        }
+    }
+
     /// <summary>
     ///     Builds commands for the given <see cref="AlterTableOperation" />
     ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
@@ -1313,6 +1473,22 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             throw new InvalidOperationException(SqlServerStrings.IndexTableRequired);
         }
 
+        if (operation[SqlServerAnnotationNames.FullTextIndex] is string)
+        {
+            builder
+                .Append("DROP FULLTEXT INDEX ON ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table!, operation.Schema));
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: true);
+            }
+
+            return;
+        }
+
         var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
         if (memoryOptimized)
         {
@@ -1388,6 +1564,15 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder.EndCommand();
     }
 
+    private enum ParsingState
+    {
+        Normal,
+        InBlockComment,
+        InSquareBrackets,
+        InDoubleQuotes,
+        InQuotes
+    }
+
     /// <summary>
     ///     Builds commands for the given <see cref="SqlOperation" /> by making calls on the given
     ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
@@ -1402,12 +1587,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Replace("\\\r\n", "")
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
-        var quoted = false;
+        var state = ParsingState.Normal;
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
-            if (!quoted
+
+            if (state == ParsingState.Normal
                 && trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
@@ -1427,31 +1613,34 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else
             {
-                var commentStart = false;
-                foreach (var c in trimmed)
+                for (var i = 0; i < trimmed.Length; i++)
                 {
-                    switch (c)
+                    var c = trimmed[i];
+                    var next = i + 1 < trimmed.Length ? trimmed[i + 1] : '\0';
+
+                    if (state == ParsingState.Normal && c == '-' && next == '-')
                     {
-                        case '\'':
-                            quoted = !quoted;
-                            commentStart = false;
-                            break;
-                        case '-':
-                            if (!quoted)
-                            {
-                                if (commentStart)
-                                {
-                                    goto LineEnd;
-                                }
-
-                                commentStart = true;
-                            }
-
-                            break;
-                        default:
-                            commentStart = false;
-                            break;
+                        goto LineEnd;
                     }
+
+                    state = state switch
+                    {
+                        ParsingState.Normal when c == '\'' => ParsingState.InQuotes,
+                        ParsingState.Normal when c == '[' => ParsingState.InSquareBrackets,
+                        ParsingState.Normal when c == '"' => ParsingState.InDoubleQuotes,
+                        ParsingState.Normal when c == '/' && next == '*' => ConsumeAndReturn(ref i, ParsingState.InBlockComment),
+
+                        ParsingState.InQuotes when c == '\'' => ParsingState.Normal,
+
+                        ParsingState.InSquareBrackets when c == ']' && next == ']' => ConsumeAndReturn(ref i, ParsingState.InSquareBrackets),
+                        ParsingState.InSquareBrackets when c == ']' => ParsingState.Normal,
+
+                        ParsingState.InDoubleQuotes when c == '"' => ParsingState.Normal,
+
+                        ParsingState.InBlockComment when c == '*' && next == '/' => ConsumeAndReturn(ref i, ParsingState.Normal),
+
+                        _ => state
+                    };
                 }
 
                 LineEnd:
@@ -1460,6 +1649,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         AppendBatch(batchBuilder.ToString());
+
+        ParsingState ConsumeAndReturn(ref int index, ParsingState newState)
+        {
+            index++;
+            return newState;
+        }
 
         void AppendBatch(string batch)
         {
@@ -1646,6 +1841,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation.Collation != null)
         {
+            // SQL Server collation docs: https://learn.microsoft.com/sql/relational-databases/collations/collation-and-unicode-support
+
+            // The default behavior in MigrationsSqlGenerator is to quote collation names, but SQL Server does not support that.
+            // Instead, make sure the collation name only contains a restricted set of characters.
+            foreach (var c in operation.Collation)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidCollationName(operation.Collation));
+                }
+            }
+
             builder
                 .Append(" COLLATE ")
                 .Append(operation.Collation);
@@ -1884,11 +2091,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
-        IndexWithOptions(operation, builder);
-    }
-
-    private static void IndexWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
-    {
         var options = new List<string>();
 
         if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
@@ -1908,17 +2110,27 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (operation[SqlServerAnnotationNames.DataCompression] is DataCompressionType dataCompressionType)
         {
-            switch (dataCompressionType)
+            options.Add("DATA_COMPRESSION = " + dataCompressionType switch
             {
-                case DataCompressionType.None:
-                    options.Add("DATA_COMPRESSION = NONE");
-                    break;
-                case DataCompressionType.Row:
-                    options.Add("DATA_COMPRESSION = ROW");
-                    break;
-                case DataCompressionType.Page:
-                    options.Add("DATA_COMPRESSION = PAGE");
-                    break;
+                DataCompressionType.None => "NONE",
+                DataCompressionType.Row => "ROW",
+                DataCompressionType.Page => "PAGE",
+
+                _ => throw new UnreachableException(),
+            });
+        }
+
+        // Vector index options.
+        // Note that the metric facet is mandatory, and used to determine if the index is a vector index.
+        if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string vectorMetric)
+        {
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping("varchar(max)");
+
+            options.Add("METRIC = " + stringTypeMapping.GenerateSqlLiteral(vectorMetric));
+
+            if (operation[SqlServerAnnotationNames.VectorIndexType] is string vectorType)
+            {
+                options.Add("TYPE = " + stringTypeMapping.GenerateSqlLiteral(vectorType));
             }
         }
 

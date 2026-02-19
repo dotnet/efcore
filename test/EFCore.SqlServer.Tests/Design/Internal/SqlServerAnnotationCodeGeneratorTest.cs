@@ -200,6 +200,147 @@ public class SqlServerAnnotationCodeGeneratorTest
     }
 
     [ConditionalFact]
+    public void GenerateFluentApi_IIndex_works_with_full_text_key_index()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity(
+            "Post",
+            x =>
+            {
+                x.Property<int>("Id");
+                x.Property<string>("Title");
+                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post");
+            });
+
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
+        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls(index, annotations);
+
+        var keyIndexResult = results.Single(r => r.Method == "HasFullTextKeyIndex");
+        Assert.Equal(1, keyIndexResult.Arguments.Count);
+        Assert.Equal("PK_Post", keyIndexResult.Arguments[0]);
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IIndex_works_with_full_text_catalog()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity(
+            "Post",
+            x =>
+            {
+                x.Property<int>("Id");
+                x.Property<string>("Title");
+                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post").OnCatalog("MyCatalog");
+            });
+
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
+        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls(index, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IIndex_works_with_full_text_change_tracking()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity(
+            "Post",
+            x =>
+            {
+                x.Property<int>("Id");
+                x.Property<string>("Title");
+                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post").WithChangeTracking(FullTextChangeTracking.Manual);
+            });
+
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
+        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls(index, annotations);
+
+        var changeTrackingResult = results.Single(r => r.Method == "HasFullTextChangeTracking");
+        Assert.Equal(1, changeTrackingResult.Arguments.Count);
+        Assert.Equal(FullTextChangeTracking.Manual, changeTrackingResult.Arguments[0]);
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IIndex_works_with_full_text_languages()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity(
+            "Post",
+            x =>
+            {
+                x.Property<int>("Id");
+                x.Property<string>("Title");
+                x.Property<string>("Body");
+                x.HasFullTextIndex("Title", "Body")
+                    .HasKeyIndex("PK_Post")
+                    .HasLanguage("Title", "English")
+                    .HasLanguage("Body", "French");
+            });
+
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
+        var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls(index, annotations);
+
+        var languageResults = results.Where(r => r.Method == "HasFullTextLanguage").ToList();
+        Assert.Equal(2, languageResults.Count);
+        Assert.Contains(languageResults, r => r.Arguments[0] is "Body" && r.Arguments[1] is "French");
+        Assert.Contains(languageResults, r => r.Arguments[0] is "Title" && r.Arguments[1] is "English");
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IModel_works_with_full_text_catalog()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.HasFullTextCatalog("MyCatalog").IsDefault().IsAccentSensitive(false);
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+
+        var isDefaultChain = catalogResult.ChainedCall;
+        Assert.NotNull(isDefaultChain);
+        Assert.Equal("IsDefault", isDefaultChain.Method);
+        Assert.Equal(0, isDefaultChain.Arguments.Count);
+
+        var accentChain = isDefaultChain.ChainedCall;
+        Assert.NotNull(accentChain);
+        Assert.Equal("IsAccentSensitive", accentChain.Method);
+        Assert.Equal(1, accentChain.Arguments.Count);
+        Assert.Equal(false, accentChain.Arguments[0]);
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IModel_works_with_full_text_catalog_defaults()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.HasFullTextCatalog("MyCatalog");
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+
+        // No chained calls when using defaults
+        Assert.Null(catalogResult.ChainedCall);
+    }
+
+    [ConditionalFact]
     public void GenerateFluentApi_IModel_works_with_identity()
     {
         var generator = CreateGenerator();
@@ -362,6 +503,33 @@ public class SqlServerAnnotationCodeGeneratorTest
             var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
             return generator.GenerateFluentApiCalls((IProperty)property, annotations).SingleOrDefault();
         }
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IProperty_with_DefaultConstraintName_and_no_DefaultValue_does_not_throw()
+    {
+        // Reproduces https://github.com/dotnet/efcore/issues/37175
+        // When a property has a named default constraint but no DefaultValue or DefaultValueSql annotation,
+        // GenerateFluentApiCalls should not throw a NullReferenceException
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity("Post", x => x.Property<int>("Id"));
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
+
+        // Create annotations dictionary with only DefaultConstraintName (simulating the scenario where
+        // DefaultValue was already removed but DefaultConstraintName wasn't)
+        var constraintNameAnnotation = RelationalAnnotationNames.DefaultConstraintName;
+        var annotations = new Dictionary<string, IAnnotation>
+        {
+            { constraintNameAnnotation, new Annotation(constraintNameAnnotation, "DF_Post_Id") }
+        };
+
+        // This should not throw - it should simply skip generating code for the constraint name
+        // since there's no default value to associate with it
+        var result = generator.GenerateFluentApiCalls((IProperty)property, annotations);
+
+        // No method calls should be generated for the constraint name alone
+        Assert.Empty(result);
     }
 
     [ConditionalFact]

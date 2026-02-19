@@ -1101,8 +1101,9 @@ public class RelationalConnectionTest
             scope.Complete();
 
             // Start the reset task first, which will yield and then try to reset
-            var resetTask = Task.Run(() =>
+            var resetTask = Task.Run(async () =>
             {
+                await Task.Yield();
                 // ResetState calls ClearTransactions which might race with HandleTransactionCompleted
                 ((IResettableService)connection).ResetState();
             });

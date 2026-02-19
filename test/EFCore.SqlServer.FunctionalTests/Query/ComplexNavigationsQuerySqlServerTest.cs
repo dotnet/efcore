@@ -2633,7 +2633,7 @@ WHERE (
         AssertSql(
             """
 @p='0'
-@p0='10'
+@p1='10'
 
 SELECT [l].[Name]
 FROM [LevelThree] AS [l]
@@ -2641,13 +2641,13 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Required_Inverse3Id] = [l0].[Id]
 INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
 WHERE [l1].[Name] IN (N'L1 10', N'L1 01')
 ORDER BY [l].[Level2_Required_Id]
-OFFSET @p ROWS FETCH NEXT @p0 ROWS ONLY
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
-    public override async Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
+    public override async Task Join_on_anonymous_type_with_single_property(bool async)
     {
-        await base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(async);
+        await base.Join_on_anonymous_type_with_single_property(async);
 
         AssertSql(
             """
@@ -2657,9 +2657,9 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Optional_Self_Inverse1Id] = [l0]
 """);
     }
 
-    public override async Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(bool async)
+    public override async Task Join_on_anonymous_type_with_multiple_properties(bool async)
     {
-        await base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(async);
+        await base.Join_on_anonymous_type_with_multiple_properties(async);
 
         AssertSql(
             """
