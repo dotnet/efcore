@@ -3413,7 +3413,6 @@ public class InternalEntityTypeBuilderTest
         // Public API should be able to override it
         var publicBuilder = new EntityTypeBuilder(entityBuilder.Metadata);
         publicBuilder.HasQueryFilter(filterKey, explicitFilter);
-        
         // Verify the filter was replaced with the explicit one
         Assert.Same(explicitFilter, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
         Assert.Equal(ConfigurationSource.Explicit, entityBuilder.Metadata.GetQueryFilterConfigurationSource(filterKey));
