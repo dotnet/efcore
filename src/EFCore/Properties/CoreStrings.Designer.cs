@@ -1317,7 +1317,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType, actualType);
 
         /// <summary>
-        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information. 
+        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.
         /// </summary>
         public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
             => string.Format(
@@ -1489,6 +1489,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FunctionOnClient", nameof(methodName)),
                 methodName);
+
+        /// <summary>
+        ///     '{function}' can only be used with Entity Framework Core queries.
+        /// </summary>
+        public static string FunctionOnNonEfLinqProvider(object? function)
+            => string.Format(
+                GetString("FunctionOnNonEfLinqProvider", nameof(function)),
+                function);
 
         /// <summary>
         ///     The provided edge cannot be added because the graph does not contain the vertex '{vertex}'.
@@ -2350,12 +2358,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, collectionType, changeTrackingStrategy);
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        ///     The following 'ExecuteUpdate' or 'ExecuteDelete' expression could not be translated, see inner exception for more details: '{expression}'
         /// </summary>
-        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
+        public static string NonQueryTranslationFailed(object? expression)
             => string.Format(
-                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
-                expression, details);
+                GetString("NonQueryTranslationFailed", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.
@@ -2916,7 +2924,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("RelationshipCannotBeInverted");
 
         /// <summary>
-        ///     The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        ///     The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string RelationshipConceptualNull(object? firstType, object? secondType)
             => string.Format(
@@ -2924,7 +2932,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstType, secondType);
 
         /// <summary>
-        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes.
+        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information.
         /// </summary>
         public static string RelationshipConceptualNullSensitive(object? firstType, object? secondType, object? secondKeyValue)
             => string.Format(

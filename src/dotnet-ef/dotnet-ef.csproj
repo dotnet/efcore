@@ -13,7 +13,7 @@
       dotnet ef database drop
       dotnet ef database update
     </Description>
-    <TargetFramework>$(NetToolMinimum)</TargetFramework>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>

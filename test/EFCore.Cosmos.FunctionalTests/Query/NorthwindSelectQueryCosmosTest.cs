@@ -676,11 +676,15 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task Projection_in_a_subquery_should_be_liftable(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_in_a_subquery_should_be_liftable(async))).Message);
+        // Always throws for sync.
+        if (async)
+        {
+            Assert.Equal(
+                CosmosStrings.OffsetRequiresLimit,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_in_a_subquery_should_be_liftable(async))).Message);
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override Task Projection_containing_DateTime_subtraction(bool async)
@@ -1441,18 +1445,26 @@ OFFSET 0 LIMIT @p
 
     public override async Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
-            => base.Projection_skip_projection_doesnt_project_intermittent_column(async))).Message;
+        // Always throws for sync.
+        if (async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Projection_skip_projection_doesnt_project_intermittent_column(async))).Message;
 
-        Assert.Equal(CosmosStrings.OffsetRequiresLimit, message);
+            Assert.Equal(CosmosStrings.OffsetRequiresLimit, message);
+        }
     }
 
     public override async Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async));
+        // Always throws for sync.
+        if (async)
+        {
+            // Cosmos client evaluation. Issue #17246.
+            await AssertTranslationFailed(() => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async));
 
-        AssertSql();
+            AssertSql();
+        }
     }
 
     public override async Task Projecting_count_of_navigation_which_is_generic_collection(bool async)

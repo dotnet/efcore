@@ -46,7 +46,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var foundInterpolation = false;
 
         // Not all reported by analyzer cases are fixable. If there is a mix of interpolated arguments and normal ones, e.g. `FromSqlRaw($"SELECT * FROM [Users] WHERE [Id] = {id}", id)`,
-        // then replacing `FromSqlRaw` to `FromSqlInterpolated` creates compiler error since there is no overload for this.
+        // then replacing `FromSqlRaw` to `FromSql` creates compiler error since there is no overload for this.
         // We find such cases by walking through syntaxes of each argument and searching for first interpolated string. If there are arguments after it, we consider such case unfixable.
         foreach (var argument in invocationSyntax.ArgumentList.Arguments)
         {

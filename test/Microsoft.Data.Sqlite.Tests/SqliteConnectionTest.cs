@@ -812,7 +812,7 @@ public class SqliteConnectionTest
         connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
         connection.CreateFunction("test", (double x) => x, true);
 
-        Assert.Equal(1, connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
+        Assert.Equal(0, connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
     }
 
     [Fact]

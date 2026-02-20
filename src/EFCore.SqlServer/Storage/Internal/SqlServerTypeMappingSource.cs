@@ -184,7 +184,7 @@ public class SqlServerTypeMappingSource(
                 { "float", [SqlServerDoubleTypeMapping.Default] },
                 { "image", [ImageBinary] },
                 { "int", [IntTypeMapping.Default] },
-                { "json", [SqlServerStringTypeMapping.JsonTypeDefault] },
+                { "json", [SqlServerJsonTypeMapping.Default] },
                 { "money", [Money] },
                 { "national char varying", [VariableLengthUnicodeString] },
                 { "national char varying(max)", [VariableLengthMaxUnicodeString] },
@@ -237,10 +237,12 @@ public class SqlServerTypeMappingSource(
         if (clrType == typeof(JsonTypePlaceholder))
         {
             // We get here when a structural type (complex type or owned entity) is mapped to JSON.
-            return storeTypeName switch
+            return mappingInfo.StoreTypeNameBase switch
             {
                 "json" => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
-                "nvarchar(max)" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+
+                // Note that if the store type is non-max (e.g. nvarchar(2000)), it gets cloned outside for the right size.
+                "nvarchar" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
 
                 null when _isJsonTypeSupported => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
                 null => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
@@ -320,7 +322,7 @@ public class SqlServerTypeMappingSource(
                     return Rowversion;
 
                 case { } t when t == typeof(string) && storeTypeName == "json":
-                    return SqlServerStringTypeMapping.JsonTypeDefault;
+                    return SqlServerJsonTypeMapping.Default;
 
                 case { } t when t == typeof(string):
                 {
