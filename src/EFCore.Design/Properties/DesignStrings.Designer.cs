@@ -185,6 +185,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 contextClassName);
 
         /// <summary>
+        ///     Couldn't get interceptable location for: '{node}'.
+        /// </summary>
+        public static string CouldNotGetInterceptableLocation(object? node)
+            => string.Format(
+                GetString("CouldNotGetInterceptableLocation", nameof(node)),
+                node);
+
+        /// <summary>
         ///     Successfully dropped database '{name}'.
         /// </summary>
         public static string DatabaseDropped(object? name)

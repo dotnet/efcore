@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -20,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 {
+    private static readonly bool UseOldBehavior35483 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35483", out var enabled) && enabled;
+
     private readonly QueryLocator _queryLocator;
     private readonly CSharpToLinqTranslator _csharpToLinqTranslator;
 
@@ -298,13 +302,24 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _code.AppendLine(mainCode);
 
         _code.AppendLine(
-            """
+            UseOldBehavior35483
+                ? """
 namespace System.Runtime.CompilerServices
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     file sealed class InterceptsLocationAttribute : Attribute
     {
         public InterceptsLocationAttribute(string filePath, int line, int column) { }
+    }
+}
+"""
+                : """
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    file sealed class InterceptsLocationAttribute : Attribute
+    {
+        public InterceptsLocationAttribute(int version, string data) { }
     }
 }
 """
@@ -496,10 +511,20 @@ namespace System.Runtime.CompilerServices
         };
 
         // Output the interceptor method signature preceded by the [InterceptsLocation] attribute.
-        var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
-        code.AppendLine(
-            $"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"", "\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        if (UseOldBehavior35483)
+        {
+            var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
+            code.AppendLine(
+                $"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"", "\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        }
+        else
+        {
+            var invocationSyntax = (InvocationExpressionSyntax)operatorSyntax;
+            var interceptableLocation = semanticModel.GetInterceptableLocation(invocationSyntax, cancellationToken)
+                ?? throw new InvalidOperationException(DesignStrings.CouldNotGetInterceptableLocation(invocationSyntax));
+            code.AppendLine(interceptableLocation.GetInterceptsLocationAttributeSyntax());
+        }
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
 
