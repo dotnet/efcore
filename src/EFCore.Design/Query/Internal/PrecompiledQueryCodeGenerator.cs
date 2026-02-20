@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -499,7 +500,7 @@ namespace System.Runtime.CompilerServices
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
         var invocationSyntax = (InvocationExpressionSyntax)operatorSyntax;
         var interceptableLocation = semanticModel.GetInterceptableLocation(invocationSyntax, cancellationToken)
-            ?? throw new InvalidOperationException("Couldn't get interceptable location for: " + operatorSyntax);
+            ?? throw new InvalidOperationException(DesignStrings.CouldNotGetInterceptableLocation(operatorSyntax));
         code.AppendLine(interceptableLocation.GetInterceptsLocationAttributeSyntax());
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
