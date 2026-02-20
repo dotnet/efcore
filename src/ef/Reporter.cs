@@ -14,9 +14,18 @@ internal static class Reporter
     public const string DataPrefix = "data:    ";
     public const string VerbosePrefix = "verbose: ";
 
+    private static TextWriter _stdOut = Console.Out;
+    private static AnsiTextWriter _stdOutAnsi = new(Console.Out);
+
     public static bool IsVerbose { get; set; }
     public static bool NoColor { get; set; }
     public static bool PrefixOutput { get; set; }
+
+    public static void SetStdOut(TextWriter writer)
+    {
+        _stdOut = writer;
+        _stdOutAnsi = new AnsiTextWriter(writer);
+    }
 
     [return: NotNullIfNotNull(nameof(value))]
     public static string? Colorize(string? value, Func<string?, string> colorizeFunc)
@@ -55,11 +64,11 @@ internal static class Reporter
     {
         if (NoColor)
         {
-            Console.Out.WriteLine(value);
+            _stdOut.WriteLine(value);
         }
         else
         {
-            AnsiConsole.Out.WriteLine(value);
+            _stdOutAnsi.WriteLine(value);
         }
     }
 
