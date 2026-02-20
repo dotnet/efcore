@@ -987,7 +987,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     /// <param name="value">New value from database</param>
     /// <param name="mergeOption">MergeOption</param>
     /// <param name="updateEntityState">Sets the EntityState to Unchanged if MergeOption.OverwriteChanges else calls ChangeDetector to determine changes</param>
-    public void ReloadValue(IPropertyBase propertyBase, object? value, MergeOption mergeOption, bool updateEntityState)
+    public virtual void ReloadValue(IPropertyBase propertyBase, object? value, MergeOption mergeOption, bool updateEntityState)
     {
         var property = (IProperty)propertyBase;
         EnsureOriginalValues();

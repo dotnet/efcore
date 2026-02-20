@@ -223,7 +223,7 @@ public class ChangeTracker : IResettableService
     /// <param name="deleted">Entities in Modified.Deleted state</param>
     /// <param name="unchanged">Entities in Modified.Unchanged state</param>
     /// <returns>An entry for each entity that matched the search criteria.</returns>
-    public IEnumerable<EntityEntry> GetEntriesForState(
+    public virtual IEnumerable<EntityEntry> GetEntriesForState(
         bool added = false,
         bool modified = false,
         bool deleted = false,
@@ -241,7 +241,7 @@ public class ChangeTracker : IResettableService
     /// <param name="deleted">Entities in Modified.Deleted state</param>
     /// <param name="unchanged">Entities in Modified.Unchanged state</param>
     /// <returns>An entry for each entity that matched the search criteria.</returns>
-    public IEnumerable<EntityEntry<TEntity>> GetEntriesForState<TEntity>(
+    public virtual IEnumerable<EntityEntry<TEntity>> GetEntriesForState<TEntity>(
         bool added = false,
         bool modified = false,
         bool deleted = false,
