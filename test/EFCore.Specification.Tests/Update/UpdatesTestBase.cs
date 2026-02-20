@@ -1046,11 +1046,17 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             modelBuilder.Entity<Nougat>();
             modelBuilder.Entity<CrunchyNougat>(b =>
             {
-                b.OwnsOne(e => e.Filling);
+                b.OwnsOne(e => e.Filling, ob =>
+                {
+                    ob.Property(o => o.Kind).HasConversion<string>();
+                });
             });
             modelBuilder.Entity<SoftNougat>(b =>
             {
-                b.OwnsOne(e => e.Filling);
+                b.OwnsOne(e => e.Filling, ob =>
+                {
+                    ob.Property(o => o.Kind).HasConversion<string>();
+                });
             });
         }
 
