@@ -55,7 +55,7 @@ internal static class Reporter
     {
         if (NoColor)
         {
-            Console.WriteLine(value);
+            Console.Out.WriteLine(value);
         }
         else
         {
