@@ -1042,6 +1042,16 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             modelBuilder.Entity<LiftObscurer>().HasOne<Lift>().WithOne(x => x.Obscurer).HasForeignKey<LiftObscurer>(e => e.LiftId);
             modelBuilder.Entity<LiftBag>();
             modelBuilder.Entity<LiftPaper>();
+
+            modelBuilder.Entity<Nougat>();
+            modelBuilder.Entity<CrunchyNougat>(b =>
+            {
+                b.OwnsOne(e => e.Filling);
+            });
+            modelBuilder.Entity<SoftNougat>(b =>
+            {
+                b.OwnsOne(e => e.Filling);
+            });
         }
 
         protected override Task SeedAsync(UpdatesContext context)
