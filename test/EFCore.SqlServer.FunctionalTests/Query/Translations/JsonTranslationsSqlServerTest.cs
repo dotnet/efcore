@@ -15,9 +15,9 @@ public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task JsonExists_on_scalar_string_column()
+    public override async Task JsonPathExists_on_scalar_string_column()
     {
-        await base.JsonExists_on_scalar_string_column();
+        await base.JsonPathExists_on_scalar_string_column();
 
         AssertSql(
             """
@@ -28,9 +28,9 @@ WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task JsonExists_on_complex_property()
+    public override async Task JsonPathExists_on_complex_property()
     {
-        await base.JsonExists_on_complex_property();
+        await base.JsonPathExists_on_complex_property();
 
         AssertSql(
             """
@@ -41,9 +41,9 @@ WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
     }
 
     [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task JsonExists_on_owned_entity()
+    public override async Task JsonPathExists_on_owned_entity()
     {
-        await base.JsonExists_on_owned_entity();
+        await base.JsonPathExists_on_owned_entity();
 
         AssertSql(
             """
@@ -133,8 +133,8 @@ WHERE JSON_CONTAINS([j].[JsonOwnedType], 8, N'$.OptionalInt') = 1
             }
         }
 
-        protected override string RemoveJsonProperty(string column, string jsonPath)
-            => $"JSON_MODIFY({column}, '{jsonPath}', NULL)";
+        protected override string RemoveJsonProperty(string column, string property)
+            => $"JSON_MODIFY({column}, '$.{property}', NULL)";
     }
 
     [ConditionalFact]

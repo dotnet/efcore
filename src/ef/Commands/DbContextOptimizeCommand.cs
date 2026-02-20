@@ -53,7 +53,10 @@ internal partial class DbContextOptimizeCommand
             _precompileQueries!.HasValue(),
             _nativeAot!.HasValue());
 
-        ReportResults(result);
+        if (result != null)
+        {
+            ReportResults(result);
+        }
 
         return base.Execute(args);
     }
