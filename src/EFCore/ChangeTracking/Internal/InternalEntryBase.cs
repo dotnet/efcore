@@ -949,34 +949,52 @@ public abstract partial class InternalEntryBase : IInternalEntry
     public void SetOriginalValue(
         IPropertyBase propertyBase,
         object? value,
-        int index = -1)
+        int index = -1,
+        bool skipChangeDetection = false)
     {
         StructuralType.CheckContains(propertyBase);
 
         EnsureOriginalValues();
 
         var complexProperty = propertyBase as IComplexProperty;
-        var isComplexCollection = complexProperty != null && complexProperty.IsCollection;
-        if (isComplexCollection)
+        if (complexProperty != null && complexProperty.IsCollection)
         {
             ReorderOriginalComplexCollectionEntries(complexProperty!, (IList?)value);
         }
 
         _originalValues.SetValue(propertyBase, value, index);
 
-        if (propertyBase is IProperty property)
+        if (skipChangeDetection)
         {
-            if ((EntityState == EntityState.Unchanged
-                    || (EntityState == EntityState.Modified && !IsModified(property)))
-                && !_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
-            {
-                ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
-            }
+            return;
         }
-        else if (isComplexCollection
-                 && EntityState is EntityState.Unchanged or EntityState.Modified)
+
+        if (complexProperty != null)
         {
-            ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectComplexCollectionChanges(this, complexProperty!);
+            DetectChanges(complexProperty);
+        }
+        else if (propertyBase is IProperty property)
+        {
+            DetectChanges(property);
+        }
+    }
+
+    private void DetectChanges(IProperty property)
+    {
+        if ((EntityState == EntityState.Unchanged
+                || (EntityState == EntityState.Modified && !IsModified(property)))
+            && !_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
+        {
+            ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
+        }
+    }
+
+    private void DetectChanges(IComplexProperty complexProperty)
+    {
+        if (EntityState is EntityState.Unchanged or EntityState.Modified
+            && complexProperty.IsCollection)
+        {
+            ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectComplexCollectionChanges(this, complexProperty);
         }
     }
 

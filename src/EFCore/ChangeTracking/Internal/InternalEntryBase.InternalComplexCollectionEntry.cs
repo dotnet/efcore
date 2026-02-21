@@ -273,7 +273,7 @@ public partial class InternalEntryBase
                 return complexEntry;
             }
 
-            // The currentEntry is created in Detached state, so it's not added to the entries list yet.
+            // The entry is created in Detached state, so it's not added to the entries list yet.
             // HandleStateChange will add it when the state changes.
             return new InternalComplexEntry((IRuntimeComplexType)_complexCollection.ComplexType, _containingEntry, ordinal);
         }
@@ -359,6 +359,8 @@ public partial class InternalEntryBase
             {
                 setOriginalState = true;
             }
+
+            _containingEntry.EnsureOriginalValues();
 
             EnsureCapacity(
                 ((IList?)_containingEntry.GetOriginalValue(_complexCollection))?.Count ?? 0,
