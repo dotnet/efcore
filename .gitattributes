@@ -3,5 +3,3 @@
 *.sh eol=lf
 *.sln eol=crlf
 *.sql diff
-
-.github/workflows/*.lock.yml linguist-generated=true merge=ours
