@@ -15,7 +15,7 @@ public class CosmosEmulatorTestStore
     public static readonly SemaphoreSlim ContainerCrudSemaphore = new(1);
 
     private bool _databaseCreated;
-    private bool _acquired = false;
+    private bool _acquired;
     public override async Task<TestStore> InitializeAsync(
         IServiceProvider? serviceProvider,
         Func<DbContext>? createContext,
@@ -104,9 +104,8 @@ public class CosmosEmulatorTestStore
     {
         if (_acquired)
         {
-            _acquired = false;
-
             await using var deleteLock = await ReleaseAsync();
+            _acquired = false;
             if (Shared)
             {
                 // We only get a delete lock if this test store instance is the last one using the database, so we can safely delete the database if it's shared.
@@ -145,7 +144,7 @@ public class CosmosEmulatorTestStore
         await _concurrencyControlSemaphore.WaitAsync();
         try
         {
-            waitTask = GetWaitTask();
+            waitTask = await GetWaitTask();
         }
         finally
         {
@@ -154,7 +153,7 @@ public class CosmosEmulatorTestStore
 
         await waitTask;
 
-        Task GetWaitTask()
+        async ValueTask<Task> GetWaitTask()
         {
             ref var infoRef = ref CollectionsMarshal.GetValueRefOrAddDefault(_testsMap, Name, out var exists);
             if (!exists)
@@ -180,6 +179,13 @@ public class CosmosEmulatorTestStore
             else
             {
                 Debug.Assert(infoRef != null);
+
+                if (infoRef.ReleaseCompletionSource != null)
+                {
+                    // The test store is still being deleted
+                    await infoRef.ReleaseCompletionSource.Task;
+                    return WaitAsync(dbContext);
+                }
 
                 if (infoRef.IsRunning)
                 {
