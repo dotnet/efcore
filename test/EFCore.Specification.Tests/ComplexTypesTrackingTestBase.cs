@@ -173,6 +173,104 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Can_write_original_values_for_properties_of_complex_type_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithCollections);
 
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithStructCollections);
+
+    [ConditionalTheory(Skip = "Issue #31621")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_readonly_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithRecordCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPub);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory(Skip = "Issue #31621")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_readonly_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithRecords);
+
+    private async Task ChangeStateFromDeletedTest<TEntity>(
+        EntityState newState,
+        bool async,
+        Func<DbContext, TEntity> createPub)
+        where TEntity : class
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = createPub(context);
+                context.Add(pub);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var pub = async
+                    ? await context.Set<TEntity>().Where(e => EF.Property<string>(e, "Name") == "The FBI").FirstAsync()
+                    : context.Set<TEntity>().Where(e => EF.Property<string>(e, "Name") == "The FBI").First();
+                var entry = context.Entry(pub);
+
+                entry.State = EntityState.Deleted;
+
+                // Change to target state - this should not throw an exception
+                entry.State = newState;
+                Assert.Equal(newState, entry.State);
+
+                // Verify the complex collection is still accessible
+                var activitiesEntry = entry.ComplexCollection("Activities");
+                Assert.NotNull(activitiesEntry);
+                var activitiesValue = activitiesEntry.CurrentValue;
+                Assert.Equal(2, ((System.Collections.IList)activitiesValue!).Count);
+            });
+    }
+
     [ConditionalTheory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Modified, true), InlineData(EntityState.Deleted, false), InlineData(EntityState.Deleted, true)]
