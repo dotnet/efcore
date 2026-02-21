@@ -2505,13 +2505,7 @@ public class OwnedFixupTest
         principal2.ChildCollection1 = principal1.ChildCollection1;
         principal1.ChildCollection1 = null;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-        }
-        else
+        if (entityState == EntityState.Added)
         {
             context.ChangeTracker.DetectChanges();
 
@@ -2568,6 +2562,10 @@ public class OwnedFixupTest
             Assert.Contains(principal2.ChildCollection1, e => ReferenceEquals(e, dependent));
             Assert.Null(principal2.ChildCollection2);
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
+        }
+        else
+        {
+            context.ChangeTracker.DetectChanges();
         }
     }
 
@@ -2627,13 +2625,7 @@ public class OwnedFixupTest
         principal2.ChildCollection1 = principal1.ChildCollection1;
         principal1.ChildCollection1 = null;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-        }
-        else
+        if (entityState == EntityState.Added)
         {
             context.ChangeTracker.DetectChanges();
 
@@ -2692,6 +2684,10 @@ public class OwnedFixupTest
             Assert.Null(principal2.ChildCollection2);
             Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
             Assert.Same(dependent, subDependent.Parent);
+        }
+        else
+        {
+            context.ChangeTracker.DetectChanges();
         }
     }
 
@@ -3046,15 +3042,7 @@ public class OwnedFixupTest
         principal1.ChildCollection1 = principal2.ChildCollection1;
         principal2.ChildCollection1 = tempCollection;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly(
-                    "ParentId",
-                    "ParentPN.ChildCollection1#ChildPN"),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-        }
-        else
+        if (entityState == EntityState.Added)
         {
             context.ChangeTracker.DetectChanges();
 
@@ -3135,6 +3123,10 @@ public class OwnedFixupTest
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
         }
+        else
+        {
+            context.ChangeTracker.DetectChanges();
+        }
     }
 
     [ConditionalTheory,
@@ -3200,15 +3192,7 @@ public class OwnedFixupTest
         principal1.ChildCollection1 = principal2.ChildCollection1;
         principal2.ChildCollection1 = tempCollection;
 
-        if (entityState != EntityState.Added)
-        {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly(
-                    "ParentId",
-                    "Parent.ChildCollection1#Child"),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-        }
-        else
+        if (entityState == EntityState.Added)
         {
             context.ChangeTracker.DetectChanges();
 
@@ -3296,6 +3280,10 @@ public class OwnedFixupTest
             Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
             Assert.Same(dependent1, subDependent1.Parent);
             Assert.Same(dependent2, subDependent2.Parent);
+        }
+        else
+        {
+            context.ChangeTracker.DetectChanges();
         }
     }
 
@@ -3658,15 +3646,12 @@ public class OwnedFixupTest
         principal2.ChildCollection1 = principal1.ChildCollection2;
         principal1.ChildCollection2 = null;
 
+        context.ChangeTracker.DetectChanges();
+
         if (entityState != EntityState.Added)
         {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             return;
         }
-
-        context.ChangeTracker.DetectChanges();
 
         Assert.True(context.ChangeTracker.HasChanges());
 
@@ -4202,15 +4187,12 @@ public class OwnedFixupTest
             .FindEntry(subDependent2);
         newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
 
+        context.ChangeTracker.DetectChanges();
+
         if (entityState != EntityState.Added)
         {
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
-                Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
             return;
         }
-
-        context.ChangeTracker.DetectChanges();
 
         Assert.True(context.ChangeTracker.HasChanges());
 

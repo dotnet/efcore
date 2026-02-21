@@ -84,7 +84,8 @@ public class ChangeDetector : IChangeDetector
     private static void ThrowIfKeyChanged(IInternalEntry entry, IProperty property)
     {
         if (property.IsKey()
-            && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
+            && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
+            && !property.IsOwnedCollectionForeignKey())
         {
             throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, entry.StructuralType.DisplayName()));
         }
