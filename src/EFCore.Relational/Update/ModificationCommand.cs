@@ -1256,7 +1256,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         && ((!_originalValueInitialized
                                 && property.GetValueComparer().Equals(
                                     Update.ColumnModification.GetCurrentValue(entry, property),
-                                    property.Sentinel))
+                                    property.Sentinel)
+                                && !mapping.Column.ProviderValueComparer.Equals(
+                                    _currentValue,
+                                    Update.ColumnModification.GetCurrentProviderValue(entry, property)))
                             || (_originalValueInitialized
                                 && mapping.Column.ProviderValueComparer.Equals(
                                     Update.ColumnModification.GetCurrentProviderValue(entry, property),
