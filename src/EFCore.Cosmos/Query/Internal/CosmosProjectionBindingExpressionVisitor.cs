@@ -133,6 +133,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             var translation = _sqlTranslator.Translate(expression);
             if (translation == null)
             {
+                _selectExpression.IndicateClientProjection();
                 return base.Visit(expression);
             }
 
@@ -214,7 +215,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 if (_clientEval)
                 {
-                    var entityProjection = (EntityProjectionExpression)projection;
+                    var entityProjection = (StructuralTypeProjectionExpression)projection;
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(
@@ -306,11 +307,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         var innerEntityProjection = shaperExpression.ValueBufferExpression switch
         {
             ProjectionBindingExpression innerProjectionBindingExpression
-                => (EntityProjectionExpression)_selectExpression.Projection[innerProjectionBindingExpression.Index!.Value].Expression,
+                => (StructuralTypeProjectionExpression)_selectExpression.Projection[innerProjectionBindingExpression.Index!.Value].Expression,
 
             // Unwrap EntityProjectionExpression when the root entity is not projected
             UnaryExpression unaryExpression
-                => (EntityProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand,
+                => (StructuralTypeProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand,
 
             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()))
         };
@@ -326,7 +327,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
         switch (navigationProjection)
         {
-            case EntityProjectionExpression entityProjection:
+            case StructuralTypeProjectionExpression entityProjection:
                 return new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
                     Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
@@ -527,14 +528,14 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
             var innerEntityProjection = shaperExpression.ValueBufferExpression switch
             {
-                EntityProjectionExpression entityProjection
+                StructuralTypeProjectionExpression entityProjection
                     => entityProjection,
 
                 ProjectionBindingExpression innerProjectionBindingExpression
-                    => (EntityProjectionExpression)_selectExpression.Projection[innerProjectionBindingExpression.Index!.Value].Expression,
+                    => (StructuralTypeProjectionExpression)_selectExpression.Projection[innerProjectionBindingExpression.Index!.Value].Expression,
 
                 UnaryExpression unaryExpression
-                    => (EntityProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand,
+                    => (StructuralTypeProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand,
 
                 _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
             };

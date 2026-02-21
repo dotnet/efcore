@@ -27,7 +27,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     public ObjectArrayAccessExpression(
         Expression @object,
         INavigation navigation,
-        EntityProjectionExpression? innerProjection = null)
+        StructuralTypeProjectionExpression? innerProjection = null)
     {
         var targetType = navigation.TargetEntityType;
         Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
@@ -37,10 +37,31 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
 
-        Navigation = navigation;
+        PropertyBase = navigation;
         Object = @object;
         InnerProjection = innerProjection
-            ?? new EntityProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
+            ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ObjectArrayAccessExpression(
+        Expression @object,
+        IComplexProperty complexProperty,
+        StructuralTypeProjectionExpression? innerProjection = null)
+    {
+        var targetType = complexProperty.ComplexType;
+        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
+
+        PropertyName = complexProperty.Name;
+        PropertyBase = complexProperty;
+        Object = @object;
+        InnerProjection = innerProjection
+            ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
     }
 
     /// <summary>
@@ -82,7 +103,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigation Navigation { get; }
+    public virtual IPropertyBase PropertyBase { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,7 +111,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual EntityProjectionExpression InnerProjection { get; }
+    public virtual StructuralTypeProjectionExpression InnerProjection { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -103,7 +124,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
         var accessExpression = visitor.Visit(Object);
         var innerProjection = visitor.Visit(InnerProjection);
 
-        return Update(accessExpression, (EntityProjectionExpression)innerProjection);
+        return Update(accessExpression, (StructuralTypeProjectionExpression)innerProjection);
     }
 
     /// <summary>
@@ -114,9 +135,11 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     /// </summary>
     public virtual ObjectArrayAccessExpression Update(
         Expression accessExpression,
-        EntityProjectionExpression innerProjection)
+        StructuralTypeProjectionExpression innerProjection)
         => accessExpression != Object || innerProjection != InnerProjection
-            ? new ObjectArrayAccessExpression(accessExpression, Navigation, innerProjection)
+            ? PropertyBase is INavigation navigation
+                ? new ObjectArrayAccessExpression(accessExpression, navigation, innerProjection)
+                : new ObjectArrayAccessExpression(accessExpression, (IComplexProperty)PropertyBase, innerProjection)
             : this;
 
     /// <summary>

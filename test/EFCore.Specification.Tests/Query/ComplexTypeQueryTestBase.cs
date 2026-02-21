@@ -367,7 +367,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 }));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Struct_complex_type_equals_parameter(bool async)
+    public virtual async Task Struct_complex_type_equals_parameter(bool async)
     {
         var address = new AddressStruct
         {
@@ -376,7 +376,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             Country = new CountryStruct { FullName = "United States", Code = "US" }
         };
 
-        return AssertQuery(
+        await AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.ShippingAddress == address));
     }
