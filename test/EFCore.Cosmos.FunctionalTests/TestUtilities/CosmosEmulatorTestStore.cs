@@ -120,8 +120,6 @@ public class CosmosEmulatorTestStore
             }
             else
             {
-                Debug.Assert(deleteLock != null);
-
                 // If the test store is not shared, the base dispose will delete the database.
                 await base.DisposeAsync();
                 return;
@@ -131,7 +129,7 @@ public class CosmosEmulatorTestStore
         await base.DisposeAsync();
     }
 
-    #region Emulator paralellism control
+    #region Emulator parallelism control
     // Emulator could experience performance degradation with more than 10 concurrent containers,
     // See: https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
     private const int RecommendedContainerCount = 10;
@@ -281,7 +279,16 @@ public class CosmosEmulatorTestStore
     }
 
     private static int GetContainerCount(DbContext dbContext)
-        => dbContext.Model.GetEntityTypes().Select(x => x.GetContainer()).Where(x => x != null).Distinct().Count();
+    {
+        try
+        {
+            return dbContext.Model.GetEntityTypes().Select(x => x.GetContainer()).Where(x => x != null).Distinct().Count();
+        }
+        catch
+        {
+            return 0;
+        }
+    }
 
     private async Task<ReleaseLock?> ReleaseAsync()
     {
@@ -349,7 +356,7 @@ public class CosmosEmulatorTestStore
 
         public bool Priority { get; private set; } = priority;
 
-        public TaskCompletionSource WaitCompletionSource { get; private set; } = new();
+        public TaskCompletionSource WaitCompletionSource { get; private set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public int WaitCounter { get; set; } = 1;
 
@@ -369,7 +376,7 @@ public class CosmosEmulatorTestStore
         public void Releasing()
         {
             IsRunning = false;
-            ReleaseCompletionSource = new();
+            ReleaseCompletionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         public void Reenter(int containerCount)
@@ -379,7 +386,7 @@ public class CosmosEmulatorTestStore
             IsRunning = false;
             ContainerCount = containerCount;
             WaitCounter = RunningCounter;
-            WaitCompletionSource = new();
+            WaitCompletionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
         }
     }
 

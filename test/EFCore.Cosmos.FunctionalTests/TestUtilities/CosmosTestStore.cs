@@ -19,8 +19,6 @@ public class CosmosTestStore : TestStore
     protected readonly TestStoreContext StoreContext;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
 
-    private static int _sharedCounter;
-
     private static readonly Guid _runId = Guid.NewGuid();
 
     public CosmosTestStore(
@@ -46,11 +44,6 @@ public class CosmosTestStore : TestStore
 
     private static string CreateName(string name, bool shared)
     {
-        if (!shared)
-        {
-            name += Interlocked.Increment(ref _sharedCounter); // Have to append a unique value to ensure non-shared tests using the same store name can run in parallel.
-        }
-
         return !TestEnvironment.IsEmulator ? name + _runId : name;
     }
 

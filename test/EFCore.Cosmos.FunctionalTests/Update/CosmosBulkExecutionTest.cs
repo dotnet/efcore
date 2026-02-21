@@ -74,15 +74,4 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
 
         public string PartitionKey { get; set; } = "1";
     }
-
-    public class CosmosFixture : SharedStoreFixtureBase<CosmosBulkExecutionContext>
-    {
-        protected override string StoreName
-            => nameof(CosmosBulkExecutionTest);
-
-        protected override ITestStoreFactory TestStoreFactory
-            => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch));
-    }
 }
