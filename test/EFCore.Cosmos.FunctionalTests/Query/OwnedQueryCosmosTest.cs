@@ -303,7 +303,6 @@ WHERE (c["Terminator"] = "LeafA")
         AssertSql();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task SelectMany_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -319,7 +318,6 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task SelectMany_with_result_selector(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1112,7 +1110,6 @@ OFFSET 0 LIMIT @p
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Client_method_take_loads_owned_navigations_variation_2(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1131,7 +1128,6 @@ OFFSET 0 LIMIT @p
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Count_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1146,7 +1142,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Any_without_predicate_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1161,7 +1156,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Any_with_predicate_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1179,7 +1173,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Contains_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1197,7 +1190,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task ElementAt_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1212,7 +1204,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Or
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task ElementAtOrDefault_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1227,7 +1218,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["O
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
     {
         // Always throws for sync.
@@ -1249,7 +1239,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Skip_Take_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1264,7 +1253,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1282,7 +1270,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateT
 """);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override async Task Distinct_over_owned_collection(bool async)
     {
         // Always throws for sync.
@@ -1295,7 +1282,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateT
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public override Task Union_over_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
