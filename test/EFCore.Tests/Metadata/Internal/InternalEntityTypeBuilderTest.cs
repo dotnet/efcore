@@ -3394,6 +3394,30 @@ public class InternalEntityTypeBuilderTest
         Assert.NotEqual(filterExpression2, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
     }
 
+    [ConditionalFact]
+    public void Can_override_named_query_filter_from_convention_with_explicit_configuration()
+    {
+        // This test verifies that named query filters set by conventions can be overridden by explicit configuration
+        var modelBuilder = CreateModelBuilder();
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+        LambdaExpression conventionFilter = (Order o) => o.Id == 1;
+        LambdaExpression explicitFilter = (Order o) => o.Id == 2;
+        const string filterKey = "testFilter";
+
+        // Convention sets a named query filter
+        entityBuilder.HasQueryFilter(new QueryFilter(filterKey, conventionFilter, ConfigurationSource.Convention));
+        Assert.Same(conventionFilter, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+        Assert.Equal(ConfigurationSource.Convention, entityBuilder.Metadata.GetQueryFilterConfigurationSource(filterKey));
+
+        // Public API should be able to override it
+        var publicBuilder = new EntityTypeBuilder(entityBuilder.Metadata);
+        publicBuilder.HasQueryFilter(filterKey, explicitFilter);
+        // Verify the filter was replaced with the explicit one
+        Assert.Same(explicitFilter, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
+        Assert.Equal(ConfigurationSource.Explicit, entityBuilder.Metadata.GetQueryFilterConfigurationSource(filterKey));
+    }
+
     private static TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions> CreateTestLogger()
         => new() { EnabledFor = LogLevel.Warning };
 

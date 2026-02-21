@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -1472,6 +1473,73 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(EntityState.Unchanged, activitiesEntry[0].State);
         Assert.Equal(EntityState.Unchanged, activitiesEntry[1].State);
         Assert.Equal(EntityState.Added, activitiesEntry[2].State);
+    }
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_struct_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithStructCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_readonly_struct_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_record_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithRecordCollections);
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPub);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_struct_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_readonly_struct_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_record_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
+
+    private void RemoveFromComplexCollectionWithNestedCollectionTest<TEntity>(bool trackFromQuery, Func<DbContext, TEntity> createPub)
+        where TEntity : class
+    {
+        using var context = CreateContext();
+        var pub = createPub(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        var activitiesProperty = entry.Metadata.FindComplexProperty("Activities")!;
+        var activities = (IList)activitiesProperty.GetGetter().GetClrValue(pub)!;
+        var originalCount = activities.Count;
+        Assert.True(originalCount > 0);
+
+        activities.RemoveAt(0);
+
+        context.ChangeTracker.DetectChanges();
+
+        var collectionEntry = entry.ComplexCollection("Activities");
+        var internalEntry = entry.GetInfrastructure();
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(collectionEntry.IsModified);
+        Assert.Equal([-1, 0], internalEntry.GetComplexCollectionOriginalEntries(collectionEntry.Metadata).Select(e => e?.Ordinal));
+        Assert.Equal([1], internalEntry.GetComplexCollectionEntries(collectionEntry.Metadata).Select(e => e?.OriginalOrdinal));
+
+        context.ChangeTracker.AcceptAllChanges();
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+        Assert.False(collectionEntry.IsModified);
+        Assert.Equal([0], internalEntry.GetComplexCollectionOriginalEntries(collectionEntry.Metadata).Select(e => e?.Ordinal));
+        Assert.Equal([0], internalEntry.GetComplexCollectionEntries(collectionEntry.Metadata).Select(e => e?.OriginalOrdinal));
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
