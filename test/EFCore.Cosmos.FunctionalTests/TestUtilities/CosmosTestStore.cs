@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CosmosTestStore : TestStore
 {
+    /// <summary>
+    /// The emulator has race conditions when creating containers concurrently, so we need to lock around container creation.
+    /// </summary>
+    public static readonly SemaphoreSlim EmulatorCreateCollectionSemaphore = new(1);
+
+    private static List<string>? _createdDatabases = [];
     private readonly TestStoreContext _storeContext;
     private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
@@ -75,9 +81,25 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
-            ? name
-            : name + _runId;
+    {
+        // Northwind database is static and huge so we don't want to create a new one for each test run.
+        if (name == "Northwind" || name == "Northwind2" || name == "Northwind3")
+        {
+            return name;
+        }
+
+        if (TestEnvironment.IsEmulator)
+        {
+            // We delete and recreate the database for each test run in the emulator.
+            // This is due to limitations in the emulator.
+            // Since the databases are deleted, they can't be shared across test runs.
+            // So we have to generate a new name for each test store, otherwhise we would have name conflicts when running tests in parallel.
+            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
+            return "EF-" + Guid.NewGuid().ToString();
+        }
+
+        return name + _runId;
+    }
 
     public string ConnectionUri { get; }
     public string AuthToken { get; }
@@ -108,6 +130,7 @@ public class CosmosTestStore : TestStore
             {
                 _connectionSemaphore.Release();
             }
+
         }
 
         return _connectionAvailable.Value;
@@ -119,6 +142,32 @@ public class CosmosTestStore : TestStore
         try
         {
             testStore = await CreateInitializedAsync("NonExistent").ConfigureAwait(false);
+
+            if (TestEnvironment.IsEmulator)
+            {
+                // Clean up old emulator databases that tests might have left behind.
+                // We do this because the emulator will stop responding with much more than ~10 concurrent containers,
+                // and test runs might have been stopped in the middle leaving databases and containers behind.
+                var client = testStore.CreateDefaultContext().Database.GetCosmosClient();
+                using var iterator = client.GetDatabaseQueryIterator<DatabaseProperties>();
+
+                while (iterator.HasMoreResults)
+                {
+                    var response = await iterator.ReadNextAsync();
+
+                    // This code will run after the first fixtures are initialized,
+                    // so we keep track of the databases we created in order to not delete them here.
+                    foreach (var db in response.Where(x => x.Id.StartsWith("EF-") && !_createdDatabases!.Contains(x.Id)))
+                    {
+                        await client.GetDatabase(db.Id).DeleteAsync();
+                    }
+                }
+
+                // We do not need to track created databases anymore,
+                // Since this code only runs once on startup.
+                _createdDatabases = null;
+            }
+
 
             return true;
         }
@@ -179,13 +228,34 @@ public class CosmosTestStore : TestStore
         }
     }
 
+    public static async Task<bool> DatabaseEnsureCreated(DbContext context)
+    {
+        if (TestEnvironment.IsEmulator)
+        {
+            // The emulator has a race condition when creating containers concurrently,
+            // so we need to lock around EnsureCreated
+            await EmulatorCreateCollectionSemaphore.WaitAsync();
+        }
+        try
+        {
+            return await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            if (TestEnvironment.IsEmulator)
+            {
+                EmulatorCreateCollectionSemaphore.Release();
+            }
+        }
+    }
+
     private async Task CreateFromFile(DbContext context)
     {
         if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
             if (!TestEnvironment.UseTokenCredential)
             {
-                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+                await DatabaseEnsureCreated(context).ConfigureAwait(false);
             }
             else
             {
@@ -267,7 +337,15 @@ public class CosmosTestStore : TestStore
         if (!TestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
+            var r = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
+            if (r)
+            {
+                // Keep track of created databases, to prevent them from being deleted in cleanup function,
+                // that could run after the creation of this database, due to xunit creating the first test fixtures before checking the availability of the connection.
+                _createdDatabases?.Add(Name);
+            }
+
+            return r;
         }
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
@@ -293,7 +371,8 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -349,7 +428,8 @@ public class CosmosTestStore : TestStore
 
             if (!TestEnvironment.UseTokenCredential)
             {
-                created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+                created = await DatabaseEnsureCreated(context).ConfigureAwait(false);
+
                 if (!created)
                 {
                     await SeedAsync(context).ConfigureAwait(false);
@@ -406,7 +486,8 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
                 };
             }
 
@@ -556,6 +637,7 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
+        // We don't delete the database if it was created from a data file, because importing it is really slow.
         if (_initialized
             && _dataFilePath == null)
         {
@@ -569,6 +651,8 @@ public class CosmosTestStore : TestStore
                 GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
             }
 
+            // We always delete the database because the emulator will stop responding with much more than ~10 concurrent containers,
+            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
             await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
         }
 

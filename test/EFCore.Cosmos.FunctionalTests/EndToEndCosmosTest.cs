@@ -910,8 +910,6 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         using (var context = CreateContext(contextFactory, transactionalBatch))
         {
-            await context.Database.EnsureCreatedAsync();
-
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.Set<CustomerWithResourceId>().FindAsync(1, 3.15m, ""));
 
             Assert.Equal(CosmosStrings.InvalidResourceId, exception.Message);
@@ -1061,8 +1059,6 @@ ReadItem([1.0,"One",true], 42)
 
         using (var context = CreateContext(contextFactory, false))
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();

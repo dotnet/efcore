@@ -17,7 +17,7 @@ public class CosmosDatabaseCreatorTest
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
         await creator.EnsureDeletedAsync();
-        Assert.True(await creator.EnsureCreatedAsync());
+        Assert.True(await EnsureCreatedAsync(creator));
     }
 
     [ConditionalFact]
@@ -28,7 +28,7 @@ public class CosmosDatabaseCreatorTest
 
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
-        Assert.True(await creator.EnsureCreatedAsync());
+        Assert.True(await EnsureCreatedAsync(creator));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -43,7 +43,7 @@ public class CosmosDatabaseCreatorTest
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+                Assert.False(a ? await EnsureCreatedAsync(creator) : creator.EnsureCreated());
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -55,7 +55,7 @@ public class CosmosDatabaseCreatorTest
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.True(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
+                Assert.True(a ? await EnsureCreatedAsync(creator) : creator.EnsureDeleted());
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -79,6 +79,25 @@ public class CosmosDatabaseCreatorTest
         Assert.Equal(
             CoreStrings.MissingSeeder,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+    }
+
+    private async Task<bool> EnsureCreatedAsync(IDatabaseCreator creator)
+    {
+        if (TestEnvironment.IsEmulator)
+        {
+            await CosmosTestStore.EmulatorCreateCollectionSemaphore.WaitAsync();
+        }
+        try
+        {
+            return await creator.EnsureCreatedAsync();
+        }
+        finally
+        {
+            if (TestEnvironment.IsEmulator)
+            {
+                CosmosTestStore.EmulatorCreateCollectionSemaphore.Release();
+            }
+        }
     }
 
     private class BaseContext(CosmosTestStore testStore) : DbContext
