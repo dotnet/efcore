@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
+[Collection(nameof(CosmosSessionTokensTest))]
 public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixture) : IClassFixture<CosmosSessionTokensTest.CosmosFixture>
 {
     private const string DatabaseName = nameof(CosmosSessionTokensTest);
@@ -597,14 +598,15 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
+    [Collection(nameof(CosmosSessionTokensTest))]
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {
         protected override ITestStoreFactory TestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-        protected override string StoreName => nameof(CosmosSessionTokensTest);
+        protected override string StoreName => nameof(CosmosNonSharedSessionTokenTests);
 
-        protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
+        protected override TestStore CreateTestStore() => CosmosTestStoreFactory.Instance.Create(StoreName, extensionConfiguration: (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
         [ConditionalFact]
         public virtual async Task UseSessionTokens_uses_session_tokens()

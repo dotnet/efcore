@@ -1421,7 +1421,7 @@ OFFSET 0 LIMIT 1
     [ConditionalTheory, InlineData(false, Skip = "Fails only on C.I. See #33402"), InlineData(true, Skip = "Fails only on C.I. See #33402")]
     public async Task Add_update_delete_query_throws_if_no_container(bool transactionalBatch)
     {
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EndToEndEmpty");
+        await using var testDatabase = await CosmosTestStoreFactory.Instance.CreateInitializedAsync("EndToEndEmpty");
 
         var options = new DbContextOptionsBuilder<EndToEndEmptyContext>()
             .UseCosmos(testDatabase.ConnectionString, "EndToEndEmpty")

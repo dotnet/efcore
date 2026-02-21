@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
-using System.Net.Sockets;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -11,52 +10,24 @@ using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ContainerProperties = Microsoft.Azure.Cosmos.ContainerProperties;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CosmosTestStore : TestStore
 {
-    /// <summary>
-    /// The emulator has race conditions when creating containers concurrently, so we need to lock around container creation.
-    /// </summary>
-    public static readonly SemaphoreSlim EmulatorCreateCollectionSemaphore = new(1);
-
-    private static List<string>? _createdDatabases = [];
-    private readonly TestStoreContext _storeContext;
-    private readonly string? _dataFilePath;
+    protected readonly TestStoreContext StoreContext;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
-    private bool _initialized;
+
+    private static int _sharedCounter;
 
     private static readonly Guid _runId = Guid.NewGuid();
-    private static bool? _connectionAvailable;
 
-    public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
-        => new(name, shared: false, extensionConfiguration: extensionConfiguration);
-
-    public static async Task<CosmosTestStore> CreateInitializedAsync(
-        string name,
-        Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
-    {
-        var testStore = Create(name, extensionConfiguration);
-        await testStore.InitializeAsync(null, (Func<DbContext>?)null).ConfigureAwait(false);
-        return testStore;
-    }
-
-    public static CosmosTestStore GetOrCreate(string name)
-        => new(name);
-
-    public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
-        => new(name, dataFilePath: dataFilePath);
-
-    private CosmosTestStore(
+    public CosmosTestStore(
         string name,
         bool shared = true,
-        string? dataFilePath = null,
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
-        : base(CreateName(name), shared)
+        : base(CreateName(name, shared), shared)
     {
         ConnectionUri = TestEnvironment.DefaultConnection;
         AuthToken = TestEnvironment.AuthToken;
@@ -70,43 +41,23 @@ public class CosmosTestStore : TestStore
                 extensionConfiguration(b);
             };
 
-        _storeContext = new TestStoreContext(this);
-
-        if (dataFilePath != null)
-        {
-            _dataFilePath = Path.Combine(
-                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location)!,
-                dataFilePath);
-        }
+        StoreContext = new TestStoreContext(this);
     }
 
-    private static string CreateName(string name)
+    private static string CreateName(string name, bool shared)
     {
-        // Northwind database is static and huge so we don't want to create a new one for each test run.
-        if (name == "Northwind" || name == "Northwind2" || name == "Northwind3")
+        if (!shared)
         {
-            return name;
+            name += Interlocked.Increment(ref _sharedCounter); // Have to append a unique value to ensure non-shared tests using the same store name can run in parallel.
         }
 
-        if (TestEnvironment.IsEmulator)
-        {
-            // We delete and recreate the database for each test run in the emulator.
-            // This is due to limitations in the emulator.
-            // Since the databases are deleted, they can't be shared across test runs.
-            // So we have to generate a new name for each test store, otherwhise we would have name conflicts when running tests in parallel.
-            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
-            return "EF-" + Guid.NewGuid().ToString();
-        }
-
-        return name + _runId;
+        return !TestEnvironment.IsEmulator ? name + _runId : name;
     }
 
     public string ConnectionUri { get; }
     public string AuthToken { get; }
     public TokenCredential TokenCredential { get; }
     public string ConnectionString { get; }
-
-    private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
 
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
@@ -116,238 +67,127 @@ public class CosmosTestStore : TestStore
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
-    public static async ValueTask<bool> IsConnectionAvailableAsync()
+    protected override async Task InitializeAsync(Func<DbContext>? createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        if (_connectionAvailable == null)
+        createContext ??= (() => StoreContext);
+
+        using (var context = createContext())
         {
-            await _connectionSemaphore.WaitAsync();
-
-            try
-            {
-                _connectionAvailable ??= await TryConnectAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                _connectionSemaphore.Release();
-            }
-
+            await CreateDatabaseAsync(context).ConfigureAwait(false);
         }
 
-        return _connectionAvailable.Value;
+        await base.InitializeAsync(createContext, seed, clean).ConfigureAwait(false);
     }
 
-    private static async Task<bool> TryConnectAsync()
+    public override async Task CleanAsync(DbContext context, bool createTables = true)
     {
-        CosmosTestStore? testStore = null;
-        try
-        {
-            testStore = await CreateInitializedAsync("NonExistent").ConfigureAwait(false);
-
-            if (TestEnvironment.IsEmulator)
-            {
-                // Clean up old emulator databases that tests might have left behind.
-                // We do this because the emulator will stop responding with much more than ~10 concurrent containers,
-                // and test runs might have been stopped in the middle leaving databases and containers behind.
-                var client = testStore.CreateDefaultContext().Database.GetCosmosClient();
-                using var iterator = client.GetDatabaseQueryIterator<DatabaseProperties>();
-
-                while (iterator.HasMoreResults)
-                {
-                    var response = await iterator.ReadNextAsync();
-
-                    // This code will run after the first fixtures are initialized,
-                    // so we keep track of the databases we created in order to not delete them here.
-                    foreach (var db in response.Where(x => x.Id.StartsWith("EF-") && !_createdDatabases!.Contains(x.Id)))
-                    {
-                        await client.GetDatabase(db.Id).DeleteAsync();
-                    }
-                }
-
-                // We do not need to track created databases anymore,
-                // Since this code only runs once on startup.
-                _createdDatabases = null;
-            }
-
-
-            return true;
-        }
-        catch (AggregateException aggregate)
-        {
-            if (aggregate.Flatten().InnerExceptions.Any(IsNotConfigured))
-            {
-                return false;
-            }
-
-            throw;
-        }
-        catch (Exception e)
-        {
-            if (IsNotConfigured(e))
-            {
-                return false;
-            }
-
-            throw;
-        }
-        finally
-        {
-            if (testStore != null)
-            {
-                await testStore.DisposeAsync().ConfigureAwait(false);
-            }
-        }
-    }
-
-    private static bool IsNotConfigured(Exception exception)
-        => exception switch
-        {
-            HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
-                || re.InnerException is IOException { InnerException: SocketException }, // Exception in Windows
-            _ => exception.Message.Contains(
-                "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
-                StringComparison.Ordinal),
-        };
-
-    protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
-    {
-        _initialized = true;
-
-        if (_connectionAvailable == false)
+        await DeleteContainersAsync(context).ConfigureAwait(false);
+        if (!createTables)
         {
             return;
         }
 
-        if (_dataFilePath == null)
-        {
-            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
-        }
-        else
-        {
-            using var context = createContext();
-            await CreateFromFile(context).ConfigureAwait(false);
-        }
-    }
-
-    public static async Task<bool> DatabaseEnsureCreated(DbContext context)
-    {
-        if (TestEnvironment.IsEmulator)
-        {
-            // The emulator has a race condition when creating containers concurrently,
-            // so we need to lock around EnsureCreated
-            await EmulatorCreateCollectionSemaphore.WaitAsync();
-        }
         try
         {
-            return await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+            await CreatedContainersAsync(context).ConfigureAwait(false);
         }
-        finally
+        catch
         {
-            if (TestEnvironment.IsEmulator)
+            try
             {
-                EmulatorCreateCollectionSemaphore.Release();
+                await DeleteDatabaseAsync(context).ConfigureAwait(false);
             }
-        }
-    }
-
-    private async Task CreateFromFile(DbContext context)
-    {
-        if (await EnsureCreatedAsync(context).ConfigureAwait(false))
-        {
-            if (!TestEnvironment.UseTokenCredential)
+            catch
             {
-                await DatabaseEnsureCreated(context).ConfigureAwait(false);
-            }
-            else
-            {
-                await CreateContainersAsync(context).ConfigureAwait(false);
             }
 
-            var cosmosClient = context.GetService<ICosmosClientWrapper>();
-            var serializer = CosmosClientWrapper.Serializer;
-            using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
-            using var sr = new StreamReader(fs);
-            using var reader = new JsonTextReader(sr);
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonToken.StartArray)
-                {
-                    NextEntityType:
-                    while (reader.Read())
-                    {
-                        if (reader.TokenType == JsonToken.StartObject)
-                        {
-                            string? entityName = null;
-                            string? containerName = null;
-                            bool? discriminatorInId = null;
-                            while (reader.Read())
-                            {
-                                if (reader.TokenType == JsonToken.PropertyName)
-                                {
-                                    switch (reader.Value)
-                                    {
-                                        case "Name":
-                                            reader.Read();
-                                            entityName = (string)reader.Value;
-                                            break;
-                                        case "Container":
-                                            reader.Read();
-                                            containerName = (string)reader.Value;
-                                            break;
-                                        case "DiscriminatorInId":
-                                            reader.Read();
-                                            discriminatorInId = (bool)reader.Value;
-                                            break;
-                                        case "Data":
-                                            while (reader.Read())
-                                            {
-                                                if (reader.TokenType == JsonToken.StartObject)
-                                                {
-                                                    var document = serializer.Deserialize<JObject>(reader)!;
-
-                                                    document["id"] = discriminatorInId == true
-                                                        ? $"{entityName}|{document["id"]}"
-                                                        : $"{document["id"]}";
-
-                                                    document["$type"] = entityName;
-
-                                                    await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
-                                                }
-                                                else if (reader.TokenType == JsonToken.EndObject)
-                                                {
-                                                    goto NextEntityType;
-                                                }
-                                            }
-
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            throw;
         }
     }
 
     private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
 
-    public async Task<bool> EnsureCreatedAsync(DbContext context, CancellationToken cancellationToken = default)
+    protected virtual async Task CreateDatabaseAsync(DbContext context, CancellationToken cancellationToken = default)
     {
         if (!TestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-            var r = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
-            if (r)
-            {
-                // Keep track of created databases, to prevent them from being deleted in cleanup function,
-                // that could run after the creation of this database, due to xunit creating the first test fixtures before checking the availability of the connection.
-                _createdDatabases?.Add(Name);
-            }
+            await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            await CreateDatabaseUsingTokenCredential(context, cancellationToken).ConfigureAwait(false);
+        }
+    }
 
-            return r;
+    protected virtual async Task<bool> DeleteDatabaseAsync(DbContext context, CancellationToken cancellationToken = default)
+    {
+        if (!TestEnvironment.UseTokenCredential)
+        {
+            return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
+        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+        var database = (await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false));
+        if (database == null
+            || !database.HasValue)
+        {
+            return false;
+        }
+
+        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false))
+            .GetRawResponse();
+        return databaseResponse.Status == (int)HttpStatusCode.OK;
+    }
+
+    public virtual async Task<bool> CreatedContainersAsync(DbContext context, bool skipTokenCredential = false, CancellationToken cancellationToken = default)
+    {
+        if (!TestEnvironment.UseTokenCredential || skipTokenCredential)
+        {
+            return await context.Database.EnsureCreatedAsync(CancellationToken.None).ConfigureAwait(false);
+        }
+
+        await CreateContainersUsingTokenCredentialAsync(context).ConfigureAwait(false);
+        return true;
+    }
+
+    protected virtual async Task DeleteContainersAsync(DbContext context)
+    {
+        if (!TestEnvironment.UseTokenCredential)
+        {
+            var cosmosClient = context.Database.GetCosmosClient();
+            var database = cosmosClient.GetDatabase(Name);
+            var containers = new List<Container>();
+            var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
+            while (containerIterator.HasMoreResults)
+            {
+                foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    containers.Add(database.GetContainer(containerProperties.Id));
+                }
+            }
+
+            foreach (var container in containers)
+            {
+                await container.DeleteContainerAsync().ConfigureAwait(false);
+            }
+        }
+        else
+        {
+            var databaseAccount = await GetDBAccount().ConfigureAwait(false);
+            var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+            var database = await collection.GetAsync(Name).ConfigureAwait(false);
+            var containers = await database.Value.GetCosmosDBSqlContainers().GetAllAsync().ToListAsync().ConfigureAwait(false);
+            foreach (var container in containers)
+            {
+                await container.DeleteAsync(WaitUntil.Completed).ConfigureAwait(false);
+            }
+        }
+    }
+    
+    private async Task<bool> CreateDatabaseUsingTokenCredential(DbContext context, CancellationToken cancellationToken = default)
+    {
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
         var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
@@ -382,80 +222,7 @@ public class CosmosTestStore : TestStore
         return databaseResponse.GetRawResponse().Status == (int)HttpStatusCode.OK;
     }
 
-    private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
-    {
-        if (!TestEnvironment.UseTokenCredential)
-        {
-            return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
-        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var database = (await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false));
-        if (database == null
-            || !database.HasValue)
-        {
-            return false;
-        }
-
-        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false))
-            .GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.OK;
-    }
-
-    private Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken = default)
-    {
-        var accountName = new Uri(ConnectionUri).Host.Split('.').First();
-        var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
-            TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
-        return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
-    }
-
-    public override async Task CleanAsync(DbContext context, bool createTables = true)
-    {
-        var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
-        try
-        {
-            if (!created)
-            {
-                await DeleteContainersAsync(context).ConfigureAwait(false);
-            }
-
-            if (!createTables)
-            {
-                return;
-            }
-
-            if (!TestEnvironment.UseTokenCredential)
-            {
-                created = await DatabaseEnsureCreated(context).ConfigureAwait(false);
-
-                if (!created)
-                {
-                    await SeedAsync(context).ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                await CreateContainersAsync(context).ConfigureAwait(false);
-                await SeedAsync(context).ConfigureAwait(false);
-            }
-        }
-        catch
-        {
-            try
-            {
-                await EnsureDeletedAsync(context).ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-
-            throw;
-        }
-    }
-
-    private async Task CreateContainersAsync(DbContext context)
+    private async Task CreateContainersUsingTokenCredentialAsync(DbContext context)
     {
         var databaseAccount = await GetDBAccount().ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
@@ -497,6 +264,8 @@ public class CosmosTestStore : TestStore
             await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
                 WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
         }
+
+        await SeedAsync(context);
     }
 
     private static IEnumerable<Cosmos.Storage.Internal.ContainerProperties> GetContainersToCreate(IModel model)
@@ -594,38 +363,12 @@ public class CosmosTestStore : TestStore
             : [CosmosClientWrapper.DefaultPartitionKey];
     }
 
-    private async Task DeleteContainersAsync(DbContext context)
+    private Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
-        {
-            var cosmosClient = context.Database.GetCosmosClient();
-            var database = cosmosClient.GetDatabase(Name);
-            var containers = new List<Container>();
-            var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
-            while (containerIterator.HasMoreResults)
-            {
-                foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
-                {
-                    containers.Add(database.GetContainer(containerProperties.Id));
-                }
-            }
-
-            foreach (var container in containers)
-            {
-                await container.DeleteContainerAsync();
-            }
-        }
-        else
-        {
-            var databaseAccount = await GetDBAccount().ConfigureAwait(false);
-            var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-            var database = await collection.GetAsync(Name).ConfigureAwait(false);
-            var containers = await database.Value.GetCosmosDBSqlContainers().GetAllAsync().ToListAsync().ConfigureAwait(false);
-            foreach (var container in containers)
-            {
-                await container.DeleteAsync(WaitUntil.Completed).ConfigureAwait(false);
-            }
-        }
+        var accountName = new Uri(ConnectionUri).Host.Split('.').First();
+        var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
+            TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
+        return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
     private static async Task SeedAsync(DbContext context)
@@ -637,29 +380,15 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        // We don't delete the database if it was created from a data file, because importing it is really slow.
-        if (_initialized
-            && _dataFilePath == null)
+        if (!Shared)
         {
-            if (_connectionAvailable == false)
-            {
-                return;
-            }
-
-            if (Shared)
-            {
-                GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
-            }
-
-            // We always delete the database because the emulator will stop responding with much more than ~10 concurrent containers,
-            // https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
-            await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
+            await DeleteDatabaseAsync(StoreContext).ConfigureAwait(false);
         }
 
-        _storeContext.Dispose();
+        StoreContext.Dispose();
     }
 
-    private class TestStoreContext(CosmosTestStore testStore) : DbContext
+    protected class TestStoreContext(CosmosTestStore testStore) : DbContext
     {
         private readonly CosmosTestStore _testStore = testStore;
 

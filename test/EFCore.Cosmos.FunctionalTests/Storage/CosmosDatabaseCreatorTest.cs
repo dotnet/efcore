@@ -13,7 +13,7 @@ public class CosmosDatabaseCreatorTest
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_does_not_exist()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExistingDatabase");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("NonExistingDatabase");
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
         await creator.EnsureDeletedAsync();
@@ -23,7 +23,7 @@ public class CosmosDatabaseCreatorTest
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not()
     {
-        await using var testDatabase = CosmosTestStore.Create("EnsureCreatedTest");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("EnsureCreatedTest");
         await testDatabase.InitializeAsync(testDatabase.ServiceProvider, () => new BaseContext(testDatabase));
 
         using var context = new BloggingContext(testDatabase);
@@ -36,7 +36,7 @@ public class CosmosDatabaseCreatorTest
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await using var testDatabase = CosmosTestStore.Create("EnsureCreatedReady");
+                await using var testDatabase = CosmosTestStoreFactory.Instance.Create("EnsureCreatedReady");
                 await testDatabase.InitializeAsync(
                     testDatabase.ServiceProvider, testStore => new BloggingContext((CosmosTestStore)testStore));
 
@@ -51,7 +51,7 @@ public class CosmosDatabaseCreatorTest
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureDeleteBlogging");
+                await using var testDatabase = await CosmosTestStoreFactory.Instance.CreateInitializedAsync("EnsureDeleteBlogging");
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
@@ -63,7 +63,7 @@ public class CosmosDatabaseCreatorTest
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await using var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging");
+                await using var testDatabase = CosmosTestStoreFactory.Instance.Create("EnsureDeleteBlogging");
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
@@ -73,7 +73,7 @@ public class CosmosDatabaseCreatorTest
     [ConditionalFact]
     public async Task EnsureCreated_throws_for_missing_seed()
     {
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        await using var testDatabase = await CosmosTestStoreFactory.Instance.CreateInitializedAsync("EnsureCreatedSeedTest");
         using var context = new BloggingContext(testDatabase, seed: true);
 
         Assert.Equal(
@@ -85,7 +85,7 @@ public class CosmosDatabaseCreatorTest
     {
         if (TestEnvironment.IsEmulator)
         {
-            await CosmosTestStore.EmulatorCreateCollectionSemaphore.WaitAsync();
+            await CosmosEmulatorTestStore.ContainerCrudSemaphore.WaitAsync();
         }
         try
         {
@@ -95,7 +95,7 @@ public class CosmosDatabaseCreatorTest
         {
             if (TestEnvironment.IsEmulator)
             {
-                CosmosTestStore.EmulatorCreateCollectionSemaphore.Release();
+                CosmosEmulatorTestStore.ContainerCrudSemaphore.Release();
             }
         }
     }
