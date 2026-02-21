@@ -36,6 +36,11 @@ WHERE [t].[Value].STEquals('MULTIPOLYGON (((0 0, 0 5, 5 5, 5 0, 0 0)), ((10 10, 
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

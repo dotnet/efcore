@@ -78,7 +78,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
     // The translation tests usually use BasicTypesQueryFixtureBase, which manages a single database with all the data needed for the tests.
     // However, here in the JSON translation tests we use a separate fixture and database, since not all providers necessary implement full
     // JSON support, and we don't want to make life difficult for them with the basic translation tests.
-    public abstract class JsonTranslationsQueryFixtureBase : SharedStoreFixtureBase<JsonTranslationsQueryContext>, IQueryFixtureBase, ITestSqlLoggerFactory
+    public abstract class JsonTranslationsQueryFixtureBase : QueryFixtureBase<JsonTranslationsQueryContext>, ITestSqlLoggerFactory
     {
         private JsonTranslationsData? _expectedData;
 
@@ -110,15 +110,15 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
 
         protected abstract string RemoveJsonProperty(string column, string property);
 
-        public virtual ISetSource GetExpectedData()
+        public override ISetSource GetExpectedData()
             => _expectedData ??= new JsonTranslationsData();
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
         {
             { typeof(JsonTranslationsEntity), e => ((JsonTranslationsEntity?)e)?.Id },
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
         {
             {
                 typeof(JsonTranslationsEntity), (e, a) =>
@@ -142,7 +142,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public Func<DbContext> GetContextCreator()
+        public override Func<DbContext> GetContextCreator()
             => CreateContext;
 
         public TestSqlLoggerFactory TestSqlLoggerFactory

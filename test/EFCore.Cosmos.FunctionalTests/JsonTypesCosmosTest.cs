@@ -267,6 +267,6 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 }

@@ -40,7 +40,7 @@ public class QueryAsserter(
     }
 
     protected ISetSource GetExpectedData(DbContext context, bool filteredQuery)
-        => filteredQuery ? ((IFilteredQueryFixtureBase)QueryFixture).GetFilteredExpectedData(context) : _expectedData;
+        => filteredQuery ? QueryFixture.GetFilteredExpectedData(context)! : _expectedData;
 
     public virtual async Task AssertSingleResult<TResult>(
         Expression<Func<ISetSource, TResult>> actualSyncQuery,

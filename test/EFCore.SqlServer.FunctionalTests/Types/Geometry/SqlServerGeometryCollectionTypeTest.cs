@@ -34,6 +34,11 @@ WHERE [t].[Value].STEquals('GEOMETRYCOLLECTION (POINT (1 1), LINESTRING (2 2, 3 
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

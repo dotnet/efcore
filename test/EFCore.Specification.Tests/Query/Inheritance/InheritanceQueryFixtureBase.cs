@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
 #nullable disable
 
-public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IFilteredQueryFixtureBase
+public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<InheritanceContext>
 {
     private readonly Dictionary<bool, ISetSource> _expectedDataCache = new();
 
@@ -35,15 +35,12 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
             CoreEventId.MappedPropertyIgnoredWarning,
             CoreEventId.MappedNavigationIgnoredWarning));
 
-    public Func<DbContext> GetContextCreator()
-        => CreateContext;
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => UseGeneratedKeys
             ? InheritanceData.GeneratedKeysInstance
             : InheritanceData.Instance;
 
-    public virtual ISetSource GetFilteredExpectedData(DbContext context)
+    public override ISetSource GetFilteredExpectedData(DbContext context)
     {
         if (_expectedDataCache.TryGetValue(EnableFilters, out var cachedResult))
         {
@@ -64,7 +61,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         return expectedData;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(Animal), e => ((Animal)e)?.Species },
         { typeof(Bird), e => ((Bird)e)?.Species },
@@ -87,7 +84,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         { typeof(NestedComplexType), e => ((NestedComplexType)e)?.UniqueInt },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; }
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 
     public InheritanceQueryFixtureBase()
         => EntityAsserters = new Dictionary<Type, Action<object, object>>
