@@ -286,7 +286,7 @@ public sealed partial class SelectExpression
                     var navigation = collectionResultExpression.StructuralProperty switch
                     {
                         INavigationBase n => n,
-                        null => null,
+                        null or IComplexProperty => null,
                         _ => throw new UnreachableException()
                     };
 
