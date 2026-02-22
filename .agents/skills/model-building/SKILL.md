@@ -1,4 +1,4 @@
-  ---
+---
 name: model-building
 description: 'EF Core model building, conventions, metadata interfaces, model initialization, runtime annotations, RuntimeModelConvention. Use when working on ConventionSet, ModelBuilder, IConvention implementations, ModelRuntimeInitializer, or RuntimeModel.'
 user-invokable: false
