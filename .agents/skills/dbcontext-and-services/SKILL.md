@@ -17,7 +17,7 @@ EF Core's internal DI container, service registration, and context lifecycle man
 
 ## Service Registration
 
-`EntityFrameworkServicesBuilder` (`src/EFCore/Infrastructure/EntityFrameworkServicesBuilder.cs`, 531 lines) maintains a `CoreServices` dictionary mapping service types to `ServiceCharacteristics` (lifetime + multi-registration flag). `TryAddCoreServices()` registers ~60+ services.
+`EntityFrameworkServicesBuilder` (`src/EFCore/Infrastructure/EntityFrameworkServicesBuilder.cs`) maintains a `CoreServices` dictionary mapping service types to `ServiceCharacteristics` (lifetime + multi-registration flag). `TryAddCoreServices()` registers ~60+ services.
 
 Pattern: Providers call `TryAddProviderSpecificServices()` first, then `TryAddCoreServices()` fills remaining defaults.
 
