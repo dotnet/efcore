@@ -27,7 +27,7 @@ This skill helps you scaffold new agent skills that conform to the Agent Skills 
 
 ### Step 1: Investigate the Topic
 
-Build deep understanding of the relevant topics using.
+Build deep understanding of the relevant topics using the repository content, existing documentation, and any linked external resources.
 
 After investigating, verify:
 - [ ] Can explain what the skill does in one paragraph
