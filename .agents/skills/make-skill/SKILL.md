@@ -38,7 +38,7 @@ After investigating, verify:
 - [ ] Can determine if the skill should be user-invokable or background knowledge only
 
 If there are any ambiguities, gaps in understanding, or multiple valid approaches, ask the user for clarification before proceeding to skill creation.
-Also, evaluate whether the task might would be better handled by a custom agent, agentic workflow, an existing skill or multiple narrower skills, and discuss this with the user if relevant.
+Also, evaluate whether the task might be better handled by a custom agent, agentic workflow, an existing skill or multiple narrower skills, and discuss this with the user if relevant.
 
 ### Step 2: Create the skill directory
 
