@@ -188,7 +188,15 @@ public class CosmosEmulatorTestStore
                 if (infoRef.ReleaseCompletionSource != null)
                 {
                     // The test store is still being deleted
-                    await infoRef.ReleaseCompletionSource.Task;
+                    _concurrencyControlSemaphore.Release();
+                    try
+                    {
+                        await infoRef.ReleaseCompletionSource.Task;
+                    }
+                    finally
+                    {
+                        await _concurrencyControlSemaphore.WaitAsync();
+                    }
                     return WaitAsync(dbContext);
                 }
 
