@@ -4,7 +4,7 @@ description: 'EF Core scaffolding (reverse engineering), CSharpModelGenerator, d
 user-invokable: false
 ---
 
-# Scaffoldin
+# Scaffolding
 
 Generates C# code from database schemas (reverse engineering).
 
