@@ -12,7 +12,7 @@ public class CosmosEmulatorTestStore
     /// <summary>
     /// The emulator becomes unstable with parallel CRUD container requests, use this lock to create containers.
     /// </summary>
-    public static readonly SemaphoreSlim ContainerCrudSemaphore = new(1);
+    public static readonly SemaphoreSlim ContainerCrudSemaphore = new(1, 1);
 
     private bool _databaseCreated;
     private bool _acquired;
@@ -109,6 +109,10 @@ public class CosmosEmulatorTestStore
             _acquired = false;
             if (Shared)
             {
+                if (IsConnectionAvailable == false)
+                {
+                    return;
+                }
                 // We only get a delete lock if this test store instance is the last one using the database, so we can safely delete the database if it's shared.
                 if (deleteLock != null)
                 {
@@ -134,7 +138,7 @@ public class CosmosEmulatorTestStore
     // See: https://learn.microsoft.com/en-us/azure/cosmos-db/emulator#differences-between-the-emulator-and-cloud-service
     private const int RecommendedContainerCount = 10;
 
-    private static readonly SemaphoreSlim _concurrencyControlSemaphore = new(1);
+    private static readonly SemaphoreSlim _concurrencyControlSemaphore = new(1, 1);
     private static readonly Dictionary<string, TestStoreInfo> _testsMap = new();
     private static readonly List<TestStoreInfo> _waitingTests = new();
     private static int _currentContainerCount;

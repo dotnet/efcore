@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
+using System.Net.Sockets;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -61,8 +62,80 @@ public abstract class CosmosTestStore : TestStore
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
+    #region Connection Available
+    protected static bool? IsConnectionAvailable;
+    private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
+
+    public static async ValueTask<bool> IsConnectionAvailableAsync()
+    {
+        if (IsConnectionAvailable.HasValue)
+        {
+            return IsConnectionAvailable.Value;
+        }
+
+        await _connectionSemaphore.WaitAsync();
+        try
+        {
+            if (IsConnectionAvailable.HasValue)
+            {
+                return IsConnectionAvailable.Value;
+            }
+
+            await using var testStore = CosmosTestStoreFactory.Instance.Create(nameof(CosmosDbConfiguredConditionAttribute));
+            try
+            {
+                await testStore.InitializeAsync(null, (Func<DbContext>?)null);
+                IsConnectionAvailable = true;
+            }
+            catch (AggregateException aggregate)
+            {
+                if (aggregate.Flatten().InnerExceptions.Any(IsNotConfigured))
+                {
+                    IsConnectionAvailable = false;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                if (IsNotConfigured(e))
+                {
+                    IsConnectionAvailable = false;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+        finally
+        {
+            _connectionSemaphore.Release();
+        }
+
+        return IsConnectionAvailable.Value;
+    }
+
+    private static bool IsNotConfigured(Exception exception)
+        => exception switch
+        {
+            HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
+                || re.InnerException is IOException { InnerException: SocketException }, // Exception in Windows
+            _ => exception.Message.Contains(
+                "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
+                StringComparison.Ordinal),
+        };
+    #endregion
+
     protected override async Task InitializeAsync(Func<DbContext>? createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
+        if (IsConnectionAvailable == false)
+        {
+            return;
+        }
+
         createContext ??= (() => StoreContext);
 
         using (var context = createContext())
@@ -378,6 +451,11 @@ public abstract class CosmosTestStore : TestStore
     {
         if (_initialized && !Shared)
         {
+            if (IsConnectionAvailable == false)
+            {
+                return;
+            }
+
             await DeleteDatabaseAsync(StoreContext).ConfigureAwait(false);
         }
 
