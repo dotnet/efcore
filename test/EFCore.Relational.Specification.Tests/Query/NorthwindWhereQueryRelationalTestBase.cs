@@ -24,6 +24,5 @@ public abstract class NorthwindWhereQueryRelationalTestBase<TFixture>(TFixture f
     }
 
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+        => new(fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

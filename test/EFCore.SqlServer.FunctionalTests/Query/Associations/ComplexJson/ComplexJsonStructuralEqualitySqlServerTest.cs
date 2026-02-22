@@ -140,7 +140,7 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.OptionalNestedAssociate') IS NULL
                 """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS nvarchar(max)) = CAST('{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS nvarchar(max)) = N'{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}'
 """);
         }
         else
@@ -162,7 +162,7 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') = '{"Id":
         {
             AssertSql(
                 """
-@entity_equality_nested='?' (Size = 106)
+@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' (Size = 106)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -173,7 +173,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS n
         {
             AssertSql(
                 """
-@entity_equality_nested='?' (Size = 106)
+@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' (Size = 106)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -216,7 +216,7 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = JSON_QUERY([r]
                 """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
-WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar(max)) = CAST('[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' AS nvarchar(max))
+WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar(max)) = N'[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]'
 """);
         }
         else
@@ -238,7 +238,7 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = '[{"Id":1002,"
         {
             AssertSql(
                 """
-@entity_equality_nestedCollection='?' (Size = 205)
+@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' (Size = 205)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -249,7 +249,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar
         {
             AssertSql(
                 """
-@entity_equality_nestedCollection='?' (Size = 205)
+@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' (Size = 205)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -282,7 +282,7 @@ WHERE EXISTS (
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [n]
-    WHERE [n].[Id] = 1002 AND [n].[Int] = 8 AND CAST([n].[Ints] AS nvarchar(max)) = CAST('[1,2,3]' AS nvarchar(max)) AND [n].[Name] = N'Root1_RequiredAssociate_NestedCollection_1' AND [n].[String] = N'foo')
+    WHERE [n].[Id] = 1002 AND [n].[Int] = 8 AND CAST([n].[Ints] AS nvarchar(max)) = N'[1,2,3]' AND [n].[Name] = N'Root1_RequiredAssociate_NestedCollection_1' AND [n].[String] = N'foo')
 """);
         }
         else
@@ -316,11 +316,11 @@ WHERE EXISTS (
         {
             AssertSql(
                 """
-@entity_equality_nested_Id='?' (DbType = Int32)
-@entity_equality_nested_Int='?' (DbType = Int32)
-@entity_equality_nested_Ints='?' (Size = 8000)
-@entity_equality_nested_Name='?' (Size = 4000)
-@entity_equality_nested_String='?' (Size = 4000)
+@entity_equality_nested_Id='1002' (Nullable = true)
+@entity_equality_nested_Int='8' (Nullable = true)
+@entity_equality_nested_Ints='[1,2,3]' (Size = 7)
+@entity_equality_nested_Name='Root1_RequiredAssociate_NestedCollection_1' (Size = 4000)
+@entity_equality_nested_String='foo' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -340,11 +340,11 @@ WHERE EXISTS (
         {
             AssertSql(
                 """
-@entity_equality_nested_Id='?' (DbType = Int32)
-@entity_equality_nested_Int='?' (DbType = Int32)
-@entity_equality_nested_Ints='?' (Size = 4000)
-@entity_equality_nested_Name='?' (Size = 4000)
-@entity_equality_nested_String='?' (Size = 4000)
+@entity_equality_nested_Id='1002' (Nullable = true)
+@entity_equality_nested_Int='8' (Nullable = true)
+@entity_equality_nested_Ints='[1,2,3]' (Size = 4000)
+@entity_equality_nested_Name='Root1_RequiredAssociate_NestedCollection_1' (Size = 4000)
+@entity_equality_nested_String='foo' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -370,12 +370,12 @@ WHERE EXISTS (
         {
             AssertSql(
                 """
-@get_Item_Int='?' (DbType = Int32)
-@entity_equality_get_Item_Id='?' (DbType = Int32)
-@entity_equality_get_Item_Int='?' (DbType = Int32)
-@entity_equality_get_Item_Ints='?' (Size = 8000)
-@entity_equality_get_Item_Name='?' (Size = 4000)
-@entity_equality_get_Item_String='?' (Size = 4000)
+@get_Item_Int='106'
+@entity_equality_get_Item_Id='3003' (Nullable = true)
+@entity_equality_get_Item_Int='108' (Nullable = true)
+@entity_equality_get_Item_Ints='[8,9,109]' (Size = 9)
+@entity_equality_get_Item_Name='Root3_RequiredAssociate_NestedCollection_2' (Size = 4000)
+@entity_equality_get_Item_String='foo104' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -395,12 +395,12 @@ WHERE EXISTS (
         {
             AssertSql(
                 """
-@get_Item_Int='?' (DbType = Int32)
-@entity_equality_get_Item_Id='?' (DbType = Int32)
-@entity_equality_get_Item_Int='?' (DbType = Int32)
-@entity_equality_get_Item_Ints='?' (Size = 4000)
-@entity_equality_get_Item_Name='?' (Size = 4000)
-@entity_equality_get_Item_String='?' (Size = 4000)
+@get_Item_Int='106'
+@entity_equality_get_Item_Id='3003' (Nullable = true)
+@entity_equality_get_Item_Int='108' (Nullable = true)
+@entity_equality_get_Item_Ints='[8,9,109]' (Size = 4000)
+@entity_equality_get_Item_Name='Root3_RequiredAssociate_NestedCollection_2' (Size = 4000)
+@entity_equality_get_Item_String='foo104' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -426,15 +426,15 @@ WHERE EXISTS (
         {
             AssertSql(
                 """
-@get_Item_Id='?' (DbType = Int32)
-@entity_equality_get_Item_Id='?' (DbType = Int32)
-@entity_equality_get_Item_Int='?' (DbType = Int32)
-@entity_equality_get_Item_Ints='?' (Size = 8000)
-@entity_equality_get_Item_Name='?' (Size = 4000)
-@entity_equality_get_Item_String='?' (Size = 4000)
-@entity_equality_get_Item_NestedCollection='?' (Size = 233)
-@entity_equality_get_Item_OptionalNestedAssociate='?' (Size = 117)
-@entity_equality_get_Item_RequiredNestedAssociate='?' (Size = 117)
+@get_Item_Id='302'
+@entity_equality_get_Item_Id='303' (Nullable = true)
+@entity_equality_get_Item_Int='130' (Nullable = true)
+@entity_equality_get_Item_Ints='[8,9,131]' (Size = 9)
+@entity_equality_get_Item_Name='Root3_AssociateCollection_2' (Size = 4000)
+@entity_equality_get_Item_String='foo115' (Size = 4000)
+@entity_equality_get_Item_NestedCollection='[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}]' (Size = 233)
+@entity_equality_get_Item_OptionalNestedAssociate='{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"}' (Size = 117)
+@entity_equality_get_Item_RequiredNestedAssociate='{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}' (Size = 117)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -457,15 +457,15 @@ WHERE EXISTS (
         {
             AssertSql(
                 """
-@get_Item_Id='?' (DbType = Int32)
-@entity_equality_get_Item_Id='?' (DbType = Int32)
-@entity_equality_get_Item_Int='?' (DbType = Int32)
-@entity_equality_get_Item_Ints='?' (Size = 4000)
-@entity_equality_get_Item_Name='?' (Size = 4000)
-@entity_equality_get_Item_String='?' (Size = 4000)
-@entity_equality_get_Item_NestedCollection='?' (Size = 233)
-@entity_equality_get_Item_OptionalNestedAssociate='?' (Size = 117)
-@entity_equality_get_Item_RequiredNestedAssociate='?' (Size = 117)
+@get_Item_Id='302'
+@entity_equality_get_Item_Id='303' (Nullable = true)
+@entity_equality_get_Item_Int='130' (Nullable = true)
+@entity_equality_get_Item_Ints='[8,9,131]' (Size = 4000)
+@entity_equality_get_Item_Name='Root3_AssociateCollection_2' (Size = 4000)
+@entity_equality_get_Item_String='foo115' (Size = 4000)
+@entity_equality_get_Item_NestedCollection='[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}]' (Size = 233)
+@entity_equality_get_Item_OptionalNestedAssociate='{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"}' (Size = 117)
+@entity_equality_get_Item_RequiredNestedAssociate='{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}' (Size = 117)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]

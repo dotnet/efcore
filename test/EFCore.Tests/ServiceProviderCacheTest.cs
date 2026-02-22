@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -326,5 +327,25 @@ public class ServiceProviderCacheTest
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["Fake2"] = "1";
         }
+    }
+
+    [ConditionalFact]
+    public void Service_provider_cache_can_be_cleared()
+    {
+        var cache = ServiceProviderCache.Instance;
+        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("TestDB").Options;
+
+        var provider1 = cache.GetOrAdd(options, providerRequired: false);
+        cache.Clear(); 
+
+        var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance);
+        var dict = (System.Collections.IDictionary)field.GetValue(cache);
+        
+        Assert.Equal(0, dict.Count);
+        
+        var provider2 = cache.GetOrAdd(options, providerRequired: false);
+        
+        Assert.NotNull(provider2);
+        Assert.NotSame(provider1, provider2);
     }
 }

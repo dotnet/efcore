@@ -82,7 +82,13 @@ internal class Project
 
         var output = new StringBuilder();
 
-        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        Reporter.WriteVerbose(Resources.RunningCommand("dotnet " + string.Join(" ", args)));
+
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line =>
+        {
+            output.AppendLine(line);
+            Reporter.WriteVerbose(line);
+        });
         if (exitCode != 0)
         {
             if (framework == null && HasMultipleTargetFrameworks(file))

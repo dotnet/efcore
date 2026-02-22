@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public abstract class SnapshotFactoryFactory
 {
-    private static readonly bool UseOldBehavior37337 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37337", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -143,7 +140,7 @@ public abstract class SnapshotFactoryFactory
 
                 case IProperty property:
                     // Shadow property materialization on complex types is not currently supported (see #35613).
-                    if (!UseOldBehavior37337 && propertyBase.DeclaringType is IComplexType && property.IsShadowProperty())
+                    if (propertyBase.DeclaringType is IComplexType && property.IsShadowProperty())
                     {
                         arguments[i] = propertyBase.ClrType.GetDefaultValueConstant();
                         types[i] = propertyBase.ClrType;
