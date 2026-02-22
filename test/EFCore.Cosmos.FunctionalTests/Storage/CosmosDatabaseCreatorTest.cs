@@ -16,8 +16,8 @@ public class CosmosDatabaseCreatorTest
         await using var testDatabase = CosmosTestStoreFactory.Instance.Create("NonExistingDatabase");
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
-        await creator.EnsureDeletedAsync();
-        Assert.True(await EnsureCreatedAsync(creator));
+        await LockAround(() => creator.EnsureDeletedAsync());
+        Assert.True(await LockAround(() => creator.EnsureCreatedAsync()));
     }
 
     [ConditionalFact]
@@ -28,7 +28,7 @@ public class CosmosDatabaseCreatorTest
 
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
-        Assert.True(await EnsureCreatedAsync(creator));
+        Assert.True(await LockAround(() => creator.EnsureCreatedAsync()));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -43,7 +43,7 @@ public class CosmosDatabaseCreatorTest
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await EnsureCreatedAsync(creator) : creator.EnsureCreated());
+                Assert.False(a ? await LockAround(() => creator.EnsureCreatedAsync()) : creator.EnsureCreated());
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -55,7 +55,7 @@ public class CosmosDatabaseCreatorTest
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.True(a ? await EnsureCreatedAsync(creator) : creator.EnsureDeleted());
+                Assert.True(a ? await LockAround(() => creator.EnsureDeletedAsync()) : creator.EnsureDeleted());
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -67,7 +67,7 @@ public class CosmosDatabaseCreatorTest
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
+                Assert.False(a ? await LockAround(() => creator.EnsureDeletedAsync()) : creator.EnsureDeleted());
             });
 
     [ConditionalFact]
@@ -81,7 +81,7 @@ public class CosmosDatabaseCreatorTest
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
     }
 
-    private async Task<bool> EnsureCreatedAsync(IDatabaseCreator creator)
+    private async Task<bool> LockAround(Func<Task<bool>> action)
     {
         if (TestEnvironment.IsEmulator)
         {
@@ -89,7 +89,7 @@ public class CosmosDatabaseCreatorTest
         }
         try
         {
-            return await creator.EnsureCreatedAsync();
+            return await action();
         }
         finally
         {
