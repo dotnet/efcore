@@ -187,7 +187,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             modelSnapshotNamespace,
             _contextType,
             modelSnapshotName,
-            Dependencies.Model);
+            Dependencies.Model,
+            migrationId);
 
         return new ScaffoldedMigration(
             codeGenerator.FileExtension,
@@ -223,27 +224,29 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// </summary>
     /// <param name="projectDir">The project's root directory.</param>
     /// <param name="rootNamespace">The project's root namespace.</param>
-    /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The removed migration files.</returns>
     public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force, bool dryRun)
-        => RemoveMigration(projectDir, rootNamespace, force, language: null, dryRun: false);
+        => RemoveMigration(projectDir, rootNamespace, force, language: null, dryRun: dryRun, offline: false);
 
     /// <summary>
     ///     Removes the previous migration.
     /// </summary>
     /// <param name="projectDir">The project's root directory.</param>
     /// <param name="rootNamespace">The project's root namespace.</param>
-    /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
     /// <param name="language">The project's language.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
+    /// <param name="offline">Remove the migration without connecting to the database.</param>
     /// <returns>The removed migration files.</returns>
     public virtual MigrationFiles RemoveMigration(
         string projectDir,
         string? rootNamespace,
         bool force,
         string? language,
-        bool dryRun)
+        bool dryRun = false,
+        bool offline = false)
     {
         var files = new MigrationFiles();
 
@@ -268,16 +271,20 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                     model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
             {
                 var applied = false;
-                try
+                
+                if (!offline)
                 {
-                    applied = Dependencies.HistoryRepository.GetAppliedMigrations().Any(e => e.MigrationId.Equals(
-                        migration.GetId(), StringComparison.OrdinalIgnoreCase));
-                }
-                catch (Exception ex) when (force)
-                {
-                    Dependencies.OperationReporter.WriteVerbose(ex.ToString());
-                    Dependencies.OperationReporter.WriteWarning(
-                        DesignStrings.ForceRemoveMigration(migration.GetId(), ex.Message));
+                    try
+                    {
+                        applied = Dependencies.HistoryRepository.GetAppliedMigrations().Any(e => e.MigrationId.Equals(
+                            migration.GetId(), StringComparison.OrdinalIgnoreCase));
+                    }
+                    catch (Exception ex) when (force)
+                    {
+                        Dependencies.OperationReporter.WriteVerbose(ex.ToString());
+                        Dependencies.OperationReporter.WriteWarning(
+                            DesignStrings.ForceRemoveMigration(migration.GetId(), ex.Message));
+                    }
                 }
 
                 if (applied)
@@ -340,6 +347,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             }
         }
 
+        var latestMigrationId = migrations.Count > 1 ? migrations[^2].GetId() : null;
+
         var modelSnapshotName = modelSnapshot.GetType().Name;
         var modelSnapshotFileName = modelSnapshotName + codeGenerator.FileExtension;
         var modelSnapshotFile = TryGetProjectFile(projectDir, modelSnapshotFileName);
@@ -372,7 +381,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 modelSnapshotNamespace,
                 _contextType,
                 modelSnapshotName,
-                model);
+                model,
+                latestMigrationId);
 
             modelSnapshotFile ??= Path.Combine(
                 GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),

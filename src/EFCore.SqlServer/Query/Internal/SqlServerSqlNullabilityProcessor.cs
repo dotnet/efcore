@@ -36,7 +36,6 @@ public class SqlServerSqlNullabilityProcessor(
     private int _openJsonAliasCounter;
     private int _totalParameterCount;
 
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -300,6 +299,7 @@ public class SqlServerSqlNullabilityProcessor(
             {
                 Check.DebugAssert(valuesParameter.TypeMapping is not null);
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
+
                 var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
 
                 if (TryHandleOverLimitParameters(
@@ -325,7 +325,7 @@ public class SqlServerSqlNullabilityProcessor(
                                             new ColumnExpression(
                                                 columnName,
                                                 openJson.Alias,
-                                                valuesParameter.Type.GetSequenceType(),
+                                                valuesParameter.Type.GetSequenceType().UnwrapNullableType(),
                                                 elementTypeMapping,
                                                 containsNulls!.Value),
                                             columnName)

@@ -374,6 +374,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsRemoveForceDescription");
 
         /// <summary>
+        ///     Remove the migration without connecting to the database.
+        /// </summary>
+        public static string MigrationsRemoveOfflineDescription
+            => GetString("MigrationsRemoveOfflineDescription");
+
+        /// <summary>
         ///     Generates a SQL script from migrations.
         /// </summary>
         public static string MigrationsScriptDescription
@@ -408,6 +414,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => string.Format(
                 GetString("MissingOption", nameof(option)),
                 option);
+
+        /// <summary>
+        ///     The --offline and --force options cannot be used together.
+        /// </summary>
+        public static string OfflineForceConflict
+            => GetString("OfflineForceConflict");
 
         /// <summary>
         ///     The namespace to use. Matches the directory by default.

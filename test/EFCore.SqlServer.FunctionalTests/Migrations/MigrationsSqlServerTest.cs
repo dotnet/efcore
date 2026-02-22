@@ -2830,6 +2830,564 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
         AssertSql("DROP INDEX [IX_VectorEntities_Vector] ON [VectorEntities];");
     }
 
+    #region Full-text search
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var indexColumn = Assert.Single(index.Columns);
+
+                Assert.Same(table.Columns.Single(c => c.Name == "Title"), indexColumn);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_index_with_all_options()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.Property<string>("Body").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title", "Body")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .WithChangeTracking(FullTextChangeTracking.Manual)
+                .HasLanguage("Title", "English")
+                .HasLanguage("Body", "French"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.Equal(2, index.Columns.Count);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("TestCatalog", index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Equal(FullTextChangeTracking.Manual, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [English], [Body] LANGUAGE [French]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = MANUAL;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_index_with_change_tracking_off()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .WithChangeTracking(FullTextChangeTracking.Off),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal(FullTextChangeTracking.Off, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = OFF;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Drop_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog"),
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_catalog()
+    {
+        await Test(
+            builder => { },
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            model => { });
+
+        AssertSql(
+            """
+CREATE FULLTEXT CATALOG [MyCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_catalog_as_default_accent_insensitive()
+    {
+        await Test(
+            builder => { },
+            builder => builder.HasFullTextCatalog("MyCatalog").IsDefault().IsAccentSensitive(false),
+            model => { });
+
+        AssertSql(
+            """
+CREATE FULLTEXT CATALOG [MyCatalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Drop_full_text_catalog()
+    {
+        await Test(
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            builder => { },
+            model => { });
+
+        AssertSql(
+            """
+DROP FULLTEXT CATALOG [MyCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Alter_full_text_catalog_accent_sensitivity()
+    {
+        await Test(
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            builder => builder.HasFullTextCatalog("MyCatalog").IsAccentSensitive(false),
+            model => { });
+
+        AssertSql(
+            """
+ALTER FULLTEXT CATALOG [MyCatalog] REBUILD WITH ACCENT_SENSITIVITY = OFF;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Alter_full_text_catalog_set_as_default()
+    {
+        await Test(
+            builder => builder.HasFullTextCatalog("MyCatalog"),
+            builder => builder.HasFullTextCatalog("MyCatalog").IsDefault(),
+            model => { });
+
+        AssertSql(
+            """
+ALTER FULLTEXT CATALOG [MyCatalog] AS DEFAULT;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_index_with_change_tracking_off_no_population()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .WithChangeTracking(FullTextChangeTracking.OffNoPopulation),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                // NO POPULATION is a creation-only option; scaffolding reads back as Off
+                Assert.Equal(FullTextChangeTracking.Off, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = OFF, NO POPULATION;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Add_column_to_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.Property<string>("Body").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title", "Body")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.Equal(2, index.Columns.Count);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title], [Body]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Remove_column_from_full_text_index()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.Property<string>("Body").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title", "Body")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.Single(index.Columns);
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Change_full_text_index_change_tracking_mode()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .WithChangeTracking(FullTextChangeTracking.Auto),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .WithChangeTracking(FullTextChangeTracking.Manual),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal(FullTextChangeTracking.Manual, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog] WITH CHANGE_TRACKING = MANUAL;
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Change_full_text_index_catalog()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("CatalogA");
+                builder.HasFullTextCatalog("CatalogB");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("CatalogA"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("CatalogB"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("CatalogB", index[SqlServerAnnotationNames.FullTextCatalog]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [CatalogB];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Change_full_text_index_language()
+    {
+        await Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("TestCatalog");
+
+                builder.Entity(
+                    "FullTextEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Title").HasMaxLength(450);
+                        e.HasKey("Id").HasName("PK_FullTextEntities");
+                    });
+            },
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .HasLanguage("Title", "English"),
+            builder => builder.Entity("FullTextEntities")
+                .HasFullTextIndex("Title")
+                .HasKeyIndex("PK_FullTextEntities")
+                .OnCatalog("TestCatalog")
+                .HasLanguage("Title", "French"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [French]) KEY INDEX [PK_FullTextEntities] ON [TestCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Create_full_text_catalog_and_index_together()
+    {
+        await Test(
+            builder => builder.Entity(
+                "FullTextEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Title").HasMaxLength(450);
+                    e.HasKey("Id").HasName("PK_FullTextEntities");
+                }),
+            builder => { },
+            builder =>
+            {
+                builder.HasFullTextCatalog("MyCatalog");
+                builder.Entity("FullTextEntities")
+                    .HasFullTextIndex("Title")
+                    .HasKeyIndex("PK_FullTextEntities")
+                    .OnCatalog("MyCatalog");
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("MyCatalog", index[SqlServerAnnotationNames.FullTextCatalog]);
+            });
+
+        AssertSql(
+            """
+CREATE FULLTEXT CATALOG [MyCatalog];
+""",
+            //
+            """
+CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntities] ON [MyCatalog];
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public virtual async Task Drop_full_text_index_and_catalog_together()
+    {
+        await Test(
+            builder => builder.Entity(
+                "FullTextEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Title").HasMaxLength(450);
+                    e.HasKey("Id").HasName("PK_FullTextEntities");
+                }),
+            builder =>
+            {
+                builder.HasFullTextCatalog("MyCatalog");
+
+                builder.Entity("FullTextEntities")
+                    .HasFullTextIndex("Title")
+                    .HasKeyIndex("PK_FullTextEntities")
+                    .OnCatalog("MyCatalog");
+            },
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP FULLTEXT INDEX ON [FullTextEntities];
+""",
+            //
+            """
+DROP FULLTEXT CATALOG [MyCatalog];
+""");
+    }
+
+    #endregion Full-text search
+
     public override async Task Add_primary_key_int()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Add_primary_key_int());

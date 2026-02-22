@@ -713,6 +713,20 @@ WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
 """);
     }
 
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
+
+        AssertSql(
+            """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
+""");
+    }
+
     public override async Task Parameter_collection_of_strings_Contains_string()
     {
         await base.Parameter_collection_of_strings_Contains_string();
@@ -1039,9 +1053,21 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
     }
 
-    public override async Task Column_collection_of_strings_contains_null()
+    public override async Task Column_collection_of_strings_Contains()
     {
-        await base.Column_collection_of_strings_contains_null();
+        await base.Column_collection_of_strings_Contains();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["Strings"], "10")
+""");
+    }
+
+    public override async Task Column_collection_of_strings_Contains_null()
+    {
+        await base.Column_collection_of_strings_Contains_null();
 
         AssertSql(
             """

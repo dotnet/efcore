@@ -17,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class SqlServerIndexExtensions
 {
+    #region IsClustered
+
     /// <summary>
     ///     Returns a value indicating whether the index is clustered.
     /// </summary>
@@ -83,6 +85,10 @@ public static class SqlServerIndexExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is clustered.</returns>
     public static ConfigurationSource? GetIsClusteredConfigurationSource(this IConventionIndex property)
         => property.FindAnnotation(SqlServerAnnotationNames.Clustered)?.GetConfigurationSource();
+
+    #endregion IsClustered
+
+    #region IncludeProperties
 
     /// <summary>
     ///     Returns included property names, or <see langword="null" /> if they have not been specified.
@@ -151,6 +157,10 @@ public static class SqlServerIndexExtensions
     public static ConfigurationSource? GetIncludePropertiesConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.Include)?.GetConfigurationSource();
 
+    #endregion IncludeProperties
+
+    #region IsCreatedOnline
+
     /// <summary>
     ///     Returns a value indicating whether the index is online.
     /// </summary>
@@ -217,6 +227,10 @@ public static class SqlServerIndexExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is online.</returns>
     public static ConfigurationSource? GetIsCreatedOnlineConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline)?.GetConfigurationSource();
+
+    #endregion IsCreatedOnline
+
+    #region FillFactor
 
     /// <summary>
     ///     Returns the fill factor that the index uses.
@@ -299,6 +313,10 @@ public static class SqlServerIndexExtensions
     public static ConfigurationSource? GetFillFactorConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.FillFactor)?.GetConfigurationSource();
 
+    #endregion FillFactor
+
+    #region SortInTempDb
+
     /// <summary>
     ///     Returns a value indicating whether the index is sorted in tempdb.
     /// </summary>
@@ -366,6 +384,10 @@ public static class SqlServerIndexExtensions
     public static ConfigurationSource? GetSortInTempDbConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.SortInTempDb)?.GetConfigurationSource();
 
+    #endregion SortInTempDb
+
+    #region DataCompression
+
     /// <summary>
     ///     Returns the data compression that the index uses.
     /// </summary>
@@ -432,6 +454,10 @@ public static class SqlServerIndexExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the data compression the index uses.</returns>
     public static ConfigurationSource? GetDataCompressionConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.DataCompression)?.GetConfigurationSource();
+
+    #endregion DataCompression
+
+    #region VectorMetric
 
     /// <summary>
     ///     Returns whether the index is a vector index.
@@ -514,6 +540,10 @@ public static class SqlServerIndexExtensions
     public static ConfigurationSource? GetVectorMetricConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric)?.GetConfigurationSource();
 
+    #endregion VectorMetric
+
+    #region VectorIndexType
+
     /// <summary>
     ///     Returns the type of the vector index.
     /// </summary>
@@ -583,4 +613,352 @@ public static class SqlServerIndexExtensions
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static ConfigurationSource? GetVectorIndexTypeConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.VectorIndexType)?.GetConfigurationSource();
+
+    #endregion VectorIndexType
+
+    #region FullTextKeyIndex
+
+    /// <summary>
+    ///     Returns whether the index is a full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns><see langword="true" /> if the index is a full-text index.</returns>
+    public static bool IsFullTextIndex(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : index.FindAnnotation(SqlServerAnnotationNames.FullTextIndex) is not null;
+
+    /// <summary>
+    ///     Returns the KEY INDEX name for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The KEY INDEX name, or <see langword="null" /> if the index is not a full-text index.</returns>
+    public static string? GetFullTextKeyIndex(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)index[SqlServerAnnotationNames.FullTextIndex];
+
+    /// <summary>
+    ///     Returns the KEY INDEX name for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The KEY INDEX name, or <see langword="null" /> if the index is not a full-text index.</returns>
+    public static string? GetFullTextKeyIndex(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.FullTextIndex);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetFullTextKeyIndex(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the KEY INDEX name for the full-text index. Setting a non-null value marks this index as a full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="keyIndexName">The KEY INDEX name to set.</param>
+    public static void SetFullTextKeyIndex(this IMutableIndex index, string? keyIndexName)
+        => index.SetAnnotation(SqlServerAnnotationNames.FullTextIndex, keyIndexName);
+
+    /// <summary>
+    ///     Sets the KEY INDEX name for the full-text index. Setting a non-null value marks this index as a full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="keyIndexName">The KEY INDEX name to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetFullTextKeyIndex(
+        this IConventionIndex index,
+        string? keyIndexName,
+        bool fromDataAnnotation = false)
+        => (string?)index.SetAnnotation(
+            SqlServerAnnotationNames.FullTextIndex,
+            keyIndexName,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the KEY INDEX of the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the KEY INDEX.</returns>
+    public static ConfigurationSource? GetFullTextKeyIndexConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.FullTextIndex)?.GetConfigurationSource();
+
+    #endregion FullTextKeyIndex
+
+    #region FullTextCatalog
+
+    /// <summary>
+    ///     Returns the full-text catalog name for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The full-text catalog name, or <see langword="null" /> if not set.</returns>
+    public static string? GetFullTextCatalog(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)index[SqlServerAnnotationNames.FullTextCatalog];
+
+    /// <summary>
+    ///     Returns the full-text catalog name for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The full-text catalog name, or <see langword="null" /> if not set.</returns>
+    public static string? GetFullTextCatalog(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.FullTextCatalog);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetFullTextCatalog(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the full-text catalog name for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="catalogName">The catalog name to set.</param>
+    public static void SetFullTextCatalog(this IMutableIndex index, string? catalogName)
+        => index.SetAnnotation(SqlServerAnnotationNames.FullTextCatalog, catalogName);
+
+    /// <summary>
+    ///     Sets the full-text catalog name for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="catalogName">The catalog name to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetFullTextCatalog(
+        this IConventionIndex index,
+        string? catalogName,
+        bool fromDataAnnotation = false)
+        => (string?)index.SetAnnotation(
+            SqlServerAnnotationNames.FullTextCatalog,
+            catalogName,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the full-text catalog of the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the full-text catalog.</returns>
+    public static ConfigurationSource? GetFullTextCatalogConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.FullTextCatalog)?.GetConfigurationSource();
+
+    #endregion FullTextCatalog
+
+    #region FullTextChangeTracking
+
+    /// <summary>
+    ///     Returns the change tracking mode for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The change tracking mode, or <see langword="null" /> if not set.</returns>
+    public static FullTextChangeTracking? GetFullTextChangeTracking(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (FullTextChangeTracking?)index[SqlServerAnnotationNames.FullTextChangeTracking];
+
+    /// <summary>
+    ///     Returns the change tracking mode for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The change tracking mode, or <see langword="null" /> if not set.</returns>
+    public static FullTextChangeTracking? GetFullTextChangeTracking(
+        this IReadOnlyIndex index,
+        in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.FullTextChangeTracking);
+        if (annotation != null)
+        {
+            return (FullTextChangeTracking?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetFullTextChangeTracking(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the change tracking mode for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="changeTracking">The change tracking mode to set.</param>
+    public static void SetFullTextChangeTracking(this IMutableIndex index, FullTextChangeTracking? changeTracking)
+        => index.SetAnnotation(SqlServerAnnotationNames.FullTextChangeTracking, changeTracking);
+
+    /// <summary>
+    ///     Sets the change tracking mode for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="changeTracking">The change tracking mode to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static FullTextChangeTracking? SetFullTextChangeTracking(
+        this IConventionIndex index,
+        FullTextChangeTracking? changeTracking,
+        bool fromDataAnnotation = false)
+        => (FullTextChangeTracking?)index.SetAnnotation(
+            SqlServerAnnotationNames.FullTextChangeTracking,
+            changeTracking,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the change tracking mode of the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the change tracking mode.</returns>
+    public static ConfigurationSource? GetFullTextChangeTrackingConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.FullTextChangeTracking)?.GetConfigurationSource();
+
+    #endregion FullTextChangeTracking
+
+    #region FullTextLanguage
+
+    /// <summary>
+    ///     Returns the full-text language for a specific property in the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <returns>The language term, or <see langword="null" /> if not set.</returns>
+    public static string? GetFullTextLanguage(this IReadOnlyIndex index, string propertyName)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var languages = (IReadOnlyDictionary<string, string>?)index[SqlServerAnnotationNames.FullTextLanguages];
+        return languages != null && languages.TryGetValue(propertyName, out var language) ? language : null;
+    }
+
+    /// <summary>
+    ///     Returns all full-text languages configured for the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>A dictionary of property names to language terms, or <see langword="null" /> if none are set.</returns>
+    public static IReadOnlyDictionary<string, string>? GetFullTextLanguages(this IReadOnlyIndex index)
+        => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (IReadOnlyDictionary<string, string>?)index[SqlServerAnnotationNames.FullTextLanguages];
+
+    /// <summary>
+    ///     Sets the full-text language for a specific property in the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <param name="language">The language term to set, or <see langword="null" /> to remove.</param>
+    public static void SetFullTextLanguage(this IMutableIndex index, string propertyName, string? language)
+    {
+        var languages = (Dictionary<string, string>?)index[SqlServerAnnotationNames.FullTextLanguages];
+        if (language is null)
+        {
+            if (languages != null)
+            {
+                languages.Remove(propertyName);
+                if (languages.Count == 0)
+                {
+                    index.RemoveAnnotation(SqlServerAnnotationNames.FullTextLanguages);
+                }
+            }
+        }
+        else
+        {
+            languages ??= [];
+            languages[propertyName] = language;
+            index.SetAnnotation(SqlServerAnnotationNames.FullTextLanguages, languages);
+        }
+    }
+
+    /// <summary>
+    ///     Sets the full-text languages for all properties in the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="languages">A dictionary of property names to language terms, or <see langword="null" /> to remove all.</param>
+    public static void SetFullTextLanguages(this IMutableIndex index, IReadOnlyDictionary<string, string>? languages)
+        => index.SetAnnotation(SqlServerAnnotationNames.FullTextLanguages, languages);
+
+    /// <summary>
+    ///     Sets the full-text language for a specific property in the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="propertyName">The property name.</param>
+    /// <param name="language">The language term to set, or <see langword="null" /> to remove.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetFullTextLanguage(
+        this IConventionIndex index,
+        string propertyName,
+        string? language,
+        bool fromDataAnnotation = false)
+    {
+        var languages = (Dictionary<string, string>?)index[SqlServerAnnotationNames.FullTextLanguages];
+        if (language is null)
+        {
+            if (languages != null)
+            {
+                languages.Remove(propertyName);
+                if (languages.Count == 0)
+                {
+                    index.RemoveAnnotation(SqlServerAnnotationNames.FullTextLanguages);
+                }
+            }
+        }
+        else
+        {
+            languages ??= [];
+            languages[propertyName] = language;
+            index.SetAnnotation(SqlServerAnnotationNames.FullTextLanguages, languages, fromDataAnnotation);
+        }
+
+        return language;
+    }
+
+    /// <summary>
+    ///     Sets the full-text languages for all properties in the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="languages">A dictionary of property names to language terms, or <see langword="null" /> to remove all.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static IReadOnlyDictionary<string, string>? SetFullTextLanguages(
+        this IConventionIndex index,
+        IReadOnlyDictionary<string, string>? languages,
+        bool fromDataAnnotation = false)
+        => (IReadOnlyDictionary<string, string>?)index.SetAnnotation(
+            SqlServerAnnotationNames.FullTextLanguages,
+            languages,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the full-text languages of the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the full-text languages.</returns>
+    public static ConfigurationSource? GetFullTextLanguagesConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.FullTextLanguages)?.GetConfigurationSource();
+
+    #endregion FullTextLanguage
 }

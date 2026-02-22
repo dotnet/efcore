@@ -13,91 +13,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerMathTranslator : IMethodCallTranslator
+public class SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> SupportedMethodTranslations = new()
-    {
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(decimal)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(double)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(float)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(int)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(long)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(sbyte)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Abs), [typeof(short)])!, "ABS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Ceiling), [typeof(decimal)])!, "CEILING" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Ceiling), [typeof(double)])!, "CEILING" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Floor), [typeof(decimal)])!, "FLOOR" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Floor), [typeof(double)])!, "FLOOR" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Pow), [typeof(double), typeof(double)])!, "POWER" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Exp), [typeof(double)])!, "EXP" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Log10), [typeof(double)])!, "LOG10" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Log), [typeof(double)])!, "LOG" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Log), [typeof(double), typeof(double)])!, "LOG" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sqrt), [typeof(double)])!, "SQRT" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Acos), [typeof(double)])!, "ACOS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Asin), [typeof(double)])!, "ASIN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Atan), [typeof(double)])!, "ATAN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Atan2), [typeof(double), typeof(double)])!, "ATN2" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Cos), [typeof(double)])!, "COS" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sin), [typeof(double)])!, "SIN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Tan), [typeof(double)])!, "TAN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(decimal)])!, "SIGN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(double)])!, "SIGN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(float)])!, "SIGN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(int)])!, "SIGN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(long)])!, "SIGN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(sbyte)])!, "SIGN" },
-        { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), [typeof(short)])!, "SIGN" },
-        { typeof(double).GetRuntimeMethod(nameof(double.DegreesToRadians), [typeof(double)])!, "RADIANS" },
-        { typeof(double).GetRuntimeMethod(nameof(double.RadiansToDegrees), [typeof(double)])!, "DEGREES" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Ceiling), [typeof(float)])!, "CEILING" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Floor), [typeof(float)])!, "FLOOR" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Pow), [typeof(float), typeof(float)])!, "POWER" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Exp), [typeof(float)])!, "EXP" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Log10), [typeof(float)])!, "LOG10" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Log), [typeof(float)])!, "LOG" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Log), [typeof(float), typeof(float)])!, "LOG" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Sqrt), [typeof(float)])!, "SQRT" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Acos), [typeof(float)])!, "ACOS" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Asin), [typeof(float)])!, "ASIN" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Atan), [typeof(float)])!, "ATAN" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Atan2), [typeof(float), typeof(float)])!, "ATN2" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Cos), [typeof(float)])!, "COS" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Sin), [typeof(float)])!, "SIN" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Tan), [typeof(float)])!, "TAN" },
-        { typeof(float).GetRuntimeMethod(nameof(float.DegreesToRadians), [typeof(float)])!, "RADIANS" },
-        { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), [typeof(float)])!, "DEGREES" }
-    };
-
     // Note: Math.Max/Min are handled in RelationalSqlTranslatingExpressionVisitor
-
-    private static readonly IEnumerable<MethodInfo> TruncateMethodInfos =
-    [
-        typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), [typeof(decimal)])!,
-        typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), [typeof(double)])!,
-        typeof(MathF).GetRuntimeMethod(nameof(MathF.Truncate), [typeof(float)])!
-    ];
-
-    private static readonly IEnumerable<MethodInfo> RoundMethodInfos =
-    [
-        typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(decimal)])!,
-        typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(double)])!,
-        typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(decimal), typeof(int)])!,
-        typeof(Math).GetRuntimeMethod(nameof(Math.Round), [typeof(double), typeof(int)])!,
-        typeof(MathF).GetRuntimeMethod(nameof(MathF.Round), [typeof(float)])!,
-        typeof(MathF).GetRuntimeMethod(nameof(MathF.Round), [typeof(float), typeof(int)])!
-    ];
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,33 +29,122 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (SupportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
+        var declaringType = method.DeclaringType;
+
+        if (declaringType != typeof(Math)
+            && declaringType != typeof(MathF)
+            && declaringType != typeof(double)
+            && declaringType != typeof(float))
         {
-            var typeMapping = arguments.Count == 1
-                ? ExpressionExtensions.InferTypeMapping(arguments[0])
-                : ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
-
-            var newArguments = new SqlExpression[arguments.Count];
-            newArguments[0] = _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping);
-
-            if (arguments.Count == 2)
-            {
-                newArguments[1] = _sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping);
-            }
-
-            return _sqlExpressionFactory.Function(
-                sqlFunctionName,
-                newArguments,
-                nullable: true,
-                argumentsPropagateNullability: newArguments.Select(_ => true).ToArray(),
-                method.ReturnType,
-                sqlFunctionName == "SIGN" ? null : typeMapping);
+            return null;
         }
 
-        if (TruncateMethodInfos.Contains(method))
+        return method.Name switch
         {
-            var argument = arguments[0];
-            // C# has Round over decimal/double/float only so our argument will be one of those types (compiler puts convert node)
+            nameof(Math.Abs) when arguments is [var arg]
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float)
+                    || arg.Type == typeof(int) || arg.Type == typeof(long) || arg.Type == typeof(sbyte) || arg.Type == typeof(short))
+                => TranslateFunction("ABS", arg),
+            nameof(Math.Ceiling) when arguments is [var arg]
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("CEILING", arg),
+            nameof(Math.Floor) when arguments is [var arg]
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("FLOOR", arg),
+            nameof(Math.Exp) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("EXP", arg),
+            nameof(Math.Log10) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("LOG10", arg),
+            nameof(Math.Log) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("LOG", arg),
+            nameof(Math.Log) when arguments is [var arg1, var arg2]
+                && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
+                => TranslateBinaryFunction("LOG", arg1, arg2),
+            nameof(Math.Sqrt) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("SQRT", arg),
+            nameof(Math.Acos) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("ACOS", arg),
+            nameof(Math.Asin) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("ASIN", arg),
+            nameof(Math.Atan) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("ATAN", arg),
+            nameof(Math.Atan2) when arguments is [var arg1, var arg2]
+                && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
+                => TranslateBinaryFunction("ATN2", arg1, arg2),
+            nameof(Math.Cos) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("COS", arg),
+            nameof(Math.Sin) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("SIN", arg),
+            nameof(Math.Tan) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("TAN", arg),
+            nameof(Math.Pow) when arguments is [var arg1, var arg2]
+                && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
+                => TranslateBinaryFunction("POWER", arg1, arg2),
+            nameof(Math.Sign) when arguments is [var arg]
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float)
+                    || arg.Type == typeof(int) || arg.Type == typeof(long) || arg.Type == typeof(sbyte) || arg.Type == typeof(short))
+                => TranslateFunction("SIGN", arg, nullTypeMapping: true),
+            nameof(double.DegreesToRadians) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("RADIANS", arg),
+            nameof(double.RadiansToDegrees) when arguments is [var arg]
+                && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateFunction("DEGREES", arg),
+
+            nameof(Math.Truncate) when arguments is [var arg]
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateTruncate(arg),
+            nameof(Math.Round) when arguments is [var arg]
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateRound(arg, digits: null),
+            nameof(Math.Round) when arguments is [var arg, var digits]
+                && digits.Type == typeof(int)
+                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                => TranslateRound(arg, digits),
+
+            _ => null
+        };
+
+        SqlExpression TranslateFunction(string sqlFunctionName, SqlExpression arg, bool nullTypeMapping = false)
+        {
+            var typeMapping = ExpressionExtensions.InferTypeMapping(arg);
+            return sqlExpressionFactory.Function(
+                sqlFunctionName,
+                [sqlExpressionFactory.ApplyTypeMapping(arg, typeMapping)],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                method.ReturnType,
+                nullTypeMapping ? null : typeMapping);
+        }
+
+        SqlExpression TranslateBinaryFunction(string sqlFunctionName, SqlExpression arg1, SqlExpression arg2)
+        {
+            var typeMapping = ExpressionExtensions.InferTypeMapping(arg1, arg2);
+            return sqlExpressionFactory.Function(
+                sqlFunctionName,
+                [
+                    sqlExpressionFactory.ApplyTypeMapping(arg1, typeMapping),
+                    sqlExpressionFactory.ApplyTypeMapping(arg2, typeMapping)
+                ],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[2],
+                method.ReturnType,
+                typeMapping);
+        }
+
+        SqlExpression TranslateTruncate(SqlExpression argument)
+        {
+            // C# has Truncate over decimal/double/float only so our argument will be one of those types (compiler puts convert node)
             // In database result will be same type except for float which returns double which we need to cast back to float.
             var resultType = argument.Type;
             if (resultType == typeof(float))
@@ -145,25 +152,25 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 resultType = typeof(double);
             }
 
-            var result = _sqlExpressionFactory.Function(
+            var result = sqlExpressionFactory.Function(
                 "ROUND",
-                [argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1)],
+                [argument, sqlExpressionFactory.Constant(0), sqlExpressionFactory.Constant(1)],
                 nullable: true,
                 argumentsPropagateNullability: [true, false, false],
                 resultType);
 
             if (argument.Type == typeof(float))
             {
-                result = _sqlExpressionFactory.Convert(result, typeof(float));
+                result = sqlExpressionFactory.Convert(result, typeof(float));
             }
 
-            return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
+            return sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
         }
 
-        if (RoundMethodInfos.Contains(method))
+        SqlExpression TranslateRound(SqlExpression argument, SqlExpression? digits)
         {
-            var argument = arguments[0];
-            var digits = arguments.Count == 2 ? arguments[1] : _sqlExpressionFactory.Constant(0);
+            digits ??= sqlExpressionFactory.Constant(0);
+
             // C# has Round over decimal/double/float only so our argument will be one of those types (compiler puts convert node)
             // In database result will be same type except for float which returns double which we need to cast back to float.
             var resultType = argument.Type;
@@ -172,7 +179,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 resultType = typeof(double);
             }
 
-            var result = _sqlExpressionFactory.Function(
+            var result = sqlExpressionFactory.Function(
                 "ROUND",
                 [argument, digits],
                 nullable: true,
@@ -181,12 +188,10 @@ public class SqlServerMathTranslator : IMethodCallTranslator
 
             if (argument.Type == typeof(float))
             {
-                result = _sqlExpressionFactory.Convert(result, typeof(float));
+                result = sqlExpressionFactory.Convert(result, typeof(float));
             }
 
-            return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
+            return sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
         }
-
-        return null;
     }
 }

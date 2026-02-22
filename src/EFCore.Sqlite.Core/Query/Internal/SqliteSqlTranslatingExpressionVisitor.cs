@@ -236,9 +236,9 @@ public class SqliteSqlTranslatingExpressionVisitor(
                     method.Name is nameof(string.StartsWith));
             }
 
-            // We translate EF.Functions.JsonExists here and not in a method translator since we need to support JsonExists over
+            // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over
             // complex and owned JSON properties, which requires special handling.
-            case nameof(RelationalDbFunctionsExtensions.JsonExists)
+            case nameof(RelationalDbFunctionsExtensions.JsonPathExists)
                 when declaringType == typeof(RelationalDbFunctionsExtensions)
                     && @object is null
                     && arguments is [_, var json, var path]:

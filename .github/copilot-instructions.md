@@ -76,6 +76,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Use nullable reference types
 - Use proper null-checking patterns
 - Use the null-conditional operator (`?.`) and null-coalescing operator (`??`) when appropriate
+- Don't disable nullability with a preprocessor directive (`#nullable disable`)
 
 ## Architecture and Design Patterns
 
@@ -167,28 +168,6 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 ## Pull Request Guidelines
 
 - **ALWAYS** target the `main` branch for new PRs unless explicitly instructed otherwise
-- For servicing PRs (fixes targeting release branches), use the following PR description template:
-```
-Fixes #{issue_number}
-
-**Description**
-{Brief description of the issue and fix}
-
-**Customer impact**
-{How does the reported issue affect customers? Are there workarounds?}
-
-**How found**
-{Was it customer reported or found during verification? How many customers are affected?}
-
-**Regression**
-{Is it a regression from a released version? Which one?}
-
-**Testing**
-{How the changes were tested}
-
-**Risk**
-{Low/Medium/High, with justification}
-```
 
 ## Overview of Entity Framework Core
 

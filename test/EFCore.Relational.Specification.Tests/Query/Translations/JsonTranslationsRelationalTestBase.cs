@@ -2,36 +2,37 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-// This test suite covers translations of JSON functions on EF.Functions (e.g. EF.Functions.JsonExists).
+// This test suite covers translations of JSON functions on EF.Functions (e.g. EF.Functions.JsonPathExists).
 // It does not cover general, built-in JSON support via complex type mapping, etc.
 public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : JsonTranslationsRelationalTestBase<TFixture>.JsonTranslationsQueryFixtureBase, new()
 {
     [ConditionalFact]
-    public virtual Task JsonExists_on_scalar_string_column()
+    public virtual Task JsonPathExists_on_scalar_string_column()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
-                .Where(b => EF.Functions.JsonExists(b.JsonString, "$.OptionalInt")),
+                .Where(b => EF.Functions.JsonPathExists(b.JsonString, "$.OptionalInt")),
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
     [ConditionalFact]
-    public virtual Task JsonExists_on_complex_property()
+    public virtual Task JsonPathExists_on_complex_property()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
-                .Where(b => EF.Functions.JsonExists(b.JsonComplexType, "$.OptionalInt")),
+                .Where(b => EF.Functions.JsonPathExists(b.JsonComplexType, "$.OptionalInt")),
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
     [ConditionalFact]
-    public virtual Task JsonExists_on_owned_entity()
+    public virtual Task JsonPathExists_on_owned_entity()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
-                .Where(b => EF.Functions.JsonExists(b.JsonOwnedType, "$.OptionalInt")),
+                .Where(b => EF.Functions.JsonPathExists(b.JsonOwnedType, "$.OptionalInt")),
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
@@ -102,12 +103,12 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
 
             await context.Database.ExecuteSqlRawAsync(
                 $$"""
-                UPDATE {{table}} SET {{complexTypeColumn}} = {{RemoveJsonProperty(complexTypeColumn, "$.OptionalInt")}} WHERE {{idColumn}} = 4;
-                UPDATE {{table}} SET {{ownedColumn}} = {{RemoveJsonProperty(ownedColumn, "$.OptionalInt")}} WHERE {{idColumn}} = 4;
+                UPDATE {{table}} SET {{complexTypeColumn}} = {{RemoveJsonProperty(complexTypeColumn, "OptionalInt")}} WHERE {{idColumn}} = 4;
+                UPDATE {{table}} SET {{ownedColumn}} = {{RemoveJsonProperty(ownedColumn, "OptionalInt")}} WHERE {{idColumn}} = 4;
                 """);
         }
 
-        protected abstract string RemoveJsonProperty(string column, string jsonPath);
+        protected abstract string RemoveJsonProperty(string column, string property);
 
         public virtual ISetSource GetExpectedData()
             => _expectedData ??= new JsonTranslationsData();
@@ -131,7 +132,11 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
 
                         Assert.Equal(ee.Id, aa.Id);
 
-                        Assert.Equal(ee.JsonString, aa.JsonString);
+                        // The database may normalize the JSON representation, e.g. removing whitespace and the like.
+                        // Compare JSON DOM representations to ignore such differences.
+                        using var expectedJson = JsonDocument.Parse(ee.JsonString);
+                        using var actualJson = JsonDocument.Parse(aa.JsonString);
+                        Assert.True(JsonElement.DeepEquals(expectedJson.RootElement, actualJson.RootElement));
                     }
                 }
             }

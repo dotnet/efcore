@@ -190,6 +190,9 @@ Consider changing your target project to the DbContext project by using the Pack
   <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
     <value>The context class name '{contextClassName}' is not a valid C# identifier.</value>
   </data>
+  <data name="CouldNotGetInterceptableLocation" xml:space="preserve">
+    <value>Couldn't get interceptable location for: '{node}'.</value>
+  </data>
   <data name="DatabaseDropped" xml:space="preserve">
     <value>Successfully dropped database '{name}'.</value>
   </data>

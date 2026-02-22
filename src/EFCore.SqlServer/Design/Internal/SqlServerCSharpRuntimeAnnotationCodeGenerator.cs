@@ -39,6 +39,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.MaxDatabaseSize);
             annotations.Remove(SqlServerAnnotationNames.PerformanceLevelSql);
             annotations.Remove(SqlServerAnnotationNames.ServiceTierSql);
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs);
         }
 
         base.Generate(model, parameters);
@@ -50,6 +51,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs);
             annotations.Remove(SqlServerAnnotationNames.MemoryOptimized);
             annotations.Remove(SqlServerAnnotationNames.EditionOptions);
         }
@@ -105,6 +107,10 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
             annotations.Remove(SqlServerAnnotationNames.VectorIndexMetric);
             annotations.Remove(SqlServerAnnotationNames.VectorIndexType);
+            annotations.Remove(SqlServerAnnotationNames.FullTextIndex);
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalog);
+            annotations.Remove(SqlServerAnnotationNames.FullTextChangeTracking);
+            annotations.Remove(SqlServerAnnotationNames.FullTextLanguages);
         }
 
         base.Generate(index, parameters);
@@ -124,6 +130,10 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
             annotations.Remove(SqlServerAnnotationNames.VectorIndexMetric);
             annotations.Remove(SqlServerAnnotationNames.VectorIndexType);
+            annotations.Remove(SqlServerAnnotationNames.FullTextIndex);
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalog);
+            annotations.Remove(SqlServerAnnotationNames.FullTextChangeTracking);
+            annotations.Remove(SqlServerAnnotationNames.FullTextLanguages);
         }
 
         base.Generate(index, parameters);

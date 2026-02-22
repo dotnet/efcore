@@ -26,4 +26,5 @@ internal static class EFDiagnostics
     internal const string CosmosVectorSearchExperimental = "EF9103"; // No longer experimental
     internal const string CosmosFullTextSearchExperimental = "EF9104"; // No longer experimental
     internal const string SqlServerVectorSearch = "EF9105";
+    internal const string JsonContainsExperimental = "EF9106";
 }

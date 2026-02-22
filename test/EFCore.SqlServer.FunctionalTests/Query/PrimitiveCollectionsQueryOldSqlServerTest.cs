@@ -695,6 +695,14 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
 """);
     }
 
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        // EF.Parameter() on primitive collection (OPENJSON on SQL Server) not supported on old versions of SQL Server.
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter);
+
+        AssertSql();
+    }
+
     public override async Task Parameter_collection_of_strings_Contains_string()
     {
         await base.Parameter_collection_of_strings_Contains_string();
@@ -1071,11 +1079,14 @@ WHERE [p].[Int] NOT IN (10, 999)
     public override Task Column_collection_of_nullable_ints_Contains_null()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains_null());
 
-    public override Task Column_collection_of_strings_contains_null()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null());
+    public override Task Column_collection_of_strings_Contains()
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains());
+
+    public override Task Column_collection_of_strings_Contains_null()
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains_null());
 
     public override Task Column_collection_of_nullable_strings_contains_null()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null());
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains_null());
 
     public override Task Column_collection_of_bools_Contains()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains());
@@ -1804,6 +1815,19 @@ WHERE (
     FROM (VALUES (CAST(0 AS int)), (1), (2), (3)) AS [v]([Value])
     WHERE [v].[Value] = [p].[Int]) > 0
 """);
+    }
+
+    [ConditionalFact] // #37605
+    public virtual async Task Parameter_collection_with_null_value_Contains_null_2201_values()
+    {
+        using var context = Fixture.CreateContext();
+
+        var values = Enumerable.Range(1, 2200).Select(i => (int?)i).ToList();
+        values.Add(null);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => values.Contains(e.NullableInt)));
+
+        // No SQL assertion as the SQL is huge
     }
 
     [ConditionalFact]

@@ -77,6 +77,8 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
                     ProcessElement(element.DependentToPrincipal, version);
                     ProcessElement(element.PrincipalToDependent, version);
                 }
+
+                ProcessComplexProperties(entityType, version);
             }
         }
 
@@ -107,6 +109,31 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             && !entityType.IsOwned())
         {
             UpdateOwnedTypes(mutableEntityType);
+        }
+    }
+
+    private void ProcessComplexProperties(IReadOnlyTypeBase typeBase, string version)
+    {
+        foreach (var complexProperty in typeBase.GetComplexProperties())
+        {
+            ProcessElement(complexProperty, version);
+            
+            if (complexProperty is IMutableComplexProperty mutableComplexProperty)
+            {
+                UpdateComplexPropertyNullability(mutableComplexProperty, version);
+            }
+
+            ProcessComplexProperties(complexProperty.ComplexType, version);
+        }
+    }
+
+    private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
+    {
+        if ((version.StartsWith("8.", StringComparison.Ordinal)
+                || version.StartsWith("9.", StringComparison.Ordinal))
+            && !complexProperty.ClrType.IsNullableType())
+        {
+            complexProperty.IsNullable = false;
         }
     }
 

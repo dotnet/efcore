@@ -43,7 +43,9 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
             builder.EnableSensitiveDataLogging();
             builder.LogTo(cacheLog.Add, filter: (eventid, _) => eventid.Name == CoreEventId.QueryCompilationStarting.Name);
         });
+
         using var context = contextFactory.CreateContext();
+
         _ = context.Entities
             .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
             .ToList();
@@ -54,8 +56,6 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
             .IgnoreQueryFilters(["NameFilter", "ActiveFilter"])
             .ToList();
 
-        // #37212 - ExpressionEqualityComparer doesn't support collections besides an array,
-        // therefore we can't implement caching for different order of ignored filters
         Assert.Equal(2, cacheLog.Count);
     }
 

@@ -161,7 +161,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
             public Payment Payment { get; set; } = new(0, 0);
         }
 
-        public record Payment(decimal Netto, decimal Brutto);
+        public record Payment(double Netto, double Brutto);
     }
 
     protected class Context32911_2(DbContextOptions options) : DbContext(options)

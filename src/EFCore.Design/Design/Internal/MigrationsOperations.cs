@@ -243,9 +243,17 @@ public class MigrationsOperations
     public virtual MigrationFiles RemoveMigration(
         string? contextType,
         bool force,
-        bool dryRun)
+        bool offline,
+        bool dryRun,
+        string? connectionString)
     {
         using var context = _contextOperations.CreateContext(contextType);
+
+        if (connectionString != null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
         var services = _servicesBuilder.Build(context);
         EnsureServices(services);
         EnsureMigrationsAssembly(services);
@@ -253,7 +261,7 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun);
+        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline);
 
         _reporter.WriteInformation(DesignStrings.Done);
 

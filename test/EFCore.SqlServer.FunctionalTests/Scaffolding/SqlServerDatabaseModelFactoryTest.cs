@@ -5814,6 +5814,86 @@ DROP TABLE PrincipalTable;");
 
     #endregion
 
+    #region Full-Text Search
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public void Full_text_catalog()
+        => Test(
+            [
+                "CREATE FULLTEXT CATALOG [TestCatalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT",
+                "CREATE TABLE [dbo].[FtsTable] (Id int CONSTRAINT PK_FtsTable PRIMARY KEY, Title nvarchar(200))",
+            ],
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var catalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(dbModel).ToList();
+                Assert.Single(catalogs);
+                Assert.Equal("TestCatalog", catalogs[0].Name);
+                Assert.True(catalogs[0].IsDefault);
+                Assert.False(catalogs[0].IsAccentSensitive);
+            },
+            """
+            DROP TABLE [dbo].[FtsTable];
+            DROP FULLTEXT CATALOG [TestCatalog];
+            """);
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public void Full_text_index()
+        => Test(
+            [
+                "CREATE FULLTEXT CATALOG [TestCatalog]",
+                "CREATE TABLE [dbo].[FtsTable] (Id int CONSTRAINT PK_FtsTable PRIMARY KEY, Title nvarchar(200), Body nvarchar(max))",
+                "CREATE FULLTEXT INDEX ON [dbo].[FtsTable] (Title LANGUAGE 'English', Body) KEY INDEX [PK_FtsTable] ON [TestCatalog] WITH CHANGE_TRACKING = MANUAL",
+            ],
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single(t => t.Name == "FtsTable");
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                Assert.Equal("TestCatalog", index[SqlServerAnnotationNames.FullTextCatalog]);
+                Assert.Equal(FullTextChangeTracking.Manual, index[SqlServerAnnotationNames.FullTextChangeTracking]);
+
+                var languages = (Dictionary<string, string>?)index[SqlServerAnnotationNames.FullTextLanguages];
+                Assert.NotNull(languages);
+                Assert.True(languages.ContainsKey("Title"));
+            },
+            """
+            DROP FULLTEXT INDEX ON [dbo].[FtsTable];
+            DROP TABLE [dbo].[FtsTable];
+            DROP FULLTEXT CATALOG [TestCatalog];
+            """);
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    public void Full_text_index_with_defaults()
+        => Test(
+            [
+                "CREATE FULLTEXT CATALOG [DefaultCatalog] AS DEFAULT",
+                "CREATE TABLE [dbo].[FtsTable2] (Id int CONSTRAINT PK_FtsTable2 PRIMARY KEY, Title nvarchar(200))",
+                "CREATE FULLTEXT INDEX ON [dbo].[FtsTable2] (Title) KEY INDEX [PK_FtsTable2]",
+            ],
+            tables: [],
+            schemas: [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var table = dbModel.Tables.Single(t => t.Name == "FtsTable2");
+                var index = Assert.Single(table.Indexes);
+
+                Assert.NotNull(index[SqlServerAnnotationNames.FullTextIndex]);
+                // Default change tracking is AUTO, which is omitted during scaffolding
+                Assert.Null(index[SqlServerAnnotationNames.FullTextChangeTracking]);
+            },
+            """
+            DROP FULLTEXT INDEX ON [dbo].[FtsTable2];
+            DROP TABLE [dbo].[FtsTable2];
+            DROP FULLTEXT CATALOG [DefaultCatalog];
+            """);
+
+    #endregion
+
     #region Warnings
 
     [ConditionalFact]

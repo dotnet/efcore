@@ -215,6 +215,11 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -229,13 +234,14 @@ public class OperationExecutor : MarshalByRefObject
             Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
-            Execute(() => executor.GetContextInfoImpl(contextType));
+            var connectionString = (string?)args["connectionString"];
+            Execute(() => executor.GetContextInfoImpl(contextType, connectionString));
         }
     }
 
-    private IDictionary GetContextInfoImpl(string? contextType)
+    private IDictionary GetContextInfoImpl(string? contextType, string? connectionString)
     {
-        var info = ContextOperations.GetContextInfo(contextType);
+        var info = ContextOperations.GetContextInfo(contextType, connectionString);
         return new Hashtable
         {
             ["Type"] = info.Type,
@@ -425,7 +431,13 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-        ///     <para><c>force</c>--Don't check to see if the migration has been applied to the database.</para>
+        ///     <para><c>force</c>--Revert the migration if it has been applied to the database.</para>
+        ///     <para><c>offline</c>--Remove the migration without connecting to the database.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -441,15 +453,17 @@ public class OperationExecutor : MarshalByRefObject
 
             var contextType = (string?)args["contextType"];
             var force = (bool)args["force"]!;
+            var offline = (bool?)args["offline"];
             var dryRun = (bool?)args["dryRun"]!;
+            var connectionString = (string?)args["connectionString"];
 
-            Execute(() => executor.RemoveMigrationImpl(contextType, force, dryRun == true));
+            Execute(() => executor.RemoveMigrationImpl(contextType, force, offline == true, dryRun == true, connectionString));
         }
     }
 
-    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool dryRun)
+    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool offline, bool dryRun, string? connectionString)
     {
-        var files = MigrationsOperations.RemoveMigration(contextType, force, dryRun);
+        var files = MigrationsOperations.RemoveMigration(contextType, force, offline, dryRun, connectionString);
 
         return new Hashtable
         {
@@ -718,6 +732,11 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+        ///     <para>
+        ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+        ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+        ///         <see cref="DbContext.OnConfiguring" />.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -732,13 +751,14 @@ public class OperationExecutor : MarshalByRefObject
             Check.NotNull(args);
 
             var contextType = (string?)args["contextType"];
+            var connectionString = (string?)args["connectionString"];
 
-            Execute(() => executor.DropDatabaseImpl(contextType));
+            Execute(() => executor.DropDatabaseImpl(contextType, connectionString));
         }
     }
 
-    private void DropDatabaseImpl(string? contextType)
-        => ContextOperations.DropDatabase(contextType);
+    private void DropDatabaseImpl(string? contextType, string? connectionString)
+        => ContextOperations.DropDatabase(contextType, connectionString);
 
     /// <summary>
     ///     Represents an operation to generate a SQL script from the DbContext.

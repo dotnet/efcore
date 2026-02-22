@@ -15,100 +15,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerStringMethodTranslator : IMethodCallTranslator
+public class SqlServerStringMethodTranslator(
+    ISqlExpressionFactory sqlExpressionFactory,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
+    : IMethodCallTranslator
 {
-    private static readonly MethodInfo IndexOfMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string)])!;
-
-    private static readonly MethodInfo IndexOfMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char)])!;
-
-    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionString
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string), typeof(int)])!;
-
-    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionChar
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char), typeof(int)])!;
-
-    private static readonly MethodInfo ReplaceMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(string), typeof(string)])!;
-
-    private static readonly MethodInfo ReplaceMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(char), typeof(char)])!;
-
-    private static readonly MethodInfo ToLowerMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.ToLower), Type.EmptyTypes)!;
-
-    private static readonly MethodInfo ToUpperMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.ToUpper), Type.EmptyTypes)!;
-
-    private static readonly MethodInfo SubstringMethodInfoWithOneArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int)])!;
-
-    private static readonly MethodInfo SubstringMethodInfoWithTwoArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int), typeof(int)])!;
-
-    private static readonly MethodInfo IsNullOrEmptyMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrEmpty), [typeof(string)])!;
-
-    private static readonly MethodInfo IsNullOrWhiteSpaceMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrWhiteSpace), [typeof(string)])!;
-
-    // Method defined in netcoreapp2.0 only
-    private static readonly MethodInfo TrimStartMethodInfoWithoutArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), Type.EmptyTypes)!;
-
-    private static readonly MethodInfo TrimEndMethodInfoWithoutArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), Type.EmptyTypes)!;
-
-    private static readonly MethodInfo TrimMethodInfoWithoutArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.Trim), Type.EmptyTypes)!;
-
-    // Method defined in netstandard2.0
-    private static readonly MethodInfo TrimStartMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char[])])!;
-
-    private static readonly MethodInfo TrimEndMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char[])])!;
-
-    private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Trim), [typeof(char[])])!;
-
-    private static readonly MethodInfo TrimStartMethodInfoWithCharArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char)])!;
-
-    private static readonly MethodInfo TrimEndMethodInfoWithCharArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char)])!;
-
-    private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.FirstOrDefault)
-            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
-
-    private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.LastOrDefault)
-            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
-
-    private static readonly MethodInfo PatIndexMethodInfo
-        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.PatIndex),
-            [typeof(DbFunctions), typeof(string), typeof(string)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, ISqlServerSingletonOptions sqlServerSingletonOptions)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -121,206 +32,187 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (instance != null)
+        if (method.DeclaringType == typeof(string))
         {
-            if (IndexOfMethodInfoString.Equals(method) || IndexOfMethodInfoChar.Equals(method))
+            if (instance is not null)
             {
-                return TranslateIndexOf(instance, method, arguments[0], null);
-            }
+                return method.Name switch
+                {
+                    nameof(string.IndexOf) when arguments is [var search]
+                        => TranslateIndexOf(instance, method, search, null),
+                    nameof(string.IndexOf) when arguments is [var search, var startIndex] && startIndex.Type == typeof(int)
+                        => TranslateIndexOf(instance, method, search, startIndex),
 
-            if (IndexOfMethodInfoWithStartingPositionString.Equals(method) || IndexOfMethodInfoWithStartingPositionChar.Equals(method))
-            {
-                return TranslateIndexOf(instance, method, arguments[0], arguments[1]);
-            }
+                    nameof(string.Replace) when arguments is [var oldValue, var newValue]
+                        => TranslateReplace(instance, method, oldValue, newValue),
 
-            if (ReplaceMethodInfoString.Equals(method) || ReplaceMethodInfoChar.Equals(method))
-            {
-                var firstArgument = arguments[0];
-                var secondArgument = arguments[1];
-                var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, firstArgument, secondArgument);
-
-                instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-                firstArgument = _sqlExpressionFactory.ApplyTypeMapping(
-                    firstArgument, firstArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
-                secondArgument = _sqlExpressionFactory.ApplyTypeMapping(
-                    secondArgument, secondArgument.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
-
-                return _sqlExpressionFactory.Function(
-                    "REPLACE",
-                    [instance, firstArgument, secondArgument],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[3],
-                    method.ReturnType,
-                    stringTypeMapping);
-            }
-
-            if (ToLowerMethodInfo.Equals(method)
-                || ToUpperMethodInfo.Equals(method))
-            {
-                return _sqlExpressionFactory.Function(
-                    ToLowerMethodInfo.Equals(method) ? "LOWER" : "UPPER",
-                    [instance],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    method.ReturnType,
-                    instance.TypeMapping);
-            }
-
-            if (SubstringMethodInfoWithOneArg.Equals(method))
-            {
-                return _sqlExpressionFactory.Function(
-                    "SUBSTRING",
-                    [
-                        instance,
-                        _sqlExpressionFactory.Add(
-                            arguments[0],
-                            _sqlExpressionFactory.Constant(1)),
-                        _sqlExpressionFactory.Function(
-                            "LEN",
-                            [instance],
-                            nullable: true,
+                    nameof(string.ToLower) when arguments is []
+                        => sqlExpressionFactory.Function(
+                            "LOWER", [instance], nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[1],
-                            typeof(int))
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[3],
-                    method.ReturnType,
-                    instance.TypeMapping);
-            }
+                            method.ReturnType, instance.TypeMapping),
+                    nameof(string.ToUpper) when arguments is []
+                        => sqlExpressionFactory.Function(
+                            "UPPER", [instance], nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
+                            method.ReturnType, instance.TypeMapping),
 
-            if (SubstringMethodInfoWithTwoArgs.Equals(method))
-            {
-                return _sqlExpressionFactory.Function(
-                    "SUBSTRING",
-                    [
-                        instance,
-                        _sqlExpressionFactory.Add(
-                            arguments[0],
-                            _sqlExpressionFactory.Constant(1)),
-                        arguments[1]
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[3],
-                    method.ReturnType,
-                    instance.TypeMapping);
-            }
+                    nameof(string.Substring) when arguments is [var startIndex]
+                        => TranslateSubstring(instance, method, startIndex, length: null),
+                    nameof(string.Substring) when arguments is [var startIndex, var length]
+                        => TranslateSubstring(instance, method, startIndex, length),
 
-            // There's single-parameter LTRIM/RTRIM for all versions (trims whitespace), but startin with SQL Server 2022 there's also
-            // an overload that accepts the characters to trim.
-            if (method == TrimStartMethodInfoWithoutArgs
-                || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
-                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
-                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
-                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
-                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
-                    && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
-            {
-                return ProcessTrimStartEnd(instance, arguments, "LTRIM");
-            }
-
-            if (method == TrimEndMethodInfoWithoutArgs
-                || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
-                            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
-                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
-                            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
-                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
-                    && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
-            {
-                return ProcessTrimStartEnd(instance, arguments, "RTRIM");
-            }
-
-            if (method == TrimMethodInfoWithoutArgs
-                || (method == TrimMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } }))
-            {
-                return _sqlExpressionFactory.Function(
-                    "LTRIM",
-                    [
-                        _sqlExpressionFactory.Function(
-                            "RTRIM",
-                            [instance],
+                    // There's single-parameter LTRIM/RTRIM for all versions (trims whitespace), but starting with SQL Server 2022 there's
+                    // also an overload that accepts the characters to trim.
+                    nameof(string.TrimStart) => TranslateTrimStartEnd(instance, arguments, "LTRIM"),
+                    nameof(string.TrimEnd) => TranslateTrimStartEnd(instance, arguments, "RTRIM"),
+                    nameof(string.Trim) when arguments is [] or [SqlConstantExpression { Value: char[] { Length: 0 } }]
+                        => sqlExpressionFactory.Function(
+                            "LTRIM",
+                            [
+                                sqlExpressionFactory.Function(
+                                    "RTRIM", [instance], nullable: true,
+                                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                                    instance.Type, instance.TypeMapping)
+                            ],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[1],
                             instance.Type,
-                            instance.TypeMapping)
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    instance.Type,
-                    instance.TypeMapping);
+                            instance.TypeMapping),
+
+                    _ => null
+                };
             }
+
+            return method.Name switch
+            {
+                nameof(string.IsNullOrEmpty) when arguments is [var argument]
+                    => sqlExpressionFactory.OrElse(
+                        sqlExpressionFactory.IsNull(argument),
+                        sqlExpressionFactory.Like(
+                            argument,
+                            sqlExpressionFactory.Constant(string.Empty))),
+
+                nameof(string.IsNullOrWhiteSpace) when arguments is [var argument]
+                    => sqlExpressionFactory.OrElse(
+                        sqlExpressionFactory.IsNull(argument),
+                        sqlExpressionFactory.Equal(
+                            argument,
+                            sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping))),
+
+                _ => null
+            };
         }
 
-        if (IsNullOrEmptyMethodInfo.Equals(method))
+        if (method.DeclaringType == typeof(Enumerable)
+            && method.IsGenericMethod
+            && arguments is [var source]
+            && source.Type == typeof(string))
         {
-            var argument = arguments[0];
-
-            return _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.IsNull(argument),
-                _sqlExpressionFactory.Like(
-                    argument,
-                    _sqlExpressionFactory.Constant(string.Empty)));
-        }
-
-        if (IsNullOrWhiteSpaceMethodInfo.Equals(method))
-        {
-            var argument = arguments[0];
-
-            return _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.IsNull(argument),
-                _sqlExpressionFactory.Equal(
-                    argument,
-                    _sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping)));
-        }
-
-        if (FirstOrDefaultMethodInfoWithoutArgs.Equals(method))
-        {
-            var argument = arguments[0];
-            return _sqlExpressionFactory.Function(
-                "SUBSTRING",
-                [argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[3],
-                method.ReturnType);
-        }
-
-        if (LastOrDefaultMethodInfoWithoutArgs.Equals(method))
-        {
-            var argument = arguments[0];
-            return _sqlExpressionFactory.Function(
-                "SUBSTRING",
-                [
-                    argument,
-                    _sqlExpressionFactory.Function(
-                        "LEN",
-                        [argument],
+            return method.Name switch
+            {
+                nameof(Enumerable.FirstOrDefault)
+                    => sqlExpressionFactory.Function(
+                        "SUBSTRING",
+                        [source, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1)],
                         nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[1],
-                        typeof(int)),
-                    _sqlExpressionFactory.Constant(1)
-                ],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[3],
-                method.ReturnType);
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
+                        method.ReturnType),
+
+                nameof(Enumerable.LastOrDefault)
+                    => sqlExpressionFactory.Function(
+                        "SUBSTRING",
+                        [
+                            source,
+                            sqlExpressionFactory.Function(
+                                "LEN", [source], nullable: true,
+                                argumentsPropagateNullability: Statics.TrueArrays[1],
+                                typeof(int)),
+                            sqlExpressionFactory.Constant(1)
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
+                        method.ReturnType),
+
+                _ => null
+            };
         }
 
-        if (PatIndexMethodInfo.Equals(method))
+        if (method.DeclaringType == typeof(SqlServerDbFunctionsExtensions)
+            && method.Name == nameof(SqlServerDbFunctionsExtensions.PatIndex)
+            && arguments is [_, var pattern, var expression])
         {
-            var pattern = arguments[1];
-            var expression = arguments[2];
-
-            return _sqlExpressionFactory.Function(
+            return sqlExpressionFactory.Function(
                 "PATINDEX",
                 [pattern, expression],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType
-            );
+                method.ReturnType);
         }
 
         return null;
     }
+
+    private SqlExpression TranslateReplace(
+        SqlExpression instance,
+        MethodInfo method,
+        SqlExpression oldValue,
+        SqlExpression newValue)
+    {
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, oldValue, newValue);
+
+        instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
+        oldValue = sqlExpressionFactory.ApplyTypeMapping(
+            oldValue, oldValue.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+        newValue = sqlExpressionFactory.ApplyTypeMapping(
+            newValue, newValue.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
+
+        return sqlExpressionFactory.Function(
+            "REPLACE",
+            [instance, oldValue, newValue],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[3],
+            method.ReturnType,
+            stringTypeMapping);
+    }
+
+    private SqlExpression TranslateSubstring(
+        SqlExpression instance,
+        MethodInfo method,
+        SqlExpression startIndex,
+        SqlExpression? length)
+        => sqlExpressionFactory.Function(
+            "SUBSTRING",
+            [
+                instance,
+                sqlExpressionFactory.Add(startIndex, sqlExpressionFactory.Constant(1)),
+                length ?? sqlExpressionFactory.Function(
+                    "LEN", [instance], nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(int))
+            ],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[3],
+            method.ReturnType,
+            instance.TypeMapping);
+
+    private SqlExpression? TranslateTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
+        => arguments switch
+        {
+            // No args or empty char[] constant - whitespace trim, always supported
+            ([]) or ([SqlConstantExpression { Value: char[] { Length: 0 } }])
+                => ProcessTrimStartEnd(instance, arguments, functionName),
+
+            // Char or char[] argument - requires SQL Server 2022+ (compatibility level 160)
+            [_] when (sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                    && sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                || (sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                    && sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                || sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
+                => ProcessTrimStartEnd(instance, arguments, functionName),
+
+            _ => null
+        };
 
     private SqlExpression TranslateIndexOf(
         SqlExpression instance,
@@ -329,10 +221,10 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         SqlExpression? startIndex)
     {
         var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
-        searchExpression = _sqlExpressionFactory.ApplyTypeMapping(
+        searchExpression = sqlExpressionFactory.ApplyTypeMapping(
             searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 
-        instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
+        instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
         var charIndexArguments = new List<SqlExpression> { searchExpression, instance };
 
@@ -340,8 +232,8 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         {
             charIndexArguments.Add(
                 startIndex is SqlConstantExpression { Value : int constantStartIndex }
-                    ? _sqlExpressionFactory.Constant(constantStartIndex + 1, typeof(int))
-                    : _sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1)));
+                    ? sqlExpressionFactory.Constant(constantStartIndex + 1, typeof(int))
+                    : sqlExpressionFactory.Add(startIndex, sqlExpressionFactory.Constant(1)));
         }
 
         var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Count);
@@ -351,18 +243,18 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         if (string.Equals(storeType, "nvarchar(max)", StringComparison.OrdinalIgnoreCase)
             || string.Equals(storeType, "varchar(max)", StringComparison.OrdinalIgnoreCase))
         {
-            charIndexExpression = _sqlExpressionFactory.Function(
+            charIndexExpression = sqlExpressionFactory.Function(
                 "CHARINDEX",
                 charIndexArguments,
                 nullable: true,
                 argumentsPropagateNullability,
                 typeof(long));
 
-            charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
+            charIndexExpression = sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
         }
         else
         {
-            charIndexExpression = _sqlExpressionFactory.Function(
+            charIndexExpression = sqlExpressionFactory.Function(
                 "CHARINDEX",
                 charIndexArguments,
                 nullable: true,
@@ -374,25 +266,25 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         // -1). Handle separately for constant and non-constant patterns.
         if (searchExpression is SqlConstantExpression { Value: "" })
         {
-            return _sqlExpressionFactory.Case(
-                [new CaseWhenClause(_sqlExpressionFactory.IsNotNull(instance), _sqlExpressionFactory.Constant(0))],
+            return sqlExpressionFactory.Case(
+                [new CaseWhenClause(sqlExpressionFactory.IsNotNull(instance), sqlExpressionFactory.Constant(0))],
                 elseResult: null
             );
         }
 
         var offsetExpression = searchExpression is SqlConstantExpression
-            ? _sqlExpressionFactory.Constant(1)
-            : _sqlExpressionFactory.Case(
+            ? sqlExpressionFactory.Constant(1)
+            : sqlExpressionFactory.Case(
                 [
                     new CaseWhenClause(
-                        _sqlExpressionFactory.Equal(
+                        sqlExpressionFactory.Equal(
                             searchExpression,
-                            _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
-                        _sqlExpressionFactory.Constant(0))
+                            sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
+                        sqlExpressionFactory.Constant(0))
                 ],
-                _sqlExpressionFactory.Constant(1));
+                sqlExpressionFactory.Constant(1));
 
-        return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
+        return sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
 
     private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
@@ -402,13 +294,13 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         {
             charactersToTrim = charactersToTrimValue switch
             {
-                char singleChar => _sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
-                char[] charArray => _sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
+                char singleChar => sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
+                char[] charArray => sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
                 _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
             };
         }
 
-        return _sqlExpressionFactory.Function(
+        return sqlExpressionFactory.Function(
             functionName,
             arguments: charactersToTrim is null ? [instance] : [instance, charactersToTrim],
             nullable: true,

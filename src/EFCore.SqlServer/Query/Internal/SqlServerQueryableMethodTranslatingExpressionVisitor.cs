@@ -642,9 +642,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && TranslateExpression(item, applyDefaultTypeMapping: false) is { } translatedItem
             // Literal untyped NULL not supported as item by JSON_CONTAINS().
             // For any other nullable item, SqlServerNullabilityProcessor will add a null check around the JSON_CONTAINS call.
+            // TODO: reverify this once JSON_CONTAINS comes out of preview, #37715
             && translatedItem is not SqlConstantExpression { Value: null }
             // Note: JSON_CONTAINS doesn't allow searching for null items within a JSON collection (returns 0)
             // As a result, we only translate to JSON_CONTAINS when we know that either the item is non-nullable or the collection's elements are.
+            // TODO: reverify this once JSON_CONTAINS comes out of preview, #37715
             && (
                 translatedItem is ColumnExpression { IsNullable: false } or SqlConstantExpression { Value: not null }
                 || !translatedItem.Type.IsNullableType()
@@ -656,7 +658,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     "JSON_CONTAINS",
                     [json, translatedItem],
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: [true, false],
                     typeof(int)),
                 _sqlExpressionFactory.Constant(1));
 

@@ -3,13 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 /// <summary>
 ///     Base class for runtime migration tests. These tests validate the ability to
@@ -36,30 +32,27 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public List<Post> Posts { get; set; }
+        public required string Name { get; set; }
+        public List<Post> Posts { get; set; } = [];
     }
 
     public class Post
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public required string Title { get; set; }
+        public string? Content { get; set; }
         public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
     }
 
     public class RuntimeMigrationDbContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Blog>(b =>
-            {
-                b.Property(e => e.Name).HasMaxLength(200);
-            });
+            modelBuilder.Entity<Blog>(b => b.Property(e => e.Name).HasMaxLength(200));
 
             modelBuilder.Entity<Post>(b =>
             {
@@ -85,8 +78,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             .AddDbContextDesignTimeServices(context);
         ((IDesignTimeServices)Activator.CreateInstance(
                 ProviderAssembly.GetType(
-                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
-                    throwOnError: true))!)
+                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>()!.TypeName,
+                    throwOnError: true)!)!)
             .ConfigureDesignTimeServices(serviceCollection);
         return serviceCollection.BuildServiceProvider(validateScopes: true).CreateScope();
     }
@@ -106,8 +99,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         CreateScaffoldedMigration(
             RuntimeMigrationDbContext context,
             string migrationName,
-            string outputDir = null,
-            string @namespace = null,
+            string? outputDir = null,
+            string? @namespace = null,
             bool dryRun = true)
     {
         var operations = CreateMigrationsOperations();
@@ -123,7 +116,18 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         return (scope, migration);
     }
 
-    protected abstract List<string> GetTableNames(System.Data.Common.DbConnection connection);
+    protected virtual List<string> GetTableNames(DbConnection connection)
+    {
+        var tables = new List<string>();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME != '__EFMigrationsHistory'";
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            tables.Add(reader.GetString(0));
+        }
+        return tables;
+    }
 
     public abstract class RuntimeMigrationFixtureBase : SharedStoreFixtureBase<RuntimeMigrationDbContext>
     {
@@ -213,7 +217,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
             var migrationInstance = migrationsAssembly.CreateMigration(
                 migrationTypeInfo,
-                context.Database.ProviderName);
+                context.Database.ProviderName!);
 
             var commands = sqlGenerator.Generate(
                 migrationInstance.UpOperations,
@@ -269,7 +273,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
                 .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
             Assert.NotNull(migrationType);
 
-            var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+            var migrationInstance = (Migration)Activator.CreateInstance(migrationType)!;
             var upOperations = migrationInstance.UpOperations.ToList();
 
             Assert.NotEmpty(upOperations);
@@ -462,7 +466,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var migrationTypeInfo = migrationsAssembly.Migrations[migration.MigrationId];
         var migrationInstance = migrationsAssembly.CreateMigration(
             migrationTypeInfo,
-            context.Database.ProviderName);
+            context.Database.ProviderName!);
 
         var downCommands = sqlGenerator.Generate(
             migrationInstance.DownOperations,
@@ -530,7 +534,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
         Assert.NotNull(migrationType);
 
-        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType)!;
 
         var upTableCount = migrationInstance.UpOperations.OfType<CreateTableOperation>().Count();
         var downTableCount = migrationInstance.DownOperations.OfType<DropTableOperation>().Count();
@@ -725,7 +729,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             .FirstOrDefault(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract);
         Assert.NotNull(migrationType);
 
-        var migrationInstance = (Migration)Activator.CreateInstance(migrationType);
+        var migrationInstance = (Migration)Activator.CreateInstance(migrationType)!;
 
         Assert.Empty(migrationInstance.UpOperations);
         Assert.Empty(migrationInstance.DownOperations);
