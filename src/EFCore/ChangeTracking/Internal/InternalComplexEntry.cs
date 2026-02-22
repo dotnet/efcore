@@ -195,7 +195,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
         if (oldState is EntityState.Detached or EntityState.Deleted
             && newState is not EntityState.Detached and not EntityState.Deleted)
         {
-            if (!UseOldBehavior37724 && Ordinal == -1)
+            if (Ordinal == -1)
             {
                 Ordinal = OriginalOrdinal;
             }
