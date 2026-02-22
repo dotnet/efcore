@@ -5,13 +5,14 @@
     $CommonMetadataElements$
     <dependencies>
       <group targetFramework="$targetFramework$">
-        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$Version$" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="8.0.0" />
       </group>
     </dependencies>
     <readme>docs\PACKAGE.md</readme>
   </metadata>
   <files>
     $CommonFileElements$
+    <file src="lib\**\*" target="lib/" />
     <file src="PACKAGE.md" target="docs\" />
     <file src="tools\**\*" target="tools/" />
     <file src="$intermediateOutputPath$*.psd1" target="tools/" />
