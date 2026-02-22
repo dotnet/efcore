@@ -130,7 +130,7 @@ public class CosmosDbContextOptionsExtensionsTests
     [ConditionalFact]
     public async Task Endpoint_and_token_overrides_connection_string()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExisting");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("NonExisting");
 
         var options = new DbContextOptionsBuilder()
             .UseCosmos(
@@ -153,7 +153,7 @@ public class CosmosDbContextOptionsExtensionsTests
     [ConditionalFact]
     public async Task Connection_string_overrides_endpoint_and_token()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExisting");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("NonExisting");
 
         var options = new DbContextOptionsBuilder()
             .UseCosmos(

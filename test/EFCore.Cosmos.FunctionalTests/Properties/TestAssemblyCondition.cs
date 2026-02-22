@@ -5,5 +5,4 @@
 
 [assembly: CosmosDbConfiguredCondition]
 
-// Waiting on Task causes deadlocks when run in parallel
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: CollectionBehavior(MaxParallelThreads = -1)] // We handle concurrency in the test store to improve performance.

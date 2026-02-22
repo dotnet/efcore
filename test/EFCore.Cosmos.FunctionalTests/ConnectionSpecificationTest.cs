@@ -13,7 +13,7 @@ public class ConnectionSpecificationTest
     [ConditionalFact]
     public async Task Can_specify_connection_string_in_OnConfiguring()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExisting");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("NonExisting");
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
 

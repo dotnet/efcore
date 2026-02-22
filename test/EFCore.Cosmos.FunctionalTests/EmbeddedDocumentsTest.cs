@@ -677,7 +677,7 @@ OFFSET 0 LIMIT 1
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
 
-        public virtual CosmosTestStore TestStore { get; } = CosmosTestStore.Create(DatabaseName);
+        public virtual CosmosTestStore TestStore { get; } = CosmosTestStoreFactory.Instance.Create(DatabaseName);
 
         public async Task<EmbeddedTransportationContextOptions> CreateOptions(
             Action<ModelBuilder> onModelCreating = null,

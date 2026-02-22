@@ -910,8 +910,6 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         using (var context = CreateContext(contextFactory, transactionalBatch))
         {
-            await context.Database.EnsureCreatedAsync();
-
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.Set<CustomerWithResourceId>().FindAsync(1, 3.15m, ""));
 
             Assert.Equal(CosmosStrings.InvalidResourceId, exception.Message);
@@ -1061,8 +1059,6 @@ ReadItem([1.0,"One",true], 42)
 
         using (var context = CreateContext(contextFactory, false))
         {
-            await context.Database.EnsureCreatedAsync();
-
             await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
@@ -1425,7 +1421,7 @@ OFFSET 0 LIMIT 1
     [ConditionalTheory, InlineData(false, Skip = "Fails only on C.I. See #33402"), InlineData(true, Skip = "Fails only on C.I. See #33402")]
     public async Task Add_update_delete_query_throws_if_no_container(bool transactionalBatch)
     {
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EndToEndEmpty");
+        await using var testDatabase = await CosmosTestStoreFactory.Instance.CreateInitializedAsync("EndToEndEmpty");
 
         var options = new DbContextOptionsBuilder<EndToEndEmptyContext>()
             .UseCosmos(testDatabase.ConnectionString, "EndToEndEmpty")

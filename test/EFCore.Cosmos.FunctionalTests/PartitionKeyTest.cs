@@ -107,8 +107,6 @@ OFFSET 0 LIMIT 1
 
         await using (var innerContext = CreateContext())
         {
-            await innerContext.Database.EnsureCreatedAsync();
-
             await innerContext.AddAsync(customer1);
             await innerContext.AddAsync(customer2);
             await innerContext.SaveChangesAsync();

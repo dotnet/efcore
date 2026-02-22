@@ -7,6 +7,8 @@ public class CosmosBulkConcurrencyTest(CosmosBulkConcurrencyTest.ConcurrencyFixt
 {
     public class ConcurrencyFixture : CosmosConcurrencyTest.CosmosFixture
     {
+        protected override bool RecreateStore => true;
+
         public override ConcurrencyContext CreateContext()
         {
             var context = base.CreateContext();
