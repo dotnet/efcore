@@ -27,7 +27,6 @@ Key files in `src/EFCore.Design/Scaffolding/`:
 
 Provider factories: `SqlServerDatabaseModelFactory`, `SqliteDatabaseModelFactory`
 
-
 ## Design-Time Services
 
 `IDesignTimeServices` — provider/plugin registers design-time services. `DesignTimeServicesBuilder` discovers them.
@@ -35,8 +34,3 @@ Provider factories: `SqlServerDatabaseModelFactory`, `SqliteDatabaseModelFactory
 ## Testing
 
 Scaffolding tests: `test/EFCore.Design.Tests/Scaffolding/`.
-
-## Validation
-
-- Compiled model baselines in `Baselines/{testName}/` directories
-- `EF_TEST_REWRITE_BASELINES=1` auto-updates baselines

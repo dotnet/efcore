@@ -24,34 +24,18 @@ Manages entity states and detects changes for `SaveChanges()`.
 
 ## Snapshots
 
-Built by `SnapshotFactoryFactory` subclasses via compiled expression trees:
-- `OriginalValuesFactoryFactory` — for detecting property changes
-- `RelationshipSnapshotFactoryFactory` — for FK/navigation fix-up
+Built by `SnapshotFactoryFactory` subclasses via compiled expression trees.
 
 ## Property Accessors
 
 Compiled expression trees in `PropertyAccessorsFactory`:
-- `CreateMemberAccess()` — entity → complex property → nested property
-- `CreateComplexCollectionElementAccess()` — entity → collection → element[ordinal] → property
-- Ordinals in `indices` parameter specify element at each collection depth
-- Guard expressions added when `DetailedErrorsEnabled` annotation is set on the model
+- Ordinals in `indices` parameter specify element at each complex collection depth
 
-Getters compiled lazily via `ClrPropertyGetterFactory` → `ClrPropertyGetter`. Two delegates:
-- `GetClrValue(instance)` — from immediate declaring object
-- `GetClrValueUsingContainingEntity(entity, indices)` — from root entity through complex chain
-
-## Key Files
-
-- `src/EFCore/ChangeTracking/Internal/StateManager.cs`
-- `src/EFCore/ChangeTracking/Internal/InternalEntityEntry.cs`
-- `src/EFCore/ChangeTracking/Internal/ChangeDetector.cs`
-- `src/EFCore/Metadata/Internal/PropertyAccessorsFactory.cs`
-- `src/EFCore/Metadata/Internal/ClrPropertyGetterFactory.cs`
-- `src/EFCore/ChangeTracking/Internal/SnapshotFactoryFactory.cs`
+Getters and setterscompiled lazily via `ClrPropertyGetterFactory` ands `ClrPropertySetterFactory`.
 
 ## Testing
 
-Unit tests: `test/EFCore.Tests/ChangeTracking/`. Functional tests: `test/EFCore.{Provider}.FunctionalTests/`.
+Unit tests: `test/EFCore.Tests/ChangeTracking/`. Functional tests: `test/EFCore.Specification.Tests/GraphUpdates/`.
 
 ## Common Pitfalls
 
@@ -61,6 +45,5 @@ Unit tests: `test/EFCore.Tests/ChangeTracking/`. Functional tests: `test/EFCore.
 
 ## Validation
 
-- Entity states transition correctly (`Added` → `Unchanged` after save, etc.)
 - `DetectChanges()` identifies modified properties via snapshot comparison
-- Property accessor expression trees compile without errors at runtime
+- Setting original values marks properties as modified or unchanged based on comparison with current values

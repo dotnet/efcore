@@ -17,9 +17,9 @@ EF Core's internal DI container, service registration, and context lifecycle man
 
 ## Service Registration
 
-`EntityFrameworkServicesBuilder` (`src/EFCore/Infrastructure/EntityFrameworkServicesBuilder.cs`) maintains a `CoreServices` dictionary mapping service types to `ServiceCharacteristics` (lifetime + multi-registration flag). `TryAddCoreServices()` registers ~60+ services.
+`EntityFrameworkServicesBuilder` maintains a `CoreServices` dictionary mapping service types to `ServiceCharacteristics` (lifetime + multi-registration flag).
 
-Pattern: Providers call `TryAddProviderSpecificServices()` first, then `TryAddCoreServices()` fills remaining defaults.
+Pattern: Providers call `TryAddProviderSpecificServices()` first, then `TryAddCoreServices()` fills remaining services without overriding existing registrations.
 
 ## Dependencies Pattern
 
@@ -28,21 +28,16 @@ Services receive dependencies via sealed records (not constructor injection of i
 public sealed record MyServiceDependencies(IDep1 Dep1, IDep2 Dep2);
 ```
 
-## DbContext Pooling
-
-`DbContextPool<TContext>` uses `ConcurrentQueue<IDbContextPoolable>`. Default pool size: 1024. Set via `CoreOptionsExtension.MaxPoolSize`. Options are frozen at pool creation.
-
-## Key Files
+## Other Key Files
 
 - `src/EFCore/DbContext.cs` — main context, implements `IDbContextPoolable`
 - `src/EFCore/Infrastructure/DbContextOptions.cs` — immutable sorted dictionary of `IDbContextOptionsExtension`
-- `src/EFCore/Infrastructure/EntityFrameworkServicesBuilder.cs` — service registration
 - `src/EFCore/Internal/DbContextServices.cs` — scoped service resolver, model creation, provider validation
-- `src/EFCore/Internal/DbContextPool.cs` — pooling implementation
+- `src/EFCore/Internal/DbContextPool.cs` — manages a pool of `IDbContextPoolable` instances. Options are frozen at pool creation.
 
 ## Testing
 
-Unit tests: `test/EFCore.Tests/` (e.g., `DbContextTest.cs`, `EntityFrameworkServiceCollectionExtensionsTest.cs`).
+Unit tests: `DbContextTest.cs`, `EntityFrameworkServiceCollectionExtensionsTest.cs`.
 
 ## Validation
 

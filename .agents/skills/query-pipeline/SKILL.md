@@ -51,10 +51,6 @@ Adding a new translator:
 
 Parallel pipeline in `src/EFCore.Cosmos/Query/Internal/`: `CosmosQueryableMethodTranslatingExpressionVisitor`, `CosmosSqlTranslatingExpressionVisitor`, `CosmosQuerySqlGenerator`. Uses `JObject` materialization. Does not use any relational query infrastructure.
 
-## Testing
-
-Query specification tests: `test/EFCore.Specification.Tests/Query/`, `test/EFCore.Relational.Specification.Tests/Query/`. Provider overrides in `test/EFCore.{Provider}.FunctionalTests/Query/` with `AssertSql()` baselines.
-
 ## Validation
 
 - `ToQueryString()` shows generated SQL without executing

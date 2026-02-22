@@ -15,6 +15,7 @@ This skill helps you scaffold new agent skills that conform to the Agent Skills 
 ## When Not to Use
 
 - Creating custom agents (use the agents/ directory pattern)
+- Adding language-specific, framework-specific, or module-specific coding guidelines (use file-based instructions instead)
 
 ### Key Principles
 
@@ -100,6 +101,7 @@ After creating a skill, verify:
 - [ ] SKILL.md is under 500 lines and 5000 tokens, split into references if needed
 - [ ] File references use relative paths
 - [ ] Instructions are actionable and specific
+- [ ] Instructions don't duplicate what's already in `.github/copilot-instructions.md` or under `.github/instructions/`
 - [ ] Workflow has numbered steps with clear checkpoints
 - [ ] Validation section exists with observable success criteria
 - [ ] No secrets, tokens, or internal URLs included
@@ -115,6 +117,8 @@ After creating a skill, verify:
 | Instructions are ambiguous | Use numbered steps with concrete actions |
 | Missing validation steps | Add checkpoints that verify success |
 | Hardcoded environment assumptions | Document requirements in `compatibility` field |
+| Key files section lists files previously mentioned | Avoid duplication, only include in one place and rename section to "Other Key Files" |
+| Testing section lists test folders that are obvious from the repo structure | Remove the section if it doesn't add value |
 
 ## References
 

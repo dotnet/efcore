@@ -16,19 +16,10 @@ Roslyn analyzers shipped in `Microsoft.EntityFrameworkCore.Analyzers` (`src/EFCo
 
 ## Analyzers
 
-| ID | Analyzer | Category | Purpose |
-|----|----------|----------|---------|
-| EF1001 | `InternalUsageDiagnosticAnalyzer` (333 lines) | Usage | Warns on `.Internal` namespace / `[EntityFrameworkInternal]` usage. Registers operation + symbol actions for field, property, method, event, invocation, object creation, variable declaration, typeof, named type. |
-| EF1002 | `StringsUsageInRawQueriesDiagnosticAnalyzer` (254 lines) | Security | Two diagnostics: interpolated string usage and string concatenation in raw SQL methods. Registers `OperationKind.Invocation` action. |
-| — | `InterpolatedStringUsageInRawQueriesCodeFixProvider` | — | Fix for EF1002: `FromSqlRaw` → `FromSqlInterpolated` |
-| — | `UninitializedDbSetDiagnosticSuppressor` | — | Suppresses CS8618 for `DbSet<T>` properties on `DbContext` |
-
-## Testing
-
-Tests in `test/EFCore.Analyzers.Tests/` use `CSharpAnalyzerVerifier<TAnalyzer>`. Test methods provide inline C# source with diagnostic location markers.
+See AnalyzerReleases.Shipped.md for a complete list of shipped diagnostics.
 
 ## Validation
 
-- Analyzer triggers on expected code patterns
+- Analyzer triggers on expected code patterns in an efficient manner
 - No false positives on public API usage
 - Code fix produces compilable output

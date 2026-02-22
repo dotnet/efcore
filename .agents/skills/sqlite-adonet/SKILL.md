@@ -34,7 +34,3 @@ Standalone ADO.NET provider in `src/Microsoft.Data.Sqlite.Core/`, independent of
 - Core implementation: `CreateFunctionCore<TState, TResult>` wraps .NET delegates into SQLitePCL callbacks
 - No true async I/O — async methods are sync wrappers
 - File-based or `Data Source=:memory:` for in-memory databases
-
-## Testing
-
-Tests in `test/Microsoft.Data.Sqlite.Tests/`.

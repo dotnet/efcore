@@ -57,3 +57,4 @@ Targets in `buildTransitive/Microsoft.EntityFrameworkCore.Tasks.targets`:
 ## Validation
 
 - For tool changes, create a test project and manually run affected commands to verify behavior
+- `dotnet ef migrations script` output matches expected DDL

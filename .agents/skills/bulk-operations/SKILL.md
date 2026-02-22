@@ -21,24 +21,9 @@ user-invokable: false
 - Public API: `EntityFrameworkQueryableExtensions` — `ExecuteDelete`, `ExecuteUpdate` + async
 - Setters: `SetPropertyCalls.cs`, `UpdateSettersBuilder.cs`
 
-## Unsupported Scenarios
-
-These throw at translation time — know them before attempting changes:
-
-| Scenario | Error |
-|----------|-------|
-| TPC (non-leaf types) | `ExecuteOperationOnTPC` |
-| TPT (ExecuteDelete) | `ExecuteOperationOnTPT` |
-| JSON-mapped owned entities | `ExecuteOperationOnOwnedJsonIsNotSupported` |
-| JSON-mapped complex types | `ExecuteUpdateOverJsonIsNotSupported` |
-| Complex types in subqueries | `ExecuteUpdateSubqueryNotSupportedOverComplexTypes` |
-| Keyless entities | `ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator` |
-| Entity splitting (Delete) | `ExecuteOperationOnEntitySplitting` |
-| Table splitting (Delete) | `ExecuteDeleteOnTableSplitting` |
-
 ## Testing
 
-Specification tests: `test/EFCore.Specification.Tests/BulkUpdates/NorthwindBulkUpdatesTestBase.cs`. Uses `AssertDelete(async, query, rowsAffectedCount)` / `AssertUpdate(...)`. Provider overrides in `test/EFCore.{Provider}.FunctionalTests/BulkUpdates/` with `AssertSql()` baselines.
+Specification tests: `test/EFCore.Specification.Tests/BulkUpdates/`. Provider overrides in `test/EFCore.{Provider}.FunctionalTests/BulkUpdates/`.
 
 ## Validation
 

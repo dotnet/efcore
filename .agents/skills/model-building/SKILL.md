@@ -89,3 +89,4 @@ Created lazily by `RelationalModelRuntimeInitializer`, accessed via `model.GetRe
 - Model builds without `InvalidOperationException` during finalization
 - All new API is covered by tests
 - Compiled model baselines update cleanly with `EF_TEST_REWRITE_BASELINES=1`
+- `ToString()` on metadata objects shows concise contents without throwing exceptions
