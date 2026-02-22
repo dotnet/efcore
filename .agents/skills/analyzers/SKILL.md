@@ -25,7 +25,7 @@ Roslyn analyzers shipped in `Microsoft.EntityFrameworkCore.Analyzers` (`src/EFCo
 
 ## Testing
 
-Tests in `test/EFCore.Analyzers.Tests/` use `CSharpAnalyzerVerifier<TAnalyzer>`. Test methods provide inline C# source with diagnostic location markers. Pattern:
+Tests in `test/EFCore.Analyzers.Tests/` use `CSharpAnalyzerVerifier<TAnalyzer>`. Test methods provide inline C# source with diagnostic location markers.
 
 ## Validation
 
