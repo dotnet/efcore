@@ -26,7 +26,7 @@ public class CosmosTestStoreFactory : ITestStoreFactory
     public CosmosTestStore Create(string storeName, bool shared = false, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => TestEnvironment.IsEmulator ?
             new CosmosEmulatorTestStore(storeName, shared, extensionConfiguration)
-          : new CosmosTestStore(storeName, shared, extensionConfiguration);
+          : new CosmosCloudTestStore(storeName, shared, extensionConfiguration);
 
     public async Task<CosmosTestStore> CreateInitializedAsync(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
     {

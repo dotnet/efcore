@@ -14,14 +14,14 @@ using ContainerProperties = Microsoft.Azure.Cosmos.ContainerProperties;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class CosmosTestStore : TestStore
+public abstract class CosmosTestStore : TestStore
 {
     protected readonly TestStoreContext StoreContext;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
 
     private static readonly Guid _runId = Guid.NewGuid();
 
-    public CosmosTestStore(
+    protected CosmosTestStore(
         string name,
         bool shared = true,
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)

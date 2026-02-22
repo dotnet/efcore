@@ -31,8 +31,7 @@ public class CosmosDbConfiguredConditionAttribute : Attribute, ITestCondition
                 return _isConnectionAvailable.Value;
             }
 
-            await using var testStore = new CosmosTestStore(nameof(CosmosDbConfiguredConditionAttribute), false);
-
+            await using var testStore = CosmosTestStoreFactory.Instance.Create(nameof(CosmosDbConfiguredConditionAttribute));
             try
             {
                 await testStore.InitializeAsync(null, (Func<DbContext>?)null);
