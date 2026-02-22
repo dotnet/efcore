@@ -18,6 +18,7 @@ public abstract class CosmosTestStore : TestStore
 {
     protected readonly TestStoreContext StoreContext;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
+    private bool _initialized;
 
     private static readonly Guid _runId = Guid.NewGuid();
 
@@ -68,6 +69,8 @@ public abstract class CosmosTestStore : TestStore
         {
             await CreateDatabaseAsync(context).ConfigureAwait(false);
         }
+
+        _initialized = true;
 
         await base.InitializeAsync(createContext, seed, clean).ConfigureAwait(false);
     }
@@ -373,7 +376,7 @@ public abstract class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (!Shared)
+        if (_initialized && !Shared)
         {
             await DeleteDatabaseAsync(StoreContext).ConfigureAwait(false);
         }

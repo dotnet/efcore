@@ -16,6 +16,7 @@ public class CosmosEmulatorTestStore
 
     private bool _databaseCreated;
     private bool _acquired;
+
     public override async Task<TestStore> InitializeAsync(
         IServiceProvider? serviceProvider,
         Func<DbContext>? createContext,
