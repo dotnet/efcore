@@ -32,7 +32,7 @@ Backports #{source_pr_number_if_applicable}
 Provide information on the bug, why it occurs and how it was introduced. Put it in terms that developers can understand without knowledge of EF Core internals.
 
 **Customer impact**
-How the bug affects users without internal technical detail. Include a short (3-4 lines) code sample if possible. If data corruption occurs, state that explicitly. If a feasible workaround exists, briefly describe it and how discoverable it is, otherwise mention that there's workaround.
+How the bug affects users without internal technical detail. Include a short (3-4 lines) code sample if possible. If data corruption occurs, state that explicitly. If a feasible workaround exists, briefly describe it and how discoverable it is, otherwise mention that there's no workaround.
 
 **How found**
 How the bug was discovered based on the information in the issue description. If user-reported, mention "User reported on <version>". If multiple users are affected, note that. Count the number of upvotes and comment authors to estimate impact.
