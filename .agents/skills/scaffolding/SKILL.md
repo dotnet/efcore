@@ -13,7 +13,7 @@ Generates C# code from database schemas (reverse engineering).
 - Modifying how `dotnet ef dbcontext scaffold` generates code
 - Changing how database schemas are read by a provider's `IDatabaseModelFactory`
 
-## When not to Use
+## When Not to Use
 
 - Working on compiled model generation (`dotnet ef dbcontext optimize`)
 
