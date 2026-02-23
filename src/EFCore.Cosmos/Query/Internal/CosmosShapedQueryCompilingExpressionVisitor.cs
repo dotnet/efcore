@@ -198,7 +198,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             Call(
                 CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
                 Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
-                    Constant(complexProperty.Name))));
+                    Constant(complexProperty.GetJsonPropertyName()))));
 
         var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectVariable);
         if (complexProperty.IsNullable)
@@ -227,7 +227,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             Call(
                 CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
                 Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
-                    Constant(complexProperty.Name))));
+                    Constant(complexProperty.GetJsonPropertyName()))));
 
         var jObjectParameter = Parameter(typeof(JObject), "complexJObject" + _currentComplexIndex);
         var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectParameter);

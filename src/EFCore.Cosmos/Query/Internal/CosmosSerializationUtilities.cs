@@ -77,7 +77,7 @@ public static class CosmosSerializationUtilities
 
         foreach (var complexProperty in type.GetComplexProperties())
         {
-            var jsonPropertyName = complexProperty.Name;
+            var jsonPropertyName = complexProperty.GetJsonPropertyName();
             var propertyValue = complexProperty.GetGetter().GetClrValue(value);
             if (propertyValue is null)
             {
