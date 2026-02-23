@@ -41,7 +41,6 @@ public abstract class PropertyValues
         InternalEntry = internalEntry;
 
         var complexCollectionProperties = new List<IComplexProperty>();
-        var nullableComplexProperties = new List<IComplexProperty>();
 
         foreach (var complexProperty in internalEntry.StructuralType.GetFlattenedComplexProperties())
         {
@@ -49,17 +48,36 @@ public abstract class PropertyValues
             {
                 complexCollectionProperties.Add(complexProperty);
             }
-            else if (complexProperty.IsNullable && !complexProperty.IsShadowProperty())
-            {
-                nullableComplexProperties!.Add(complexProperty);
-            }
         }
 
         _complexCollectionProperties = complexCollectionProperties;
         Check.DebugAssert(
             _complexCollectionProperties.Select((p, i) => p.GetIndex() == i).All(e => e),
             "Complex collection properties indices are not sequential.");
-        _nullableComplexProperties = nullableComplexProperties?.Count > 0 ? nullableComplexProperties : null;
+        _nullableComplexProperties = ComputeNullableComplexProperties(internalEntry.StructuralType);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected static IReadOnlyList<IComplexProperty>? ComputeNullableComplexProperties(ITypeBase structuralType)
+    {
+        List<IComplexProperty>? nullableComplexProperties = null;
+
+        foreach (var complexProperty in structuralType.GetFlattenedComplexProperties())
+        {
+            if (!complexProperty.IsCollection && complexProperty.IsNullable && !complexProperty.IsShadowProperty())
+            {
+                nullableComplexProperties ??= [];
+                nullableComplexProperties.Add(complexProperty);
+            }
+        }
+
+        return nullableComplexProperties;
     }
 
     /// <summary>
