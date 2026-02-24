@@ -1230,9 +1230,11 @@ public class StateManager : IStateManager
                     continue;
                 }
 
-                // If the dependent's current principal (from identity map) is different from
-                // the entry being cascade-deleted, the dependent has been re-associated with
-                // a replacement principal (e.g., via shared identity). Skip the cascade.
+                // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
+                // marked Deleted and a new entry with the same key is added via SharedIdentityEntry. If a nested
+                // dependent was re-used by the new entity graph, FindPrincipal returns the replacement principal
+                // from the identity map rather than the deleted entry. In that case, skip the cascade to avoid
+                // incorrectly re-deleting the dependent that now belongs to the replacement principal.
                 var currentPrincipal = FindPrincipal(dependent, fk);
                 if (currentPrincipal != null && currentPrincipal != entry)
                 {
