@@ -353,12 +353,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             foreach (var property in joinEntityType.GetProperties())
             {
                 var propertyFluentApiCalls = property.GetFluentApiCalls(annotationCodeGenerator);
-                if (propertyFluentApiCalls == null)
+                if (propertyFluentApiCalls != null)
                 {
-                    continue;
+                    usings.AddRange(propertyFluentApiCalls.GetRequiredUsings());
                 }
-
-                usings.AddRange(propertyFluentApiCalls.GetRequiredUsings());
 
             this.Write("                        j.IndexerProperty<");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Reference(property.ClrType)));
