@@ -493,6 +493,39 @@ public class StateManagerTest
                 })).Message);
     }
 
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public void Identity_conflict_from_query_can_be_resolved(bool copy)
+    {
+        var interceptor = copy
+            ? (IIdentityResolutionInterceptor)new UpdatingIdentityResolutionInterceptor()
+            : new IgnoringIdentityResolutionInterceptor();
+
+        var id = copy ? 1001 : 1002;
+        var altId = copy ? 2001 : 2002;
+
+        using (var context = new IdentityConflictContext())
+        {
+            context.Set<SingleKey>().Add(new SingleKey { Id = id, AlternateId = altId, Value = "Original" });
+            context.SaveChanges();
+        }
+
+        using var context1 = new IdentityConflictContext(interceptor);
+
+        var entity = context1.Set<SingleKey>().Single(e => e.Id == id);
+        Assert.Equal("Original", entity.Value);
+
+        using (var context2 = new IdentityConflictContext())
+        {
+            var e = context2.Set<SingleKey>().Single(e => e.Id == id);
+            e.Value = "Changed";
+            context2.SaveChanges();
+        }
+
+        var sameEntity = context1.Set<SingleKey>().Single(e => e.Id == id);
+        Assert.Same(entity, sameEntity);
+        Assert.Equal(copy ? "Changed" : "Original", entity.Value);
+    }
+
     private class SensitiveIdentityConflictContext : IdentityConflictContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

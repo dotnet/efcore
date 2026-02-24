@@ -329,6 +329,24 @@ public class StateManager : IStateManager
 
         foreach (var key in baseEntityType.GetKeys())
         {
+            var existingByKey = FindIdentityMap(key)?.TryGetEntry(newEntry);
+            if (existingByKey != null)
+            {
+                if (existingByKey.EntityState != EntityState.Deleted
+                    && _resolutionInterceptor != null)
+                {
+                    _resolutionInterceptor.UpdateTrackedInstance(
+                        new IdentityResolutionInterceptionData(Context),
+                        new EntityEntry(existingByKey),
+                        entity);
+                }
+
+                return existingByKey;
+            }
+        }
+
+        foreach (var key in baseEntityType.GetKeys())
+        {
             GetOrCreateIdentityMap(key).AddOrUpdate(newEntry);
         }
 

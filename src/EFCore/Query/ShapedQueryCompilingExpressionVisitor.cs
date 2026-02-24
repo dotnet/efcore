@@ -516,17 +516,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 expressions.Add(
                     IfThen(
                         Not(hasNullKeyVariable),
-                        IfThenElse(
-                            NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
-                            Block(
-                                Assign(concreteEntityTypeVariable, MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
-                                Assign(
-                                    instanceVariable, Convert(
-                                        MakeMemberAccess(entryVariable, EntityMemberInfo),
-                                        clrType))),
-                            MaterializeEntity(
-                                shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
-                                entryVariable))));
+                        MaterializeEntity(
+                            shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
+                            entryVariable)));
             }
             else
             {
@@ -695,6 +687,13 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                 concreteEntityTypeVariable,
                                 instanceVariable,
                                 shadowValuesVariable))));
+
+                expressions.Add(
+                    IfThen(
+                        NotEqual(entryVariable!, Default(typeof(InternalEntityEntry))),
+                        Assign(
+                            instanceVariable,
+                            Convert(MakeMemberAccess(entryVariable!, EntityMemberInfo), returnType))));
             }
 
             expressions.Add(instanceVariable);
