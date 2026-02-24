@@ -244,6 +244,7 @@ public class FakeStateManager : IStateManager
 
     public bool SensitiveLoggingEnabled { get; }
 
+    public bool HasResolutionInterceptor { get; }
     public void CascadeChanges(bool force)
         => throw new NotImplementedException();
 

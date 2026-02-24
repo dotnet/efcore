@@ -400,6 +400,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             = typeof(QueryContext).GetMethod(
                 nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
 
+        private static readonly PropertyInfo HasResolutionInterceptorPropertyInfo
+            = typeof(QueryContext).GetProperty(nameof(QueryContext.HasResolutionInterceptor))!;
+
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(ShapedQueryCompilingExpressionVisitor)
                 .GetMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
@@ -517,7 +520,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     IfThen(
                         Not(hasNullKeyVariable),
                         IfThenElse(
-                            NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
+                            AndAlso(
+                                NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
+                                Not(MakeMemberAccess(QueryCompilationContext.QueryContextParameter, HasResolutionInterceptorPropertyInfo))),
                             Block(
                                 Assign(concreteEntityTypeVariable, MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
                                 Assign(
@@ -695,6 +700,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                 concreteEntityTypeVariable,
                                 instanceVariable,
                                 shadowValuesVariable))));
+
+                expressions.Add(
+                    IfThen(
+                        NotEqual(entryVariable!, Default(typeof(InternalEntityEntry))),
+                        Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable!, EntityMemberInfo), returnType))));
             }
 
             expressions.Add(instanceVariable);

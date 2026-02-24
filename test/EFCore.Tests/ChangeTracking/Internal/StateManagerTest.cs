@@ -493,6 +493,87 @@ public class StateManagerTest
                 })).Message);
     }
 
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public void Identity_conflict_from_query_can_be_resolved(bool copy)
+    {
+        using var context = new IdentityConflictContext(
+            copy
+                ? new UpdatingIdentityResolutionInterceptor()
+                : new IgnoringIdentityResolutionInterceptor());
+
+        var entityType = context.Model.FindEntityType(typeof(SingleKey))!;
+        var stateManager = context.GetService<IStateManager>();
+
+        var entity = new SingleKey
+        {
+            Id = 77,
+            AlternateId = 66,
+            Value = "Existing"
+        };
+
+        // Simulate first query result
+        stateManager.StartTrackingFromQuery(entityType, entity, Snapshot.Empty);
+
+        // Simulate second query result - same key, different instance
+        var newEntity = new SingleKey
+        {
+            Id = 77,
+            AlternateId = 66,
+            Value = "New"
+        };
+
+        var resultEntry = stateManager.StartTrackingFromQuery(entityType, newEntity, Snapshot.Empty);
+
+        // The result should be the original tracked entry
+        Assert.Single(context.ChangeTracker.Entries());
+        Assert.Same(entity, resultEntry.Entity);
+        Assert.Equal(copy ? "New" : "Existing", entity.Value);
+    }
+
+    [ConditionalFact]
+    public void Identity_conflict_from_query_does_not_call_interceptor_for_deleted_entities()
+    {
+        var interceptor = new CountingIdentityResolutionInterceptor();
+        using var context = new IdentityConflictContext(interceptor);
+
+        var entityType = context.Model.FindEntityType(typeof(SingleKey))!;
+        var stateManager = context.GetService<IStateManager>();
+
+        var entity = new SingleKey
+        {
+            Id = 77,
+            AlternateId = 66,
+            Value = "Existing"
+        };
+
+        // First track via query, then mark as deleted
+        stateManager.StartTrackingFromQuery(entityType, entity, Snapshot.Empty);
+        context.Entry(entity).State = EntityState.Deleted;
+
+        // Simulate second query result - same key, different instance
+        var newEntity = new SingleKey
+        {
+            Id = 77,
+            AlternateId = 66,
+            Value = "New"
+        };
+
+        var resultEntry = stateManager.StartTrackingFromQuery(entityType, newEntity, Snapshot.Empty);
+
+        // The result should be the original tracked entry, interceptor should NOT be called for deleted entries
+        Assert.Same(entity, resultEntry.Entity);
+        Assert.Equal(0, interceptor.CallCount);
+        Assert.Equal("Existing", entity.Value);
+    }
+
+    private class CountingIdentityResolutionInterceptor : IIdentityResolutionInterceptor
+    {
+        public int CallCount { get; private set; }
+
+        public void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity)
+            => CallCount++;
+    }
+
     private class SensitiveIdentityConflictContext : IdentityConflictContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

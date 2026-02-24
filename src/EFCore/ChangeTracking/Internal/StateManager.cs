@@ -88,6 +88,15 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool HasResolutionInterceptor
+        => _resolutionInterceptor != null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
     /// <summary>
@@ -326,6 +335,37 @@ public class StateManager : IStateManager
         var newEntry = snapshot.IsEmpty
             ? new InternalEntityEntry(this, entityType, entity)
             : new InternalEntityEntry(this, entityType, entity, snapshot);
+
+        if (_resolutionInterceptor != null)
+        {
+            var interceptionData = new IdentityResolutionInterceptionData(Context);
+            foreach (var key in baseEntityType.GetKeys())
+            {
+                var existingKeyEntry = FindIdentityMap(key)?.TryGetEntry(newEntry);
+                if (existingKeyEntry != null)
+                {
+                    if (existingKeyEntry.EntityState == EntityState.Unchanged)
+                    {
+                        _resolutionInterceptor.UpdateTrackedInstance(
+                            interceptionData,
+                            new EntityEntry(existingKeyEntry),
+                            entity);
+                    }
+
+                    return existingKeyEntry;
+                }
+            }
+        }
+        else
+        {
+            foreach (var key in baseEntityType.GetKeys())
+            {
+                if (FindIdentityMap(key)?.TryGetEntry(newEntry) is { } existingKeyEntry)
+                {
+                    return existingKeyEntry;
+                }
+            }
+        }
 
         foreach (var key in baseEntityType.GetKeys())
         {
