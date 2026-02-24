@@ -3671,6 +3671,64 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
            });
 
+    [ConditionalFact]
+    public virtual Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+
+                // Save original leaf value
+                var originalLeaf = entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf;
+                var originalLeafValue = originalLeaf.SomethingSomething;
+
+                // Replace the owned reference with a new instance that shares nested reference navigations
+                var oldRoot = entity.OwnedReferenceRoot;
+                entity.OwnedReferenceRoot = new JsonOwnedRoot
+                {
+                    Name = "Modified",
+                    Number = oldRoot.Number,
+                    Names = oldRoot.Names,
+                    Numbers = oldRoot.Numbers,
+                    OwnedReferenceBranch = new JsonOwnedBranch
+                    {
+                        Id = oldRoot.OwnedReferenceBranch.Id,
+                        Date = oldRoot.OwnedReferenceBranch.Date,
+                        Enum = oldRoot.OwnedReferenceBranch.Enum,
+                        Fraction = oldRoot.OwnedReferenceBranch.Fraction,
+                        OwnedReferenceLeaf = originalLeaf,
+                        OwnedCollectionLeaf = [],
+                    },
+                    OwnedCollectionBranch = [],
+                };
+
+                // Before DetectChanges, leaf should be accessible
+                Assert.Same(originalLeaf, entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                context.ChangeTracker.DetectChanges();
+
+                // After DetectChanges, leaf should still be accessible
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+
+                // After SaveChanges, nested owned entities should still be accessible in memory
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch);
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+                Assert.Equal(originalLeafValue, entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal("Modified", result.OwnedReferenceRoot.Name);
+                Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch);
+                Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

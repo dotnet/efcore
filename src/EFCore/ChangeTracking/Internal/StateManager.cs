@@ -1230,6 +1230,15 @@ public class StateManager : IStateManager
                     continue;
                 }
 
+                // If the dependent's current principal (from identity map) is different from
+                // the entry being cascade-deleted, the dependent has been re-associated with
+                // a replacement principal (e.g., via shared identity). Skip the cascade.
+                var currentPrincipal = FindPrincipal(dependent, fk);
+                if (currentPrincipal != null && currentPrincipal != entry)
+                {
+                    continue;
+                }
+
                 if (detectChangesEnabled)
                 {
                     ChangeDetector.DetectChanges(dependent);
