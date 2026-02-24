@@ -196,6 +196,11 @@ public sealed class InternalComplexEntry : InternalEntryBase
         if (oldState is EntityState.Detached or EntityState.Deleted
             && newState is not EntityState.Detached and not EntityState.Deleted)
         {
+            if (Ordinal == -1)
+            {
+                Ordinal = OriginalOrdinal;
+            }
+
             ContainingEntry.ValidateOrdinal(this, original: false);
         }
 

@@ -27,9 +27,7 @@ public partial class InternalEntryBase
             bool original,
             EntityState defaultState = EntityState.Detached)
         {
-            var collection = original
-                ? (IList?)_containingEntry.GetOriginalValue(_complexCollection)
-                : (IList?)_containingEntry[_complexCollection];
+            var collection = GetCollection(original);
             var entries = EnsureCapacity(collection?.Count ?? 0, original, trim: false);
             if (collection != null
                 && defaultState != EntityState.Detached
@@ -139,6 +137,23 @@ public partial class InternalEntryBase
             }
 
             return _entries;
+        }
+
+        private IList? GetCollection(bool original)
+        {
+            if (_containingEntry is InternalComplexEntry complexEntry)
+            {
+                var ordinal = original ? complexEntry.OriginalOrdinal : complexEntry.Ordinal;
+                if (ordinal < 0)
+                {
+                    // Ordinal is -1 (entry is deleted/added), so the collection doesn't exist.
+                    return null;
+                }
+            }
+
+            return original
+                ? (IList?)_containingEntry.GetOriginalValue(_complexCollection)
+                : (IList?)_containingEntry[_complexCollection];
         }
 
         public void AcceptChanges()
@@ -362,12 +377,8 @@ public partial class InternalEntryBase
 
             _containingEntry.EnsureOriginalValues();
 
-            EnsureCapacity(
-                ((IList?)_containingEntry.GetOriginalValue(_complexCollection))?.Count ?? 0,
-                original: true, trim: false);
-            EnsureCapacity(
-                ((IList?)_containingEntry[_complexCollection])?.Count ?? 0,
-                original: false, trim: false);
+            EnsureCapacity(GetCollection(original: true)?.Count ?? 0, original: true, trim: false);
+            EnsureCapacity(GetCollection(original: false)?.Count ?? 0, original: false, trim: false);
 
             var defaultState = newState == EntityState.Modified && !modifyProperties
                 ? EntityState.Unchanged
@@ -447,12 +458,6 @@ public partial class InternalEntryBase
                 if (newState is not EntityState.Detached)
                 {
                     InsertEntry(entry, original: false);
-                }
-
-                // When going from Deleted to Unchanged, restore the currentEntry to the original collection
-                if (newState == EntityState.Unchanged)
-                {
-                    InsertEntry(entry, original: true);
                 }
             }
             else if (oldState == EntityState.Added
@@ -616,8 +621,12 @@ public partial class InternalEntryBase
             }
 
             var ordinal = ValidateOrdinal(entry, original, entries);
-            if (entries[ordinal] == entry
-                || entries[ordinal] == null)
+            if (entries[ordinal] == entry)
+            {
+                return;
+            }
+
+            if (entries[ordinal] == null)
             {
                 entries[ordinal] = entry;
                 return;
