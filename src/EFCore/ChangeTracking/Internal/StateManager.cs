@@ -336,34 +336,21 @@ public class StateManager : IStateManager
             ? new InternalEntityEntry(this, entityType, entity)
             : new InternalEntityEntry(this, entityType, entity, snapshot);
 
-        if (_resolutionInterceptor != null)
+        foreach (var key in baseEntityType.GetKeys())
         {
-            var interceptionData = new IdentityResolutionInterceptionData(Context);
-            foreach (var key in baseEntityType.GetKeys())
+            var existingKeyEntry = FindIdentityMap(key)?.TryGetEntry(newEntry);
+            if (existingKeyEntry != null)
             {
-                var existingKeyEntry = FindIdentityMap(key)?.TryGetEntry(newEntry);
-                if (existingKeyEntry != null)
+                if (_resolutionInterceptor != null
+                    && existingKeyEntry.EntityState == EntityState.Unchanged)
                 {
-                    if (existingKeyEntry.EntityState == EntityState.Unchanged)
-                    {
-                        _resolutionInterceptor.UpdateTrackedInstance(
-                            interceptionData,
-                            new EntityEntry(existingKeyEntry),
-                            entity);
-                    }
+                    _resolutionInterceptor.UpdateTrackedInstance(
+                        new IdentityResolutionInterceptionData(Context),
+                        new EntityEntry(existingKeyEntry),
+                        entity);
+                }
 
-                    return existingKeyEntry;
-                }
-            }
-        }
-        else
-        {
-            foreach (var key in baseEntityType.GetKeys())
-            {
-                if (FindIdentityMap(key)?.TryGetEntry(newEntry) is { } existingKeyEntry)
-                {
-                    return existingKeyEntry;
-                }
+                return existingKeyEntry;
             }
         }
 
