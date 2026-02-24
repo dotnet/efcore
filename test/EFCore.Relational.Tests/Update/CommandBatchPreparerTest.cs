@@ -1264,9 +1264,11 @@ FakeEntity [Deleted]"
         var entityBEntry = stateManager.GetOrCreateEntry(entityB);
         entityBEntry.SetEntityState(EntityState.Added);
 
-        // Verify SharedIdentityEntry is set
+        // Verify SharedIdentityEntry is set bidirectionally
         Assert.NotNull(entityBEntry.SharedIdentityEntry);
         Assert.Same(entityAEntry, entityBEntry.SharedIdentityEntry);
+        Assert.NotNull(entityAEntry.SharedIdentityEntry);
+        Assert.Same(entityBEntry, entityAEntry.SharedIdentityEntry);
 
         var modelData = new UpdateAdapter(stateManager);
 
@@ -1278,8 +1280,17 @@ FakeEntity [Deleted]"
 
         // Find the command for the replaced entity
         var allCommands = commandBatches.SelectMany(b => b.ModificationCommands).ToList();
-        var modifiedCommand = allCommands.FirstOrDefault(c => c.EntityState == EntityState.Modified);
-        Assert.NotNull(modifiedCommand);
+
+        // The owned entity entry should be part of the same Modified command, not a separate Deleted command
+        var deletedCommands = allCommands.Where(c => c.EntityState == EntityState.Deleted).ToList();
+        Assert.Empty(deletedCommands);
+
+        var modifiedCommand = Assert.Single(allCommands, c => c.EntityState == EntityState.Modified);
+
+        // The modified command should contain both EntityB and OwnedEntity entries
+        Assert.True(modifiedCommand.Entries.Count() >= 2,
+            $"Expected at least 2 entries in Modified command, but got {modifiedCommand.Entries.Count()}. " +
+            $"Total commands: {allCommands.Count}, states: [{string.Join(", ", allCommands.Select(c => c.EntityState))}]");
 
         // RowVersion should be a condition (used in WHERE clause)
         var rvModification = modifiedCommand.ColumnModifications
