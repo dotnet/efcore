@@ -54,6 +54,24 @@ public class ScaffoldingTypeMapperSqlServerTest
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
+    public void Maps_money_column(bool isKeyOrIndex)
+    {
+        var mapping = CreateMapper().FindMapping("money", isKeyOrIndex, rowVersion: false);
+
+        AssertMapping<decimal>(
+            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+    }
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public void Maps_smallmoney_column(bool isKeyOrIndex)
+    {
+        var mapping = CreateMapper().FindMapping("smallmoney", isKeyOrIndex, rowVersion: false);
+
+        AssertMapping<decimal>(
+            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+    }
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_bit_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("bit", isKeyOrIndex, rowVersion: false);
