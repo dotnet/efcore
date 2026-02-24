@@ -137,6 +137,11 @@ public class FakeStateManager : IStateManager
         in ISnapshot snapshot)
         => throw new NotImplementedException();
 
+    public void NotifyIdentityResolution(
+        InternalEntityEntry existingEntry,
+        object newEntity)
+        => throw new NotImplementedException();
+
     public InternalEntityEntry TryGetEntry(IKey key, IReadOnlyList<object> keyValues)
         => throw new NotImplementedException();
 

@@ -400,6 +400,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             = typeof(QueryContext).GetMethod(
                 nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
 
+        private static readonly MethodInfo NotifyIdentityResolutionMethodInfo
+            = typeof(QueryContext).GetMethod(
+                nameof(QueryContext.NotifyIdentityResolution),
+                [typeof(InternalEntityEntry), typeof(object)])!;
+
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(ShapedQueryCompilingExpressionVisitor)
                 .GetMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
@@ -519,6 +524,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         IfThenElse(
                             NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
                             Block(
+                                MaterializeEntity(
+                                    shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
+                                    entryVariable, identityResolution: true),
+                                Call(
+                                    QueryCompilationContext.QueryContextParameter,
+                                    NotifyIdentityResolutionMethodInfo,
+                                    entryVariable,
+                                    Convert(instanceVariable, typeof(object))),
                                 Assign(concreteEntityTypeVariable, MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
                                 Assign(
                                     instanceVariable, Convert(
@@ -612,7 +625,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             ParameterExpression materializationContextVariable,
             ParameterExpression concreteEntityTypeVariable,
             ParameterExpression instanceVariable,
-            ParameterExpression? entryVariable)
+            ParameterExpression? entryVariable,
+            bool identityResolution = false)
         {
             var structuralType = shaper.StructuralType;
 
@@ -673,7 +687,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             shapedQueryCompiler.AddStructuralTypeInitialization(shaper, instanceVariable, variables, expressions);
 
-            if (_queryStateManager && primaryKey is not null)
+            if (_queryStateManager && primaryKey is not null && !identityResolution)
             {
                 if (structuralType is IEntityType entityType2)
                 {

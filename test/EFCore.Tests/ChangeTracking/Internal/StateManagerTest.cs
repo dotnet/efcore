@@ -136,6 +136,88 @@ public class StateManagerTest
                 new SingleKey { Id = 78, AlternateId = 66 })).Message);
     }
 
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public void Identity_resolution_interceptor_is_called_when_re_querying_tracked_entity(bool copy)
+    {
+        var interceptor = copy
+            ? (IIdentityResolutionInterceptor)new UpdatingIdentityResolutionInterceptor()
+            : new RecordingIdentityResolutionInterceptor();
+
+        var dbName = "QueryIdentityResolution" + copy;
+
+        using (var seedContext = new QueryIdentityResolutionContext(dbName))
+        {
+            seedContext.Add(new SingleKey { Id = 77, AlternateId = 66, Value = "Original" });
+            seedContext.SaveChanges();
+        }
+
+        using var context = new QueryIdentityResolutionContext(dbName, interceptor);
+
+        // First query - tracks the entity
+        var entity = context.Set<SingleKey>().Single(e => e.Id == 77);
+        Assert.Equal("Original", entity.Value);
+
+        // Change the tracked entity value in memory (not saved to DB)
+        entity.Value = "Modified";
+
+        // Query again - entity is tracked, interceptor should be called
+        var sameEntity = context.Set<SingleKey>().Single(e => e.Id == 77);
+        Assert.Same(entity, sameEntity);
+
+        if (copy)
+        {
+            // UpdatingIdentityResolutionInterceptor copies values from new (DB) entity to existing
+            Assert.Equal("Original", entity.Value);
+        }
+        else
+        {
+            // RecordingIdentityResolutionInterceptor just records the call
+            Assert.Equal("Modified", entity.Value);
+            Assert.True(((RecordingIdentityResolutionInterceptor)interceptor).CallCount >= 1);
+        }
+    }
+
+    private class RecordingIdentityResolutionInterceptor : IIdentityResolutionInterceptor
+    {
+        public int CallCount { get; private set; }
+
+        public void UpdateTrackedInstance(
+            IdentityResolutionInterceptionData interceptionData,
+            EntityEntry existingEntry,
+            object newEntity)
+            => CallCount++;
+    }
+
+    private class QueryIdentityResolutionContext : DbContext
+    {
+        private readonly string _dbName;
+        private readonly IInterceptor[] _interceptors;
+
+        public QueryIdentityResolutionContext(string dbName, params IInterceptor[] interceptors)
+        {
+            _dbName = dbName;
+            _interceptors = interceptors;
+        }
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .AddInterceptors(_interceptors)
+                .UseInMemoryDatabase(_dbName)
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SingleKey>(b =>
+            {
+                b.HasKey(e => e.Id);
+                b.HasAlternateKey(e => e.AlternateId);
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.AlternateId).ValueGeneratedNever();
+                b.Ignore(e => e.Owned);
+            });
+        }
+    }
+
     [ConditionalFact]
     public void Identity_conflict_throws_for_owned_primary_key()
     {
