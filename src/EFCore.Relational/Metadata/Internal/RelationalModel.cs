@@ -634,8 +634,16 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             complexType = (IComplexType)mappedType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
+            var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
             jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable
-                || complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true).Any(p => p.IsNullable);
+                || chain.Any(p => p.IsNullable);
+
+            if (chain[0].DeclaringType is IEntityType declaringEntityType
+                && declaringEntityType.BaseType != null)
+            {
+                // if the complex property is defined on a derived type, the column must be made nullable
+                jsonColumn.IsNullable = true;
+            }
 #pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }
