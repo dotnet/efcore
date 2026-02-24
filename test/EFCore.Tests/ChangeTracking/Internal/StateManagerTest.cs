@@ -531,7 +531,7 @@ public class StateManagerTest
     }
 
     [ConditionalFact]
-    public void Identity_conflict_from_query_does_not_call_interceptor_for_deleted_entities()
+    public void Identity_conflict_from_query_calls_interceptor_regardless_of_entity_state()
     {
         var interceptor = new CountingIdentityResolutionInterceptor();
         using var context = new IdentityConflictContext(interceptor);
@@ -560,9 +560,9 @@ public class StateManagerTest
 
         var resultEntry = stateManager.StartTrackingFromQuery(entityType, newEntity, Snapshot.Empty);
 
-        // The result should be the original tracked entry, interceptor should NOT be called for deleted entries
+        // The result should be the original tracked entry; interceptor is called once per matching key (PK + AK)
         Assert.Same(entity, resultEntry.Entity);
-        Assert.Equal(0, interceptor.CallCount);
+        Assert.Equal(2, interceptor.CallCount);
         Assert.Equal("Existing", entity.Value);
     }
 

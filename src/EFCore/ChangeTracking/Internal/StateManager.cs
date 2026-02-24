@@ -88,15 +88,6 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool HasResolutionInterceptor
-        => _resolutionInterceptor != null;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
     /// <summary>
@@ -336,22 +327,9 @@ public class StateManager : IStateManager
             ? new InternalEntityEntry(this, entityType, entity)
             : new InternalEntityEntry(this, entityType, entity, snapshot);
 
-        foreach (var key in baseEntityType.GetKeys())
+        if (ResolveToExistingEntry(newEntry, null, null))
         {
-            var existingKeyEntry = FindIdentityMap(key)?.TryGetEntry(newEntry);
-            if (existingKeyEntry != null)
-            {
-                if (_resolutionInterceptor != null
-                    && existingKeyEntry.EntityState == EntityState.Unchanged)
-                {
-                    _resolutionInterceptor.UpdateTrackedInstance(
-                        new IdentityResolutionInterceptionData(Context),
-                        new EntityEntry(existingKeyEntry),
-                        entity);
-                }
-
-                return existingKeyEntry;
-            }
+            return FindIdentityMap(entityType.FindPrimaryKey()!)!.TryGetEntry(newEntry)!;
         }
 
         foreach (var key in baseEntityType.GetKeys())

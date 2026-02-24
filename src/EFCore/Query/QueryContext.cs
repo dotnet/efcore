@@ -124,7 +124,8 @@ public abstract class QueryContext
         // Return null when the identity resolution interceptor is registered so the shaper materializes
         // the entity and calls StartTrackingFromQuery, which will invoke the interceptor.
         // Only do this when the existing entry is Unchanged to preserve user modifications.
-        return entry is { EntityState: EntityState.Unchanged } && _stateManager.HasResolutionInterceptor
+        return entry is { EntityState: EntityState.Unchanged }
+                && _stateManager.Dependencies.Interceptors.Aggregate<IIdentityResolutionInterceptor>() != null
             ? null
             : entry;
     }
