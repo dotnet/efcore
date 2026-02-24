@@ -400,9 +400,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             = typeof(QueryContext).GetMethod(
                 nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
 
-        private static readonly PropertyInfo HasResolutionInterceptorPropertyInfo
-            = typeof(QueryContext).GetProperty(nameof(QueryContext.HasResolutionInterceptor))!;
-
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(ShapedQueryCompilingExpressionVisitor)
                 .GetMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
@@ -520,9 +517,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     IfThen(
                         Not(hasNullKeyVariable),
                         IfThenElse(
-                            AndAlso(
-                                NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
-                                Not(MakeMemberAccess(QueryCompilationContext.QueryContextParameter, HasResolutionInterceptorPropertyInfo))),
+                            NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
                             Block(
                                 Assign(concreteEntityTypeVariable, MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
                                 Assign(

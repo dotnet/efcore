@@ -113,24 +113,21 @@ public abstract class QueryContext
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual bool HasResolutionInterceptor
-        // InitializeStateManager will populate the field before calling here
-        => _stateManager!.HasResolutionInterceptor;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
     public virtual InternalEntityEntry? TryGetEntry(
             IKey key,
             object[] keyValues,
             bool throwOnNullKey,
             out bool hasNullKey)
+    {
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+        var entry = _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+        // Return null when the identity resolution interceptor is registered so the shaper materializes
+        // the entity and calls StartTrackingFromQuery, which will invoke the interceptor.
+        // Only do this when the existing entry is Unchanged to preserve user modifications.
+        return entry is { EntityState: EntityState.Unchanged } && _stateManager.HasResolutionInterceptor
+            ? null
+            : entry;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
