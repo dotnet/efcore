@@ -516,8 +516,8 @@ public class StateManagerTest
 
         using (var context2 = new IdentityConflictContext())
         {
-            var e = context2.Set<SingleKey>().Single(e => e.Id == id);
-            e.Value = "Changed";
+            var other = context2.Set<SingleKey>().Single(e => e.Id == id);
+            other.Value = "Changed";
             context2.SaveChanges();
         }
 
