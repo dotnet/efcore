@@ -76,6 +76,13 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                             hash.Add(structuralEquatable.GetHashCode(StructuralComparisons.StructuralEqualityComparer));
                             break;
 
+                        case IEnumerable enumerable:
+                            foreach (var item in enumerable)
+                            {
+                                hash.Add(item?.GetHashCode() ?? 0);
+                            }
+                            break;
+
                         default:
                             hash.Add(constantExpression.Value);
                             break;
@@ -368,8 +375,21 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
         {
             var (v1, v2) = (a.Value, b.Value);
 
-            return Equals(v1, v2)
-                || (v1 is IStructuralEquatable array1 && array1.Equals(v2, StructuralComparisons.StructuralEqualityComparer));
+            if (Equals(v1, v2))
+            {
+                return true;
+            }
+
+            return v1 switch
+            {
+                IStructuralEquatable structuralEquatable1
+                    => structuralEquatable1.Equals(v2, StructuralComparisons.StructuralEqualityComparer),
+
+                IEnumerable enumerable1 when v2 is IEnumerable enumerable2
+                    => enumerable1.Cast<object?>().SequenceEqual(enumerable2.Cast<object?>()),
+
+                _ => false
+            };
         }
 
         private bool CompareGoto(GotoExpression a, GotoExpression b)

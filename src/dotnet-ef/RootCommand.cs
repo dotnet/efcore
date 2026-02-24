@@ -54,7 +54,7 @@ internal class RootCommand : CommandBase
     {
         var commands = _args!.TakeWhile(a => a[0] != '-').ToList();
         if (_help!.HasValue()
-            || ShouldHelp(commands))
+            || ShouldHelp(commands, _args!))
         {
             return ShowHelp(_help.HasValue(), commands);
         }
@@ -95,8 +95,7 @@ internal class RootCommand : CommandBase
             Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
             "tools");
 
-        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!))
-            .Replace('\\', Path.DirectorySeparatorChar);
+        var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
         var targetPath = Path.Combine(targetDir, project.TargetFileName!);
         var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
         var depsFile = Path.Combine(
@@ -172,10 +171,10 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-#if !NET8_0
+#if !NET10_0
 #error Target framework needs to be updated here, as well as in Microsoft.EntityFrameworkCore.Tasks.props and EntityFrameworkCore.psm1
 #endif
-            args.Add(Path.Combine(toolsPath, "net8.0", "any", "ef.dll"));
+            args.Add(Path.Combine(toolsPath, "net10.0", "any", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {
@@ -334,9 +333,11 @@ internal class RootCommand : CommandBase
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
 
-    private static bool ShouldHelp(IReadOnlyList<string> commands)
-        => commands.Count == 0
-            || (commands.Count == 1
+    private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
+        => args.Count == 0
+            || commands.Count == 0
+            || (args.Count == 1
+                && commands.Count == 1
                 && (commands[0] == "database"
                     || commands[0] == "dbcontext"
                     || commands[0] == "migrations"));

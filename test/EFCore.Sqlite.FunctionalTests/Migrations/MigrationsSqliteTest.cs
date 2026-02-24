@@ -42,7 +42,7 @@ CREATE TABLE "People" (
     -- Employer ID comment
     "EmployerId" INTEGER NOT NULL,
 
-    "SSN" TEXT COLLATE NOCASE NOT NULL,
+    "SSN" TEXT COLLATE "NOCASE" NOT NULL,
     CONSTRAINT "AK_People_SSN" UNIQUE ("SSN"),
     CONSTRAINT "CK_People_EmployerId" CHECK ("EmployerId" > 0),
     CONSTRAINT "FK_People_Employers_EmployerId" FOREIGN KEY ("EmployerId") REFERENCES "Employers" ("Id") ON DELETE CASCADE
@@ -498,7 +498,7 @@ ALTER TABLE "ef_temp_People" RENAME TO "People";
 
         AssertSql(
             """
-ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
+ALTER TABLE "People" ADD "Name" TEXT COLLATE "NOCASE" NULL;
 """);
     }
 
@@ -508,8 +508,8 @@ ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
 
         AssertSql(
             stored
-                ? """ALTER TABLE "People" ADD "Name" AS ('hello') STORED COLLATE NOCASE;"""
-                : """ALTER TABLE "People" ADD "Name" AS ('hello') COLLATE NOCASE;""");
+                ? """ALTER TABLE "People" ADD "Name" AS ('hello') STORED COLLATE "NOCASE";"""
+                : """ALTER TABLE "People" ADD "Name" AS ('hello') COLLATE "NOCASE";""");
     }
 
     public override async Task Add_column_with_check_constraint()
@@ -953,7 +953,7 @@ ALTER TABLE "ef_temp_People" RENAME TO "People";
         AssertSql(
             """
 CREATE TABLE "ef_temp_People" (
-    "Name" TEXT COLLATE NOCASE NULL
+    "Name" TEXT COLLATE "NOCASE" NULL
 );
 """,
             //
@@ -2123,7 +2123,7 @@ CREATE TABLE "Customers" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("Person", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });
@@ -2187,7 +2187,7 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("ProductWithStrongId", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });
@@ -2220,7 +2220,7 @@ CREATE TABLE "ProductWithStrongId" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("ProductWithStrongId", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });
@@ -2252,7 +2252,7 @@ CREATE TABLE "ProductWithStrongId" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("CompositeEntity", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var id1Column = Assert.Single(table.Columns, c => c.Name == "Id1");
                 Assert.False(id1Column.IsNullable);
                 var id2Column = Assert.Single(table.Columns, c => c.Name == "Id2");
@@ -2294,7 +2294,7 @@ CREATE TABLE "CompositeEntity" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("Product", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });

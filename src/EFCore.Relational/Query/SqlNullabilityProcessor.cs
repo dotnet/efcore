@@ -222,6 +222,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         SqlExpression ProcessJoinPredicate(SqlExpression predicate)
         {
+            // In LINQ equijoins, null is not equal null, just like in SQL
+            // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator).
+            // As a result, we handle top-level join predicate equality in a special way, not using the generic Visit logic
+            // (which would add null compensation).
+            // However, when two anonymous types are being compared, the LINQ behavior *does* treat nulls as equal.
+            // As a result, we differentiate between a single top-level comparison and multiple comparisons with ANDs.
+            // See additional notes in RelationalQueryableMethodTranslatingExpressionVisitor.CreateJoinPredicate().
             switch (predicate)
             {
                 case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
@@ -249,6 +256,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     or ExpressionType.LessThanOrEqual
                 } binary:
                     return Visit(binary, allowOptimizedExpansion: true, out _);
+
+                case SqlConstantExpression { Value: bool }:
+                    return predicate;
 
                 default:
                     throw new InvalidOperationException(
@@ -1911,7 +1921,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 {
                     if (processedValues is null)
                     {
-                        var elementClrType = values.GetType().GetSequenceType();
+                        // We found the first null value - we need to start copying values to a new list which will be used for the rewritten parameter.
+                        // The type of the new list must match that of the original enumerable parameter, as there may be value converters involved which
+                        // rely on the precise element type (see #37605). We therefore get the type of the element from the original list if it implements
+                        // IEnumerable<T>, or default to object.
+                        var elementClrType = enumerable.GetType().TryGetElementType(typeof(IEnumerable<>)) ?? typeof(object);
                         processedValues = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementClrType), values.Count)!;
                         for (var j = 0; j < i; j++)
                         {
@@ -1943,7 +1957,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             var rewrittenCollectionTable = UpdateParameterCollection(collectionTable, rewrittenParameter);
 
             // We clone the select expression since Update below doesn't create a pure copy, mutating the original as well (because of
-            // TableReferenceExpression). TODO: Remove this after #31327.
+            // TableReferenceExpression). TODO: Remove this after SelectExpression becomes fully mutable (#32927).
 #pragma warning disable EF1001
             rewrittenSelectExpression = selectExpression.Clone();
 #pragma warning restore EF1001

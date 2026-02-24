@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -171,6 +172,104 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_type_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithStructCollections);
+
+    [ConditionalTheory(Skip = "Issue #31621")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_readonly_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreatePubWithRecordCollections);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPub);
+
+    [ConditionalTheory(Skip = "Issue #31411")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory(Skip = "Issue #31621")]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_readonly_struct_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Modified, true)]
+    public virtual Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+        => ChangeStateFromDeletedTest(newState, async, CreateFieldCollectionPubWithRecords);
+
+    private async Task ChangeStateFromDeletedTest<TEntity>(
+        EntityState newState,
+        bool async,
+        Func<DbContext, TEntity> createPub)
+        where TEntity : class
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var pub = createPub(context);
+                context.Add(pub);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var pub = async
+                    ? await context.Set<TEntity>().Where(e => EF.Property<string>(e, "Name") == "The FBI").FirstAsync()
+                    : context.Set<TEntity>().Where(e => EF.Property<string>(e, "Name") == "The FBI").First();
+                var entry = context.Entry(pub);
+
+                entry.State = EntityState.Deleted;
+
+                // Change to target state - this should not throw an exception
+                entry.State = newState;
+                Assert.Equal(newState, entry.State);
+
+                // Verify the complex collection is still accessible
+                var activitiesEntry = entry.ComplexCollection("Activities");
+                Assert.NotNull(activitiesEntry);
+                var activitiesValue = activitiesEntry.CurrentValue;
+                Assert.Equal(2, ((System.Collections.IList)activitiesValue!).Count);
+            });
+    }
 
     [ConditionalTheory(Skip = "Issue #31411"), InlineData(EntityState.Added, false), InlineData(EntityState.Added, true),
      InlineData(EntityState.Unchanged, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, false),
@@ -388,7 +487,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Can_write_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithPropertyBagCollections);
 
-    private async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
+    protected virtual async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
         where TEntity : class
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -808,72 +907,56 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
-    public virtual async Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
-    {
-        await using var context = CreateContext();
+    public virtual Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var yogurt = CreateYogurt(context, nullLicense: true);
+            _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
-        List<int> a = [1, 2];
-
-        await context.Database.CreateExecutionStrategy().ExecuteAsync(
-            context, async context =>
+            if (async)
             {
-                await using var transaction = await context.Database.BeginTransactionAsync();
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.SaveChanges();
+            }
 
-                var yogurt = CreateYogurt(context, nullLicense: true);
-                _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+            // #31376
+            //var actualYogurt = async
+            //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+            //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
 
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
-
-                // #31376
-                //var actualYogurt = async
-                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
-                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
-
-                //Assert.Null(actualYogurt.Culture.License!.Value.Tag);
-                //Assert.Null(actualYogurt.Culture.Manufacturer.Tag);
-                //Assert.Null(actualYogurt.Milk.License!.Value.Tag);
-                //Assert.Null(actualYogurt.Milk.Manufacturer.Tag);
-            });
-    }
+            //Assert.Null(actualYogurt.Culture.License!.Value.Tag);
+            //Assert.Null(actualYogurt.Culture.Manufacturer.Tag);
+            //Assert.Null(actualYogurt.Milk.License!.Value.Tag);
+            //Assert.Null(actualYogurt.Milk.Manufacturer.Tag);
+        });
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
-    public virtual async Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
-    {
-        await using var context = CreateContext();
+    public virtual Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var yogurt = CreateYogurt(context, nullTag: true);
+            _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
-        await context.Database.CreateExecutionStrategy().ExecuteAsync(
-            context, async context =>
+            if (async)
             {
-                await using var transaction = await context.Database.BeginTransactionAsync();
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.SaveChanges();
+            }
 
-                var yogurt = CreateYogurt(context, nullTag: true);
-                _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+            // #31376
+            //var actualYogurt = async
+            //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+            //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
 
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
-
-                // #31376
-                //var actualYogurt = async
-                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
-                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
-
-                //Assert.Null(actualYogurt.Culture.License);
-                //Assert.Null(actualYogurt.Milk.License);
-            });
-    }
+            //Assert.Null(actualYogurt.Culture.License);
+            //Assert.Null(actualYogurt.Milk.License);
+        });
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void Detect_changes_in_complex_struct_type_properties(bool trackFromQuery)
@@ -1374,6 +1457,73 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(EntityState.Unchanged, activitiesEntry[0].State);
         Assert.Equal(EntityState.Unchanged, activitiesEntry[1].State);
         Assert.Equal(EntityState.Added, activitiesEntry[2].State);
+    }
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_struct_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithStructCollections);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_readonly_struct_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithReadonlyStructCollections);
+
+    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_record_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreatePubWithRecordCollections);
+
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPub);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_struct_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithStructs);
+
+    [ConditionalTheory(Skip = "Issue #31411"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_readonly_struct_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithReadonlyStructs);
+
+    [ConditionalTheory(Skip = "Issue #36483"), InlineData(false), InlineData(true)]
+    public virtual void Can_remove_from_complex_record_field_collection_with_nested_complex_collection(bool trackFromQuery)
+        => RemoveFromComplexCollectionWithNestedCollectionTest(trackFromQuery, CreateFieldCollectionPubWithRecords);
+
+    private void RemoveFromComplexCollectionWithNestedCollectionTest<TEntity>(bool trackFromQuery, Func<DbContext, TEntity> createPub)
+        where TEntity : class
+    {
+        using var context = CreateContext();
+        var pub = createPub(context);
+
+        var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        var activitiesProperty = entry.Metadata.FindComplexProperty("Activities")!;
+        var activities = (IList)activitiesProperty.GetGetter().GetClrValue(pub)!;
+        var originalCount = activities.Count;
+        Assert.True(originalCount > 0);
+
+        activities.RemoveAt(0);
+
+        context.ChangeTracker.DetectChanges();
+
+        var collectionEntry = entry.ComplexCollection("Activities");
+        var internalEntry = entry.GetInfrastructure();
+
+        Assert.Equal(EntityState.Modified, entry.State);
+        Assert.True(collectionEntry.IsModified);
+        Assert.Equal([-1, 0], internalEntry.GetComplexCollectionOriginalEntries(collectionEntry.Metadata).Select(e => e?.Ordinal));
+        Assert.Equal([1], internalEntry.GetComplexCollectionEntries(collectionEntry.Metadata).Select(e => e?.OriginalOrdinal));
+
+        context.ChangeTracker.AcceptAllChanges();
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+        Assert.False(collectionEntry.IsModified);
+        Assert.Equal([0], internalEntry.GetComplexCollectionOriginalEntries(collectionEntry.Metadata).Select(e => e?.Ordinal));
+        Assert.Equal([0], internalEntry.GetComplexCollectionEntries(collectionEntry.Metadata).Select(e => e?.OriginalOrdinal));
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
@@ -2069,10 +2219,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task>? nestedTestOperation1 = null,
-        Func<DbContext, Task>? nestedTestOperation2 = null)
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
+            testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
@@ -2412,6 +2563,11 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                                 b.ComplexProperty(e => e.Tog);
                             });
                     });
+            });
+
+            modelBuilder.Entity<EntityWithOptionalMultiPropComplex>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProp);
             });
         }
     }
@@ -4389,4 +4545,74 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             ],
             FeaturedTeam = new TeamReadonlyStruct("Not In This Lifetime", ["Slash", "Axl"])
         };
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = Fixture.UseProxies
+                    ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                    : new EntityWithOptionalMultiPropComplex();
+
+                entity.Id = Guid.NewGuid();
+                entity.ComplexProp = null;
+
+                _ = async ? await context.AddAsync(entity) : context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.Null(entity.ComplexProp);
+
+                // Set the complex property with default values
+                entity.ComplexProp = new MultiPropComplex
+                {
+                    IntValue = 0,
+                    BoolValue = false,
+                    DateValue = default
+                };
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.NotNull(entity.ComplexProp);
+                Assert.Equal(0, entity.ComplexProp.IntValue);
+                Assert.False(entity.ComplexProp.BoolValue);
+                Assert.Equal(default, entity.ComplexProp.DateValue);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                // Complex types with more than one property should materialize even with default values
+                Assert.NotNull(entity.ComplexProp);
+                Assert.Equal(0, entity.ComplexProp.IntValue);
+                Assert.False(entity.ComplexProp.BoolValue);
+                Assert.Equal(default, entity.ComplexProp.DateValue);
+            });
+    }
+
+    public class EntityWithOptionalMultiPropComplex
+    {
+        public virtual Guid Id { get; set; }
+        public virtual MultiPropComplex? ComplexProp { get; set; }
+    }
+
+    public class MultiPropComplex
+    {
+        public int IntValue { get; set; }
+        public bool BoolValue { get; set; }
+        public DateTimeOffset DateValue { get; set; }
+    }
 }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
 /// <summary>
@@ -15,7 +17,9 @@ public class MigrationsAssembly : IMigrationsAssembly
     private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
     private IReadOnlyDictionary<string, TypeInfo>? _migrations;
     private ModelSnapshot? _modelSnapshot;
+    private bool _modelSnapshotInitialized;
     private readonly Type _contextType;
+    private readonly List<Assembly> _additionalAssemblies = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,6 +47,27 @@ public class MigrationsAssembly : IMigrationsAssembly
         _logger = logger;
     }
 
+    private static Type? GetDbContextType(TypeInfo typeInfo)
+    {
+        // Walk the inheritance chain to find the first DbContextAttribute.
+        // This supports inheritance while avoiding AmbiguousMatchException
+        // that would occur with GetCustomAttribute(inherit: true) when multiple
+        // attributes exist in the hierarchy.
+        var currentType = typeInfo.AsType();
+        while (currentType != null && currentType != typeof(object))
+        {
+            var attribute = currentType.GetCustomAttribute<DbContextAttribute>(inherit: false);
+            if (attribute != null)
+            {
+                return attribute.ContextType;
+            }
+
+            currentType = currentType.BaseType;
+        }
+
+        return null;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -50,37 +75,41 @@ public class MigrationsAssembly : IMigrationsAssembly
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlyDictionary<string, TypeInfo> Migrations
-    {
-        get
-        {
-            IReadOnlyDictionary<string, TypeInfo> Create()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _migrations,
+            this,
+            static self =>
             {
                 var result = new SortedList<string, TypeInfo>();
-
-                var items
-                    = from t in Assembly.GetConstructibleTypes()
-                      where t.IsSubclassOf(typeof(Migration))
-                          && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
-                      let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
-                      orderby id
-                      select (id, t);
-
-                foreach (var (id, t) in items)
+                self.AddMigrationsFromAssembly(self.Assembly, result);
+                foreach (var additionalAssembly in self._additionalAssemblies)
                 {
-                    if (id == null)
-                    {
-                        _logger.MigrationAttributeMissingWarning(t);
-
-                        continue;
-                    }
-
-                    result.Add(id, t);
+                    self.AddMigrationsFromAssembly(additionalAssembly, result);
                 }
 
                 return result;
+            });
+
+    private void AddMigrationsFromAssembly(Assembly assembly, SortedList<string, TypeInfo> result)
+    {
+        var items
+            = from t in assembly.GetConstructibleTypes()
+              where t.IsSubclassOf(typeof(Migration))
+                  && GetDbContextType(t) == _contextType
+              let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
+              orderby id
+              select (id, t);
+
+        foreach (var (id, t) in items)
+        {
+            if (id == null)
+            {
+                _logger.MigrationAttributeMissingWarning(t);
+
+                continue;
             }
 
-            return _migrations ??= Create();
+            result[id] = t;
         }
     }
 
@@ -91,12 +120,26 @@ public class MigrationsAssembly : IMigrationsAssembly
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ModelSnapshot? ModelSnapshot
-        => _modelSnapshot
-            ??= (from t in Assembly.GetConstructibleTypes()
-                 where t.IsSubclassOf(typeof(ModelSnapshot))
-                     && t.GetCustomAttribute<DbContextAttribute>(inherit: false)?.ContextType == _contextType
-                 select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
-            .FirstOrDefault();
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _modelSnapshot,
+            ref _modelSnapshotInitialized,
+            this,
+            static self => self.GetOrCreateModelSnapshot());
+
+    private ModelSnapshot? GetOrCreateModelSnapshot()
+    {
+        // Check additional assemblies first - latest added should have the snapshot
+        return _additionalAssemblies.Count > 0
+            ? GetModelSnapshotFromAssembly(_additionalAssemblies[^1])
+            : GetModelSnapshotFromAssembly(Assembly);
+    }
+
+    private ModelSnapshot? GetModelSnapshotFromAssembly(Assembly assembly)
+        => (from t in assembly.GetConstructibleTypes()
+            where t.IsSubclassOf(typeof(ModelSnapshot))
+                && GetDbContextType(t) == _contextType
+            select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
+        .FirstOrDefault();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,4 +177,19 @@ public class MigrationsAssembly : IMigrationsAssembly
 
         return migration;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddMigrations(Assembly additionalMigrationsAssembly)
+    {
+        _additionalAssemblies.Add(additionalMigrationsAssembly);
+        _migrations = null;
+        _modelSnapshot = null;
+        _modelSnapshotInitialized = false;
+    }
+
 }

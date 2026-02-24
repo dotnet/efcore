@@ -154,6 +154,9 @@ public class SqliteDataReader : DbDataReader
             {
                 stmt = _stmtEnumerator.Current;
 
+                var connectionHandle = _command.Connection!.Handle;
+                var totalChangesBefore = sqlite3_total_changes(connectionHandle);
+
                 var timer = SharedStopwatch.StartNew();
 
                 while (IsBusy(rc = sqlite3_step(stmt)))
@@ -172,7 +175,7 @@ public class SqliteDataReader : DbDataReader
 
                 _totalElapsedTime += timer.Elapsed;
 
-                SqliteException.ThrowExceptionForRC(rc, _command.Connection!.Handle);
+                SqliteException.ThrowExceptionForRC(rc, connectionHandle);
 
                 // It's a SELECT statement
                 if (sqlite3_column_count(stmt) != 0)
@@ -185,13 +188,26 @@ public class SqliteDataReader : DbDataReader
                 while (rc != SQLITE_DONE)
                 {
                     rc = sqlite3_step(stmt);
-                    SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+                    SqliteException.ThrowExceptionForRC(rc, connectionHandle);
                 }
 
                 sqlite3_reset(stmt);
 
-                var changes = sqlite3_changes(_command.Connection.Handle);
-                AddChanges(changes);
+                // sqlite3_changes() returns the row count from the most recent INSERT, UPDATE, or DELETE
+                // and incorrectly persists across DDL statements. Use sqlite3_total_changes() before and after
+                // to calculate the actual delta for this statement, ensuring DDL statements don't add stale counts.
+                var totalChangesAfter = sqlite3_total_changes(connectionHandle);
+                var changes = totalChangesAfter - totalChangesBefore;
+                // sqlite3_total_changes, unfortunately, counts also changes from triggers, etc. which is not what we want.
+                // So we use it only to detect changes and if so, use sqlite3_changes.
+                if (changes > 0)
+                {
+                    AddChanges(sqlite3_changes(connectionHandle));
+                }
+                else
+                {
+                    AddChanges(0);
+                }
             }
             catch
             {

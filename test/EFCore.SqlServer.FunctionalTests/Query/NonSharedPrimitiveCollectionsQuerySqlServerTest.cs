@@ -1026,6 +1026,20 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 """);
     }
 
+    public override async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        await base.Subquery_over_primitive_collection_on_inheritance_derived_type();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Discriminator], [b].[Ints]
+FROM [BaseType] AS [b]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([b].[Ints]) AS [i])
+""");
+    }
+
     [ConditionalFact]
     public virtual async Task Same_parameter_with_different_type_mappings()
     {

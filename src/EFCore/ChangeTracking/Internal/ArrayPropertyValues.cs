@@ -24,12 +24,58 @@ public class ArrayPropertyValues : PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ArrayPropertyValues(InternalEntryBase internalEntry, object?[] values, bool[]? nullComplexPropertyFlags)
+    public ArrayPropertyValues(InternalEntryBase internalEntry, object?[] values, bool[]? nullComplexPropertyFlags = null)
         : base(internalEntry)
     {
         _values = values;
         _complexCollectionValues = new List<ArrayPropertyValues?>?[ComplexCollectionProperties.Count];
-        _nullComplexPropertyFlags = nullComplexPropertyFlags;
+        _nullComplexPropertyFlags = nullComplexPropertyFlags ?? CreateNullComplexPropertyFlags(values);
+    }
+
+    private bool[]? CreateNullComplexPropertyFlags(object?[] values)
+    {
+        var nullableComplexProperties = NullableComplexProperties;
+        if (nullableComplexProperties == null)
+        {
+            return null;
+        }
+
+        var flags = new bool[nullableComplexProperties.Count];
+        for (var i = 0; i < nullableComplexProperties.Count; i++)
+        {
+            var complexProperty = nullableComplexProperties[i];
+            var scalarProperties = complexProperty.ComplexType.GetFlattenedProperties();
+
+            IProperty? requiredProperty = null;
+            foreach (var property in scalarProperties)
+            {
+                if (!property.IsNullable)
+                {
+                    requiredProperty = property;
+                    break;
+                }
+            }
+
+            if (requiredProperty != null)
+            {
+                flags[i] = values[requiredProperty.GetIndex()] == null;
+                continue;
+            }
+
+            var allNull = true;
+            foreach (var property in scalarProperties)
+            {
+                if (values[property.GetIndex()] != null)
+                {
+                    allNull = false;
+                    break;
+                }
+            }
+
+            flags[i] = allNull;
+        }
+
+        return flags;
     }
 
     /// <summary>
@@ -50,7 +96,7 @@ public class ArrayPropertyValues : PropertyValues
                 if (_nullComplexPropertyFlags[i])
                 {
                     var complexProperty = NullableComplexProperties[i];
-                    structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
+                    structuralObject = SetNestedComplexPropertyValue(structuralObject, complexProperty, null);
                 }
             }
         }
@@ -68,7 +114,7 @@ public class ArrayPropertyValues : PropertyValues
                 !complexProperty.IsShadowProperty(),
                 $"Shadow complex property {complexProperty.Name} is not supported. Issue #31243");
             var list = (IList)((IRuntimeComplexProperty)complexProperty).GetIndexedCollectionAccessor().Create(propertyValuesList.Count);
-            structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, list);
+            structuralObject = SetNestedComplexPropertyValue(structuralObject, complexProperty, list);
 
             foreach (var propertyValues in propertyValuesList)
             {
@@ -77,6 +123,31 @@ public class ArrayPropertyValues : PropertyValues
         }
 
         return structuralObject;
+    }
+
+    private object SetNestedComplexPropertyValue(object structuralObject, IComplexProperty complexProperty, object? value)
+    {
+        return SetValueRecursively(structuralObject, complexProperty.GetChainToComplexProperty(fromEntity: false), 0, value);
+
+        static object SetValueRecursively(object instance, IReadOnlyList<IComplexProperty> chain, int index, object? value)
+        {
+            var currentProperty = (IRuntimeComplexProperty)chain[index];
+            if (index == chain.Count - 1)
+            {
+                return currentProperty.GetSetter().SetClrValue(instance, value);
+            }
+
+            var child = currentProperty.GetGetter().GetClrValue(instance);
+            if (child is null)
+            {
+                return instance;
+            }
+
+            var updated = SetValueRecursively(child, chain, index + 1, value);
+            // Need to update the child value as well because it could be a value type
+            // TODO: Improve this, see #36041
+            return currentProperty.GetSetter().SetClrValue(instance, updated);
+        }
     }
 
     /// <summary>
@@ -98,7 +169,8 @@ public class ArrayPropertyValues : PropertyValues
     {
         Check.NotNull(obj);
 
-        if (obj.GetType() == StructuralType.ClrType)
+        var isSameType = obj.GetType() == StructuralType.ClrType;
+        if (isSameType)
         {
             for (var i = 0; i < _values.Length; i++)
             {
@@ -142,6 +214,78 @@ public class ArrayPropertyValues : PropertyValues
                 }
             }
         }
+
+        UpdateNullComplexPropertyFlags(cp => IsNullAlongChain(obj, cp, isSameType));
+    }
+
+    private void UpdateNullComplexPropertyFlags(Func<IComplexProperty, bool?> isNull)
+    {
+        var nullableComplexProperties = NullableComplexProperties;
+        if (nullableComplexProperties == null
+            || _nullComplexPropertyFlags == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < nullableComplexProperties.Count; i++)
+        {
+            var result = isNull(nullableComplexProperties[i]);
+            if (result.HasValue)
+            {
+                _nullComplexPropertyFlags[i] = result.Value;
+            }
+        }
+
+        for (var i = 0; i < _complexCollectionValues.Length; i++)
+        {
+            var list = _complexCollectionValues[i];
+            if (list == null)
+            {
+                continue;
+            }
+
+            foreach (var propertyValues in list)
+            {
+                propertyValues?.UpdateNullComplexPropertyFlags(
+                    cp => IsNullAlongChain(propertyValues.ToObject(), cp, isSameType: true));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Walks the chain from the structural type root to the given complex property
+    ///     and returns <see langword="true" /> if the value is null, <see langword="false" /> if non-null,
+    ///     or <see langword="null" /> if the chain could not be fully read (e.g. DTO missing a property).
+    /// </summary>
+    private static bool? IsNullAlongChain(object obj, IComplexProperty complexProperty, bool isSameType)
+    {
+        var chain = complexProperty.GetChainToComplexProperty(fromEntity: false);
+        object? current = obj;
+
+        for (var j = 0; j < chain.Count; j++)
+        {
+            if (current == null)
+            {
+                break;
+            }
+
+            if (isSameType)
+            {
+                current = chain[j].GetGetter().GetClrValue(current);
+            }
+            else
+            {
+                var getter = current.GetType().GetAnyProperty(chain[j].Name)?.FindGetterProperty();
+                if (getter == null)
+                {
+                    return null;
+                }
+
+                current = getter.GetValue(current);
+            }
+        }
+
+        return current == null;
     }
 
     /// <summary>
@@ -203,6 +347,16 @@ public class ArrayPropertyValues : PropertyValues
         {
             var list = propertyValues[ComplexCollectionProperties[i]];
             _complexCollectionValues[i] = GetComplexCollectionPropertyValues(ComplexCollectionProperties[i], list);
+        }
+
+        var nullableComplexProperties = NullableComplexProperties;
+        if (nullableComplexProperties != null
+            && _nullComplexPropertyFlags != null)
+        {
+            for (var i = 0; i < nullableComplexProperties.Count; i++)
+            {
+                _nullComplexPropertyFlags[i] = propertyValues.IsNullableComplexPropertyNull(i);
+            }
         }
     }
 
@@ -308,7 +462,30 @@ public class ArrayPropertyValues : PropertyValues
 
     /// <inheritdoc />
     public override void SetValues<TProperty>(IDictionary<string, TProperty> values)
-        => SetValuesFromDictionary((IRuntimeTypeBase)StructuralType, Check.NotNull(values));
+    {
+        Check.NotNull(values);
+        SetValuesFromDictionary((IRuntimeTypeBase)StructuralType, values);
+        UpdateNullComplexPropertyFlags(cp => IsNullInDictionary(values, cp));
+    }
+
+    private static bool IsNullInDictionary<TProperty>(IDictionary<string, TProperty> rootDict, IComplexProperty cp)
+    {
+        var chain = cp.GetChainToComplexProperty(fromEntity: false);
+        object? current = rootDict;
+        for (var i = 0; i < chain.Count; i++)
+        {
+            if (current is not IDictionary<string, TProperty> currentDict
+                || !currentDict.TryGetValue(chain[i].Name, out var value)
+                || value == null)
+            {
+                return true;
+            }
+
+            current = value;
+        }
+
+        return false;
+    }
 
     private void SetValuesFromDictionary<TProperty>(IRuntimeTypeBase structuralType, IDictionary<string, TProperty> values)
     {
@@ -385,7 +562,19 @@ public class ArrayPropertyValues : PropertyValues
                 var complexEntry = new InternalComplexEntry((IRuntimeComplexType)complexProperty.ComplexType, InternalEntry, i);
                 var complexType = complexEntry.StructuralType;
                 var values = new object?[complexType.GetFlattenedProperties().Count()];
-                var complexPropertyValues = new ArrayPropertyValues(complexEntry, values, null);
+
+                bool[]? nullValues = null;
+                var nullableComplexProperties = ComputeNullableComplexProperties(complexEntry.StructuralType);
+                if (nullableComplexProperties != null && nullableComplexProperties.Count > 0)
+                {
+                    nullValues = new bool[nullableComplexProperties.Count];
+                    for (var j = 0; j < nullableComplexProperties.Count; j++)
+                    {
+                        nullValues[j] = IsNullInDictionary(itemDict, nullableComplexProperties[j]);
+                    }
+                }
+
+                var complexPropertyValues = new ArrayPropertyValues(complexEntry, values, nullValues);
                 complexPropertyValues.SetValues(itemDict);
 
                 propertyValuesList.Add(complexPropertyValues);
@@ -495,20 +684,60 @@ public class ArrayPropertyValues : PropertyValues
             for (var i = 0; i < properties.Count; i++)
             {
                 var property = properties[i];
-                var getter = property.GetGetter();
-                values[i] = getter.GetClrValue(complexObject);
+                var targetObject = NavigateToDeclaringType(complexObject, property.DeclaringType, complexType);
+                values[i] = targetObject == null ? null : property.GetGetter().GetClrValue(targetObject);
             }
 
-            var complexPropertyValues = new ArrayPropertyValues(entry, values, null);
+            bool[]? nullValues = null;
+            var nullableComplexProperties = ComputeNullableComplexProperties(complexType);
+            if (nullableComplexProperties != null && nullableComplexProperties.Count > 0)
+            {
+                nullValues = new bool[nullableComplexProperties.Count];
+
+                for (var i = 0; i < nullableComplexProperties.Count; i++)
+                {
+                    var cp = nullableComplexProperties[i];
+                    var targetObject = NavigateToDeclaringType(complexObject, cp.DeclaringType, complexType);
+                    if (targetObject != null)
+                    {
+                        nullValues[i] = cp.GetGetter().GetClrValue(targetObject) == null;
+                    }
+                }
+            }
+
+            var complexPropertyValues = new ArrayPropertyValues(entry, values, nullValues);
 
             foreach (var nestedComplexProperty in complexPropertyValues.ComplexCollectionProperties)
             {
-                var nestedCollection = (IList?)nestedComplexProperty.GetGetter().GetClrValue(complexObject);
-                var propertyValuesList = GetComplexCollectionPropertyValues(nestedComplexProperty, nestedCollection);
-                complexPropertyValues.SetComplexCollectionValue(nestedComplexProperty, propertyValuesList);
+                var targetObject = NavigateToDeclaringType(complexObject, nestedComplexProperty.DeclaringType, complexType);
+                var nestedCollection = targetObject == null ? null : (IList?)nestedComplexProperty.GetGetter().GetClrValue(targetObject);
+                var nestedPropertyValuesList = GetComplexCollectionPropertyValues(nestedComplexProperty, nestedCollection);
+                complexPropertyValues.SetComplexCollectionValue(nestedComplexProperty, nestedPropertyValuesList);
             }
 
             return complexPropertyValues;
+        }
+
+        static object? NavigateToDeclaringType(object root, ITypeBase declaringType, IRuntimeTypeBase rootType)
+        {
+            if (declaringType == rootType)
+            {
+                return root;
+            }
+
+            if (declaringType is not IComplexType ct)
+            {
+                return root;
+            }
+
+            var chain = ct.ComplexProperty.GetChainToComplexProperty(fromEntity: false);
+            object? target = root;
+            for (var i = 0; i < chain.Count && target != null; i++)
+            {
+                target = chain[i].GetGetter().GetClrValue(target);
+            }
+
+            return target;
         }
     }
 }

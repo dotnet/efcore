@@ -427,26 +427,26 @@ public static class RelationalEntityTypeExtensions
     ///     Sets the SQL string used to provide data for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <param name="name">The SQL string to set.</param>
-    public static void SetSqlQuery(this IMutableEntityType entityType, string? name)
+    /// <param name="query">The SQL string to set.</param>
+    public static void SetSqlQuery(this IMutableEntityType entityType, string? query)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.SqlQuery,
-            Check.NullButNotEmpty(name));
+            Check.NullButNotEmpty(query));
 
     /// <summary>
     ///     Sets the SQL string used to provide data for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <param name="name">The SQL string to set.</param>
+    /// <param name="query">The SQL string to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetSqlQuery(
         this IConventionEntityType entityType,
-        string? name,
+        string? query,
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.SqlQuery,
-            Check.NullButNotEmpty(name),
+            Check.NullButNotEmpty(query),
             fromDataAnnotation)?.Value;
 
     /// <summary>

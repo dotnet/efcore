@@ -607,6 +607,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, collection);
 
         /// <summary>
+        ///     The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).
+        /// </summary>
+        public static string ComplexCollectionOrdinalOutOfRange(object? ordinal, object? entityType, object? collection, object? count)
+            => string.Format(
+                GetString("ComplexCollectionOrdinalOutOfRange", nameof(ordinal), nameof(entityType), nameof(collection), nameof(count)),
+                ordinal, entityType, collection, count);
+
+        /// <summary>
         ///     The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.
         /// </summary>
         public static string ComplexCollectionNullElementSetter(object? complexType, object? property, object? collectionDeclaringType, object? collection, object? ordinal)
@@ -1489,6 +1497,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FunctionOnClient", nameof(methodName)),
                 methodName);
+
+        /// <summary>
+        ///     '{function}' can only be used with Entity Framework Core queries.
+        /// </summary>
+        public static string FunctionOnNonEfLinqProvider(object? function)
+            => string.Format(
+                GetString("FunctionOnNonEfLinqProvider", nameof(function)),
+                function);
 
         /// <summary>
         ///     The provided edge cannot be added because the graph does not contain the vertex '{vertex}'.
@@ -2916,7 +2932,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("RelationshipCannotBeInverted");
 
         /// <summary>
-        ///     The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        ///     The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string RelationshipConceptualNull(object? firstType, object? secondType)
             => string.Format(
@@ -2924,7 +2940,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstType, secondType);
 
         /// <summary>
-        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes.
+        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information.
         /// </summary>
         public static string RelationshipConceptualNullSensitive(object? firstType, object? secondType, object? secondKeyValue)
             => string.Format(

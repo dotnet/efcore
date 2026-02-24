@@ -1,6 +1,11 @@
 name: Test Cosmos
 
 on:
+  push:
+    branches:
+      - main
+      - feature/*
+      - release/*
   pull_request:
     branches:
       - main
@@ -22,8 +27,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Build
-        run: build.cmd -test /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+      - name: Restore
+        run: restore.cmd
+        shell: cmd
+
+      - name: Test on Cosmos
+        run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
         env:
            Test__Cosmos__SkipConnectionCheck: true

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteJsonTypeMapping : JsonTypeMapping
+public class SqliteStructuralJsonTypeMapping : StructuralJsonTypeMapping
 {
     private static readonly MethodInfo GetStringMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), [typeof(int)])!;
@@ -31,13 +31,13 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqliteJsonTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
+    public static SqliteStructuralJsonTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="SqliteJsonTypeMapping" /> class.
+    ///     Initializes a new instance of the <see cref="SqliteStructuralJsonTypeMapping" /> class.
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
-    public SqliteJsonTypeMapping(string storeType)
+    public SqliteStructuralJsonTypeMapping(string storeType)
         : base(storeType, typeof(JsonTypePlaceholder), System.Data.DbType.String)
     {
     }
@@ -48,7 +48,7 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqliteJsonTypeMapping(RelationalTypeMappingParameters parameters)
+    protected SqliteStructuralJsonTypeMapping(RelationalTypeMappingParameters parameters)
         : base(parameters)
     {
     }
@@ -101,5 +101,5 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqliteJsonTypeMapping(parameters);
+        => new SqliteStructuralJsonTypeMapping(parameters);
 }

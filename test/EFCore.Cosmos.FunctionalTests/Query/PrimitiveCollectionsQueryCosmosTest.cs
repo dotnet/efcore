@@ -603,6 +603,50 @@ WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
     }
 
+    public override async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_IReadOnlySet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
     public override async Task Parameter_collection_of_ints_Contains_nullable_int()
     {
         await base.Parameter_collection_of_ints_Contains_nullable_int();
@@ -666,6 +710,20 @@ WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
+""");
+    }
+
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
+
+        AssertSql(
+            """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 """);
     }
 
@@ -995,9 +1053,21 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
     }
 
-    public override async Task Column_collection_of_strings_contains_null()
+    public override async Task Column_collection_of_strings_Contains()
     {
-        await base.Column_collection_of_strings_contains_null();
+        await base.Column_collection_of_strings_Contains();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["Strings"], "10")
+""");
+    }
+
+    public override async Task Column_collection_of_strings_Contains_null()
+    {
+        await base.Column_collection_of_strings_Contains_null();
 
         AssertSql(
             """
@@ -1736,6 +1806,20 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
+    }
+
+    public override async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        await base.Compiled_query_with_uncorrelated_parameter_collection_expression();
+
+        AssertSql(
+            """
+@ids='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(@ids) > 0)
+""");
     }
 
     public override async Task Column_collection_in_subquery_Union_parameter_collection()

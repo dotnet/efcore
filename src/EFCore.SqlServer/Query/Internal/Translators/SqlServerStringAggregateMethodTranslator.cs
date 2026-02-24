@@ -12,31 +12,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTranslator
+public class SqlServerStringAggregateMethodTranslator(
+    ISqlExpressionFactory sqlExpressionFactory,
+    IRelationalTypeMappingSource typeMappingSource) : IAggregateMethodCallTranslator
 {
-    private static readonly MethodInfo StringConcatMethod
-        = typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(IEnumerable<string>)])!;
-
-    private static readonly MethodInfo StringJoinMethod
-        = typeof(string).GetRuntimeMethod(nameof(string.Join), [typeof(string), typeof(IEnumerable<string>)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly IRelationalTypeMappingSource _typeMappingSource;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerStringAggregateMethodTranslator(
-        ISqlExpressionFactory sqlExpressionFactory,
-        IRelationalTypeMappingSource typeMappingSource)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-        _typeMappingSource = typeMappingSource;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -52,9 +31,22 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
         // Docs: https://docs.microsoft.com/sql/t-sql/functions/string-agg-transact-sql
 
         if (source.Selector is not SqlExpression sqlExpression
-            || (method != StringJoinMethod && method != StringConcatMethod))
+            || method.DeclaringType != typeof(string))
         {
             return null;
+        }
+
+        SqlExpression separator;
+        switch (method.Name)
+        {
+            case nameof(string.Concat) when arguments is []:
+                separator = sqlExpressionFactory.Constant(string.Empty, typeof(string));
+                break;
+            case nameof(string.Join) when arguments is [var sep]:
+                separator = sep;
+                break;
+            default:
+                return null;
         }
 
         // STRING_AGG enlarges the return type size (e.g. for input VARCHAR(5), it returns VARCHAR(8000)).
@@ -64,7 +56,7 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
         {
             if (resultTypeMapping is { IsUnicode: true, Size: < 4000 })
             {
-                resultTypeMapping = _typeMappingSource.FindMapping(
+                resultTypeMapping = typeMappingSource.FindMapping(
                     typeof(string),
                     resultTypeMapping.StoreTypeNameBase,
                     unicode: true,
@@ -72,7 +64,7 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
             }
             else if (resultTypeMapping is { IsUnicode: false, Size: < 8000 })
             {
-                resultTypeMapping = _typeMappingSource.FindMapping(
+                resultTypeMapping = typeMappingSource.FindMapping(
                     typeof(string),
                     resultTypeMapping.StoreTypeNameBase,
                     unicode: false,
@@ -81,28 +73,26 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
         }
 
         // STRING_AGG filters out nulls, but string.Join treats them as empty strings.
-        sqlExpression = _sqlExpressionFactory.Coalesce(
+        sqlExpression = sqlExpressionFactory.Coalesce(
             sqlExpression,
-            _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
+            sqlExpressionFactory.Constant(string.Empty, typeof(string)));
 
         // STRING_AGG returns null when there are no rows (or non-null values), but string.Join returns an empty string.
         return
-            _sqlExpressionFactory.Coalesce(
+            sqlExpressionFactory.Coalesce(
                 SqlServerExpression.AggregateFunctionWithOrdering(
-                    _sqlExpressionFactory,
+                    sqlExpressionFactory,
                     "STRING_AGG",
                     [
                         sqlExpression,
-                        _sqlExpressionFactory.ApplyTypeMapping(
-                            method == StringJoinMethod ? arguments[0] : _sqlExpressionFactory.Constant(string.Empty, typeof(string)),
-                            sqlExpression.TypeMapping)
+                        sqlExpressionFactory.ApplyTypeMapping(separator, sqlExpression.TypeMapping)
                     ],
                     source,
                     enumerableArgumentIndex: 0,
                     nullable: true,
                     argumentsPropagateNullability: Statics.FalseArrays[2],
                     typeof(string)),
-                _sqlExpressionFactory.Constant(string.Empty, typeof(string)),
+                sqlExpressionFactory.Constant(string.Empty, typeof(string)),
                 resultTypeMapping);
     }
 }

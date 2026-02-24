@@ -9,17 +9,43 @@ public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.I
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task> nestedTestOperation1 = null,
-        Func<DbContext, Task> nestedTestOperation2 = null)
+        Func<DbContext, Task> nestedTestOperation2 = null,
+        Func<DbContext, Task> nestedTestOperation3 = null)
     {
         try
         {
-            await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2);
+            await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
         }
         finally
         {
             await Fixture.ReseedAsync();
         }
     }
+
+    public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+        // InMemory provider has issues with complex type query compilation and materialization
+        // See https://github.com/dotnet/efcore/issues/31464
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
 
     public class InMemoryFixture : FixtureBase
     {

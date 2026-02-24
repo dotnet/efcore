@@ -337,7 +337,7 @@ public class CosmosTestStore : TestStore
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
-    public override async Task CleanAsync(DbContext context)
+    public override async Task CleanAsync(DbContext context, bool createTables = true)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try
@@ -345,6 +345,11 @@ public class CosmosTestStore : TestStore
             if (!created)
             {
                 await DeleteContainersAsync(context).ConfigureAwait(false);
+            }
+
+            if (!createTables)
+            {
+                return;
             }
 
             if (!TestEnvironment.UseTokenCredential)

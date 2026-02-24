@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
@@ -295,6 +296,25 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        // IReadOnlySet<T> has Contains defined directly on itself
+        IReadOnlySet<int> ints = new HashSet<int> { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        var ints = new ReadOnlyCollectionWithContains<int>(10, 999);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalFact]
     public virtual async Task Parameter_collection_of_ints_Contains_nullable_int()
     {
         var ints = new[] { 10, 999 };
@@ -323,6 +343,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
+    }
+
+    [ConditionalFact] // #37605
+    public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        var nullableInts = new int?[] { null, 999 };
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(nullableInts).Contains(c.NullableInt)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
     }
 
     [ConditionalFact]
@@ -948,7 +978,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
 
     [ConditionalFact]
-    public virtual Task Column_collection_of_strings_contains_null()
+    public virtual Task Column_collection_of_strings_Contains()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains("10")));
+
+    [ConditionalFact]
+    public virtual Task Column_collection_of_strings_Contains_null()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((string?[])c.Strings).Contains(null)),
             assertEmpty: true);
@@ -1382,6 +1416,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var ints2 = new[] { 7, 42 };
 
         _ = compiledQuery(context, ints1, ints2).ToList();
+    }
+
+    [ConditionalFact] // #37370
+    public virtual async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        var func = EF.CompileAsyncQuery(
+            (PrimitiveCollectionsContext context, int[] ids) => context.Set<PrimitiveCollectionsEntity>().Where(e => ids.Any()));
+
+        await using var context = Fixture.CreateContext();
+        _ = await func(context, []).ToListAsync();
     }
 
     [ConditionalFact]
@@ -1834,4 +1878,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 }
             };
     }
+}
+
+// Keep it outside so it does not inherit the TFixture.
+internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
+{
+    public int Count => items.Length;
+
+    public bool Contains(T item) => items.Contains(item);
+
+    public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

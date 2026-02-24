@@ -504,7 +504,7 @@ FROM [Customers]"))
 
         return AssertQuery(
             async,
-            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlInterpolated(
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSql(
                 NormalizeDelimitersInInterpolatedString(
                     $"SELECT * FROM [Customers] WHERE [City] = {city} AND [ContactTitle] = {contactTitle}")),
             ss => ss.Set<Customer>().Where(x => x.City == city && x.ContactTitle == contactTitle));
@@ -528,7 +528,7 @@ FROM [Customers]"))
     public virtual Task FromSqlInterpolated_queryable_with_parameters_inline_interpolated(bool async)
         => AssertQuery(
             async,
-            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlInterpolated(
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSql(
                 NormalizeDelimitersInInterpolatedString(
                     $"SELECT * FROM [Customers] WHERE [City] = {"London"} AND [ContactTitle] = {"Sales Representative"}")),
             ss => ss.Set<Customer>().Where(x => x.City == "London" && x.ContactTitle == "Sales Representative"));
@@ -554,7 +554,7 @@ FROM [Customers]"))
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                       NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
-                  from o in ((DbSet<Order>)ss.Set<Order>()).FromSqlInterpolated(
+                  from o in ((DbSet<Order>)ss.Set<Order>()).FromSql(
                       NormalizeDelimitersInInterpolatedString(
                           $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                   where c.CustomerID == o.CustomerID
@@ -572,7 +572,7 @@ FROM [Customers]"))
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                       NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
-                  from o in ((DbSet<Order>)ss.Set<Order>()).FromSqlInterpolated(
+                  from o in ((DbSet<Order>)ss.Set<Order>()).FromSql(
                       NormalizeDelimitersInInterpolatedString(
                           $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                   where c.CustomerID == o.CustomerID
@@ -974,8 +974,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         await AssertQuery(
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>())
-                .FromSqlInterpolated(
-                    NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}")),
+                .FromSql(NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}")),
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI"));
     }
 
@@ -1000,8 +999,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         await AssertQuery(
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>())
-                .FromSqlInterpolated(
-                    NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}")),
+                .FromSql(NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}")),
             ss => ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI"));
     }
 
@@ -1026,7 +1024,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         var max = 10400;
 
         var query1 = context.Orders
-            .FromSqlInterpolated(NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+            .FromSql(NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
             .Select(i => i.OrderID);
 
         var actual1 = async
@@ -1044,8 +1042,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         var query3 = context.Orders
             .Where(o => o.OrderID <= max
                 && context.Orders
-                    .FromSqlInterpolated(
-                        NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                    .FromSql(NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
                     .Select(i => i.OrderID)
                     .Contains(o.OrderID))
             .Select(o => o.OrderID);
@@ -1331,6 +1328,29 @@ SELECT * FROM [Customers2]"))
             : query.ToArray();
 
         Assert.Empty(actual);
+    }
+
+    // The GroupBy followed by a non-reducing Select causes the base FromSql to get duplicated in the SQL, and so the same DbParameter
+    // to get referenced from multiple FromSqlExpressions. Ensure we only process the DbParameter once. See #37409.
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_GroupBy_non_reducing_Select(bool async)
+    {
+        using var context = CreateContext();
+
+        var dbParameter = CreateDbParameter("city", "Seattle");
+
+        await AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>())
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"),
+                    dbParameter)
+                .GroupBy(c => c.CustomerID)
+                .Select(g => g.FirstOrDefault()),
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "Seattle")
+                .GroupBy(c => c.CustomerID)
+                .Select(g => g.FirstOrDefault()));
     }
 
     protected string NormalizeDelimitersInRawString(string sql)
