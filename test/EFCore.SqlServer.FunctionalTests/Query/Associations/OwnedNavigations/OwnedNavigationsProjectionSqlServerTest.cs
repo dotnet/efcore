@@ -395,6 +395,33 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[A
 
     #region Subquery
 
+    public override async Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r5].[Id], [s].[RootEntityId], [s].[Id], [s].[Int], [s].[Ints], [s].[Name], [s].[String], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[Id1], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[Id2], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [r5].[c]
+FROM [RootEntity] AS [r]
+OUTER APPLY (
+    SELECT TOP(1) 1 AS [c], [r0].[Id]
+    FROM [RootEntity] AS [r0]
+    ORDER BY [r0].[Id]
+) AS [r5]
+LEFT JOIN (
+    SELECT [r1].[RootEntityId], [r1].[Id], [r1].[Int], [r1].[Ints], [r1].[Name], [r1].[String], [r2].[AssociateTypeRootEntityId], [r2].[AssociateTypeId], [r3].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId0], [r3].[AssociateTypeId] AS [AssociateTypeId0], [r4].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId1], [r4].[AssociateTypeId] AS [AssociateTypeId1], [r4].[Id] AS [Id0], [r4].[Int] AS [Int0], [r4].[Ints] AS [Ints0], [r4].[Name] AS [Name0], [r4].[String] AS [String0], [r2].[Id] AS [Id1], [r2].[Int] AS [Int1], [r2].[Ints] AS [Ints1], [r2].[Name] AS [Name1], [r2].[String] AS [String1], [r3].[Id] AS [Id2], [r3].[Int] AS [Int2], [r3].[Ints] AS [Ints2], [r3].[Name] AS [Name2], [r3].[String] AS [String2]
+    FROM [RelatedCollection] AS [r1]
+    LEFT JOIN [RelatedCollection_OptionalNested] AS [r2] ON [r1].[RootEntityId] = [r2].[AssociateTypeRootEntityId] AND [r1].[Id] = [r2].[AssociateTypeId]
+    LEFT JOIN [RelatedCollection_RequiredNested] AS [r3] ON [r1].[RootEntityId] = [r3].[AssociateTypeRootEntityId] AND [r1].[Id] = [r3].[AssociateTypeId]
+    LEFT JOIN [RelatedCollection_NestedCollection] AS [r4] ON [r1].[RootEntityId] = [r4].[AssociateTypeRootEntityId] AND [r1].[Id] = [r4].[AssociateTypeId]
+) AS [s] ON [r5].[Id] = [s].[RootEntityId]
+ORDER BY [r].[Id], [r5].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1]
+""");
+        }
+    }
+
     public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior);
