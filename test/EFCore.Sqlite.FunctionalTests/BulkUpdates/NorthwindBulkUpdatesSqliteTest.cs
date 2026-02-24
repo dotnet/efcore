@@ -1558,6 +1558,32 @@ WHERE "o2"."OrderID" = "s"."OrderID" AND "o2"."ProductID" = "s"."ProductID"
 """);
     }
 
+    public override async Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_mixed_entity_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = @p
+""");
+    }
+
+    public override async Task Update_with_select_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 7)
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = @p
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

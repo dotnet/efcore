@@ -1651,6 +1651,34 @@ INNER JOIN (
 """);
     }
 
+    public override async Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_mixed_entity_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 30)
+
+UPDATE [c]
+SET [c].[ContactName] = @p
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Update_with_select_scalar_anonymous_projection(bool async)
+    {
+        await base.Update_with_select_scalar_anonymous_projection(async);
+
+        AssertSql(
+            """
+@p='Updated' (Size = 30)
+
+UPDATE [c]
+SET [c].[ContactName] = @p
+FROM [Customers] AS [c]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
