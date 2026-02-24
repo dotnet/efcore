@@ -142,6 +142,9 @@ public class FakeStateManager : IStateManager
         object newEntity)
         => throw new NotImplementedException();
 
+    public bool HasIdentityResolutionInterceptor
+        => false;
+
     public InternalEntityEntry TryGetEntry(IKey key, IReadOnlyList<object> keyValues)
         => throw new NotImplementedException();
 

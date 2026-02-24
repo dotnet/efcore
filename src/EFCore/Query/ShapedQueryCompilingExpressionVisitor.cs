@@ -405,6 +405,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 nameof(QueryContext.NotifyIdentityResolution),
                 [typeof(InternalEntityEntry), typeof(object)])!;
 
+        private static readonly PropertyInfo HasIdentityResolutionInterceptorPropertyInfo
+            = typeof(QueryContext).GetProperty(nameof(QueryContext.HasIdentityResolutionInterceptor))!;
+
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(ShapedQueryCompilingExpressionVisitor)
                 .GetMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
@@ -524,19 +527,28 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         IfThenElse(
                             NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
                             Block(
-                                MaterializeEntity(
-                                    shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
-                                    entryVariable, identityResolution: true),
-                                Call(
-                                    QueryCompilationContext.QueryContextParameter,
-                                    NotifyIdentityResolutionMethodInfo,
-                                    entryVariable,
-                                    Convert(instanceVariable, typeof(object))),
                                 Assign(concreteEntityTypeVariable, MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
                                 Assign(
                                     instanceVariable, Convert(
                                         MakeMemberAccess(entryVariable, EntityMemberInfo),
-                                        clrType))),
+                                        clrType)),
+                                IfThen(
+                                    MakeMemberAccess(
+                                        QueryCompilationContext.QueryContextParameter,
+                                        HasIdentityResolutionInterceptorPropertyInfo),
+                                    Block(
+                                        MaterializeEntity(
+                                            shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
+                                            entryVariable, identityResolution: true),
+                                        Call(
+                                            QueryCompilationContext.QueryContextParameter,
+                                            NotifyIdentityResolutionMethodInfo,
+                                            entryVariable,
+                                            Convert(instanceVariable, typeof(object))),
+                                        Assign(
+                                            instanceVariable, Convert(
+                                                MakeMemberAccess(entryVariable, EntityMemberInfo),
+                                                clrType))))),
                             MaterializeEntity(
                                 shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
                                 entryVariable))));
