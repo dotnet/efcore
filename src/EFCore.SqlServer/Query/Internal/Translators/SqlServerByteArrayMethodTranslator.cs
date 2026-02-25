@@ -12,19 +12,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
+public class SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -37,40 +26,39 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.IsGenericMethod)
+        if (method.IsGenericMethod
+            && method.DeclaringType == typeof(Enumerable))
         {
-            var methodDefinition = method.GetGenericMethodDefinition();
-            if (methodDefinition.Equals(EnumerableMethods.Contains)
-                && arguments[0].Type == typeof(byte[]))
+            switch (method.Name)
             {
-                var source = arguments[0];
-                var sourceTypeMapping = source.TypeMapping;
+                case nameof(Enumerable.Contains) when arguments is [var source, var item] && source.Type == typeof(byte[]):
+                {
+                    var sourceTypeMapping = source.TypeMapping;
 
-                var value = arguments[1] is SqlConstantExpression constantValue
-                    ? _sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
-                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
+                    var value = item is SqlConstantExpression constantValue
+                        ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
+                        : sqlExpressionFactory.Convert(item, typeof(byte[]), sourceTypeMapping);
 
-                return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function(
-                        "CHARINDEX",
-                        [value, source],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[2],
-                        typeof(int)),
-                    _sqlExpressionFactory.Constant(0));
-            }
+                    return sqlExpressionFactory.GreaterThan(
+                        sqlExpressionFactory.Function(
+                            "CHARINDEX",
+                            [value, source],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[2],
+                            typeof(int)),
+                        sqlExpressionFactory.Constant(0));
+                }
 
-            if (methodDefinition.Equals(EnumerableMethods.FirstWithoutPredicate)
-                && arguments[0].Type == typeof(byte[]))
-            {
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
-                        "SUBSTRING",
-                        [arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1)],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[3],
-                        typeof(byte[])),
-                    method.ReturnType);
+                // First without a predicate
+                case nameof(Enumerable.First) when arguments is [var source] && source.Type == typeof(byte[]):
+                    return sqlExpressionFactory.Convert(
+                        sqlExpressionFactory.Function(
+                            "SUBSTRING",
+                            [source, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1)],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[3],
+                            typeof(byte[])),
+                        method.ReturnType);
             }
         }
 

@@ -15,7 +15,7 @@ public class MigrationTests
 {
     private delegate string MigrationCodeGetter(string migrationName, string rootNamespace);
 
-    private delegate string SnapshotCodeGetter(string rootNamespace);
+    private delegate string SnapshotCodeGetter(string rootNamespace, string migrationId);
 
     [ConditionalFact]
     public void Migration_and_snapshot_generate_with_typed_array()
@@ -39,9 +39,6 @@ public class MigrationTests
         const string migrationName = "MyMigration";
         const string rootNamespace = "MyApp.Data";
 
-        var expectedMigration = migrationCodeGetter(migrationName, rootNamespace);
-        var expectedSnapshot = snapshotCodeGetter(rootNamespace);
-
         var reporter = new OperationReporter(
             new OperationReportHandler(
                 m => Console.WriteLine($"  error: {m}"),
@@ -58,6 +55,9 @@ public class MigrationTests
             .Build(context)
             .GetRequiredService<IMigrationsScaffolder>()
             .ScaffoldMigration(migrationName, rootNamespace);
+
+        var expectedMigration = migrationCodeGetter(migrationName, rootNamespace);
+        var expectedSnapshot = snapshotCodeGetter(rootNamespace, migration.MigrationId);
 
         Assert.Equal(expectedMigration, migration.MigrationCode, ignoreLineEndingDifferences: true);
         Assert.Equal(expectedSnapshot, migration.SnapshotCode, ignoreLineEndingDifferences: true);

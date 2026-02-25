@@ -377,13 +377,13 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                 // Skip autoincrement primary key columns that are being added in this migration
                 var isAutoincrement = column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? == true;
                 var isPrimaryKey = column.Table.PrimaryKey?.Columns.Contains(column) == true;
-                
+
                 if (isAutoincrement && isPrimaryKey)
                 {
                     // Check if this column is being added in the current migration
                     var isNewColumn = migrationOperations.OfType<AddColumnOperation>()
                         .Any(op => op.Table == key.Table && op.Schema == key.Schema && op.Name == column.Name);
-                    
+
                     if (isNewColumn)
                     {
                         continue; // Skip newly added autoincrement columns
@@ -458,7 +458,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         if (rebuilds.Any())
         {
             operations.Add(
-                new SqlOperation { Sql = "PRAGMA foreign_keys = 0;", SuppressTransaction = true });
+                new SqlOperation { Sql = "PRAGMA defer_foreign_keys = 1;" });
         }
 
         foreach (var ((table, schema), _) in rebuilds)
@@ -473,12 +473,6 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     NewName = table,
                     NewSchema = schema
                 });
-        }
-
-        if (rebuilds.Any())
-        {
-            operations.Add(
-                new SqlOperation { Sql = "PRAGMA foreign_keys = 1;", SuppressTransaction = true });
         }
 
         foreach (var index in indexesToRebuild)
@@ -982,7 +976,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             builder
                 .Append(" COLLATE ")
-                .Append(operation.Collation);
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Collation));
         }
     }
 

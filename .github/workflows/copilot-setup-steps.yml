@@ -1,0 +1,43 @@
+name: "Copilot Setup Steps"
+
+# See https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment
+
+# Automatically run the setup steps when they are changed to allow for easy validation, and
+# allow manual testing through the repository's "Actions" tab
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+permissions: {}
+
+jobs:
+  # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
+  copilot-setup-steps:
+    runs-on: ubuntu-24.04
+
+    # Install SQL Server via a docker container.
+    # It's better to do this rather than e.g. use a testcontainer, because then the agent can reuse the same container
+    # and instance of SQL Server rather than have to start it up each time it needs to iterate and run a test.
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2025-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' -C"
+          --health-start-period=20s
+          --health-interval=2s
+          --health-retries=30
+          --health-timeout=5s
+
+    steps:
+      - name: Export connection string for the agent's session
+        run: echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=master;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"

@@ -148,6 +148,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseUpdateDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     The data directory.
         /// </summary>
         public static string DataDirDescription
@@ -368,6 +374,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsRemoveForceDescription");
 
         /// <summary>
+        ///     Remove the migration without connecting to the database.
+        /// </summary>
+        public static string MigrationsRemoveOfflineDescription
+            => GetString("MigrationsRemoveOfflineDescription");
+
+        /// <summary>
         ///     Generates a SQL script from migrations.
         /// </summary>
         public static string MigrationsScriptDescription
@@ -404,10 +416,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 option);
 
         /// <summary>
+        ///     The --offline and --force options cannot be used together.
+        /// </summary>
+        public static string OfflineForceConflict
+            => GetString("OfflineForceConflict");
+
+        /// <summary>
         ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
+
+        /// <summary>
+        ///     The '--namespace' option requires the '--add' option to be specified.
+        /// </summary>
 
         /// <summary>
         ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
@@ -488,6 +510,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     The '--output-dir' option requires the '--add' option to be specified.
+        /// </summary>
 
         /// <summary>
         ///      (Pending)
@@ -711,4 +737,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
-

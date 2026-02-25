@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
-public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
-    : TypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture)
+public class CosmosDateTimeTypeTest(CosmosDateTimeTypeTest.DateTimeTypeFixture fixture)
+    : TypeTestBase<DateTime, CosmosDateTimeTypeTest.DateTimeTypeFixture>(fixture)
 {
     public class DateTimeTypeFixture : CosmosTypeFixtureBase<DateTime>
     {
@@ -15,8 +15,8 @@ public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
     }
 }
 
-public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
-    : TypeTestBase<DateTimeOffset, DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
+public class CosmosDateTimeOffsetTypeTest(CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
+    : TypeTestBase<DateTimeOffset, CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
 {
     public class DateTimeOffsetTypeFixture : CosmosTypeFixtureBase<DateTimeOffset>
     {
@@ -27,7 +27,7 @@ public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFix
     }
 }
 
-public class DateOnlyTypeTest(DateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, DateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
+public class CosmosDateOnlyTypeTest(CosmosDateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, CosmosDateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
 {
     public class DateOnlyTypeFixture : CosmosTypeFixtureBase<DateOnly>
     {
@@ -38,8 +38,8 @@ public class DateOnlyTypeTest(DateOnlyTypeTest.DateOnlyTypeFixture fixture) : Ty
     }
 }
 
-public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
-    : TypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
+public class CosmosTimeOnlyTypeTest(CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
+    : TypeTestBase<TimeOnly, CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
 {
     public class TimeOnlyTypeFixture : CosmosTypeFixtureBase<TimeOnly>
     {
@@ -50,7 +50,7 @@ public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
     }
 }
 
-public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, TimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
+public class CosmosTimeSpanTypeTest(CosmosTimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, CosmosTimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
 {
     public class TimeSpanTypeFixture : CosmosTypeFixtureBase<TimeSpan>
     {

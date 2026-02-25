@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Emit;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -544,9 +545,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
         }
 
-        // TODO: Change this to call GetComplexProperties()
-        // Issue #31248
-        foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+        foreach (var complexProperty in mappedType.GetComplexProperties())
         {
             var complexType = complexProperty.ComplexType;
 
@@ -556,6 +555,10 @@ public class RelationalModel : Annotatable, IRelationalModel
             {
                 complexTableMappings = [];
                 complexType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, complexTableMappings);
+            }
+            else if (complexTableMappings.Any(m => m.Table == table))
+            {
+                continue;
             }
 
             CreateTableMapping(
@@ -606,8 +609,11 @@ public class RelationalModel : Annotatable, IRelationalModel
             return;
         }
 
-        Check.DebugAssert(
-            tableBase.FindColumn(containerColumnName) == null, $"Table '{tableBase.Name}' already has a '{containerColumnName}' column.");
+        if (tableBase.FindColumn(containerColumnName) != null)
+        {
+            // TODO: Add column mapping #36646
+            return;
+        }
 
         var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(
             typeof(JsonTypePlaceholder), storeTypeName: containerColumnType);
@@ -624,9 +630,11 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
-            if (ownership.PrincipalEntityType.BaseType != null)
+            if (!jsonColumn.IsNullable
+                && ownership.PrincipalEntityType.BaseType != null
+                && ownership.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
             {
-                // if navigation is defined on a derived type, the column must be made nullable
+                // if navigation is defined on a derived type in TPH, the column must be made nullable
                 jsonColumn.IsNullable = true;
             }
         }
@@ -637,6 +645,16 @@ public class RelationalModel : Annotatable, IRelationalModel
             jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable
                 || complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true).Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+
+            var declaringType = complexType.ComplexProperty.DeclaringType;
+            if (!jsonColumn.IsNullable
+                && declaringType is IEntityType declaringEntityType
+                && declaringEntityType.BaseType != null
+                && declaringEntityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+            {
+                // if complex property is defined on a derived type in TPH, the column must be made nullable
+                jsonColumn.IsNullable = true;
+            }
         }
     }
 
@@ -658,6 +676,9 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         var mappingStrategy = entityType.GetMappingStrategy();
         var isTpc = mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy;
+        var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
+            ? !isTpc && mappedType == entityType
+            : (bool?)null;
         while (mappedType != null)
         {
             var mappedViewName = mappedType.GetViewName();
@@ -674,9 +695,6 @@ public class RelationalModel : Annotatable, IRelationalModel
                 continue;
             }
 
-            var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
-                ? !isTpc && mappedType == entityType
-                : (bool?)null;
             foreach (var fragment in mappedType.GetMappingFragments(StoreObjectType.View))
             {
                 CreateViewMapping(
@@ -713,8 +731,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static void CreateViewMapping(
         IRelationalTypeMappingSource relationalTypeMappingSource,
-        IEntityType entityType,
-        IEntityType mappedType,
+        ITypeBase entityType,
+        ITypeBase mappedType,
         StoreObjectIdentifier mappedView,
         RelationalModel databaseModel,
         List<ViewMapping> viewMappings,
@@ -770,11 +788,45 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
         }
 
+        foreach (var complexProperty in mappedType.GetComplexProperties())
+        {
+            var complexType = complexProperty.ComplexType;
+
+            var complexViewMappings =
+                (List<ViewMapping>?)complexType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings);
+            if (complexViewMappings == null)
+            {
+                complexViewMappings = [];
+                complexType.AddRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, complexViewMappings);
+            }
+            else if (complexViewMappings.Any(m => m.Table == view))
+            {
+                continue;
+            }
+
+            CreateViewMapping(
+                relationalTypeMappingSource,
+                complexType,
+                complexType,
+                mappedView,
+                databaseModel,
+                complexViewMappings,
+                includesDerivedTypes: true,
+                isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
+        }
+
         if (((ITableMappingBase)viewMapping).ColumnMappings.Any()
             || viewMappings.Count == 0)
         {
             viewMappings.Add(viewMapping);
-            view.EntityTypeMappings.Add(viewMapping);
+            if (entityType is IEntityType)
+            {
+                view.EntityTypeMappings.Add(viewMapping);
+            }
+            else
+            {
+                view.ComplexTypeMappings.Add(viewMapping);
+            }
         }
     }
 
@@ -1645,20 +1697,33 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
             {
-                foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
-                {
-                    if (mappedEntityTypes.Contains(directlyDerivedEntityType)
-                        && !optionalTypes.ContainsKey(directlyDerivedEntityType))
-                    {
-                        entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
-                    }
-                }
+                EnqueueDerivedTypes(entityType, mappedEntityTypes, optionalTypes, entityTypesToVisit, optional);
             }
         }
 
         if (optionalTypes.Count > 1)
         {
             table.OptionalTypes = optionalTypes;
+        }
+
+        static void EnqueueDerivedTypes(
+            IEntityType entityType,
+            HashSet<IEntityType> mappedEntityTypes,
+            Dictionary<ITypeBase, bool> optionalTypes,
+            Queue<(ITypeBase, bool)> entityTypesToVisit,
+            bool optional)
+        {
+            foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
+            {
+                if (!mappedEntityTypes.Contains(directlyDerivedEntityType))
+                {
+                    EnqueueDerivedTypes(directlyDerivedEntityType, mappedEntityTypes, optionalTypes, entityTypesToVisit, optional);
+                }
+                else if (!optionalTypes.ContainsKey(directlyDerivedEntityType))
+                {
+                    entityTypesToVisit.Enqueue((directlyDerivedEntityType, optional));
+                }
+            }
         }
     }
 
@@ -2087,8 +2152,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             DeleteBehavior.SetNull => ReferentialAction.SetNull,
             DeleteBehavior.Cascade => ReferentialAction.Cascade,
-            DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction =>
-                ReferentialAction.NoAction,
+            DeleteBehavior.SetDefault => ReferentialAction.SetDefault,
+            DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction
+                or DeleteBehavior.ClientSetDefault => ReferentialAction.NoAction,
             DeleteBehavior.Restrict => ReferentialAction.Restrict,
             _ => throw new NotSupportedException(deleteBehavior.ToString())
         };

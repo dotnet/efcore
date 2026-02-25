@@ -96,7 +96,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (predicate is null
             && source.QueryExpression is SelectExpression
             {
-                Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                Tables: [JsonEachExpression jsonEach],
                 Predicate: null,
                 GroupBy: [],
                 Having: null,
@@ -109,7 +109,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 _sqlExpressionFactory.GreaterThan(
                     _sqlExpressionFactory.Function(
                         "json_array_length",
-                        [array],
+                        [jsonEach.Json],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
                         typeof(int)),
@@ -207,7 +207,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         if (predicate is null
             && source.QueryExpression is SelectExpression
             {
-                Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                Tables: [JsonEachExpression jsonEach],
                 Predicate: null,
                 GroupBy: [],
                 Having: null,
@@ -218,7 +218,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         {
             var translation = _sqlExpressionFactory.Function(
                 "json_array_length",
-                [array],
+                [jsonEach.Json],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[1],
                 typeof(int));
@@ -512,13 +512,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // Index on JSON array
                 case SelectExpression
                     {
-                        Tables:
-                        [
-                            TableValuedFunctionExpression
-                            {
-                                Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
-                            } jsonEachExpression
-                        ],
+                        Tables: [JsonEachExpression jsonEach],
                         Predicate: null,
                         GroupBy: [],
                         Having: null,
@@ -527,9 +521,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         Limit: null,
                         Offset: null
                     } selectExpression
-                    when orderingColumn.TableAlias == jsonEachExpression.Alias
+                    when orderingColumn.TableAlias == jsonEach.Alias
                     && TranslateExpression(index) is { } translatedIndex
-                    && TryTranslate(selectExpression, jsonArrayColumn, translatedIndex, out var result):
+                    && TryTranslate(selectExpression, jsonEach.Json, translatedIndex, out var result):
                     return result;
             }
         }
