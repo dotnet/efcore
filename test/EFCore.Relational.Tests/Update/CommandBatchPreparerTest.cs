@@ -1285,7 +1285,9 @@ FakeEntity [Deleted]"
         var deletedCommands = allCommands.Where(c => c.EntityState == EntityState.Deleted).ToList();
         Assert.Empty(deletedCommands);
 
-        var modifiedCommand = Assert.Single(allCommands, c => c.EntityState == EntityState.Modified);
+        Assert.Single(allCommands);
+        var modifiedCommand = Assert.Single(allCommands);
+        Assert.Equal(EntityState.Modified, modifiedCommand.EntityState);
 
         // The modified command should contain both EntityB and OwnedEntity entries
         Assert.True(modifiedCommand.Entries.Count() >= 2,
