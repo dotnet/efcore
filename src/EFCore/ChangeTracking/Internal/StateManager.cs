@@ -1208,6 +1208,14 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey>? foreignKeys = null)
     {
+        // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
+        // marked Deleted and a new entry with the same key is linked via SharedIdentityEntry.
+        // Skip cascade from the old entry since the replacement handles its own dependents.
+        if (entry.SharedIdentityEntry != null)
+        {
+            return;
+        }
+
         var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
         var principalIsDetached = entry.EntityState == EntityState.Detached;
 
@@ -1226,17 +1234,6 @@ public class StateManager : IStateManager
                          ?? GetDependents(entry, fk)).ToList())
             {
                 if (dependent.SharedIdentityEntry == entry)
-                {
-                    continue;
-                }
-
-                // When an owned entity is replaced (e.g., via record 'with' expression), the old entry is
-                // marked Deleted and a new entry with the same key is added via SharedIdentityEntry. If a nested
-                // dependent was re-used by the new entity graph, FindPrincipal returns the replacement principal
-                // from the identity map rather than the deleted entry. In that case, skip the cascade to avoid
-                // incorrectly re-deleting the dependent that now belongs to the replacement principal.
-                var currentPrincipal = FindPrincipal(dependent, fk);
-                if (currentPrincipal != null && currentPrincipal != entry)
                 {
                     continue;
                 }

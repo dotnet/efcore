@@ -103,7 +103,9 @@ public class EntityGraphAttacher : IEntityGraphAttacher
 
         var internalEntityEntry = node.GetInfrastructure();
 
-        if (internalEntityEntry.EntityState is not (EntityState.Detached or EntityState.Deleted)
+        if ((internalEntityEntry.EntityState != EntityState.Detached
+                && (internalEntityEntry.EntityState != EntityState.Deleted
+                    || node.SourceEntry?.GetInfrastructure().SharedIdentityEntry == null))
             || (_visited != null && _visited.Contains(internalEntityEntry.Entity)))
         {
             return false;
@@ -140,7 +142,9 @@ public class EntityGraphAttacher : IEntityGraphAttacher
         SetReferenceLoaded(node);
 
         var internalEntityEntry = node.GetInfrastructure();
-        if (internalEntityEntry.EntityState is not (EntityState.Detached or EntityState.Deleted)
+        if ((internalEntityEntry.EntityState != EntityState.Detached
+                && (internalEntityEntry.EntityState != EntityState.Deleted
+                    || node.SourceEntry?.GetInfrastructure().SharedIdentityEntry == null))
             || (_visited != null && _visited.Contains(internalEntityEntry.Entity)))
         {
             return false;
