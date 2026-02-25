@@ -1357,6 +1357,18 @@ public class NavigationFixer : INavigationFixer
             && principalEntry.EntityState is EntityState.Unchanged or EntityState.Modified)
         {
             dependentEntry.SetEntityState(EntityState.Modified);
+
+            var stateManager = dependentEntry.StateManager;
+            foreach (var foreignKey in dependentEntry.EntityType.GetReferencingForeignKeys())
+            {
+                if (foreignKey.IsOwnership)
+                {
+                    foreach (InternalEntityEntry ownedEntry in stateManager.GetDependents(dependentEntry, foreignKey))
+                    {
+                        UndeleteDependent(ownedEntry, dependentEntry);
+                    }
+                }
+            }
         }
     }
 

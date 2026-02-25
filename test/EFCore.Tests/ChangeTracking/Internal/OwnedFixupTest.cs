@@ -26,6 +26,24 @@ public class OwnedFixupTest
         public Thing Thing { get; set; }
     }
 
+    private class EntityParent
+    {
+        public int Id { get; set; }
+        public List<EntityWithOwnedData> Entities { get; set; } = [];
+    }
+
+    private class EntityWithOwnedData
+    {
+        public int Id { get; set; }
+        public int EntityParentId { get; set; }
+        public OwnedData Data { get; set; }
+    }
+
+    private class OwnedData
+    {
+        public string Value { get; set; }
+    }
+
     [ConditionalTheory,
      InlineData(false), InlineData(true)] // Issue #18982
     public void Detaching_owner_does_not_delete_owned_entities(bool delayCascade)
@@ -70,6 +88,41 @@ public class OwnedFixupTest
             Assert.Equal(EntityState.Detached, context.Entry(thing.OwnedByThings[0]).State);
             Assert.Equal(EntityState.Detached, context.Entry(thing.OwnedByThings[1]).State);
         }
+    }
+
+    [ConditionalFact] // Issue #36123
+    public void Moving_entity_with_owned_data_between_parents_preserves_owned_data()
+    {
+        using var context = new FixupContext();
+
+        var parent1 = new EntityParent { Id = 1 };
+        var parent2 = new EntityParent { Id = 2 };
+        var entity = new EntityWithOwnedData
+        {
+            Id = 1,
+            Data = new OwnedData { Value = "Test Value" }
+        };
+
+        parent1.Entities.Add(entity);
+        context.AddRange(parent1, parent2);
+        context.ChangeTracker.DetectChanges();
+        context.ChangeTracker.AcceptAllChanges();
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+        Assert.NotNull(entity.Data);
+        Assert.Equal(EntityState.Unchanged, context.Entry(entity.Data).State);
+
+        // Move entity to new parent
+        parent1.Entities.Remove(entity);
+        parent2.Entities.Add(entity);
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.NotNull(entity.Data);
+        Assert.Equal(EntityState.Modified, context.Entry(entity).State);
+        Assert.True(
+            context.Entry(entity.Data).State is EntityState.Unchanged or EntityState.Modified,
+            $"Expected owned data state to be Unchanged or Modified, but was {context.Entry(entity.Data).State}");
     }
 
     [ConditionalFact]
@@ -5504,6 +5557,18 @@ public class OwnedFixupTest
                     a.WithOwner(e => e.Thing).HasForeignKey(e => e.ThingId);
                     a.HasKey(e => e.OwnedByThingId);
                 });
+
+            modelBuilder.Entity<EntityParent>(pb =>
+            {
+                pb.Property(p => p.Id).ValueGeneratedNever();
+                pb.HasMany(p => p.Entities).WithOne();
+            });
+
+            modelBuilder.Entity<EntityWithOwnedData>(eb =>
+            {
+                eb.Property(e => e.Id).ValueGeneratedNever();
+                eb.OwnsOne(e => e.Data);
+            });
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
