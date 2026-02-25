@@ -66,11 +66,11 @@ public class SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlE
                     }
 
                     if (maxArgumentType == typeof(TimeSpan)
-                        && _sqlExpressionFactory is SqliteSqlExpressionFactory maxSqliteFactory)
+                        && sqlExpressionFactory is SqliteSqlExpressionFactory maxSqliteFactory)
                     {
                         maxSqlExpression = CombineTerms(source, maxSqlExpression);
                         var maxDaysExpression = maxSqliteFactory.EfDays(maxSqlExpression);
-                        var maxAggregate = _sqlExpressionFactory.Function(
+                        var maxAggregate = sqlExpressionFactory.Function(
                             "max",
                             [maxDaysExpression],
                             nullable: true,
@@ -106,11 +106,11 @@ public class SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlE
                     }
 
                     if (minArgumentType == typeof(TimeSpan)
-                        && _sqlExpressionFactory is SqliteSqlExpressionFactory minSqliteFactory)
+                        && sqlExpressionFactory is SqliteSqlExpressionFactory minSqliteFactory)
                     {
                         minSqlExpression = CombineTerms(source, minSqlExpression);
                         var minDaysExpression = minSqliteFactory.EfDays(minSqlExpression);
-                        var minAggregate = _sqlExpressionFactory.Function(
+                        var minAggregate = sqlExpressionFactory.Function(
                             "min",
                             [minDaysExpression],
                             nullable: true,
