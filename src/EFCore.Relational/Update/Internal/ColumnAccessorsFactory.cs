@@ -55,7 +55,20 @@ public static class ColumnAccessorsFactory
                     if (entry.EntityState == EntityState.Deleted
                         && entry.SharedIdentityEntry != null)
                     {
-                        entry = entry.SharedIdentityEntry;
+                        var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
+                            ? property
+                            : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
+                        if (sharedProperty != null)
+                        {
+                            var sharedValue = entry.SharedIdentityEntry.GetCurrentProviderValue(sharedProperty);
+                            if (sharedValue != null)
+                            {
+                                value = (TColumn)sharedValue!;
+                                valueFound = true;
+                            }
+                        }
+
+                        continue;
                     }
 
                     var providerValue = entry.GetCurrentProviderValue(property);
@@ -103,7 +116,20 @@ public static class ColumnAccessorsFactory
                     if (entry.EntityState == EntityState.Added
                         && entry.SharedIdentityEntry != null)
                     {
-                        entry = entry.SharedIdentityEntry;
+                        var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
+                            ? property
+                            : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
+                        if (sharedProperty != null)
+                        {
+                            var sharedValue = entry.SharedIdentityEntry.GetOriginalProviderValue(sharedProperty);
+                            if (sharedValue != null)
+                            {
+                                value = (TColumn)sharedValue!;
+                                valueFound = true;
+                            }
+                        }
+
+                        continue;
                     }
 
                     var providerValue = entry.GetOriginalProviderValue(property);
