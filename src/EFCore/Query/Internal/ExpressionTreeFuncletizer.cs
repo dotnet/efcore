@@ -2112,7 +2112,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // In many databases, parameter names must start with a letter or underscore.
                 // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
                 // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
-                if (!char.IsLetter(parameterName[0]) && parameterName[0] != '_')
+                if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
                 {
                     parameterName = "_" + parameterName;
                 }
