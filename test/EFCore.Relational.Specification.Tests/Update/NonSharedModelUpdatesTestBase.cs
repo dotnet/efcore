@@ -124,6 +124,57 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string? Name { get; set; }
     }
 
+    [ConditionalFact] // Issue #37335
+    public virtual async Task SaveChanges_with_nullable_complex_property_on_shared_column_in_TPH()
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<Product37335>()
+                    .HasDiscriminator<string>("Discriminator")
+                    .HasValue<Product37335A>("A")
+                    .HasValue<Product37335B>("B");
+                mb.Entity<Product37335A>()
+                    .ComplexProperty(x => x.Price, p => p.Property(a => a.Amount).HasColumnName("Price"));
+                mb.Entity<Product37335B>()
+                    .ComplexProperty(x => x.Price, p => p.Property(a => a.Amount).HasColumnName("Price"));
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new Product37335A { Name = "Product 1" });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var product = await context.Set<Product37335A>().FirstAsync();
+                Assert.Null(product.Price);
+            });
+    }
+
+    private abstract class Product37335
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+    }
+
+    private class Product37335A : Product37335
+    {
+        public Price37335? Price { get; set; }
+    }
+
+    private class Product37335B : Product37335
+    {
+        public Price37335? Price { get; set; }
+    }
+
+    private sealed class Price37335
+    {
+        public required string Amount { get; init; }
+    }
+
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         ContextFactory<DbContext> contextFactory,
         Func<DbContext, Task> testOperation,

@@ -227,6 +227,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
 
             var variables = new List<ParameterExpression>();
             var statements = new List<Expression>();
+            var nullCheckLevels = new List<(int StatementIndex, ParameterExpression Variable)>();
             var chainCount = chain.Count;
             for (var i = chainCount; i >= 1; i--)
             {
@@ -285,6 +286,12 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                                 complexMemberInfo,
                                 fromDeclaringType: true,
                                 fromEntity: false)));
+
+                    if (currentProperty.IsNullable)
+                    {
+                        nullCheckLevels.Add((statements.Count - 1, currentLevel));
+                    }
+
                     previousLevel = currentLevel;
                 }
             }
@@ -329,6 +336,22 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
 
                         statements.Add(memberExpression.Assign(variables[chainCount - 1 - i]));
                     }
+                }
+            }
+
+            // Wrap statements after nullable complex property levels in null checks (from innermost to outermost)
+            for (var j = nullCheckLevels.Count - 1; j >= 0; j--)
+            {
+                var (stmtIndex, nullVar) = nullCheckLevels[j];
+                var afterIndex = stmtIndex + 1;
+                if (afterIndex < statements.Count)
+                {
+                    var wrappedStatements = statements.GetRange(afterIndex, statements.Count - afterIndex);
+                    statements.RemoveRange(afterIndex, wrappedStatements.Count);
+                    statements.Add(
+                        IfThen(
+                            NotEqual(nullVar, Constant(null, nullVar.Type)),
+                            wrappedStatements.Count == 1 ? wrappedStatements[0] : Block(wrappedStatements)));
                 }
             }
 
