@@ -94,7 +94,24 @@ public static class ColumnAccessorsFactory
                         continue;
                     }
 
-                    var providerValue = entry.GetOriginalProviderValue(property);
+                    object? providerValue;
+                    if (entry.SharedIdentityEntry != null
+                        && entry.EntityState == EntityState.Added)
+                    {
+                        // For Added entries with a SharedIdentityEntry (representing a replaced entity),
+                        // use the original value from the SharedIdentityEntry (which is Deleted).
+                        var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
+                            ? property
+                            : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
+                        providerValue = sharedProperty != null
+                            ? entry.SharedIdentityEntry.GetOriginalProviderValue(sharedProperty)
+                            : null;
+                    }
+                    else
+                    {
+                        providerValue = entry.GetOriginalProviderValue(property);
+                    }
+
                     if (providerValue == null)
                     {
                         return (value!, valueFound);

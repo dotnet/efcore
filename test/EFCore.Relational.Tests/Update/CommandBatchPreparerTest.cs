@@ -1211,4 +1211,103 @@ FakeEntity [Deleted]"
         public int Id { get; set; }
         public int? AnotherId { get; set; }
     }
+
+    [ConditionalFact]
+    public void BatchCommands_sorts_FK_ordering_when_replacing_inline_owned_entity()
+    {
+        // Repro for: FK dependency ordering wrong when replacing an inline owned entity
+        var configuration = CreateContextServices(CreateInlineOwnedWithExternalFKModel());
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        // Owner entity stored in "FakeEntity" table
+        var ownerEntry = stateManager.GetOrCreateEntry(new FakeEntity { Id = 1 });
+        ownerEntry.SetEntityState(EntityState.Unchanged);
+
+        // Old "inline owned" entity (stored in same table) referencing old ContentFakeEntity (Id=10)
+        var oldChildEntry = stateManager.GetOrCreateEntry(new SharedChildFakeEntity { Id = 1, ContentId = 10 });
+        oldChildEntry.SetEntityState(EntityState.Deleted);
+
+        // New "inline owned" entity (stored in same table) referencing new ContentFakeEntity (Id=20)
+        var newChildEntry = stateManager.GetOrCreateEntry(new SharedChildFakeEntity { Id = 1, ContentId = 20 });
+        newChildEntry.SetEntityState(EntityState.Added);
+
+        // SharedIdentityEntry should be set automatically since both entities share the same row (same owner Id=1)
+        Assert.NotNull(newChildEntry.SharedIdentityEntry);
+        Assert.NotNull(oldChildEntry.SharedIdentityEntry);
+
+        // Old referenced entity (being deleted)
+        var oldReferencedEntry = stateManager.GetOrCreateEntry(new ContentFakeEntity { Id = 10 });
+        oldReferencedEntry.SetEntityState(EntityState.Deleted);
+
+        // New referenced entity (being added)
+        var newReferencedEntry = stateManager.GetOrCreateEntry(new ContentFakeEntity { Id = 20 });
+        newReferencedEntry.SetEntityState(EntityState.Added);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        // Use List instead of array because BatchCommands may add unchanged sharing entries
+        var entries = new List<IUpdateEntry> { oldChildEntry, newChildEntry, oldReferencedEntry, newReferencedEntry };
+        var batches = CreateCommandBatchPreparer(updateAdapter: modelData).BatchCommands(entries, modelData).ToList();
+        var batch = Assert.Single(batches);
+
+        var commands = batch.ModificationCommands;
+        Assert.Equal(3, commands.Count);
+
+        // Expected order:
+        // 1. INSERT ContentFakeEntity (id=20) - must be inserted before FakeEntity FK points to it
+        // 2. UPDATE FakeEntity - FK changes from 10 to 20
+        // 3. DELETE ContentFakeEntity (id=10) - must be deleted after FakeEntity FK no longer points to it
+        Assert.Equal(EntityState.Added, commands[0].EntityState);
+        Assert.Equal("ContentFakeEntity", commands[0].TableName);
+
+        Assert.Equal(EntityState.Modified, commands[1].EntityState);
+        Assert.Equal("FakeEntity", commands[1].TableName);
+
+        Assert.Equal(EntityState.Deleted, commands[2].EntityState);
+        Assert.Equal("ContentFakeEntity", commands[2].TableName);
+    }
+
+    private static IModel CreateInlineOwnedWithExternalFKModel()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<FakeEntity>(b =>
+        {
+            b.Ignore(c => c.UniqueValue);
+            b.Ignore(c => c.RelatedId);
+            b.Ignore(c => c.Value);
+        });
+
+        modelBuilder.Entity<SharedChildFakeEntity>(b =>
+        {
+            // Row-internal FK: SharedChildFakeEntity.Id -> FakeEntity.Id (FK = PK, so IsRowInternal = true)
+            b.HasOne<FakeEntity>()
+                .WithOne()
+                .HasForeignKey<SharedChildFakeEntity>(c => c.Id);
+
+            // External FK: SharedChildFakeEntity.ContentId -> ContentFakeEntity.Id
+            b.HasOne<ContentFakeEntity>()
+                .WithMany()
+                .HasForeignKey(c => c.ContentId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.ToTable(nameof(FakeEntity));
+        });
+
+        modelBuilder.Entity<ContentFakeEntity>();
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private class SharedChildFakeEntity
+    {
+        public int Id { get; set; }
+        public int ContentId { get; set; }
+    }
+
+    private class ContentFakeEntity
+    {
+        public int Id { get; set; }
+    }
 }
