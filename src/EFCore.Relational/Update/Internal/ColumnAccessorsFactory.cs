@@ -52,6 +52,12 @@ public static class ColumnAccessorsFactory
                         continue;
                     }
 
+                    if (entry.EntityState == EntityState.Deleted
+                        && entry.SharedIdentityEntry != null)
+                    {
+                        entry = entry.SharedIdentityEntry;
+                    }
+
                     var providerValue = entry.GetCurrentProviderValue(property);
                     if (providerValue == null)
                     {
@@ -92,6 +98,12 @@ public static class ColumnAccessorsFactory
                     if (property == null)
                     {
                         continue;
+                    }
+
+                    if (entry.EntityState == EntityState.Added
+                        && entry.SharedIdentityEntry != null)
+                    {
+                        entry = entry.SharedIdentityEntry;
                     }
 
                     var providerValue = entry.GetOriginalProviderValue(property);
