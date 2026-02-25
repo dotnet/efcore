@@ -79,7 +79,7 @@ public abstract class DateTimeTranslationsTestBase<TFixture>(TFixture fixture) :
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.TimeOfDay == TimeSpan.Zero));
 
     [ConditionalFact]
-    public virtual Task subtract_and_TotalDays()
+    public virtual Task Subtract_and_TotalDays()
     {
         var date = new DateTime(1997, 1, 1);
 

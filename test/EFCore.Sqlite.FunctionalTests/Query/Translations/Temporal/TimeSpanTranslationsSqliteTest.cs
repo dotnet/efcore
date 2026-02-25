@@ -12,51 +12,76 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    // Translate TimeSpan members, #18844
     public override async Task Hours()
     {
-        await AssertTranslationFailed(() => base.Hours());
+        await base.Hours();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((ef_days("b"."TimeSpan") * 24.0) % 24.0 AS INTEGER) = 3
+""");
     }
 
-    // Translate TimeSpan members, #18844
     public override async Task Minutes()
     {
-        await AssertTranslationFailed(() => base.Minutes());
+        await base.Minutes();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((ef_days("b"."TimeSpan") * 1440.0) % 60.0 AS INTEGER) = 4
+""");
     }
 
     public override async Task Seconds()
     {
-        await AssertTranslationFailed(() => base.Seconds());
+        await base.Seconds();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((ef_days("b"."TimeSpan") * 86400.0) % 60.0 AS INTEGER) = 5
+""");
     }
 
-    // Translate TimeSpan members, #18844
     public override async Task Milliseconds()
     {
-        await AssertTranslationFailed(() => base.Milliseconds());
+        await base.Milliseconds();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((ef_days("b"."TimeSpan") * 86400000.0) % 1000.0 AS INTEGER) = 678
+""");
     }
 
-    // Translate TimeSpan members, #18844
     public override async Task Microseconds()
     {
-        await AssertTranslationFailed(() => base.Microseconds());
+        await base.Microseconds();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((ef_days("b"."TimeSpan") * 86400000000.0) % 1000.0 AS INTEGER) = 912
+""");
     }
 
-    // Translate TimeSpan members, #18844
     public override async Task Nanoseconds()
     {
-        await AssertTranslationFailed(() => base.Nanoseconds());
+        await base.Nanoseconds();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((ef_days("b"."TimeSpan") * 86400000000000.0) % 1000.0 AS INTEGER) = 400
+""");
     }
 
     [ConditionalFact]

@@ -162,10 +162,10 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
         AssertSql();
     }
 
-    public override async Task subtract_and_TotalDays()
+    public override async Task Subtract_and_TotalDays()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.subtract_and_TotalDays());
+        await AssertTranslationFailed(() => base.Subtract_and_TotalDays());
 
         AssertSql();
     }
