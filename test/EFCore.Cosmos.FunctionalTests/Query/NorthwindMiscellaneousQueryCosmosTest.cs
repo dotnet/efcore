@@ -4494,6 +4494,18 @@ OFFSET @p LIMIT @p
         AssertSql();
     }
 
+    public override Task Captured_variable_from_switch_case_pattern_matching(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Captured_variable_from_switch_case_pattern_matching(a);
+
+                AssertSql(
+                    """
+ReadItem(None, ALFKI)
+""");
+            });
+
     public override async Task Where_query_composition5(bool async)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
