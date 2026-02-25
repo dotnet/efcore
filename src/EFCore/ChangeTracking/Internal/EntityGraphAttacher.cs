@@ -102,10 +102,11 @@ public class EntityGraphAttacher : IEntityGraphAttacher
         SetReferenceLoaded(node);
 
         var internalEntityEntry = node.GetInfrastructure();
+        var sourceEntry = node.SourceEntry?.GetInfrastructure();
 
         if ((internalEntityEntry.EntityState != EntityState.Detached
                 && (internalEntityEntry.EntityState != EntityState.Deleted
-                    || node.SourceEntry?.GetInfrastructure().SharedIdentityEntry == null))
+                    || sourceEntry?.SharedIdentityEntry == null))
             || (_visited != null && _visited.Contains(internalEntityEntry.Entity)))
         {
             return false;
@@ -117,7 +118,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
 
         if (internalEntityEntry.StateManager.ResolveToExistingEntry(
                 internalEntityEntry,
-                node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
+                node.InboundNavigation, sourceEntry))
         {
             (_visited ??= new HashSet<object>(ReferenceEqualityComparer.Instance)).Add(internalEntityEntry.Entity);
         }
@@ -142,9 +143,10 @@ public class EntityGraphAttacher : IEntityGraphAttacher
         SetReferenceLoaded(node);
 
         var internalEntityEntry = node.GetInfrastructure();
+        var sourceEntry = node.SourceEntry?.GetInfrastructure();
         if ((internalEntityEntry.EntityState != EntityState.Detached
                 && (internalEntityEntry.EntityState != EntityState.Deleted
-                    || node.SourceEntry?.GetInfrastructure().SharedIdentityEntry == null))
+                    || sourceEntry?.SharedIdentityEntry == null))
             || (_visited != null && _visited.Contains(internalEntityEntry.Entity)))
         {
             return false;
@@ -156,7 +158,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
 
         if (internalEntityEntry.StateManager.ResolveToExistingEntry(
                 internalEntityEntry,
-                node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
+                node.InboundNavigation, sourceEntry))
         {
             (_visited ??= []).Add(internalEntityEntry.Entity);
         }
