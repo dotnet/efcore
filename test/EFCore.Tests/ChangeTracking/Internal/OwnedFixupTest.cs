@@ -125,6 +125,43 @@ public class OwnedFixupTest
             $"Expected owned data state to be Unchanged or Modified, but was {context.Entry(entity.Data).State}");
     }
 
+    [ConditionalFact] // Issue #36123
+    public void Explicitly_deleted_owned_data_is_not_restored_when_entity_is_moved_between_parents()
+    {
+        using var context = new FixupContext();
+
+        var parent1 = new EntityParent { Id = 1 };
+        var parent2 = new EntityParent { Id = 2 };
+        var entity = new EntityWithOwnedData
+        {
+            Id = 1,
+            Data = new OwnedData { Value = "Test Value" }
+        };
+
+        parent1.Entities.Add(entity);
+        context.AddRange(parent1, parent2);
+        context.ChangeTracker.DetectChanges();
+        context.ChangeTracker.AcceptAllChanges();
+
+        // Explicitly delete owned data
+        var ownedData = entity.Data;
+        entity.Data = null;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Null(entity.Data);
+        Assert.Equal(EntityState.Deleted, context.Entry(ownedData).State);
+
+        // Move entity to new parent
+        parent1.Entities.Remove(entity);
+        parent2.Entities.Add(entity);
+
+        context.ChangeTracker.DetectChanges();
+
+        // Owned data should still be deleted (not restored)
+        Assert.Null(entity.Data);
+        Assert.Equal(EntityState.Deleted, context.Entry(ownedData).State);
+    }
+
     [ConditionalFact]
     public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
     {

@@ -1358,12 +1358,40 @@ public class NavigationFixer : INavigationFixer
         {
             dependentEntry.SetEntityState(EntityState.Modified);
 
-            var stateManager = dependentEntry.StateManager;
             foreach (var foreignKey in dependentEntry.EntityType.GetReferencingForeignKeys())
             {
-                if (foreignKey.IsOwnership)
+                if (!foreignKey.IsOwnership)
                 {
-                    foreach (InternalEntityEntry ownedEntry in stateManager.GetDependents(dependentEntry, foreignKey))
+                    continue;
+                }
+
+                var principalToDependent = foreignKey.PrincipalToDependent;
+                if (principalToDependent == null)
+                {
+                    continue;
+                }
+
+                var navigationValue = dependentEntry[principalToDependent];
+                if (navigationValue == null)
+                {
+                    continue;
+                }
+
+                if (principalToDependent.IsCollection)
+                {
+                    foreach (var item in ((IEnumerable)navigationValue).Cast<object>().ToList())
+                    {
+                        var ownedEntry = dependentEntry.StateManager.TryGetEntry(item, foreignKey.DeclaringEntityType);
+                        if (ownedEntry != null)
+                        {
+                            UndeleteDependent(ownedEntry, dependentEntry);
+                        }
+                    }
+                }
+                else
+                {
+                    var ownedEntry = dependentEntry.StateManager.TryGetEntry(navigationValue, foreignKey.DeclaringEntityType);
+                    if (ownedEntry != null)
                     {
                         UndeleteDependent(ownedEntry, dependentEntry);
                     }
