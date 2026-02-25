@@ -81,18 +81,12 @@ public class SharedTableEntryMap<TValue>
                 return GetMainEntry(principalEntry);
             }
 
-            // When entities are replaced (delete + add with same key in TPH), FindPrincipal returns null
-            // because the identity map contains the replacing entry (a sibling type) which is filtered out
-            // as incompatible. Check if the replacing entry's SharedIdentityEntry points to the original
-            // (deleted) principal that is compatible, and if so, use the replacing entry as the main entry
-            // since it will be the one generating the modification command for the row.
+            // When TPH entity replacement causes FindPrincipal to return null (the replacing entry
+            // is an incompatible sibling type), check if the replacing entry's SharedIdentityEntry
+            // is a compatible principal, and use the replacing entry as the main entry.
             if (principalEntry == null)
             {
-                var keyValues = new object?[foreignKey.PrincipalKey.Properties.Count];
-                for (var i = 0; i < keyValues.Length; i++)
-                {
-                    keyValues[i] = entry.GetCurrentValue(foreignKey.Properties[i]);
-                }
+                var keyValues = foreignKey.Properties.Select(p => entry.GetCurrentValue(p)).ToArray();
 
                 var identityEntry = _updateAdapter.TryGetEntry(foreignKey.PrincipalKey, keyValues);
                 if (identityEntry?.SharedIdentityEntry != null
