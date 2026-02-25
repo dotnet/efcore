@@ -369,6 +369,30 @@ ORDER BY [r].[Id], [a].[Id], [n].[Id], [n0].[Id]
 
     #region Subquery
 
+    public override async Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r1].[Id], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[Id1], [s].[Id2], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [r1].[c]
+FROM [RootEntity] AS [r]
+OUTER APPLY (
+    SELECT TOP(1) 1 AS [c], [r0].[Id]
+    FROM [RootEntity] AS [r0]
+    ORDER BY [r0].[Id]
+) AS [r1]
+LEFT JOIN (
+    SELECT [a].[Id], [a].[CollectionRootId], [a].[Int], [a].[Ints], [a].[Name], [a].[OptionalNestedAssociateId], [a].[RequiredNestedAssociateId], [a].[String], [n].[Id] AS [Id0], [n0].[Id] AS [Id1], [n1].[Id] AS [Id2], [n1].[CollectionAssociateId], [n1].[Int] AS [Int0], [n1].[Ints] AS [Ints0], [n1].[Name] AS [Name0], [n1].[String] AS [String0], [n].[CollectionAssociateId] AS [CollectionAssociateId0], [n].[Int] AS [Int1], [n].[Ints] AS [Ints1], [n].[Name] AS [Name1], [n].[String] AS [String1], [n0].[CollectionAssociateId] AS [CollectionAssociateId1], [n0].[Int] AS [Int2], [n0].[Ints] AS [Ints2], [n0].[Name] AS [Name2], [n0].[String] AS [String2]
+    FROM [AssociateType] AS [a]
+    LEFT JOIN [NestedAssociateType] AS [n] ON [a].[OptionalNestedAssociateId] = [n].[Id]
+    INNER JOIN [NestedAssociateType] AS [n0] ON [a].[RequiredNestedAssociateId] = [n0].[Id]
+    LEFT JOIN [NestedAssociateType] AS [n1] ON [a].[Id] = [n1].[CollectionAssociateId]
+) AS [s] ON [r1].[Id] = [s].[CollectionRootId]
+ORDER BY [r].[Id], [r1].[Id], [s].[Id], [s].[Id0], [s].[Id1]
+""");
+    }
+
     public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior);
