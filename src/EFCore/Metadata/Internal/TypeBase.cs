@@ -488,6 +488,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     {
         if ((string?)this[CoreAnnotationNames.DiscriminatorProperty] == property?.Name)
         {
+            if (property != null)
+            {
+                FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)!.UpdateConfigurationSource(configurationSource);
+            }
+
             return property;
         }
 
