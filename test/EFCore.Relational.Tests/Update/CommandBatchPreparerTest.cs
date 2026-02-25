@@ -337,6 +337,60 @@ public class CommandBatchPreparerTest
     }
 
     [ConditionalFact]
+    public void BatchCommands_sorts_correctly_when_replacing_shared_table_entity_with_FK_to_separate_entity()
+    {
+        var currentDbContext = CreateContextServices(CreateSharedTableWithExternalFKModel())
+            .GetRequiredService<ICurrentDbContext>();
+        var stateManager = currentDbContext.GetDependencies().StateManager;
+
+        // Set up the owner entity (Modified)
+        var owner = new FakeEntity { Id = 1, Value = "Test" };
+        var ownerEntry = stateManager.GetOrCreateEntry(owner);
+        ownerEntry.SetEntityState(EntityState.Modified);
+
+        // Set up the old shared-table entity (Deleted)
+        var oldRelated = new RelatedFakeEntity { Id = 1, RelatedId = 10 };
+        var oldRelatedEntry = stateManager.GetOrCreateEntry(oldRelated);
+        oldRelatedEntry.SetEntityState(EntityState.Unchanged);
+        oldRelatedEntry.SetEntityState(EntityState.Deleted);
+
+        // Set up the new shared-table entity (Added) - same PK triggers SharedIdentityEntry
+        var entityType = stateManager.Model.FindEntityType(typeof(RelatedFakeEntity))!;
+        var newRelated = new RelatedFakeEntity { Id = 1, RelatedId = 20 };
+        var newRelatedEntry = new InternalEntityEntry(stateManager, entityType, newRelated);
+        newRelatedEntry.SetEntityState(EntityState.Added);
+
+        // Verify SharedIdentityEntry was set up
+        Assert.NotNull(newRelatedEntry.SharedIdentityEntry);
+
+        // Set up old AnotherFakeEntity (Deleted) - the old FK target
+        var oldAnother = new AnotherFakeEntity { Id = 10 };
+        var oldAnotherEntry = stateManager.GetOrCreateEntry(oldAnother);
+        oldAnotherEntry.SetEntityState(EntityState.Deleted);
+
+        // Set up new AnotherFakeEntity (Added) - the new FK target
+        var newAnother = new AnotherFakeEntity { Id = 20 };
+        var newAnotherEntry = stateManager.GetOrCreateEntry(newAnother);
+        newAnotherEntry.SetEntityState(EntityState.Added);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches(
+            [ownerEntry, oldRelatedEntry, newRelatedEntry, oldAnotherEntry, newAnotherEntry],
+            modelData);
+        var batch = Assert.Single(batches);
+
+        // Expected order: Insert new AnotherFakeEntity → Update FakeEntity table → Delete old AnotherFakeEntity
+        Assert.Equal(3, batch.ModificationCommands.Count);
+        Assert.Equal(EntityState.Added, batch.ModificationCommands[0].EntityState);
+        Assert.Equal(nameof(AnotherFakeEntity), batch.ModificationCommands[0].TableName);
+        Assert.Equal(EntityState.Modified, batch.ModificationCommands[1].EntityState);
+        Assert.Equal(nameof(FakeEntity), batch.ModificationCommands[1].TableName);
+        Assert.Equal(EntityState.Deleted, batch.ModificationCommands[2].EntityState);
+        Assert.Equal(nameof(AnotherFakeEntity), batch.ModificationCommands[2].TableName);
+    }
+
+    [ConditionalFact]
     public void BatchCommands_creates_batches_lazily()
     {
         var configuration = FakeRelationalTestHelpers.Instance.CreateContextServices(
@@ -1154,6 +1208,35 @@ FakeEntity [Deleted]"
         });
 
         modelBuilder.Entity<AnotherFakeEntity>().ToTable(nameof(FakeEntity));
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private static IModel CreateSharedTableWithExternalFKModel()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<FakeEntity>(b =>
+        {
+            b.Ignore(c => c.UniqueValue);
+            b.Ignore(c => c.RelatedId);
+        });
+
+        modelBuilder.Entity<RelatedFakeEntity>(b =>
+        {
+            b.HasOne<FakeEntity>()
+                .WithOne()
+                .HasForeignKey<RelatedFakeEntity>(c => c.Id);
+            b.HasOne<AnotherFakeEntity>()
+                .WithMany()
+                .HasForeignKey(c => c.RelatedId);
+            b.ToTable(nameof(FakeEntity));
+        });
+
+        modelBuilder.Entity<AnotherFakeEntity>(b =>
+        {
+            b.Ignore(c => c.AnotherId);
+        });
 
         return modelBuilder.Model.FinalizeModel();
     }
