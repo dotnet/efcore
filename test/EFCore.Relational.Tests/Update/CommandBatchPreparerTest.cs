@@ -1211,11 +1211,11 @@ FakeEntity [Deleted]"
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
-        modelBuilder.Entity<EntityBase37169>(b =>
+        modelBuilder.Entity<EntityBase37588>(b =>
         {
             b.HasDiscriminator<string>("Type")
-                .HasValue<EntityA37169>(nameof(EntityA37169))
-                .HasValue<EntityB37169>(nameof(EntityB37169));
+                .HasValue<EntityA37588>(nameof(EntityA37588))
+                .HasValue<EntityB37588>(nameof(EntityB37588));
 
             b.HasKey(x => x.Id);
             b.Property(x => x.Id).HasMaxLength(10);
@@ -1227,7 +1227,7 @@ FakeEntity [Deleted]"
                 .HasConversion<byte[]>();
         });
 
-        modelBuilder.Entity<EntityA37169>(b =>
+        modelBuilder.Entity<EntityA37588>(b =>
         {
             b.Property(x => x.SomeValue);
             b.OwnsOne(x => x.Owned, x =>
@@ -1236,7 +1236,7 @@ FakeEntity [Deleted]"
             });
         });
 
-        modelBuilder.Entity<EntityB37169>(b =>
+        modelBuilder.Entity<EntityB37588>(b =>
         {
             b.Property(x => x.Name).HasMaxLength(100);
         });
@@ -1246,12 +1246,12 @@ FakeEntity [Deleted]"
         var stateManager = currentDbContext.GetDependencies().StateManager;
 
         // Create "existing" EntityA with an owned entity
-        var entityA = new EntityA37169 { Id = "SOMEID", SomeValue = true, Owned = new OwnedEntity37169 { CreationDate = DateTime.UtcNow } };
+        var entityA = new EntityA37588 { Id = "SOMEID", SomeValue = true, Owned = new OwnedEntity37588 { CreationDate = DateTime.UtcNow } };
         var entityAEntry = stateManager.GetOrCreateEntry(entityA);
         entityAEntry.SetEntityState(EntityState.Unchanged);
 
         // Track the owned entity
-        var ownedEntityType = model.FindEntityType(typeof(OwnedEntity37169), "Owned", model.FindEntityType(typeof(EntityA37169)));
+        var ownedEntityType = model.FindEntityType(typeof(OwnedEntity37588), "Owned", model.FindEntityType(typeof(EntityA37588)));
         var ownedEntry = stateManager.GetOrCreateEntry(entityA.Owned, ownedEntityType);
         ownedEntry.SetEntityState(EntityState.Unchanged);
 
@@ -1260,7 +1260,7 @@ FakeEntity [Deleted]"
         ownedEntry.SetEntityState(EntityState.Deleted);
 
         // Add EntityB with the same PK
-        var entityB = new EntityB37169 { Id = "SOMEID", Name = "Any" };
+        var entityB = new EntityB37588 { Id = "SOMEID", Name = "Any" };
         var entityBEntry = stateManager.GetOrCreateEntry(entityB);
         entityBEntry.SetEntityState(EntityState.Added);
 
@@ -1301,24 +1301,24 @@ FakeEntity [Deleted]"
         Assert.True(rvModification.IsCondition);
     }
 
-    private abstract class EntityBase37169
+    private abstract class EntityBase37588
     {
         public string Id { get; set; }
         public long RowVersion { get; set; }
     }
 
-    private class OwnedEntity37169
+    private class OwnedEntity37588
     {
         public DateTime CreationDate { get; set; }
     }
 
-    private class EntityA37169 : EntityBase37169
+    private class EntityA37588 : EntityBase37588
     {
         public bool SomeValue { get; set; }
-        public OwnedEntity37169 Owned { get; set; }
+        public OwnedEntity37588 Owned { get; set; }
     }
 
-    private class EntityB37169 : EntityBase37169
+    private class EntityB37588 : EntityBase37588
     {
         public string Name { get; set; }
     }

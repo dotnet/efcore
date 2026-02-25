@@ -83,16 +83,12 @@ public class SharedTableEntryMap<TValue>
 
             // When TPH entity replacement causes FindPrincipal to return null, check if the replacing
             // entry's SharedIdentityEntry has a compatible principal and use it as the main entry.
-            if (principalEntry == null)
+            var keyValues = foreignKey.Properties.Select(p => entry.GetCurrentValue(p)).ToArray();
+            var replacingPrincipal = _updateAdapter.TryGetEntry(foreignKey.PrincipalKey, keyValues);
+            if (replacingPrincipal?.SharedIdentityEntry != null
+                && foreignKey.PrincipalEntityType.IsAssignableFrom(replacingPrincipal.SharedIdentityEntry.EntityType))
             {
-                var keyValues = foreignKey.Properties.Select(p => entry.GetCurrentValue(p)).ToArray();
-
-                var identityEntry = _updateAdapter.TryGetEntry(foreignKey.PrincipalKey, keyValues);
-                if (identityEntry?.SharedIdentityEntry != null
-                    && foreignKey.PrincipalEntityType.IsAssignableFrom(identityEntry.SharedIdentityEntry.EntityType))
-                {
-                    return GetMainEntry(identityEntry);
-                }
+                return GetMainEntry(replacingPrincipal);
             }
         }
 
