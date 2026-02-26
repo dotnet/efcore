@@ -3274,6 +3274,13 @@ WHERE [j].[Id] = 1
 """);
     }
 
+    public override async Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+    {
+        await base.Replace_json_reference_root_preserves_nested_owned_entities_in_memory();
+
+        AssertSql();
+    }
+
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 
