@@ -1246,6 +1246,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         public bool TryPropagate(IColumnMappingBase mapping, IUpdateEntry entry)
         {
             var property = mapping.Property;
+            if (property.DeclaringType is IComplexType complexType
+                && entry.GetCurrentValue(complexType.ComplexProperty) == null)
+            {
+                return _write;
+            }
+
             if (_write
                 && (entry.EntityState == EntityState.Unchanged
                     || (entry.EntityState == EntityState.Modified && !Update.ColumnModification.IsModified(entry, property))

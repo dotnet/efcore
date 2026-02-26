@@ -302,20 +302,8 @@ public class PropertyAccessorsFactory
                     break;
             }
         }
-        else if (!fromDeclaringType
-                 || !addNullCheck
-                 || property?.DeclaringType is not IComplexType declaringComplexType
-                 || instanceExpression.Type.IsValueType
-                 || declaringComplexType.ClrType.IsValueType
-                 || !declaringComplexType.ComplexProperty.IsNullable)
+        else
         {
-            // Disable null check for all cases except:
-            // - fromDeclaringType is true AND
-            // - addNullCheck is true AND  
-            // - property is declared in a complex type AND
-            // - instance is a reference type AND
-            // - declaring complex type is a reference type AND
-            // - the complex property is nullable
             addNullCheck = false;
         }
 
