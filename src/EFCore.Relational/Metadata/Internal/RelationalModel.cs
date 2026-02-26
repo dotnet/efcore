@@ -636,8 +636,11 @@ public class RelationalModel : Annotatable, IRelationalModel
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
             jsonColumn.IsNullable = complexType.ComplexProperty.IsNullable
-                || chain.Any(p => p.IsNullable)
-                || (chain[0].DeclaringType is IEntityType declaringEntityType && declaringEntityType.BaseType != null);
+                || (chain[0].DeclaringType is IEntityType declaringEntityType
+                    && declaringEntityType.BaseType != null
+                    && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                        == RelationalAnnotationNames.TphMappingStrategy)
+                || chain.Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }
