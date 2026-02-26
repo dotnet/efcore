@@ -2438,7 +2438,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
     [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #36206
     public virtual async Task Owned_entity_data_is_preserved_when_moving_between_parent_collections(bool async)
-        => await ExecuteWithStrategyInTransactionAsync(
+    {
+        var parent1Id = 0;
+        var parent2Id = 0;
+
+        await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 var parent1 = new OwnerWithOwnedCollectionAndNestedOwned();
@@ -2461,6 +2465,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     context.AddRange(parent1, parent2);
                     context.SaveChanges();
                 }
+
+                parent1Id = parent1.Id;
+                parent2Id = parent2.Id;
 
                 var entity = parent1.OwnedEntities.Single();
                 Assert.NotNull(entity.OwnedData);
@@ -2490,7 +2497,28 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     Assert.NotNull(entity.OwnedData);
                     Assert.Equal("Test Value", entity.OwnedData.Value);
                 }
+            },
+            async context =>
+            {
+                if (!Fixture.ForceClientNoAction)
+                {
+                    var parent1 = await context.Set<OwnerWithOwnedCollectionAndNestedOwned>()
+                        .Include(e => e.OwnedEntities)
+                        .SingleAsync(e => e.Id == parent1Id);
+
+                    var parent2 = await context.Set<OwnerWithOwnedCollectionAndNestedOwned>()
+                        .Include(e => e.OwnedEntities)
+                        .SingleAsync(e => e.Id == parent2Id);
+
+                    Assert.Empty(parent1.OwnedEntities);
+
+                    var movedEntity = parent2.OwnedEntities.Single();
+                    Assert.Equal("TestEntity", movedEntity.Name);
+                    Assert.NotNull(movedEntity.OwnedData);
+                    Assert.Equal("Test Value", movedEntity.OwnedData.Value);
+                }
             });
+    }
 
     #endregion
 }

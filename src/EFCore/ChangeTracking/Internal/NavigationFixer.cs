@@ -1358,13 +1358,75 @@ public class NavigationFixer : INavigationFixer
         {
             // For owned entities in collections, if the foreign key properties are part of the primary key,
             // changing the parent means the primary key changes, so we need to treat this as
-            // a new entity (Added) rather than a modified entity
+            // a new entity (Added) rather than a modified entity.
+            // A phantom Deleted entry is created to delete the old row from the store.
             var entityType = dependentEntry.EntityType;
             var ownership = entityType.FindOwnership();
             if (ownership is { PrincipalToDependent.IsCollection: true }
                 && entityType.FindPrimaryKey()?.Properties.Any(p => ownership.Properties.Contains(p)) == true)
             {
+                // Capture original values before any state transitions
+                var oldKeyValues = new Dictionary<string, object?>();
+                foreach (var property in entityType.GetFlattenedProperties())
+                {
+                    oldKeyValues[property.Name] = dependentEntry.GetOriginalValue(property);
+                }
+
+                // Find nested owned entity CLR objects while entries are still tracked
+                var nestedOwnedObjects = new List<(object Entity, IEntityType EntityType)>();
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    if (navigation.ForeignKey.IsOwnership && !navigation.IsCollection)
+                    {
+                        var nestedObject = navigation.GetGetter().GetClrValueUsingContainingEntity(dependentEntry.Entity);
+                        if (nestedObject != null)
+                        {
+                            nestedOwnedObjects.Add((nestedObject, navigation.TargetEntityType));
+                        }
+                    }
+                }
+
+                // Create phantom entry with old key values BEFORE transitioning to Added.
+                // This must happen while nested entries are still Deleted so cascade delete
+                // from the phantom won't detach them.
+                var stateManager = dependentEntry.StateManager;
+                var phantomEntry = stateManager.CreateEntry(oldKeyValues, entityType);
+                phantomEntry.SetEntityState(EntityState.Deleted);
+
+                // Now transition the main entry to Added
                 dependentEntry.SetEntityState(EntityState.Added);
+
+                // Transition nested owned entities from Deleted to Added.
+                // Explicitly set their FK values to match the new parent's key
+                // and re-establish the navigation.
+                foreach (var (nestedObject, nestedEntityType) in nestedOwnedObjects)
+                {
+                    var nestedEntry = stateManager.TryGetEntry(nestedObject, nestedEntityType);
+                    if (nestedEntry is { EntityState: EntityState.Deleted })
+                    {
+                        nestedEntry.SetEntityState(EntityState.Added);
+
+                        // Update ownership FK to point to the new parent's key
+                        var nestedOwnership = nestedEntityType.FindOwnership();
+                        if (nestedOwnership != null)
+                        {
+                            for (var i = 0; i < nestedOwnership.Properties.Count; i++)
+                            {
+                                var fkProp = nestedOwnership.Properties[i];
+                                var principalProp = nestedOwnership.PrincipalKey.Properties[i];
+                                nestedEntry[fkProp] = dependentEntry[principalProp];
+                            }
+
+                            // Re-establish the navigation from the parent to the nested owned entity
+                            var principalToDependent = nestedOwnership.PrincipalToDependent;
+                            if (principalToDependent is { IsCollection: false })
+                            {
+                                dependentEntry[principalToDependent] = nestedObject;
+                            }
+                        }
+                    }
+                }
+
                 return;
             }
 
