@@ -10,7 +10,7 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
 
 ## Flow
 
-`SaveChanges()` → ``DetectChanges()` → `IDatabase.SaveChanges()`
+`SaveChanges()` → `DetectChanges()` → `IDatabase.SaveChanges()`
   → `UpdateAdapter` creates `IUpdateEntry` list
   → `CommandBatchPreparer.BatchCommands()`
     → `ModificationCommand` per entity (maps to table row), composed of `ColumnModification` (maps to column value)
