@@ -720,18 +720,14 @@ public class ArrayPropertyValues : PropertyValues
 
         static object? NavigateToDeclaringType(object root, ITypeBase declaringType, IRuntimeTypeBase rootType)
         {
-            if (declaringType == rootType)
-            {
-                return root;
-            }
-
-            if (declaringType is not IComplexType ct)
+            if (declaringType == rootType
+                || declaringType is not IComplexType ct)
             {
                 return root;
             }
 
             var chain = ct.ComplexProperty.GetChainToComplexProperty(fromEntity: false);
-            object? target = root;
+            var target = root;
             for (var i = 0; i < chain.Count && target != null; i++)
             {
                 target = chain[i].GetGetter().GetClrValue(target);
