@@ -18,6 +18,9 @@ public class ArrayPropertyValues : PropertyValues
     private readonly List<ArrayPropertyValues?>?[] _complexCollectionValues;
     private readonly bool[]? _nullComplexPropertyFlags;
 
+    private static readonly bool UseOldBehavior37516 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37516", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -50,7 +53,7 @@ public class ArrayPropertyValues : PropertyValues
                 if (_nullComplexPropertyFlags[i])
                 {
                     var complexProperty = NullableComplexProperties[i];
-                    structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, null);
+                    structuralObject = SetNestedComplexPropertyValue(structuralObject, complexProperty, null);
                 }
             }
         }
@@ -68,7 +71,7 @@ public class ArrayPropertyValues : PropertyValues
                 !complexProperty.IsShadowProperty(),
                 $"Shadow complex property {complexProperty.Name} is not supported. Issue #31243");
             var list = (IList)((IRuntimeComplexProperty)complexProperty).GetIndexedCollectionAccessor().Create(propertyValuesList.Count);
-            structuralObject = ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, list);
+            structuralObject = SetNestedComplexPropertyValue(structuralObject, complexProperty, list);
 
             foreach (var propertyValues in propertyValuesList)
             {
@@ -77,6 +80,33 @@ public class ArrayPropertyValues : PropertyValues
         }
 
         return structuralObject;
+    }
+
+    private object SetNestedComplexPropertyValue(object structuralObject, IComplexProperty complexProperty, object? value)
+    {
+        return UseOldBehavior37516
+            ? ((IRuntimeComplexProperty)complexProperty).GetSetter().SetClrValue(structuralObject, value)
+            : SetValueRecursively(structuralObject, complexProperty.GetChainToComplexProperty(fromEntity: false), 0, value);
+
+        static object SetValueRecursively(object instance, IReadOnlyList<IComplexProperty> chain, int index, object? value)
+        {
+            var currentProperty = (IRuntimeComplexProperty)chain[index];
+            if (index == chain.Count - 1)
+            {
+                return currentProperty.GetSetter().SetClrValue(instance, value);
+            }
+
+            var child = currentProperty.GetGetter().GetClrValue(instance);
+            if (child is null)
+            {
+                return instance;
+            }
+
+            var updated = SetValueRecursively(child, chain, index + 1, value);
+            // Need to update the child value as well because it could be a value type
+            // TODO: Improve this, see #36041
+            return currentProperty.GetSetter().SetClrValue(instance, updated);
+        }
     }
 
     /// <summary>
@@ -495,20 +525,40 @@ public class ArrayPropertyValues : PropertyValues
             for (var i = 0; i < properties.Count; i++)
             {
                 var property = properties[i];
-                var getter = property.GetGetter();
-                values[i] = getter.GetClrValue(complexObject);
+                var targetObject = NavigateToDeclaringType(complexObject, property.DeclaringType, complexType);
+                values[i] = targetObject == null ? null : property.GetGetter().GetClrValue(targetObject);
             }
 
             var complexPropertyValues = new ArrayPropertyValues(entry, values, null);
 
             foreach (var nestedComplexProperty in complexPropertyValues.ComplexCollectionProperties)
             {
-                var nestedCollection = (IList?)nestedComplexProperty.GetGetter().GetClrValue(complexObject);
-                var propertyValuesList = GetComplexCollectionPropertyValues(nestedComplexProperty, nestedCollection);
-                complexPropertyValues.SetComplexCollectionValue(nestedComplexProperty, propertyValuesList);
+                var targetObject = NavigateToDeclaringType(complexObject, nestedComplexProperty.DeclaringType, complexType);
+                var nestedCollection = targetObject == null ? null : (IList?)nestedComplexProperty.GetGetter().GetClrValue(targetObject);
+                var nestedPropertyValuesList = GetComplexCollectionPropertyValues(nestedComplexProperty, nestedCollection);
+                complexPropertyValues.SetComplexCollectionValue(nestedComplexProperty, nestedPropertyValuesList);
             }
 
             return complexPropertyValues;
+        }
+
+        static object? NavigateToDeclaringType(object root, ITypeBase declaringType, IRuntimeTypeBase rootType)
+        {
+            if (declaringType == rootType
+                || declaringType is not IComplexType ct
+                || UseOldBehavior37516)
+            {
+                return root;
+            }
+
+            var chain = ct.ComplexProperty.GetChainToComplexProperty(fromEntity: false);
+            var target = root;
+            for (var i = 0; i < chain.Count && target != null; i++)
+            {
+                target = chain[i].GetGetter().GetClrValue(target);
+            }
+
+            return target;
         }
     }
 }
