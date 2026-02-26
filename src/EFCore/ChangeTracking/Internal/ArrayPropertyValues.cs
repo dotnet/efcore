@@ -18,9 +18,6 @@ public class ArrayPropertyValues : PropertyValues
     private readonly List<ArrayPropertyValues?>?[] _complexCollectionValues;
     private readonly bool[]? _nullComplexPropertyFlags;
 
-    private static readonly bool UseOldBehavior37516 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37516", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
