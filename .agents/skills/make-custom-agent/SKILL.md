@@ -1,5 +1,5 @@
 ---
-name: create-custom-agent
+name: make-custom-agent
 description: 'Create custom GitHub Copilot agents. Use when asked to create, scaffold, or configure a custom agent, declarative agent, or @-invokable chat participant for GitHub Copilot.'
 ---
 
