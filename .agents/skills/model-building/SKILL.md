@@ -60,6 +60,15 @@ Created lazily by `RelationalModelRuntimeInitializer`, accessed via `model.GetRe
 
 `ModelValidator` (`src/EFCore/Infrastructure/ModelValidator.cs`) and `RelationalModelValidator` (`src/EFCore.Relational/Infrastructure/RelationalModelValidator.cs`) run after model finalization, during `ModelRuntimeInitializer.Initialize()` between the pre- and post-validation `InitializeModel` calls.
 
+## Migration Snapshot Compatibility
+
+Model-building changes can trigger spurious migrations for users who upgrade. Two causes:
+
+1. **New metadata written to the snapshot** — old snapshots won't have it; `MigrationsModelDiffer` sees a diff. Fix: ensure absence of the annotation in an old snapshot is treated as the old default.
+2. **Annotation renamed or reinterpreted** — old snapshots produce a different model. Fix: keep backward-compatible reading logic.
+
+Inspect `CSharpSnapshotGenerator` (what gets written) and `MigrationsModelDiffer` (how absence is handled). Add a snapshot round-trip test in `test/EFCore.Design.Tests/Migrations/ModelSnapshotSqlServerTest.cs`.
+
 ## Testing
 
 | Area | Location |
@@ -76,3 +85,4 @@ Created lazily by `RelationalModelRuntimeInitializer`, accessed via `model.GetRe
 - All new API is covered by tests
 - Compiled model baselines update cleanly with `EF_TEST_REWRITE_BASELINES=1`
 - `ToString()` on metadata objects shows concise contents without throwing exceptions
+- No spurious migration is generated against a project with an existing snapshot
