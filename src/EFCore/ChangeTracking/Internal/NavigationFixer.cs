@@ -1357,6 +1357,31 @@ public class NavigationFixer : INavigationFixer
             && principalEntry.EntityState is EntityState.Unchanged or EntityState.Modified)
         {
             dependentEntry.SetEntityState(EntityState.Modified);
+
+            UndeleteOwnedEntities(dependentEntry);
+        }
+    }
+
+    private static void UndeleteOwnedEntities(InternalEntityEntry entry)
+    {
+        var stateManager = entry.StateManager;
+
+        foreach (var fk in entry.EntityType.GetReferencingForeignKeys())
+        {
+            if (!fk.IsOwnership)
+            {
+                continue;
+            }
+
+            foreach (InternalEntityEntry ownedEntry in stateManager.GetDependents(entry, fk).ToList())
+            {
+                if (ownedEntry.EntityState == EntityState.Deleted)
+                {
+                    ownedEntry.SetEntityState(EntityState.Modified);
+
+                    UndeleteOwnedEntities(ownedEntry);
+                }
+            }
         }
     }
 

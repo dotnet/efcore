@@ -72,6 +72,44 @@ public class OwnedFixupTest
         }
     }
 
+    [ConditionalFact] // Issue #36206
+    public void Owned_entity_data_preserved_when_moving_entity_between_parents()
+    {
+        using var context = new FixupContext();
+
+        var parent1 = new ParentEntity { Id = 1 };
+        var parent2 = new ParentEntity { Id = 2 };
+
+        var entity = new EntityWithOwnedData
+        {
+            Id = 1,
+            Data = new OwnedData { Value = "Test Value" }
+        };
+
+        parent1.Entities.Add(entity);
+        context.Attach(parent1);
+        context.Attach(parent2);
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(entity.Data).State);
+
+        parent1.Entities.Remove(entity);
+
+        context.ChangeTracker.DetectChanges();
+
+        // After removing from parent1, entity and owned data should both be marked for deletion
+        Assert.Equal(EntityState.Deleted, context.Entry(entity).State);
+        Assert.Equal(EntityState.Deleted, context.Entry(entity.Data).State);
+
+        parent2.Entities.Add(entity);
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.NotNull(entity.Data);
+        Assert.Equal(EntityState.Modified, context.Entry(entity).State);
+        Assert.NotEqual(EntityState.Deleted, context.Entry(entity.Data).State);
+    }
+
     [ConditionalFact]
     public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
     {
@@ -5241,6 +5279,25 @@ public class OwnedFixupTest
             => StringComparer.InvariantCulture.Compare(Name, other.Name);
     }
 
+    private class ParentEntity
+    {
+        public int Id { get; set; }
+        public List<EntityWithOwnedData> Entities { get; set; } = [];
+    }
+
+    private class EntityWithOwnedData
+    {
+        public int Id { get; set; }
+        public int ParentEntityId { get; set; }
+        public ParentEntity ParentEntity { get; set; }
+        public OwnedData Data { get; set; }
+    }
+
+    private class OwnedData
+    {
+        public string Value { get; set; }
+    }
+
     private class FixupContext : DbContext
     {
         private readonly bool _ignoreDuplicates;
@@ -5504,6 +5561,17 @@ public class OwnedFixupTest
                     a.WithOwner(e => e.Thing).HasForeignKey(e => e.ThingId);
                     a.HasKey(e => e.OwnedByThingId);
                 });
+
+            modelBuilder.Entity<ParentEntity>(pb =>
+            {
+                pb.Property(p => p.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<EntityWithOwnedData>(eb =>
+            {
+                eb.Property(e => e.Id).ValueGeneratedNever();
+                eb.OwnsOne(e => e.Data);
+            });
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
