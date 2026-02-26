@@ -107,7 +107,7 @@ public class OwnedFixupTest
 
         Assert.NotNull(entity.Data);
         Assert.Equal(EntityState.Modified, context.Entry(entity).State);
-        Assert.NotEqual(EntityState.Deleted, context.Entry(entity.Data).State);
+        Assert.Equal(EntityState.Modified, context.Entry(entity.Data).State);
     }
 
     [ConditionalFact]
