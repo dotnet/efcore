@@ -200,7 +200,7 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[0].Int') AS int) = 8
         {
             AssertSql(
                 """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -211,7 +211,7 @@ WHERE JSON_VALUE([r].[AssociateCollection], '$[' + CAST(@i AS nvarchar(max)) + '
         {
             AssertSql(
                 """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]

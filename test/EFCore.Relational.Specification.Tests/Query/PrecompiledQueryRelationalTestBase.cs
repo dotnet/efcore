@@ -1225,6 +1225,7 @@ var blogs2 = await context.Blogs.ToListAsync();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
             modelBuilder.Entity<Blog>().OwnsMany(
                 x => x.Json,
                 n =>
@@ -1232,6 +1233,7 @@ var blogs2 = await context.Blogs.ToListAsync();
                     n.ToJson();
                     n.OwnsOne(xx => xx.Inner);
                 });
+#pragma warning restore EF8001
             modelBuilder.Entity<Blog>().HasMany(x => x.Posts).WithOne(x => x.Blog).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Post>().Property(x => x.Id).ValueGeneratedNever();
         }

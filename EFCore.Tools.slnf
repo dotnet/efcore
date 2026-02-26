@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "EFCore.sln",
+    "path": "EFCore.slnx",
     "projects": [
       "src\\dotnet-ef\\dotnet-ef.csproj",
       "src\\ef\\ef.csproj",

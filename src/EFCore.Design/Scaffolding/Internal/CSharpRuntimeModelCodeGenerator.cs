@@ -134,8 +134,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         => Uniquifier.Uniquify(
             name,
             options.GeneratedFileNames,
-            (options.Suffix ?? "") + FileExtension,
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            (options.Suffix ?? "") + FileExtension);
 
     private static string GenerateHeader(SortedSet<string> namespaces, string currentNamespace, bool nullable)
     {
@@ -1811,8 +1811,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix,
-                    int.MaxValue);
+                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, int.MaxValue,
+                    UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 
@@ -1825,7 +1825,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name, unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix, int.MaxValue);
+                    declaringType.Name, unsafeAccessorClassNames.Inverse, int.MaxValue, UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 

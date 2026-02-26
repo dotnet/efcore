@@ -49,8 +49,8 @@ public class OriginalPropertyValues : EntryPropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void SetValueInternal(IInternalEntry entry, IPropertyBase property, object? value)
-        => entry.SetOriginalValue(property, value);
+    protected override void SetValueInternal(IInternalEntry entry, IPropertyBase property, object? value, bool skipChangeDetection = false)
+        => entry.SetOriginalValue(property, value, skipChangeDetection: skipChangeDetection);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,46 +69,34 @@ public class OriginalPropertyValues : EntryPropertyValues
                 return null;
             }
 
-            // The stored original collection might contain references to the current elements,
-            // so we need to recreate it using stored values.
-            var clonedCollection = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
+            // The stored original collection contains references to the current CLR elements
+            // (see SnapshotComplexCollection), so we must reconstruct each element from the
+            // per-entry original value snapshots to get true original values.
+            var reconstructed = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
                 .Create(originalCollection.Count);
             for (var i = 0; i < originalCollection.Count; i++)
             {
-                clonedCollection.Add(
-                    originalCollection[i] == null
-                        ? null
-                        : GetPropertyValues(entry.GetComplexCollectionOriginalEntry(complexProperty, i)).ToObject());
+                var element = originalCollection[i];
+                if (element == null)
+                {
+                    reconstructed.Add(null);
+                    continue;
+                }
+
+                var complexEntry = entry.GetComplexCollectionOriginalEntry(complexProperty, i);
+                if (!complexEntry.HasOriginalValuesSnapshot)
+                {
+                    complexEntry.EnsureOriginalValues();
+                    SetValuesFromInstance(complexEntry, (IRuntimeTypeBase)complexProperty.ComplexType, element, skipChangeDetection: true);
+                }
+
+                reconstructed.Add(new OriginalPropertyValues(complexEntry).Clone().ToObject());
             }
 
-            return clonedCollection;
+            return reconstructed;
         }
 
         return originalValue;
-    }
-
-    private PropertyValues GetPropertyValues(InternalEntryBase entry)
-    {
-        var structuralType = entry.StructuralType;
-        var properties = structuralType.GetFlattenedProperties().AsList();
-        var values = new object?[properties.Count];
-        for (var i = 0; i < values.Length; i++)
-        {
-            values[i] = entry.GetOriginalValue(properties[i]);
-        }
-
-        var cloned = new ArrayPropertyValues(entry, values, null);
-
-        foreach (var nestedComplexProperty in cloned.ComplexCollectionProperties)
-        {
-            var collection = (IList?)GetValueInternal(entry, nestedComplexProperty);
-            if (collection != null)
-            {
-                cloned[nestedComplexProperty] = collection;
-            }
-        }
-
-        return cloned;
     }
 
     /// <summary>

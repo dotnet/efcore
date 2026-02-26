@@ -18,9 +18,6 @@ public class ChangeDetector : IChangeDetector
     private readonly ILoggingOptions _loggingOptions;
     private bool _inCascadeDelete;
 
-    private static readonly bool UseOldBehavior37387 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37387", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -67,9 +64,8 @@ public class ChangeDetector : IChangeDetector
             case IComplexProperty { IsCollection: false } complexProperty:
                 // TODO: This requires notification change tracking for complex types
                 // Issue #36175
-                if (!UseOldBehavior37387
-                    && entry.EntityState is not EntityState.Deleted
-                    && setModified
+                if (entry.EntityState is not EntityState.Deleted 
+                    && setModified 
                     && entry is InternalEntryBase entryBase
                     && complexProperty.IsNullable 
                     && complexProperty.GetOriginalValueIndex() >= 0)
@@ -310,9 +306,7 @@ public class ChangeDetector : IChangeDetector
                     changesFound = true;
                 }
             }
-            else if (!UseOldBehavior37387
-                && complexProperty.IsNullable
-                && complexProperty.GetOriginalValueIndex() >= 0)
+            else if (complexProperty.IsNullable && complexProperty.GetOriginalValueIndex() >= 0)
             {
                 if (DetectComplexPropertyChange(entry, complexProperty))
                 {

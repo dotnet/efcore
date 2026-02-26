@@ -300,7 +300,7 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     {
     }
 
-    // Fields can't be proxied  
+    // Fields can't be proxied
     public override Task Can_track_entity_with_complex_field_collections(EntityState state, bool async)
         => Task.CompletedTask;
 
@@ -384,17 +384,17 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     }
 }
 
-public abstract class ComplexTypesTrackingSqlServerTestBase<TFixture> : ComplexTypesTrackingRelationalTestBase<TFixture>
+public abstract class ComplexTypesTrackingSqlServerTestBase<TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
+    : ComplexTypesTrackingRelationalTestBase<TFixture>(fixture, testOutputHelper)
     where TFixture : ComplexTypesTrackingSqlServerTestBase<TFixture>.SqlServerFixtureBase, new()
 {
-    protected ComplexTypesTrackingSqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     public abstract class SqlServerFixtureBase : RelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder)
+                .ConfigureWarnings(c => c.Ignore(SqlServerEventId.DecimalTypeDefaultWarning));
     }
 }

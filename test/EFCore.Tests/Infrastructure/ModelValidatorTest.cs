@@ -57,6 +57,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
@@ -71,6 +72,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 "CoreEventId.AccidentalEntityType"),
             modelBuilder);
     }
+#pragma warning restore EF8001
 
     protected class MyEntity<T>
     {
@@ -1006,6 +1008,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityF = modelBuilder.Entity<F>();
         entityF.HasBaseType<A>();
 
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("Disc", typeof(string)));
+        entityA.SetDiscriminatorValue("A");
+        entityD.Metadata.SetDiscriminatorValue("D");
+        entityF.Metadata.SetDiscriminatorValue("F");
+
         VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(A), nameof(D)), modelBuilder);
     }
 
@@ -1022,6 +1029,9 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityAbstract = model.AddEntityType(typeof(Abstract));
         SetBaseType(entityAbstract, entityA);
 
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("Disc", typeof(string)));
+        entityA.SetDiscriminatorValue("A");
+
         VerifyError(CoreStrings.AbstractLeafEntityType(entityAbstract.DisplayName()), modelBuilder);
     }
 
@@ -1037,6 +1047,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var entityGeneric = model.AddEntityType(typeof(Generic<>));
         SetBaseType(entityGeneric, entityAbstract);
+
+        entityAbstract.SetDiscriminatorProperty(entityAbstract.AddProperty("Disc", typeof(string)));
 
         VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), modelBuilder);
     }
@@ -1447,6 +1459,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P3), ConfigurationSource.Explicit);
 
         Assert.NotNull(ownedTypeBuilder.HasBaseType(typeof(A), ConfigurationSource.DataAnnotation));
+
+        var entityA = (IMutableEntityType)anotherEntityTypeBuilder.Metadata;
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("Disc", typeof(string)));
+        entityA.SetDiscriminatorValue("A");
+        ((IMutableEntityType)ownedTypeBuilder.Metadata).SetDiscriminatorValue("D");
 
         VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), builder);
     }
@@ -2038,6 +2055,20 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             .HasValue<D>(1);
 
         VerifyError(CoreStrings.NoDiscriminatorValue(typeof(C).Name), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_detect_missing_discriminator_values_when_using_default_discriminator_name_with_non_string_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<C>();
+        modelBuilder.Entity<A>().HasDiscriminator<byte>("Discriminator")
+            .HasValue<A>(0)
+            .HasValue<C>(1)
+            .HasValue<D>(2);
+        modelBuilder.Entity<D>();
+
+        Validate(modelBuilder);
     }
 
     [ConditionalFact]
