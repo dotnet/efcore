@@ -52,25 +52,6 @@ public static class ColumnAccessorsFactory
                         continue;
                     }
 
-                    if (entry.EntityState == EntityState.Deleted
-                        && entry.SharedIdentityEntry != null)
-                    {
-                        var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
-                            ? property
-                            : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
-                        if (sharedProperty != null)
-                        {
-                            var sharedValue = entry.SharedIdentityEntry.GetCurrentProviderValue(sharedProperty);
-                            if (sharedValue != null)
-                            {
-                                value = (TColumn)sharedValue!;
-                                valueFound = true;
-                            }
-                        }
-
-                        continue;
-                    }
-
                     var providerValue = entry.GetCurrentProviderValue(property);
                     if (providerValue == null)
                     {
@@ -107,28 +88,15 @@ public static class ColumnAccessorsFactory
                 for (var i = 0; i < c.Entries.Count; i++)
                 {
                     var entry = c.Entries[i];
-                    var property = column.FindColumnMapping(entry.EntityType)?.Property;
-                    if (property == null)
-                    {
-                        continue;
-                    }
-
                     if (entry.EntityState == EntityState.Added
                         && entry.SharedIdentityEntry != null)
                     {
-                        var sharedProperty = entry.SharedIdentityEntry.EntityType == entry.EntityType
-                            ? property
-                            : column.FindColumnMapping(entry.SharedIdentityEntry.EntityType)?.Property;
-                        if (sharedProperty != null)
-                        {
-                            var sharedValue = entry.SharedIdentityEntry.GetOriginalProviderValue(sharedProperty);
-                            if (sharedValue != null)
-                            {
-                                value = (TColumn)sharedValue!;
-                                valueFound = true;
-                            }
-                        }
+                        entry = entry.SharedIdentityEntry;
+                    }
 
+                    var property = column.FindColumnMapping(entry.EntityType)?.Property;
+                    if (property == null)
+                    {
                         continue;
                     }
 
