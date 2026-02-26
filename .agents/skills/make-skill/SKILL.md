@@ -7,11 +7,6 @@ description: 'Create new Agent Skills for GitHub Copilot. Use when asked to crea
 
 This skill helps you scaffold new agent skills that conform to the Agent Skills specification. Agent Skills are a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.
 
-## When to Use
-
-- Creating a new skill from scratch
-- Generating a SKILL.md file with proper frontmatter in compliance with agentskills.io specification
-
 ## When Not to Use
 
 - Creating custom agents (use the agents/ directory pattern)
@@ -70,13 +65,12 @@ allowed-tools: <Optional, list of pre-approved tools that agents could use when 
 Include these recommended sections, following this file's structure:
 
 1. **<Human-readable skill name>**: One paragraph describing the outcome beyond what's already in the description
-2. **When to Use**: Bullet list of appropriate scenarios
-3. **When Not to Use**: Bullet list of exclusions, optional
-4. **Inputs and Outputs**: Example inputs and expected outputs, if applicable
-5. **Workflow**: Numbered steps with checkpoints
-6. **Testing**: Instructions for how to create automated tests for the skill output, if applicable
-7. **Validation**: How to confirm the skill worked correctly
-8. **Common Pitfalls**: Known traps and how to avoid them
+2. **When Not to Use**: Bullet list of exclusions, optional
+3. **Inputs and Outputs**: Example inputs and expected outputs, if applicable
+4. **Workflow**: Numbered steps with checkpoints
+5. **Testing**: Instructions for how to create automated tests for the skill output, if applicable
+6. **Validation**: How to confirm the skill worked correctly
+7. **Common Pitfalls**: Known traps and how to avoid them, optional
 
 ### Step 5: Add and populate optional directories if needed
 

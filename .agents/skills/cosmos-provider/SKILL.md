@@ -1,6 +1,6 @@
 ---
 name: cosmos-provider
-description: 'EF Core Azure Cosmos DB provider, Cosmos query translation, Cosmos SQL generation, document storage, partition keys. Use when working on CosmosQueryableMethodTranslatingExpressionVisitor, CosmosClientWrapper, or Cosmos-specific features.'
+description: 'Implementation details for the EF Core Azure Cosmos DB provider. Use when changing Cosmos-specific code.'
 user-invokable: false
 ---
 
@@ -20,17 +20,3 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - Partition key configuration required for performance
 - `ETag` for optimistic concurrency
 - No cross-container joins
-
-## Other Key Files
-
-| Area | Path |
-|------|------|
-| LINQ → Cosmos | `src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs` |
-| Expression → Cosmos SQL | `src/EFCore.Cosmos/Query/Internal/CosmosSqlTranslatingExpressionVisitor.cs` |
-| SQL generation | `src/EFCore.Cosmos/Query/Internal/CosmosQuerySqlGenerator.cs` |
-| Compilation | `src/EFCore.Cosmos/Query/Internal/CosmosShapedQueryCompilingExpressionVisitor.cs` |
-| SQL AST nodes | `src/EFCore.Cosmos/Query/Internal/Expressions/` |
-
-## Validation
-
-- Provider functional tests pass against a Cosmos emulator or live instance

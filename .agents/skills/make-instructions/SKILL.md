@@ -7,12 +7,6 @@ description: 'Create VS Code file-based instructions (.instructions.md files). U
 
 This skill helps you scaffold VS Code file-based instructions (`.instructions.md` files) that provide background knowledge to Copilot about specific parts of the codebase. These files are applied automatically based on glob patterns or semantic matching, giving Copilot domain-specific context when working on matching files.
 
-## When to Use
-
-- Creating a new `.instructions.md` file from scratch
-- Adding language-specific, framework-specific, or module-specific coding guidelines
-- Providing background knowledge about a subsystem that Copilot should consider when editing matching files
-
 ## When Not to Use
 
 - Setting project-wide instructions — use `.github/copilot-instructions.md` or `AGENTS.md` instead

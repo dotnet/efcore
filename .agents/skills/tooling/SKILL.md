@@ -1,18 +1,12 @@
 ---
 name: tooling
-description: 'EF Core dotnet-ef CLI tool, Package Manager Console commands, EFCore.Tools PowerShell module, EFCore.Tasks MSBuild integration. Use when working on dotnet-ef commands, the ef wrapper, or tool infrastructure.'
+description: 'Implementation details for the EF Core dotnet-ef CLI and tooling. Use when changing dotnet-ef commands, the ef wrapper, EFCore.Tools (PMC), or EFCore.Tasks MSBuild integration.'
 user-invokable: false
 ---
 
 # Tooling
 
 The `dotnet ef` CLI and Visual Studio Package Manager Console commands for migrations, scaffolding, and compiled models.
-
-## When to Use
-
-- Adding or modifying a `dotnet ef` command
-- Working on PMC (PowerShell) command wrappers
-- Debugging tool invocation, project discovery, or MSBuild integration
 
 ## dotnet-ef CLI (`src/dotnet-ef/`)
 
@@ -25,21 +19,6 @@ PowerShell module: `Add-Migration`, `Update-Database`, `Scaffold-DbContext`, `Op
 ## MSBuild Tasks (`src/EFCore.Tasks/`)
 
 NuGet package `Microsoft.EntityFrameworkCore.Tasks` provides build/publish-time compiled model and precompiled query generation.
-
-### Key Classes
-
-- `OptimizeDbContext` — public MSBuild task. Invokes `dotnet exec ef.dll dbcontext optimize`, collects generated `.g.cs` files as `[Output]`
-- `OperationTaskBase` — abstract base extending `ToolTask`. Orchestrates `dotnet exec ef.dll` with assembly/deps/runtimeconfig args. Parses prefixed output into MSBuild errors/warnings
-
-### Build Properties (user-configurable in `.csproj`)
-
-| Property | Default | Purpose |
-|----------|---------|--------|
-| `EFOptimizeContext` | unset | `true` enables generation outside NativeAOT publish |
-| `EFScaffoldModelStage` | `publish` | `publish` or `build` — when to generate compiled model |
-| `EFPrecompileQueriesStage` | `publish` | `publish` or `build` — when to precompile queries |
-| `DbContextType` | `*` | Specific `DbContext` to optimize, `*` = all |
-| `EFOutputDir` | `$(IntermediateOutputPath)` | Directory for generated files |
 
 ### Build Integration Flow
 

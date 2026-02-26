@@ -1,6 +1,6 @@
 ---
 name: migrations
-description: 'EF Core migrations, migration scaffolding, MigrationsSqlGenerator, model diffing, migration operations, HistoryRepository, Migrator. Use when working on migrations add, database update, or migration SQL generation.'
+description: 'Implementation details for EF Core migrations. Use when changing MigrationsSqlGenerator, model diffing, migration operations, HistoryRepository, the Migrator or related classes.'
 user-invokable: false
 ---
 
@@ -12,20 +12,6 @@ user-invokable: false
 
 **Apply migration**: `Migrator.MigrateAsync()` → reads `__EFMigrationsHistory` → per pending: `MigrationsSqlGenerator.Generate(operations)` → `MigrationCommandExecutor` executes
 
-## Other Key Files
-
-| Area | Path |
-|------|------|
-| Operation generator | `src/EFCore.Design/Migrations/Design/CSharpMigrationOperationGenerator.cs` |
-| History | `src/EFCore.Relational/Migrations/HistoryRepository.cs` |
-| Operations | `src/EFCore.Relational/Migrations/Operations/` |
-
-Provider overrides: `SqlServerMigrationsSqlGenerator`, `SqliteMigrationsSqlGenerator`
-
 ## Testing
 
 Migration operation tests: `test/EFCore.Relational.Tests/Migrations/`. Functional tests: `test/EFCore.{Provider}.FunctionalTests/Migrations/`. Model differ tests: `test/EFCore.Relational.Tests/Migrations/Internal/MigrationsModelDifferTest*.cs`.
-
-## Validation
-
-- Generated migration code compiles and produces correct SQL

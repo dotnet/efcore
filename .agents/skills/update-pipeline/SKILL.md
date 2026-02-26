@@ -1,19 +1,12 @@
 ---
 name: update-pipeline
-description: 'EF Core SaveChanges, modification commands, command batching, update SQL generation, stored procedure updates. Use when working on the update pipeline, CommandBatchPreparer, UpdateSqlGenerator, or ModificationCommand.'
+description: 'Implementation details for EF Core SaveChanges and the update pipeline. Use when changing CommandBatchPreparer, UpdateSqlGenerator, ModificationCommand, or related classes.'
 user-invokable: false
 ---
 
 # Update Pipeline
 
 Converts tracked entity changes into database INSERT/UPDATE/DELETE commands during `SaveChanges()`.
-
-## When to Use
-
-- Modifying how changes are batched or ordered
-- Working on SQL generation for INSERT/UPDATE/DELETE
-- Handling store-generated values (identity, computed columns)
-- Debugging concurrency or transaction issues in SaveChanges
 
 ## Flow
 
@@ -27,11 +20,8 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
   → `BatchExecutor` executes all batches in a transaction
   → `StateManager.AcceptAllChanges()`
 
-## Other Key Files
-
-| Area | Path |
-|------|------|
-| Shared tables | `src/EFCore.Relational/Update/Internal/SharedTableEntryMap.cs` |
+Other Key Files:
+- `src/EFCore.Relational/Update/Internal/SharedTableEntryMap.cs` — manages entries mapped to the same row
 
 ## Concurrency
 

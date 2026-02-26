@@ -1,16 +1,11 @@
 ---
 name: servicing-pr
-description: 'Create EF Core PRs targeting servicing release branches (release/*). Use when working on a PR that targets a release branch, backporting a fix, or when the user mentions servicing, patch, or release branch.'
+description: 'Create EF Core PRs targeting servicing release branches (release/*). Use when working on a PR that targets a release branch, backporting a fix from main, or when the user mentions servicing, patch, or release branch.'
 ---
 
 # Servicing PRs
 
 PRs targeting `release/*` branches require a specific description format and should include a quirk (AppContext switch) when applicable.
-
-## When to Use
-
-- Creating a PR that targets a `release/*` branch
-- Backporting a fix from `main` to a servicing branch
 
 ## Backport Target Branch
 

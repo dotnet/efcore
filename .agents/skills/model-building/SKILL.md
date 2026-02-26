@@ -1,20 +1,12 @@
 ---
 name: model-building
-description: 'EF Core model building, conventions, metadata interfaces, model initialization, runtime annotations, RuntimeModelConvention. Use when working on ConventionSet, ModelBuilder, IConvention implementations, ModelRuntimeInitializer, or RuntimeModel.'
+description: 'Implementation details for EF Core model building. Use when changing ConventionSet, ModelBuilder, IConvention implementations, ModelRuntimeInitializer, RuntimeModel, or related classes.'
 user-invokable: false
 ---
 
 # Model Building, Conventions & Initialization
 
 Covers model construction (conventions, fluent API, metadata hierarchy) and model initialization (runtime annotation propagation, compiled model filtering).
-
-## When to Use
-
-- Adding or modifying a convention
-- Changing the fluent API or metadata builders
-- Adding a new model-level annotation
-- Working on `ModelRuntimeInitializer`, `RuntimeModelConvention`, or compiled model annotation filtering
-- Understanding the `IReadOnly*` → `IMutable*` → `IConvention*` → `IRuntime*` interface hierarchy
 
 ## Convention System
 
@@ -67,12 +59,6 @@ Created lazily by `RelationalModelRuntimeInitializer`, accessed via `model.GetRe
 ## Model Validation
 
 `ModelValidator` (`src/EFCore/Infrastructure/ModelValidator.cs`) and `RelationalModelValidator` (`src/EFCore.Relational/Infrastructure/RelationalModelValidator.cs`) run after model finalization, during `ModelRuntimeInitializer.Initialize()` between the pre- and post-validation `InitializeModel` calls.
-
-## Other Key Files
-
-- `src/EFCore/ModelBuilder.cs` — fluent API entry point
-- `src/EFCore/Metadata/Internal/Model.cs` — mutable model
-- `src/EFCore/Metadata/RuntimeModel.cs` — runtime model
 
 ## Testing
 

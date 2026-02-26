@@ -1,18 +1,12 @@
 ---
 name: testing
-description: 'EF Core test infrastructure, debugging failing tests, writing new tests, SQL baseline assertions, fixtures, test helpers. Use when adding tests, debugging test failures, fixing SQL baselines, or understanding the test class hierarchy.'
+description: 'Implementation details for EF Core test infrastructure. Use when changing test fixtures, SQL baseline assertions, test helpers, the test class hierarchy, or when adding new tests.'
 user-invokable: false
 ---
 
 # Testing
 
 EF Core test infrastructure, patterns, and workflows for unit, specification, and functional tests.
-
-## When to Use
-
-- Adding new unit or functional tests
-- Debugging test failures (model validation, SQL or compiled model baseline mismatch)
-- Understanding which test project and base class to use
 
 ## Test Categories
 
