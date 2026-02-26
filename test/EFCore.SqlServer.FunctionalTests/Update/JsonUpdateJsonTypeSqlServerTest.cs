@@ -3278,7 +3278,22 @@ WHERE [j].[Id] = 1
     {
         await base.Replace_json_reference_root_preserves_nested_owned_entities_in_memory();
 
-        AssertSql();
+        AssertSql(
+            """
+@p0='{"Id":0,"Name":"Modified","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 367)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
     }
 
     protected override void ClearLog()
