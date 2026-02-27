@@ -1327,10 +1327,8 @@ SELECT 2;
             """
 CREATE PROCEDURE dbo.Proc1 AS SELECT 1;
 GO
-
 CREATE VIEW view1 AS SELECT 1 AS Id;
 GO 2
-
 SELECT 1;
 """);
     }

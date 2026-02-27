@@ -1582,16 +1582,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(SqlOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
+        if (Options.HasFlag(MigrationsSqlGenerationOptions.Script))
+        {
+            base.Generate(operation, model, builder);
+            return;
+        }
+
         var preBatched = operation.Sql
             .Replace("\\\n", "")
             .Replace("\\\r\n", "")
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
-        var isScript = Options.HasFlag(MigrationsSqlGenerationOptions.Script);
-        var hasPendingBatch = false;
         var state = ParsingState.Normal;
         var batchBuilder = new StringBuilder();
-        string? pendingTerminator = null;
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
@@ -1604,25 +1607,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 var batch = batchBuilder.ToString();
                 batchBuilder.Clear();
 
-                if (isScript)
+                var count = trimmed.Length >= 4
+                    && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
+                        ? specifiedCount
+                        : 1;
+
+                for (var j = 0; j < count; j++)
                 {
                     AppendBatch(batch);
-                    if (hasPendingBatch)
-                    {
-                        pendingTerminator = trimmed + Environment.NewLine + Environment.NewLine;
-                    }
-                }
-                else
-                {
-                    var count = trimmed.Length >= 4
-                        && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
-                            ? specifiedCount
-                            : 1;
-
-                    for (var j = 0; j < count; j++)
-                    {
-                        AppendBatch(batch);
-                    }
                 }
             }
             else
@@ -1664,16 +1656,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         AppendBatch(batchBuilder.ToString());
 
-        if (isScript && hasPendingBatch)
-        {
-            if (pendingTerminator != null)
-            {
-                builder.Append(pendingTerminator);
-            }
-
-            EndStatement(builder, operation.SuppressTransaction);
-        }
-
         ParsingState ConsumeAndReturn(ref int index, ParsingState newState)
         {
             index++;
@@ -1684,22 +1666,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             if (!string.IsNullOrWhiteSpace(batch))
             {
-                if (isScript)
-                {
-                    if (hasPendingBatch)
-                    {
-                        builder.Append(pendingTerminator ?? Dependencies.SqlGenerationHelper.BatchTerminator);
-                        pendingTerminator = null;
-                    }
-
-                    builder.Append(batch);
-                    hasPendingBatch = true;
-                }
-                else
-                {
-                    builder.Append(batch);
-                    EndStatement(builder, operation.SuppressTransaction);
-                }
+                builder.Append(batch);
+                EndStatement(builder, operation.SuppressTransaction);
             }
         }
     }
