@@ -1217,6 +1217,151 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     #endregion Vector
 
+    #region Full-text search
+
+    [ConditionalFact]
+    public virtual void Throws_for_multiple_full_text_indexes_on_same_entity()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithTwoIndexes>(
+            b =>
+            {
+                b.HasFullTextIndex(e => e.Title).HasKeyIndex("PK_FullTextEntityWithTwoIndexes");
+                b.HasFullTextIndex(e => e.Body).HasKeyIndex("PK_FullTextEntityWithTwoIndexes");
+            });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexDuplicateOnTable(
+                nameof(FullTextEntityWithTwoIndexes)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_full_text_index_missing_key_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(b =>
+        {
+            var indexBuilder = b.HasIndex(e => e.Title);
+            // Set the annotation with a null value to simulate a missing KEY INDEX
+            indexBuilder.Metadata.SetAnnotation(SqlServerAnnotationNames.FullTextIndex, null);
+        });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexMissingKeyIndex(
+                "{'Title'}",
+                nameof(FullTextEntityValid)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_full_text_index_on_invalid_column_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithIntColumn>(
+            b => b.HasFullTextIndex(e => e.Count).HasKeyIndex("PK_FullTextEntityWithIntColumn"));
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexOnInvalidColumn(
+                "{'Count'}",
+                nameof(FullTextEntityWithIntColumn),
+                nameof(FullTextEntityWithIntColumn.Count)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_full_text_index_on_string_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(
+            b => b.HasFullTextIndex(e => e.Title).HasKeyIndex("PK_FullTextEntityValid"));
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_full_text_index_on_byte_array_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithBinary>(
+            b => b.HasFullTextIndex(e => e.Document).HasKeyIndex("PK_FullTextEntityWithBinary"));
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_full_text_index_on_mixed_string_and_binary_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithMixedColumns>(
+            b => b.HasFullTextIndex(e => new { e.Title, e.Document }).HasKeyIndex("PK_FullTextEntityWithMixedColumns"));
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_full_text_index_with_mixed_valid_and_invalid_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithMixedValidInvalid>(
+            b => b.HasFullTextIndex(e => new { e.Title, e.Count }).HasKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexOnInvalidColumn(
+                "{'Title', 'Count'}",
+                nameof(FullTextEntityWithMixedValidInvalid),
+                nameof(FullTextEntityWithMixedValidInvalid.Count)),
+            modelBuilder);
+    }
+
+    public class FullTextEntityWithTwoIndexes
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Body { get; set; }
+    }
+
+    public class FullTextEntityWithIntColumn
+    {
+        public int Id { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class FullTextEntityValid
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+    }
+
+    public class FullTextEntityWithBinary
+    {
+        public int Id { get; set; }
+        public byte[] Document { get; set; }
+    }
+
+    public class FullTextEntityWithMixedColumns
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public byte[] Document { get; set; }
+    }
+
+    public class FullTextEntityWithMixedValidInvalid
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public int Count { get; set; }
+    }
+
+    #endregion Full-text search
+
     public class Human
     {
         public int Id { get; set; }
@@ -1241,6 +1386,22 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public int Id { get; set; }
 
         public string Name { get; set; }
+    }
+
+    [ConditionalFact]
+    public void Throws_hierarchyid_message_when_hierarchyid_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(Microsoft.SqlServer.Types.SqlHierarchyId), "TreeNode");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            SqlServerStrings.PropertyNotMappedHierarchyId(
+                typeof(Microsoft.SqlServer.Types.SqlHierarchyId).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "TreeNode"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
     protected override TestHelpers TestHelpers

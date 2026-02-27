@@ -2072,7 +2072,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         SelectExpression select2,
         bool distinct)
     {
-        // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
             alias: null, tables: _tables.ToList(), groupBy: _groupBy.ToList(), projections: [], orderings: _orderings.ToList(),
             annotations: Annotations, sqlAliasManager: _sqlAliasManager)

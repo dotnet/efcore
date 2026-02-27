@@ -47,16 +47,26 @@ public sealed record ModelRuntimeInitializerDependencies
     [EntityFrameworkInternal]
     public ModelRuntimeInitializerDependencies(
         RuntimeModelDependencies runtimeModelDependencies,
-        IModelValidator modelValidator)
+        IModelValidator modelValidator,
+        ICoreSingletonOptions coreSingletonOptions)
     {
         ModelDependencies = runtimeModelDependencies;
         ModelValidator = modelValidator;
+        CoreSingletonOptions = coreSingletonOptions;
     }
 
     /// <summary>
     ///     The model runtime dependencies.
     /// </summary>
     public RuntimeModelDependencies ModelDependencies { get; init; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ICoreSingletonOptions CoreSingletonOptions { get; init; }
 
     /// <summary>
     ///     The model validator.

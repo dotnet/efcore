@@ -240,9 +240,84 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
             }
 
-            // We translate EF.Functions.JsonExists here and not in a method translator since we need to support JsonExists over
+            // We translate EF.Functions.JsonContains here and not in a method translator since we need to support JsonContains over
             // complex and owned JSON properties, which requires special handling.
-            case nameof(RelationalDbFunctionsExtensions.JsonExists)
+            case nameof(SqlServerDbFunctionsExtensions.JsonContains)
+                when declaringType == typeof(SqlServerDbFunctionsExtensions)
+                    && @object is null
+                    && arguments is [_, var json, var searchValue, var path, var searchMode]:
+            {
+                if (Translate(searchValue) is not SqlExpression translatedSearchValue)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                SqlExpression? translatedPath = null;
+                if (path is not ConstantExpression { Value: null })
+                {
+                    if (Translate(path) is not SqlExpression pathExpression)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    translatedPath = pathExpression;
+                }
+
+                SqlExpression? translatedSearchMode = null;
+                if (searchMode is not ConstantExpression { Value: null })
+                {
+                    if (Translate(searchMode) is not SqlExpression searchModeExpression)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    translatedSearchMode = searchModeExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    // The JSON argument is a scalar string property
+                    SqlExpression scalar => scalar,
+
+                    // The JSON argument is a complex or owned JSON property
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression { JsonColumn: var c } } => c,
+
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                if (translatedJson is null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                List<SqlExpression> functionArguments = [translatedJson, translatedSearchValue];
+                List<bool> argumentsPropagateNullability = [true, false];
+
+                if (translatedPath is not null)
+                {
+                    functionArguments.Add(translatedPath);
+                    argumentsPropagateNullability.Add(true);
+                }
+
+                if (translatedSearchMode is not null)
+                {
+                    functionArguments.Add(translatedSearchMode);
+                    argumentsPropagateNullability.Add(true);
+                }
+
+                return _sqlExpressionFactory.Function(
+                    "JSON_CONTAINS",
+                    functionArguments,
+                    nullable: true,
+                    argumentsPropagateNullability: argumentsPropagateNullability,
+                    typeof(int));
+            }
+
+            // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over
+            // complex and owned JSON properties, which requires special handling.
+            case nameof(RelationalDbFunctionsExtensions.JsonPathExists)
                 when declaringType == typeof(RelationalDbFunctionsExtensions)
                     && @object is null
                     && arguments is [_, var json, var path]:

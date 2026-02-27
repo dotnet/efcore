@@ -241,6 +241,16 @@ public class ModelSourceTest
         }
 
         Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+        Assert.Null(model.FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled));
+    }
+
+    [ConditionalFact]
+    public void Detailed_errors_annotation_is_set_from_options()
+    {
+        using var context = new DetailedErrorsContext(_serviceProvider);
+        var model = context.Model;
+
+        Assert.True(model.FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled) is true);
     }
 
     private class Context1(DbContextOptions options) : DbContext(options)
@@ -255,4 +265,15 @@ public class ModelSourceTest
     }
 
     private class Context2(DbContextOptions options) : DbContext(options);
+
+    private class DetailedErrorsContext(IServiceProvider serviceProvider) : DbContext
+    {
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseInMemoryDatabase(nameof(DetailedErrorsContext))
+                .EnableDetailedErrors();
+    }
 }
