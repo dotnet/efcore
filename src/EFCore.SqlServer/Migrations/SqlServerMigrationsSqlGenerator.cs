@@ -1591,6 +1591,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         var hasPendingBatch = false;
         var state = ParsingState.Normal;
         var batchBuilder = new StringBuilder();
+        string? pendingTerminator = null;
         foreach (var line in preBatched)
         {
             var trimmed = line.TrimStart();
@@ -1603,14 +1604,25 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 var batch = batchBuilder.ToString();
                 batchBuilder.Clear();
 
-                var count = trimmed.Length >= 4
-                    && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
-                        ? specifiedCount
-                        : 1;
-
-                for (var j = 0; j < count; j++)
+                if (isScript)
                 {
                     AppendBatch(batch);
+                    if (hasPendingBatch)
+                    {
+                        pendingTerminator = trimmed + Environment.NewLine + Environment.NewLine;
+                    }
+                }
+                else
+                {
+                    var count = trimmed.Length >= 4
+                        && int.TryParse(trimmed.AsSpan(3), out var specifiedCount)
+                            ? specifiedCount
+                            : 1;
+
+                    for (var j = 0; j < count; j++)
+                    {
+                        AppendBatch(batch);
+                    }
                 }
             }
             else
@@ -1654,6 +1666,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         if (isScript && hasPendingBatch)
         {
+            if (pendingTerminator != null)
+            {
+                builder.Append(pendingTerminator);
+            }
+
             EndStatement(builder, operation.SuppressTransaction);
         }
 
@@ -1671,7 +1688,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 {
                     if (hasPendingBatch)
                     {
-                        builder.Append(Dependencies.SqlGenerationHelper.BatchTerminator);
+                        builder.Append(pendingTerminator ?? Dependencies.SqlGenerationHelper.BatchTerminator);
+                        pendingTerminator = null;
                     }
 
                     builder.Append(batch);

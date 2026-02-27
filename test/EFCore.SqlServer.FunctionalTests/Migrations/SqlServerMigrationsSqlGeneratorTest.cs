@@ -1318,7 +1318,7 @@ SELECT 2;
             new SqlOperation
             {
                 Sql = "CREATE PROCEDURE dbo.Proc1 AS SELECT 1;" + EOL + "GO" + EOL
-                    + "CREATE VIEW view1 AS SELECT 1 AS Id;" + EOL + "GO" + EOL + "SELECT 1;",
+                    + "CREATE VIEW view1 AS SELECT 1 AS Id;" + EOL + "GO 2" + EOL + "SELECT 1;",
                 SuppressTransaction = true
             },
             MigrationsSqlGenerationOptions.Script);
@@ -1329,7 +1329,7 @@ CREATE PROCEDURE dbo.Proc1 AS SELECT 1;
 GO
 
 CREATE VIEW view1 AS SELECT 1 AS Id;
-GO
+GO 2
 
 SELECT 1;
 """);
