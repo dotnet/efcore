@@ -54,7 +54,7 @@ jobs:
         run: dotnet test test/EFCore.SqlServer.FunctionalTests
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-sqlserver-${{ matrix.sqlserver_version }}
