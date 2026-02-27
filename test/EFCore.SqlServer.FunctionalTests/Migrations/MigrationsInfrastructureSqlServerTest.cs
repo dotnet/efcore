@@ -144,10 +144,10 @@ BEGIN
 END;
 
 GO
-
 SELECT GetDate();
 --GO
 SELECT GetDate()
+GO
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -320,10 +320,10 @@ BEGIN
 END;
 
 GO
-
 SELECT GetDate();
 --GO
 SELECT GetDate()
+GO
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])

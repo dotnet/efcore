@@ -1582,6 +1582,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(SqlOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
+        if (Options.HasFlag(MigrationsSqlGenerationOptions.Script))
+        {
+            builder.Append(operation.Sql);
+            if (!operation.Sql.EndsWith('\n'))
+            {
+                builder.AppendLine();
+            }
+
+            EndStatement(builder, operation.SuppressTransaction);
+            return;
+        }
+
         var preBatched = operation.Sql
             .Replace("\\\n", "")
             .Replace("\\\r\n", "")
