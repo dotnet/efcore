@@ -1584,7 +1584,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         if (Options.HasFlag(MigrationsSqlGenerationOptions.Script))
         {
-            base.Generate(operation, model, builder);
+            builder.Append(operation.Sql);
+            if (!operation.Sql.EndsWith('\n'))
+            {
+                builder.AppendLine();
+            }
+
+            EndStatement(builder, operation.SuppressTransaction);
             return;
         }
 
