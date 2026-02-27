@@ -90,8 +90,6 @@ END;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 CREATE TABLE [Table1] (
     [Id] int NOT NULL,
     [Foo] int NOT NULL,
@@ -102,21 +100,15 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000001_Migration1', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
@@ -163,8 +155,6 @@ VALUES (N'00000000000004_Migration4', N'7.0.0-test');
 GO
 
 BEGIN TRANSACTION;
-GO
-
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
 Empty Lines')
@@ -172,14 +162,10 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000005_Migration5', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
@@ -188,14 +174,10 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000006_Migration6', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '--Start
 GO
 Value With
@@ -209,84 +191,54 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000007_Migration7', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000007_Migration7';
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000006_Migration6';
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000005_Migration5';
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000004_Migration4';
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000003_Migration3';
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 GO
 
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000002_Migration2';
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 DROP TABLE [Table1];
 GO
 
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000001_Migration1';
-GO
-
 COMMIT;
 GO
 
@@ -454,28 +406,20 @@ GO
             Assert.Equal(
                 """
 BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 GO
 
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000002_Migration2';
-GO
-
 COMMIT;
 GO
 
@@ -492,28 +436,20 @@ GO
             Assert.Equal(
                 """
 BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000002_Migration2', N'7.0.0-test');
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 GO
 
 DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000002_Migration2';
-GO
-
 COMMIT;
 GO
 
@@ -540,8 +476,6 @@ END;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1'
@@ -564,14 +498,10 @@ BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 END;
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2'
@@ -589,14 +519,10 @@ BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 END;
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 IF EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2'
@@ -614,14 +540,10 @@ BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2';
 END;
-GO
-
 COMMIT;
 GO
 
 BEGIN TRANSACTION;
-GO
-
 IF EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1'
@@ -639,8 +561,6 @@ BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000001_Migration1';
 END;
-GO
-
 COMMIT;
 GO
 

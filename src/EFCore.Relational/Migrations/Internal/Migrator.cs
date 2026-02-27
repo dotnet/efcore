@@ -638,6 +638,7 @@ public class Migrator : IMigrator
         string? idempotencyEnd = null)
     {
         var transactionStarted = false;
+        var isFirstCommandInTransaction = false;
         foreach (var command in commands)
         {
             if (!noTransactions)
@@ -645,9 +646,9 @@ public class Migrator : IMigrator
                 if (!transactionStarted && !command.TransactionSuppressed)
                 {
                     builder
-                        .AppendLine(sqlGenerationHelper.StartTransactionStatement)
-                        .Append(sqlGenerationHelper.BatchTerminator);
+                        .AppendLine(sqlGenerationHelper.StartTransactionStatement);
                     transactionStarted = true;
+                    isFirstCommandInTransaction = true;
                 }
 
                 if (transactionStarted && command.TransactionSuppressed)
@@ -658,6 +659,13 @@ public class Migrator : IMigrator
                     transactionStarted = false;
                 }
             }
+
+            if (transactionStarted && !isFirstCommandInTransaction)
+            {
+                builder.Append(sqlGenerationHelper.BatchTerminator);
+            }
+
+            isFirstCommandInTransaction = false;
 
             if (idempotencyCondition != null
                 && idempotencyEnd != null)
@@ -675,7 +683,10 @@ public class Migrator : IMigrator
                 builder.Append(command.CommandText);
             }
 
-            builder.Append(sqlGenerationHelper.BatchTerminator);
+            if (!transactionStarted)
+            {
+                builder.Append(sqlGenerationHelper.BatchTerminator);
+            }
         }
 
         if (transactionStarted)

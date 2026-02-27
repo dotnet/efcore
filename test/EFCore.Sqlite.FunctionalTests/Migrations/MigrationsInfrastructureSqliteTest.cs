@@ -59,7 +59,6 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
 );
 
 BEGIN TRANSACTION;
-
 CREATE TABLE "Table1" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Table1" PRIMARY KEY,
     "Foo" INTEGER NOT NULL,
@@ -68,104 +67,77 @@ CREATE TABLE "Table1" (
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000001_Migration1', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000005_Migration5', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000006_Migration6', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000007_Migration7', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000007_Migration7';
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000006_Migration6';
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000005_Migration5';
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000004_Migration4';
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000003_Migration3';
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
 
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000002_Migration2';
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 DROP TABLE "Table1";
 
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000001_Migration1';
-
 COMMIT;
 
 
@@ -252,21 +224,17 @@ WHERE "MigrationId" = '00000000000001_Migration1';
             Assert.Equal(
                 """
 BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
 
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000002_Migration2';
-
 COMMIT;
 
 
@@ -282,21 +250,17 @@ COMMIT;
             Assert.Equal(
                 """
 BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
-
 COMMIT;
 
 BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
 
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000002_Migration2';
-
 COMMIT;
 
 
