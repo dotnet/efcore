@@ -645,7 +645,8 @@ public class Migrator : IMigrator
                 if (!transactionStarted && !command.TransactionSuppressed)
                 {
                     builder
-                        .AppendLine(sqlGenerationHelper.StartTransactionStatement);
+                        .AppendLine(sqlGenerationHelper.StartTransactionStatement)
+                        .Append(sqlGenerationHelper.BatchTerminator);
                     transactionStarted = true;
                 }
 
@@ -674,14 +675,7 @@ public class Migrator : IMigrator
                 builder.Append(command.CommandText);
             }
 
-            if (!transactionStarted)
-            {
-                builder.Append(sqlGenerationHelper.BatchTerminator);
-            }
-            else
-            {
-                builder.Append(Environment.NewLine);
-            }
+            builder.Append(sqlGenerationHelper.BatchTerminator);
         }
 
         if (transactionStarted)
