@@ -27,6 +27,26 @@ public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.I
         // See https://github.com/dotnet/efcore/issues/31464
         => Task.CompletedTask;
 
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Complex type collections are not supported in InMemory provider
+    // See https://github.com/dotnet/efcore/issues/31464
+    public override Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
     public class InMemoryFixture : FixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

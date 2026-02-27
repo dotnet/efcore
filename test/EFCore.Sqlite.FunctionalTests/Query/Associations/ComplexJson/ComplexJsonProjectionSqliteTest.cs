@@ -17,6 +17,9 @@ public class ComplexJsonProjectionSqliteTest(ComplexJsonSqliteFixture fixture, I
     public override Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior));
 
+    public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
+
     public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 

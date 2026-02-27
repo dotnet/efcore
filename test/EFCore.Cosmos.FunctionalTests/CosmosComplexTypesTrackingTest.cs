@@ -111,6 +111,46 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         return base.TrackAndSaveTest(state, async, createPub);
     }
 
+    public override Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+    {
+        if (!async)
+        {
+            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
+        }
+
+        return base.Can_change_state_from_Deleted_with_complex_collection(newState, async);
+    }
+
+    public override Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
+    {
+        if (!async)
+        {
+            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
+        }
+
+        return base.Can_change_state_from_Deleted_with_complex_record_collection(newState, async);
+    }
+
+    public override Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+    {
+        if (!async)
+        {
+            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
+        }
+
+        return base.Can_change_state_from_Deleted_with_complex_field_collection(newState, async);
+    }
+
+    public override Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+    {
+        if (!async)
+        {
+            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
+        }
+
+        return base.Can_change_state_from_Deleted_with_complex_field_record_collection(newState, async);
+    }
+
     public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
         // Optional complex properties are not supported on Cosmos
         // See https://github.com/dotnet/efcore/issues/31253

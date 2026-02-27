@@ -304,6 +304,18 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
                 .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>()
+                .OrderBy(x => x.Id)
+                .Select(x => ss.Set<RootEntity>()
+                    .OrderBy(e => e.Id)
+                    .FirstOrDefault()!.AssociateCollection),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+            queryTrackingBehavior: queryTrackingBehavior);
+
     // [ConditionalTheory]
     // [MemberData(nameof(TrackingData))]
     // public virtual Task Select_subquery_root_set_trunk_FirstOrDefault_collection(QueryTrackingBehavior queryTrackingBehavior)
