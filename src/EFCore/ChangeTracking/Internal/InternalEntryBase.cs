@@ -1012,13 +1012,21 @@ public abstract partial class InternalEntryBase : IInternalEntry
         bool isModified = IsModified(property);
         _originalValues.SetValue(property, value, -1);
         if (mergeOption == MergeOption.OverwriteChanges || !isModified)
+        {
             SetProperty(propertyBase, value, isMaterialization: true, setModified: false);
+        }
+
         if (updateEntityState)
         {
             if (mergeOption == MergeOption.OverwriteChanges)
+            {
                 SetEntityState(EntityState.Unchanged);
-            else
-                ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
+            }
+            else if (StateManager is StateManager stateManager
+                     && stateManager.ChangeDetector is ChangeDetector changeDetector)
+            {
+                changeDetector.DetectValueChange(this, property);
+            }
         }
     }
 

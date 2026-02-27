@@ -137,8 +137,18 @@ public class QueryCompilationContext
     public virtual bool IgnoreAutoIncludes { get; internal set; }
 
     /// <summary>
-    ///     A value indicating how already loaded objects should be merged and refreshed with the results of this query.
+    ///     <para>
+    ///         A value indicating how already loaded objects should be merged and refreshed with the results of this query.
+    ///     </para>
+    ///     <para>
+    ///         This property is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
+    /// </remarks>
     public virtual MergeOption RefreshMergeOption { get; internal set; }
 
     /// <summary>

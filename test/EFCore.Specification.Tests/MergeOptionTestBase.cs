@@ -874,7 +874,7 @@ public abstract partial class MergeOptionTestBase<TFixture>(TFixture fixture) : 
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public int ShadowProperty { get; set; }
+
     }
 
     protected class Category
