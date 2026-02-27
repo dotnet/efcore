@@ -1587,6 +1587,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Replace("\\\r\n", "")
             .Split(["\r\n", "\n"], StringSplitOptions.None);
 
+        var isScript = Options.HasFlag(MigrationsSqlGenerationOptions.Script);
+        var hasPendingBatch = false;
         var state = ParsingState.Normal;
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
@@ -1650,6 +1652,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         AppendBatch(batchBuilder.ToString());
 
+        if (isScript && hasPendingBatch)
+        {
+            EndStatement(builder, operation.SuppressTransaction);
+        }
+
         ParsingState ConsumeAndReturn(ref int index, ParsingState newState)
         {
             index++;
@@ -1660,8 +1667,21 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             if (!string.IsNullOrWhiteSpace(batch))
             {
-                builder.Append(batch);
-                EndStatement(builder, operation.SuppressTransaction);
+                if (isScript)
+                {
+                    if (hasPendingBatch)
+                    {
+                        builder.Append(Dependencies.SqlGenerationHelper.BatchTerminator);
+                    }
+
+                    builder.Append(batch);
+                    hasPendingBatch = true;
+                }
+                else
+                {
+                    builder.Append(batch);
+                    EndStatement(builder, operation.SuppressTransaction);
+                }
             }
         }
     }
