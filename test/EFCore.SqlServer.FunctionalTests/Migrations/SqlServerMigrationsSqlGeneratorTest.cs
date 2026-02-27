@@ -1311,6 +1311,30 @@ SELECT 2;
 """);
     }
 
+    [ConditionalFact]
+    public virtual void SqlOperation_handles_go_in_script_with_suppress_transaction()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "CREATE PROCEDURE dbo.Proc1 AS SELECT 1;" + EOL + "GO" + EOL
+                    + "CREATE VIEW view1 AS SELECT 1 AS Id;" + EOL + "GO" + EOL + "SELECT 1;",
+                SuppressTransaction = true
+            },
+            MigrationsSqlGenerationOptions.Script);
+
+        AssertSql(
+            """
+CREATE PROCEDURE dbo.Proc1 AS SELECT 1;
+GO
+
+CREATE VIEW view1 AS SELECT 1 AS Id;
+GO
+
+SELECT 1;
+""");
+    }
+
     public override void InsertDataOperation_all_args_spatial()
     {
         base.InsertDataOperation_all_args_spatial();
