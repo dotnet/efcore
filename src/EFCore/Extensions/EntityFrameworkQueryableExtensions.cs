@@ -3099,6 +3099,87 @@ public static class EntityFrameworkQueryableExtensions
 
     #endregion
 
+    #region Refreshing
+
+    internal static readonly MethodInfo RefreshMethodInfo
+    = typeof(EntityFrameworkQueryableExtensions).GetMethod(
+        nameof(Refresh), [typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(MergeOption)])!;
+
+
+    /// <summary>
+    /// Specifies that the current Entity Framework LINQ query should refresh already loaded objects with the specified merge option.
+    /// </summary>
+    /// <typeparam name="T">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="mergeOption">The MergeOption</param>
+    /// <returns>A new query annotated with the given tag.</returns>
+    public static IQueryable<T> Refresh<T>(
+        this IQueryable<T> source,
+        [NotParameterized] MergeOption mergeOption)
+    {
+        if (HasNonTrackingOrIgnoreAutoIncludes(source.Expression))
+        {
+            throw new InvalidOperationException(CoreStrings.RefreshNonTrackingQuery);
+        }
+
+        if (HasMultipleMergeOptions(source.Expression))
+        {
+            throw new InvalidOperationException(CoreStrings.RefreshMultipleMergeOptions);
+        }
+        return
+            source.Provider is EntityQueryProvider
+                ? source.Provider.CreateQuery<T>(
+                    Expression.Call(
+                        instance: null,
+                        method: RefreshMethodInfo.MakeGenericMethod(typeof(T)),
+                        arg0: source.Expression,
+                        arg1: Expression.Constant(mergeOption)))
+                : source;
+    }
+
+    private static bool HasNonTrackingOrIgnoreAutoIncludes(Expression expression)
+    {
+        Expression? current = expression;
+        while (current is MethodCallExpression call)
+        {
+            var method = call.Method;
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+            {
+                var name = method.Name;
+                if (name == nameof(AsNoTracking)
+                    || name == nameof(AsNoTrackingWithIdentityResolution)
+                    || name == nameof(IgnoreAutoIncludes))
+                {
+                    return true;
+                }
+            }
+
+            current = call.Arguments.Count > 0 ? call.Arguments[0] : null;
+        }
+
+        return false;
+    }
+
+    private static bool HasMultipleMergeOptions(Expression expression)
+    {
+        Expression? current = expression;
+        while (current is MethodCallExpression call)
+        {
+            var method = call.Method;
+            if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && method.Name == nameof(Refresh))
+            {
+                return true;
+            }
+
+            current = call.Arguments.Count > 0 ? call.Arguments[0] : null;
+        }
+
+        return false;
+    }
+
+    #endregion
+
     #region Tagging
 
     /// <summary>

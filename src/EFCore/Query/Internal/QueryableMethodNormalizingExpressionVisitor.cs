@@ -360,6 +360,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     _queryCompilationContext.IgnoreAutoIncludes = true;
                     return visitedExpression;
                 }
+
+                case nameof(EntityFrameworkQueryableExtensions.Refresh):
+                {
+                    var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.RefreshMergeOption = methodCallExpression.Arguments[1].GetConstantValue<MergeOption>();
+                    return visitedExpression;
+                }
+
             }
         }
 

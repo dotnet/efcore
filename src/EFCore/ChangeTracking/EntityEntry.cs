@@ -680,6 +680,65 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
         => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
+    /// <summary>
+    ///     Reloads the entity from the database using the specified <see cref="MergeOption" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The behavior of this method depends on the <see cref="MergeOption" /> specified:
+    ///     </para>
+    ///     <para>
+    ///         <see cref="MergeOption.OverwriteChanges" />: Overwrites both current and original property values with values from the database.
+    ///         The entity will be in the <see cref="EntityState.Unchanged" /> state after calling this method.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="MergeOption.PreserveChanges" />: Updates original property values with values from the database,
+    ///         but preserves any local modifications to current values. Modified properties remain modified with their current values.
+    ///     </para>
+    ///     <para>
+    ///         If the entity does not exist in the database, the entity will be <see cref="EntityState.Detached" />.
+    ///         Calling Reload on an <see cref="EntityState.Added" /> entity that does not exist in the database is a no-op.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="mergeOption">The merge option controlling how database values are applied to the entity.</param>
+    public virtual void Reload(MergeOption mergeOption)
+        => Reload(GetDatabaseValues(), mergeOption);
+
+    /// <summary>
+    ///     Reloads the entity from the database using the specified <see cref="MergeOption" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The behavior of this method depends on the <see cref="MergeOption" /> specified:
+    ///     </para>
+    ///     <para>
+    ///         <see cref="MergeOption.OverwriteChanges" />: Overwrites both current and original property values with values from the database.
+    ///         The entity will be in the <see cref="EntityState.Unchanged" /> state after calling this method.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="MergeOption.PreserveChanges" />: Updates original property values with values from the database,
+    ///         but preserves any local modifications to current values. Modified properties remain modified with their current values.
+    ///     </para>
+    ///     <para>
+    ///         If the entity does not exist in the database, the entity will be <see cref="EntityState.Detached" />.
+    ///         Calling Reload on an <see cref="EntityState.Added" /> entity that does not exist in the database is a no-op.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="mergeOption">The merge option controlling how database values are applied to the entity.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public virtual async Task ReloadAsync(MergeOption mergeOption, CancellationToken cancellationToken = default)
+        => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false), mergeOption);
+
     private void Reload(PropertyValues? storeValues)
     {
         if (storeValues == null)
@@ -695,6 +754,30 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
             CurrentValues.SetValues(storeValues);
             OriginalValues.SetValues(storeValues);
             State = EntityState.Unchanged;
+        }
+    }
+    private void Reload(PropertyValues? storeValues, MergeOption mergeOption)
+    {
+        if (storeValues == null)
+        {
+            if (State != EntityState.Added)
+            {
+                State = EntityState.Deleted;
+                State = EntityState.Detached;
+            }
+        }
+        else
+        {
+            foreach (var property in Metadata.GetProperties())
+            {
+                var value = storeValues[property];
+                InternalEntry.ReloadValue(property, value, mergeOption, updateEntityState: false);
+            }
+
+            if (mergeOption == MergeOption.OverwriteChanges)
+            {
+                State = EntityState.Unchanged;
+            }
         }
     }
 

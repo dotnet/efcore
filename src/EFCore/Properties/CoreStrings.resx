@@ -1577,6 +1577,12 @@
   <data name="ReferenceMustBeLoaded" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' cannot have 'IsLoaded' set to false because the referenced entity is non-null and is therefore loaded.</value>
   </data>
+  <data name="RefreshMultipleMergeOptions" xml:space="preserve">
+    <value>Unable to refresh query with multiple merge options!</value>
+  </data>
+  <data name="RefreshNonTrackingQuery" xml:space="preserve">
+    <value>Unable to refresh non-tracking query!</value>
+  </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
     <value>The principal and dependent ends of the relationship cannot be changed once foreign key or principal key properties have been specified. Remove the conflicting configuration.</value>
   </data>
