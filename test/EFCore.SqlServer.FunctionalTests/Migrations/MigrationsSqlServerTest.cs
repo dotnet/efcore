@@ -3588,6 +3588,16 @@ DROP INDEX [IX_Orders_CustomerId] ON [Orders];
 """);
     }
 
+    public override async Task Add_foreign_key_excluded_from_migrations()
+    {
+        await base.Add_foreign_key_excluded_from_migrations();
+
+        AssertSql(
+            """
+CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
+""");
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();

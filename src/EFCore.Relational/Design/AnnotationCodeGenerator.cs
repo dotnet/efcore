@@ -435,6 +435,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName),
             methodCallCodeFragments);
 
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations,
+            nameof(RelationalForeignKeyBuilderExtensions.ExcludeFromMigrations),
+            methodCallCodeFragments);
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(foreignKey, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;
@@ -1051,6 +1057,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         if (annotations.TryGetValue(annotationName, out var annotation))
         {
             annotations.Remove(annotationName);
+
             if (annotation.Value is { } annotationValue)
             {
                 methodCallCodeFragments.Add(

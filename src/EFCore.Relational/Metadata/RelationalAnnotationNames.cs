@@ -175,6 +175,11 @@ public static class RelationalAnnotationNames
     public const string IsTableExcludedFromMigrations = Prefix + "IsTableExcludedFromMigrations";
 
     /// <summary>
+    ///     The name for the annotation determining whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    public const string IsForeignKeyExcludedFromMigrations = Prefix + "IsForeignKeyExcludedFromMigrations";
+
+    /// <summary>
     ///     The name for the annotation determining the mapping strategy for inherited properties.
     /// </summary>
     public const string MappingStrategy = Prefix + "MappingStrategy";
@@ -396,6 +401,7 @@ public static class RelationalAnnotationNames
         IsFixedLength,
         ViewDefinitionSql,
         IsTableExcludedFromMigrations,
+        IsForeignKeyExcludedFromMigrations,
         MappingStrategy,
         RelationalModel,
         RelationalModelFactory,

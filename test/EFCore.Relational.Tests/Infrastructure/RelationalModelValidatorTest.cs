@@ -1594,6 +1594,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_excluded_from_migrations()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").ExcludeFromMigrations();
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            RelationalStrings.DuplicateForeignKeyExcludedFromMigrationsMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "FK_Animal_Person_Name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy()
     {
         var modelBuilder = CreateConventionModelBuilder();
