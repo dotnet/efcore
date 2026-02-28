@@ -689,6 +689,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         where TContext : class
         => base.Test(
@@ -706,5 +707,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             additionalSourceFiles,
             assertAssembly,
             expectedExceptionMessage,
+            skipValidation,
             testName);
 }
