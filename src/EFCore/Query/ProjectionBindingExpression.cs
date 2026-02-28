@@ -90,6 +90,22 @@ public class ProjectionBindingExpression : Expression, IPrintableExpression
             expressionPrinter.Append(Index.ToString()!);
         }
     }
+    /// <summary>
+    ///     Creates a new instance of the <see cref="ProjectionBindingExpression" /> class with a new type.
+    /// </summary>
+    /// <param name="type">The new clr type of value being read.</param>
+    /// <returns>A new projection binding expression with the updated type.</returns>
+    public virtual ProjectionBindingExpression UpdateType(Type type)
+    {
+        if (type == Type)
+        {
+            return this;
+        }
+
+        return Index != null
+            ? new ProjectionBindingExpression(QueryExpression, Index.Value, type)
+            : new ProjectionBindingExpression(QueryExpression, ProjectionMember!, type);
+    }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

@@ -137,7 +137,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             }
 
             return new ProjectionBindingExpression(
-                _selectExpression, _selectExpression.AddToProjection(translation), expression.Type.MakeNullable());
+                _selectExpression, _selectExpression.AddToProjection(translation), translation.Type);
         }
         else
         {
@@ -149,7 +149,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
             _projectionMapping[_projectionMembers.Peek()] = translation;
 
-            return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+            return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), translation.Type);
         }
     }
 
@@ -793,12 +793,17 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
     private static Expression MatchTypes(Expression expression, Type targetType)
     {
-        if (targetType != expression.Type
-            && targetType.TryGetSequenceType() == null)
+         if (targetType != expression.Type
+        && targetType.TryGetSequenceType() == null)
         {
-            Check.DebugAssert(targetType.MakeNullable() == expression.Type, "expression.Type must be nullable of targetType");
-
-            expression = Expression.Convert(expression, targetType);
+            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            {
+                return projectionBindingExpression.UpdateType(targetType);
+            }
+            if (targetType.MakeNullable() == expression.Type)
+            {
+                expression = Expression.Convert(expression, targetType);
+            }
         }
 
         return expression;
