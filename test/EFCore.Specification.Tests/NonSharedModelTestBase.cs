@@ -86,7 +86,8 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
         Func<string, bool>? shouldLogCategory = null,
         Func<TestStore>? createTestStore = null,
         bool usePooling = true,
-        bool useServiceProvider = true)
+        bool useServiceProvider = true,
+        bool skipValidation = false)
         where TContext : DbContext
     {
         if (createTestStore != null)
@@ -110,7 +111,7 @@ public abstract class NonSharedModelTestBase : IAsyncLifetime
 
         if (onModelCreating != null)
         {
-            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating, configureConventions));
+            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating, configureConventions, skipValidation));
         }
 
         addServices?.Invoke(services);

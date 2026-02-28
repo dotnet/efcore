@@ -1167,6 +1167,21 @@ namespace TestNamespace
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
+    [ConditionalFact]
+    public virtual Task Throws_for_Backing_Field_Not_Found()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<EntityWithNoBackingFieldScalar>(eb =>
+                {
+                    eb.Property(e => e.Computed)
+                        .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                });
+            },
+            options: new CompiledModelCodeGenerationOptions { ForNativeAot = true },
+            expectedExceptionMessage: CoreStrings.NoFieldOrSetter("Computed", "EntityWithNoBackingFieldScalar"),
+            skipValidation: true);
+
     protected virtual void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PrincipalBase>(eb =>
@@ -1790,6 +1805,12 @@ namespace TestNamespace
         public byte[]? Blob { get; set; }
     }
 
+    public class EntityWithNoBackingFieldScalar
+    {
+        public int Id { get; set; }
+        public int Computed => 1;
+    }
+
     public class PrincipalBase : AbstractBase
     {
         public new long? Id { get; set; }
@@ -2007,6 +2028,7 @@ namespace TestNamespace
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         => Test<DbContext>(
             onModelCreating,
@@ -2019,6 +2041,7 @@ namespace TestNamespace
             additionalSourceFiles,
             assertAssembly,
             expectedExceptionMessage,
+            skipValidation,
             testName);
 
     protected virtual async Task<(TContext?, IModel?)> Test<TContext>(
@@ -2032,6 +2055,7 @@ namespace TestNamespace
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         where TContext : DbContext
     {
@@ -2044,7 +2068,8 @@ namespace TestNamespace
                 onModelCreating?.Invoke(modelBuilder);
             },
             onConfiguring,
-            addServices);
+            addServices,
+            skipValidation: skipValidation);
         using var context = contextFactory.CreateContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
