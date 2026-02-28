@@ -131,6 +131,28 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
                 : mapping;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Finds the type mapping for a given property. This method is overridden to special-case <c>byte[]</c>
+    ///     properties inside JSON columns, returning a mapping that works with hex-encoded string representation.
+    /// </remarks>
+    /// <param name="property">The property for which mapping is to be found.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public override RelationalTypeMapping? FindMapping(IProperty property)
+    {
+        var mapping = base.FindMapping(property);
+        if (mapping is SqliteByteArrayTypeMapping byteArrayMapping && property.DeclaringType.IsMappedToJson())
+        {
+            return byteArrayMapping.WithJsonColumn();
+        }
+        return mapping;
+    }
+
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType;
