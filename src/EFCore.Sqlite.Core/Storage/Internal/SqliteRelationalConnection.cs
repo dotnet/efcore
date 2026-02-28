@@ -190,6 +190,31 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 (x, y) => decimal.Compare(
                     decimal.Parse(x, NumberStyles.Number, CultureInfo.InvariantCulture),
                     decimal.Parse(y, NumberStyles.Number, CultureInfo.InvariantCulture)));
+
+            sqliteConnection.CreateFunction<TimeSpan?, double?>(
+                "ef_days",
+                value => value == null ? null : value.Value.TotalDays,
+                isDeterministic: true);
+
+            sqliteConnection.CreateFunction<string?, double?>(
+                "ef_days",
+                value => value == null ? null : TimeSpan.Parse(value).TotalDays,
+                isDeterministic: true);
+
+            sqliteConnection.CreateFunction<double?, TimeSpan?>(
+                "ef_timespan",
+                value =>
+                {
+                    if (value == null)
+                    {
+                        return null;
+                    }
+
+                    var totalDays = value.Value;
+                    var ticks = (long)Math.Round(totalDays * TimeSpan.TicksPerDay);
+                    return new TimeSpan(ticks);
+                },
+                isDeterministic: true);
         }
         else
         {

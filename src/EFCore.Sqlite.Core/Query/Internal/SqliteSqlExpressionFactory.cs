@@ -111,6 +111,35 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual SqlExpression EfDays(SqlExpression timeSpanExpression)
+        => Function(
+            "ef_days",
+            [timeSpanExpression],
+            nullable: true,
+            argumentsPropagateNullability: [true],
+            typeof(double));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression EfTimespan(SqlExpression daysExpression)
+        => Function(
+            "ef_timespan",
+            [daysExpression],
+            nullable: true,
+            argumentsPropagateNullability: [true],
+            typeof(TimeSpan),
+            Dependencies.TypeMappingSource.FindMapping(typeof(TimeSpan), Dependencies.Model));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual GlobExpression Glob(SqlExpression match, SqlExpression pattern)
     {
         var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(match, pattern)

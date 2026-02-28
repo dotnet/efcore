@@ -59,11 +59,24 @@ public class SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlE
                     && source.Selector is SqlExpression maxSqlExpression:
                     var maxArgumentType = GetProviderType(maxSqlExpression);
                     if (maxArgumentType == typeof(DateTimeOffset)
-                        || maxArgumentType == typeof(TimeSpan)
                         || maxArgumentType == typeof(ulong))
                     {
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), maxArgumentType.ShortDisplayName()));
+                    }
+
+                    if (maxArgumentType == typeof(TimeSpan)
+                        && sqlExpressionFactory is SqliteSqlExpressionFactory maxSqliteFactory)
+                    {
+                        maxSqlExpression = CombineTerms(source, maxSqlExpression);
+                        var maxDaysExpression = maxSqliteFactory.EfDays(maxSqlExpression);
+                        var maxAggregate = sqlExpressionFactory.Function(
+                            "max",
+                            [maxDaysExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
+                            typeof(double));
+                        return maxSqliteFactory.EfTimespan(maxAggregate);
                     }
 
                     if (maxArgumentType == typeof(decimal))
@@ -86,11 +99,24 @@ public class SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlE
                     && source.Selector is SqlExpression minSqlExpression:
                     var minArgumentType = GetProviderType(minSqlExpression);
                     if (minArgumentType == typeof(DateTimeOffset)
-                        || minArgumentType == typeof(TimeSpan)
                         || minArgumentType == typeof(ulong))
                     {
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), minArgumentType.ShortDisplayName()));
+                    }
+
+                    if (minArgumentType == typeof(TimeSpan)
+                        && sqlExpressionFactory is SqliteSqlExpressionFactory minSqliteFactory)
+                    {
+                        minSqlExpression = CombineTerms(source, minSqlExpression);
+                        var minDaysExpression = minSqliteFactory.EfDays(minSqlExpression);
+                        var minAggregate = sqlExpressionFactory.Function(
+                            "min",
+                            [minDaysExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.FalseArrays[1],
+                            typeof(double));
+                        return minSqliteFactory.EfTimespan(minAggregate);
                     }
 
                     if (minArgumentType == typeof(decimal))
