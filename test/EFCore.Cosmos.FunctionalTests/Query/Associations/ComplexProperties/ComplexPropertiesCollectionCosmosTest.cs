@@ -1,0 +1,230 @@
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.Azure.Cosmos;
+
+namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
+
+public class ComplexPropertiesCollectionCosmosTest : ComplexPropertiesCollectionTestBase<ComplexPropertiesCosmosFixture>, IClassFixture<ComplexPropertiesCosmosFixture>
+{
+    public ComplexPropertiesCollectionCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
+    {
+        Fixture.TestSqlLoggerFactory.Clear();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+    public override async Task Count()
+    {
+        await base.Count();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(c["AssociateCollection"]) = 2)
+""");
+    }
+
+    public override async Task Where()
+    {
+        await base.Where();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN c["AssociateCollection"]
+    WHERE (a["Int"] != 8)) = 2)
+""");
+    }
+
+    [ConditionalFact]
+    public async Task Where_subquery_structural_equality()
+    {
+        var param = new AssociateType
+        {
+            Id = 1,
+            Name = "Name 1",
+            Int = 8,
+            String = "String 1",
+            Ints = new List<int> { 1, 2, 3 },
+            RequiredNestedAssociate = new NestedAssociateType
+            {
+                Id = 1,
+                Name = "Name 1",
+                Int = 8,
+                String = "String 1",
+                Ints = new List<int> { 1, 2, 3 }
+            },
+            NestedCollection = new List<NestedAssociateType>
+            {
+                new NestedAssociateType
+                {
+                    Id = 1,
+                    Name = "Name 1",
+                    Int = 8,
+                    String = "String 1",
+                    Ints = new List<int> { 1, 2, 3 }
+                }
+            }
+        };
+
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection[0] != param),
+            ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection.Count > 0 && e.AssociateCollection[0] != param));
+
+
+        AssertSql(
+            """
+@entity_equality_param='{"Id":1,"Int":8,"Ints":[1,2,3],"Name":"Name 1","String":"String 1","NestedCollection":[{"Id":1,"Int":8,"Ints":[1,2,3],"Name":"Name 1","String":"String 1"}],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1,"Int":8,"Ints":[1,2,3],"Name":"Name 1","String":"String 1"}}'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["AssociateCollection"][0] != @entity_equality_param)
+""");
+    }
+
+    public override async Task OrderBy_ElementAt()
+    {
+        // 'ORDER BY' is not supported in subqueries.
+        await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt());
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY(
+    SELECT VALUE a["Int"]
+    FROM a IN c["AssociateCollection"]
+    ORDER BY a["Id"])[0] = 8)
+""");
+    }
+
+    #region Distinct
+
+    public override Task Distinct()
+        => AssertTranslationFailed(base.Distinct);
+
+    public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Distinct_projected(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE ARRAY(
+    SELECT DISTINCT VALUE a
+    FROM a IN c["AssociateCollection"])
+FROM root c
+ORDER BY c["Id"]
+""");
+    }
+
+    public override Task Distinct_over_projected_nested_collection()
+        => AssertTranslationFailed(base.Distinct_over_projected_nested_collection);
+
+    public override Task Distinct_over_projected_filtered_nested_collection()
+        => AssertTranslationFailed(base.Distinct_over_projected_filtered_nested_collection);
+
+    #endregion Distinct
+
+    #region Index
+
+    public override async Task Index_constant()
+    {
+        await base.Index_constant();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["AssociateCollection"][0]["Int"] = 8)
+""");
+    }
+
+    public override async Task Index_parameter()
+    {
+        await base.Index_parameter();
+
+        AssertSql(
+            """
+@i='0'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["AssociateCollection"][@i]["Int"] = 8)
+""");
+    }
+
+    public override async Task Index_column()
+    {
+        // The specified query includes 'member indexer' which is currently not supported
+        await Assert.ThrowsAsync<CosmosException>(() => base.Index_column());
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["AssociateCollection"][(c["Id"] - 1)]["Int"] = 8)
+""");
+    }
+
+    public override async Task Index_out_of_bounds()
+    {
+        await base.Index_out_of_bounds();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["AssociateCollection"][9999]["Int"] = 8)
+""");
+    }
+
+    public override async Task Index_on_nested_collection()
+    {
+        await base.Index_on_nested_collection();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["NestedCollection"][0]["Int"] = 8)
+""");
+    }
+
+    #endregion Index
+
+    #region GroupBy
+
+    [ConditionalFact]
+    public override Task GroupBy()
+        => AssertTranslationFailed(base.GroupBy);
+
+    #endregion GroupBy
+
+    public override async Task Select_within_Select_within_Select_with_aggregates()
+    {
+        await base.Select_within_Select_within_Select_with_aggregates();
+
+        AssertSql(
+            """
+SELECT VALUE (
+    SELECT VALUE SUM((
+        SELECT VALUE MAX(n["Int"])
+        FROM n IN a["NestedCollection"]))
+    FROM a IN c["AssociateCollection"])
+FROM root c
+""");
+    }
+
+
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+}
