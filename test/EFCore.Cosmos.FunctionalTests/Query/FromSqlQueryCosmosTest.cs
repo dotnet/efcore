@@ -598,7 +598,7 @@ FROM (
                         """
 SELECT *
 FROM root c
-WHERE c["$type"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInStock"] + c["UnitsOnOrder"]) < c["ReorderLevel"])
+WHERE c["$type"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInStock"] - c["UnitPrice"]) < c["SupplierID"])
 """)
                     .Select(p => p.ProductName);
 
@@ -606,7 +606,7 @@ WHERE c["$type"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInStock"] +
                     ? await query.ToArrayAsync()
                     : query.ToArray();
 
-                Assert.Equal(2, actual.Length);
+                Assert.Equal(37, actual.Length);
 
                 AssertSql(
                     """
@@ -614,7 +614,7 @@ SELECT VALUE s["ProductName"]
 FROM (
     SELECT *
     FROM root c
-    WHERE c["$type"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInStock"] + c["UnitsOnOrder"]) < c["ReorderLevel"])
+    WHERE c["$type"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInStock"] - c["UnitPrice"]) < c["SupplierID"])
 ) s
 """);
             });

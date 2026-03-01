@@ -3,10 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class CosmosBulkConcurrencyTest(CosmosBulkConcurrencyTest.ConcurrencyFixture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<CosmosBulkConcurrencyTest.ConcurrencyFixture>
+public class CosmosBulkConcurrencyTest(CosmosBulkConcurrencyTest.BulkConcurrencyFixture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<CosmosBulkConcurrencyTest.BulkConcurrencyFixture>
 {
-    public class ConcurrencyFixture : CosmosConcurrencyTest.CosmosFixture
+    public class BulkConcurrencyFixture : CosmosConcurrencyTest.CosmosFixture
     {
+        protected override string StoreName => nameof(CosmosBulkConcurrencyTest);
+
         public override ConcurrencyContext CreateContext()
         {
             var context = base.CreateContext();

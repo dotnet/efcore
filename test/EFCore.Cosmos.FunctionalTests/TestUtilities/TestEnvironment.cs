@@ -32,7 +32,7 @@ public static class TestEnvironment
 
     public static string ConnectionString { get; } = $"AccountEndpoint={DefaultConnection};AccountKey={AuthToken}";
 
-    public static bool UseTokenCredential { get; } = Config["UseTokenCredential"] == "true";
+    public static bool UseTokenCredential { get; } = Config["UseTokenCredential"] == "True";
 
     public static TokenCredential TokenCredential { get; } = new AzureCliCredential(
         new AzureCliCredentialOptions { ProcessTimeout = TimeSpan.FromMinutes(5) });
@@ -43,7 +43,7 @@ public static class TestEnvironment
 
     public static AzureLocation AzureLocation { get; } = string.IsNullOrEmpty(Config["AzureLocation"])
         ? AzureLocation.WestUS
-        : Enum.Parse<AzureLocation>(Config["AzureLocation"]);
+        : (AzureLocation)Config["AzureLocation"];
 
     public static bool IsEmulator { get; } = !UseTokenCredential && (AuthToken == _emulatorAuthToken);
 }

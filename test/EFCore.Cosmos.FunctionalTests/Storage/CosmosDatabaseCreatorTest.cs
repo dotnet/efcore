@@ -13,22 +13,22 @@ public class CosmosDatabaseCreatorTest
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_does_not_exist()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExistingDatabase");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("NonExistingDatabase");
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
-        await creator.EnsureDeletedAsync();
-        Assert.True(await creator.EnsureCreatedAsync());
+        await LockAround(() => creator.EnsureDeletedAsync());
+        Assert.True(await LockAround(() => creator.EnsureCreatedAsync()));
     }
 
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not()
     {
-        await using var testDatabase = CosmosTestStore.Create("EnsureCreatedTest");
+        await using var testDatabase = CosmosTestStoreFactory.Instance.Create("EnsureCreatedTest");
         await testDatabase.InitializeAsync(testDatabase.ServiceProvider, () => new BaseContext(testDatabase));
 
         using var context = new BloggingContext(testDatabase);
         var creator = context.GetService<IDatabaseCreator>();
-        Assert.True(await creator.EnsureCreatedAsync());
+        Assert.True(await LockAround(() => creator.EnsureCreatedAsync()));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -36,14 +36,14 @@ public class CosmosDatabaseCreatorTest
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await using var testDatabase = CosmosTestStore.Create("EnsureCreatedReady");
+                await using var testDatabase = CosmosTestStoreFactory.Instance.Create("EnsureCreatedReady");
                 await testDatabase.InitializeAsync(
                     testDatabase.ServiceProvider, testStore => new BloggingContext((CosmosTestStore)testStore));
 
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+                Assert.False(a ? await LockAround(() => creator.EnsureCreatedAsync()) : creator.EnsureCreated());
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -51,11 +51,11 @@ public class CosmosDatabaseCreatorTest
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureDeleteBlogging");
+                await using var testDatabase = await CosmosTestStoreFactory.Instance.CreateInitializedAsync("EnsureDeleteBlogging");
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.True(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
+                Assert.True(a ? await LockAround(() => creator.EnsureDeletedAsync()) : creator.EnsureDeleted());
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
@@ -63,22 +63,41 @@ public class CosmosDatabaseCreatorTest
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
-                await using var testDatabase = CosmosTestStore.Create("EnsureDeleteBlogging");
+                await using var testDatabase = CosmosTestStoreFactory.Instance.Create("EnsureDeleteBlogging");
                 using var context = new BloggingContext(testDatabase);
                 var creator = context.GetService<IDatabaseCreator>();
 
-                Assert.False(a ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
+                Assert.False(a ? await LockAround(() => creator.EnsureDeletedAsync()) : creator.EnsureDeleted());
             });
 
     [ConditionalFact]
     public async Task EnsureCreated_throws_for_missing_seed()
     {
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        await using var testDatabase = await CosmosTestStoreFactory.Instance.CreateInitializedAsync("EnsureCreatedSeedTest");
         using var context = new BloggingContext(testDatabase, seed: true);
 
         Assert.Equal(
             CoreStrings.MissingSeeder,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+    }
+
+    private async Task<bool> LockAround(Func<Task<bool>> action)
+    {
+        if (TestEnvironment.IsEmulator)
+        {
+            await CosmosEmulatorTestStore.ContainerCrudSemaphore.WaitAsync();
+        }
+        try
+        {
+            return await action();
+        }
+        finally
+        {
+            if (TestEnvironment.IsEmulator)
+            {
+                CosmosEmulatorTestStore.ContainerCrudSemaphore.Release();
+            }
+        }
     }
 
     private class BaseContext(CosmosTestStore testStore) : DbContext

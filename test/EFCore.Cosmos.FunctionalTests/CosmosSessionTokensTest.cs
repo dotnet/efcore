@@ -1,14 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
+[Collection(nameof(CosmosSessionTokensTest))]
 public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixture) : IClassFixture<CosmosSessionTokensTest.CosmosFixture>
 {
     private const string DatabaseName = nameof(CosmosSessionTokensTest);
@@ -17,15 +16,13 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
     protected CosmosFixture Fixture { get; } = fixture;
 
-    private static TestSessionTokenStorage _sessionTokenStorage = null!;
-
     [ConditionalFact]
     public virtual async Task AppendSessionToken_uses_AppendDefaultContainerSessionToken()
     {
         using var context = await CreateContext();
         var arg = "0:-1#231";
         context.Database.AppendSessionToken(arg);
-        Assert.Equal(arg, _sessionTokenStorage.AppendDefaultContainerSessionTokenCalls.Single());
+        Assert.Equal(arg, Fixture.SessionTokenStorage.AppendDefaultContainerSessionTokenCalls.Single());
     }
 
     [ConditionalFact]
@@ -35,7 +32,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         var arg = new Dictionary<string, string> { { OtherContainerName, "0:-1#123" }, { nameof(CosmosSessionTokenContext), "0:-1#231" } };
         context.Database.AppendSessionTokens(arg);
-        Assert.Equal(arg, _sessionTokenStorage.AppendSessionTokensCalls.Single());
+        Assert.Equal(arg, Fixture.SessionTokenStorage.AppendSessionTokensCalls.Single());
     }
 
     [ConditionalFact]
@@ -44,7 +41,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         using var context = await CreateContext();
         var arg = "0:-1#231";
         context.Database.UseSessionToken(arg);
-        Assert.Equal(arg, _sessionTokenStorage.SetDefaultContainerSessionTokenCalls.Single());
+        Assert.Equal(arg, Fixture.SessionTokenStorage.SetDefaultContainerSessionTokenCalls.Single());
     }
 
     [ConditionalFact]
@@ -54,16 +51,16 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         var arg = new Dictionary<string, string?> { { OtherContainerName, "0:-1#123" }, { nameof(CosmosSessionTokenContext), "0:-1#231" } };
         context.Database.UseSessionTokens(arg);
-        Assert.Equal(arg, _sessionTokenStorage.SetSessionTokensCalls.Single());
+        Assert.Equal(arg, Fixture.SessionTokenStorage.SetSessionTokensCalls.Single());
     }
 
     [ConditionalFact]
     public virtual async Task GetSessionTokens_uses_GetTrackedSessionTokens()
     {
         using var context = await CreateContext();
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "0:-1#123" }, { nameof(CosmosSessionTokenContext), "0:-1#231" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "0:-1#123" }, { nameof(CosmosSessionTokenContext), "0:-1#231" } };
         var sessionTokens = context.Database.GetSessionTokens();
-        Assert.Equal(_sessionTokenStorage.SessionTokens, sessionTokens);
+        Assert.Equal(Fixture.SessionTokenStorage.SessionTokens, sessionTokens);
     }
 
     [ConditionalFact]
@@ -71,7 +68,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
     {
         using var context = await CreateContext();
 
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
 
         var exes = new List<CosmosException>
         {
@@ -90,7 +87,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
     {
         using var context = await CreateContext();
 
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
 
         var exes = new List<CosmosException>()
         {
@@ -109,7 +106,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
     {
         using var context = await CreateContext();
 
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
 
         var exes = new List<CosmosException>()
         {
@@ -128,7 +125,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
     {
         using var context = await CreateContext();
 
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { OtherContainerName, "invalidtoken" }, { nameof(CosmosSessionTokenContext), "invalidtoken" } };
 
         var exes = new List<CosmosException>()
         {
@@ -150,9 +147,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.Customers.ToListAsync();
         await context.OtherContainerCustomers.ToListAsync();
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.First();
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Last();
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.First();
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.Last();
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -169,9 +166,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.Customers.ToPageAsync(1, null);
         await context.OtherContainerCustomers.ToPageAsync(1, null);
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.First();
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Last();
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.First();
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.Last();
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -188,9 +185,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.Customers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1");
         await context.OtherContainerCustomers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1");
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.First();
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Last();
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.First();
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.Last();
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -207,9 +204,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.Customers.Where(x => x.Id == "1" && x.PartitionKey == "1").ToListAsync();
         await context.OtherContainerCustomers.Where(x => x.Id == "1" && x.PartitionKey == "1").ToListAsync();
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.First();
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Last();
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.First();
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.Last();
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -228,9 +225,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.First();
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Last();
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.First();
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls.Last();
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -257,8 +254,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(1, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var call = _sessionTokenStorage.TrackSessionTokenCalls.First();
+        Assert.Equal(1, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var call = Fixture.SessionTokenStorage.TrackSessionTokenCalls.First();
 
         if (defaultContainer)
         {
@@ -286,17 +283,17 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         await context.SaveChangesAsync();
 
-        var initialDefaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[0];
-        var initialOtherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[1];
+        var initialDefaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[0];
+        var initialOtherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[1];
 
         context.Customers.Remove(customer);
         context.OtherContainerCustomers.Remove(otherContainerCustomer);
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(4, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[2];
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[3];
+        Assert.Equal(4, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[2];
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[3];
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -332,7 +329,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.SaveChangesAsync();
 
         context.ChangeTracker.Clear();
-        var initialCall = _sessionTokenStorage.TrackSessionTokenCalls[0];
+        var initialCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[0];
 
         if (defaultContainer)
         {
@@ -345,8 +342,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var call = _sessionTokenStorage.TrackSessionTokenCalls[1];
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var call = Fixture.SessionTokenStorage.TrackSessionTokenCalls[1];
 
         if (defaultContainer)
         {
@@ -377,17 +374,17 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         await context.SaveChangesAsync();
 
-        var initialDefaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[0];
-        var initialOtherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[1];
+        var initialDefaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[0];
+        var initialOtherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[1];
 
         customer.Name = "updated";
         otherContainerCustomer.Name = "updated";
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(4, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[2];
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls[3];
+        Assert.Equal(4, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var defaultContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[2];
+        var otherContainerCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[3];
 
         Assert.Equal(nameof(CosmosSessionTokenContext), defaultContainerCall.containerName);
         Assert.NotEmpty(defaultContainerCall.sessionToken);
@@ -422,7 +419,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         await context.SaveChangesAsync();
 
         context.ChangeTracker.Clear();
-        var initialCall = _sessionTokenStorage.TrackSessionTokenCalls[0];
+        var initialCall = Fixture.SessionTokenStorage.TrackSessionTokenCalls[0];
 
         if (defaultContainer)
         {
@@ -435,8 +432,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         await context.SaveChangesAsync();
 
-        Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
-        var call = _sessionTokenStorage.TrackSessionTokenCalls[1];
+        Assert.Equal(2, Fixture.SessionTokenStorage.TrackSessionTokenCalls.Count);
+        var call = Fixture.SessionTokenStorage.TrackSessionTokenCalls[1];
 
         if (defaultContainer)
         {
@@ -467,7 +464,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName, "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName, "invalidtoken" } };
 
         if (defaultContainer)
         {
@@ -498,7 +495,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         var sessionTokens = context.Database.GetSessionTokens();
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName, "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName, "invalidtoken" } };
 
         if (defaultContainer)
         {
@@ -529,7 +526,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         var sessionTokens = context.Database.GetSessionTokens();
         // Only way we can test this is by setting a session token that will fail the request if used..
         // Only way to do this for a write is to set an invalid session token..
-        _sessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName, "invalidtoken" } };
+        Fixture.SessionTokenStorage.SessionTokens = new Dictionary<string, string?> { { defaultContainer ? nameof(CosmosSessionTokenContext) : OtherContainerName, "invalidtoken" } };
 
         if (defaultContainer)
         {
@@ -601,14 +598,15 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
+    [Collection(nameof(CosmosSessionTokensTest))]
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {
         protected override ITestStoreFactory TestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-        protected override string StoreName => nameof(CosmosSessionTokensTest);
+        protected override string StoreName => nameof(CosmosNonSharedSessionTokenTests);
 
-        protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
+        protected override TestStore CreateTestStore() => CosmosTestStoreFactory.Instance.Create(StoreName, extensionConfiguration: (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
         [ConditionalFact]
         public virtual async Task UseSessionTokens_uses_session_tokens()
@@ -724,21 +722,22 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         [ConditionalFact]
         public virtual async Task Pooled_context_clears_SessionTokenStorage()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>(addServices: services => services.Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>()));
+            TestSessionTokenStorage sessionTokenStorage = null!;
+            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>(addServices: services => services.Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>((_) => new TestSessionTokenStorageFactory((storage) => sessionTokenStorage = storage))));
             DbContext contextCopy;
             ISessionTokenStorage sessionTokenStorageCopy;
             using (var context = contextFactory.CreateContext())
             {
                 contextCopy = context;
                 sessionTokenStorageCopy = ((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage;
-                _sessionTokenStorage.ClearCalled = false;
+                sessionTokenStorage.ClearCalled = false;
             }
 
             using var newContext = contextFactory.CreateContext();
 
             Assert.Same(newContext, contextCopy);
             Assert.Same(sessionTokenStorageCopy, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
-            Assert.True(_sessionTokenStorage.ClearCalled);
+            Assert.True(sessionTokenStorage.ClearCalled);
         }
     }
 
@@ -748,17 +747,21 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         context.RemoveRange(await context.Customers.ToListAsync());
         context.RemoveRange(await context.OtherContainerCustomers.ToListAsync());
         await context.SaveChangesAsync();
-        _sessionTokenStorage.TrackSessionTokenCalls.Clear();
+        Fixture.SessionTokenStorage.TrackSessionTokenCalls.Clear();
         return context;
     }
 
-    private class TestSessionTokenStorageFactory : ISessionTokenStorageFactory
+    private class TestSessionTokenStorageFactory(Action<TestSessionTokenStorage> action) : ISessionTokenStorageFactory
     {
         public ISessionTokenStorage Create(DbContext _)
-            => _sessionTokenStorage = new();
+        {
+            var testStorage = new TestSessionTokenStorage();
+            action(testStorage);
+            return testStorage;
+        }
     }
 
-    private class TestSessionTokenStorage : ISessionTokenStorage
+    public class TestSessionTokenStorage : ISessionTokenStorage
     {
         public Dictionary<string, string?> SessionTokens { get; set; } = new() { { nameof(CosmosSessionTokenContext), null }, { OtherContainerName, null } };
 
@@ -784,6 +787,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
     public class CosmosFixture : SharedStoreFixtureBase<CosmosSessionTokenContext>
     {
+        public TestSessionTokenStorage SessionTokenStorage { get; set; } = null!;
+
         protected override string StoreName
             => DatabaseName;
 
@@ -791,7 +796,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             => CosmosTestStoreFactory.Instance;
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection).Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>());
+            => base.AddServices(serviceCollection).Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>((_) => new TestSessionTokenStorageFactory((s) => SessionTokenStorage = s)));
     }
 
     public class CosmosSessionTokenContext(DbContextOptions options) : PoolableDbContext(options)
