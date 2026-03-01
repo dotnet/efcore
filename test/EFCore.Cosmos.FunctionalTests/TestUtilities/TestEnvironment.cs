@@ -46,4 +46,6 @@ public static class TestEnvironment
         : Enum.Parse<AzureLocation>(Config["AzureLocation"]);
 
     public static bool IsEmulator { get; } = !UseTokenCredential && (AuthToken == _emulatorAuthToken);
+
+    public static bool SkipConnectionCheck { get; } = Config["SkipConnectionCheck"] == "true";
 }
