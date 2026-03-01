@@ -481,14 +481,14 @@ GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
 
         AssertSql(
             """
-SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[CustomerId], [s].[OrderDate], [s].[Total], [s].[Id0]
+SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[CustomerId], [s].[OrderDate], [s].[Total]
 FROM [CustomerForLinq] AS [c]
 LEFT JOIN (
     SELECT [o].[Id], [o].[CustomerId], [o].[OrderDate], [o].[Total], [c0].[Id] AS [Id0]
     FROM [OrderForLinq] AS [o]
     LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
 ) AS [s] ON [c].[Id] = [s].[Id0]
-ORDER BY [c].[Id], [s].[Id]
+ORDER BY [c].[Id]
 """);
     }
 
@@ -752,7 +752,7 @@ LEFT JOIN (
     WHERE [p2].[row] <= 1
 ) AS [p3] ON [p1].[FirstName] = [p3].[FirstName]
 LEFT JOIN [Shoes] AS [s] ON [p3].[Id] = [s].[PersonId]
-ORDER BY [p1].[FirstName], [p3].[Id]
+ORDER BY [p1].[FirstName]
 """);
     }
 
@@ -854,7 +854,7 @@ GROUP BY [s].[Style]
 
         AssertSql(
             """
-SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[Id0], [o0].[Id], [o0].[CustomerId], [o0].[OrderDate], [o0].[Total], CASE
+SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [o0].[Id], [o0].[CustomerId], [o0].[OrderDate], [o0].[Total], CASE
     WHEN [s].[Id] IS NULL THEN -1
     ELSE [s].[Id]
 END
@@ -865,7 +865,7 @@ LEFT JOIN (
     LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
 ) AS [s] ON [c].[Id] = [s].[Id0]
 LEFT JOIN [OrderForLinq] AS [o0] ON [c].[Id] = [o0].[CustomerId]
-ORDER BY [c].[Id], [s].[Id], [s].[Id0]
+ORDER BY [c].[Id], [s].[Id]
 """);
     }
 
@@ -887,7 +887,7 @@ GROUP BY [p].[Category]
 
         AssertSql(
             """
-SELECT [p2].[LastName], [p2].[c], [p4].[Id], [p6].[Id], [p6].[Age], [p6].[FirstName], [p6].[LastName], [p6].[MiddleInitial], [p4].[Age], [p4].[FirstName], [p4].[LastName], [p4].[MiddleInitial]
+SELECT [p2].[LastName], [p2].[c], [p6].[Id], [p6].[Age], [p6].[FirstName], [p6].[LastName], [p6].[MiddleInitial], [p4].[Id], [p4].[Age], [p4].[FirstName], [p4].[LastName], [p4].[MiddleInitial]
 FROM (
     SELECT [p].[LastName], COUNT(*) AS [c]
     FROM [Person] AS [p]
@@ -909,7 +909,7 @@ LEFT JOIN (
     ) AS [p5]
     WHERE [p5].[row] <= 2
 ) AS [p6] ON [p2].[LastName] = [p6].[LastName]
-ORDER BY [p2].[LastName] DESC, [p4].[Id], [p6].[LastName], [p6].[Id]
+ORDER BY [p2].[LastName] DESC, [p6].[LastName], [p6].[Id]
 """);
     }
 
