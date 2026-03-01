@@ -45,13 +45,6 @@
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.NativeAotTests/*.csproj"/>
   </ItemGroup>
 
-  <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))'">
-    <XUnitProject Update="$(RepoRoot)/test/EFCore.InMemory.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.Sqlite.FunctionalTests/*.csproj;$(RepoRoot)/test/ef.Tests/*.csproj">
-      <PreCommands>$(PreCommands); export COMPlus_EnableWriteXorExecute=0</PreCommands>
-    </XUnitProject>
-  </ItemGroup>
-
   <!-- Start LocalDb instance for test projects which uses SqlServer on windows -->
   <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
     <XUnitProject Update="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
