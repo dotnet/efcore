@@ -1,0 +1,18 @@
+name: Auto Sync Fork
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # перевіряє кожні 30 хвилин
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync fork
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          upstream_sync_repo: ORIGINAL_OWNER/ORIGINAL_REPO
+          upstream_sync_branch: main
+          target_sync_branch: main
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
