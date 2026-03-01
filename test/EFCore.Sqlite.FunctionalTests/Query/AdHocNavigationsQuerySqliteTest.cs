@@ -40,4 +40,18 @@ public class AdHocNavigationsQuerySqliteTest(NonSharedFixture fixture) : AdHocNa
 
         AssertSql();
     }
+
+    public override async Task Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(bool async)
+    {
+        await base.Consecutive_selects_with_conditional_projection_should_not_include_unnecessary_joins(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "j"."Id" IS NULL, "j"."Id"
+FROM "Users" AS "u"
+LEFT JOIN "Job" AS "j" ON "u"."JobId" = "j"."Id"
+WHERE "u"."Id" = 1
+LIMIT 1
+""");
+    }
 }
