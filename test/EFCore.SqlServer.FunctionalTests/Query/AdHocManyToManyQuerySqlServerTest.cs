@@ -67,7 +67,7 @@ LEFT JOIN (
     WHERE [m3].[Id] = @p
 ) AS [s0] ON [s].[Id] = [s0].[ManyN_Id]
 WHERE [m].[Id] = @p
-ORDER BY [m].[Id], [s].[Id0], [s].[Id], [s0].[Id]
+ORDER BY [m].[Id], [s].[Id0]
 """,
             //
             """
@@ -95,7 +95,7 @@ LEFT JOIN (
     WHERE [m3].[Id] = @p
 ) AS [s0] ON [s].[Id] = [s0].[ManyM_Id]
 WHERE [m].[Id] = @p
-ORDER BY [m].[Id], [s].[Id0], [s].[Id], [s0].[Id]
+ORDER BY [m].[Id], [s].[Id0]
 """);
     }
 }

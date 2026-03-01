@@ -165,7 +165,7 @@ ORDER BY [l1].[Name], [l1].[Id], [l2].[Id], [l4].[Id]
 
         AssertSql(
             """
-SELECT [l].[Id], [l4].[Id], [l5].[Name], [l5].[Id], [l4].[c]
+SELECT [l].[Id], [l5].[Name], [l5].[Id], [l4].[c]
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT [l3].[c], [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[PeriodEnd], [l3].[PeriodStart], [l3].[OneToMany_Optional_Inverse2Id]
@@ -186,7 +186,7 @@ OUTER APPLY (
             WHEN [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l4].[Id]
         END)
 ) AS [l5]
-ORDER BY [l].[Id], [l4].[Id]
+ORDER BY [l].[Id]
 """);
     }
 
@@ -1486,7 +1486,7 @@ LEFT JOIN (
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
     WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [l5] ON [l4].[Id] = [l5].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l2].[Name], [l4].[Id]
+ORDER BY [l2].[Name]
 """);
     }
 
@@ -1516,7 +1516,7 @@ LEFT JOIN (
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
     WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [l5] ON [l4].[Id] = [l5].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l2].[Name], [l4].[Id]
+ORDER BY [l2].[Name]
 """);
     }
 
@@ -1547,7 +1547,7 @@ LEFT JOIN (
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
     WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [l5] ON [l4].[Id] = [l5].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l2].[Name], [l4].[Id]
+ORDER BY [l2].[Name]
 """);
     }
 
@@ -1892,17 +1892,17 @@ ORDER BY [l].[Id], [s].[Id], [s].[Id0]
             """
 @p='25'
 
-SELECT [l2].[Id], [l4].[Id0], [l5].[Id], [l5].[Id0], [l4].[Id], [l4].[c]
+SELECT [l2].[Id], [l5].[Id], [l5].[Id0], [l4].[Id], [l4].[c]
 FROM (
     SELECT TOP(@p) [l].[Id]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 ) AS [l2]
 LEFT JOIN (
-    SELECT [l3].[Id], [l3].[c], [l3].[Id0], [l3].[OneToMany_Required_Inverse2Id]
+    SELECT [l3].[Id], [l3].[c], [l3].[OneToMany_Required_Inverse2Id]
     FROM (
         SELECT CASE
             WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
-        END AS [Id], 1 AS [c], [l0].[Id] AS [Id0], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        END AS [Id], 1 AS [c], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
         WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [l3]
@@ -1915,7 +1915,7 @@ LEFT JOIN (
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
     WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [l5] ON [l2].[Id] = [l5].[OneToMany_Required_Inverse2Id]
-ORDER BY [l2].[Id], [l4].[Id0]
+ORDER BY [l2].[Id]
 """);
     }
 
@@ -2853,7 +2853,7 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-SELECT [l].[Id], [l3].[Id], [l4].[Id], [l4].[Id0], [l3].[c]
+SELECT [l].[Id], [l4].[Id], [l4].[Id0], [l3].[c]
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT [l2].[c], [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[PeriodEnd], [l2].[PeriodStart], [l2].[OneToMany_Optional_Inverse2Id]
@@ -2875,7 +2875,7 @@ LEFT JOIN (
 ) AS [l4] ON CASE
     WHEN [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l3].[Id]
 END = [l4].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l3].[Id], [l4].[Id]
+ORDER BY [l].[Id], [l4].[Id]
 """);
     }
 
@@ -2885,10 +2885,10 @@ ORDER BY [l].[Id], [l3].[Id], [l4].[Id]
 
         AssertSql(
             """
-SELECT [l].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id00], [s].[c]
+SELECT [l].[Id], [s].[Id], [s].[Id0], [s].[Id00], [s].[c]
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
-    SELECT [l0].[Id], [l4].[Id] AS [Id0], [l5].[Id] AS [Id1], [l5].[Id0] AS [Id00], [l4].[c], CASE
+    SELECT [l0].[Id], [l5].[Id] AS [Id0], [l5].[Id0] AS [Id00], [l4].[c], CASE
         WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
     END AS [c0], [l0].[OneToMany_Optional_Inverse2Id]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
@@ -2916,7 +2916,7 @@ LEFT JOIN (
     END = [l5].[OneToMany_Optional_Inverse4Id]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [s] ON [l].[Id] = [s].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [s].[c0], [s].[Id], [s].[Id0], [s].[Id1]
+ORDER BY [l].[Id], [s].[c0], [s].[Id], [s].[Id0]
 """);
     }
 
@@ -3167,7 +3167,7 @@ OUTER APPLY (
     ) AS [l2]
     INNER JOIN [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l2].[Level1_Required_Id] = [l1].[Id]
 ) AS [s]
-ORDER BY [l3].[Id], [s].[c], [s].[Id1]
+ORDER BY [l3].[Id], [s].[c]
 """);
     }
 
@@ -3270,7 +3270,7 @@ OUTER APPLY (
     ) AS [l2]
     INNER JOIN [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l2].[Level1_Required_Id] = [l1].[Id]
 ) AS [s]
-ORDER BY [l3].[Id], [s].[c], [s].[Id1]
+ORDER BY [l3].[Id], [s].[c]
 """);
     }
 
