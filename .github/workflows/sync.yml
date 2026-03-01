@@ -18,7 +18,7 @@ jobs:
       - name: Sync fork
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
-          upstream_sync_repo: ORIGINAL_OWNER/ORIGINAL_REPO
+          upstream_sync_repo: dotnet/efcore
           upstream_sync_branch: main
           target_sync_branch: main
           target_repo_token: ${{ secrets.GITHUB_TOKEN }}
