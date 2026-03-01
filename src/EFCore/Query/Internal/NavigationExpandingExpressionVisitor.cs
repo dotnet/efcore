@@ -58,6 +58,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<string, object?> _parameters = new();
 
+    private static readonly bool UseOldBehavior37247 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37247", out var enabled) && enabled;
+
+    private static readonly bool UseOldBehavior37771 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37771", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -830,7 +836,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 return ConvertToEnumerable(method, visitedArguments);
             }
 
-            return ProcessUnknownMethod(methodCallExpression);
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
         }
 
         // Remove MaterializeCollectionNavigationExpression when applying ToList/ToArray
@@ -840,22 +846,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             return methodCallExpression.Update(
                 null, [UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0]))]);
-        }
-
-        // HACK: Nav expansion isn't properly extensible for new queryable operators; so we need to do the following to support
-        // SQL Server TVFs. Should be fixed by fully removing nav expansion (#32957).
-        if (methodCallExpression is
-            {
-                Method.Name: "FreeTextTable" or "ContainsTable" or "VectorSearch",
-                Method.DeclaringType.Name: "SqlServerQueryableExtensions",
-                Method.DeclaringType.Namespace: "Microsoft.EntityFrameworkCore"
-            })
-        {
-            var visited = ProcessUnknownMethod(methodCallExpression);
-            var currentTree = new NavigationTreeExpression(Expression.Default(methodCallExpression.Method.ReturnType.GetSequenceType()));
-            var parameterName = GetParameterName(methodCallExpression.Method.Name[0].ToString().ToLowerInvariant());
-
-            return new NavigationExpansionExpression(visited, currentTree, currentTree, parameterName);
         }
 
         return ProcessUnknownMethod(methodCallExpression);
@@ -1080,13 +1070,23 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
 
-        // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
-        // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
-        var newStructure = SnapshotExpression(source.PendingSelector);
-        var queryable = Reduce(source);
-        var navigationTree = new NavigationTreeExpression(newStructure);
-        var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
-        source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
+        if (!UseOldBehavior37247)
+        {
+            // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
+            // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
+            // However, only do this when the pending selector produces entity/structural type references (i.e. the snapshot is not just
+            // a DefaultExpression). When the pending selector projects only scalar values (e.g. select new { p.Used, n.Qty }),
+            // applying it would lose the connection between the projected scalar and the original entity property, breaking
+            // ExecuteUpdate's property selector recognition (#37771).
+            var newStructure = SnapshotExpression(source.PendingSelector);
+            if (newStructure is not DefaultExpression || UseOldBehavior37771)
+            {
+                var queryable = Reduce(source);
+                var navigationTree = new NavigationTreeExpression(newStructure);
+                var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
+                source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
+            }
+        }
 
         NewArrayExpression settersArray;
         switch (setters)
