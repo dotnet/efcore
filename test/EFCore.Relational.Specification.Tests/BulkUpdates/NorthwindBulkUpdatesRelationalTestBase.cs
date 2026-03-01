@@ -99,6 +99,44 @@ WHERE [CustomerID] LIKE 'A%'"));
                 }
             });
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37771
+    public virtual Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            () => Fixture.CreateContext(),
+            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
+            async context =>
+            {
+                var queryable = context.Set<Customer>().Select(c => new { Entity = c, c.ContactName });
+
+                if (async)
+                {
+                    await queryable.ExecuteUpdateAsync(s => s.SetProperty(c => c.Entity.ContactName, "Updated"));
+                }
+                else
+                {
+                    queryable.ExecuteUpdate(s => s.SetProperty(c => c.Entity.ContactName, "Updated"));
+                }
+            });
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37771
+    public virtual Task Update_with_select_scalar_anonymous_projection(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            () => Fixture.CreateContext(),
+            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
+            async context =>
+            {
+                var queryable = context.Set<Customer>().Select(c => new { c.ContactName, c.City });
+
+                if (async)
+                {
+                    await queryable.ExecuteUpdateAsync(s => s.SetProperty(c => c.ContactName, "Updated"));
+                }
+                else
+                {
+                    queryable.ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated"));
+                }
+            });
+
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);

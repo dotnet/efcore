@@ -167,7 +167,7 @@ WHERE (c["id"] = "ANATR")
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE false
+WHERE (c["id"] = null)
 """);
             });
 
@@ -181,6 +181,7 @@ WHERE false
                     """
 SELECT VALUE c["id"]
 FROM root c
+WHERE (c["id"] != null)
 """);
             });
 
@@ -532,28 +533,20 @@ ORDER BY ((c["UnitsInStock"] > 10) ? (c["ProductID"] > 40) : (c["ProductID"] <= 
 
     public override async Task Skip(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            Assert.Equal(
-                CosmosStrings.OffsetRequiresLimit,
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip(async))).Message);
+        Assert.Equal(
+            CosmosStrings.OffsetRequiresLimit,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip(async))).Message);
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override async Task Skip_no_orderby(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            Assert.Equal(
-                CosmosStrings.OffsetRequiresLimit,
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_no_orderby(async))).Message);
+        Assert.Equal(
+            CosmosStrings.OffsetRequiresLimit,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_no_orderby(async))).Message);
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override Task Skip_Take(bool async)
@@ -1918,23 +1911,16 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ")
                 await base.Environment_newline_is_funcletized(a);
 
                 var sql = Fixture.TestSqlLoggerFactory.SqlStatements[0];
-                var newlineString = Environment.NewLine switch
-                {
-                    "\n" => """\n""",
-                    "\r\n" => """\r\n""",
-                    _ => throw new UnreachableException()
-                };
-
-                Assert.Equal(
-                    $"""
-@NewLine='{newlineString}'
+                Assert.StartsWith("@NewLine='", sql);
+                Assert.EndsWith(
+                    """
+'
 
 SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["id"], @NewLine)
 """,
-                    sql,
-                    ignoreLineEndingDifferences: true);
+                    sql);
             });
 
     public override async Task String_concat_with_navigation1(bool async)
@@ -2030,18 +2016,6 @@ WHERE ((c["$type"] = "Order") AND ((c["OrderID"] < 10400) OR (((c["OrderDate"] !
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] = "Order")
-""");
-            });
-
-    public override Task Captured_variable_from_switch_case_pattern_matching(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Captured_variable_from_switch_case_pattern_matching(a);
-
-                AssertSql(
-                    """
-ReadItem(None, ALFKI)
 """);
             });
 
@@ -2894,7 +2868,7 @@ WHERE STARTSWITH(c["id"], @prefix)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE STARTSWITH(c["id"], "A")
+WHERE (STARTSWITH(c["id"], "A") AND NOT((c["id"] = null)))
 ORDER BY c["id"]
 """);
             });
@@ -2940,7 +2914,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE false
+WHERE (c["id"] = null)
 """);
             });
 
@@ -3440,15 +3414,11 @@ FROM root c
 
     public override async Task Skip_orderby_const(bool async)
     {
-        // Always throws for sync.
-        if (async)
-       {
-            Assert.Equal(
-                CosmosStrings.OffsetRequiresLimit,
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_orderby_const(async))).Message);
+        Assert.Equal(
+            CosmosStrings.OffsetRequiresLimit,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_orderby_const(async))).Message);
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override Task Where_Property_when_shadow_unconstrained_generic_method(bool async)
@@ -4015,7 +3985,7 @@ FROM root c
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE false
+WHERE (c["id"] = null)
 """);
             });
 
@@ -4124,7 +4094,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] = "OrderDetail")
+WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] != null) AND (c["ProductID"] != null)))
 """);
             });
 
@@ -4194,12 +4164,7 @@ FROM root c
             {
                 await base.Null_parameter_name_works(a);
 
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE false
-""");
+                AssertSql("ReadItem(None, null)");
             });
 
     public override Task Where_Property_shadow_closure(bool async)
@@ -4292,7 +4257,7 @@ FROM root c
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND false)
+WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] = null) OR (c["ProductID"] = null)))
 """);
             });
 
@@ -4528,6 +4493,18 @@ OFFSET @p LIMIT @p
 
         AssertSql();
     }
+
+    public override Task Captured_variable_from_switch_case_pattern_matching(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Captured_variable_from_switch_case_pattern_matching(a);
+
+                AssertSql(
+                    """
+ReadItem(None, ALFKI)
+""");
+            });
 
     public override async Task Where_query_composition5(bool async)
     {
@@ -5045,18 +5022,6 @@ WHERE (c["id"] = "ALFKI")
     {
         // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Late_subquery_pushdown(async));
-
-        AssertSql();
-    }
-
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual async Task Concat_on_entity_queries_throws(bool async)
-    {
-        await AssertTranslationFailedWithDetails(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Concat(ss.Set<Customer>())),
-            CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
         AssertSql();
     }
