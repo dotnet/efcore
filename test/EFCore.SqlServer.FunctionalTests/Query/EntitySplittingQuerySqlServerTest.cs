@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class EntitySplittingQuerySqlServerTest(NonSharedFixture fixture) : EntitySplittingQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     [ConditionalFact]

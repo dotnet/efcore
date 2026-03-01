@@ -675,15 +675,12 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
     {
     }
 
-    public abstract class Ef6GroupByFixtureBase : SharedStoreFixtureBase<ArubaContext>, IQueryFixtureBase
+    public abstract class Ef6GroupByFixtureBase : QueryFixtureBase<ArubaContext>
     {
         private ArubaData _expectedData;
 
         protected override string StoreName
             => "Ef6GroupByTest";
-
-        public Func<DbContext> GetContextCreator()
-            => () => CreateContext();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -729,10 +726,10 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
             return context.SaveChangesAsync();
         }
 
-        public virtual ISetSource GetExpectedData()
+        public override ISetSource GetExpectedData()
             => _expectedData ??= new ArubaData();
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {
             { typeof(CustomerForLinq), e => ((CustomerForLinq)e)?.Id },
             { typeof(OrderForLinq), e => ((OrderForLinq)e)?.Id },
@@ -741,7 +738,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
             { typeof(Feet), e => ((Feet)e)?.Id }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
         {
             {
                 typeof(CustomerForLinq), (e, a) =>

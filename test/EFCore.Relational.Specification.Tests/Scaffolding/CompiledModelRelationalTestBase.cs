@@ -1357,7 +1357,7 @@ public partial class DbContextModel
         return build;
     }
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 }

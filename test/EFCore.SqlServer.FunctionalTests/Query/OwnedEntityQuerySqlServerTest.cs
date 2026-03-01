@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 22054
@@ -19,8 +19,8 @@ public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEnti
     [ConditionalFact]
     public virtual async Task Optional_dependent_is_null_when_sharing_required_column_with_principal()
     {
-        var contextFactory = await InitializeAsync<Context22054>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22054>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context22054.User22054>().OrderByDescending(e => e.Id).ToList();
         Assert.Equal(3, query.Count);
         Assert.Null(query[0].Contact);
@@ -142,8 +142,8 @@ ORDER BY [u].[Id] DESC
     [ConditionalFact]
     public virtual async Task Owned_entity_mapped_to_separate_table()
     {
-        var contextFactory = await InitializeAsync<Context22340>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22340>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault();
 
         Assert.NotNull(masterTrunk);
@@ -238,8 +238,8 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
     [ConditionalFact]
     public virtual async Task Collection_include_on_owner_with_owned_type_mapped_to_different_table()
     {
-        var contextFactory = await InitializeAsync<Context23211>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context23211>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var owner = context.Set<Context23211.Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
             Assert.NotNull(owner.Dependents);
@@ -272,7 +272,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
 """);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             ClearLog();
             var owner = context.Set<Context23211.SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id)

@@ -603,18 +603,18 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {
-        protected override ITestStoreFactory TestStoreFactory
+        protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-        protected override string StoreName => nameof(CosmosSessionTokensTest);
+        protected override string NonSharedStoreName => nameof(CosmosSessionTokensTest);
 
-        protected override TestStore CreateTestStore() => CosmosTestStore.Create(StoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
+        protected override TestStore CreateTestStore() => CosmosTestStore.Create(NonSharedStoreName, (cfg) => cfg.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic));
 
         [ConditionalFact]
         public virtual async Task UseSessionTokens_uses_session_tokens()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+            using var context = contextFactory.CreateDbContext();
 
             context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
             context.OtherContainerCustomers.Add(new OtherContainerCustomer { Id = "1", PartitionKey = "1" });
@@ -646,8 +646,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         [ConditionalFact]
         public virtual async Task ReadItem_does_not_exist_returns_null()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+            using var context = contextFactory.CreateDbContext();
 
             var result = await context.Customers.FirstOrDefaultAsync(x => x.Id == "nonexistent" && x.PartitionKey == "nonexistent");
 
@@ -657,8 +657,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         [ConditionalFact]
         public virtual async Task Read_item_session_not_found_throws_CosmosException()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+            using var context = contextFactory.CreateDbContext();
 
             context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
             context.OtherContainerCustomers.Add(new OtherContainerCustomer { Id = "1", PartitionKey = "1" });
@@ -690,11 +690,11 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         [ConditionalFact]
         public virtual async Task New_context_does_not_use_same_SessionTokenStorage()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
-            using var context = contextFactory.CreateContext();
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+            using var context = contextFactory.CreateDbContext();
             context.Database.UseSessionToken("A");
 
-            using var newContext = contextFactory.CreateContext();
+            using var newContext = contextFactory.CreateDbContext();
             Assert.NotSame(context, newContext);
             Assert.Null(newContext.Database.GetSessionToken());
             Assert.Equal("A", context.Database.GetSessionToken());
@@ -704,17 +704,17 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         [ConditionalFact]
         public virtual async Task Pooled_context_uses_same_SessionTokenStorage()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>();
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
             DbContext contextCopy;
             ISessionTokenStorage sessionTokenStorageCopy;
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 contextCopy = context;
                 context.Database.UseSessionToken("A");
                 sessionTokenStorageCopy = ((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage;
             }
 
-            using var newContext = contextFactory.CreateContext();
+            using var newContext = contextFactory.CreateDbContext();
 
             Assert.Same(newContext, contextCopy);
             Assert.Same(sessionTokenStorageCopy, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
@@ -724,17 +724,17 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         [ConditionalFact]
         public virtual async Task Pooled_context_clears_SessionTokenStorage()
         {
-            var contextFactory = await InitializeAsync<CosmosSessionTokenContext>(addServices: services => services.Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>()));
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>(addServices: services => services.Replace(ServiceDescriptor.Singleton<ISessionTokenStorageFactory, TestSessionTokenStorageFactory>()));
             DbContext contextCopy;
             ISessionTokenStorage sessionTokenStorageCopy;
-            using (var context = contextFactory.CreateContext())
+            using (var context = contextFactory.CreateDbContext())
             {
                 contextCopy = context;
                 sessionTokenStorageCopy = ((CosmosDatabaseWrapper)context.GetService<IDatabase>()).SessionTokenStorage;
                 _sessionTokenStorage.ClearCalled = false;
             }
 
-            using var newContext = contextFactory.CreateContext();
+            using var newContext = contextFactory.CreateDbContext();
 
             Assert.Same(newContext, contextCopy);
             Assert.Same(sessionTokenStorageCopy, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);

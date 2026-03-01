@@ -72,7 +72,7 @@ FROM [BlogsView] AS [b]
     [ConditionalFact]
     public virtual async Task Complex_type_equality_with_non_default_type_mapping()
     {
-        var contextFactory = await InitializeAsync<Context36837>(
+        var contextFactory = await InitializeNonSharedTest<Context36837>(
             seed: context =>
             {
                 context.AddRange(
@@ -83,7 +83,7 @@ FROM [BlogsView] AS [b]
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var count = await context.Set<Context36837.EntityType>()
             .CountAsync(b => b.ComplexThing == new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1, 1, 1, 1, 999, 999) });
@@ -117,6 +117,6 @@ WHERE [e].[ComplexThing_DateTime] = '2020-01-01T01:01:01.999'
 
     #endregion 36837
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

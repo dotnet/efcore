@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocNavigationsQueryTests";
 
     #region 3409
@@ -21,9 +21,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task ThenInclude_with_interface_navigations()
     {
-        var contextFactory = await InitializeAsync<Context3409>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context3409>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var results = context.Parents
                 .Include(p => p.ChildCollection)
@@ -35,7 +35,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, results[0].ChildCollection.Single().SelfReferenceCollection.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var results = context.Children
                 .Select(c => new { c.SelfReferenceBackNavigation, c.SelfReferenceBackNavigation.ParentBackNavigation })
@@ -46,7 +46,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, results.Count(c => c.ParentBackNavigation != null));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var results = context.Children
                 .Select(c => new
@@ -65,7 +65,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, results.Count(c => c.ParentBackNavigationB != null));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var results = context.Children
                 .Include(c => c.SelfReferenceBackNavigation)
@@ -158,9 +158,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Customer_collections_materialize_properly()
     {
-        var contextFactory = await InitializeAsync<Context3758>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context3758>(seed: c => c.SeedAsync());
 
-        using var ctx = contextFactory.CreateContext();
+        using var ctx = contextFactory.CreateDbContext();
 
         var query1 = ctx.Customers.Select(c => c.Orders1);
         var result1 = query1.ToList();
@@ -300,9 +300,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Reference_include_on_derived_type_with_sibling_works()
     {
-        var contextFactory = await InitializeAsync<Context7312>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context7312>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Proposals.OfType<Context7312.ProposalLeave>().Include(l => l.LeaveType).ToList();
 
@@ -357,9 +357,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Include_collection_optional_reference_collection()
     {
-        var contextFactory = await InitializeAsync<Context9038>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context9038>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = await context.People.OfType<Context9038.PersonTeacher9038>()
                 .Include(m => m.Students)
@@ -371,7 +371,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.True(result.All(r => r.Students.Count > 0));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = await context.Set<Context9038.PersonTeacher9038>()
                 .Include(m => m.Family.Members)
@@ -479,13 +479,13 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Include_with_order_by_on_interface_key()
     {
-        var contextFactory = await InitializeAsync<Context10635>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context10635>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents.Include(p => p.Children).OrderBy(p => p.Id).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents.OrderBy(p => p.Id).Select(p => p.Children.ToList()).ToList();
         }
@@ -538,8 +538,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Collection_without_setter_materialized_correctly()
     {
-        var contextFactory = await InitializeAsync<Context11923>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11923>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query1 = context.Blogs
             .Select(b => new
             {
@@ -654,9 +654,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Include_collection_works_when_defined_on_intermediate_type()
     {
-        var contextFactory = await InitializeAsync<Context11944>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context11944>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Schools.Include(s => ((Context11944.ElementarySchool)s).Students);
             var result = query.ToList();
@@ -665,7 +665,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, result.OfType<Context11944.ElementarySchool>().Single().Students.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Schools.Select(s => ((Context11944.ElementarySchool)s).Students.Where(ss => true).ToList());
             var result = query.ToList();
@@ -724,15 +724,15 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Let_multiple_references_with_reference_to_outer()
     {
-        var contextFactory = await InitializeAsync<Context12456>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context12456>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var users = (from a in context.Activities
                          let cs = context.CompetitionSeasons.First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
                          select new { cs.Id, Points = a.ActivityType.Points.Where(p => p.CompetitionSeason == cs) }).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var users = context.Activities
                 .Select(a => new
@@ -808,9 +808,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Include_collection_with_OfType_base()
     {
-        var contextFactory = await InitializeAsync<Context12582>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context12582>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Employees
                 .Include(i => i.Devices)
@@ -823,7 +823,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, employee.Devices.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Employees
                 .Select(e => e.Devices.Where(d => d.Device != "foo").Cast<Context12582.IEmployeeDevice>())
@@ -885,8 +885,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Correlated_collection_correctly_associates_entities_with_byte_array_keys()
     {
-        var contextFactory = await InitializeAsync<Context12748>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context12748>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = from blog in context.Blogs
                     select new { blog.Name, Comments = blog.Comments.Select(u => new { u.Id }).ToArray() };
         var result = query.ToList();
@@ -929,10 +929,10 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Can_ignore_invalid_include_path_error()
     {
-        var contextFactory = await InitializeAsync<Context20609>(
+        var contextFactory = await InitializeNonSharedTest<Context20609>(
             onConfiguring: o => o.ConfigureWarnings(x => x.Ignore(CoreEventId.InvalidIncludePathError)));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var result = context.Set<Context20609.ClassA>().Include("SubB").ToList();
     }
 
@@ -981,9 +981,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task SelectMany_and_collection_in_projection_in_FirstOrDefault()
     {
-        var contextFactory = await InitializeAsync<Context20813>();
+        var contextFactory = await InitializeNonSharedTest<Context20813>();
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var referenceId = "a";
         var customerId = new Guid("1115c816-6c4c-4016-94df-d8b60a22ffa1");
         var query = context.Orders
@@ -1059,8 +1059,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Using_explicit_interface_implementation_as_navigation_works()
     {
-        var contextFactory = await InitializeAsync<Context21768>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21768>();
+        using var context = contextFactory.CreateDbContext();
         Expression<Func<Context21768.IBook, Context21768.BookViewModel>> projection =
             b => new Context21768.BookViewModel
             {
@@ -1182,8 +1182,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Cycles_in_auto_include()
     {
-        var contextFactory = await InitializeAsync<Context22568>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context22568>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var principals = context.Set<Context22568.PrincipalOneToOne>().ToList();
             Assert.Single(principals);
@@ -1196,7 +1196,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.NotNull(dependents[0].Principal.Dependent);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var principals = context.Set<Context22568.PrincipalOneToMany>().ToList();
             Assert.Single(principals);
@@ -1210,7 +1210,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             Assert.True(dependents.All(e => e.Principal.Dependents.All(i => i.Principal != null)));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Assert.Equal(
                 CoreStrings.AutoIncludeNavigationCycle("'PrincipalManyToMany.Dependents', 'DependentManyToMany.Principals'"),
@@ -1224,7 +1224,7 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
             context.Set<Context22568.DependentManyToMany>().IgnoreAutoIncludes().ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Assert.Equal(
                 CoreStrings.AutoIncludeNavigationCycle("'CycleA.Bs', 'CycleB.C', 'CycleC.As'"),
@@ -1344,9 +1344,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_1()
     {
-        var contextFactory = await InitializeAsync<Context23674>();
+        var contextFactory = await InitializeNonSharedTest<Context23674>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Set<Context23674.Principal>()
                 .Include(p => p.ManyDependents)
@@ -1365,9 +1365,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_2()
     {
-        var contextFactory = await InitializeAsync<Context23674>();
+        var contextFactory = await InitializeNonSharedTest<Context23674>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Set<Context23674.Principal>().Include(p => p.SingleDependent.Principal.ManyDependents);
 
@@ -1384,9 +1384,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_3()
     {
-        var contextFactory = await InitializeAsync<Context23674>();
+        var contextFactory = await InitializeNonSharedTest<Context23674>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // This does not warn because after round-tripping from one-to-many from dependent side, the number of dependents could be larger.
             var query = context.Set<Context23674.ManyDependent>()
@@ -1399,9 +1399,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Walking_back_include_tree_is_not_allowed_4()
     {
-        var contextFactory = await InitializeAsync<Context23674>();
+        var contextFactory = await InitializeNonSharedTest<Context23674>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Set<Context23674.SingleDependent>().Include(p => p.ManyDependent.SingleDependent.Principal);
 
@@ -1452,9 +1452,9 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Projection_with_multiple_includes_and_subquery_with_set_operation()
     {
-        var contextFactory = await InitializeAsync<Context23676>();
+        var contextFactory = await InitializeNonSharedTest<Context23676>();
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var id = 1;
         var person = await context.Persons
             .Include(p => p.Images)
@@ -1592,8 +1592,8 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Count_member_over_IReadOnlyCollection_works(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26433>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26433>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Authors
             .Select(a => new { BooksCount = a.Books.Count });

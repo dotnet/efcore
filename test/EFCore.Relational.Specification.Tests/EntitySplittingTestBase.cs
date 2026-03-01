@@ -75,7 +75,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "EntitySplittingTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -103,7 +103,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         Func<DbContextOptionsBuilder, Task> onConfiguring = null,
         Func<EntitySplittingContext, Task> seed = null,
         bool sensitiveLogEnabled = true)
-        => ContextFactory = await InitializeAsync(
+        => ContextFactory = await InitializeNonSharedTest(
             onModelCreating,
             seed: seed,
             shouldLogCategory: _ => true,
@@ -117,7 +117,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         );
 
     protected virtual EntitySplittingContext CreateContext()
-        => ContextFactory.CreateContext();
+        => ContextFactory.CreateDbContext();
 
     public override async Task DisposeAsync()
     {

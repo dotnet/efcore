@@ -5,15 +5,15 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName => nameof(CosmosBulkExecutionTest);
+    protected override string NonSharedStoreName => nameof(CosmosBulkExecutionTest);
 
-    protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+    protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
 
     [ConditionalFact]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
     {
-        var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)));
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)));
+        using var context = contextFactory.CreateDbContext();
 
         context.Add(new Customer() { PartitionKey = "4" });
         context.AddRange(Enumerable.Range(0, 3).Select(x => new Customer()));
@@ -32,8 +32,8 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
     [ConditionalFact]
     public async Task SessionEnabled_Throws()
     {
-        var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled().SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)));
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled().SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)));
+        using var context = contextFactory.CreateDbContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context.Database.UseSessionToken("0:-1#1");
         context.Add(new Customer());
@@ -45,8 +45,8 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
     [ConditionalFact]
     public async Task Trigger_Throws()
     {
-        var contextFactory = await InitializeAsync<CosmosBulkExecutionContext>(onModelCreating: (b) => b.Entity<Customer>().HasTrigger(StoreName, Azure.Cosmos.Scripts.TriggerType.Post, Azure.Cosmos.Scripts.TriggerOperation.Create), onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()));
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(onModelCreating: (b) => b.Entity<Customer>().HasTrigger(NonSharedStoreName, Azure.Cosmos.Scripts.TriggerType.Post, Azure.Cosmos.Scripts.TriggerOperation.Create), onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()));
+        using var context = contextFactory.CreateDbContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context.Add(new Customer());
         var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());

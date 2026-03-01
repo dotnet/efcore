@@ -132,11 +132,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Project_entity_with_optional_json_entity_owned_by_required_json()
     {
-        var contextFactory = await InitializeAsync<Context34293>(
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
             onModelCreating: OnModelCreating34293,
             seed: ctx => ctx.Seed());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var entityProjection = await context.Set<Context34293.Entity>().ToListAsync();
 
         Assert.Equal(3, entityProjection.Count);
@@ -145,11 +145,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Project_required_json_entity()
     {
-        var contextFactory = await InitializeAsync<Context34293>(
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
             onModelCreating: OnModelCreating34293,
             seed: ctx => ctx.Seed());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var rootProjection =
             await context.Set<Context34293.Entity>().AsNoTracking().Where(x => x.Id != 3).Select(x => x.Json).ToListAsync();
@@ -171,11 +171,11 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Project_optional_json_entity_owned_by_required_json_entity()
     {
-        var contextFactory = await InitializeAsync<Context34293>(
+        var contextFactory = await InitializeNonSharedTest<Context34293>(
             onModelCreating: OnModelCreating34293,
             seed: ctx => ctx.Seed());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var leafProjection = await context.Set<Context34293.Entity>().AsNoTracking().Select(x => x.Json.Required.Optional).ToListAsync();
         Assert.Equal(3, leafProjection.Count);
     }
@@ -567,12 +567,12 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     [ConditionalFact] // #36145
     public virtual async Task Entity_splitting_with_owned_json()
     {
-        var contextFactory = await InitializeAsync<ContextEntitySplitting>(
+        var contextFactory = await InitializeNonSharedTest<ContextEntitySplitting>(
             onModelCreating: OnModelCreatingEntitySplitting,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEntitySplitting);
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var result = await context.Set<ContextEntitySplitting.MyEntity>().SingleAsync();
 
         Assert.Equal("split content", result.PropertyInOtherTable);
@@ -625,7 +625,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task HasJsonPropertyName()
     {
-        var contextFactory = await InitializeAsync<Context37009>(
+        var contextFactory = await InitializeNonSharedTest<Context37009>(
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             onModelCreating: m => m.Entity<Context37009.Entity>().ComplexProperty(e => e.Json, b =>
             {
@@ -660,7 +660,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.String == "foo"));
         Assert.Equal(1, await context.Set<Context37009.Entity>().CountAsync(e => e.Json.Nested.Int == 1));

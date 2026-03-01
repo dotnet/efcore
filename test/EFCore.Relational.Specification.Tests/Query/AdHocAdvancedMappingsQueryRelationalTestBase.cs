@@ -21,9 +21,9 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
     [ConditionalFact]
     public virtual async Task Two_similar_complex_properties_projected_with_split_query1()
     {
-        var contextFactory = await InitializeAsync<Context32911>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context32911>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Offers
             .Include(e => e.Variations)
             .ThenInclude(v => v.Nested)
@@ -41,9 +41,9 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
     [ConditionalFact]
     public virtual async Task Two_similar_complex_properties_projected_with_split_query2()
     {
-        var contextFactory = await InitializeAsync<Context32911>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context32911>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Offers
             .Include(e => e.Variations)
             .ThenInclude(v => v.Nested)
@@ -60,9 +60,9 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
     [ConditionalFact]
     public virtual async Task Projecting_one_of_two_similar_complex_types_picks_the_correct_one()
     {
-        var contextFactory = await InitializeAsync<Context32911_2>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context32911_2>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Cs
             .Where(x => x.B.AId.Value == 1)

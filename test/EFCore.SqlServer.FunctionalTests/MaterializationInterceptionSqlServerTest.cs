@@ -18,6 +18,6 @@ public class MaterializationInterceptionSqlServerTest(NonSharedFixture fixture) 
 #pragma warning restore EF8001
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

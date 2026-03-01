@@ -47,6 +47,10 @@ public class SqliteByteArrayTypeTest(SqliteByteArrayTypeTest.ByteArrayTypeFixtur
     public override Task Query_property_within_json()
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Query_property_within_json());
 
+    // byte[].Equals() does reference equality, so the base test doesn't work for byte arrays
+    public override Task Primitive_collection_in_query()
+        => Task.CompletedTask;
+
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     [ConditionalFact]

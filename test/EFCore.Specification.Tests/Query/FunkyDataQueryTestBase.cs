@@ -538,19 +538,17 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
     {
     }
 
-    public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>, IQueryFixtureBase
+    public abstract class FunkyDataQueryFixtureBase : QueryFixtureBase<FunkyDataContext>
     {
-        public Func<DbContext> GetContextCreator()
-            => () => CreateContext();
 
-        public virtual ISetSource GetExpectedData()
+        public override ISetSource GetExpectedData()
             => FunkyDataData.Instance;
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } =
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } =
             new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
                 .ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
         {
             {
                 typeof(FunkyCustomer), (e, a) =>
