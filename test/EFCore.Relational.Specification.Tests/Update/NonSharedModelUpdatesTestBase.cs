@@ -8,13 +8,13 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "NonSharedModelUpdatesTestBase";
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
                 mb.Entity<Author>(b =>
@@ -93,7 +93,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29379
     public virtual async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+        var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -127,7 +127,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #36059
     public virtual async Task Replacing_owned_entity_with_FK_to_another_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
                 mb.Entity<Document36059>(b =>
@@ -241,7 +241,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         Func<DbContext, Task>? nestedTestOperation2 = null,
         Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            contextFactory.CreateContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            contextFactory.CreateDbContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

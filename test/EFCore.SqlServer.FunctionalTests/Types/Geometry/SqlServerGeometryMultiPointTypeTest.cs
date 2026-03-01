@@ -34,6 +34,11 @@ WHERE [t].[Value].STEquals('MULTIPOINT ((5 5), (10 10))') = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

@@ -36,6 +36,11 @@ WHERE [t].[Value].STEquals('LINESTRING (-122.34877 47.6233355, -122.3308366 47.5
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

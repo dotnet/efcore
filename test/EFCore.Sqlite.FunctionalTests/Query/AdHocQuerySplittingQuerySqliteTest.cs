@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocQuerySplittingQuerySqliteTest(NonSharedFixture fixture) : AdHocQuerySplittingQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     private static readonly FieldInfo _querySplittingBehaviorFieldInfo =

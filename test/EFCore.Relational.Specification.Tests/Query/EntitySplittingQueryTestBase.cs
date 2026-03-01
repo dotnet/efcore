@@ -2778,7 +2778,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
     #region Fixture
 
     protected async Task InitializeContextFactoryAsync(Action<ModelBuilder> onModelCreating)
-        => ContextFactory = await InitializeAsync<EntitySplittingContext>(
+        => ContextFactory = await InitializeNonSharedTest<EntitySplittingContext>(
             mb =>
             {
                 OnModelCreating(mb);
@@ -2791,10 +2791,10 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             shouldLogCategory: _ => true);
 
     protected virtual EntitySplittingContext CreateContext()
-        => ContextFactory.CreateContext();
+        => ContextFactory.CreateDbContext();
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
             .UseSeeding((c, _) =>
             {
                 EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
@@ -2809,7 +2809,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "EntitySplittingQueryTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory

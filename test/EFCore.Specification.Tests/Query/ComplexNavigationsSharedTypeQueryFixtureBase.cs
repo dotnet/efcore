@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
+public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase
 {
     protected override string StoreName
         => "ComplexNavigationsOwned";
@@ -16,7 +16,7 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
     public override ISetSource GetExpectedData()
         => ComplexNavigationsWeakData.Instance;
 
-    Func<DbContext, ISetSource> IQueryFixtureBase.GetSetSourceCreator()
+    public override Func<DbContext, ISetSource> GetSetSourceCreator()
         => context => new ComplexNavigationsWeakSetExtractor(context);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

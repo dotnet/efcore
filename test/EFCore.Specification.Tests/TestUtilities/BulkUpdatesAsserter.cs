@@ -2,11 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
-using Microsoft.EntityFrameworkCore.BulkUpdates;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class BulkUpdatesAsserter(IBulkUpdatesFixtureBase queryFixture, Func<Expression, Expression> rewriteServerQueryExpression)
+public class BulkUpdatesAsserter(IQueryFixtureBase queryFixture, Func<Expression, Expression> rewriteServerQueryExpression)
 {
     private readonly Func<DbContext> _contextCreator = queryFixture.GetContextCreator();
     private readonly Action<DatabaseFacade, IDbContextTransaction> _useTransaction = queryFixture.GetUseTransaction();

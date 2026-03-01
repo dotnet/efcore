@@ -1,11 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbContext>, IQueryFixtureBase
+public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
 {
     protected PartitionKeyData? ExpectedData { get; set; }
 
@@ -85,9 +83,6 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
     protected override Task SeedAsync(DbContext context)
     {
         var data = (PartitionKeyData)GetExpectedData();
@@ -106,10 +101,10 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         return context.SaveChangesAsync();
     }
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => ExpectedData ??= new PartitionKeyData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
         { typeof(HierarchicalPartitionKeyEntity), e => ((HierarchicalPartitionKeyEntity?)e)?.Id },
         { typeof(OnlyHierarchicalPartitionKeyEntity), e => ((OnlyHierarchicalPartitionKeyEntity?)e)?.Payload },
@@ -122,7 +117,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         { typeof(SharedContainerEntity3), e => ((SharedContainerEntity3?)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(HierarchicalPartitionKeyEntity), (e, a) =>

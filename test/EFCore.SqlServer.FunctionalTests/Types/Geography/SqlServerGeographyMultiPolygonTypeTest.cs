@@ -36,6 +36,11 @@ WHERE [t].[Value].STEquals('MULTIPOLYGON (((-122.35 47.62, -122.35 47.615, -122.
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

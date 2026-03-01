@@ -39,6 +39,6 @@ public class JsonTypesInMemoryTest(NonSharedFixture fixture) : JsonTypesTestBase
         // No built-in JSON support for spatial types in the in-memory provider
         => Assert.ThrowsAsync<NullReferenceException>(base.Can_read_write_polygon_typed_as_geometry);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 }
