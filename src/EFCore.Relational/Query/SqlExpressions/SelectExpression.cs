@@ -896,7 +896,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerShaperExpression);
                         }
 
-                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _);
+                        // Single-result (to-one) joins never increase result cardinality, so the outer entity's
+                        // identifiers are already sufficient to uniquely identify rows. We don't need to add the
+                        // inner's identifiers to our own; doing so would cause unnecessary reference table JOINs,
+                        // ORDER BY columns, and projections in split collection queries (#29182).
+                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _, isToOneJoin: true);
                         var offset = _clientProjections.Count;
                         var count = innerSelectExpression._clientProjections.Count;
 
@@ -3018,7 +3022,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         JoinType joinType,
         ref SelectExpression innerSelect,
         out bool innerPushdownOccurred,
-        SqlExpression? joinPredicate = null)
+        SqlExpression? joinPredicate = null,
+        bool isToOneJoin = false)
     {
         innerPushdownOccurred = false;
         // Try to convert Apply to normal join
@@ -3099,7 +3104,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin,
                             ref innerSelect,
                             out innerPushdownOccurred,
-                            joinPredicate);
+                            joinPredicate,
+                            isToOneJoin);
 
                         return;
                     }
@@ -3153,24 +3159,37 @@ public sealed partial class SelectExpression : TableExpressionBase
             innerPushdownOccurred = true;
         }
 
+        // If the caller knows this is a to-one join (e.g. SingleResult in ApplyProjection), or if the
+        // join predicate equates all of the inner's identifier columns (PK) to outer columns, then the
+        // join doesn't increase cardinality — the outer identifiers are already sufficient. Skipping the
+        // inner's identifiers avoids unnecessary JOINs, ORDER BY columns, and projections in split
+        // collection queries (#29182).
+        if (!isToOneJoin && joinPredicate is not null && innerSelect._identifier.Count > 0)
+        {
+            isToOneJoin = AllInnerIdentifiersInPredicate(joinPredicate, innerSelect._identifier);
+        }
+
         if (_identifier.Count > 0 && innerSelect._identifier.Count > 0)
         {
-            switch (joinType)
+            if (!isToOneJoin)
             {
-                case JoinType.LeftJoin or JoinType.OuterApply:
-                    _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
-                    break;
+                switch (joinType)
+                {
+                    case JoinType.LeftJoin or JoinType.OuterApply:
+                        _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                        break;
 
-                case JoinType.RightJoin:
-                    var nullableOuterIdentifier = _identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)).ToList();
-                    _identifier.Clear();
-                    _identifier.AddRange(nullableOuterIdentifier);
-                    _identifier.AddRange(innerSelect._identifier);
-                    break;
+                    case JoinType.RightJoin:
+                        var nullableOuterIdentifier = _identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)).ToList();
+                        _identifier.Clear();
+                        _identifier.AddRange(nullableOuterIdentifier);
+                        _identifier.AddRange(innerSelect._identifier);
+                        break;
 
-                default:
-                    _identifier.AddRange(innerSelect._identifier);
-                    break;
+                    default:
+                        _identifier.AddRange(innerSelect._identifier);
+                        break;
+                }
             }
         }
         else
@@ -3185,7 +3204,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var joinTable = joinType switch
         {
             JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!),
-            JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!),
+            JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!, prunable: isToOneJoin),
             JoinType.RightJoin => new RightJoinExpression(innerTable, joinPredicate!),
             JoinType.CrossJoin => new CrossJoinExpression(innerTable),
             JoinType.CrossApply => new CrossApplyExpression(innerTable),
@@ -3215,6 +3234,57 @@ public sealed partial class SelectExpression : TableExpressionBase
                     GetPartitions(select, binary.Right, partitions);
 
                     break;
+                }
+            }
+        }
+
+        // Checks whether all of the inner select's identifier columns appear as equality terms in the
+        // join predicate. If so, the join is to-one from the outer's perspective (each outer row matches
+        // at most one inner row), meaning the inner identifiers are redundant for row identification.
+        static bool AllInnerIdentifiersInPredicate(
+            SqlExpression joinPredicate,
+            List<(ColumnExpression Column, ValueComparer Comparer)> innerIdentifiers)
+        {
+            Span<bool> matched = innerIdentifiers.Count <= 8
+                ? stackalloc bool[innerIdentifiers.Count]
+                : new bool[innerIdentifiers.Count];
+
+            MatchIdentifiersInPredicate(joinPredicate, innerIdentifiers, matched);
+
+            foreach (var m in matched)
+            {
+                if (!m)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+
+            static void MatchIdentifiersInPredicate(
+                SqlExpression expression,
+                List<(ColumnExpression Column, ValueComparer Comparer)> identifiers,
+                Span<bool> matched)
+            {
+                switch (expression)
+                {
+                    case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
+                        for (var i = 0; i < identifiers.Count; i++)
+                        {
+                            if (!matched[i]
+                                && (identifiers[i].Column.Equals(binary.Left)
+                                    || identifiers[i].Column.Equals(binary.Right)))
+                            {
+                                matched[i] = true;
+                            }
+                        }
+
+                        break;
+
+                    case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary:
+                        MatchIdentifiersInPredicate(binary.Left, identifiers, matched);
+                        MatchIdentifiersInPredicate(binary.Right, identifiers, matched);
+                        break;
                 }
             }
         }

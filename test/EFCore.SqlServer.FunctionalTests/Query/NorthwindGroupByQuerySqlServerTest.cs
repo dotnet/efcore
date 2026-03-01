@@ -1378,7 +1378,6 @@ GROUP BY [c].[CustomerID]
             """
 SELECT [o].[CustomerID] AS [Key], AVG(CAST([o].[OrderID] AS float)) AS [Average]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[CustomerID]
 """);
     }
@@ -1404,7 +1403,6 @@ GROUP BY [c].[CustomerID]
             """
 SELECT [o].[OrderID] AS [Value], AVG(CAST([o].[OrderID] AS float)) AS [Average]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[OrderID]
 """);
     }
@@ -1828,12 +1826,6 @@ INNER JOIN (
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-LEFT JOIN (
-    SELECT [o].[CustomerID]
-    FROM [Orders] AS [o]
-    GROUP BY [o].[CustomerID]
-    HAVING COUNT(*) > 5
-) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
 """);
     }
 
@@ -3365,7 +3357,6 @@ ORDER BY [o].[CustomerID]
             """
 SELECT [o].[OrderID] + [o].[OrderID] AS [Value], AVG(CAST([o].[OrderID] AS float)) AS [Average]
 FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[OrderID]
 """);
     }
@@ -3427,7 +3418,7 @@ OUTER APPLY (
     ) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID]
 ) AS [s]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [s].[CustomerID0]
+ORDER BY [c].[CustomerID]
 """);
     }
 
@@ -3891,7 +3882,7 @@ ORDER BY [c].[City]
 
         AssertSql(
             """
-SELECT [s1].[Key], [s3].[OrderID], [s3].[CustomerID], [s3].[EmployeeID], [s3].[OrderDate], [s3].[CustomerID0]
+SELECT [s1].[Key], [s3].[OrderID], [s3].[CustomerID], [s3].[EmployeeID], [s3].[OrderDate]
 FROM (
     SELECT [s].[Key]
     FROM (
@@ -3902,18 +3893,18 @@ FROM (
     GROUP BY [s].[Key]
 ) AS [s1]
 LEFT JOIN (
-    SELECT [s2].[OrderID], [s2].[CustomerID], [s2].[EmployeeID], [s2].[OrderDate], [s2].[CustomerID0], [s2].[Key]
+    SELECT [s2].[OrderID], [s2].[CustomerID], [s2].[EmployeeID], [s2].[OrderDate], [s2].[Key]
     FROM (
-        SELECT [s0].[OrderID], [s0].[CustomerID], [s0].[EmployeeID], [s0].[OrderDate], [s0].[CustomerID0], [s0].[Key], ROW_NUMBER() OVER(PARTITION BY [s0].[Key] ORDER BY [s0].[OrderID], [s0].[CustomerID0]) AS [row]
+        SELECT [s0].[OrderID], [s0].[CustomerID], [s0].[EmployeeID], [s0].[OrderDate], [s0].[Key], ROW_NUMBER() OVER(PARTITION BY [s0].[Key] ORDER BY [s0].[OrderID]) AS [row]
         FROM (
-            SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c0].[CustomerID] AS [CustomerID0], SUBSTRING([c0].[CustomerID], 0 + 1, 1) AS [Key]
+            SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], SUBSTRING([c0].[CustomerID], 0 + 1, 1) AS [Key]
             FROM [Orders] AS [o0]
             LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
         ) AS [s0]
     ) AS [s2]
     WHERE 1 < [s2].[row] AND [s2].[row] <= 3
 ) AS [s3] ON [s1].[Key] = [s3].[Key]
-ORDER BY [s1].[Key], [s3].[OrderID]
+ORDER BY [s1].[Key]
 """);
     }
 
