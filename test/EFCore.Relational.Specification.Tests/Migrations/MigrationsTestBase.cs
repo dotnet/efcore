@@ -2329,6 +2329,33 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual Task Add_foreign_key_excluded_from_migrations()
+        => Test(
+            builder =>
+            {
+                builder.Entity(
+                    "Customers", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                    });
+                builder.Entity(
+                    "Orders", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("CustomerId");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("Orders").HasOne("Customers").WithMany()
+                .HasForeignKey("CustomerId").ExcludeFromMigrations(),
+            model =>
+            {
+                var ordersTable = Assert.Single(model.Tables, t => t.Name == "Orders");
+                Assert.Empty(ordersTable.ForeignKeys);
+            });
+
+    [ConditionalFact]
     public virtual Task Drop_foreign_key()
         => Test(
             builder =>

@@ -173,4 +173,166 @@ public static class RelationalForeignKeyBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
         => relationship.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceCollectionBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ReferenceCollectionBuilder ExcludeFromMigrations(
+        this ReferenceCollectionBuilder referenceCollectionBuilder,
+        bool excluded = true)
+    {
+        referenceCollectionBuilder.Metadata.SetIsExcludedFromMigrations(excluded);
+
+        return referenceCollectionBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceCollectionBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The principal entity type in this relationship.</typeparam>
+    /// <typeparam name="TRelatedEntity">The dependent entity type in this relationship.</typeparam>
+    public static ReferenceCollectionBuilder<TEntity, TRelatedEntity> ExcludeFromMigrations<TEntity, TRelatedEntity>(
+        this ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder,
+        bool excluded = true)
+        where TEntity : class
+        where TRelatedEntity : class
+        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)ExcludeFromMigrations(
+            (ReferenceCollectionBuilder)referenceCollectionBuilder, excluded);
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceReferenceBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ReferenceReferenceBuilder ExcludeFromMigrations(
+        this ReferenceReferenceBuilder referenceReferenceBuilder,
+        bool excluded = true)
+    {
+        referenceReferenceBuilder.Metadata.SetIsExcludedFromMigrations(excluded);
+
+        return referenceReferenceBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceReferenceBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
+    /// <typeparam name="TRelatedEntity">The entity type on the other end of the relationship.</typeparam>
+    public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ExcludeFromMigrations<TEntity, TRelatedEntity>(
+        this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
+        bool excluded = true)
+        where TEntity : class
+        where TRelatedEntity : class
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ExcludeFromMigrations(
+            (ReferenceReferenceBuilder)referenceReferenceBuilder, excluded);
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnershipBuilder ExcludeFromMigrations(
+        this OwnershipBuilder ownershipBuilder,
+        bool excluded = true)
+    {
+        ownershipBuilder.Metadata.SetIsExcludedFromMigrations(excluded);
+
+        return ownershipBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
+    /// <typeparam name="TDependentEntity">The entity type on the other end of the relationship.</typeparam>
+    public static OwnershipBuilder<TEntity, TDependentEntity> ExcludeFromMigrations<TEntity, TDependentEntity>(
+        this OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder,
+        bool excluded = true)
+        where TEntity : class
+        where TDependentEntity : class
+        => (OwnershipBuilder<TEntity, TDependentEntity>)ExcludeFromMigrations(
+            (OwnershipBuilder)ownershipBuilder, excluded);
+
+    /// <summary>
+    ///     Configures whether the foreign key constraint is excluded from migrations
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="relationship">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionForeignKeyBuilder? ExcludeFromMigrations(
+        this IConventionForeignKeyBuilder relationship,
+        bool? excluded,
+        bool fromDataAnnotation = false)
+    {
+        if (!relationship.CanSetExcludeFromMigrations(excluded, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        relationship.Metadata.SetIsExcludedFromMigrations(excluded, fromDataAnnotation);
+        return relationship;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the foreign key constraint exclusion from migrations can be set
+    ///     from the current configuration source.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="relationship">The builder being used to configure the relationship.</param>
+    /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetExcludeFromMigrations(
+        this IConventionForeignKeyBuilder relationship,
+        bool? excluded,
+        bool fromDataAnnotation = false)
+        => relationship.CanSetAnnotation(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations, excluded, fromDataAnnotation);
 }

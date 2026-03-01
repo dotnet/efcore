@@ -373,6 +373,69 @@ public class RelationalBuilderExtensionsTest
     }
 
     [ConditionalFact]
+    public void Can_set_foreign_key_exclude_from_migrations_for_one_to_many()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+            .ExcludeFromMigrations();
+
+        var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+            .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+
+        Assert.True(foreignKey.IsExcludedFromMigrations());
+
+        modelBuilder
+            .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+            .ExcludeFromMigrations(false);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+    }
+
+    [ConditionalFact]
+    public void Can_set_foreign_key_exclude_from_migrations_for_many_to_one()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+            .ExcludeFromMigrations();
+
+        var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys()
+            .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+
+        Assert.True(foreignKey.IsExcludedFromMigrations());
+
+        modelBuilder
+            .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+            .ExcludeFromMigrations(false);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+    }
+
+    [ConditionalFact]
+    public void Can_set_foreign_key_exclude_from_migrations_for_one_to_one()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+            .HasPrincipalKey<Order>(e => e.OrderId)
+            .ExcludeFromMigrations();
+
+        var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
+
+        Assert.True(foreignKey.IsExcludedFromMigrations());
+
+        modelBuilder
+            .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+            .ExcludeFromMigrations(false);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+    }
+
+    [ConditionalFact]
     public void Can_access_index()
     {
         var modelBuilder = CreateBuilder();
@@ -1391,6 +1454,26 @@ public class RelationalBuilderExtensionsTest
                 .HasOne(e => e.Details)
                 .WithOne(e => e.Order)
                 .HasConstraintName("Simon"));
+
+        AssertIsGeneric(
+            modelBuilder
+                .Entity<Customer>().HasMany(e => e.Orders)
+                .WithOne(e => e.Customer)
+                .ExcludeFromMigrations());
+
+        AssertIsGeneric(
+            modelBuilder
+                .Entity<Order>()
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Orders)
+                .ExcludeFromMigrations());
+
+        AssertIsGeneric(
+            modelBuilder
+                .Entity<Order>()
+                .HasOne(e => e.Details)
+                .WithOne(e => e.Order)
+                .ExcludeFromMigrations());
     }
 
     [ConditionalFact]
@@ -1432,6 +1515,24 @@ public class RelationalBuilderExtensionsTest
 
         Assert.Null(relationshipBuilder.HasConstraintName("Splod"));
         Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
+    }
+
+    [ConditionalFact]
+    public void Can_access_relationship_ExcludeFromMigrations()
+    {
+        var modelBuilder = CreateBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+        entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+        var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", ["Id"], ConfigurationSource.Convention);
+
+        Assert.NotNull(relationshipBuilder.ExcludeFromMigrations(true));
+        Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
+
+        Assert.NotNull(relationshipBuilder.ExcludeFromMigrations(true, fromDataAnnotation: true));
+        Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
+
+        Assert.Null(relationshipBuilder.ExcludeFromMigrations(false));
+        Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
     }
 
     private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

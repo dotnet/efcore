@@ -3574,6 +3574,55 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void Add_foreign_key_excluded_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            _ => { },
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeFromMigrations()
+            ),
+            operations =>
+            {
+                var createIndexOperation = Assert.IsType<CreateIndexOperation>(Assert.Single(operations));
+                Assert.Equal("dbo", createIndexOperation.Schema);
+                Assert.Equal("Amoeba", createIndexOperation.Table);
+                Assert.Equal("IX_Amoeba_ParentId", createIndexOperation.Name);
+                Assert.Equal(new[] { "ParentId" }, createIndexOperation.Columns);
+            });
+
+    [ConditionalFact]
+    public void Remove_foreign_key_excluded_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeFromMigrations()
+            ),
+            _ => { },
+            operations =>
+            {
+                var dropIndexOperation = Assert.IsType<DropIndexOperation>(Assert.Single(operations));
+                Assert.Equal("dbo", dropIndexOperation.Schema);
+                Assert.Equal("Amoeba", dropIndexOperation.Table);
+                Assert.Equal("IX_Amoeba_ParentId", dropIndexOperation.Name);
+            });
+
+    [ConditionalFact]
     public void Add_optional_foreign_key()
         => Execute(
             source => source.Entity(
