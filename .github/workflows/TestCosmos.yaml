@@ -1,24 +1,43 @@
-name: Auto Sync Fork
+name: Test Cosmos
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - feature/*
+      - release/*
+  pull_request:
+    branches:
+      - main
+      - feature/*
+      - release/*
+
+permissions: {}
 
 jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
+  build:
+    runs-on: windows-latest
 
-      - name: Sync fork
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+    steps:
+      - name: Start Cosmos Emulator
+        run: |
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+          Start-CosmosDbEmulator -Timeout 540 -NoUI -NoTelemetry -NoFirewall -EnablePreview
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Restore
+        run: restore.cmd
+        shell: cmd
+
+      - name: Test on Cosmos
+        run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
+        shell: cmd
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v7
+        if: always()
         with:
-          upstream_sync_repo: dotnet/efcore
-          upstream_sync_branch: main
-          target_sync_branch: main
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          name: test-results
+          path: artifacts/log/Debug/*
