@@ -3,6 +3,7 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Testcontainers.MsSql;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -16,8 +17,46 @@ public static class TestEnvironment
         .Build()
         .GetSection("Test:SqlServer");
 
-    public static string DefaultConnection { get; } = Config["DefaultConnection"]
-        ?? "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0";
+    private static readonly Lazy<string> _defaultConnection = new(InitializeConnectionString);
+
+    public static string DefaultConnection => _defaultConnection.Value;
+
+    private static MsSqlContainer? _container;
+
+    private static string InitializeConnectionString()
+    {
+        // If a connection string is specified (env var, config.json...), always use that.
+        var configured = Config["DefaultConnection"];
+        if (!string.IsNullOrEmpty(configured))
+        {
+            return configured;
+        }
+
+        // Otherwise, on Windows default to LocalDB, and on non-Windows spin up a testcontainer
+        if (OperatingSystem.IsWindows())
+        {
+            return "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0";
+        }
+
+        _container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
+            .Build();
+
+        _container.StartAsync().GetAwaiter().GetResult();
+
+        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+        {
+            try
+            {
+                _container.DisposeAsync().AsTask().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // Ignore errors during container cleanup
+            }
+        };
+
+        return _container.GetConnectionString();
+    }
 
     private static readonly string _dataSource = new SqlConnectionStringBuilder(DefaultConnection).DataSource;
 
