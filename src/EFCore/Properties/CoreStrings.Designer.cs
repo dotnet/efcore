@@ -3489,6 +3489,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("WrongStateManager", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     Unable to refresh when is not tracked query
+        /// </summary>
+        public static string RefreshNonTrackingQuery
+            => GetString("RefreshNonTrackingQuery");
+
+        /// <summary>
+        ///     Merge option changed on same query
+        /// </summary>
+        public static string RefreshMultipleMergeOptions
+           => GetString("RefreshMultipleMergeOptions");
+
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

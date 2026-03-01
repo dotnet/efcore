@@ -59,7 +59,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 dependencies.EntityMaterializerSource,
                 dependencies.LiftableConstantFactory,
                 queryCompilationContext.QueryTrackingBehavior,
-                queryCompilationContext.SupportsPrecompiledQuery);
+                queryCompilationContext.SupportsPrecompiledQuery,
+                queryCompilationContext.RefreshMergeOption);
 
         _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
         _materializationConditionConstantLifter = new MaterializationConditionConstantLifter(dependencies.LiftableConstantFactory);
@@ -377,7 +378,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         IStructuralTypeMaterializerSource materializerSource,
         ILiftableConstantFactory liftableConstantFactory,
         QueryTrackingBehavior queryTrackingBehavior,
-        bool supportsPrecompiledQuery)
+        bool supportsPrecompiledQuery,
+        MergeOption mergeOption)
         : ExpressionVisitor
     {
         private static readonly ConstructorInfo MaterializationContextConstructor
@@ -409,6 +411,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private readonly bool _queryStateManager =
             queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+
+        private readonly MergeOption _mergeOption = mergeOption;
 
         private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
         private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter = new(liftableConstantFactory);
@@ -523,7 +527,15 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                 Assign(
                                     instanceVariable, Convert(
                                         MakeMemberAccess(entryVariable, EntityMemberInfo),
-                                        clrType))),
+                                        clrType)),
+                                // Update the existing entity with new property values from the database
+                                // if the merge option is not AppendOnly
+                                _mergeOption != MergeOption.AppendOnly
+                                ? UpdateExistingEntityWithDatabaseValues(
+                                    entryVariable,
+                                    concreteEntityTypeVariable,
+                                    materializationContextVariable,
+                                    shaper) : Empty()),
                             MaterializeEntity(
                                 shaper, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
                                 entryVariable))));
@@ -766,5 +778,71 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             return Block(blockExpressions);
         }
+
+        /// <summary>
+        ///     Creates an expression to update an existing tracked entity with values from the database,
+        ///     similar to the EntityEntry.Reload() method.
+        /// </summary>
+        /// <param name="entryVariable">The variable representing the existing InternalEntityEntry.</param>
+        /// <param name="concreteEntityTypeVariable">The variable representing the concrete entity type.</param>
+        /// <param name="materializationContextVariable">The materialization context variable.</param>
+        /// <param name="shaper">The structural type shaper expression.</param>
+        /// <returns>An expression that updates the existing entity with database values.</returns>
+        private Expression UpdateExistingEntityWithDatabaseValues(
+            ParameterExpression entryVariable,
+            ParameterExpression concreteEntityTypeVariable,
+            ParameterExpression materializationContextVariable,
+            StructuralTypeShaperExpression shaper)
+        {
+            var updateExpressions = new List<Expression>();
+            var typeBase = shaper.StructuralType;
+
+            if (typeBase is not IEntityType entityType)
+            {
+                // For complex types, we don't update existing instances
+                return Empty();
+            }
+
+            var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
+
+            // Get all properties to update (exclude key properties which should not change)
+            var propertiesToUpdate = entityType.GetProperties()
+                .Where(p => !p.IsPrimaryKey())
+                .ToList();
+
+            var setReloadValueMethod = typeof(InternalEntityEntry)
+                .GetMethod(nameof(InternalEntityEntry.ReloadValue), new[] { typeof(IPropertyBase), typeof(object), typeof(MergeOption), typeof(bool) })!;
+
+            // Update original values similar to EntityEntry.Reload()
+            // This ensures that the original values snapshot reflects the database state
+            var dbProperties = propertiesToUpdate;
+            int count = dbProperties.Count();
+            int i = 0;
+            foreach (var property in dbProperties)
+            {
+                i++;
+                var newValue = valueBufferExpression.CreateValueBufferReadValueExpression(
+                    property.ClrType,
+                    property.GetIndex(),
+                    property);
+
+                var setOriginalValueExpression = Call(
+                    entryVariable,
+                    setReloadValueMethod,
+                    Constant(property),
+                    property.ClrType.IsValueType && property.IsNullable
+                        ? (Expression)Convert(newValue, typeof(object))
+                        : Convert(newValue, typeof(object)),
+                    Constant(_mergeOption),
+                    Constant(i == count));
+
+                updateExpressions.Add(setOriginalValueExpression);
+            }
+
+            return updateExpressions.Count > 0
+                ? (Expression)Block(updateExpressions)
+                : Empty();
+        }
+
     }
 }
