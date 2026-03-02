@@ -7,5 +7,5 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 public class JsonOwnedTphLocaleValue
 {
-    public List<JsonOwnedTphLocaleValueEntry> Entries { get; set; } = [];
+    public List<JsonOwnedTphLocaleValueEntry> Entries { get; set; }
 }

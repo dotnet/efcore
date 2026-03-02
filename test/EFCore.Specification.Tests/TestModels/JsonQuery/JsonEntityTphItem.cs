@@ -9,5 +9,5 @@ public class JsonEntityTphItem
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public List<JsonEntityTphItemAttribute> Attributes { get; set; } = [];
+    public List<JsonEntityTphItemAttribute> Attributes { get; set; }
 }
