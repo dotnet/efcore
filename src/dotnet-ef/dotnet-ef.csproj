@@ -78,7 +78,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="RemovePdbFromMainPackage" BeforeTargets="GenerateNuspec" DependsOnTargets="AddEfProjectOutput">
+  <Target Name="ExcludePdbFiles" BeforeTargets="GenerateNuspec" DependsOnTargets="AddEfProjectOutput">
     <ItemGroup>
       <_PackageFiles Remove="@(_PackageFiles)" Condition="'%(Extension)' == '.pdb'" />
     </ItemGroup>
