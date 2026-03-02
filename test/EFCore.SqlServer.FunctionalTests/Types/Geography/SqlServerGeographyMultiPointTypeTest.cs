@@ -107,6 +107,7 @@ WHERE [Id] = @p1;
 (-121.5 46.6)
 (-121.2 46.3))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -120,6 +121,7 @@ FROM [JsonTypeEntity] AS [j]
 (-121.5 46.6)
 (-121.2 46.3))' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
@@ -135,6 +137,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', N'MULTIPOINT ((-121.9 46.95), (-121.5 46.6), (-121.2 46.3))')
 FROM [JsonTypeEntity] AS [j]
@@ -144,6 +147,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'MULTIPOINT ((-121.9 46.95), (-121.5 46.6), (-121.2 46.3))')
 FROM [JsonTypeEntity] AS [j]
@@ -159,6 +163,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue' RETURNING nvarchar(max)))
 FROM [JsonTypeEntity] AS [j]
@@ -168,6 +173,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', JSON_VALUE([j].[JsonContainer], '$.OtherValue'))
 FROM [JsonTypeEntity] AS [j]
@@ -190,6 +196,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [JsonContainer].modify('$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]
@@ -199,6 +206,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
+SET NOCOUNT OFF;
 UPDATE [j]
 SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', [j].[OtherValue].STAsText())
 FROM [JsonTypeEntity] AS [j]

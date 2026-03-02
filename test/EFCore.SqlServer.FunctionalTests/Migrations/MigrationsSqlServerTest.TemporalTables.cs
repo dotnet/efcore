@@ -3542,6 +3542,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'IsVip');
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT ' + @var2 + ';');
+SET NOCOUNT OFF;
 UPDATE [Customer] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customer] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [Customer] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
@@ -3632,6 +3633,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'IsVip');
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var1 + ';');
+SET NOCOUNT OFF;
 UPDATE [Customers] SET [IsVip] = CAST(0 AS bit) WHERE [IsVip] IS NULL;
 ALTER TABLE [Customers] ALTER COLUMN [IsVip] bit NOT NULL;
 ALTER TABLE [Customers] ADD DEFAULT CAST(0 AS bit) FOR [IsVip];
@@ -9584,6 +9586,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'MyColumn');
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var + ';');
+SET NOCOUNT OFF;
 UPDATE [Customers] SET [MyColumn] = 0 WHERE [MyColumn] IS NULL;
 ALTER TABLE [Customers] ALTER COLUMN [MyColumn] int NOT NULL;
 ALTER TABLE [Customers] ADD DEFAULT 0 FOR [MyColumn];
