@@ -82,35 +82,5 @@
     </ItemGroup>
   </Target>
 
-  <UsingTask TaskName="StripPdbFromNupkg" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-    <ParameterGroup>
-      <NupkgPath ParameterType="System.String" Required="true" />
-    </ParameterGroup>
-    <Task>
-      <Using Namespace="System.IO" />
-      <Using Namespace="System.IO.Compression" />
-      <Using Namespace="System.Linq" />
-      <Code Type="Fragment" Language="cs"><![CDATA[
-if (File.Exists(NupkgPath))
-{
-    using (var stream = new FileStream(NupkgPath, FileMode.Open, FileAccess.ReadWrite))
-    using (var archive = new ZipArchive(stream, ZipArchiveMode.Update))
-    {
-        var pdbEntries = archive.Entries
-            .Where(e => e.FullName.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-        foreach (var entry in pdbEntries)
-        {
-            entry.Delete();
-        }
-    }
-}
-]]></Code>
-    </Task>
-  </UsingTask>
-
-  <Target Name="StripPdbFromMainPackage" AfterTargets="GenerateNuspec"
-          Condition="'$(ContinuePackingAfterGeneratingNuspec)' == 'true' and '$(IsPackable)' != 'false'">
-    <StripPdbFromNupkg NupkgPath="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg" />
-  </Target>
+  <Import Project="..\..\eng\StripPdbFromNupkg.targets" />
 </Project>
