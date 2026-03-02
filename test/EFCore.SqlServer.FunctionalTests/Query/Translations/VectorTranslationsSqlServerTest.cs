@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
@@ -65,6 +66,74 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], CAST('[1,2,100]' AS VECTOR(3)))
     }
 
     [ConditionalFact]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_project_entity_and_distance()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine", topN: 1)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Single().Value.Id);
+
+        AssertSql(
+            """
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+@p1='1'
+
+SELECT [v].[Id], [v].[Vector], [v0].[Distance]
+FROM VECTOR_SEARCH(
+    TABLE = [VectorEntities] AS [v],
+    COLUMN = [Vector],
+    SIMILAR_TO = @p,
+    METRIC = 'cosine',
+    TOP_N = @p1
+) AS [v0]
+""");
+    }
+
+    [ConditionalFact]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_project_entity_only_with_distance_filter_and_ordering()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine", topN: 3)
+            .Where(e => e.Distance < 0.01)
+            .OrderBy(e => e.Distance)
+            .Select(e => e.Value)
+            .ToListAsync();
+
+        Assert.Collection(
+            results,
+            r => Assert.Equal(2, r.Id),
+            r => Assert.Equal(3, r.Id));
+
+        AssertSql(
+            """
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+@p1='3'
+
+SELECT [v].[Id], [v].[Vector]
+FROM VECTOR_SEARCH(
+    TABLE = [VectorEntities] AS [v],
+    COLUMN = [Vector],
+    SIMILAR_TO = @p,
+    METRIC = 'cosine',
+    TOP_N = @p1
+) AS [v0]
+WHERE [v0].[Distance] < 0.01E0
+ORDER BY [v0].[Distance]
+""");
+    }
+
+    [ConditionalFact]
     public async Task Length()
     {
         using var ctx = CreateContext();
@@ -107,6 +176,15 @@ WHERE VECTORPROPERTY([v].[Vector], 'Dimensions') = 3
 
             context.VectorEntities.AddRange(vectorEntities);
             await context.SaveChangesAsync();
+
+            // TODO (#36384): Remove this once it's out of preview
+            await context.Database.ExecuteSqlAsync($"ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON");
+
+            await context.Database.ExecuteSqlAsync($"""
+CREATE VECTOR INDEX vec_idx ON VectorEntities(Vector)
+WITH (METRIC = 'Cosine', TYPE = 'DiskANN')
+ON [PRIMARY];
+""");
         }
     }
 
@@ -122,7 +200,7 @@ WHERE VECTORPROPERTY([v].[Vector], 'Dimensions') = 3
     public class VectorQueryFixture : SharedStoreFixtureBase<VectorQueryContext>
     {
         protected override string StoreName
-            => "VectorQueryTest";
+            => "VectorTranslationsTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

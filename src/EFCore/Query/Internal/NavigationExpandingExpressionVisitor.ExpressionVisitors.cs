@@ -80,68 +80,73 @@ public partial class NavigationExpandingExpressionVisitor
 
             var innerExpression = root.UnwrapTypeConversion(out var convertedType);
             var structuralTypeReference = UnwrapStructuralTypeReference(innerExpression);
-            var entityReference = structuralTypeReference as EntityReference;
-            if (entityReference is not null)
+
+            ITypeBase structuralType;
+
+            switch (structuralTypeReference)
             {
-                var entityType = entityReference.EntityType;
-                if (convertedType != null)
-                {
-                    entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .FirstOrDefault(et => et.ClrType == convertedType);
-                    if (entityType == null)
+                case EntityReference { EntityType: var entityType } entityReference:
+                    if (convertedType != null)
                     {
-                        return null;
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                            .FirstOrDefault(et => et.ClrType == convertedType);
+                        if (entityType == null)
+                        {
+                            return null;
+                        }
                     }
-                }
 
-                var navigation = memberIdentity.MemberInfo is not null
-                    ? entityType.FindNavigation(memberIdentity.MemberInfo)
-                    : memberIdentity.Name is not null
-                        ? entityType.FindNavigation(memberIdentity.Name)
-                        : null;
-                if (navigation is not null)
-                {
-                    return ExpandNavigation(root, entityReference, navigation, convertedType is not null);
-                }
+                    // Attempt to bind navigations; these are only relevant to entity types
+                    var navigation = memberIdentity.MemberInfo is not null
+                        ? entityType.FindNavigation(memberIdentity.MemberInfo)
+                        : memberIdentity.Name is not null
+                            ? entityType.FindNavigation(memberIdentity.Name)
+                            : null;
+                    if (navigation is not null)
+                    {
+                        return ExpandNavigation(root, entityReference, navigation, convertedType is not null);
+                    }
 
-                var skipNavigation = memberIdentity.MemberInfo is not null
-                    ? entityType.FindSkipNavigation(memberIdentity.MemberInfo)
-                    : memberIdentity.Name is not null
-                        ? entityType.FindSkipNavigation(memberIdentity.Name)
-                        : null;
-                if (skipNavigation is not null)
-                {
-                    return ExpandSkipNavigation(root, entityReference, skipNavigation, convertedType is not null);
-                }
+                    var skipNavigation = memberIdentity.MemberInfo is not null
+                        ? entityType.FindSkipNavigation(memberIdentity.MemberInfo)
+                        : memberIdentity.Name is not null
+                            ? entityType.FindSkipNavigation(memberIdentity.Name)
+                            : null;
+                    if (skipNavigation is not null)
+                    {
+                        return ExpandSkipNavigation(root, entityReference, skipNavigation, convertedType is not null);
+                    }
+
+                    structuralType = entityType;
+                    break;
+
+                case ComplexTypeReference { ComplexType: var complexType }:
+                    structuralType = complexType;
+                    break;
+
+                default:
+                    return null;
             }
 
-            var structuralType = entityReference is not null
-                ? (ITypeBase)entityReference.EntityType
-                : structuralTypeReference is ComplexTypeReference complexTypeReference
-                    ? complexTypeReference.ComplexType
+            // Attempt to bind complex and primitive collection properties; these are common to both entity and complex types
+            var complexProperty = memberIdentity.MemberInfo != null
+                ? structuralType.FindComplexProperty(memberIdentity.MemberInfo)
+                : memberIdentity.Name is not null
+                    ? structuralType.FindComplexProperty(memberIdentity.Name)
                     : null;
-
-            if (structuralType is not null)
+            if (complexProperty is not null)
             {
-                var complexProperty = memberIdentity.MemberInfo != null
-                    ? structuralType.FindComplexProperty(memberIdentity.MemberInfo)
-                    : memberIdentity.Name is not null
-                        ? structuralType.FindComplexProperty(memberIdentity.Name)
-                        : null;
-                if (complexProperty is not null)
-                {
-                    return new ComplexPropertyReference(root, complexProperty, originalExpression);
-                }
+                return new ComplexPropertyReference(root, complexProperty, originalExpression);
+            }
 
-                var property = memberIdentity.MemberInfo != null
-                    ? structuralType.FindProperty(memberIdentity.MemberInfo)
-                    : memberIdentity.Name is not null
-                        ? structuralType.FindProperty(memberIdentity.Name)
-                        : null;
-                if (property?.IsPrimitiveCollection == true)
-                {
-                    return new PrimitiveCollectionReference(root, property);
-                }
+            var property = memberIdentity.MemberInfo != null
+                ? structuralType.FindProperty(memberIdentity.MemberInfo)
+                : memberIdentity.Name is not null
+                    ? structuralType.FindProperty(memberIdentity.Name)
+                    : null;
+            if (property?.IsPrimitiveCollection == true)
+            {
+                return new PrimitiveCollectionReference(root, property);
             }
 
             return null;
@@ -1001,7 +1006,7 @@ public partial class NavigationExpandingExpressionVisitor
 
                     if (navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
                     {
-                        var arguments = new List<Expression> { result };
+                        var arguments = new List<Expression>(navigationExpansionExpression.CardinalityReducingMethodArguments.Count + 1) { result };
                         arguments.AddRange(navigationExpansionExpression.CardinalityReducingMethodArguments.Select(x => Visit(x)));
 
                         result = Expression.Call(

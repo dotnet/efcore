@@ -89,7 +89,7 @@ WHERE [Id] = @p5;
     [ConditionalFact] // Issue #29502
     public virtual async Task Bulk_insert_result_set_mapping()
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
                 mb.Entity<User>().ToTable("Users");
@@ -137,7 +137,7 @@ WHERE [Id] = @p5;
         // SQL Server's bulk insert support makes it impossible to populate the entry which caused the exception, since the position
         // used to find the entry is returned as an output column, but the row is never received in case of an exception.
         // Instead we make sure Entries contains all entries.
-        var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+        var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -195,6 +195,6 @@ OUTPUT INSERTED.[Id], i._Position;
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

@@ -876,11 +876,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (_state.IsEvaluatable)
         {
             // If the query contains a captured variable that's a nested IQueryable, inline it into the main query.
-            // Otherwise, evaluation of a terminating operator up the call chain will cause us to execute the query and do another
-            // roundtrip.
+            // Note that we do this only for IQueryable; evaluation of a terminating operator up the call chain would cause us to execute
+            // the query and do another roundtrip.
             // Note that we only do this when the MemberExpression is typed as IQueryable/IOrderedQueryable; this notably excludes
             // DbSet captured variables integrated directly into the query, as that also evaluates e.g. context.Order in
-            // context.Order.FromSqlInterpolated(), which fails.
+            // context.Order.FromSql(), which fails.
             if (member.Type.IsConstructedGenericType
                 && member.Type.GetGenericTypeDefinition() is var genericTypeDefinition
                 && (genericTypeDefinition == typeof(IQueryable<>) || genericTypeDefinition == typeof(IOrderedQueryable<>))
@@ -2078,32 +2078,48 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         var value = EvaluateCore(expression, ref evaluateAsParameter, out var tempParameterName, out isContextAccessor);
 
-        if (evaluateAsParameter)
+        if (!evaluateAsParameter)
         {
-            parameterName = string.IsNullOrWhiteSpace(tempParameterName) ? "p" : tempParameterName;
+            parameterName = string.Empty;
+            return value;
+        }
+
+        if (tempParameterName is null)
+        {
+            parameterName = "p";
+        }
+        else
+        {
+            parameterName = tempParameterName;
 
             // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
             if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
             {
-                parameterName = parameterName.Substring("$VB$Local_".Length);
+                parameterName = parameterName["$VB$Local_".Length..];
             }
 
             // In many databases, parameter names must start with a letter or underscore.
             // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
             // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
-            if (!char.IsLetter(parameterName[0]) && parameterName[0] != '_')
+            if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
             {
                 parameterName = "_" + parameterName;
             }
 
-            parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+            // Just as a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
+            foreach (var c in parameterName)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    parameterName = "p";
+                    break;
+                }
+            }
+        }
 
-            _parameterNames.Add(parameterName);
-        }
-        else
-        {
-            parameterName = string.Empty;
-        }
+        parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+
+        _parameterNames.Add(parameterName);
 
         return value;
 
@@ -2199,7 +2215,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             // Compiler-generated field names intentionally contain illegal characters, specifically angle brackets <>.
             // In cases where there's something within the angle brackets, that tends to be the original user-provided variable name
-            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or it the angle brackets contain no
+            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or if the angle brackets contain no
             // content, strip them out entirely and take what comes after.
             var closingBracket = s.IndexOf('>');
             if (closingBracket == -1)

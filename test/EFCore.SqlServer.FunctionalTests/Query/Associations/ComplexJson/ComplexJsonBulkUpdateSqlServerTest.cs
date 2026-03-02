@@ -266,12 +266,24 @@ FROM [RootEntity] AS [r]
     {
         await base.Update_associate_to_inline_with_lambda();
 
-        AssertExecuteUpdateSql(
-            """
+        if (Fixture.UsingJsonType)
+        {
+            AssertExecuteUpdateSql(
+                """
+UPDATE [r]
+SET [r].[RequiredAssociate] = CAST('{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated associate name","String":"Updated associate string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}' AS json)
+FROM [RootEntity] AS [r]
+""");
+        }
+        else
+        {
+            AssertExecuteUpdateSql(
+                """
 UPDATE [r]
 SET [r].[RequiredAssociate] = '{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated associate name","String":"Updated associate string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}'
 FROM [RootEntity] AS [r]
 """);
+        }
     }
 
     public override async Task Update_nested_associate_to_inline_with_lambda()
@@ -487,7 +499,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@ints='[1,2,4]' (Size = 8000)
+@ints='[1,2,4]' (Size = 7)
 
 UPDATE [r]
 SET [RequiredAssociate].modify('$.Ints', @ints)

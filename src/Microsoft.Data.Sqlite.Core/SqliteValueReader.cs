@@ -435,6 +435,11 @@ internal abstract class SqliteValueReader
 
     private static DateTime FromJulianDate(double julianDate)
     {
+        if (double.IsNaN(julianDate) || double.IsInfinity(julianDate) || double.IsNegativeInfinity(julianDate))
+        {
+            throw new InvalidOperationException(Resources.NonFiniteDoubleJulianDateValue);
+        }
+
         // computeYMD
         var iJD = (long)(julianDate * 86400000.0 + 0.5);
         var Z = (int)((iJD + 43200000) / 86400000);

@@ -121,10 +121,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             var leftReference = left as StructuralTypeReferenceExpression;
             var rightReference = right as StructuralTypeReferenceExpression;
 
-            if (IsNullSqlConstantExpression(left)
-                || IsNullSqlConstantExpression(right))
+            if (left is SqlConstantExpression { Value: null }
+                || right is SqlConstantExpression { Value: null })
             {
-                var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightReference : leftReference)!;
+                var nonNullEntityReference = (left is SqlConstantExpression { Value: null } ? rightReference : leftReference)!;
                 var nullComparedEntityType = (IEntityType)nonNullEntityReference.StructuralType;
 
                 if (nonNullEntityReference is { Parameter.ValueBufferExpression: JsonQueryExpression jsonQueryExpression })

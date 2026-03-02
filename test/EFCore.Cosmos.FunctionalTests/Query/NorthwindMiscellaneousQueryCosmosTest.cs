@@ -167,7 +167,7 @@ WHERE (c["id"] = "ANATR")
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -181,7 +181,6 @@ WHERE (c["id"] = null)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] != null)
 """);
             });
 
@@ -2895,7 +2894,7 @@ WHERE STARTSWITH(c["id"], @prefix)
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (STARTSWITH(c["id"], "A") AND NOT((c["id"] = null)))
+WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"]
 """);
             });
@@ -2941,7 +2940,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -4016,7 +4015,7 @@ FROM root c
                     """
 SELECT VALUE c["id"]
 FROM root c
-WHERE (c["id"] = null)
+WHERE false
 """);
             });
 
@@ -4125,7 +4124,7 @@ ORDER BY c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] != null) AND (c["ProductID"] != null)))
+WHERE (c["$type"] = "OrderDetail")
 """);
             });
 
@@ -4195,7 +4194,12 @@ FROM root c
             {
                 await base.Null_parameter_name_works(a);
 
-                AssertSql("ReadItem(None, null)");
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE false
+""");
             });
 
     public override Task Where_Property_shadow_closure(bool async)
@@ -4288,7 +4292,7 @@ FROM root c
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "OrderDetail") AND ((c["OrderID"] = null) OR (c["ProductID"] = null)))
+WHERE ((c["$type"] = "OrderDetail") AND false)
 """);
             });
 
@@ -5041,6 +5045,18 @@ WHERE (c["id"] = "ALFKI")
     {
         // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Late_subquery_pushdown(async));
+
+        AssertSql();
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Concat_on_entity_queries_throws(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Concat(ss.Set<Customer>())),
+            CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
         AssertSql();
     }

@@ -23,7 +23,8 @@ public static class TestEnvironment
 
     public static bool IsConfigured { get; } = !string.IsNullOrEmpty(_dataSource);
 
-    public static bool IsCI { get; } = Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") != null;
+    public static bool IsCI { get; } = Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") != null
+        || Environment.GetEnvironmentVariable("HELIX_CORRELATION_PAYLOAD") != null;
 
     private static bool? _isAzureSqlDb;
 

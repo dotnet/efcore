@@ -251,6 +251,47 @@ public class InternalComplexEntryTest
         Assert.True(entityEntry.IsModified(complexProperty));
     }
 
+    [ConditionalFact]
+    public void Can_change_entity_state_from_Deleted_to_Unchanged_with_complex_collection()
+    {
+        var model = CreateModel();
+        var entityType = model.FindEntityType(typeof(Blog))!;
+        var complexProperty = entityType.FindComplexProperty(nameof(Blog.Tags))!;
+
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
+        var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+
+        var blog = new Blog
+        {
+            Tags =
+            [
+                new Tag { Name = "Tag0" },
+                new Tag { Name = "Tag1" },
+                new Tag { Name = "Tag2" }
+            ]
+        };
+        var entityEntry = stateManager.GetOrCreateEntry(blog);
+        entityEntry.SetEntityState(EntityState.Unchanged);
+
+        // Simulate soft delete pattern: set to Deleted then back to Unchanged
+        entityEntry.SetEntityState(EntityState.Deleted);
+        Assert.Equal(EntityState.Deleted, entityEntry.EntityState);
+
+        // This should not throw an exception about invalid ordinal
+        entityEntry.SetEntityState(EntityState.Unchanged);
+        Assert.Equal(EntityState.Unchanged, entityEntry.EntityState);
+
+        // Verify complex collection entries are still accessible
+        var entries = entityEntry.GetComplexCollectionEntries(complexProperty);
+        Assert.Equal(3, entries.Count);
+        Assert.NotNull(entries[0]);
+        Assert.NotNull(entries[1]);
+        Assert.NotNull(entries[2]);
+        Assert.Equal(0, entries[0]!.Ordinal);
+        Assert.Equal(1, entries[1]!.Ordinal);
+        Assert.Equal(2, entries[2]!.Ordinal);
+    }
+
     [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Added),
      InlineData(EntityState.Deleted)]
     public void Complex_collection_detects_additions_and_deletions(EntityState entityState)

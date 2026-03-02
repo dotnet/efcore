@@ -13,19 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
+public class SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IAggregateMethodCallTranslator
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteQueryableAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -53,7 +42,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     if (averageArgumentType == typeof(decimal))
                     {
                         averageSqlExpression = CombineTerms(source, averageSqlExpression);
-                        return _sqlExpressionFactory.Function(
+                        return sqlExpressionFactory.Function(
                             "ef_avg",
                             [averageSqlExpression],
                             nullable: true,
@@ -80,7 +69,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     if (maxArgumentType == typeof(decimal))
                     {
                         maxSqlExpression = CombineTerms(source, maxSqlExpression);
-                        return _sqlExpressionFactory.Function(
+                        return sqlExpressionFactory.Function(
                             "ef_max",
                             [maxSqlExpression],
                             nullable: true,
@@ -107,7 +96,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     if (minArgumentType == typeof(decimal))
                     {
                         minSqlExpression = CombineTerms(source, minSqlExpression);
-                        return _sqlExpressionFactory.Function(
+                        return sqlExpressionFactory.Function(
                             "ef_min",
                             [minSqlExpression],
                             nullable: true,
@@ -126,7 +115,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     if (sumArgumentType == typeof(decimal))
                     {
                         sumSqlExpression = CombineTerms(source, sumSqlExpression);
-                        return _sqlExpressionFactory.Function(
+                        return sqlExpressionFactory.Function(
                             "ef_sum",
                             [sumSqlExpression],
                             nullable: true,
@@ -151,8 +140,8 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
     {
         if (enumerableExpression.Predicate != null)
         {
-            sqlExpression = _sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(enumerableExpression.Predicate, sqlExpression) },
+            sqlExpression = sqlExpressionFactory.Case(
+                [new(enumerableExpression.Predicate, sqlExpression)],
                 elseResult: null);
         }
 

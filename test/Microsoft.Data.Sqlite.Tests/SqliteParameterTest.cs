@@ -254,6 +254,24 @@ public class SqliteParameterTest
     }
 
     [Fact]
+    public void Bind_works_when_read_only_memory_bytes()
+    {
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((ReadOnlyMemory<byte>)buffer).Slice(1, 2);
+        var expected = new byte[] { 0x7E, 0x57 };
+        Bind_works(input, expected);
+    }
+
+    [Fact]
+    public void Bind_works_when_memory_bytes()
+    {
+        var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
+        var input = ((Memory<byte>)buffer).Slice(1, 2);
+        var expected = new byte[] { 0x7E, 0x57 };
+        Bind_works(input, expected);
+    }
+
+    [Fact]
     public void Bind_works_when_DateTime()
         => Bind_works(new DateTime(2014, 4, 14, 11, 13, 59), "2014-04-14 11:13:59");
 
@@ -598,6 +616,8 @@ public class SqliteParameterTest
             new object[] { 0.0, SqliteType.Real },
             new object[] { 0f, SqliteType.Real },
             new object[] { Array.Empty<byte>(), SqliteType.Blob },
+            new object[] { new Memory<byte>([]), SqliteType.Blob },
+            new object[] { new ReadOnlyMemory<byte>([]), SqliteType.Blob },
         };
 
     private enum MyEnum

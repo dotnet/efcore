@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocManyToManyQueryTests";
 
     protected virtual void ClearLog()
@@ -19,8 +19,8 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task SelectMany_with_collection_selector_having_subquery()
     {
-        var contextFactory = await InitializeAsync<MyContext7973>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext7973>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var users = (from user in context.Users
                      from organisation in context.Organisations.Where(o => o.OrganisationUsers.Any()).DefaultIfEmpty()
                      select new { UserId = user.Id, OrgId = organisation.Id }).ToList();
@@ -82,10 +82,10 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Many_to_many_load_works_when_join_entity_has_custom_key(bool async)
     {
-        var contextFactory = await InitializeAsync<Context20277>();
+        var contextFactory = await InitializeNonSharedTest<Context20277>();
 
         int id;
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var m = new ManyM_DB();
             var n = new ManyN_DB();
@@ -99,7 +99,7 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
 
         ClearLog();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var m = context.Find<ManyM_DB>(id);
 
@@ -121,7 +121,7 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
             id = m.ManyN_DB.Single().Id;
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var n = context.Find<ManyN_DB>(id);
 

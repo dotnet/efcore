@@ -34,6 +34,11 @@ WHERE [t].[Value].STEquals('POLYGON ((-122.35 47.62, -122.35 47.61, -122.34 47.6
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

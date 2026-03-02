@@ -27,12 +27,6 @@ type NorthwindQueryFSharpTest(fixture) as self =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ALFKI', N'ALFKI2')")
         }
-        
+
     member private self.RewriteExpectedQueryExpressionRedirect expression = base.RewriteExpectedQueryExpression expression
     member private self.RewriteServerQueryExpressionRedirect expression = base.RewriteServerQueryExpression expression
-
-    override self.CreateQueryAsserter fixture =
-        new RelationalQueryAsserter(
-            fixture,
-            (fun e -> self.RewriteExpectedQueryExpressionRedirect(e)),
-            (fun e -> self.RewriteServerQueryExpressionRedirect(e)))

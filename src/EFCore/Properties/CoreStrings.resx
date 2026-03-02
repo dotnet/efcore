@@ -336,6 +336,9 @@
   <data name="ComplexCollectionNotInitialized" xml:space="preserve">
     <value>The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.</value>
   </data>
+  <data name="ComplexCollectionOrdinalOutOfRange" xml:space="preserve">
+    <value>The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).</value>
+  </data>
   <data name="ComplexCollectionNullElementSetter" xml:space="preserve">
     <value>The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.</value>
   </data>
@@ -677,6 +680,9 @@
   </data>
   <data name="FunctionOnClient" xml:space="preserve">
     <value>The '{methodName}' method is not supported because the query has switched to client-evaluation. This usually happens when the arguments to the method cannot be translated to server. Rewrite the query to avoid client evaluation of arguments so that method can be translated to server.</value>
+  </data>
+  <data name="FunctionOnNonEfLinqProvider" xml:space="preserve">
+    <value>'{function}' can only be used with Entity Framework Core queries.</value>
   </data>
   <data name="GraphDoesNotContainVertex" xml:space="preserve">
     <value>The provided edge cannot be added because the graph does not contain the vertex '{vertex}'.</value>
