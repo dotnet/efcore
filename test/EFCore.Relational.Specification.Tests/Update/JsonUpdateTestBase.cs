@@ -3732,6 +3732,34 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
             });
 
+    [ConditionalFact]
+    public virtual Task Replace_derived_entity_with_json_to_different_derived_type_with_same_key()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var item = await context.JsonEntitiesTphItems.Include(x => x.Attributes).SingleAsync();
+
+                item.Attributes.RemoveAll(attr => attr.Key == "TextValue");
+                item.Attributes.Add(new JsonEntityTphStringAttribute
+                {
+                    Key = "TextValue",
+                    Value = "World"
+                });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var item = await context.JsonEntitiesTphItems.Include(x => x.Attributes).SingleAsync();
+                var attribute = Assert.Single(item.Attributes);
+                var stringAttribute = Assert.IsType<JsonEntityTphStringAttribute>(attribute);
+                Assert.Equal("TextValue", stringAttribute.Key);
+                Assert.Equal("World", stringAttribute.Value);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

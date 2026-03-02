@@ -594,6 +594,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     (InternalEntityEntry)currentEntry, currentOwnership)!;
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
+                // principal entity was replaced with a different derived type (e.g. TPH),
+                // no need to do any json-specific processing
+                if (currentEntry == null)
+                {
+                    return null;
+                }
+
                 if (processedEntries.Contains(currentEntry))
                 {
                     return null;
