@@ -17,11 +17,9 @@
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
-    <!-- Because this project uses a custom nuspec, this is necessary to ensure the generated shims are in the publish directory. -->
-    <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
-    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
+    <IncludeSymbols>true</IncludeSymbols>
     <RollForward>Major</RollForward>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <ImplicitUsings>true</ImplicitUsings>
@@ -48,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,26 +68,17 @@
     </Compile>
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
-    <PropertyGroup>
-      <!-- Make sure we create a symbols.nupkg. -->
-      <IncludeSymbols>true</IncludeSymbols>
-    </PropertyGroup>
-
+  <Target Name="AddEfProjectOutput" BeforeTargets="GenerateNuspec">
     <ItemGroup>
-      <NuspecProperty Include="targetFramework=$(TargetFramework)" />
-      <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
-      <!-- https://github.com/dotnet/msbuild/issues/10715. %2A replaces * working around an issue building Linux. -->
-      <NuspecProperty Include="Output=$(PublishDir)%2A%2A/%2A" />
-      <NuspecProperty Include="OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\$(TargetFramework)\ef.dll" />
-      <NuspecProperty Include="OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\$(TargetFramework)\ef.runtimeconfig.json" />
-      <NuspecProperty Include="OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\$(TargetFramework)\ef.pdb" />
-      <NuspecProperty Include="OutputExe=..\..\artifacts\bin\ef\$(Configuration)\net472\ef.exe" />
-      <NuspecProperty Include="OutputExeSymbol=..\..\artifacts\bin\ef\$(Configuration)\net472\ef.pdb" />
-      <NuspecProperty Include="OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net472\ef.exe" />
-      <NuspecProperty Include="OutputX86ExeSymbol=..\..\artifacts\bin\ef\x86\$(Configuration)\net472\ef.pdb" />
-      <NuspecProperty Include="OutputARM64Exe=..\..\artifacts\bin\ef\ARM64\$(Configuration)\net472\ef.exe" />
-      <NuspecProperty Include="OutputARM64ExeSymbol=..\..\artifacts\bin\ef\ARM64\$(Configuration)\net472\ef.pdb" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.dll" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.runtimeconfig.json" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.exe" PackagePath="tools\$(TargetFramework)\any\tools\net472\any\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\any\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.exe" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-x86\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-x86\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.exe" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-arm64\" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-arm64\" />
     </ItemGroup>
   </Target>
 </Project>
