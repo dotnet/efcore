@@ -59,12 +59,16 @@
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="System.Text.Json" PrivateAssets="All" />
-    <Reference Include="Microsoft.Build" />
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Configuration" />
+    <Reference Include="Microsoft.Build" Pack="false" />
+    <Reference Include="Microsoft.Build.Framework" Pack="false" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" Pack="false" />
+    <Reference Include="Microsoft.CSharp" Pack="false" />
+    <Reference Include="System.Configuration" Pack="false" />
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
 
   <PropertyGroup>
     <NoPackageAnalysis>true</NoPackageAnalysis>
