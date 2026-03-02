@@ -460,6 +460,9 @@ WHERE (
     public override Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_IEnumerable_EF_Parameter());
 
+    public override Task Inline_collection_Contains_with_Nullable_Int_IEnumerable_Array_Containing_Null_EF_Parameter()
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_Nullable_Int_IEnumerable_Array_Containing_Null_EF_Parameter());
+
     public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Count_with_column_predicate_with_EF_Parameter());
 
