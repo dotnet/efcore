@@ -41,6 +41,10 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
         context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
         context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
         context.JsonEntitiesConverters.AddRange(jsonEntitiesConverters);
+
+        var jsonEntitiesTphItems = JsonQueryData.CreateJsonEntitiesTphItems();
+        context.JsonEntitiesTphItems.AddRange(jsonEntitiesTphItems);
+
         return context.SaveChangesAsync();
     }
 }

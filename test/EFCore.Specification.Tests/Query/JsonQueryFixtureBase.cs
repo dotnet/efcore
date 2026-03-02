@@ -644,6 +644,20 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                         x => x == "Y" ? true : false,
                         x => x == true ? "Y" : "N"));
             });
+
+        modelBuilder.Entity<JsonEntityTphItem>(b =>
+        {
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.HasMany(x => x.Attributes).WithOne().HasForeignKey(x => x.JsonEntityTphItemId);
+        });
+
+        modelBuilder.Entity<JsonEntityTphItemAttribute>(b =>
+        {
+            b.HasKey(x => new { x.JsonEntityTphItemId, x.Key });
+            b.HasDiscriminator<string>("Discriminator")
+                .HasValue<JsonEntityTphStringAttribute>("string")
+                .HasValue<JsonEntityTphLocaleAttribute>("locale-value");
+        });
     }
 
     protected override string StoreName
