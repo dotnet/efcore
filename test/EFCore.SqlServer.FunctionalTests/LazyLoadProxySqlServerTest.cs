@@ -536,5 +536,9 @@ WHERE [p].[Id] = @entity_equality_called_Id
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder)
+                .ConfigureWarnings(c => c.Ignore(SqlServerEventId.DecimalTypeDefaultWarning));
     }
 }

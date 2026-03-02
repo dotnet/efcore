@@ -208,6 +208,9 @@ Register-TabExpansion Drop-Database @{
 .DESCRIPTION
     Drops the database.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -228,6 +231,7 @@ function Drop-Database
 {
     [CmdletBinding(PositionalBinding = $false, SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -241,6 +245,12 @@ function Drop-Database
     if ($PSCmdlet.ShouldProcess("database '$($info.databaseName)' on server '$($info.dataSource)'"))
     {
         $params = 'database', 'drop', '--force'
+
+        if ($Connection)
+        {
+            $params += '--connection', $Connection
+        }
+
         $params += GetParams $Context
 
         EF $dteProject $dteStartupProject $params $Args -skipBuild
@@ -412,6 +422,12 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER Force
     Revert the migration if it has been applied to the database.
 
+.PARAMETER Offline
+    Remove the migration without connecting to the database.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -434,6 +450,8 @@ function Remove-Migration
     [CmdletBinding(PositionalBinding = $false)]
     param(
         [switch] $Force,
+        [switch] $Offline,
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -447,6 +465,16 @@ function Remove-Migration
     if ($Force)
     {
         $params += '--force'
+    }
+
+    if ($Offline)
+    {
+        $params += '--offline'
+    }
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
     }
 
     $params += GetParams $Context
@@ -906,6 +934,7 @@ function Script-Migration
 
 Register-TabExpansion Update-Database @{
     Migration = { param($x) GetMigrations $x.Context $x.Project $x.StartupProject }
+    OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
     Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
@@ -920,6 +949,16 @@ Register-TabExpansion Update-Database @{
 
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
+    When used with -Add, this is the name of the new migration to create.
+
+.PARAMETER Add
+    Create a new migration with the given name and apply it immediately.
+
+.PARAMETER OutputDir
+    The directory to put files in. Paths are relative to the project directory. Requires -Add.
+
+.PARAMETER Namespace
+    The namespace to use for the migration. Matches the directory by default. Requires -Add.
 
 .PARAMETER Connection
     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
@@ -946,11 +985,26 @@ function Update-Database
     param(
         [Parameter(Position = 0)]
         [string] $Migration,
+        [switch] $Add,
+        [string] $OutputDir,
+        [string] $Namespace,
         [string] $Connection,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
         [string] $Args)
+
+    if (-not $Add)
+    {
+        if ($OutputDir)
+        {
+            throw "The '-OutputDir' parameter requires the '-Add' parameter to be specified."
+        }
+        if ($Namespace)
+        {
+            throw "The '-Namespace' parameter requires the '-Add' parameter to be specified."
+        }
+    }
 
     WarnIfEF6 'Update-Database'
 
@@ -962,6 +1016,21 @@ function Update-Database
     if ($Migration)
     {
         $params += $Migration
+    }
+
+    if ($Add)
+    {
+        $params += '--add'
+    }
+
+    if ($OutputDir)
+    {
+        $params += '--output-dir', $OutputDir
+    }
+
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
     }
 
     if ($Connection)
@@ -1253,7 +1322,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
-        $efPath = Join-Path $PSScriptRoot 'net8.0\any\ef.dll'
+        $efPath = Join-Path $PSScriptRoot 'net10.0\any\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 
@@ -1330,7 +1399,19 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $references = (dotnet build $startupProject.FullName /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems) -join "`n" | ConvertFrom-Json
+    $previousErrorActionPreference = $ErrorActionPreference
+    try
+    {
+        if ($previousErrorActionPreference -eq 'Stop')
+        {
+            $ErrorActionPreference = 'Continue'
+        }
+        $references = (dotnet build $startupProject.FullName /t:ResolvePackageAssets /getItem:RuntimeCopyLocalItems) -join "`n" | ConvertFrom-Json
+    }
+    finally
+    {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
 
     $designReference = $references.Items.RuntimeCopyLocalItems | ? { $_.FullPath.EndsWith('Microsoft.EntityFrameworkCore.Design.dll') }
     if ($designReference -ne $null)

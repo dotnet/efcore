@@ -1769,7 +1769,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
         ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
-        var member = property.GetMemberInfo(forMaterialization, forSet);
+        if (!property.TryGetMemberInfo(forMaterialization, forSet, out var member, out var error))
+        {
+            throw new InvalidOperationException(error);
+        }
+
+        if (member == null)
+        {
+            return null;
+        }
         switch (member)
         {
             case FieldInfo field:
@@ -1799,6 +1807,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         memberAccessReplacements ??= [];
+
         var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
 
         var declaringType = member.DeclaringType!;

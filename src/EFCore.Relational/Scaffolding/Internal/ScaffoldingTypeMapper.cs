@@ -80,7 +80,9 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
                 precision: mapping.Precision,
                 scale: mapping.Scale)!;
 
-            scaffoldUnicode = unicodeMapping.IsUnicode != defaultTypeMapping.IsUnicode ? defaultTypeMapping.IsUnicode : null;
+            scaffoldUnicode = unicodeMapping.IsUnicode != defaultTypeMapping.IsUnicode
+                ? defaultTypeMapping.IsUnicode
+                : null;
 
             // Check for fixed-length
             var fixedLengthMapping = _typeMappingSource.FindMapping(
@@ -126,7 +128,9 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
                 precision: null,
                 scale: mapping.Scale)!;
 
-            scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision ? defaultTypeMapping.Precision : null;
+            scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision
+                ? defaultTypeMapping.Precision
+                : null;
 
             // Check for scale
             var scaleMapping = _typeMappingSource.FindMapping(
@@ -141,6 +145,13 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
                 scale: null)!;
 
             scaffoldScale = scaleMapping.Scale != defaultTypeMapping.Scale ? defaultTypeMapping.Scale : null;
+
+            // Allow providers to force precision/scale scaffolding even when values match defaults
+            if (ShouldAlwaysScaffoldPrecision(unwrappedClrType))
+            {
+                scaffoldPrecision ??= defaultTypeMapping.Precision;
+                scaffoldScale ??= defaultTypeMapping.Scale;
+            }
         }
 
         return new TypeScaffoldingInfo(
@@ -152,4 +163,13 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
             scaffoldPrecision,
             scaffoldScale);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual bool ShouldAlwaysScaffoldPrecision(Type clrType)
+        => false;
 }

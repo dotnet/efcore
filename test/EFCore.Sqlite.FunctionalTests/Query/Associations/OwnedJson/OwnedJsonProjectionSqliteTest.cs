@@ -23,6 +23,11 @@ public class OwnedJsonProjectionSqliteTest(OwnedJsonSqliteFixture fixture, ITest
             ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
             : AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior));
 
+    public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => queryTrackingBehavior is QueryTrackingBehavior.TrackAll
+            ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
+            : AssertApplyNotSupported(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
+
     public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => queryTrackingBehavior is QueryTrackingBehavior.TrackAll
             ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"

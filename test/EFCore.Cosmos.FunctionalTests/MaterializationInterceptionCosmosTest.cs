@@ -58,6 +58,6 @@ public class MaterializationInterceptionCosmosTest(NonSharedFixture fixture) :
     public override Task Intercept_query_materialization_for_full_constructor(bool inject, bool usePooling)
         => base.Intercept_query_materialization_for_full_constructor(inject, usePooling);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 }

@@ -260,6 +260,30 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             });
     }
 
+    [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #37525
+    public virtual async Task Can_save_owned_entity_with_default_values_in_TPH_with_shared_columns(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = new CrunchyNougat { Name = "Test" };
+                context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var entity = await context.Set<CrunchyNougat>().SingleAsync();
+                Assert.Null(entity.Filling);
+                entity.Filling = new NougatFilling();
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var entity = await context.Set<CrunchyNougat>().SingleAsync();
+                Assert.NotNull(entity.Filling);
+                Assert.Equal(NougatFillingKind.Unknown, entity.Filling.Kind);
+                Assert.False(entity.Filling.IsFresh);
+            });
+
     [ConditionalFact]
     public abstract void Identifiers_are_generated_correctly();
 
@@ -299,6 +323,23 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 pb.OwnsOne(p => p.Address)
                     .Property(p => p.ZipCode)
                     .HasColumnName("ZipCode");
+            });
+
+            modelBuilder.Entity<CrunchyNougat>(b =>
+            {
+                b.OwnsOne(e => e.Filling, ob =>
+                {
+                    ob.Property(o => o.Kind).HasColumnName("FillingKind");
+                    ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
+                });
+            });
+            modelBuilder.Entity<SoftNougat>(b =>
+            {
+                b.OwnsOne(e => e.Filling, ob =>
+                {
+                    ob.Property(o => o.Kind).HasColumnName("FillingKind");
+                    ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
+                });
             });
 
             modelBuilder

@@ -9,18 +9,18 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "CosmosTriggersTest";
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
     [ConditionalFact]
     public async Task Triggers_are_executed_on_SaveChanges()
     {
-        var contextFactory = await InitializeAsync<TriggersContext>(shouldLogCategory: _ => true);
+        var contextFactory = await InitializeNonSharedTest<TriggersContext>(shouldLogCategory: _ => true);
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             await CreateTriggersInCosmosAsync(context);
 
@@ -41,7 +41,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
             Assert.Contains(logs, l => l.TriggerName == "PreInsertTrigger" && l.Operation == "INSERT");
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.SingleAsync();
             product.Name = "Updated Product";
@@ -53,7 +53,7 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
             Assert.Contains(logs, l => l.TriggerName == "UpdateTrigger" && l.Operation == "UPDATE");
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.SingleAsync();
             context.Products.Remove(product);

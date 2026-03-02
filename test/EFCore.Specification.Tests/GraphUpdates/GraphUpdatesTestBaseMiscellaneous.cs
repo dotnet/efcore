@@ -2315,4 +2315,122 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             });
     }
+
+    #region Issue37310
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task Can_update_many_to_many_and_reference_with_composite_key(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var group = new Group37310 { Id = 1 };
+                var user = new User37310 { Id = 1 };
+                var member = new GroupMember37310 { UserId = 1, GroupId = 1 };
+
+                context.Set<Group37310>().Add(group);
+                context.Set<User37310>().Add(user);
+                context.Set<GroupMember37310>().Add(member);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+            },
+            async context =>
+            {
+                var group = async
+                    ? await context.Set<Group37310>().Include(x => x.Members).SingleAsync()
+                    : context.Set<Group37310>().Include(x => x.Members).Single();
+
+                group.Members = new ObservableHashSet<GroupMember37310>(ReferenceEqualityComparer.Instance)
+                {
+                    new GroupMember37310 { UserId = 1, GroupId = 1 }
+                };
+                group.GroupOwnerId = 1;
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+            });
+
+    protected class User37310 : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<GroupMember37310> _groups = new ObservableHashSet<GroupMember37310>(ReferenceEqualityComparer.Instance);
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public ICollection<GroupMember37310> Groups
+        {
+            get => _groups;
+            set => SetWithNotify(value, ref _groups);
+        }
+    }
+
+    protected class Group37310 : NotifyingEntity
+    {
+        private int _id;
+        private int? _groupOwnerId;
+        private GroupMember37310 _groupOwner;
+        private ICollection<GroupMember37310> _members = new ObservableHashSet<GroupMember37310>(ReferenceEqualityComparer.Instance);
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int? GroupOwnerId
+        {
+            get => _groupOwnerId;
+            set => SetWithNotify(value, ref _groupOwnerId);
+        }
+
+        public GroupMember37310 GroupOwner
+        {
+            get => _groupOwner;
+            set => SetWithNotify(value, ref _groupOwner);
+        }
+
+        public ICollection<GroupMember37310> Members
+        {
+            get => _members;
+            set => SetWithNotify(value, ref _members);
+        }
+    }
+
+    protected class GroupMember37310 : NotifyingEntity
+    {
+        private int _groupId;
+        private Group37310 _group;
+        private int _userId;
+        private User37310 _user;
+
+        public int GroupId
+        {
+            get => _groupId;
+            set => SetWithNotify(value, ref _groupId);
+        }
+
+        public Group37310 Group
+        {
+            get => _group;
+            set => SetWithNotify(value, ref _group);
+        }
+
+        public int UserId
+        {
+            get => _userId;
+            set => SetWithNotify(value, ref _userId);
+        }
+
+        public User37310 User
+        {
+            get => _user;
+            set => SetWithNotify(value, ref _user);
+        }
+    }
+    #endregion
 }

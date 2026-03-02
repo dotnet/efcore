@@ -8,13 +8,13 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "NonSharedModelUpdatesTestBase";
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
                 mb.Entity<Author>(b =>
@@ -93,7 +93,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29379
     public virtual async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+        var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -124,6 +124,116 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string? Name { get; set; }
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #36059
+    public virtual async Task Replacing_owned_entity_with_FK_to_another_entity(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<Document36059>(b =>
+                {
+                    b.OwnsOne(d => d.File, fb =>
+                    {
+                        fb.Property(f => f.Id).ValueGeneratedNever();
+                        fb.HasOne(f => f.Content)
+                            .WithMany()
+                            .HasForeignKey(f => f.ContentId)
+                            .IsRequired()
+                            .OnDelete(DeleteBehavior.Restrict);
+                    });
+                });
+
+                mb.Entity<Content36059>(b =>
+                {
+                    b.Property(c => c.Id).ValueGeneratedNever();
+                });
+            });
+
+        var oldContentId = Guid.NewGuid();
+        var newContentId = Guid.NewGuid();
+        var documentId = Guid.NewGuid();
+        var oldFileId = Guid.NewGuid();
+        var newFileId = Guid.NewGuid();
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new Document36059
+                {
+                    Id = documentId,
+                    File = new File36059
+                    {
+                        Id = oldFileId,
+                        Name = "old.jpg",
+                        ContentId = oldContentId,
+                        Content = new Content36059 { Id = oldContentId, Data = "initial" }
+                    }
+                });
+
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var document = await context.Set<Document36059>()
+                    .Include(d => d.File)
+                    .SingleAsync(d => d.Id == documentId);
+
+                document.File = new File36059
+                {
+                    Id = newFileId,
+                    Name = "new.png",
+                    ContentId = newContentId,
+                    Content = new Content36059 { Id = newContentId, Data = "updated" }
+                };
+
+                context.Set<Content36059>().Remove(new Content36059 { Id = oldContentId });
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var document = await context.Set<Document36059>()
+                    .Include(d => d.File)
+                    .SingleAsync(d => d.Id == documentId);
+
+                Assert.NotNull(document.File);
+                Assert.Equal(newFileId, document.File.Id);
+                Assert.Equal("new.png", document.File.Name);
+                Assert.Equal(newContentId, document.File.ContentId);
+
+                Assert.Null(await context.Set<Content36059>().SingleOrDefaultAsync(c => c.Id == oldContentId));
+                Assert.NotNull(await context.Set<Content36059>().SingleOrDefaultAsync(c => c.Id == newContentId));
+            });
+    }
+
+    private class Document36059
+    {
+        public Guid Id { get; set; }
+        public File36059? File { get; set; }
+    }
+
+    private class File36059
+    {
+        public Guid Id { get; set; }
+        public required string Name { get; set; }
+        public Guid ContentId { get; set; }
+        public required Content36059 Content { get; set; }
+    }
+
+    private class Content36059
+    {
+        public Guid Id { get; set; }
+        public string? Data { get; set; }
+    }
+
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         ContextFactory<DbContext> contextFactory,
         Func<DbContext, Task> testOperation,
@@ -131,7 +241,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         Func<DbContext, Task>? nestedTestOperation2 = null,
         Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            contextFactory.CreateContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            contextFactory.CreateDbContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

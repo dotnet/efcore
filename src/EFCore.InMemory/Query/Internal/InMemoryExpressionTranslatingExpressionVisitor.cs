@@ -1347,10 +1347,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return false;
         }
 
-        if (IsNullConstantExpression(left)
-            || IsNullConstantExpression(right))
+        if (left is ConstantExpression { Value: null }
+            || right is ConstantExpression { Value: null })
         {
-            var nonNullEntityReference = (IsNullConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
+            var nonNullEntityReference = (left is ConstantExpression { Value: null } ? rightEntityReference : leftEntityReference)!;
             var entityType1 = (IEntityType)nonNullEntityReference.StructuralType;
             var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties1 == null)
@@ -1555,9 +1555,6 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                     ? unaryExpression.Operand
                     : expression;
     }
-
-    private static bool IsNullConstantExpression(Expression expression)
-        => expression is ConstantExpression { Value: null };
 
     [DebuggerStepThrough]
     private static bool TranslationFailed(Expression? original, Expression? translation)

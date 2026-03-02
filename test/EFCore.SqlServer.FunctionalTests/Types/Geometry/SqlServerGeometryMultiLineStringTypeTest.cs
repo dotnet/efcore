@@ -36,6 +36,11 @@ WHERE [t].[Value].STEquals('MULTILINESTRING ((1 1, 2 2), (3 3, 4 4))') = CAST(1 
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();
