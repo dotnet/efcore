@@ -92,6 +92,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
     {
+        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
         var selectExpression = deleteExpression.SelectExpression;
 
         if (selectExpression is
@@ -155,6 +157,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitUpdate(UpdateExpression updateExpression)
     {
+        Sql.Append("SET NOCOUNT OFF").AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
         var selectExpression = updateExpression.SelectExpression;
 
         if (selectExpression is

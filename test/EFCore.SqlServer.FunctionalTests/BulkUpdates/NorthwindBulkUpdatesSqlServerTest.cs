@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
@@ -1665,6 +1668,38 @@ INNER JOIN (
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task ExecuteUpdate_after_empty_insert_on_open_connection_returns_correct_rows_affected_Final()
+    {
+        var connectionString = Fixture.TestStore.ConnectionString;
+        await using var sqlConnection = new SqlConnection(connectionString);
+        await sqlConnection.OpenAsync();
+
+        var contextOptions = Fixture.AddOptions(new DbContextOptionsBuilder())
+            .UseSqlServer(sqlConnection)
+            .ConfigureWarnings(w => w.Ignore(SqlServerEventId.DecimalTypeDefaultWarning))
+            .Options;
+
+        using var context = new NorthwindSqlServerContext(contextOptions);
+        var customerId = "FIXED";
+        
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Orders] WHERE [CustomerID] = '{customerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Customers] WHERE [CustomerID] = '{customerId}'");
+        
+        await context.Database.ExecuteSqlRawAsync(
+            $"INSERT INTO [Customers] ([CustomerID], [CompanyName], [ContactName]) VALUES ('{customerId}', 'Test Corp', 'Owner')");
+
+        await context.Database.ExecuteSqlRawAsync(
+            $"INSERT INTO [Orders] ([CustomerID], [OrderDate]) VALUES ('{customerId}', GETDATE())");
+        var affected = await context.Customers
+            .Where(c => c.CustomerID == customerId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.City, "Cairo"));
+
+        Assert.Equal(1, affected);
+
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Orders] WHERE [CustomerID] = '{customerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Customers] WHERE [CustomerID] = '{customerId}'");
+    }
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
