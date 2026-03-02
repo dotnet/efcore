@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -3169,35 +3170,38 @@ public sealed partial class SelectExpression : TableExpressionBase
             isToOneJoin = AllInnerIdentifiersInPredicate(joinPredicate, innerSelect._identifier);
         }
 
-        if (_identifier.Count > 0 && innerSelect._identifier.Count > 0)
+        if (_identifier.Count == 0 || innerSelect._identifier.Count == 0)
         {
-            if (!isToOneJoin)
-            {
-                switch (joinType)
-                {
-                    case JoinType.LeftJoin or JoinType.OuterApply:
-                        _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
-                        break;
-
-                    case JoinType.RightJoin:
-                        var nullableOuterIdentifier = _identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)).ToList();
-                        _identifier.Clear();
-                        _identifier.AddRange(nullableOuterIdentifier);
-                        _identifier.AddRange(innerSelect._identifier);
-                        break;
-
-                    default:
-                        _identifier.AddRange(innerSelect._identifier);
-                        break;
-                }
-            }
-        }
-        else
-        {
-            // if the subquery that is joined to can't be uniquely identified
-            // then the entire join should also not be marked as non-identifiable
+            // Either the outer and inner sides aren't uniquely identifiable; mark everything as non-uniquely-indentifiable.
             _identifier.Clear();
             innerSelect._identifier.Clear();
+        }
+        else if (!isToOneJoin || joinType is JoinType.RightJoin)
+        {
+            // This is cardinality-increasing join - add identifiers from the inner.
+            // Note that we do the same for right joins, since these make the outer identifiers nullable; that could mean that
+            // multiple inner rows get the same NULL identifier.
+            switch (joinType)
+            {
+                case JoinType.LeftJoin or JoinType.OuterApply:
+                    _identifier.AddRange(innerSelect._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                    break;
+
+                case JoinType.RightJoin:
+                    // Make the outer identifiers nullable, then add the inner identifiers
+                    for (var i = 0; i < _identifier.Count; i++)
+                    {
+                        var identifier = _identifier[i];
+                        _identifier[i] = (identifier.Column.MakeNullable(), identifier.Comparer);
+                    }
+
+                    _identifier.AddRange(innerSelect._identifier);
+                    break;
+
+                default:
+                    _identifier.AddRange(innerSelect._identifier);
+                    break;
+            }
         }
 
         var innerTable = innerSelect.Tables.Single();
@@ -3245,46 +3249,39 @@ public sealed partial class SelectExpression : TableExpressionBase
             SqlExpression joinPredicate,
             List<(ColumnExpression Column, ValueComparer Comparer)> innerIdentifiers)
         {
-            Span<bool> matched = innerIdentifiers.Count <= 8
-                ? stackalloc bool[innerIdentifiers.Count]
-                : new bool[innerIdentifiers.Count];
+            var matched = new BitArray(innerIdentifiers.Count);
 
-            MatchIdentifiersInPredicate(joinPredicate, innerIdentifiers, matched);
+            return MatchIdentifiersInPredicate(joinPredicate, innerIdentifiers, matched)
+                && matched.HasAllSet();
 
-            foreach (var m in matched)
-            {
-                if (!m)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-
-            static void MatchIdentifiersInPredicate(
+            static bool MatchIdentifiersInPredicate(
                 SqlExpression expression,
                 List<(ColumnExpression Column, ValueComparer Comparer)> identifiers,
-                Span<bool> matched)
+                BitArray matched)
             {
                 switch (expression)
                 {
                     case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
                         for (var i = 0; i < identifiers.Count; i++)
                         {
+                            var identifier = identifiers[i];
                             if (!matched[i]
-                                && (identifiers[i].Column.Equals(binary.Left)
-                                    || identifiers[i].Column.Equals(binary.Right)))
+                                && (identifier.Column.Equals(binary.Left) || identifier.Column.Equals(binary.Right)))
                             {
                                 matched[i] = true;
                             }
                         }
 
-                        break;
+                        return true;
 
                     case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary:
                         MatchIdentifiersInPredicate(binary.Left, identifiers, matched);
                         MatchIdentifiersInPredicate(binary.Right, identifiers, matched);
-                        break;
+                        return true;
+
+                    // Any other operator (OR, inequality) automatically fails the check
+                    default:
+                        return false;
                 }
             }
         }
