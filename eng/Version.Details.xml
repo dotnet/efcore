@@ -67,17 +67,17 @@
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="9.0.0-beta.26110.2">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="9.0.0-beta.26123.3">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>0279dbd04bd1537e13ae3c1f003edf56acfaf123</Sha>
+      <Sha>29a2184303379b9840b70e7cdb2faa0f39833b89</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="9.0.0-beta.26110.2">
+    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="9.0.0-beta.26123.3">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>0279dbd04bd1537e13ae3c1f003edf56acfaf123</Sha>
+      <Sha>29a2184303379b9840b70e7cdb2faa0f39833b89</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="9.0.0-beta.26110.2">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="9.0.0-beta.26123.3">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>0279dbd04bd1537e13ae3c1f003edf56acfaf123</Sha>
+      <Sha>29a2184303379b9840b70e7cdb2faa0f39833b89</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
