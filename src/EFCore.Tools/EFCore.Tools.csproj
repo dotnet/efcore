@@ -6,6 +6,7 @@
     <TargetFramework>$(NetMinimum)</TargetFramework>
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -34,7 +35,7 @@ Update-Database
 
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" ExcludeAssets="all" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
   </ItemGroup>
 
   <ItemGroup>

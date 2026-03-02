@@ -9,6 +9,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDependencyFile>true</GenerateDependencyFile>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
     <ImplicitUsings>true</ImplicitUsings>
@@ -49,7 +50,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
-    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
