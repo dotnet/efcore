@@ -779,6 +779,7 @@ WHERE 0 = 1
             //
             """
 @p='Updated' (Size = 30)
+
 SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[ContactName] = @p
