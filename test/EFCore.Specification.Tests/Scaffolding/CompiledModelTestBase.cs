@@ -268,6 +268,8 @@ namespace TestNamespace
             b.Property(e => e.TimeSpanToTicksConverterProperty).HasConversion<TimeSpanToTicksConverter>();
             b.Property(e => e.UriToStringConverterProperty).HasConversion<UriToStringConverter>();
             b.Property(e => e.NullIntToNullStringConverterProperty).HasConversion<NullIntToNullStringConverter>();
+
+            b.Property(e => e.NullableString).Metadata.IsAutoLoaded = false;
         });
     }
 
@@ -282,6 +284,9 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(manyTypesType.ConstructorBinding);
         Assert.Null(manyTypesType.FindIndexerPropertyInfo());
         Assert.Equal(ChangeTrackingStrategy.Snapshot, manyTypesType.GetChangeTrackingStrategy());
+
+        var stringProp = manyTypesType.FindProperty(nameof(ManyTypes.NullableString))!;
+        Assert.False(stringProp.IsAutoLoaded);
 
         var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection));
         if (ipAddressCollection != null)

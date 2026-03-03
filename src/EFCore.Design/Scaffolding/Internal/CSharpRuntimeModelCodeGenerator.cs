@@ -1199,6 +1199,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.UnknownLiteral(sentinel));
         }
 
+        if (!property.IsAutoLoaded)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("autoLoaded: ")
+                .Append(_code.Literal(false));
+        }
+
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
         if (jsonValueReaderWriterType != null)
         {

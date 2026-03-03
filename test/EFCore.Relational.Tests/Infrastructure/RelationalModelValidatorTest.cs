@@ -3868,6 +3868,43 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             => throw new NotImplementedException();
     }
 
+    [ConditionalFact]
+    public virtual void Detects_json_mapped_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<AutoLoadJsonPrincipal>(
+            eb =>
+            {
+                eb.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Property(e => e.Details);
+                    });
+            });
+
+        var model = modelBuilder.Model;
+        var ownedType = model.FindEntityType(typeof(AutoLoadJsonOwned))!;
+        ownedType.SetContainerColumnName("Owned");
+        var property = ownedType.FindProperty(nameof(AutoLoadJsonOwned.Details))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            RelationalStrings.AutoLoadedJsonProperty(nameof(AutoLoadJsonOwned.Details), ownedType.DisplayName()),
+            modelBuilder);
+    }
+
+    protected class AutoLoadJsonPrincipal
+    {
+        public int Id { get; set; }
+        public AutoLoadJsonOwned Owned { get; set; } = null!;
+    }
+
+    protected class AutoLoadJsonOwned
+    {
+        public string Details { get; set; } = null!;
+    }
+
     protected virtual TestHelpers.TestModelBuilder CreateModelBuilderWithoutConvention<T>(bool sensitiveDataLoggingEnabled = false)
         => TestHelpers.CreateConventionBuilder(
             CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),

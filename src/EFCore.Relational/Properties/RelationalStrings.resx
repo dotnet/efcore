@@ -120,6 +120,9 @@
   <data name="AbstractTpc" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
+  <data name="AutoLoadedJsonProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is mapped to a JSON entity and cannot be configured as not auto-loaded. JSON-mapped entities are always loaded as a unit.</value>
+  </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize a sequence from model metadata. See inner exception for details.</value>
     <comment>Obsolete</comment>

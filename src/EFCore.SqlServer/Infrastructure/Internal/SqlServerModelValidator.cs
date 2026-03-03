@@ -50,10 +50,11 @@ public class SqlServerModelValidator(
         ITypeBase structuralType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        ValidateVectorProperty(property, logger);
+
         base.ValidateProperty(property, structuralType, logger);
 
         ValidateDecimalColumn(property, logger);
-        ValidateVectorProperty(property, logger);
     }
 
     /// <summary>

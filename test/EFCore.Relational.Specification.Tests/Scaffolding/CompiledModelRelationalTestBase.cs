@@ -143,6 +143,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             Assert.Throws<InvalidOperationException>(model.GetCollation).Message);
 
         var manyTypesType = model.FindEntityType(typeof(ManyTypes))!;
+        Assert.False(manyTypesType.FindProperty(nameof(ManyTypes.NullableString))!.IsAutoLoaded);
         Assert.Equal("ManyTypes", manyTypesType.GetTableName());
         Assert.Null(manyTypesType.GetSchema());
 

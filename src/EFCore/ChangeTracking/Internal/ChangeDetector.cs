@@ -281,6 +281,17 @@ public class ChangeDetector : IChangeDetector
         var changesFound = false;
         foreach (var property in entry.StructuralType.GetFlattenedProperties())
         {
+            if (!entry.IsLoaded(property))
+            {
+                if (!property.GetValueComparer().Equals(entry[property], property.Sentinel))
+                {
+                    entry.SetPropertyModified(property);
+                    changesFound = true;
+                }
+
+                continue;
+            }
+
             if (property.GetOriginalValueIndex() >= 0
                 && !entry.IsModified(property)
                 && !entry.IsConceptualNull(property))
@@ -339,9 +350,10 @@ public class ChangeDetector : IChangeDetector
             {
                 foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
                 {
-                    // Only mark properties that are tracked and can be modified
+                    // Only mark properties that are tracked, can be modified, and are loaded
                     if (innerProperty.GetOriginalValueIndex() >= 0
-                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                        && entry.IsLoaded(innerProperty))
                     {
                         entry.SetPropertyModified(innerProperty);
                     }
@@ -792,6 +804,11 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public bool DetectValueChange(IInternalEntry entry, IProperty property)
     {
+        if (!entry.IsLoaded(property))
+        {
+            return false;
+        }
+
         var current = entry[property];
         var original = entry.GetOriginalValue(property);
 

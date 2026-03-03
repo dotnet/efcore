@@ -180,6 +180,22 @@ public class RelationalModelValidator(
     }
 
     /// <inheritdoc />
+    protected override void ValidateAutoLoaded(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateAutoLoaded(property, structuralType, logger);
+
+        if (!property.IsAutoLoaded
+            && structuralType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.AutoLoadedJsonProperty(property.Name, structuralType.DisplayName()));
+        }
+    }
+
+    /// <inheritdoc />
     protected override void ValidateKey(
         IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)

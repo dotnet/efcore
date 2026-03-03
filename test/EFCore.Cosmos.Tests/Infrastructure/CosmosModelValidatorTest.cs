@@ -615,6 +615,27 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         Validate(modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void Detects_cosmos_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Customer>(
+            eb =>
+            {
+                eb.Property(e => e.Name);
+                eb.Property(e => e.PartitionId);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer))!.FindProperty(nameof(Customer.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CosmosStrings.AutoLoadedCosmosProperty(nameof(Customer.Name), nameof(Customer)),
+            modelBuilder);
+    }
+
     protected class SpecialCustomer : Customer
     {
         public string SpecialProperty { get; set; }

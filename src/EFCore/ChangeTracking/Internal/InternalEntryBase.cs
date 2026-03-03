@@ -207,7 +207,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             return false;
         }
-
+    
         if (EntityState == EntityState.Modified)
         {
             _stateData.FlagAllProperties(
@@ -231,6 +231,20 @@ public abstract partial class InternalEntryBase : IInternalEntry
     protected virtual void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
     {
         var structuralType = StructuralType;
+
+        // When transitioning from Detached, check not-auto-loaded properties:
+        // if their current value equals the sentinel, mark them as not-loaded.
+        if (oldState == EntityState.Detached)
+        {
+            foreach (var property in structuralType.GetFlattenedProperties())
+            {
+                if (!property.IsAutoLoaded)
+                {
+                    _stateData.FlagProperty(
+                        property.GetIndex(), PropertyFlag.IsPropertyNotLoaded, HasSentinelValue(property));
+                }
+            }
+        }
 
         // Prevent temp values from becoming permanent values
         if (oldState == EntityState.Added
@@ -261,6 +275,13 @@ public abstract partial class InternalEntryBase : IInternalEntry
             foreach (var property in structuralType.GetFlattenedProperties())
             {
                 if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
+                {
+                    _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
+                }
+
+                // Properties that are not loaded (IsAutoLoaded = false and not yet loaded) should
+                // not be marked as modified when the entity state is set to Modified.
+                if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsPropertyNotLoaded))
                 {
                     _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
                 }
@@ -407,7 +428,8 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         return _stateData.EntityState == EntityState.Modified
             && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Modified)
-            && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
+            && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown)
+            && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.IsPropertyNotLoaded);
     }
 
     /// <summary>
@@ -429,6 +451,32 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public bool IsLoaded(IProperty property)
+    {
+        StructuralType.CheckContains(property);
+
+        return !_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsPropertyNotLoaded);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetIsLoaded(IProperty property, bool loaded)
+    {
+        StructuralType.CheckContains(property);
+
+        _stateData.FlagProperty(property.GetIndex(), PropertyFlag.IsPropertyNotLoaded, !loaded);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public void SetPropertyModified(
         IProperty property,
         bool changeState = true,
@@ -440,6 +488,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         var propertyIndex = property.GetIndex();
         _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, false);
+        _stateData.FlagProperty(propertyIndex, PropertyFlag.IsPropertyNotLoaded, false);
 
         var currentState = _stateData.EntityState;
 
