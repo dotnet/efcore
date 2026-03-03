@@ -10,7 +10,7 @@ EF Core test infrastructure, patterns, and workflows for unit, specification, an
 
 ## Test Categories
 
-### Unit Tests (`test/EFCore.{Provider}.Tests/`)
+### Unit Tests (`test/EFCore.Tests/`, `test/EFCore.Relational.Tests/`, `test/EFCore.{Provider}.Tests/`)
 Isolated logic tests. Build models via `*TestHelpers.Instance.CreateConventionBuilder()`, resolve services from `CreateContextServices()`. No database needed.
 
 ### Specification Tests (provider-agnostic abstract bases)
