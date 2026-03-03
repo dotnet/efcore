@@ -5,14 +5,17 @@
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <IncludeSymbols>false</IncludeSymbols>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <GenerateDependencyFile>true</GenerateDependencyFile>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
     <ImplicitUsings>true</ImplicitUsings>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPackContent</TargetsForTfmSpecificContentInPackage>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +36,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="**/*.props;**/*.targets"
+      Pack="true"
+      PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="lib/**/*" Pack="true" PackagePath="lib/" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -45,7 +55,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" ReferenceOutputAssembly="true" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
@@ -54,29 +65,30 @@
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="System.Text.Json" PrivateAssets="All" />
-    <Reference Include="Microsoft.Build" />
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Configuration" />
+    <Reference Include="Microsoft.Build" Pack="false" />
+    <Reference Include="Microsoft.Build.Framework" Pack="false" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" Pack="false" />
+    <Reference Include="Microsoft.CSharp" Pack="false" />
+    <Reference Include="System.Configuration" Pack="false" />
   </ItemGroup>
 
-  <!--
-    Workaround for insufficient support for task packages by NuGet Pack: https://github.com/NuGet/Home/issues/6321
-    and bugs with ProjectReference: https://github.com/NuGet/Home/issues/10907, https://github.com/NuGet/Home/issues/10312
-  -->
-  <PropertyGroup>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
-  </PropertyGroup>
+  <Target Name="AddPackContent">
+    <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" PackagePath="tools/$(NetCurrent)" />
+      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).deps.json" PackagePath="tasks/$(TargetFramework)" />
+    </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
+    <ItemGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">
+      <TfmSpecificPackageFile Include="$(OutputPath)*" Exclude="$(TargetPath);$(TargetDir)$(TargetName).pdb" PackagePath="tasks/$(TargetFramework)" />
+    </ItemGroup>
+
     <ItemGroup>
-      <NuspecProperty Include="AssemblyName=$(AssemblyName)" />
-      <NuspecProperty Include="OutputPath=$(OutputPath)" />
-      <NuspecProperty Include="NetCurrent=$(NetCurrent)" />
-      <NuspecProperty Include="NetFrameworkToolCurrent=$(NetFrameworkToolCurrent)" />
-      <NuspecProperty Include="EFOutputPath=$(ArtifactsBinDir)ef\$(Configuration)\$(NetMinimum)" />
+      <TfmSpecificDebugSymbolsFile Include="@(TfmSpecificPackageFile->WithMetadataValue('Extension', '.pdb'))"
+                                   TargetPath="/%(TfmSpecificPackageFile.PackagePath)/%(Filename)%(Extension)"
+                                   TargetFramework="$(TargetFramework)"
+                                   Condition="'$(IncludeSymbols)' == 'true'" />
+      <!-- Remove symbols from the non symbol package. -->
+      <TfmSpecificPackageFile Remove="@(TfmSpecificPackageFile->WithMetadataValue('Extension', '.pdb'))" />
     </ItemGroup>
   </Target>
 

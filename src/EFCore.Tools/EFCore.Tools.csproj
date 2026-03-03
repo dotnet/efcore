@@ -1,18 +1,10 @@
-﻿<Project>
-
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+﻿<Project Sdk="Microsoft.Build.NoTargets">
 
   <PropertyGroup>
     <TargetFramework>$(NetMinimum)</TargetFramework>
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
-    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <IncludeSource>false</IncludeSource>
-    <IncludeSymbols>true</IncludeSymbols>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
@@ -26,43 +18,58 @@ Remove-Migration
 Scaffold-DbContext
 Script-Migration
 Update-Database
-  </Description>
-    <CheckEolTargetFramework>False</CheckEolTargetFramework>
+    </Description>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPackContent</TargetsForTfmSpecificContentInPackage>
+    <!-- Necessary to include pdbs -->
+    <IncludeBuildOutput>true</IncludeBuildOutput>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\ef\ef.csproj" />
+    <!-- Referencing a stub project so that this project can continue targeting NetMinimum but expose a
+         package dependency to the Design package that targets the current TFM only. -->
+    <ProjectReference Include="..\stubs\EFCore.Design.csproj" ReferenceOutputAssembly="true" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <!--
-    Workaround for insufficient support for tools packages by NuGet Pack: https://github.com/NuGet/Home/issues/6321.
-  -->
-  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
+  <Target Name="GenerateContent"
+    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
+    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)')">
+    <GenerateFileFromTemplate
+      TemplateFile="%(GeneratedContent.Identity)"
+      Properties="VersionPrefix=$(VersionPrefix)"
+      OutputPath="$(IntermediateOutputPath)%(FileName)" />
+  </Target>
+
+  <Target Name="AddPackContent" DependsOnTargets="GenerateContent">
     <ItemGroup>
-      <NuspecProperty Include="configuration=$(Configuration)" />
-      <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
-      <NuspecProperty Include="targetFramework=$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="lib/**/*" PackagePath="lib/" />
+      <TfmSpecificPackageFile Include="tools/**/*" PackagePath="tools/" />
+      <TfmSpecificPackageFile Include="$(IntermediateOutputPath)*.psd1" PackagePath="tools/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/*" PackagePath="tools/net472/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/*" PackagePath="tools/net472/win-x86" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/*" PackagePath="tools/net472/win-arm64" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <TfmSpecificDebugSymbolsFile Include="@(TfmSpecificPackageFile->WithMetadataValue('Extension', '.pdb'))"
+                                   TargetPath="/%(TfmSpecificPackageFile.PackagePath)/%(Filename)%(Extension)"
+                                   TargetFramework="$(TargetFramework)"
+                                   Condition="'$(IncludeSymbols)' == 'true'" />
+      <!-- Remove symbols from the non symbol package. -->
+      <TfmSpecificPackageFile Remove="@(TfmSpecificPackageFile->WithMetadataValue('Extension', '.pdb'))" />
     </ItemGroup>
   </Target>
-
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-
-  <Target Name="GenerateContent"
-    BeforeTargets="GenerateNuspec"
-    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
-    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)'">
-    <GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" Properties="VersionPrefix=$(VersionPrefix)" OutputPath="$(IntermediateOutputPath)%(FileName)" />
-  </Target>
-
-  <Target Name="Compile" />
-  <Target Name="CopyFilesToOutputDirectory" />
 
 </Project>
