@@ -12,7 +12,7 @@ Translates LINQ expressions into database queries and materializes results.
 
 1. **Preprocessing** — `QueryTranslationPreprocessor`: `NavigationExpandingExpressionVisitor` (Include, navigations, auto-includes), `QueryOptimizingExpressionVisitor`
 2. **Translation** — `QueryableMethodTranslatingExpressionVisitor`: LINQ methods → `ShapedQueryExpression` (= `QueryExpression` + `ShaperExpression`). Relational: `RelationalSqlTranslatingExpressionVisitor`, `SelectExpression`
-3. **Postprocessing** — `QueryTranslationPostprocessor`: `SqlNullabilityProcessor`, `SqlTreePruner`, `SqlAliasManager`, `RelationalParameterBasedSqlProcessor`, `RelationalSqlProcessingExpressionVisitor`
+3. **Postprocessing** — `QueryTranslationPostprocessor`: `SqlNullabilityProcessor`, `SqlTreePruner`, `SqlAliasManager`, `RelationalParameterBasedSqlProcessor`, `SelectExpressionProjectionApplyingExpressionVisitor`, `SqlExpressionSimplifyingExpressionVisitor`, `RelationalValueConverterCompensatingExpressionVisitor`
 4. **Compilation** — `ShapedQueryCompilingExpressionVisitor` → executable delegate. Relational: `ShaperProcessingExpressionVisitor` builds shaper and materialization code
 5. **SQL Generation** — `QuerySqlGenerator`
 
