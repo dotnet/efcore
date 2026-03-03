@@ -13,16 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class SqlServerAutoLoadConvention : AutoLoadConvention
+/// <remarks>
+///     Creates a new instance of <see cref="SqlServerAutoLoadConvention" />.
+/// </remarks>
+/// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+public class SqlServerAutoLoadConvention(ProviderConventionSetBuilderDependencies dependencies) : AutoLoadConvention(dependencies)
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="SqlServerAutoLoadConvention" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public SqlServerAutoLoadConvention(ProviderConventionSetBuilderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
 
     /// <inheritdoc />
     protected override bool ShouldBeAutoLoaded(IConventionProperty property)
@@ -33,8 +29,10 @@ public class SqlServerAutoLoadConvention : AutoLoadConvention
             return typeMapping is not SqlServerVectorTypeMapping;
         }
 
-        // Fall back to CLR type check when type mapping hasn't been resolved yet
-        return property.GetValueConverter() == null
-            && property.ClrType.TryGetElementType(typeof(SqlVector<>)) is null;
+        // Fall back to CLR type check when type mapping hasn't been resolved yet.
+        // If there's a value converter, the CLR type may not reflect the store type,
+        // so we can only check for SqlVector<> when there's no converter.
+        return property.GetValueConverter() is not null
+            || property.ClrType.TryGetElementType(typeof(SqlVector<>)) is null;
     }
 }

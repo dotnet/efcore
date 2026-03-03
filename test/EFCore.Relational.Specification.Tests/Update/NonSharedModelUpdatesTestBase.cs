@@ -17,19 +17,13 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
-                mb.Entity<Author>(b =>
-                {
-                    b.HasOne(a => a.AuthorsClub)
+                mb.Entity<Author>(b => b.HasOne(a => a.AuthorsClub)
                         .WithMany()
-                        .HasForeignKey(a => a.AuthorsClubId);
-                });
+                        .HasForeignKey(a => a.AuthorsClubId));
 
-                mb.Entity<Book>(b =>
-                {
-                    b.HasOne(book => book.Author)
+                mb.Entity<Book>(b => b.HasOne(book => book.Author)
                         .WithMany()
-                        .HasForeignKey(book => book.AuthorId);
-                });
+                        .HasForeignKey(book => book.AuthorId));
             });
 
         await ExecuteWithStrategyInTransactionAsync(
@@ -128,14 +122,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<BlogWithDescription>(
-                    b =>
-                    {
-                        b.Property(e => e.Description).Metadata.IsAutoLoaded = false;
-                    });
-            },
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(
+                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
             seed: async context =>
             {
                 context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Original description" });
@@ -174,14 +162,12 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Save_and_query_with_partially_loaded_primitive_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb =>
-            {
-                mb.Entity<BlogWithTags>(
+            onModelCreating: mb => mb.Entity<BlogWithTags>(
                     b =>
                     {
                         b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
-                    });
-            },
+                        b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
+                    }),
             seed: async context =>
             {
                 context.Add(new BlogWithTags { Name = "EF Blog", Tags = ["efcore", "dotnet"] });
@@ -236,9 +222,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
-                mb.Entity<Document36059>(b =>
-                {
-                    b.OwnsOne(d => d.File, fb =>
+                mb.Entity<Document36059>(b => b.OwnsOne(d => d.File, fb =>
                     {
                         fb.Property(f => f.Id).ValueGeneratedNever();
                         fb.HasOne(f => f.Content)
@@ -246,13 +230,9 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                             .HasForeignKey(f => f.ContentId)
                             .IsRequired()
                             .OnDelete(DeleteBehavior.Restrict);
-                    });
-                });
+                    }));
 
-                mb.Entity<Content36059>(b =>
-                {
-                    b.Property(c => c.Id).ValueGeneratedNever();
-                });
+                mb.Entity<Content36059>(b => b.Property(c => c.Id).ValueGeneratedNever());
             });
 
         var oldContentId = Guid.NewGuid();

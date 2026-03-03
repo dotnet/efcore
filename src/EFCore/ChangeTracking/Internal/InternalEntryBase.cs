@@ -1675,6 +1675,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             if (property.GetElementType() != null
                 && !property.IsNullable
+                && IsLoaded(property)
                 && GetCurrentValue(property) == null
                 && (property.DeclaringType is not IComplexType complexType
                     || GetCurrentValue(complexType.ComplexProperty) != null))

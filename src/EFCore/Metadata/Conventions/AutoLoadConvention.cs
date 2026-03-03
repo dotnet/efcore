@@ -11,21 +11,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class AutoLoadConvention : IModelFinalizingConvention
+/// <remarks>
+///     Creates a new instance of <see cref="AutoLoadConvention" />.
+/// </remarks>
+/// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+public class AutoLoadConvention(ProviderConventionSetBuilderDependencies dependencies) : IModelFinalizingConvention
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="AutoLoadConvention" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public AutoLoadConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
 
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
-    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; } = dependencies;
 
     /// <inheritdoc />
     public virtual void ProcessModelFinalizing(
