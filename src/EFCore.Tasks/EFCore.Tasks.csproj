@@ -15,7 +15,7 @@
     <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'"><!-- asdf-->
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
