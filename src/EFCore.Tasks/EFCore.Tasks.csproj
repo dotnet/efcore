@@ -5,11 +5,11 @@
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <!-- No symbols package needed for this package -->
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDependencyFile>true</GenerateDependencyFile>
-    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
     <ImplicitUsings>true</ImplicitUsings>
@@ -50,7 +50,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
-    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" />
+    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" PrivateAssets="all" />
+    <!-- Declare package dependency on Design; VersionOverride needed because the package isn't in Directory.Packages.props -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" VersionOverride="8.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
@@ -76,12 +78,13 @@
 
   <Target Name="AddPackContent" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
     <ItemGroup>
-      <_PackageFiles Include="$(OutputPath)$(NetCurrent)\$(AssemblyName).dll" PackagePath="tasks\$(NetCurrent)\" />
-      <_PackageFiles Include="$(OutputPath)$(NetCurrent)\$(AssemblyName).pdb" PackagePath="tasks\$(NetCurrent)\" />
-      <_PackageFiles Include="$(OutputPath)$(NetCurrent)\$(AssemblyName).deps.json" PackagePath="tasks\$(NetCurrent)\" />
-      <_PackageFiles Include="$(OutputPath)$(NetFrameworkToolCurrent)\*" PackagePath="tasks\$(NetFrameworkToolCurrent)\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(NetMinimum)\*" PackagePath="tools\$(NetCurrent)\" />
-      <_PackageFiles Include="buildTransitive\*" PackagePath="buildTransitive\" />
+      <_PackageFiles Include="lib/**/*" PackagePath="lib/" />
+      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" PackagePath="tools/$(NetCurrent)/" />
+      <_PackageFiles Include="buildTransitive/*" PackagePath="buildTransitive/" />
+      <_PackageFiles Include="$(OutputPath)$(NetCurrent)/$(AssemblyName).dll" PackagePath="tasks/$(NetCurrent)/" />
+      <_PackageFiles Include="$(OutputPath)$(NetCurrent)/$(AssemblyName).pdb" PackagePath="tasks/$(NetCurrent)/" />
+      <_PackageFiles Include="$(OutputPath)$(NetCurrent)/$(AssemblyName).deps.json" PackagePath="tasks/$(NetCurrent)/" />
+      <_PackageFiles Include="$(OutputPath)$(NetFrameworkToolCurrent)/*" PackagePath="tasks/$(NetFrameworkToolCurrent)/" />
     </ItemGroup>
   </Target>
 

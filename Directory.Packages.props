@@ -34,7 +34,6 @@
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCoreVersion)" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildTasksCoreVersion)" />
     <PackageVersion Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" />
 
     <!-- Azure SDK for .NET dependencies -->
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.51.0" />

@@ -4,14 +4,14 @@
     Creates a symbols package (.symbols.nupkg) containing PDB files by running a second Pack
     with _IsSymbolsPack=true. Projects that import this file should:
     1. Set IncludeSymbols=false
-    2. Conditionally include PDB files in _PackageFiles only when _IsSymbolsPack=true
-    3. Optionally strip SDK-added PDB files from _PackageFiles when _IsSymbolsPack!=true
+    2. Include PDB files unconditionally in _PackageFiles
+    3. Add an ExcludePdbFiles target that strips all .pdb files when _IsSymbolsPack!=true
   -->
 
   <Target Name="CreateSymbolsPackage" AfterTargets="Pack"
           Condition="'$(_IsSymbolsPack)' != 'true' and '$(IsPackable)' != 'false'">
     <PropertyGroup>
-      <_SymbolsPackTempDir>$(IntermediateOutputPath)symbolspkg\</_SymbolsPackTempDir>
+      <_SymbolsPackTempDir>$([MSBuild]::NormalizeDirectory('$(IntermediateOutputPath)', 'symbolspkg'))</_SymbolsPackTempDir>
     </PropertyGroup>
     <MakeDir Directories="$(_SymbolsPackTempDir)" />
     <MSBuild Projects="$(MSBuildProjectFullPath)"
