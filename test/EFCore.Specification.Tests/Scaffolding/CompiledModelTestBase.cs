@@ -269,7 +269,10 @@ namespace TestNamespace
             b.Property(e => e.UriToStringConverterProperty).HasConversion<UriToStringConverter>();
             b.Property(e => e.NullIntToNullStringConverterProperty).HasConversion<NullIntToNullStringConverter>();
 
-            b.Property(e => e.NullableString).Metadata.IsAutoLoaded = false;
+            if (SupportsNonAutoLoadedProperties)
+            {
+                b.Property(e => e.NullableString).Metadata.IsAutoLoaded = false;
+            }
         });
     }
 
@@ -286,7 +289,7 @@ namespace TestNamespace
         Assert.Equal(ChangeTrackingStrategy.Snapshot, manyTypesType.GetChangeTrackingStrategy());
 
         var stringProp = manyTypesType.FindProperty(nameof(ManyTypes.NullableString))!;
-        Assert.False(stringProp.IsAutoLoaded);
+        Assert.Equal(!SupportsNonAutoLoadedProperties, stringProp.IsAutoLoaded);
 
         var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection));
         if (ipAddressCollection != null)
@@ -1371,6 +1374,9 @@ namespace TestNamespace
 
     protected virtual int ExpectedComplexTypeProperties
         => 14;
+
+    protected virtual bool SupportsNonAutoLoadedProperties
+        => true;
 
     public class CustomValueComparer<T>() : ValueComparer<T>(false);
 

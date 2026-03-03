@@ -363,7 +363,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     {
         EnsureMutable();
 
-        var isChanging = IsAutoLoaded != autoLoaded;
+        var isChanging = IsAutoLoaded != (autoLoaded ?? DefaultIsAutoLoaded);
         if (isChanging)
         {
             _isAutoLoaded = autoLoaded;

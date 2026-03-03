@@ -202,10 +202,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
 
-        // Cosmos provider doesn't support partial property loading
-        modelBuilder.Entity<ManyTypes>(
-            b => b.Property(e => e.NullableString).Metadata.IsAutoLoaded = true);
-
         modelBuilder.Entity<DependentBase<byte?>>(eb => eb.ToContainer("Dependents"));
         modelBuilder.Entity<DependentDerived<byte?>>(eb => eb.HasDiscriminator().IsComplete(false));
 
@@ -662,6 +658,9 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
     protected override int ExpectedComplexTypeProperties
         => 12;
+
+    protected override bool SupportsNonAutoLoadedProperties
+        => false;
 
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;

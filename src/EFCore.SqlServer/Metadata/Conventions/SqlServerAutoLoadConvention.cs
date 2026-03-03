@@ -13,13 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-/// <remarks>
-///     Creates a new instance of <see cref="SqlServerAutoLoadConvention" />.
-/// </remarks>
 /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
 public class SqlServerAutoLoadConvention(ProviderConventionSetBuilderDependencies dependencies) : AutoLoadConvention(dependencies)
 {
-
     /// <inheritdoc />
     protected override bool ShouldBeAutoLoaded(IConventionProperty property)
     {

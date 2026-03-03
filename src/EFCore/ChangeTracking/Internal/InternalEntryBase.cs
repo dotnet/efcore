@@ -207,7 +207,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             return false;
         }
-    
+
         if (EntityState == EntityState.Modified)
         {
             _stateData.FlagAllProperties(
@@ -383,6 +383,15 @@ public abstract partial class InternalEntryBase : IInternalEntry
     public virtual void MarkUnchangedFromQuery()
     {
         EntityState = EntityState.Unchanged;
+
+        foreach (var property in StructuralType.GetFlattenedProperties())
+        {
+            if (!property.IsAutoLoaded)
+            {
+                _stateData.FlagProperty(
+                    property.GetIndex(), PropertyFlag.IsPropertyNotLoaded, HasSentinelValue(property));
+            }
+        }
 
         foreach (var complexCollection in StructuralType.GetFlattenedComplexProperties())
         {
