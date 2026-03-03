@@ -200,38 +200,6 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
             b.Property(x => x.Name);
         });
 
-        modelBuilder.Entity<JsonEntityTphItem>(b =>
-        {
-            b.Property(x => x.Id).ValueGeneratedNever();
-            b.HasMany(x => x.Attributes).WithOne().HasForeignKey(x => x.JsonEntityTphItemId);
-        });
-
-        modelBuilder.Entity<JsonEntityTphItemAttribute>(b =>
-        {
-            b.HasKey(x => new { x.JsonEntityTphItemId, x.Key });
-            b.HasDiscriminator<string>("Discriminator")
-                .HasValue<JsonEntityTphStringAttribute>("string")
-                .HasValue<JsonEntityTphLocaleAttribute>("locale-value");
-        });
-
-        modelBuilder.Entity<JsonEntityTphStringAttribute>(b =>
-        {
-            b.Property(x => x.Value).HasColumnName("StringValue");
-        });
-
-        modelBuilder.Entity<JsonEntityTphLocaleAttribute>(b =>
-        {
-            b.OwnsOne(x => x.Value, bc =>
-            {
-                bc.ToJson("LocaleValue");
-                bc.OwnsMany(x => x.Entries, v =>
-                {
-                    v.Property(x => x.Locale).IsRequired();
-                    v.Property(x => x.Value);
-                });
-            });
-        });
-
         base.OnModelCreating(modelBuilder, context);
     }
 
@@ -241,13 +209,11 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
         var jsonEntitiesAllTypes = JsonQueryData.CreateJsonEntitiesAllTypes();
         var jsonEntitiesConverters = JsonQueryData.CreateJsonEntitiesConverters();
-        var jsonEntitiesTphItems = JsonQueryData.CreateJsonEntitiesTphItems();
 
         context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
         context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
         context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
         context.JsonEntitiesConverters.AddRange(jsonEntitiesConverters);
-        context.JsonEntitiesTphItems.AddRange(jsonEntitiesTphItems);
 
         return context.SaveChangesAsync();
     }

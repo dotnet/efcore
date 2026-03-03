@@ -59,23 +59,5 @@ public abstract class JsonQueryRelationalFixture : JsonQueryFixtureBase, ITestSq
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(x => x.Collection).ToJson();
 
         modelBuilder.Entity<JsonEntityConverters>().OwnsOne(x => x.Reference).ToJson();
-
-        modelBuilder.Entity<JsonEntityTphStringAttribute>(b =>
-        {
-            b.Property(x => x.Value).HasColumnName("StringValue");
-        });
-
-        modelBuilder.Entity<JsonEntityTphLocaleAttribute>(b =>
-        {
-            b.OwnsOne(x => x.Value, bc =>
-            {
-                bc.ToJson("LocaleValue");
-                bc.OwnsMany(x => x.Entries, v =>
-                {
-                    v.Property(x => x.Locale).IsRequired();
-                    v.Property(x => x.Value);
-                });
-            });
-        });
     }
 }

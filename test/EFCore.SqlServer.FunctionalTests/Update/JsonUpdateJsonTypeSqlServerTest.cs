@@ -3299,9 +3299,9 @@ FROM [JsonEntitiesBasic] AS [j]
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    public override async Task Replace_derived_entity_with_json_to_different_derived_type_with_same_key()
+    public override async Task Replace_derived_entity_with_json_to_base_entity_with_same_key()
     {
-        await base.Replace_derived_entity_with_json_to_different_derived_type_with_same_key();
+        await base.Replace_derived_entity_with_json_to_base_entity_with_same_key();
     }
 
     private void AssertSql(params string[] expected)

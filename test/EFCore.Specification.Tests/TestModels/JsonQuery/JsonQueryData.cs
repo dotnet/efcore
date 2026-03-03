@@ -22,7 +22,6 @@ public class JsonQueryData : ISetSource
         JsonEntitiesInheritance = CreateJsonEntitiesInheritance();
         JsonEntitiesAllTypes = CreateJsonEntitiesAllTypes();
         JsonEntitiesConverters = CreateJsonEntitiesConverters();
-        JsonEntitiesTphItems = CreateJsonEntitiesTphItems();
     }
 
     public IReadOnlyList<EntityBasic> EntitiesBasic { get; }
@@ -34,7 +33,6 @@ public class JsonQueryData : ISetSource
     public IReadOnlyList<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
     public IReadOnlyList<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
     public IReadOnlyList<JsonEntityConverters> JsonEntitiesConverters { get; set; }
-    public IReadOnlyList<JsonEntityTphItem> JsonEntitiesTphItems { get; set; }
 
     public static IReadOnlyList<JsonEntityBasic> CreateJsonEntitiesBasic()
     {
@@ -1472,30 +1470,6 @@ public class JsonQueryData : ISetSource
         };
     }
 
-    public static IReadOnlyList<JsonEntityTphItem> CreateJsonEntitiesTphItems()
-        => new List<JsonEntityTphItem>
-        {
-            new()
-            {
-                Id = 1,
-                Name = "Product 1",
-                Attributes =
-                [
-                    new JsonEntityTphLocaleAttribute
-                    {
-                        Key = "TextValue",
-                        Value = new JsonOwnedTphLocaleValue
-                        {
-                            Entries =
-                            [
-                                new JsonOwnedTphLocaleValueEntry { Locale = "en-US", Value = "Hello" }
-                            ]
-                        }
-                    }
-                ]
-            }
-        };
-
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
     {
@@ -1547,11 +1521,6 @@ public class JsonQueryData : ISetSource
         if (typeof(TEntity) == typeof(JsonEntityBasicForCollection))
         {
             return (IQueryable<TEntity>)JsonEntitiesBasicForCollection.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(JsonEntityTphItem))
-        {
-            return (IQueryable<TEntity>)JsonEntitiesTphItems.AsQueryable();
         }
 
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

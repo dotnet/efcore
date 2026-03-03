@@ -68,10 +68,5 @@ public class JsonUpdateJsonTypeSqlServerFixture : JsonUpdateSqlServerFixture
         });
 
         modelBuilder.Entity<JsonEntityConverters>().OwnsOne(x => x.Reference).ToJson().HasColumnType("json");
-
-        modelBuilder.Entity<JsonEntityTphLocaleAttribute>(b =>
-        {
-            b.OwnsOne(x => x.Value).ToJson().HasColumnType("json");
-        });
     }
 }
