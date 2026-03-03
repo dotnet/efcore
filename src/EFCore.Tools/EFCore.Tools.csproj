@@ -1,16 +1,10 @@
-﻿<Project>
-
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+﻿<Project Sdk="Microsoft.Build.NoTargets">
 
   <PropertyGroup>
     <TargetFramework>$(NetMinimum)</TargetFramework>
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <IncludeSource>false</IncludeSource>
-    <IncludeSymbols>false</IncludeSymbols>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
@@ -29,11 +23,11 @@ Update-Database
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+    <ProjectReference Include="..\ef\ef.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="all" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" VersionOverride="8.0.0" />
   </ItemGroup>
 
@@ -41,10 +35,20 @@ Update-Database
     <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <Target Name="AddPackContent">
+  <Target Name="GenerateContent"
+    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
+    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)')">
+    <GenerateFileFromTemplate
+      TemplateFile="%(GeneratedContent.Identity)"
+      Properties="VersionPrefix=$(VersionPrefix)"
+      OutputPath="$(IntermediateOutputPath)%(FileName)" />
+  </Target>
+
+  <Target Name="AddPackContent" DependsOnTargets="GenerateContent">
     <ItemGroup>
       <TfmSpecificPackageFile Include="lib/**/*" PackagePath="lib/" />
       <TfmSpecificPackageFile Include="tools/**/*" PackagePath="tools/" />
+      <TfmSpecificPackageFile Include="$(IntermediateOutputPath)*.psd1" PackagePath="tools/" />
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/any/" />
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/win-x86/" />
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/win-arm64/" />
@@ -52,22 +56,5 @@ Update-Database
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/" />
     </ItemGroup>
   </Target>
-
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-
-  <Target Name="GenerateContent"
-    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
-    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)'">
-    <GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" Properties="VersionPrefix=$(VersionPrefix)" OutputPath="$(IntermediateOutputPath)%(FileName)">
-      <Output TaskParameter="ResolvedOutputPath" ItemName="GeneratedContentFile" />
-    </GenerateFileFromTemplate>
-
-    <ItemGroup>
-      <TfmSpecificPackageFile Include="@(GeneratedContentFile)" PackagePath="tools/" />
-    </ItemGroup>
-  </Target>
-
-  <Target Name="Compile" />
-  <Target Name="CopyFilesToOutputDirectory" />
 
 </Project>
