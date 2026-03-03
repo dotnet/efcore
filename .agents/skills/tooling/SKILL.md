@@ -10,7 +10,7 @@ The `dotnet ef` CLI and Visual Studio Package Manager Console commands for migra
 
 ## dotnet-ef CLI (`src/dotnet-ef/`)
 
-`RootCommand` parses global options (`--project`, `--startup-project`, `--framework`, `--configuration`, `--runtime`, `--no-build`). Subcommands in `Commands/`: `DatabaseCommand`, `DbContextCommand`, `MigrationsCommand`. Each invokes MSBuild to build, then shells out via `dotnet exec ef.dll`, which hosts `OperationExecutor`.
+`RootCommand` parses global options (`--project`, `--startup-project`, `--framework`, `--configuration`, `--runtime`, `--no-build`). Subcommands implemented in `src/ef/Commands/` (`Microsoft.EntityFrameworkCore.Tools.Commands`): `DatabaseCommand`, `DbContextCommand`, `MigrationsCommand`. Each invokes MSBuild to build, then shells out via `dotnet exec ef.dll`, which hosts `OperationExecutor`.
 
 ## PMC (`src/EFCore.Tools/`)
 
