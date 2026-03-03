@@ -27,11 +27,13 @@ Update-Database
 
   <ItemGroup>
     <ProjectReference Include="..\ef\ef.csproj" />
+    <!-- Referencing a stub project so that this project can continue targeting NetMinimum but expose a
+         package dependency to the Design package that targets the current TFM only. -->
+    <ProjectReference Include="..\stubs\EFCore.Design.csproj" ReferenceOutputAssembly="true" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" VersionOverride="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

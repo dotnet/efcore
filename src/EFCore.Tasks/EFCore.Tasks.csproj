@@ -56,12 +56,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
-    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" PrivateAssets="all" />
-    <!-- Declare package dependency on Design; VersionOverride needed because the package isn't in Directory.Packages.props -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" VersionOverride="10.0.0" />
+    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" ReferenceOutputAssembly="true" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
