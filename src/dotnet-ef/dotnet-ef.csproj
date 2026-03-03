@@ -18,8 +18,6 @@
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
-    <IncludeSource>false</IncludeSource>
-    <IncludeSymbols>false</IncludeSymbols>
     <RollForward>Major</RollForward>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <ImplicitUsings>true</ImplicitUsings>
@@ -71,11 +69,12 @@
 
   <Target Name="AddEfProjectOutput">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/any/" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-x86/" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-arm64/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/*" PackagePath="tools/$(TargetFramework)/any/tools/net472/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/*" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-x86" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/*" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-arm64" />
     </ItemGroup>
   </Target>
 
