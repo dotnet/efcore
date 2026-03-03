@@ -2101,7 +2101,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             // In many databases, parameter names must start with a letter or underscore.
             // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
             // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
-            if (!char.IsLetter(parameterName[0]) && parameterName[0] != '_')
+            if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
             {
                 parameterName = "_" + parameterName;
             }
@@ -2215,7 +2215,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             // Compiler-generated field names intentionally contain illegal characters, specifically angle brackets <>.
             // In cases where there's something within the angle brackets, that tends to be the original user-provided variable name
-            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or it the angle brackets contain no
+            // (e.g. <PropertyName>k__BackingField). If we see angle brackets, extract that out, or if the angle brackets contain no
             // content, strip them out entirely and take what comes after.
             var closingBracket = s.IndexOf('>');
             if (closingBracket == -1)

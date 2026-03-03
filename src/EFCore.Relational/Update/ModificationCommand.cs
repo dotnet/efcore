@@ -581,20 +581,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         static List<JsonPartialUpdatePathEntry>? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
         {
             var result = new List<JsonPartialUpdatePathEntry>();
-            var currentEntry = entry;
+            IUpdateEntry? currentEntry = entry;
             var currentOwnership = currentEntry.EntityType.FindOwnership()!;
 
-            while (currentEntry.EntityType.IsMappedToJson())
+            while (currentEntry is not null && currentEntry.EntityType.IsMappedToJson())
             {
                 var jsonPropertyName = currentEntry.EntityType.GetJsonPropertyName()!;
                 currentOwnership = currentEntry.EntityType.FindOwnership()!;
                 var previousEntry = currentEntry;
 #pragma warning disable EF1001 // Internal EF Core API usage.
                 currentEntry = ((InternalEntityEntry)currentEntry).StateManager.FindPrincipal(
-                    (InternalEntityEntry)currentEntry, currentOwnership)!;
+                    (InternalEntityEntry)currentEntry, currentOwnership);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-                if (processedEntries.Contains(currentEntry))
+                if (currentEntry == null || processedEntries.Contains(currentEntry))
                 {
                     return null;
                 }
@@ -635,7 +635,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
 
             // parent entity got deleted, no need to do any json-specific processing
-            if (currentEntry.EntityState == EntityState.Deleted)
+            if (currentEntry?.EntityState == EntityState.Deleted)
             {
                 return null;
             }
