@@ -1494,7 +1494,6 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 DELETE FROM [People]
 WHERE [First Name] = N'Hodor';
 SELECT @@ROWCOUNT;
@@ -1524,7 +1523,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 DELETE FROM [People]
 WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
 SELECT @@ROWCOUNT;
@@ -1554,7 +1552,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 DELETE FROM [People]
 WHERE [Last Name] = N'Snow';
 SELECT @@ROWCOUNT;
@@ -1568,7 +1565,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 DELETE FROM [People]
 WHERE [First Name] = N'John' AND [Last Name] = N'Snow';
 SELECT @@ROWCOUNT;
@@ -1582,7 +1578,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [Birthplace] = N'Winterfell', [House Allegiance] = N'Stark', [Culture] = N'Northmen'
 WHERE [First Name] = N'Hodor';
 SELECT @@ROWCOUNT;
@@ -1600,7 +1595,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [House Allegiance] = N'Stark'
 WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
 SELECT @@ROWCOUNT;
@@ -1618,7 +1612,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [Birthplace] = N'Winterfell', [House Allegiance] = N'Stark', [Culture] = N'Northmen'
 WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;
 SELECT @@ROWCOUNT;
@@ -1636,7 +1629,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
 WHERE [First Name] = N'Daenerys';
 SELECT @@ROWCOUNT;
@@ -1650,7 +1642,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [House Allegiance] = N'Targaryen'
 WHERE [First Name] = N'Daenerys';
 SELECT @@ROWCOUNT;
@@ -1664,7 +1655,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [House Allegiance] = N'Targaryen'
 WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
 SELECT @@ROWCOUNT;
@@ -1678,7 +1668,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
 WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';
 SELECT @@ROWCOUNT;
@@ -1692,7 +1681,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [Birthplace] = N'Dragonstone', [House Allegiance] = N'Targaryen', [Culture] = N'Valyrian'
 WHERE [First Name] = N'Daenerys';
 SELECT @@ROWCOUNT;
@@ -1706,7 +1694,6 @@ SELECT @@ROWCOUNT;
 
         AssertSql(
             """
-SET NOCOUNT OFF;
 UPDATE [People] SET [House Allegiance] = N'Stark'
 WHERE [First Name] = N'Hodor';
 SELECT @@ROWCOUNT;

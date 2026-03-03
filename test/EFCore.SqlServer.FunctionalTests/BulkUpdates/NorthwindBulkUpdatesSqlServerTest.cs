@@ -60,6 +60,7 @@ WHERE [o].[Quantity] = @quantity
 """,
             //
             """
+SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 WHERE 0 = 1
@@ -778,7 +779,7 @@ WHERE 0 = 1
             //
             """
 @p='Updated' (Size = 30)
-
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[ContactName] = @p
 FROM [Customers] AS [c]
