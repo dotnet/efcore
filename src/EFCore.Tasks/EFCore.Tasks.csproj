@@ -5,7 +5,7 @@
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <!-- No symbols package needed for this package -->
+    <!-- Symbols package is created separately by eng/CreateSymbolsPackage.targets -->
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -52,7 +52,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
     <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" PrivateAssets="all" />
     <!-- Declare package dependency on Design; VersionOverride needed because the package isn't in Directory.Packages.props -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" VersionOverride="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" VersionOverride="10.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
@@ -87,6 +87,17 @@
       <_PackageFiles Include="$(OutputPath)$(NetFrameworkToolCurrent)/*" PackagePath="tasks/$(NetFrameworkToolCurrent)/" />
     </ItemGroup>
   </Target>
+
+  <!-- Strip all PDB files from the main package; they are included in the symbols package -->
+  <Target Name="ExcludePdbFiles" BeforeTargets="GenerateNuspec"
+          DependsOnTargets="AddPackContent"
+          Condition="'$(_IsSymbolsPack)' != 'true'">
+    <ItemGroup>
+      <_PackageFiles Remove="@(_PackageFiles)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
+  <Import Project="..\..\eng\CreateSymbolsPackage.targets" />
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

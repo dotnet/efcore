@@ -16,7 +16,7 @@
     <MakeDir Directories="$(_SymbolsPackTempDir)" />
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Pack"
-             Properties="_IsSymbolsPack=true;PackageOutputPath=$(_SymbolsPackTempDir);NoBuild=true" />
+             Properties="_IsSymbolsPack=true;PackageOutputPath=$(_SymbolsPackTempDir)" />
     <Copy SourceFiles="$(_SymbolsPackTempDir)$(PackageId).$(PackageVersion).nupkg"
           DestinationFiles="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).symbols.nupkg"
           OverwriteReadOnlyFiles="true" />
