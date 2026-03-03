@@ -1,0 +1,26 @@
+<Project>
+
+  <!--
+    Creates a symbols package (.symbols.nupkg) containing PDB files by running a second Pack
+    with _IsSymbolsPack=true. Projects that import this file should:
+    1. Set IncludeSymbols=false
+    2. Conditionally include PDB files in _PackageFiles only when _IsSymbolsPack=true
+    3. Optionally strip SDK-added PDB files from _PackageFiles when _IsSymbolsPack!=true
+  -->
+
+  <Target Name="CreateSymbolsPackage" AfterTargets="Pack"
+          Condition="'$(_IsSymbolsPack)' != 'true' and '$(IsPackable)' != 'false'">
+    <PropertyGroup>
+      <_SymbolsPackTempDir>$(IntermediateOutputPath)symbolspkg\</_SymbolsPackTempDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_SymbolsPackTempDir)" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Pack"
+             Properties="_IsSymbolsPack=true;PackageOutputPath=$(_SymbolsPackTempDir);NoBuild=true" />
+    <Copy SourceFiles="$(_SymbolsPackTempDir)$(PackageId).$(PackageVersion).nupkg"
+          DestinationFiles="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).symbols.nupkg"
+          OverwriteReadOnlyFiles="true" />
+    <RemoveDir Directories="$(_SymbolsPackTempDir)" ContinueOnError="true" />
+  </Target>
+
+</Project>

@@ -11,7 +11,7 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
-    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols>false</IncludeSymbols>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
@@ -48,18 +48,18 @@ Update-Database
       <_PackageFiles Include="tools\**\*" PackagePath="tools\" />
       <_PackageFiles Include="$(IntermediateOutputPath)*.psd1" PackagePath="tools\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.exe" PackagePath="tools\net472\any\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.pdb" PackagePath="tools\net472\any\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.pdb" PackagePath="tools\net472\any\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.exe" PackagePath="tools\net472\win-x86\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.pdb" PackagePath="tools\net472\win-x86\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.pdb" PackagePath="tools\net472\win-x86\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.exe" PackagePath="tools\net472\win-arm64\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.pdb" PackagePath="tools\net472\win-arm64\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.pdb" PackagePath="tools\net472\win-arm64\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.dll" PackagePath="tools\$(TargetFramework)\any\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.pdb" PackagePath="tools\$(TargetFramework)\any\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.pdb" PackagePath="tools\$(TargetFramework)\any\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.runtimeconfig.json" PackagePath="tools\$(TargetFramework)\any\" />
     </ItemGroup>
   </Target>
 
-  <Import Project="..\..\eng\StripPdbFromNupkg.targets" />
+  <Import Project="..\..\eng\CreateSymbolsPackage.targets" />
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 

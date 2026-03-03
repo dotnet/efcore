@@ -19,7 +19,7 @@
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
-    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols>false</IncludeSymbols>
     <RollForward>Major</RollForward>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <ImplicitUsings>true</ImplicitUsings>
@@ -72,15 +72,24 @@
     <ItemGroup>
       <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.dll" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.runtimeconfig.json" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\$(Configuration)\$(TargetFramework)\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\$(TargetFramework)\any\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.exe" PackagePath="tools\$(TargetFramework)\any\tools\net472\any\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\any\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\any\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.exe" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-x86\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-x86\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\x86\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-x86\" />
       <_PackageFiles Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.exe" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-arm64\" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-arm64\" />
+      <_PackageFiles Condition="'$(_IsSymbolsPack)' == 'true'" Include="$(ArtifactsBinDir)ef\ARM64\$(Configuration)\net472\ef.pdb" PackagePath="tools\$(TargetFramework)\any\tools\net472\win-arm64\" />
     </ItemGroup>
   </Target>
 
-  <Import Project="..\..\eng\StripPdbFromNupkg.targets" />
+  <!-- Remove PDB files that SDK adds from publish output (only for main package) -->
+  <Target Name="ExcludePublishPdb" BeforeTargets="GenerateNuspec"
+          DependsOnTargets="AddEfProjectOutput"
+          Condition="'$(_IsSymbolsPack)' != 'true'">
+    <ItemGroup>
+      <_PackageFiles Remove="@(_PackageFiles)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
+  <Import Project="..\..\eng\CreateSymbolsPackage.targets" />
 </Project>
