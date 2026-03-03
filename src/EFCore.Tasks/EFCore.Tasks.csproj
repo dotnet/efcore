@@ -5,7 +5,6 @@
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <!-- Symbols package is created separately by eng/CreateSymbolsPackage.targets -->
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -14,6 +13,7 @@
     <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
     <ImplicitUsings>true</ImplicitUsings>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPackContent</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -76,28 +76,18 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
   </PropertyGroup>
 
-  <Target Name="AddPackContent" BeforeTargets="GenerateNuspec" DependsOnTargets="Build">
-    <ItemGroup>
-      <_PackageFiles Include="lib/**/*" PackagePath="lib/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" PackagePath="tools/$(NetCurrent)/" />
-      <_PackageFiles Include="buildTransitive/*" PackagePath="buildTransitive/" />
-      <_PackageFiles Include="$(OutputPath)$(NetCurrent)/$(AssemblyName).dll" PackagePath="tasks/$(NetCurrent)/" />
-      <_PackageFiles Include="$(OutputPath)$(NetCurrent)/$(AssemblyName).pdb" PackagePath="tasks/$(NetCurrent)/" />
-      <_PackageFiles Include="$(OutputPath)$(NetCurrent)/$(AssemblyName).deps.json" PackagePath="tasks/$(NetCurrent)/" />
-      <_PackageFiles Include="$(OutputPath)$(NetFrameworkToolCurrent)/*" PackagePath="tasks/$(NetFrameworkToolCurrent)/" />
+  <Target Name="AddPackContent">
+    <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
+      <TfmSpecificPackageFile Include="lib/**/*" PackagePath="lib/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" Exclude="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*.pdb" PackagePath="tools/$(NetCurrent)/" />
+      <TfmSpecificPackageFile Include="buildTransitive/*" PackagePath="buildTransitive/" />
+      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).dll" PackagePath="tasks/$(TargetFramework)/" />
+      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).deps.json" PackagePath="tasks/$(TargetFramework)/" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">
+      <TfmSpecificPackageFile Include="$(OutputPath)*" Exclude="$(OutputPath)*.pdb" PackagePath="tasks/$(TargetFramework)/" />
     </ItemGroup>
   </Target>
-
-  <!-- Strip all PDB files from the main package; they are included in the symbols package -->
-  <Target Name="ExcludePdbFiles" BeforeTargets="GenerateNuspec"
-          DependsOnTargets="AddPackContent"
-          Condition="'$(_IsSymbolsPack)' != 'true'">
-    <ItemGroup>
-      <_PackageFiles Remove="@(_PackageFiles)" Condition="'%(Extension)' == '.pdb'" />
-    </ItemGroup>
-  </Target>
-
-  <Import Project="..\..\eng\CreateSymbolsPackage.targets" />
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

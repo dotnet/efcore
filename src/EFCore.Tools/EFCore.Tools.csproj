@@ -10,7 +10,6 @@
     <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
-    <!-- Symbols package is created separately by eng/CreateSymbolsPackage.targets -->
     <IncludeSymbols>false</IncludeSymbols>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
@@ -25,8 +24,8 @@ Remove-Migration
 Scaffold-DbContext
 Script-Migration
 Update-Database
-  </Description>
-    <CheckEolTargetFramework>False</CheckEolTargetFramework>
+    </Description>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GenerateContent;AddPackContent</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,41 +41,30 @@ Update-Database
     <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
-  <Target Name="AddPackContent" BeforeTargets="GenerateNuspec" DependsOnTargets="GenerateContent">
+  <Target Name="AddPackContent">
     <ItemGroup>
-      <_PackageFiles Include="lib/**/*" PackagePath="lib/" />
-      <_PackageFiles Include="tools/**/*" PackagePath="tools/" />
-      <_PackageFiles Include="$(IntermediateOutputPath)*.psd1" PackagePath="tools/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.pdb" PackagePath="tools/net472/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/win-x86/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.pdb" PackagePath="tools/net472/win-x86/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/win-arm64/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.pdb" PackagePath="tools/net472/win-arm64/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/" />
+      <TfmSpecificPackageFile Include="lib/**/*" PackagePath="lib/" />
+      <TfmSpecificPackageFile Include="tools/**/*" PackagePath="tools/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/any/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/win-x86/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.exe" PackagePath="tools/net472/win-arm64/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/" />
     </ItemGroup>
   </Target>
-
-  <!-- Strip all PDB files from the main package; they are included in the symbols package -->
-  <Target Name="ExcludePdbFiles" BeforeTargets="GenerateNuspec"
-          DependsOnTargets="AddPackContent"
-          Condition="'$(_IsSymbolsPack)' != 'true'">
-    <ItemGroup>
-      <_PackageFiles Remove="@(_PackageFiles)" Condition="'%(Extension)' == '.pdb'" />
-    </ItemGroup>
-  </Target>
-
-  <Import Project="..\..\eng\CreateSymbolsPackage.targets" />
 
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
   <Target Name="GenerateContent"
-    BeforeTargets="GenerateNuspec"
     Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
     Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(FileName)'">
-    <GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" Properties="VersionPrefix=$(VersionPrefix)" OutputPath="$(IntermediateOutputPath)%(FileName)" />
+    <GenerateFileFromTemplate TemplateFile="%(GeneratedContent.Identity)" Properties="VersionPrefix=$(VersionPrefix)" OutputPath="$(IntermediateOutputPath)%(FileName)">
+      <Output TaskParameter="ResolvedOutputPath" ItemName="GeneratedContentFile" />
+    </GenerateFileFromTemplate>
+
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(GeneratedContentFile)" PackagePath="tools/" />
+    </ItemGroup>
   </Target>
 
   <Target Name="Compile" />

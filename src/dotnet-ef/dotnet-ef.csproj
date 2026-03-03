@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>$(NetMinimum)</TargetFramework>
     <Description>
       Entity Framework Core Tools for the .NET Command-Line Interface.
 
@@ -13,17 +14,16 @@
       dotnet ef database drop
       dotnet ef database update
     </Description>
-    <TargetFramework>$(NetMinimum)</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
-    <!-- Symbols package is created separately by eng/CreateSymbolsPackage.targets -->
     <IncludeSymbols>false</IncludeSymbols>
     <RollForward>Major</RollForward>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <ImplicitUsings>true</ImplicitUsings>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddEfProjectOutput</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -69,28 +69,14 @@
     </Compile>
   </ItemGroup>
 
-  <Target Name="AddEfProjectOutput" BeforeTargets="GenerateNuspec">
+  <Target Name="AddEfProjectOutput">
     <ItemGroup>
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/net472/any/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-x86/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-x86/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-arm64/" />
-      <_PackageFiles Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-arm64/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/any/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-x86/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/ef.exe" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-arm64/" />
     </ItemGroup>
   </Target>
 
-  <!-- Strip all PDB files from the main package; they are included in the symbols package -->
-  <Target Name="ExcludePdbFiles" BeforeTargets="GenerateNuspec"
-          DependsOnTargets="AddEfProjectOutput"
-          Condition="'$(_IsSymbolsPack)' != 'true'">
-    <ItemGroup>
-      <_PackageFiles Remove="@(_PackageFiles)" Condition="'%(Extension)' == '.pdb'" />
-    </ItemGroup>
-  </Target>
-
-  <Import Project="..\..\eng\CreateSymbolsPackage.targets" />
 </Project>
