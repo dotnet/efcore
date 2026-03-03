@@ -5,15 +5,18 @@
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
-    <IncludeSymbols>false</IncludeSymbols>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <GenerateDependencyFile>true</GenerateDependencyFile>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
     <ImplicitUsings>true</ImplicitUsings>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPackContent</TargetsForTfmSpecificContentInPackage>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'"><!-- asdf-->
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +34,13 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.EntityFrameworkCore.Tools.Properties</CustomToolNamespace>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="**/*.props;**/*.targets"
+      Pack="true"
+      PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="lib/**/*" Pack="true" PackagePath="lib/" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,24 +78,23 @@
     <Reference Include="System.Configuration" Pack="false" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-  </PropertyGroup>
-
   <Target Name="AddPackContent">
     <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
-      <TfmSpecificPackageFile Include="lib/**/*" PackagePath="lib/" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" Exclude="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*.pdb" PackagePath="tools/$(NetCurrent)/" />
-      <TfmSpecificPackageFile Include="buildTransitive/*" PackagePath="buildTransitive/" />
-      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).dll" PackagePath="tasks/$(TargetFramework)/" />
-      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).deps.json" PackagePath="tasks/$(TargetFramework)/" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" PackagePath="tools/$(NetCurrent)" />
+      <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).deps.json" PackagePath="tasks/$(TargetFramework)" />
     </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">
-      <TfmSpecificPackageFile Include="$(OutputPath)*" Exclude="$(OutputPath)*.pdb" PackagePath="tasks/$(TargetFramework)/" />
+      <TfmSpecificPackageFile Include="$(OutputPath)*" Exclude="$(TargetPath);$(TargetDir)$(TargetName).pdb" PackagePath="tasks/$(TargetFramework)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <TfmSpecificDebugSymbolsFile Include="@(TfmSpecificPackageFile->WithMetadataValue('Extension', '.pdb'))"
+                                   TargetPath="/%(TfmSpecificPackageFile.PackagePath)/%(Filename)%(Extension)"
+                                   TargetFramework="$(TargetFramework)"
+                                   Condition="'$(IncludeSymbols)' == 'true'" />
+      <!-- Remove symbols from the non symbol package. -->
+      <TfmSpecificPackageFile Remove="@(TfmSpecificPackageFile->WithMetadataValue('Extension', '.pdb'))" />
     </ItemGroup>
   </Target>
 
