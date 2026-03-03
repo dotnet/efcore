@@ -195,6 +195,50 @@ OUTPUT INSERTED.[Id], i._Position;
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
+    public override async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
+    {
+        await base.Update_entity_with_not_loaded_property_excludes_column_from_SQL(async);
+
+        AssertSql(
+            """
+@p1='1'
+@p0='Updated Blog' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [BlogWithDescription] SET [Name] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [b].[Id], [b].[Description], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Save_and_query_with_partially_loaded_primitive_collection(bool async)
+    {
+        await base.Save_and_query_with_partially_loaded_primitive_collection(async);
+
+        AssertSql(
+            """
+@p1='1'
+@p0='Updated Blog' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [BlogWithTags] SET [Name] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Tags]
+FROM [BlogWithTags] AS [b]
+""");
+    }
+
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

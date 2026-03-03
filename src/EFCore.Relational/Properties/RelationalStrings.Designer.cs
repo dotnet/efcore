@@ -35,6 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject);
 
         /// <summary>
+        ///     The property '{property}' on type '{type}' is mapped to a JSON entity and cannot be configured as not auto-loaded. JSON-mapped entities are always loaded as a unit.
+        /// </summary>
+        public static string AutoLoadedJsonProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedJsonProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     Unable to deserialize a sequence from model metadata. See inner exception for details.
         /// </summary>
         [Obsolete]

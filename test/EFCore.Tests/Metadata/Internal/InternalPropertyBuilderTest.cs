@@ -21,6 +21,39 @@ public class InternalPropertyBuilderTest
     }
 
     [ConditionalFact]
+    public void Can_only_override_lower_or_equal_source_IsAutoLoaded()
+    {
+        var builder = CreateInternalPropertyBuilder();
+        var metadata = builder.Metadata;
+
+        Assert.NotNull(builder.IsAutoLoaded(false, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsAutoLoaded(true, ConfigurationSource.DataAnnotation));
+
+        Assert.True(metadata.IsAutoLoaded);
+
+        Assert.Null(builder.IsAutoLoaded(false, ConfigurationSource.Convention));
+        Assert.True(metadata.IsAutoLoaded);
+    }
+
+    [ConditionalFact]
+    public void Can_only_override_existing_IsAutoLoaded_value_explicitly()
+    {
+        var metadata = CreateProperty();
+        Assert.Null(metadata.GetIsAutoLoadedConfigurationSource());
+        metadata.IsAutoLoaded = false;
+        var builder = metadata.Builder;
+
+        Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsAutoLoadedConfigurationSource());
+        Assert.NotNull(builder.IsAutoLoaded(false, ConfigurationSource.DataAnnotation));
+        Assert.Null(builder.IsAutoLoaded(true, ConfigurationSource.DataAnnotation));
+
+        Assert.False(metadata.IsAutoLoaded);
+
+        Assert.NotNull(builder.IsAutoLoaded(true, ConfigurationSource.Explicit));
+        Assert.True(metadata.IsAutoLoaded);
+    }
+
+    [ConditionalFact]
     public void Can_only_override_lower_or_equal_source_ConcurrencyToken()
     {
         var builder = CreateInternalPropertyBuilder();
