@@ -3732,6 +3732,42 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                 Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
             });
 
+    [ConditionalFact]
+    public virtual Task Replace_derived_entity_with_json_to_base_entity_with_same_key()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.JsonEntitiesInheritance.OfType<JsonEntityInheritanceDerived>().SingleAsync();
+                context.Remove(entity);
+                context.Add(new JsonEntityInheritanceBase
+                {
+                    Id = entity.Id,
+                    Name = "ReplacementBase",
+                    ReferenceOnBase = new JsonOwnedBranch
+                    {
+                        Date = new DateTime(2010, 1, 1),
+                        Fraction = 1.0m,
+                        Enum = JsonEnum.One,
+                        Enums = [JsonEnum.One],
+                        NullableEnums = [null],
+                        OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "leaf" },
+                        OwnedCollectionLeaf = []
+                    },
+                    CollectionOnBase = []
+                });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var entity = await context.JsonEntitiesInheritance.SingleAsync(x => x.Id == 2);
+                Assert.IsNotType<JsonEntityInheritanceDerived>(entity);
+                Assert.Equal("ReplacementBase", entity.Name);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
