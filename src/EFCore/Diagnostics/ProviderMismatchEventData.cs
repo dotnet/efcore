@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
 /// </remarks>
-public class CompiledModelProviderMismatchEventData : EventData
+public class ProviderMismatchEventData : EventData
 {
     /// <summary>
     ///     Constructs the event payload.
@@ -18,7 +18,7 @@ public class CompiledModelProviderMismatchEventData : EventData
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
     /// <param name="compiledProviderName">The provider name stored in the compiled model.</param>
     /// <param name="currentProviderName">The provider name currently configured.</param>
-    public CompiledModelProviderMismatchEventData(
+    public ProviderMismatchEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         string compiledProviderName,
