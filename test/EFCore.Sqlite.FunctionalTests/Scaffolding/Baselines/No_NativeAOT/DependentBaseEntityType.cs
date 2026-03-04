@@ -104,6 +104,7 @@ namespace TestNamespace
                 eagerLoaded: true,
                 lazyLoadingEnabled: false);
 
+            runtimeForeignKey.AddAnnotation("Relational:IsForeignKeyExcludedFromMigrations", true);
             return runtimeForeignKey;
         }
 
