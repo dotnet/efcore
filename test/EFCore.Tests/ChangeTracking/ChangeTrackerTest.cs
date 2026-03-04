@@ -3499,11 +3499,11 @@ public class ChangeTrackerTest
 
         if (useGenericOverload)
         {
-            context.ChangeTracker.GetEntriesForState<Product>(unchanged: true);
+            _ = context.ChangeTracker.GetEntriesForState<Product>(unchanged: true).ToList();
         }
         else
         {
-            context.ChangeTracker.GetEntriesForState(unchanged: true);
+            _ = context.ChangeTracker.GetEntriesForState(unchanged: true).ToList();
         }
 
         Assert.Equal(EntityState.Unchanged, entry.State);
