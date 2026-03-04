@@ -69,14 +69,12 @@
 
   <!-- PDBs are currently always included as PackAsTool packages don't support excluding them.
        https://github.com/dotnet/sdk/issues/53226 -->
+  <!-- TODO: Remove TFM from the path, issue #37473 -->
   <Target Name="AddEfProjectOutput">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
       <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/net472/*" PackagePath="tools/$(TargetFramework)/any/tools/net472/any" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/x86/$(Configuration)/net472/*" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-x86" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/ARM64/$(Configuration)/net472/*" PackagePath="tools/$(TargetFramework)/any/tools/net472/win-arm64" />
     </ItemGroup>
   </Target>
 

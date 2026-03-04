@@ -39,7 +39,6 @@
     <None Include="**/*.props;**/*.targets"
       Pack="true"
       PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
-    <None Include="lib/**/*" Pack="true" PackagePath="lib/" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,7 +55,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
-    <ProjectReference Include="..\EFCore.Design\EFCore.Design.csproj" ReferenceOutputAssembly="true" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
