@@ -67,7 +67,19 @@ public class DbContextServices : IDbContextServices
             _inOnModelCreating = true;
 
             var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
-            var modelFromOptions = CoreOptions?.Model ?? FindCompiledModel(_currentContext!.Context.GetType());
+
+            var providers = _scopedProvider!.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
+            var providerName = providers is [var provider] ? provider.Name : null;
+
+            string? mismatchedProviderName = null;
+            var modelFromOptions = CoreOptions?.Model
+                ?? FindCompiledModel(_currentContext!.Context.GetType(), providerName, out mismatchedProviderName);
+
+            if (mismatchedProviderName != null)
+            {
+                var logger = _scopedProvider!.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                logger.CompiledModelProviderMismatchWarning(mismatchedProviderName, providerName!);
+            }
 
             var modelVersion = modelFromOptions?.GetProductVersion();
             if (modelVersion != null)
@@ -105,14 +117,23 @@ public class DbContextServices : IDbContextServices
             _inOnModelCreating = false;
         }
 
-        static IModel? FindCompiledModel(Type contextType)
+        static IModel? FindCompiledModel(Type contextType, string? providerName, out string? mismatchedProviderName)
         {
+            mismatchedProviderName = null;
             var contextAssembly = contextType.Assembly;
             IModel? model = null;
             foreach (var modelAttribute in contextAssembly.GetCustomAttributes<DbContextModelAttribute>())
             {
                 if (modelAttribute.ContextType != contextType)
                 {
+                    continue;
+                }
+
+                if (modelAttribute.ProviderName != null
+                    && providerName != null
+                    && modelAttribute.ProviderName != providerName)
+                {
+                    mismatchedProviderName = modelAttribute.ProviderName;
                     continue;
                 }
 

@@ -1068,6 +1068,10 @@
     <value>The model supplied in the context options was created with EF Core version '{oldVersion}', but the context is from version '{newVersion}'. Update the externally built model.</value>
     <comment>Warning CoreEventId.OldModelVersionWarning string string</comment>
   </data>
+  <data name="LogCompiledModelProviderMismatch" xml:space="preserve">
+    <value>A compiled model was found but was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Update the compiled model to use the correct provider.</value>
+    <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
+  </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
     <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>

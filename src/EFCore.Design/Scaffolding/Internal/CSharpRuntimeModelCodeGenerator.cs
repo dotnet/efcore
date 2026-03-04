@@ -66,7 +66,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var nullable = false;
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
-        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
+        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, options.ProviderName, nullable);
         var assemblyInfoFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
         scaffoldedFiles.Add(new ScaffoldedFile(assemblyInfoFileName, assemblyAttributesCode));
 
@@ -174,6 +174,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private string CreateAssemblyAttributes(
         string @namespace,
         Type contextType,
+        string? providerName,
         bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
@@ -183,7 +184,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder
             .Append("[assembly: DbContextModel(typeof(").Append(_code.Reference(contextType))
-            .Append("), typeof(").Append(GetModelClassName(contextType)).AppendLine("))]");
+            .Append("), typeof(").Append(GetModelClassName(contextType)).Append(")");
+
+        if (providerName != null)
+        {
+            mainBuilder
+                .Append(", ProviderName = ").Append(_code.Literal(providerName));
+        }
+
+        mainBuilder.AppendLine(")]");
 
         return GenerateHeader(namespaces, currentNamespace: "", nullable) + mainBuilder;
     }
