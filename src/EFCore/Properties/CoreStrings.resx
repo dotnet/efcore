@@ -1069,7 +1069,7 @@
     <comment>Warning CoreEventId.OldModelVersionWarning string string</comment>
   </data>
   <data name="LogCompiledModelProviderMismatch" xml:space="preserve">
-    <value>A compiled model was found but was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Update the compiled model to use the correct provider.</value>
+    <value>A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.</value>
     <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">

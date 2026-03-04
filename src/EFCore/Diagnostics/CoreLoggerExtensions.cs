@@ -250,6 +250,15 @@ public static class CoreLoggerExtensions
                 compiledProviderName,
                 currentProviderName);
         }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                (d, _) => ((EventDefinition<string, string>)d).GenerateMessage(compiledProviderName, currentProviderName));
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
     }
 
     /// <summary>
