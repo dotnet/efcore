@@ -253,12 +253,21 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = new EventData(
+            var eventData = new CompiledModelProviderMismatchEventData(
                 definition,
-                (d, _) => ((EventDefinition<string, string>)d).GenerateMessage(compiledProviderName, currentProviderName));
+                CompiledModelProviderMismatch,
+                compiledProviderName,
+                currentProviderName);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
+    }
+
+    private static string CompiledModelProviderMismatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (CompiledModelProviderMismatchEventData)payload;
+        return d.GenerateMessage(p.CompiledProviderName, p.CurrentProviderName);
     }
 
     /// <summary>

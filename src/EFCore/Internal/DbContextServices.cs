@@ -125,6 +125,7 @@ public class DbContextServices : IDbContextServices
             mismatchedProviderName = null;
             var contextAssembly = contextType.Assembly;
             IModel? model = null;
+            string? firstMismatchedProvider = null;
             foreach (var modelAttribute in contextAssembly.GetCustomAttributes<DbContextModelAttribute>())
             {
                 if (modelAttribute.ContextType != contextType)
@@ -136,7 +137,7 @@ public class DbContextServices : IDbContextServices
                     && providerName != null
                     && modelAttribute.ProviderName != providerName)
                 {
-                    mismatchedProviderName = modelAttribute.ProviderName;
+                    firstMismatchedProvider ??= modelAttribute.ProviderName;
                     continue;
                 }
 
@@ -157,6 +158,11 @@ public class DbContextServices : IDbContextServices
                 }
 
                 model = (IModel)instanceProperty.GetValue(null)!;
+            }
+
+            if (model == null)
+            {
+                mismatchedProviderName = firstMismatchedProvider;
             }
 
             return model;
