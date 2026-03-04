@@ -1307,7 +1307,7 @@ namespace My.Gnomespace.Data
             => optionsBuilder
                 .UseSqlite(_connection)
                 .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>()
-                .ConfigureWarnings(w => w.Log(RelationalEventId.MigrationsNotFound));
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsNotFound));
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator
         {
