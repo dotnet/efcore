@@ -132,6 +132,8 @@ For Publish:
 
   <Target Name="_EFValidateProperties"
           BeforeTargets="CoreCompile">
+    <Error Condition="'$(EFOptimizeContext)'!=''"
+           Text="%24(EFOptimizeContext) is no longer supported. Use %24(EFScaffoldModelStage) and %24(EFPrecompileQueriesStage) instead." />
     <Error Condition="'$(EFScaffoldModelStage)'=='publish' And '$(EFPrecompileQueriesStage)'=='build'"
            Text="If %24(EFScaffoldModelStage) is set to 'publish' then %24(EFPrecompileQueriesStage) must also be set to 'publish'." />
   </Target>
