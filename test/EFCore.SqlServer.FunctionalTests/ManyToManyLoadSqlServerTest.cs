@@ -187,11 +187,9 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s0].[OneSkipSh
 SELECT [s].[Id], [s].[Name], (
     SELECT COUNT(*)
     FROM [EntityOneEntityTwo] AS [e2]
-    INNER JOIN [EntityOnes] AS [e3] ON [e2].[OneSkipSharedId] = [e3].[Id]
     WHERE [s].[Id] = [e2].[TwoSkipSharedId]) AS [Count1], (
     SELECT COUNT(*)
     FROM [JoinTwoToThree] AS [j]
-    INNER JOIN [EntityThrees] AS [e4] ON [j].[ThreeId] = [e4].[Id]
     WHERE [s].[Id] = [j].[TwoId]) AS [Count3]
 FROM [EntityOnes] AS [e]
 INNER JOIN (

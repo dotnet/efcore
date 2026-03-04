@@ -569,7 +569,7 @@ LEFT JOIN (
     FROM [ManyDependent] AS [m0]
     LEFT JOIN [SingleDependent] AS [s] ON [m0].[Id] = [s].[ManyDependentId]
 ) AS [s0] ON [p].[Id] = [s0].[PrincipalId]
-ORDER BY [m].[Id], [s0].[Id]
+ORDER BY [m].[Id]
 """);
     }
 
@@ -588,7 +588,7 @@ ORDER BY [m].[Id], [s0].[Id]
             """
 @id='1'
 
-SELECT [s].[Id], [s].[Name], [s].[Surname], [s].[Birthday], [s].[Hometown], [s].[Bio], [s].[AvatarUrl], [s].[Id0], [s].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [u].[Id], [u].[Name], [u].[PosterUrl], [u].[Rating]
+SELECT [s].[Id], [s].[Name], [s].[Surname], [s].[Birthday], [s].[Hometown], [s].[Bio], [s].[AvatarUrl], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [u].[Id], [u].[Name], [u].[PosterUrl], [u].[Rating]
 FROM (
     SELECT TOP(1) [p].[Id], [p].[Name], [p].[Surname], [p].[Birthday], [p].[Hometown], [p].[Bio], [p].[AvatarUrl], [a].[Id] AS [Id0], [d].[Id] AS [Id1]
     FROM [Persons] AS [p]
@@ -608,7 +608,7 @@ OUTER APPLY (
     INNER JOIN [MovieEntity] AS [m2] ON [m1].[MovieId] = [m2].[Id]
     WHERE [s].[Id1] IS NOT NULL AND [s].[Id1] = [m1].[DirectorId]
 ) AS [u]
-ORDER BY [s].[Id], [s].[Id0], [s].[Id1], [p0].[Id]
+ORDER BY [s].[Id], [p0].[Id]
 """);
     }
 

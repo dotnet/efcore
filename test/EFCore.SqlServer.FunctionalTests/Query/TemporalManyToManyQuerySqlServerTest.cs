@@ -123,7 +123,6 @@ FROM [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM [JoinOneSelfPayload] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[LeftId] = [e0].[Id]
     WHERE [e].[Id] = [j].[RightId])
 """);
     }
@@ -159,7 +158,6 @@ FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 WHERE (
     SELECT COUNT_BIG(*)
     FROM [JoinTwoToThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[ThreeId] = [e0].[Id]
     WHERE [e].[Id] = [j].[TwoId]) > CAST(0 AS bigint)
 """);
     }
@@ -690,7 +688,7 @@ LEFT JOIN (
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[OneId] = [e0].[Id]
     LEFT JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[Id] = [e1].[ReferenceInverseId]
 ) AS [s] ON [e].[Id] = [s].[TwoId]
-ORDER BY [e].[Id], [s].[OneId], [s].[TwoId]
+ORDER BY [e].[Id], [s].[OneId]
 """);
     }
 
@@ -739,7 +737,7 @@ LEFT JOIN (
         INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [j0].[RightId] = [e2].[Id]
     ) AS [s] ON [e0].[Id] = [s].[LeftId]
 ) AS [s0] ON [e].[Id] = [s0].[ThreeId]
-ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[Id0], [s0].[LeftId]
+ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId]
 """);
     }
 
@@ -749,7 +747,7 @@ ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[Id0], [s0].[LeftId]
 
         AssertSql(
             """
-SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[ReferenceInverseId], [e0].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[PeriodEnd], [s].[PeriodStart], [s].[Id], [s].[Name], [s].[PeriodEnd0], [s].[PeriodStart0], [e0].[CollectionInverseId], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[ReferenceInverseId]
+SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[ReferenceInverseId], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[PeriodEnd], [s].[PeriodStart], [s].[Id], [s].[Name], [s].[PeriodEnd0], [s].[PeriodStart0], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[ReferenceInverseId]
 FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [e].[Id] = [e0].[ReferenceInverseId]
 LEFT JOIN (
@@ -757,7 +755,7 @@ LEFT JOIN (
     FROM [EntityOneEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1]
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [e1].[OneSkipSharedId] = [e2].[Id]
 ) AS [s] ON [e].[Id] = [s].[TwoSkipSharedId]
-ORDER BY [e].[Id], [e0].[Id], [s].[OneSkipSharedId]
+ORDER BY [e].[Id], [s].[OneSkipSharedId]
 """);
     }
 
@@ -1026,7 +1024,7 @@ LEFT JOIN (
     LEFT JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [e0].[Id] = [e2].[CollectionInverseId]
     WHERE [e0].[Id] < 10
 ) AS [s] ON [e].[Id] = [s].[TwoId]
-ORDER BY [e].[Id], [s].[OneId], [s].[TwoId], [s].[Id0]
+ORDER BY [e].[Id], [s].[OneId], [s].[TwoId]
 """);
     }
 

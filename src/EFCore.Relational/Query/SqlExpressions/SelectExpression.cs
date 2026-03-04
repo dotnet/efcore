@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -901,7 +900,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         // identifiers are already sufficient to uniquely identify rows. We don't need to add the
                         // inner's identifiers to our own; doing so would cause unnecessary reference table JOINs,
                         // ORDER BY columns, and projections in split collection queries (#29182).
-                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _, isToOneJoin: true);
+                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _, isToOneJoin: true, isPrunableJoin: true);
                         var offset = _clientProjections.Count;
                         var count = innerSelectExpression._clientProjections.Count;
 
@@ -2904,9 +2903,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         SelectExpression innerSelect,
         Expression outerShaper,
         Expression innerShaper,
-        SqlExpression? joinPredicate = null)
+        SqlExpression? joinPredicate = null,
+        bool isToOneJoin = false,
+        bool isPrunableJoin = false)
     {
-        AddJoin(joinType, ref innerSelect, out _, joinPredicate);
+        AddJoin(joinType, ref innerSelect, out _, joinPredicate, isToOneJoin, isPrunableJoin);
 
         var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaper.Type, innerShaper.Type);
         var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
@@ -3024,7 +3025,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         ref SelectExpression innerSelect,
         out bool innerPushdownOccurred,
         SqlExpression? joinPredicate = null,
-        bool isToOneJoin = false)
+        bool isToOneJoin = false,
+        bool isPrunableJoin = false)
     {
         innerPushdownOccurred = false;
         // Try to convert Apply to normal join
@@ -3106,7 +3108,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             ref innerSelect,
                             out innerPushdownOccurred,
                             joinPredicate,
-                            isToOneJoin);
+                            isToOneJoin,
+                            isPrunableJoin);
 
                         return;
                     }
@@ -3160,19 +3163,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             innerPushdownOccurred = true;
         }
 
-        // If the caller knows this is a to-one join (e.g. SingleResult in ApplyProjection), or if the
-        // join predicate equates all of the inner's identifier columns (PK) to outer columns, then the
-        // join doesn't increase cardinality — the outer identifiers are already sufficient. Skipping the
-        // inner's identifiers avoids unnecessary JOINs, ORDER BY columns, and projections in split
-        // collection queries (#29182).
-        if (!isToOneJoin && joinPredicate is not null && innerSelect._identifier.Count > 0)
-        {
-            isToOneJoin = AllInnerIdentifiersInPredicate(joinPredicate, innerSelect._identifier);
-        }
-
+        // If this is a to-one join, then we know that it doesn't increase cardinality — the outer identifiers are already sufficient.
+        // Skipping the inner's identifiers avoids unnecessary ORDER BY columns and projections (#29182).
         if (_identifier.Count == 0 || innerSelect._identifier.Count == 0)
         {
-            // Either the outer and inner sides aren't uniquely identifiable; mark everything as non-uniquely-indentifiable.
+            // Either the outer and inner sides aren't uniquely identifiable; mark everything as non-uniquely-identifiable.
             _identifier.Clear();
             innerSelect._identifier.Clear();
         }
@@ -3207,8 +3202,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         var innerTable = innerSelect.Tables.Single();
         var joinTable = joinType switch
         {
-            JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!),
-            JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!, prunable: isToOneJoin),
+            JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!, isPrunableJoin),
+            JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!, isPrunableJoin),
             JoinType.RightJoin => new RightJoinExpression(innerTable, joinPredicate!),
             JoinType.CrossJoin => new CrossJoinExpression(innerTable),
             JoinType.CrossApply => new CrossApplyExpression(innerTable),
@@ -3238,50 +3233,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     GetPartitions(select, binary.Right, partitions);
 
                     break;
-                }
-            }
-        }
-
-        // Checks whether all of the inner select's identifier columns appear as equality terms in the
-        // join predicate. If so, the join is to-one from the outer's perspective (each outer row matches
-        // at most one inner row), meaning the inner identifiers are redundant for row identification.
-        static bool AllInnerIdentifiersInPredicate(
-            SqlExpression joinPredicate,
-            List<(ColumnExpression Column, ValueComparer Comparer)> innerIdentifiers)
-        {
-            var matched = new BitArray(innerIdentifiers.Count);
-
-            return MatchIdentifiersInPredicate(joinPredicate, innerIdentifiers, matched)
-                && matched.HasAllSet();
-
-            static bool MatchIdentifiersInPredicate(
-                SqlExpression expression,
-                List<(ColumnExpression Column, ValueComparer Comparer)> identifiers,
-                BitArray matched)
-            {
-                switch (expression)
-                {
-                    case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
-                        for (var i = 0; i < identifiers.Count; i++)
-                        {
-                            var identifier = identifiers[i];
-                            if (!matched[i]
-                                && (identifier.Column.Equals(binary.Left) || identifier.Column.Equals(binary.Right)))
-                            {
-                                matched[i] = true;
-                            }
-                        }
-
-                        return true;
-
-                    case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary:
-                        MatchIdentifiersInPredicate(binary.Left, identifiers, matched);
-                        MatchIdentifiersInPredicate(binary.Right, identifiers, matched);
-                        return true;
-
-                    // Any other operator (OR, inequality) automatically fails the check
-                    default:
-                        return false;
                 }
             }
         }
@@ -3615,14 +3566,24 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <param name="isToOneJoin">
+    ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
+    ///     are not added (#29182).
+    /// </param>
+    /// <param name="isPrunableJoin">
+    ///     Whether the join can be pruned if none of its columns are referenced. For INNER JOINs this requires both
+    ///     a to-one guarantee and a required foreign key guaranteeing matching rows exist (#29182).
+    /// </param>
     /// <returns>An expression which shapes the result of this join.</returns>
     public Expression AddInnerJoin(
         ShapedQueryExpression innerSource,
         SqlExpression joinPredicate,
-        Expression outerShaper)
+        Expression outerShaper,
+        bool isToOneJoin = false,
+        bool isPrunableJoin = false)
         => AddJoin(
             JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
-            joinPredicate);
+            joinPredicate, isToOneJoin, isPrunableJoin);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
@@ -3630,13 +3591,23 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <param name="isToOneJoin">
+    ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
+    ///     are not added.
+    /// </param>
+    /// <param name="isPrunableJoin">
+    ///     Whether the join can be pruned if none of its columns are referenced (#29182).
+    /// </param>
     /// <returns>An expression which shapes the result of this join.</returns>
     public Expression AddLeftJoin(
         ShapedQueryExpression innerSource,
         SqlExpression joinPredicate,
-        Expression outerShaper)
+        Expression outerShaper,
+        bool isToOneJoin = false,
+        bool isPrunableJoin = false)
         => AddJoin(
-            JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
+            JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+            joinPredicate, isToOneJoin, isPrunableJoin);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using RIGHT JOIN and combine shapers.
