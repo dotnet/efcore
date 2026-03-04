@@ -58,9 +58,8 @@ public class MigrationsScaffolderTest
 
         var migration = scaffolder.ScaffoldMigration("DateTime", "WebApplication1");
 
-        var timestamp = migration.MigrationId[..migration.MigrationId.IndexOf('_')];
-        Assert.Contains($"public partial class DateTime_{timestamp} : Migration", migration.MigrationCode);
-        Assert.Contains($"partial class DateTime_{timestamp}", migration.MetadataCode);
+        Assert.Contains($"public partial class _{migration.MigrationId} : Migration", migration.MigrationCode);
+        Assert.Contains($"partial class _{migration.MigrationId}", migration.MetadataCode);
         Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
     }
 
