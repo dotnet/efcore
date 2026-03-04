@@ -209,7 +209,7 @@ For Publish:
       Projects="@(_MSBuildProjectReferenceExistent)"
       Targets="_EFGenerateFilesBeforePublish"
       BuildInParallel="$(BuildInParallel)"
-      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework);_EFPublishAOT=true"
+      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework)"
       Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' "
       ContinueOnError="$(ContinueOnError)"
       SkipNonexistentTargets="true"
