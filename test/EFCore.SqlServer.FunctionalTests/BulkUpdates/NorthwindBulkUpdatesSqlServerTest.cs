@@ -1774,14 +1774,13 @@ INNER JOIN (
 
         await context.Database.ExecuteSqlRawAsync(
             $"INSERT INTO [Orders] ([CustomerID], [OrderDate]) VALUES ('{customerId}', GETDATE())");
+
+        await context.Database.ExecuteSqlRawAsync("SET NOCOUNT ON;");
         var affected = await context.Customers
             .Where(c => c.CustomerID == customerId)
             .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.City, "Cairo"));
-
         Assert.Equal(1, affected);
-
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Orders] WHERE [CustomerID] = '{customerId}'");
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Customers] WHERE [CustomerID] = '{customerId}'");
+        await context.Database.ExecuteSqlRawAsync("SET NOCOUNT OFF;");
     }
     public override async Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
     {
