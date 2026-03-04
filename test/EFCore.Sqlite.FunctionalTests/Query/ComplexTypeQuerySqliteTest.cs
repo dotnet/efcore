@@ -1155,6 +1155,66 @@ LEFT JOIN (
 """);
     }
 
+    #region Non-shared tests
+
+    public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
+    {
+        await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
+
+        AssertSql();
+    }
+
+    public override async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        await base.Projecting_complex_property_does_not_auto_include_owned_types();
+
+        AssertSql();
+    }
+
+    public override async Task Optional_complex_type_with_discriminator()
+    {
+        await base.Optional_complex_type_with_discriminator();
+
+        AssertSql();
+    }
+
+    public override async Task Non_optional_complex_type_with_all_nullable_properties()
+    {
+        await base.Non_optional_complex_type_with_all_nullable_properties();
+
+        AssertSql();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_and_shadow_property()
+    {
+        await base.Nullable_complex_type_with_discriminator_and_shadow_property();
+
+        AssertSql();
+    }
+
+    public override async Task Complex_json_collection_inside_left_join_subquery()
+    {
+        await base.Complex_json_collection_inside_left_join_subquery();
+
+        AssertSql();
+    }
+
+    public override async Task Select_TPC_base_with_ComplexType()
+    {
+        await base.Select_TPC_base_with_ComplexType();
+
+        AssertSql();
+    }
+
+    public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        await base.Complex_type_on_an_entity_mapped_to_view_and_table();
+
+        AssertSql();
+    }
+
+    #endregion Non-shared tests
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

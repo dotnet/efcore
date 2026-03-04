@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -1260,6 +1261,172 @@ LEFT JOIN (
 ) AS [c4] ON [c3].[Id] = [c4].[Id]
 """);
     }
+
+    #region Non-shared tests
+
+    #region 33449
+
+    public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
+    {
+        await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
+
+        AssertSql(
+            """
+@entity_equality_container_Id='1' (Nullable = true)
+@entity_equality_container_Containee1_Id='2' (Nullable = true)
+@entity_equality_container_Containee2_Id='3' (Nullable = true)
+
+SELECT TOP(2) [e].[Id], [e].[ComplexContainer_Id], [e].[ComplexContainer_Containee1_Id], [e].[ComplexContainer_Containee2_Id]
+FROM [EntityType] AS [e]
+WHERE [e].[ComplexContainer_Id] = @entity_equality_container_Id AND [e].[ComplexContainer_Containee1_Id] = @entity_equality_container_Containee1_Id AND [e].[ComplexContainer_Containee2_Id] = @entity_equality_container_Containee2_Id
+""");
+    }
+
+    #endregion 33449
+
+    #region 34749
+
+    public override async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        await base.Projecting_complex_property_does_not_auto_include_owned_types();
+
+        AssertSql(
+            """
+SELECT [e].[Complex_Name], [e].[Complex_Number]
+FROM [EntityType] AS [e]
+""");
+    }
+
+    #endregion 34749
+
+    #region ShadowDiscriminator
+
+    public override async Task Optional_complex_type_with_discriminator()
+    {
+        await base.Optional_complex_type_with_discriminator();
+
+        AssertSql();
+    }
+
+    #endregion ShadowDiscriminator
+
+    #region 37162
+
+    public override async Task Non_optional_complex_type_with_all_nullable_properties()
+    {
+        await base.Non_optional_complex_type_with_all_nullable_properties();
+
+        AssertSql();
+    }
+
+    #endregion 37162
+
+    #region 37337
+
+    public override async Task Nullable_complex_type_with_discriminator_and_shadow_property()
+    {
+        await base.Nullable_complex_type_with_discriminator_and_shadow_property();
+
+        AssertSql();
+    }
+
+    #endregion 37337
+
+    #region 37205
+
+    public override async Task Complex_json_collection_inside_left_join_subquery()
+    {
+        await base.Complex_json_collection_inside_left_join_subquery();
+
+        AssertSql();
+    }
+
+    #endregion 37205
+
+    #region 35025
+
+    public override async Task Select_TPC_base_with_ComplexType()
+    {
+        await base.Select_TPC_base_with_ComplexType();
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
+FROM [TpcChild1] AS [t]
+UNION ALL
+SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
+FROM [TpcChild2] AS [t0]
+""");
+    }
+
+    #endregion 35025
+
+    #region 34706
+
+    public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        await base.Complex_type_on_an_entity_mapped_to_view_and_table();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[ComplexThing_Prop1], [b].[ComplexThing_Prop2]
+FROM [BlogsView] AS [b]
+""");
+    }
+
+    #endregion 34706
+
+    #region 36837
+
+    [ConditionalFact]
+    public virtual async Task Complex_type_equality_with_non_default_type_mapping()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context36837>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context36837.EntityType
+                    {
+                        ComplexThing = new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1) }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var count = await context.Set<Context36837.EntityType>()
+            .CountAsync(b => b.ComplexThing == new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1, 1, 1, 1, 999, 999) });
+        Assert.Equal(0, count);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [EntityType] AS [e]
+WHERE [e].[ComplexThing_DateTime] = '2020-01-01T01:01:01.999'
+""");
+    }
+
+    private class Context36837(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.ComplexThing);
+
+        public class EntityType
+        {
+            public int Id { get; set; }
+            public ComplexThing ComplexThing { get; set; } = null!;
+        }
+
+        public class ComplexThing
+        {
+            [Column(TypeName = "datetime")] // Non-default type mapping
+            public DateTime DateTime { get; set; }
+        }
+    }
+
+    #endregion 36837
+
+    #endregion Non-shared tests
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
