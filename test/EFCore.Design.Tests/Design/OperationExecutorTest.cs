@@ -76,6 +76,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         string processedOutputDir,
         string productVersion)
     {
+        var migrationTypeName = $"_11112233445566_{processedMigrationName}";
         using var tempPath = new TempDirectory();
         var resultHandler = ExecuteAddMigration(tempPath, migrationName, Path.Combine(tempPath, outputDir), productVersion);
 
@@ -124,7 +125,7 @@ namespace My.Gnomespace.Data
 {
     [DbContext(typeof(OperationExecutorTest.GnomeContext))]
     [Migration("11112233445566_{{migrationName}}")]
-    partial class {{processedMigrationName}}
+    partial class {{migrationTypeName}}
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -147,7 +148,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace My.Gnomespace.Data
 {
     /// <inheritdoc />
-    public partial class {{processedMigrationName}} : Migration
+    public partial class {{migrationTypeName}} : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
