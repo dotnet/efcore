@@ -867,7 +867,7 @@
   </data>
   <data name="LogNoMigrationsFound" xml:space="preserve">
     <value>No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.</value>
-    <comment>Information RelationalEventId.MigrationsNotFound string</comment>
+    <comment>Error RelationalEventId.MigrationsNotFound string</comment>
   </data>
   <data name="LogNoModelSnapshotFound" xml:space="preserve">
     <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>

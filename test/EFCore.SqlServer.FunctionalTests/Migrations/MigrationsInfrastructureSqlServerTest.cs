@@ -690,8 +690,7 @@ GO
         {
             using var context = new DbContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
-                        .ConfigureWarnings(e => e.Throw(RelationalEventId.MigrationsNotFound))).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -710,8 +709,7 @@ GO
         {
             using var context = new DbContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
-                        .ConfigureWarnings(e => e.Throw(RelationalEventId.MigrationsNotFound))).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             await context.Database.EnsureDeletedAsync();
             await GiveMeSomeTimeAsync(context);
