@@ -406,10 +406,7 @@ namespace TestNamespace
             var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
             principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
             flagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum2Column);
-            var manyOwnedColumn = new JsonColumn("ManyOwned", "nvarchar(max)", principalBaseTable)
-            {
-                IsNullable = true
-            };
+            var manyOwnedColumn = new JsonColumn("ManyOwned", "nvarchar(max)", principalBaseTable);
             principalBaseTable.Columns.Add("ManyOwned", manyOwnedColumn);
             manyOwnedColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<JsonTypePlaceholder>(manyOwnedColumn);
             var owned_NumberColumn = new Column("Owned_Number", "int", principalBaseTable);
