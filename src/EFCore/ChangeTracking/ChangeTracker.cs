@@ -244,7 +244,7 @@ public class ChangeTracker : IResettableService
         bool modified = false,
         bool deleted = false,
         bool unchanged = false)
-        => StateManager.GetEntriesForState(added, modified, deleted, unchanged, returnDeletedSharedIdentity: true)
+        => StateManager.GetEntriesForState(added, modified, deleted, unchanged, returnSharedIdentity: true)
             .Select(e => new EntityEntry(e));
 
     /// <summary>
@@ -278,7 +278,7 @@ public class ChangeTracker : IResettableService
         bool deleted = false,
         bool unchanged = false)
         where TEntity : class
-        => StateManager.GetEntriesForState(added, modified, deleted, unchanged, returnDeletedSharedIdentity: true)
+        => StateManager.GetEntriesForState(added, modified, deleted, unchanged, returnSharedIdentity: true)
             .Where(e => e.Entity is TEntity)
             .Select(e => new EntityEntry<TEntity>(e));
 
