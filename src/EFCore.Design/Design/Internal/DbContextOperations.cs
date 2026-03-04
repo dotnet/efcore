@@ -259,6 +259,7 @@ public class DbContextOperations
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
 
         var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
+        var databaseProvider = context.GetService<IDatabaseProvider>();
 
         var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
@@ -273,6 +274,7 @@ public class DbContextOperations
                 UseNullableReferenceTypes = _nullable,
                 Suffix = suffix,
                 ForNativeAot = nativeAot,
+                ProviderName = databaseProvider.Name,
                 GeneratedFileNames = generatedFileNames
             });
 

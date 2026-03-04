@@ -4723,6 +4723,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     A compiled model was found but was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model to use the correct provider.
+        /// </summary>
+        public static EventDefinition<string, string> LogCompiledModelProviderMismatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCompiledModelProviderMismatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCompiledModelProviderMismatch,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.CompiledModelProviderMismatchWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.CompiledModelProviderMismatchWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.CompiledModelProviderMismatchWarning,
+                            _resourceManager.GetString("LogCompiledModelProviderMismatch")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     {error}
         /// </summary>
         public static EventDefinition<Exception> LogOptimisticConcurrencyException(IDiagnosticsLogger logger)

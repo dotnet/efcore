@@ -2087,6 +2087,7 @@ namespace TestNamespace
         options ??= new CompiledModelCodeGenerationOptions { ForNativeAot = true };
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
+        options.ProviderName ??= context.GetService<IDatabaseProvider>().Name;
 
         var generator = TestHelpers.CreateDesignServiceProvider(
                 context.GetService<IDatabaseProvider>().Name,
