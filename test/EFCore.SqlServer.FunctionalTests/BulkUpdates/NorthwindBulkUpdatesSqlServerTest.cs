@@ -1781,6 +1781,9 @@ INNER JOIN (
             .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.City, "Cairo"));
         Assert.Equal(1, affected);
         await context.Database.ExecuteSqlRawAsync("SET NOCOUNT OFF;");
+
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Orders] WHERE [CustomerID] = '{customerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [Customers] WHERE [CustomerID] = '{customerId}'");
     }
     public override async Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
     {
