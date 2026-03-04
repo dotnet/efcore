@@ -68,17 +68,20 @@ public class DbContextServices : IDbContextServices
 
             var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
 
-            var providers = _scopedProvider!.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
-            var providerName = providers is [var provider] ? provider.Name : null;
-
             string? mismatchedProviderName = null;
-            var modelFromOptions = CoreOptions?.Model
-                ?? FindCompiledModel(_currentContext!.Context.GetType(), providerName, out mismatchedProviderName);
-
-            if (mismatchedProviderName != null)
+            var modelFromOptions = CoreOptions?.Model;
+            if (modelFromOptions == null)
             {
-                var logger = _scopedProvider!.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
-                logger.CompiledModelProviderMismatchWarning(mismatchedProviderName, providerName!);
+                var providers = _scopedProvider!.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
+                var providerName = providers is [var provider] ? provider.Name : null;
+
+                modelFromOptions = FindCompiledModel(_currentContext!.Context.GetType(), providerName, out mismatchedProviderName);
+
+                if (mismatchedProviderName != null)
+                {
+                    var logger = _scopedProvider!.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                    logger.CompiledModelProviderMismatchWarning(mismatchedProviderName, providerName!);
+                }
             }
 
             var modelVersion = modelFromOptions?.GetProductVersion();
