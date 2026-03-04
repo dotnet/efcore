@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <!-- Usage:
-  For the compiled model and precompiled queries to be generated the only action needed is to reference Microsoft.EntityFrameworkCore.Tasks from all projects containing a derived DbContext or a query.
+  For the compiled model and precompiled queries to be generated when publishing with $(PublishAOT) set to true the only action needed is to reference Microsoft.EntityFrameworkCore.Tasks from all projects containing a derived DbContext or a query.
   For solutions where specifying the startup project is necessary, IDesignTimeDbContextFactory<> should be implemented.
 $(EFScaffoldModelStage) and $(EFPrecompileQueriesStage) can be set to either publish or build to control at what stage will the code be generated. Any other value will disable the corresponding generation (in case the code is generated manually using `dotnet ef dbcontext optimize`)
 If there's more than one context and $(DbContextType) is not set, then the compiled model will be generated for all of them.
@@ -51,7 +51,7 @@ For Publish:
   <Target Name="_EFGenerateFilesBeforePublish"
           AfterTargets="GetCopyToPublishDirectoryItems"
           BeforeTargets="GeneratePublishDependencyFile"
-          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish')">
+          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish') And ('$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -209,7 +209,7 @@ For Publish:
       Projects="@(_MSBuildProjectReferenceExistent)"
       Targets="_EFGenerateFilesBeforePublish"
       BuildInParallel="$(BuildInParallel)"
-      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework)"
+      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework);_EFPublishAOT=true"
       Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' "
       ContinueOnError="$(ContinueOnError)"
       SkipNonexistentTargets="true"
