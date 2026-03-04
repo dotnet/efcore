@@ -1599,7 +1599,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
-            .HasConstraintName("FK_Animal_Person_Name").ExcludeFromMigrations();
+            .HasConstraintName("FK_Animal_Person_Name").ExcludeForeignKeyFromMigrations();
         modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
             .HasConstraintName("FK_Animal_Person_Name");
 

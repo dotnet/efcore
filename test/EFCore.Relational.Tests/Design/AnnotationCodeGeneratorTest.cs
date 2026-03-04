@@ -63,21 +63,21 @@ public class AnnotationCodeGeneratorTest
     }
 
     [ConditionalFact]
-    public void GenerateFluentApi_IForeignKey_works_with_ExcludeFromMigrations()
+    public void GenerateFluentApi_IForeignKey_works_with_ExcludeForeignKeyFromMigrations()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity("Blog", x =>
         {
             x.Property<int>("Id");
             x.Property<int>("ParentId");
-            x.HasOne("Blog").WithMany().HasForeignKey("ParentId").ExcludeFromMigrations();
+            x.HasOne("Blog").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations();
         });
         var foreignKey = modelBuilder.Model.FindEntityType("Blog").GetForeignKeys().Single();
 
         var annotations = foreignKey.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = CreateGenerator().GenerateFluentApiCalls((IForeignKey)foreignKey, annotations).Single();
 
-        Assert.Equal("ExcludeFromMigrations", result.Method);
+        Assert.Equal("ExcludeForeignKeyFromMigrations", result.Method);
         Assert.Equal(true, Assert.Single(result.Arguments));
     }
 

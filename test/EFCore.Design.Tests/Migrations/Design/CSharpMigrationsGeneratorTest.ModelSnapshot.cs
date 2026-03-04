@@ -8026,7 +8026,7 @@ namespace RootNamespace
                     .HasOne(e => e.EntityWithOneProperty)
                     .WithOne(e => e.EntityWithTwoProperties)
                     .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
-                    .ExcludeFromMigrations();
+                    .ExcludeForeignKeyFromMigrations();
             },
             AddBoilerPlate(
                 GetHeading()
@@ -8070,7 +8070,7 @@ namespace RootNamespace
                         .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "AlternateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .ExcludeFromMigrations(true);
+                        .ExcludeForeignKeyFromMigrations(true);
 
                     b.Navigation("EntityWithOneProperty");
                 });

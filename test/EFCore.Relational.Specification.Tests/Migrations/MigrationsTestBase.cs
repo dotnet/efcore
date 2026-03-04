@@ -2348,7 +2348,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             },
             builder => { },
             builder => builder.Entity("Orders").HasOne("Customers").WithMany()
-                .HasForeignKey("CustomerId").ExcludeFromMigrations(),
+                .HasForeignKey("CustomerId").ExcludeForeignKeyFromMigrations(),
             model =>
             {
                 var ordersTable = Assert.Single(model.Tables, t => t.Name == "Orders");

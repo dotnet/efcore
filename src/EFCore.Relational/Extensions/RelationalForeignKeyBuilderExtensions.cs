@@ -184,7 +184,7 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <param name="referenceCollectionBuilder">The builder being used to configure the relationship.</param>
     /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ReferenceCollectionBuilder ExcludeFromMigrations(
+    public static ReferenceCollectionBuilder ExcludeForeignKeyFromMigrations(
         this ReferenceCollectionBuilder referenceCollectionBuilder,
         bool excluded = true)
     {
@@ -205,12 +205,12 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <typeparam name="TEntity">The principal entity type in this relationship.</typeparam>
     /// <typeparam name="TRelatedEntity">The dependent entity type in this relationship.</typeparam>
-    public static ReferenceCollectionBuilder<TEntity, TRelatedEntity> ExcludeFromMigrations<TEntity, TRelatedEntity>(
+    public static ReferenceCollectionBuilder<TEntity, TRelatedEntity> ExcludeForeignKeyFromMigrations<TEntity, TRelatedEntity>(
         this ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder,
         bool excluded = true)
         where TEntity : class
         where TRelatedEntity : class
-        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)ExcludeFromMigrations(
+        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)ExcludeForeignKeyFromMigrations(
             (ReferenceCollectionBuilder)referenceCollectionBuilder, excluded);
 
     /// <summary>
@@ -223,7 +223,7 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <param name="referenceReferenceBuilder">The builder being used to configure the relationship.</param>
     /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ReferenceReferenceBuilder ExcludeFromMigrations(
+    public static ReferenceReferenceBuilder ExcludeForeignKeyFromMigrations(
         this ReferenceReferenceBuilder referenceReferenceBuilder,
         bool excluded = true)
     {
@@ -244,12 +244,12 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
     /// <typeparam name="TRelatedEntity">The entity type on the other end of the relationship.</typeparam>
-    public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ExcludeFromMigrations<TEntity, TRelatedEntity>(
+    public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ExcludeForeignKeyFromMigrations<TEntity, TRelatedEntity>(
         this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
         bool excluded = true)
         where TEntity : class
         where TRelatedEntity : class
-        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ExcludeFromMigrations(
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ExcludeForeignKeyFromMigrations(
             (ReferenceReferenceBuilder)referenceReferenceBuilder, excluded);
 
     /// <summary>
@@ -262,7 +262,7 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
     /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static OwnershipBuilder ExcludeFromMigrations(
+    public static OwnershipBuilder ExcludeForeignKeyFromMigrations(
         this OwnershipBuilder ownershipBuilder,
         bool excluded = true)
     {
@@ -283,12 +283,12 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
     /// <typeparam name="TDependentEntity">The entity type on the other end of the relationship.</typeparam>
-    public static OwnershipBuilder<TEntity, TDependentEntity> ExcludeFromMigrations<TEntity, TDependentEntity>(
+    public static OwnershipBuilder<TEntity, TDependentEntity> ExcludeForeignKeyFromMigrations<TEntity, TDependentEntity>(
         this OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder,
         bool excluded = true)
         where TEntity : class
         where TDependentEntity : class
-        => (OwnershipBuilder<TEntity, TDependentEntity>)ExcludeFromMigrations(
+        => (OwnershipBuilder<TEntity, TDependentEntity>)ExcludeForeignKeyFromMigrations(
             (OwnershipBuilder)ownershipBuilder, excluded);
 
     /// <summary>
@@ -305,12 +305,12 @@ public static class RelationalForeignKeyBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    public static IConventionForeignKeyBuilder? ExcludeFromMigrations(
+    public static IConventionForeignKeyBuilder? ExcludeForeignKeyFromMigrations(
         this IConventionForeignKeyBuilder relationship,
         bool? excluded,
         bool fromDataAnnotation = false)
     {
-        if (!relationship.CanSetExcludeFromMigrations(excluded, fromDataAnnotation))
+        if (!relationship.CanSetExcludeForeignKeyFromMigrations(excluded, fromDataAnnotation))
         {
             return null;
         }
@@ -330,7 +330,7 @@ public static class RelationalForeignKeyBuilderExtensions
     /// <param name="excluded">A value indicating whether the foreign key constraint is excluded from migrations.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    public static bool CanSetExcludeFromMigrations(
+    public static bool CanSetExcludeForeignKeyFromMigrations(
         this IConventionForeignKeyBuilder relationship,
         bool? excluded,
         bool fromDataAnnotation = false)

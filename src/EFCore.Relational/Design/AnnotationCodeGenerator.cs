@@ -438,7 +438,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         GenerateSimpleFluentApiCall(
             annotations,
             RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations,
-            nameof(RelationalForeignKeyBuilderExtensions.ExcludeFromMigrations),
+            nameof(RelationalForeignKeyBuilderExtensions.ExcludeForeignKeyFromMigrations),
             methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(foreignKey, annotations, GenerateFluentApi));

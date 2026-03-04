@@ -505,7 +505,6 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         if (runtime)
         {
             annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
-            annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
         }
     }
 
