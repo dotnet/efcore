@@ -10,7 +10,7 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 
 ## When to Use
 
-- Working on Cosmos SQL generation 
+- Working on Cosmos SQL generation
 - Working on document storage, partition key configuration, or `CosmosClientWrapper`
 
 ## Key Differences from Relational
