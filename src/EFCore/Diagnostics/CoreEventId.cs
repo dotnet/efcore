@@ -500,7 +500,7 @@ public static class CoreEventId
     ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
     ///     </para>
     ///     <para>
-    ///         This event uses the <see cref="EventDefinition{T1,T2}" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///         This event uses the <see cref="ProviderMismatchEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
     public static readonly EventId CompiledModelProviderMismatchWarning = MakeInfraId(Id.CompiledModelProviderMismatchWarning);

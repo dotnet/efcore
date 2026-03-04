@@ -4723,7 +4723,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     A compiled model was found but was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Update the compiled model to use the correct provider.
+        ///     A compiled model was found but was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model to use the correct provider.
         /// </summary>
         public static EventDefinition<string, string> LogCompiledModelProviderMismatch(IDiagnosticsLogger logger)
         {
