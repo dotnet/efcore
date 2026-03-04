@@ -1306,7 +1306,8 @@ namespace My.Gnomespace.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseSqlite(_connection)
-                .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>();
+                .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>()
+                .ConfigureWarnings(w => w.Log(RelationalEventId.MigrationsNotFound));
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator
         {
