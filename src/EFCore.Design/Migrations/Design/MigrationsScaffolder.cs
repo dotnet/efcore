@@ -172,15 +172,16 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         }
 
         var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
+        var migrationTypeName = migrationName + "_" + migrationId[..migrationId.IndexOf('_')];
         var migrationCode = codeGenerator.GenerateMigration(
             migrationNamespace,
-            migrationName,
+            migrationTypeName,
             upOperations,
             downOperations);
         var migrationMetadataCode = codeGenerator.GenerateMetadata(
             migrationNamespace,
             _contextType,
-            migrationName,
+            migrationTypeName,
             migrationId,
             Dependencies.Model);
         var modelSnapshotCode = codeGenerator.GenerateSnapshot(

@@ -51,6 +51,19 @@ public class MigrationsScaffolderTest
         Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.SnapshotSubnamespace);
     }
 
+    [ConditionalFact]
+    public void ScaffoldMigration_appends_timestamp_to_type_name()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+        var migration = scaffolder.ScaffoldMigration("DateTime", "WebApplication1");
+
+        var timestamp = migration.MigrationId[..migration.MigrationId.IndexOf('_')];
+        Assert.Contains($"public partial class DateTime_{timestamp} : Migration", migration.MigrationCode);
+        Assert.Contains($"partial class DateTime_{timestamp}", migration.MetadataCode);
+        Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
+    }
+
     private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
         where TContext : DbContext, new()
     {
