@@ -217,7 +217,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
         var dependentNavigation = principalDerived.GetDeclaredNavigations().First();
         var dependentForeignKey = dependentNavigation.ForeignKey;
-        Assert.True(dependentForeignKey.IsExcludedFromMigrations());
+        Assert.False(dependentForeignKey.IsExcludedFromMigrations());
 
         var referenceOwnedNavigation = principalBase.GetNavigations().Single();
         var referenceOwnedType = referenceOwnedNavigation.TargetEntityType;

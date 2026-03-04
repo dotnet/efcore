@@ -1605,9 +1605,10 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> ExcludeForeignKeyFromMigrations<TOwnerEntity, TDependentEntity>(
-        this ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> builder,
-        bool excluded = true)
+    public static ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> ExcludeForeignKeyFromMigrations
+        <TOwnerEntity, TDependentEntity>(
+            this ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> builder,
+            bool excluded = true)
         where TOwnerEntity : class
         where TDependentEntity : class
     {

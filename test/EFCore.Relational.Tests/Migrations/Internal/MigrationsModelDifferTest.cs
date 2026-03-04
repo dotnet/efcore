@@ -3641,12 +3641,19 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "Amoeba",
                 x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
             ),
-            operations =>
+            upOps =>
             {
-                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(operations));
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(upOps));
                 Assert.Equal("dbo", dropFkOperation.Schema);
                 Assert.Equal("Amoeba", dropFkOperation.Table);
                 Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+            },
+            downOps =>
+            {
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(Assert.Single(downOps));
+                Assert.Equal("dbo", addFkOperation.Schema);
+                Assert.Equal("Amoeba", addFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
             });
 
     [ConditionalFact]
@@ -3670,12 +3677,20 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     .OnDelete(DeleteBehavior.Cascade)
                     .ExcludeForeignKeyFromMigrations()
             ),
-            operations =>
+            upOps =>
             {
-                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(operations));
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(upOps));
                 Assert.Equal("dbo", dropFkOperation.Schema);
                 Assert.Equal("Amoeba", dropFkOperation.Table);
                 Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+            },
+            downOps =>
+            {
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(Assert.Single(downOps));
+                Assert.Equal("dbo", addFkOperation.Schema);
+                Assert.Equal("Amoeba", addFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
             });
 
     [ConditionalFact]

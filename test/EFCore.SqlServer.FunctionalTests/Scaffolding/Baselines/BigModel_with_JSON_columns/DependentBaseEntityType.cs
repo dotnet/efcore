@@ -293,7 +293,6 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: 4,
                 storeGenerationIndex: -1);
-            runtimeForeignKey.AddAnnotation("Relational:IsForeignKeyExcludedFromMigrations", true);
             return runtimeForeignKey;
         }
 
