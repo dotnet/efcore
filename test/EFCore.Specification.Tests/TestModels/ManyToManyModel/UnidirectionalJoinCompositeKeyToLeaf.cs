@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public class UnidirectionalJoinCompositeKeyToLeaf
 {
     public virtual int CompositeId1 { get; set; }

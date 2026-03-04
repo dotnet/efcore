@@ -695,10 +695,8 @@ public static class SqlServerPropertyBuilderExtensions
         this IConventionPropertyBuilder propertyBuilder,
         SqlServerValueGenerationStrategy? valueGenerationStrategy,
         bool fromDataAnnotation = false)
-        => (valueGenerationStrategy == null
-                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
-            && propertyBuilder.CanSetAnnotation(
-                SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
+        => propertyBuilder.CanSetAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
 
     /// <summary>
     ///     Returns a value indicating whether the given value can be set as the value generation strategy for a particular table.
@@ -718,14 +716,12 @@ public static class SqlServerPropertyBuilderExtensions
         SqlServerValueGenerationStrategy? valueGenerationStrategy,
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
-        => (valueGenerationStrategy == null
-                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
-            && (propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
-                    .CanSetAnnotation(
-                        SqlServerAnnotationNames.ValueGenerationStrategy,
-                        valueGenerationStrategy,
-                        fromDataAnnotation)
-                ?? true);
+        => propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
+                .CanSetAnnotation(
+                    SqlServerAnnotationNames.ValueGenerationStrategy,
+                    valueGenerationStrategy,
+                    fromDataAnnotation)
+            ?? true;
 
     /// <summary>
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.

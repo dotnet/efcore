@@ -65,7 +65,7 @@ public class DbContextPool<TContext> : IDbContextPool<TContext>, IDisposable, IA
 
             if (serviceProvider is not null)
             {
-                var factory = ActivatorUtilities.CreateFactory<TContext>(new[] { typeof(DbContextOptions<TContext>) });
+                var factory = ActivatorUtilities.CreateFactory<TContext>([typeof(DbContextOptions<TContext>)]);
                 var activatorParameters = new object[] { options };
                 return () => factory.Invoke(serviceProvider, activatorParameters);
             }

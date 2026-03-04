@@ -71,13 +71,14 @@ public class CommandsTest
 
     private static string GetFullName(CommandLineApplication command)
     {
-        var names = new Stack<string>();
+        var names = new Stack<string?>();
 
-        while (command != null)
+        var c = command;
+        while (c != null)
         {
-            names.Push(command.Name);
+            names.Push(c.Name);
 
-            command = command.Parent;
+            c = c.Parent;
         }
 
         return string.Join(" ", names);

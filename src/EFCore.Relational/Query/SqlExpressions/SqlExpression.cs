@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     </para>
 /// </summary>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
-public abstract class SqlExpression : Expression, IPrintableExpression
+public abstract class SqlExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlExpression" /> class.
@@ -43,6 +43,9 @@ public abstract class SqlExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
+
+    /// <inheritdoc />
+    public abstract Expression Quote();
 
     /// <summary>
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.

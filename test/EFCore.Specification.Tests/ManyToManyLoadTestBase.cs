@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class ManyToManyLoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyLoadTestBase<TFixture>.ManyToManyLoadFixtureBase
 {
-    protected ManyToManyLoadTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
@@ -1484,7 +1479,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
     {
     }
 
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected virtual bool ExpectLazyLoading
         => false;

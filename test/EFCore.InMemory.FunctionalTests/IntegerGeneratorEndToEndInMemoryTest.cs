@@ -109,14 +109,9 @@ public class IntegerGeneratorEndToEndInMemoryTest
         }
     }
 
-    private class BronieContext : DbContext
+    private class BronieContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public BronieContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

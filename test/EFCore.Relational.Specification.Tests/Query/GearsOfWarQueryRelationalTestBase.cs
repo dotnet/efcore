@@ -6,14 +6,11 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class GearsOfWarQueryRelationalTestBase<TFixture>(TFixture fixture) : GearsOfWarQueryTestBase<TFixture>(fixture)
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {
-    protected GearsOfWarQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(bool async)
@@ -165,10 +162,7 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async))).Message);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

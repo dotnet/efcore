@@ -19,9 +19,7 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     protected MigrationsCodeGenerator(MigrationsCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Gets the file extension code files should use.
@@ -196,11 +194,34 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
             foreach (var property in entityType.GetDeclaredProperties())
             {
                 yield return property;
+
+                foreach (var @override in property.GetOverrides())
+                {
+                    yield return @override;
+                }
+            }
+
+            foreach (var property in entityType.GetDeclaredComplexProperties())
+            {
+                foreach (var annotatable in GetAnnotatables(property))
+                {
+                    yield return annotatable;
+                }
             }
 
             foreach (var key in entityType.GetDeclaredKeys())
             {
                 yield return key;
+            }
+
+            foreach (var navigation in entityType.GetDeclaredNavigations())
+            {
+                yield return navigation;
+            }
+
+            foreach (var navigation in entityType.GetDeclaredSkipNavigations())
+            {
+                yield return navigation;
             }
 
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
@@ -211,6 +232,45 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
             foreach (var index in entityType.GetDeclaredIndexes())
             {
                 yield return index;
+            }
+
+            foreach (var checkConstraint in entityType.GetDeclaredCheckConstraints())
+            {
+                yield return checkConstraint;
+            }
+
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                yield return trigger;
+            }
+
+            foreach (var fragment in entityType.GetMappingFragments())
+            {
+                yield return fragment;
+            }
+        }
+
+        foreach (var sequence in model.GetSequences())
+        {
+            yield return sequence;
+        }
+    }
+
+    private static IEnumerable<IAnnotatable> GetAnnotatables(IComplexProperty complexProperty)
+    {
+        yield return complexProperty;
+        yield return complexProperty.ComplexType;
+
+        foreach (var property in complexProperty.ComplexType.GetDeclaredProperties())
+        {
+            yield return property;
+        }
+
+        foreach (var property in complexProperty.ComplexType.GetDeclaredComplexProperties())
+        {
+            foreach (var annotatable in GetAnnotatables(property))
+            {
+                yield return annotatable;
             }
         }
     }
@@ -223,8 +283,7 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
                 .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value!.GetType()).GetNamespaces()));
 
     private ValueConverter? FindValueConverter(IProperty property)
-        => (property.FindTypeMapping()
-            ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+        => property.GetTypeMapping().Converter;
 
     private Type GetProviderType(IAnnotatable annotatable, Type valueType)
         => annotatable is IProperty property

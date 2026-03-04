@@ -14,13 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class SqlUnaryExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
     {
         ExpressionType.Equal,
         ExpressionType.NotEqual,
         ExpressionType.Convert,
         ExpressionType.Not,
-        ExpressionType.Negate
+        ExpressionType.Negate,
+        ExpressionType.OnesComplement
     };
 
     internal static bool IsValidOperator(ExpressionType operatorType)
@@ -75,6 +78,16 @@ public class SqlUnaryExpression : SqlExpression
         => operand != Operand
             ? new SqlUnaryExpression(OperatorType, operand, Type, TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlUnaryExpression).GetConstructor(
+                [typeof(ExpressionType), typeof(SqlExpression), typeof(Type), typeof(RelationalTypeMapping)])!,
+            Constant(OperatorType),
+            Operand.Quote(),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

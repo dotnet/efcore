@@ -134,7 +134,7 @@ public class FakeStateManager : IStateManager
     public InternalEntityEntry StartTrackingFromQuery(
         IEntityType baseEntityType,
         object entity,
-        in ValueBuffer valueBuffer)
+        in ISnapshot snapshot)
         => throw new NotImplementedException();
 
     public InternalEntityEntry TryGetEntry(IKey key, IReadOnlyList<object> keyValues)

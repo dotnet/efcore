@@ -7,38 +7,38 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class JsonTypesInMemoryTest : JsonTypesTestBase
 {
-    public override void Can_read_write_point()
+    public override Task Can_read_write_point()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_point());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_point());
 
-    public override void Can_read_write_point_with_M()
+    public override Task Can_read_write_point_with_M()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_point_with_M());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_point_with_M());
 
-    public override void Can_read_write_point_with_Z()
+    public override Task Can_read_write_point_with_Z()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_point_with_Z());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_point_with_Z());
 
-    public override void Can_read_write_point_with_Z_and_M()
+    public override Task Can_read_write_point_with_Z_and_M()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_point_with_Z_and_M());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_point_with_Z_and_M());
 
-    public override void Can_read_write_line_string()
+    public override Task Can_read_write_line_string()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_line_string());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_line_string());
 
-    public override void Can_read_write_multi_line_string()
+    public override Task Can_read_write_multi_line_string()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_multi_line_string());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_multi_line_string());
 
-    public override void Can_read_write_polygon()
+    public override Task Can_read_write_polygon()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_polygon());
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Can_read_write_polygon());
 
-    public override void Can_read_write_polygon_typed_as_geometry()
+    public override Task Can_read_write_polygon_typed_as_geometry()
         // No built-in JSON support for spatial types in the in-memory provider
-        => Assert.Throws<NullReferenceException>(() => base.Can_read_write_polygon_typed_as_geometry());
+        => Assert.ThrowsAsync<NullReferenceException>(base.Can_read_write_polygon_typed_as_geometry);
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => base.OnConfiguring(optionsBuilder.UseInMemoryDatabase("X"));
+    protected override ITestStoreFactory TestStoreFactory
+        => InMemoryTestStoreFactory.Instance;
 }

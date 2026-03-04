@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -26,4 +28,14 @@ public interface IQueryCompilationContextFactory
     /// <param name="async">Specifies whether the query is async.</param>
     /// <returns>The created query compilation context.</returns>
     QueryCompilationContext Create(bool async);
+
+    /// <summary>
+    ///     Creates a new <see cref="QueryCompilationContext" />.
+    /// </summary>
+    /// <param name="async">Specifies whether the query is async.</param>
+    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types.</param>
+    /// <returns>The created query compilation context.</returns>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    QueryCompilationContext CreatePrecompiled(bool async, IReadOnlySet<string> nonNullableReferenceTypeParameters)
+        => throw new InvalidOperationException(CoreStrings.PrecompiledQueryNotSupported);
 }

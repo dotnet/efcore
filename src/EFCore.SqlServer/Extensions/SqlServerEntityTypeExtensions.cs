@@ -345,6 +345,19 @@ public static class SqlServerEntityTypeExtensions
         => entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause)?.GetConfigurationSource();
 
     /// <summary>
+    ///     Gets the configuration source for whether to use the SQL OUTPUT clause when saving changes to the table.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <returns>The configuration source for the memory-optimized setting.</returns>
+    public static ConfigurationSource? GetUseSqlOutputClauseConfigurationSource(
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+        => StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
+            ? entityType.GetUseSqlOutputClauseConfigurationSource()
+            : (entityType.FindMappingFragment(storeObject)?.GetUseSqlOutputClauseConfigurationSource());
+
+    /// <summary>
     ///     Returns a value indicating whether to use the SQL OUTPUT clause when saving changes to the specified table.
     ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
     /// </summary>

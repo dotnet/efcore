@@ -23,9 +23,7 @@ public class DbFunctionParameterBuilder : IInfrastructure<IConventionDbFunctionP
     /// </summary>
     [EntityFrameworkInternal]
     public DbFunctionParameterBuilder(IMutableDbFunctionParameter parameter)
-    {
-        Builder = ((DbFunctionParameter)parameter).Builder;
-    }
+        => Builder = ((DbFunctionParameter)parameter).Builder;
 
     private InternalDbFunctionParameterBuilder Builder { [DebuggerStepThrough] get; }
 

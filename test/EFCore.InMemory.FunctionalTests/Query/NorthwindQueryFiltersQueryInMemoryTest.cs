@@ -3,14 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindQueryFiltersQueryInMemoryTest : NorthwindQueryFiltersQueryTestBase<
-    NorthwindQueryInMemoryFixture<NorthwindQueryFiltersCustomizer>>
-{
-    public NorthwindQueryFiltersQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NorthwindQueryFiltersCustomizer> fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-}
+public class NorthwindQueryFiltersQueryInMemoryTest(NorthwindQueryInMemoryFixture<NorthwindQueryFiltersCustomizer> fixture)
+    : NorthwindQueryFiltersQueryTestBase<NorthwindQueryInMemoryFixture<NorthwindQueryFiltersCustomizer>>(fixture);

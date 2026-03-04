@@ -3,18 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class Chassis
 {
-    public class ChassisProxy : Chassis, IF1Proxy
+    public class ChassisProxy(
+        ILazyLoader loader,
+        int teamId,
+        string name)
+        : Chassis(loader, teamId, name), IF1Proxy
     {
-        public ChassisProxy(
-            ILazyLoader loader,
-            int teamId,
-            string name)
-            : base(loader, teamId, name)
-        {
-        }
-
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }
         public bool InitializedCalled { get; set; }

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public NorthwindSelectQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -311,6 +313,12 @@ FROM "Orders" AS "o"
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async))).Message);
+
+    public override async Task Set_operation_in_pending_collection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Set_operation_in_pending_collection(async))).Message);
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

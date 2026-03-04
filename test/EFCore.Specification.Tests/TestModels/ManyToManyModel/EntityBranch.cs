@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public class EntityBranch : EntityRoot
 {
     public virtual long Number { get; set; }

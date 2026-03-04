@@ -16,6 +16,4 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 ///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
 ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
 /// </remarks>
-public interface IDesignTimeConnectionStringResolver : INamedConnectionStringResolver
-{
-}
+public interface IDesignTimeConnectionStringResolver : INamedConnectionStringResolver;

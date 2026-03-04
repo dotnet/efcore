@@ -230,27 +230,18 @@ public class WarningsTest
         context.WarningAsErrorEntities.FirstOrDefault();
     }
 
-    private class WarningAsErrorContext : DbContext
+    private class WarningAsErrorContext(
+        IServiceProvider serviceProvider,
+        bool defaultThrow = true,
+        EventId? toLog = null,
+        EventId? toThrow = null,
+        (EventId Id, LogLevel Level)? toChangeLevel = null) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly bool _defaultThrow;
-        private readonly EventId? _toLog;
-        private readonly EventId? _toThrow;
-        private readonly (EventId Id, LogLevel Level)? _toChangeLevel;
-
-        public WarningAsErrorContext(
-            IServiceProvider serviceProvider,
-            bool defaultThrow = true,
-            EventId? toLog = null,
-            EventId? toThrow = null,
-            (EventId Id, LogLevel Level)? toChangeLevel = null)
-        {
-            _serviceProvider = serviceProvider;
-            _defaultThrow = defaultThrow;
-            _toLog = toLog;
-            _toThrow = toThrow;
-            _toChangeLevel = toChangeLevel;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly bool _defaultThrow = defaultThrow;
+        private readonly EventId? _toLog = toLog;
+        private readonly EventId? _toThrow = toThrow;
+        private readonly (EventId Id, LogLevel Level)? _toChangeLevel = toChangeLevel;
 
         public DbSet<WarningAsErrorEntity> WarningAsErrorEntities { get; set; }
 
@@ -295,9 +286,7 @@ public class WarningsTest
         }
 
         private WarningAsErrorEntity(Action<object, string> lazyLoader)
-        {
-            _loader = lazyLoader;
-        }
+            => _loader = lazyLoader;
 
         public IncludedEntity Nav
         {

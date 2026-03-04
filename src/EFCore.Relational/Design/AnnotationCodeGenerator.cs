@@ -45,9 +45,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public AnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -241,6 +239,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 #pragma warning disable CS0618
             annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
 #pragma warning restore CS0618
+        }
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
+            && containerColumnTypeAnnotation is { Value: string containerColumnType }
+            && entityType.IsOwned())
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalOwnedNavigationBuilderExtensions.HasColumnType),
+                    containerColumnType));
+
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
         }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));

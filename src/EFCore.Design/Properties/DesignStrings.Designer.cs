@@ -28,6 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 exceptionMessage);
 
         /// <summary>
+        ///     The migration name '{name}' is not valid. Migration names cannot contain any of the following characters: '{characters}'.
+        /// </summary>
+        public static string BadMigrationName(object? name, object? characters)
+            => string.Format(
+                GetString("BadMigrationName", nameof(name), nameof(characters)),
+                name, characters);
+
+        /// <summary>
         ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType(object? sequenceName, object? typeName)
@@ -94,6 +102,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CircularBaseClassDependency");
 
         /// <summary>
+        ///     Compilation failed with errors:
+        /// </summary>
+        public static string CompilationErrors
+            => GetString("CompilationErrors");
+
+        /// <summary>
+        ///     A compilation must be loaded.
+        /// </summary>
+        public static string CompilationMustBeLoaded
+            => GetString("CompilationMustBeLoaded");
+
+        /// <summary>
         ///     The entity type '{entityType}' has a custom constructor binding. Compiled model can't be generated, because custom constructor bindings are not supported. Configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.
         /// </summary>
         public static string CompiledModelConstructorBinding(object? entityType, object? customize, object? className)
@@ -118,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Successfully generated a compiled model, to use it call '{optionsCall}'. Run this command again when the model is modified.
+        ///     Successfully generated a compiled model, it will be discovered automatically, but you can also call '{optionsCall}'. Run this command again when the model is modified.
         /// </summary>
         public static string CompiledModelGenerated(object? optionsCall)
             => string.Format(
@@ -154,6 +174,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string ConnectionDescription
             => GetString("ConnectionDescription");
+
+        /// <summary>
+        ///     Your target project '{assembly}' doesn't match the assembly containing '{contextType}' - '{contextAssembly}'. This is not recommended as it will cause the compiled model to not be discovered automatically.
+        ///     Consider changing your target project to the DbContext project by using the Package Manager Console's Default project drop-down list, by executing "dotnet ef" from the directory containing the DbContext project or by supplying it with the '--project' option.
+        /// </summary>
+        public static string ContextAssemblyMismatch(object? assembly, object? contextType, object? contextAssembly)
+            => string.Format(
+                GetString("ContextAssemblyMismatch", nameof(assembly), nameof(contextType), nameof(contextAssembly)),
+                assembly, contextType, contextAssembly);
 
         /// <summary>
         ///     The context class name '{contextClassName}' is not a valid C# identifier.
@@ -198,6 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateMigrationName", nameof(migrationName)),
                 migrationName);
+
+        /// <summary>
+        ///     Dynamic LINQ queries are not supported when precompiling queries.
+        /// </summary>
+        public static string DynamicQueryNotSupported
+            => GetString("DynamicQueryNotSupported");
 
         /// <summary>
         ///     The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.
@@ -442,6 +477,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
+        ///     Could not find symbol for anonymous object creation initializer:
+        /// </summary>
+        public static string NoAnonymousSymbol
+            => GetString("NoAnonymousSymbol");
+
+        /// <summary>
         ///     Don't colorize output.
         /// </summary>
         public static string NoColorDescription
@@ -454,6 +495,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NoContext", nameof(assembly)),
                 assembly);
+
+        /// <summary>
+        ///     No type deriving from DbContext was found. Add [assembly: DbContext(typeof(*))] attribute for every context type used in this project.
+        /// </summary>
+        public static string NoContextsToOptimize
+            => GetString("NoContextsToOptimize");
 
         /// <summary>
         ///     You must provide a DbContext.t4 file in order to scaffold using custom templates.
@@ -574,6 +621,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
+        ///     No files were generated during the DbContext optimization. Ensure that the target project has code that uses DbContext and that the supplied options are correct.
+        /// </summary>
+        public static string OptimizeNoFilesGenerated
+            => GetString("OptimizeNoFilesGenerated");
+
+        /// <summary>
         ///     Changes have been made to the model since the last migration. Add a new migration.
         /// </summary>
         public static string PendingModelChanges
@@ -600,6 +653,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
                 providerTypeName);
+
+        /// <summary>
+        ///     LINQ query comprehension syntax is currently not supported in precompiled queries.
+        /// </summary>
+        public static string QueryComprehensionSyntaxNotSupportedInPrecompiledQueries
+            => GetString("QueryComprehensionSyntaxNotSupportedInPrecompiledQueries");
+
+        /// <summary>
+        ///     Query precompilation failed with errors:
+        /// </summary>
+        public static string QueryPrecompilationErrors
+            => GetString("QueryPrecompilationErrors");
 
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
@@ -654,6 +719,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
+        ///     The same ParameterExpression instance with name '{parameter}' was used as a variable declaration in a block and a nested block inside it. This is not allowed - use different ParameterExpression instances.
+        /// </summary>
+        public static string SameParameterExpressionDeclaredAsVariableInNestedBlocks(object? parameter)
+            => string.Format(
+                GetString("SameParameterExpressionDeclaredAsVariableInNestedBlocks", nameof(parameter)),
+                parameter);
+
+        /// <summary>
         ///     To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         /// </summary>
         public static string SensitiveInformationWarning
@@ -680,6 +753,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("UnableToScaffoldIndexMissingProperty", nameof(indexName), nameof(columnNames)),
                 indexName, columnNames);
+
+        /// <summary>
+        ///     Unable to translate type '{type}'
+        /// </summary>
+        public static string UnableToTranslateType(object? type)
+            => string.Format(
+                GetString("UnableToTranslateType", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     The project '{project}' does not support compilation.
+        /// </summary>
+        public static string UncompilableProject(object? project)
+            => string.Format(
+                GetString("UncompilableProject", nameof(project)),
+                project);
 
         /// <summary>
         ///     Unhandled enum value '{enumValue}'.

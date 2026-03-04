@@ -33,8 +33,14 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
         RuntimeComplexProperty complexProperty,
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
-        bool propertyBag)
-        : base(name, type, complexProperty.DeclaringType.Model, null, changeTrackingStrategy, indexerPropertyInfo, propertyBag)
+        bool propertyBag,
+        int propertyCount,
+        int complexPropertyCount)
+        : base(
+            name, type, complexProperty.DeclaringType.Model, null, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            derivedTypesCount: 0,
+            propertyCount: propertyCount,
+            complexPropertyCount: complexPropertyCount)
     {
         ComplexProperty = complexProperty;
         ContainingEntityType = complexProperty.DeclaringType switch

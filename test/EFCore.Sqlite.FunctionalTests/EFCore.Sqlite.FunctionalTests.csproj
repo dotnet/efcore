@@ -9,6 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Scaffolding\Baselines\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Scaffolding\Baselines\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="System.Data.Common" />
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
@@ -53,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.6" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
   </ItemGroup>
 
 </Project>

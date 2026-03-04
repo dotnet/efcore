@@ -268,7 +268,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IModel model,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -279,7 +279,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IEntityType entityType,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -290,7 +290,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IComplexType complexType,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -301,7 +301,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IEntityTypeMappingFragment fragment,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -312,7 +312,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -323,7 +323,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IComplexProperty complexProperty,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -334,7 +334,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IKey key,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -345,7 +345,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IForeignKey foreignKey,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -356,7 +356,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         INavigation navigation,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -367,7 +367,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         ISkipNavigation navigation,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -378,7 +378,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IIndex index,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -389,7 +389,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         ICheckConstraint checkConstraint,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -400,7 +400,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         ITrigger trigger,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -411,7 +411,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IRelationalPropertyOverrides overrides,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -422,7 +422,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         ISequence sequence,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<MethodCallCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -467,7 +467,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IEntityType entityType,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<AttributeCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding data annotation attributes, returns those attribute code fragments
@@ -478,7 +478,7 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
-        => Array.Empty<AttributeCodeFragment>();
+        => [];
 
     /// <summary>
     ///     For the given annotations which have corresponding data annotation attributes, returns those attribute code fragments

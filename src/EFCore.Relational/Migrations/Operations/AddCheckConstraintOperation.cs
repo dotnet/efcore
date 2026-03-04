@@ -51,7 +51,6 @@ public class AddCheckConstraintOperation : MigrationOperation, ITableMigrationOp
             Schema = checkConstraint.EntityType.GetSchema(),
             Table = checkConstraint.EntityType.GetTableName()!
         };
-        operation.AddAnnotations(checkConstraint.GetAnnotations());
 
         return operation;
     }

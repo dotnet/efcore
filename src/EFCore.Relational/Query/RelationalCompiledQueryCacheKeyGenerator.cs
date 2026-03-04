@@ -15,9 +15,7 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
         CompiledQueryCacheKeyGeneratorDependencies dependencies,
         RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

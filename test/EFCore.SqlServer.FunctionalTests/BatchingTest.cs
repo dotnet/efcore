@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 {
     public BatchingTest(BatchingTestFixture fixture)
@@ -29,10 +31,10 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     [InlineData(false, true, false)]
     [InlineData(true, false, false)]
     [InlineData(false, false, false)]
-    public void Inserts_are_batched_correctly(bool clientPk, bool clientFk, bool clientOrder)
+    public Task Inserts_are_batched_correctly(bool clientPk, bool clientFk, bool clientOrder)
     {
         var expectedBlogs = new List<Blog>();
-        ExecuteWithStrategyInTransaction(
+        return ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var owner1 = new Owner();
@@ -62,18 +64,18 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                     expectedBlogs.Add(blog);
                 }
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             },
             context => AssertDatabaseState(context, clientOrder, expectedBlogs));
     }
 
     [ConditionalFact]
-    public void Inserts_and_updates_are_batched_correctly()
+    public Task Inserts_and_updates_are_batched_correctly()
     {
         var expectedBlogs = new List<Blog>();
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var owner1 = new Owner { Name = "0" };
                 var owner2 = new Owner { Name = "1" };
@@ -90,7 +92,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 context.Set<Blog>().Add(blog1);
                 expectedBlogs.Add(blog1);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 owner2.Name = "2";
 
@@ -115,7 +117,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 context.Set<Blog>().Add(blog3);
                 expectedBlogs.Add(blog3);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
             context => AssertDatabaseState(context, true, expectedBlogs));
     }
@@ -125,14 +127,13 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(100)]
-    public void Insertion_order_is_preserved(int maxBatchSize)
+    public Task Insertion_order_is_preserved(int maxBatchSize)
     {
         var blogId = new Guid();
 
-        TestHelpers.ExecuteWithStrategyInTransaction(
+        return TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => (BloggingContext)Fixture.CreateContext(maxBatchSize: maxBatchSize),
-            UseTransaction,
-            context =>
+            UseTransaction, async context =>
             {
                 var owner = new Owner();
                 var blog = new Blog { Owner = owner };
@@ -142,15 +143,14 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                     context.Add(new Post { Order = i, Blog = blog });
                 }
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 blogId = blog.Id;
-            },
-            context =>
+            }, async context =>
             {
                 var posts = context.Set<Post>().Where(p => p.BlogId == blogId).OrderBy(p => p.Order);
                 var lastId = 0;
-                foreach (var post in posts)
+                foreach (var post in await posts.ToListAsync())
                 {
                     Assert.True(post.PostId > lastId, $"Last ID: {lastId}, current ID: {post.PostId}");
                     lastId = post.PostId;
@@ -159,7 +159,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     }
 
     [ConditionalFact]
-    public void Deadlock_on_inserts_and_deletes_with_dependents_is_handled_correctly()
+    public async Task Deadlock_on_inserts_and_deletes_with_dependents_is_handled_correctly()
     {
         var blogs = new List<Blog>();
 
@@ -201,19 +201,21 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
             context.AddRange(blogs);
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
+        var tasks = new List<Task>();
         for (var i = 0; i < 10; i++)
         {
-            Parallel.ForEach(
-                blogs, blog =>
-                {
-                    RemoveAndAddPosts(blog);
-                });
+            foreach (var blog in blogs)
+            {
+                tasks.Add(RemoveAndAddPosts(blog));
+            }
         }
 
-        void RemoveAndAddPosts(Blog blog)
+        Task.WaitAll(tasks.ToArray());
+
+        async Task RemoveAndAddPosts(Blog blog)
         {
             using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
 
@@ -224,14 +226,14 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             blog.Posts.Add(new Post { Comments = { new Comment() } });
             blog.Posts.Add(new Post { Comments = { new Comment() } });
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        Fixture.Reseed();
+        await Fixture.ReseedAsync();
     }
 
     [ConditionalFact]
-    public void Deadlock_on_deletes_with_dependents_is_handled_correctly()
+    public async Task Deadlock_on_deletes_with_dependents_is_handled_correctly()
     {
         var owners = new[] { new Owner { Name = "0" }, new Owner { Name = "1" } };
         using (var context = CreateContext())
@@ -256,30 +258,37 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 context.Add(blog);
             }
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        Parallel.ForEach(
-            owners, owner =>
-            {
-                using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
+        async Task Action(Owner owner)
+        {
+            using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
 
-                context.RemoveRange(context.Blogs.Where(b => b.OwnerId == owner.Id));
+            context.RemoveRange(await context.Blogs.Where(b => b.OwnerId == owner.Id).ToListAsync());
 
-                context.SaveChanges();
-            });
+            await context.SaveChangesAsync();
+        }
+
+        var tasks = new List<Task>();
+        foreach (var owner in owners)
+        {
+            tasks.Add(Action(owner));
+        }
+
+        Task.WaitAll(tasks.ToArray());
 
         using (var context = CreateContext())
         {
-            Assert.Empty(context.Blogs);
+            Assert.Empty(await context.Blogs.ToListAsync());
         }
 
-        Fixture.Reseed();
+        await Fixture.ReseedAsync();
     }
 
     [ConditionalFact]
-    public void Inserts_when_database_type_is_different()
-        => ExecuteWithStrategyInTransaction(
+    public Task Inserts_when_database_type_is_different()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var owner1 = new Owner { Id = "0", Name = "Zero" };
@@ -287,20 +296,18 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 context.Owners.Add(owner1);
                 context.Owners.Add(owner2);
 
-                context.SaveChanges();
-            },
-            context => Assert.Equal(2, context.Owners.Count()));
+                return context.SaveChangesAsync();
+            }, async context => Assert.Equal(2, await context.Owners.CountAsync()));
 
     [ConditionalTheory]
     [InlineData(3)]
     [InlineData(4)]
-    public void Inserts_are_batched_only_when_necessary(int minBatchSize)
+    public Task Inserts_are_batched_only_when_necessary(int minBatchSize)
     {
         var expectedBlogs = new List<Blog>();
-        TestHelpers.ExecuteWithStrategyInTransaction(
+        return TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => (BloggingContext)Fixture.CreateContext(minBatchSize),
-            UseTransaction,
-            context =>
+            UseTransaction, async context =>
             {
                 var owner = new Owner();
                 context.Owners.Add(owner);
@@ -315,7 +322,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
                 Fixture.TestSqlLoggerFactory.Clear();
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 Assert.Contains(
                     minBatchSize == 3
@@ -329,13 +336,13 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             }, context => AssertDatabaseState(context, false, expectedBlogs));
     }
 
-    private void AssertDatabaseState(DbContext context, bool clientOrder, List<Blog> expectedBlogs)
+    private async Task AssertDatabaseState(DbContext context, bool clientOrder, List<Blog> expectedBlogs)
     {
         expectedBlogs = clientOrder
             ? expectedBlogs.OrderBy(b => b.Order).ToList()
             : expectedBlogs.OrderBy(b => b.Id).ToList();
         var actualBlogs = clientOrder
-            ? context.Set<Blog>().OrderBy(b => b.Order).ToList()
+            ? await context.Set<Blog>().OrderBy(b => b.Order).ToListAsync()
             : expectedBlogs.OrderBy(b => b.Id).ToList();
         Assert.Equal(expectedBlogs.Count, actualBlogs.Count);
 
@@ -353,10 +360,10 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     private BloggingContext CreateContext()
         => (BloggingContext)Fixture.CreateContext();
 
-    private void ExecuteWithStrategyInTransaction(
-        Action<BloggingContext> testOperation,
-        Action<BloggingContext> nestedTestOperation)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
+    private Task ExecuteWithStrategyInTransactionAsync(
+        Func<BloggingContext, Task> testOperation,
+        Func<BloggingContext, Task> nestedTestOperation)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction, testOperation, nestedTestOperation);
 
     protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -365,13 +372,8 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    private class BloggingContext : PoolableDbContext
+    private class BloggingContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public BloggingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Owner>(
@@ -443,10 +445,10 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Update.Name;
 
-        protected override void Seed(PoolableDbContext context)
+        protected override async Task SeedAsync(PoolableDbContext context)
         {
-            context.Database.EnsureCreatedResiliently();
-            context.Database.ExecuteSqlRaw(
+            await context.Database.EnsureCreatedResilientlyAsync();
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 ALTER TABLE dbo.Owners
     ALTER COLUMN Name nvarchar(MAX);");

@@ -5,16 +5,13 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class TPTFiltersInheritanceBulkUpdatesSqliteTest : TPTFiltersInheritanceBulkUpdatesTestBase<
-    TPTFiltersInheritanceBulkUpdatesSqliteFixture>
-{
-    public TPTFiltersInheritanceBulkUpdatesSqliteTest(
-        TPTFiltersInheritanceBulkUpdatesSqliteFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
+#nullable disable
 
+public class TPTFiltersInheritanceBulkUpdatesSqliteTest(
+    TPTFiltersInheritanceBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPTFiltersInheritanceBulkUpdatesTestBase<TPTFiltersInheritanceBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
+{
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -43,9 +40,6 @@ DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
-    LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
     }
@@ -60,8 +54,6 @@ DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
     LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "k"."Id" IS NOT NULL AND "a"."CountryId" > 0) > 0
 """);
@@ -108,20 +100,14 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
-UPDATE "Animals" AS "a"
+UPDATE "Animals" AS "a0"
 SET "Name" = 'Animal'
 FROM (
-    SELECT "a0"."Id", "a0"."CountryId", "a0"."Name", "a0"."Species", "b0"."EagleId", "b0"."IsFlightless", "e0"."Group", "k0"."FoundOn", CASE
-        WHEN "k0"."Id" IS NOT NULL THEN 'Kiwi'
-        WHEN "e0"."Id" IS NOT NULL THEN 'Eagle'
-    END AS "Discriminator"
-    FROM "Animals" AS "a0"
-    LEFT JOIN "Birds" AS "b0" ON "a0"."Id" = "b0"."Id"
-    LEFT JOIN "Eagle" AS "e0" ON "a0"."Id" = "e0"."Id"
-    LEFT JOIN "Kiwi" AS "k0" ON "a0"."Id" = "k0"."Id"
-    WHERE "a0"."CountryId" = 1 AND "a0"."Name" = 'Great spotted kiwi'
-) AS "t"
-WHERE "a"."Id" = "t"."Id"
+    SELECT "a"."Id"
+    FROM "Animals" AS "a"
+    WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
+) AS "s"
+WHERE "a0"."Id" = "s"."Id"
 """);
     }
 
@@ -165,9 +151,6 @@ SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
-    LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
     }
@@ -190,8 +173,6 @@ SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    LEFT JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-    LEFT JOIN "Eagle" AS "e" ON "a"."Id" = "e"."Id"
     LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
     WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "k"."Id" IS NOT NULL AND "a"."CountryId" > 0) > 0
 """);

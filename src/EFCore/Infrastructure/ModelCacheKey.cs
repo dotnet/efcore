@@ -23,9 +23,7 @@ public class ModelCacheKey
     ///     The context instance that this key is for.
     /// </param>
     public ModelCacheKey(DbContext context)
-    {
-        _dbContextType = context.GetType();
-    }
+        => _dbContextType = context.GetType();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ModelCacheKey" /> class.

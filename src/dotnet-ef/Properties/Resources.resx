@@ -133,7 +133,7 @@
     <value>The connection string to the database.</value>
   </data>
   <data name="ContextDescription" xml:space="preserve">
-    <value>The DbContext to use.</value>
+    <value>The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
     <value>The directory to put the DbContext file in. Paths are relative to the project directory.</value>
@@ -252,6 +252,9 @@
   <data name="MigrationToDescription" xml:space="preserve">
     <value>The target migration. Defaults to the last migration.</value>
   </data>
+  <data name="MissingConditionalOption" xml:space="preserve">
+    <value>Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.</value>
+  </data>
   <data name="MultipleProjects" xml:space="preserve">
     <value>More than one project was found in the current working directory. Use the --project option.</value>
   </data>
@@ -263,6 +266,12 @@
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
+  </data>
+  <data name="NativeAotDescription" xml:space="preserve">
+    <value>Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).</value>
+  </data>
+  <data name="NativeAotWarning" xml:space="preserve">
+    <value>NativeAOT support is experimental and can change in the future.</value>
   </data>
   <data name="NETCoreApp1StartupProject" xml:space="preserve">
     <value>Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254</value>
@@ -288,6 +297,9 @@
   <data name="NoProjectInDirectory" xml:space="preserve">
     <value>No project was found in directory '{projectDir}'.</value>
   </data>
+  <data name="NoScaffoldDescription" xml:space="preserve">
+    <value>Don't generate a compiled model.</value>
+  </data>
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
   </data>
@@ -296,6 +308,12 @@
   </data>
   <data name="OutputDirDescription" xml:space="preserve">
     <value>The directory to put files in. Paths are relative to the project directory.</value>
+  </data>
+  <data name="PrecompileQueriesDescription" xml:space="preserve">
+    <value>Generate precompiled queries.</value>
+  </data>
+  <data name="PrecompileQueriesWarning" xml:space="preserve">
+    <value>Query precompilation is an experimental feature and should be used with caution.</value>
   </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
@@ -320,6 +338,9 @@
   </data>
   <data name="StartupProjectDescription" xml:space="preserve">
     <value>The startup project to use. Defaults to the current working directory.</value>
+  </data>
+  <data name="SuffixDescription" xml:space="preserve">
+    <value>The suffix to attach to the name of all the generated files</value>
   </data>
   <data name="SuppressOnConfiguringDescription" xml:space="preserve">
     <value>Don't generate DbContext.OnConfiguring.</value>

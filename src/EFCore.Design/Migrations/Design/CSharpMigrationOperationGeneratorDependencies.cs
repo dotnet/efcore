@@ -38,9 +38,7 @@ public sealed record CSharpMigrationOperationGeneratorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public CSharpMigrationOperationGeneratorDependencies(ICSharpHelper csharpHelper)
-    {
-        CSharpHelper = csharpHelper;
-    }
+        => CSharpHelper = csharpHelper;
 
     /// <summary>
     ///     The C# helper.

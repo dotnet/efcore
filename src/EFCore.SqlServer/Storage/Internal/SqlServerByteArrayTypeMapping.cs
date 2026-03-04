@@ -62,9 +62,7 @@ public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
     /// </summary>
     protected SqlServerByteArrayTypeMapping(RelationalTypeMappingParameters parameters, SqlDbType? sqlDbType)
         : base(parameters)
-    {
-        _sqlDbType = sqlDbType;
-    }
+        => _sqlDbType = sqlDbType;
 
     private static int CalculateSize(int? size)
         => size is > 0 and < MaxSize ? size.Value : MaxSize;

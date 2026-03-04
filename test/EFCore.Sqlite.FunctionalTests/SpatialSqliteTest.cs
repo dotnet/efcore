@@ -3,14 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-[SpatialiteRequired]
-public class SpatialSqliteTest : SpatialTestBase<SpatialSqliteFixture>
-{
-    public SpatialSqliteTest(SpatialSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+[SpatialiteRequired]
+public class SpatialSqliteTest(SpatialSqliteFixture fixture) : SpatialTestBase<SpatialSqliteFixture>(fixture)
+{
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 }

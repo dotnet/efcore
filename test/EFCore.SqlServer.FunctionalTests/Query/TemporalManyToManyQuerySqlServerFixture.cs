@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBase
+#nullable disable
+
+public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName
         => "TemporalManyToManyQueryTest";
@@ -362,9 +364,9 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
             });
     }
 
-    protected override void Seed(ManyToManyContext context)
+    protected override async Task SeedAsync(ManyToManyContext context)
     {
-        base.Seed(context);
+        await base.SeedAsync(context);
 
         ChangesDate = new DateTime(2010, 1, 1);
 
@@ -378,7 +380,7 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
         context.RemoveRange(context.ChangeTracker.Entries().Where(e => e.Entity is UnidirectionalEntityOne).Select(e => e.Entity));
         context.RemoveRange(context.ChangeTracker.Entries().Where(e => e.Entity is UnidirectionalEntityCompositeKey).Select(e => e.Entity));
         context.RemoveRange(context.ChangeTracker.Entries().Where(e => e.Entity is UnidirectionalEntityRoot).Select(e => e.Entity));
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         var tableNames = new List<string>
         {
@@ -422,14 +424,14 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
 
         foreach (var tableName in tableNames)
         {
-            context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
-            context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
 
-            context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
-            context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
+            await context.Database.ExecuteSqlRawAsync($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
+            await context.Database.ExecuteSqlRawAsync($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
-            context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
+            await context.Database.ExecuteSqlRawAsync(
                 $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
         }
     }

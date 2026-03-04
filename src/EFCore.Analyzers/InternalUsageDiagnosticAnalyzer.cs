@@ -12,13 +12,11 @@ namespace Microsoft.EntityFrameworkCore;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    public const string Id = "EF1001";
     private static readonly int EFLen = "EntityFrameworkCore".Length;
 
     private static readonly DiagnosticDescriptor Descriptor
-        // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
-        = new DiagnosticDescriptor(
-            Id,
+        = new(
+            EFDiagnostics.InternalUsage,
             title: AnalyzerStrings.InternalUsageTitle,
             messageFormat: AnalyzerStrings.InternalUsageMessageFormat,
             category: "Usage",

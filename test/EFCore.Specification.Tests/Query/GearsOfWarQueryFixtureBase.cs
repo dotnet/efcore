@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsOfWarContext>, IQueryFixtureBase
 {
     protected override string StoreName
@@ -337,7 +339,12 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
                 b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
             });
 
-        modelBuilder.Entity<Mission>().Property(m => m.Id).ValueGeneratedNever();
+        modelBuilder.Entity<Mission>(
+            b =>
+            {
+                b.Property(m => m.Id).ValueGeneratedNever();
+                b.Property(m => m.Difficulty).HasConversion<string>();
+            });
 
         modelBuilder.Entity<SquadMission>(
             b =>
@@ -365,8 +372,8 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
         modelBuilder.Entity<LocustHighCommand>().Property(l => l.Id).ValueGeneratedNever();
     }
 
-    protected override void Seed(GearsOfWarContext context)
-        => GearsOfWarContext.Seed(context);
+    protected override Task SeedAsync(GearsOfWarContext context)
+        => GearsOfWarContext.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(

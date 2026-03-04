@@ -35,9 +35,7 @@ public class DatabaseProvider<TOptionsExtension> : IDatabaseProvider
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public DatabaseProvider(DatabaseProviderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

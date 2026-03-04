@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -12,9 +14,7 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
         NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -51,6 +51,18 @@ WHERE "c"."ContactName" GLOB '*M*'
 SELECT COUNT(*)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" NOT GLOB 'T*'
+""");
+    }
+
+    public override async Task Collate_is_null(bool async)
+    {
+        await base.Collate_is_null(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM "Customers" AS "c"
+WHERE "c"."Region" IS NULL
 """);
     }
 

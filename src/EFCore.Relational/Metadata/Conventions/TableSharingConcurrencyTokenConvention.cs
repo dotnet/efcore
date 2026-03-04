@@ -56,7 +56,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
             if (!tableToEntityTypes.TryGetValue(table.Value, out var mappedTypes))
             {
-                mappedTypes = new List<IConventionEntityType>();
+                mappedTypes = [];
                 tableToEntityTypes[table.Value] = mappedTypes;
             }
 
@@ -190,7 +190,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                 concurrencyColumns ??= new Dictionary<string, List<IReadOnlyProperty>>();
                 if (!concurrencyColumns.TryGetValue(columnName, out var properties))
                 {
-                    properties = new List<IReadOnlyProperty>();
+                    properties = [];
                     concurrencyColumns[columnName] = properties;
                 }
 

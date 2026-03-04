@@ -53,17 +53,35 @@ public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ValueGenerator Select(IProperty property, ITypeBase typeBase)
+    [Obsolete("Use TrySelect and throw if needed when the generator is not found.")]
+    public override ValueGenerator? Select(IProperty property, ITypeBase typeBase)
+    {
+        if (TrySelect(property, typeBase, out var valueGenerator))
+        {
+            return valueGenerator;
+        }
+
+        throw new NotSupportedException(
+            CoreStrings.NoValueGenerator(property.Name, property.DeclaringType.DisplayName(), property.ClrType.ShortDisplayName()));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
     {
         if (property.GetValueGeneratorFactory() != null
             || property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.SequenceHiLo)
         {
-            return base.Select(property, typeBase);
+            return base.TrySelect(property, typeBase, out valueGenerator);
         }
 
         var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
-        var generator = _sequenceFactory.TryCreate(
+        valueGenerator = _sequenceFactory.TryCreate(
             property,
             propertyType,
             Cache.GetOrAddSequenceState(property, _connection),
@@ -71,16 +89,16 @@ public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
             _rawSqlCommandBuilder,
             _commandLogger);
 
-        if (generator != null)
+        if (valueGenerator != null)
         {
-            return generator;
+            return true;
         }
 
         var converter = property.GetTypeMapping().Converter;
         if (converter != null
             && converter.ProviderClrType != propertyType)
         {
-            generator = _sequenceFactory.TryCreate(
+            valueGenerator = _sequenceFactory.TryCreate(
                 property,
                 converter.ProviderClrType,
                 Cache.GetOrAddSequenceState(property, _connection),
@@ -88,15 +106,14 @@ public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
                 _rawSqlCommandBuilder,
                 _commandLogger);
 
-            if (generator != null)
+            if (valueGenerator != null)
             {
-                return generator.WithConverter(converter);
+                valueGenerator = valueGenerator.WithConverter(converter);
+                return true;
             }
         }
 
-        throw new ArgumentException(
-            CoreStrings.InvalidValueGeneratorFactoryProperty(
-                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringType.DisplayName()));
+        return false;
     }
 
     /// <summary>

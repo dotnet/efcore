@@ -5,16 +5,9 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindGroupByQueryInMemoryTest : NorthwindGroupByQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindGroupByQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindGroupByQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override Task Final_GroupBy_property_entity(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Final_GroupBy_property_entity(async),

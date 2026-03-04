@@ -11,8 +11,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
     [ConditionalFact]
-    public virtual void Save_two_entity_cycle_with_lazy_loading()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Save_two_entity_cycle_with_lazy_loading()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.AddRange(
@@ -30,6 +30,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                         }));
 
                 context.SaveChanges();
+                return Task.CompletedTask;
             },
             context =>
             {
@@ -56,11 +57,13 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                     var message = Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message;
                     Assert.StartsWith(CoreStrings.CircularDependency("").Substring(0, 30), message);
                 }
+
+                return Task.CompletedTask;
             });
 
     [ConditionalFact]
-    public virtual void Can_use_record_proxies_with_base_types_to_load_reference()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Can_use_record_proxies_with_base_types_to_load_reference()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.AddRange(
@@ -71,6 +74,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                         }));
 
                 context.SaveChanges();
+                return Task.CompletedTask;
             },
             context =>
             {
@@ -82,11 +86,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
 
                 Assert.Equal(car.Owner.Id, car.OwnerId);
                 Assert.Same(car, car.Owner.Vehicles.Single());
+                return Task.CompletedTask;
             });
 
     [ConditionalFact]
-    public virtual void Can_use_record_proxies_with_base_types_to_load_collection()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Can_use_record_proxies_with_base_types_to_load_collection()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.AddRange(
@@ -97,6 +102,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                         }));
 
                 context.SaveChanges();
+                return Task.CompletedTask;
             },
             context =>
             {
@@ -108,11 +114,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
 
                 Assert.Equal(owner.Id, owner.Vehicles.Single().Id);
                 Assert.Same(owner, owner.Vehicles.Single().Owner);
+                return Task.CompletedTask;
             });
 
     [ConditionalFact]
-    public virtual void Avoid_nulling_shared_FK_property_when_deleting()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Avoid_nulling_shared_FK_property_when_deleting()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var root = context
@@ -168,6 +175,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 Assert.Equal(root.Id, dependent.RootId);
                 Assert.Equal(root.Id, parent.RootId);
                 Assert.Null(parent.DependantId);
+                return Task.CompletedTask;
             },
             context =>
             {
@@ -187,13 +195,14 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
 
                 Assert.Equal(root.Id, parent.RootId);
                 Assert.Null(parent.DependantId);
+                return Task.CompletedTask;
             });
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
-    public virtual void Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var root = context
@@ -252,6 +261,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 Assert.Equal(root.Id, dependent.RootId);
                 Assert.Equal(root.Id, parent.RootId);
                 Assert.Null(parent.DependantId);
+                return Task.CompletedTask;
             },
             context =>
             {
@@ -274,14 +284,15 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 Assert.Equal(root.Id, dependent.RootId);
                 Assert.Equal(root.Id, parent.RootId);
                 Assert.Null(parent.DependantId);
+                return Task.CompletedTask;
             });
 
     [ConditionalFact]
-    public virtual void No_fixup_to_Deleted_entities()
+    public virtual async Task No_fixup_to_Deleted_entities()
     {
         using var context = CreateContext();
 
-        var root = LoadRoot(context);
+        var root = await LoadRootAsync(context);
         if (!DoesLazyLoading)
         {
             context.Entry(root).Collection(e => e.OptionalChildren).Load();
@@ -307,8 +318,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var dependent = context.Set<BadOrder>().Single();
@@ -328,6 +339,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 Assert.Null(dependent.BadCustomerId);
                 Assert.Null(dependent.BadCustomer);
                 Assert.Empty(principal.BadOrders);
+                return Task.CompletedTask;
             },
             context =>
             {
@@ -337,14 +349,15 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 Assert.Null(dependent.BadCustomerId);
                 Assert.Null(dependent.BadCustomer);
                 Assert.Empty(principal.BadOrders);
+                return Task.CompletedTask;
             });
 
     [ConditionalFact]
-    public void Can_attach_full_required_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_required_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredGraph(context);
+                var trackedRoot = await LoadRequiredGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryRequiredGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -355,11 +368,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_optional_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_optional_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadOptionalGraph(context);
+                var trackedRoot = await LoadOptionalGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryOptionalGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -370,11 +383,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_required_non_PK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_required_non_PK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredNonPkGraph(context);
+                var trackedRoot = await LoadRequiredNonPkGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryRequiredNonPkGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -385,11 +398,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_required_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_required_AK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredAkGraph(context);
+                var trackedRoot = await LoadRequiredAkGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryRequiredAkGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -400,11 +413,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_optional_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_optional_AK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadOptionalAkGraph(context);
+                var trackedRoot = await LoadOptionalAkGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryOptionalAkGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -415,11 +428,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_required_non_PK_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_required_non_PK_AK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredNonPkAkGraph(context);
+                var trackedRoot = await LoadRequiredNonPkAkGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryRequiredNonPkAkGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -430,11 +443,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_required_one_to_many_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_required_one_to_many_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadOptionalOneToManyGraph(context);
+                var trackedRoot = await LoadOptionalOneToManyGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryOptionalOneToManyGraph(context).AsNoTracking().Single(IsTheRoot));
@@ -445,11 +458,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Can_attach_full_required_composite_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_attach_full_required_composite_graph_of_duplicates()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredCompositeGraph(context);
+                var trackedRoot = await LoadRequiredCompositeGraphAsync(context);
                 var entries = context.ChangeTracker.Entries().ToList();
 
                 context.Attach(QueryRequiredCompositeGraph(context).AsNoTracking().Single(IsTheRoot));

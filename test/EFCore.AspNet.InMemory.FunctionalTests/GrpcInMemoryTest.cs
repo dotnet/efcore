@@ -3,12 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GrpcInMemoryTest : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixture>
+#if !EXCLUDE_ON_MAC
+
+public class GrpcInMemoryTest(GrpcInMemoryTest.GrpcInMemoryFixture fixture) : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixture>(fixture)
 {
-    public GrpcInMemoryTest(GrpcInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
+    protected override bool HasForeignKeyIndexes
+        => false;
 
     public class GrpcInMemoryFixture : GrpcFixtureBase
     {
@@ -16,3 +16,5 @@ public class GrpcInMemoryTest : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixtur
             => InMemoryTestStoreFactory.Instance;
     }
 }
+
+#endif

@@ -12,12 +12,9 @@ namespace Microsoft.EntityFrameworkCore;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    public const string Id = "EF1002";
-
     private static readonly DiagnosticDescriptor Descriptor
-        // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
-        = new DiagnosticDescriptor(
-            Id,
+        = new(
+            EFDiagnostics.InterpolatedStringUsageInRawQueries,
             title: AnalyzerStrings.InterpolatedStringUsageInRawQueriesAnalyzerTitle,
             messageFormat: AnalyzerStrings.InterpolatedStringUsageInRawQueriesMessageFormat,
             category: "Security",
@@ -216,13 +213,13 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
     private static IEnumerable<IMethodSymbol> ExecuteSqlRawMethods(Compilation compilation)
     {
         var type = compilation.RelationalDatabaseFacadeExtensionsType();
-        return type?.GetMembers("ExecuteSqlRaw").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
+        return type?.GetMembers("ExecuteSqlRaw").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? [];
     }
 
     private static IEnumerable<IMethodSymbol> ExecuteSqlRawAsyncMethods(Compilation compilation)
     {
         var type = compilation.RelationalDatabaseFacadeExtensionsType();
-        return type?.GetMembers("ExecuteSqlRawAsync").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
+        return type?.GetMembers("ExecuteSqlRawAsync").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? [];
     }
 
     private static IMethodSymbol? SqlQueryRawMethod(Compilation compilation)
