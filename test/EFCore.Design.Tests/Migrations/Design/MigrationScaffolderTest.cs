@@ -52,7 +52,7 @@ public class MigrationsScaffolderTest
     }
 
     [ConditionalFact]
-    public void ScaffoldMigration_appends_timestamp_to_type_name()
+    public void ScaffoldMigration_uses_migration_id_as_type_name()
     {
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
 
