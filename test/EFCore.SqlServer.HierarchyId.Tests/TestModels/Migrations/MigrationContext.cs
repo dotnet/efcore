@@ -44,6 +44,6 @@ internal abstract class MigrationContext<TEntity1, TEntity2> : DbContext
         model.RemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
     }
 
-    public abstract string GetExpectedMigrationCode(string migrationName, string rootNamespace);
-    public abstract string GetExpectedSnapshotCode(string rootNamespace);
+    public abstract string GetExpectedMigrationCode(string migrationId, string rootNamespace);
+    public abstract string GetExpectedSnapshotCode(string rootNamespace, string migrationId);
 }

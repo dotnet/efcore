@@ -104,6 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DatabaseDropForceDescription");
 
         /// <summary>
+        ///     Create a new migration with the given name and apply it immediately.
+        /// </summary>
+        public static string DatabaseUpdateAddDescription
+            => GetString("DatabaseUpdateAddDescription");
+
+        /// <summary>
         ///     Updates the database to a specified migration.
         /// </summary>
         public static string DatabaseUpdateDescription
@@ -278,6 +284,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsRemoveForceDescription");
 
         /// <summary>
+        ///     Remove the migration without connecting to the database.
+        /// </summary>
+        public static string MigrationsRemoveOfflineDescription
+            => GetString("MigrationsRemoveOfflineDescription");
+
+        /// <summary>
         ///     Generates a SQL script from migrations.
         /// </summary>
         public static string MigrationsScriptDescription
@@ -288,6 +300,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationToDescription
             => GetString("MigrationToDescription");
+
+        /// <summary>
+        ///     Missing required argument '{arg}'.
+        /// </summary>
+        public static string MissingArgument(object? arg)
+            => string.Format(
+                GetString("MissingArgument", nameof(arg)),
+                arg);
 
         /// <summary>
         ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
@@ -342,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NativeAotWarning");
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254
+        ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 10.0 or higher.
         /// </summary>
         public static string NETCoreApp1StartupProject(object? startupProject, object? targetFrameworkVersion)
             => string.Format(
@@ -350,7 +370,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject, targetFrameworkVersion);
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781
+        ///     Startup project '{startupProject}' targets framework '.NETFramework'. The Entity Framework Core .NET Command-line Tools don't support .NET Framework projects. Consider updating the project to target .NET.
+        /// </summary>
+        public static string NETFrameworkStartupProject(object? startupProject)
+            => string.Format(
+                GetString("NETFrameworkStartupProject", nameof(startupProject)),
+                startupProject);
+
+        /// <summary>
+        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781
         /// </summary>
         public static string NETStandardStartupProject(object? startupProject)
             => string.Format(
@@ -454,6 +482,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string ProviderDescription
             => GetString("ProviderDescription");
+
+        /// <summary>
+        ///     Running '{command}'
+        /// </summary>
+        public static string RunningCommand(object? command)
+            => string.Format(
+                GetString("RunningCommand", nameof(command)),
+                command);
 
         /// <summary>
         ///     The runtime to use.

@@ -123,6 +123,63 @@ namespace MyNamespace
     }
 
     [ConditionalFact]
+    public void Snapshot_with_migration_id()
+    {
+        var generator = CreateMigrationsCodeGenerator();
+
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
+        {
+            x.Property(e => e.Id);
+        });
+
+        var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
+
+        var modelSnapshotCode = generator.GenerateSnapshot(
+            "MyNamespace",
+            typeof(MyContext),
+            "MySnapshot",
+            finalizedModel,
+            "20240101120000_InitialCreate");
+
+        Assert.Contains("public override string LatestMigrationId => \"20240101120000_InitialCreate\";", modelSnapshotCode);
+        Assert.Contains("// If you encounter a merge conflict in the line below, it means you need to", modelSnapshotCode);
+        Assert.Contains("// discard one of the migration branches and recreate its migrations on top of", modelSnapshotCode);
+        Assert.Contains("// the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.", modelSnapshotCode);
+
+        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
+        Assert.NotNull(snapshot.Model);
+        Assert.Equal("20240101120000_InitialCreate", snapshot.LatestMigrationId);
+    }
+
+    [ConditionalFact]
+    public void Snapshot_without_migration_id()
+    {
+        var generator = CreateMigrationsCodeGenerator();
+
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
+        {
+            x.Property(e => e.Id);
+        });
+
+        var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
+
+        var modelSnapshotCode = generator.GenerateSnapshot(
+            "MyNamespace",
+            typeof(MyContext),
+            "MySnapshot",
+            finalizedModel);
+
+        Assert.DoesNotContain("LatestMigrationId", modelSnapshotCode);
+        Assert.DoesNotContain("merge conflict", modelSnapshotCode);
+
+        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
+        Assert.NotNull(snapshot.Model);
+        Assert.Null(snapshot.LatestMigrationId);
+    }
+
+    [ConditionalFact]
     public void Snapshot_default_values_are_round_tripped()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -4347,6 +4404,7 @@ namespace RootNamespace
                 Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
             });
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Owned_types_mapped_to_json_are_stored_in_snapshot()
         => Test(
@@ -4585,6 +4643,7 @@ namespace RootNamespace
                 Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
                 Assert.Equal("json", ownedType1.GetContainerColumnType());
             });
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     private class Order
     {

@@ -1631,6 +1631,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         string functionName,
         bool ignoreOrderings = false)
     {
+        // Cosmos set operations (Concat, Union, Intersect) can only be performed over arrays, not over root entity queries.
+        // Detect if either source is a root entity query and throw an appropriate error.
+        if (IsRootEntityQuery(source1) || IsRootEntityQuery(source2))
+        {
+            AddTranslationErrorDetails(CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+            return null;
+        }
+
         if (source1.TryConvertToArray(_typeMappingSource, out var array1, out var projection1, ignoreOrderings)
             && source2.TryConvertToArray(_typeMappingSource, out var array2, out var projection2, ignoreOrderings)
             && projection1.Type == projection2.Type)
@@ -1664,6 +1672,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         return null;
+
+        static bool IsRootEntityQuery(ShapedQueryExpression source)
+            => source.QueryExpression is SelectExpression { Sources: [{ WithIn: false }, ..] };
     }
 
     private SqlExpression? TranslateExpression(Expression expression)

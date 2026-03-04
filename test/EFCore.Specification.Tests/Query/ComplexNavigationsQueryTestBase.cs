@@ -2006,8 +2006,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Take(10)
                 .Select(l3 => l3.Name));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #18808
+    public virtual Task Join_on_anonymous_type_with_single_property(bool async)
         => AssertQuery(
             async,
             ss => from l1 in ss.Set<Level1>()
@@ -2017,7 +2017,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                   select l1);
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(bool async)
+    public virtual Task Join_on_anonymous_type_with_multiple_properties(bool async)
         => AssertQuery(
             async,
             ss =>
@@ -2030,7 +2030,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     }
                     equals new
                     {
-                        A = EF.Property<int?>(l2, "Level1_Optional_Id"), B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
+                        A = EF.Property<int?>(l2, "Level1_Optional_Id"),
+                        B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
                     }
                 select l1);
 

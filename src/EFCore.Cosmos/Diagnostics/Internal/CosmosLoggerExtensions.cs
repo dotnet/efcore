@@ -25,32 +25,6 @@ public static class CosmosLoggerExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static void SyncNotSupported(
-        this IDiagnosticsLogger<DbLoggerCategory.Database> diagnostics)
-    {
-        var definition = CosmosResources.LogSyncNotSupported(diagnostics);
-
-        if (diagnostics.ShouldLog(definition))
-        {
-            definition.Log(diagnostics);
-        }
-
-        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = new EventData(
-                definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
-
-            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static void ExecutingSqlQuery(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         string containerId,
@@ -285,6 +259,65 @@ public static class CosmosLoggerExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static void ExecutedTransactionalBatch(this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+        TimeSpan elapsed,
+        double requestCharge,
+        string activityId,
+        string containerId,
+        PartitionKey partitionKeyValue,
+        string documentIds)
+    {
+        var definition = CosmosResources.LogExecutedTransactionalBatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+            definition.Log(
+                diagnostics,
+                elapsed.TotalMilliseconds.ToString(),
+                requestCharge.ToString(),
+                activityId,
+                containerId,
+                logSensitiveData ? partitionKeyValue.ToString() : "?",
+                logSensitiveData ? documentIds : "?");
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new CosmosTransactionalBatchExecutedEventData(
+                definition,
+                ExecutedTransactionalBatch,
+                elapsed,
+                requestCharge,
+                activityId,
+                containerId,
+                partitionKeyValue,
+                documentIds,
+                diagnostics.ShouldLogSensitiveData());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ExecutedTransactionalBatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
+        var p = (CosmosTransactionalBatchExecutedEventData)payload;
+        return d.GenerateMessage(
+            p.Elapsed.Milliseconds.ToString(),
+            p.RequestCharge.ToString(),
+            p.ActivityId,
+            p.ContainerId,
+            p.LogSensitiveData ? p.DocumentIds.ToString() : "?",
+            p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public static void ExecutedCreateItem(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         TimeSpan elapsed,
@@ -510,6 +543,33 @@ public static class CosmosLoggerExtensions
                 (d, p) => ((EventDefinition<string, string>)d).GenerateMessage(
                     ((PropertyEventData)p).Property.DeclaringType.DisplayName(), ((PropertyEventData)p).Property.Name),
                 property);
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void BulkExecutionWithTransactionalBatch(
+        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+        AutoTransactionBehavior autoTransactionBehavior)
+    {
+        var definition = CosmosResources.LogBulkExecutionWithTransactionalBatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new AutoTransactionBehaviorEventData(
+                definition,
+                (d, b) => ((EventDefinition)d).GenerateMessage(),
+                autoTransactionBehavior);
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
     }

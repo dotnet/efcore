@@ -2,7 +2,7 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' == 'Core'">net10.0</_TaskTargetFramework>
+    <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' == 'Core'">net11.0</_TaskTargetFramework>
     <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' != 'Core'">net472</_TaskTargetFramework>
     <_EFCustomTasksAssembly>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory),'..\tasks\$(_TaskTargetFramework)\$(MSBuildThisFileName).dll'))</_EFCustomTasksAssembly>
     <EFScaffoldModelStage Condition="'$(EFScaffoldModelStage)'==''">publish</EFScaffoldModelStage>

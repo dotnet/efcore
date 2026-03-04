@@ -4883,4 +4883,381 @@ public class PropertyEntryTest
     {
         public string? Text;
     }
+
+    #region IsAutoLoaded / IsLoaded change tracking tests
+
+    public static IEnumerable<object[]> TrackingMethodData
+        => [[EntityState.Added], [EntityState.Unchanged], [EntityState.Modified], [EntityState.Deleted]];
+
+    private static void TrackEntity(DbContext context, object entity, EntityState state)
+        => context.Entry(entity).State = state;
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Not_auto_loaded_property_initial_state(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var nameEntry = entry.Property(e => e.Name);
+        var descEntry = entry.Property(e => e.Description);
+
+        // Normal property is always loaded
+        Assert.True(nameEntry.IsLoaded);
+
+        // Not-auto-loaded property with sentinel value is not loaded for all tracking methods
+        Assert.False(descEntry.IsLoaded);
+        Assert.False(descEntry.IsModified);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Setting_value_on_not_loaded_property_marks_loaded_and_modified(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var descEntry = entry.Property(e => e.Description);
+
+        Assert.False(descEntry.IsLoaded);
+
+        descEntry.CurrentValue = "Updated description";
+
+        if (state == EntityState.Deleted)
+        {
+            // PropertyChanged skips SetPropertyModified for Deleted entities
+            Assert.False(descEntry.IsLoaded);
+            Assert.False(descEntry.IsModified);
+        }
+        else
+        {
+            Assert.True(descEntry.IsLoaded);
+
+            // In Added state, IsModified is always false
+            Assert.Equal(state != EntityState.Added, descEntry.IsModified);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void DetectChanges_skips_not_loaded_property_detects_loaded_change(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        if (state is EntityState.Added or EntityState.Deleted)
+        {
+            // In Added/Deleted state, DetectChanges doesn't flag properties as modified
+            return;
+        }
+
+        // Modify the loaded property directly
+        entity.Name = "Updated Blog";
+
+        context.ChangeTracker.DetectChanges();
+
+        var entry = context.Entry(entity);
+        Assert.True(entry.Property(e => e.Name).IsModified);
+        Assert.False(entry.Property(e => e.Description).IsModified);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+        Assert.Equal(EntityState.Modified, entry.State);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void DetectChanges_marks_not_loaded_property_as_loaded_when_value_is_no_longer_sentinel(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        if (state is EntityState.Added or EntityState.Deleted)
+        {
+            return;
+        }
+
+        var entry = context.Entry(entity);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+
+        // Set the unloaded property to a non-sentinel value directly on the entity
+        entity.Description = "Now has a value";
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.True(entry.Property(e => e.Description).IsLoaded);
+        Assert.True(entry.Property(e => e.Description).IsModified);
+        Assert.Equal(EntityState.Modified, entry.State);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void SetEntityState_Modified_skips_not_loaded_properties(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        entry.State = EntityState.Modified;
+
+        // Loaded properties should be flagged as modified
+        Assert.True(entry.Property(e => e.Name).IsModified);
+
+        // Not-loaded properties (sentinel value) should NOT be flagged as modified
+        Assert.False(entry.Property(e => e.Description).IsModified);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Not_auto_loaded_property_starts_unloaded(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+
+        // Entity where the not-auto-loaded property has sentinel (null)
+        var entity1 = new AutoLoadBlog { Id = 1, Name = "Blog1" };
+        TrackEntity(context, entity1, state);
+        Assert.False(context.Entry(entity1).Property(e => e.Description).IsLoaded);
+        Assert.False(context.Entry(entity1).Property(e => e.Description).IsModified);
+
+        // Entity where the not-auto-loaded property has a non-sentinel value
+        var entity2 = new AutoLoadBlog { Id = 2, Name = "Blog2", Description = "Has value" };
+        TrackEntity(context, entity2, state);
+
+        // Non-sentinel value: sentinel check detects a real value, so property is loaded
+        Assert.True(context.Entry(entity2).Property(e => e.Description).IsLoaded);
+        Assert.Equal(state == EntityState.Modified, context.Entry(entity2).Property(e => e.Description).IsModified);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void AcceptChanges_preserves_not_loaded_flag(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+
+        context.ChangeTracker.AcceptAllChanges();
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Equal(EntityState.Detached, entry.State);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            Assert.False(entry.Property(e => e.Description).IsLoaded);
+            Assert.False(entry.Property(e => e.Description).IsModified);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void PropertyEntry_IsLoaded_setter_controls_loaded_state(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var descEntry = entry.Property(e => e.Description);
+
+        Assert.False(descEntry.IsLoaded);
+        descEntry.IsLoaded = true;
+        Assert.True(descEntry.IsLoaded);
+        descEntry.IsLoaded = false;
+        Assert.False(descEntry.IsLoaded);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Setting_IsModified_true_on_not_loaded_marks_loaded(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var descEntry = entry.Property(e => e.Description);
+
+        Assert.False(descEntry.IsLoaded);
+
+        descEntry.IsModified = true;
+
+        Assert.True(descEntry.IsLoaded);
+        Assert.Equal(state is not EntityState.Added and not EntityState.Deleted, descEntry.IsModified);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Shadow_property_not_auto_loaded_tracked_correctly(EntityState state)
+    {
+        using var context = new AutoLoadShadowContext();
+        var entity = new AutoLoadShadowEntity { Id = 1, Name = "Test" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        var shadowEntry = entry.Property("ShadowDesc");
+
+        Assert.False(shadowEntry.IsLoaded);
+        Assert.False(shadowEntry.IsModified);
+
+        shadowEntry.CurrentValue = "Shadow value";
+
+        if (state == EntityState.Deleted)
+        {
+            // PropertyChanged skips SetPropertyModified for Deleted entities
+            Assert.False(shadowEntry.IsLoaded);
+            Assert.False(shadowEntry.IsModified);
+        }
+        else
+        {
+            Assert.True(shadowEntry.IsLoaded);
+
+            // In Added state, IsModified is always false
+            Assert.Equal(state != EntityState.Added, shadowEntry.IsModified);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(TrackingMethodData))]
+    public void Reject_changes_with_not_loaded_property(EntityState state)
+    {
+        using var context = new AutoLoadContext();
+        var entity = new AutoLoadBlog { Id = 1, Name = "EF Blog" };
+        TrackEntity(context, entity, state);
+
+        var entry = context.Entry(entity);
+        Assert.False(entry.Property(e => e.Description).IsLoaded);
+
+        // Reject changes by reverting to Unchanged (or Detached for Added)
+        entry.State = state == EntityState.Added ? EntityState.Detached : EntityState.Unchanged;
+
+        if (state == EntityState.Added)
+        {
+            Assert.Equal(EntityState.Detached, entry.State);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            Assert.False(entry.Property(e => e.Description).IsLoaded);
+            Assert.False(entry.Property(e => e.Description).IsModified);
+        }
+    }
+
+    private class AutoLoadBlog
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    private class AutoLoadContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(GetType().FullName!);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<AutoLoadBlog>(
+                b =>
+                {
+                    b.Property(e => e.Name);
+                    b.Property(e => e.Description).Metadata.IsAutoLoaded = false;
+                });
+    }
+
+    private class AutoLoadShadowEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+    }
+
+    private class AutoLoadShadowContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(GetType().FullName!);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<AutoLoadShadowEntity>(
+                b =>
+                {
+                    b.Property(e => e.Name);
+                    b.Property<string?>("ShadowDesc").Metadata.IsAutoLoaded = false;
+                });
+    }
+
+    [ConditionalFact]
+    public void DetectComplexPropertyChange_skips_not_loaded_inner_properties()
+    {
+        using var context = new AutoLoadComplexContext();
+        var entity = new AutoLoadComplexEntity { Id = 1, Name = "Test" };
+        context.Attach(entity);
+
+        var entry = context.Entry(entity);
+
+        // Address is a nullable complex property, initially null
+        Assert.Null(entry.ComplexProperty(e => e.Address).CurrentValue);
+
+        // Set the complex property to a non-null value, triggering DetectComplexPropertyChange
+        entity.Address = new Address { Street = "123 Main St", ZipCode = null };
+        context.ChangeTracker.DetectChanges();
+
+        // Street is auto-loaded, so it should be modified
+        var streetProperty = entry.ComplexProperty(e => e.Address).Property(e => e.Street);
+        Assert.True(streetProperty.IsModified);
+
+        // ZipCode is not auto-loaded and has sentinel value, so it should NOT be modified
+        var zipProperty = entry.ComplexProperty(e => e.Address).Property(e => e.ZipCode);
+        Assert.False(zipProperty.IsModified);
+        Assert.False(zipProperty.IsLoaded);
+    }
+
+    private class Address
+    {
+        public string? Street { get; set; }
+        public string? ZipCode { get; set; }
+    }
+
+    private class AutoLoadComplexEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public Address? Address { get; set; }
+    }
+
+    private class AutoLoadComplexContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(GetType().FullName!);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<AutoLoadComplexEntity>(
+                b =>
+                {
+                    b.Property(e => e.Name);
+                    b.ComplexProperty(
+                        e => e.Address, ab =>
+                        {
+                            ab.IsRequired(false);
+                            ab.Property(a => a.Street);
+                            ab.Property(a => a.ZipCode).Metadata.IsAutoLoaded = false;
+                        });
+                });
+    }
+
+    #endregion
 }

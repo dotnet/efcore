@@ -23,6 +23,7 @@ public enum QueryTrackingBehavior
     ///     The change tracker will not track any of the entities that are returned from a LINQ query. If the
     ///     entity instances are modified, this will not be detected by the change tracker and
     ///     <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
+    ///     Identity resolution is not performed.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -42,6 +43,7 @@ public enum QueryTrackingBehavior
     ///     The change tracker will not track any of the entities that are returned from a LINQ query. If the
     ///     entity instances are modified, this will not be detected by the change tracker and
     ///     <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
+    ///     Identity resolution is performed.
     /// </summary>
     /// <remarks>
     ///     <para>

@@ -1602,6 +1602,20 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         Assert.Equal("nvarchar(max)", typeMappingSource.FindMapping(typeof(int[]), "nvarchar(max)").StoreType);
     }
 
+    [ConditionalFact]
+    public void Json_can_be_mapped_to_nvarchar_non_max()
+    {
+        var typeMappingSource = CreateTypeMappingSource(o => o.UseSqlServer());
+
+        Assert.Equal(
+            "nvarchar(2000)",
+            typeMappingSource.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: "nvarchar(2000)").StoreType);
+
+        Assert.Equal(
+            "nvarchar(2000)",
+            typeMappingSource.FindMapping(typeof(int[]), storeTypeName: "nvarchar(2000)").StoreType);
+    }
+
     private SqlServerTypeMappingSource CreateTypeMappingSource(Action<DbContextOptionsBuilder> optionsAction = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();

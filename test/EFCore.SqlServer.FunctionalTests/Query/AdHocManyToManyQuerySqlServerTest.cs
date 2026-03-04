@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocManyToManyQuerySqlServerTest(NonSharedFixture fixture) : AdHocManyToManyQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     public override async Task SelectMany_with_collection_selector_having_subquery()

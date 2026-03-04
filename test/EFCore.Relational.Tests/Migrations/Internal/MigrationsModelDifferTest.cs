@@ -9783,6 +9783,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Convert_table_from_owned_to_complex_properties_mapped_to_json()
         => Execute(
@@ -9884,6 +9885,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     });
             },
             Assert.Empty);
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
     public virtual void Noop_on_complex_properties()

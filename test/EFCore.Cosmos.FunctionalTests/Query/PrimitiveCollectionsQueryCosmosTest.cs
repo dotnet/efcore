@@ -498,6 +498,22 @@ WHERE ((
 """);
     }
 
+    public override async Task Inline_collection_in_query_filter()
+    {
+        await base.Inline_collection_in_query_filter();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [1, 2, 3])
+    WHERE (a > c["Id"])) = 1)
+OFFSET 0 LIMIT 2
+""");
+    }
+
     public override async Task Parameter_collection_Count()
     {
         await base.Parameter_collection_Count();
@@ -559,9 +575,75 @@ WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
 """);
     }
 
+    public override async Task Parameter_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_FrozenSet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
     public override async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
     {
         await base.Parameter_collection_ImmutableArray_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_IReadOnlySet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""",
+            //
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@ints, c["Int"]))
+""");
+    }
+
+    public override async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        await base.Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int();
 
         AssertSql(
             """
@@ -645,6 +727,70 @@ SELECT VALUE c
 FROM root c
 WHERE NOT(ARRAY_CONTAINS(@nullableInts, c["NullableInt"]))
 """);
+    }
+
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
+
+        AssertSql(
+            """
+@nullableInts='[null,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
+""");
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_nullable_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_nullable_struct);
+
+        AssertSql();
+    }
+
+    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer()
+    {
+        // Requires collections of converted elements
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer);
+
+        AssertSql();
     }
 
     public override async Task Parameter_collection_of_strings_Contains_string()
@@ -883,6 +1029,60 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
     public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
         => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
 
+    public override async Task Static_readonly_collection_List_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_List_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_FrozenSet_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
+    public override async Task Static_readonly_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await base.Static_readonly_collection_ImmutableArray_of_ints_Contains_int();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] NOT IN (10, 999)
+""");
+    }
+
     public override async Task Column_collection_of_ints_Contains()
     {
         await base.Column_collection_of_ints_Contains();
@@ -919,9 +1119,21 @@ WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
     }
 
-    public override async Task Column_collection_of_strings_contains_null()
+    public override async Task Column_collection_of_strings_Contains()
     {
-        await base.Column_collection_of_strings_contains_null();
+        await base.Column_collection_of_strings_Contains();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(c["Strings"], "10")
+""");
+    }
+
+    public override async Task Column_collection_of_strings_Contains_null()
+    {
+        await base.Column_collection_of_strings_Contains_null();
 
         AssertSql(
             """
@@ -952,6 +1164,76 @@ WHERE ARRAY_CONTAINS(c["NullableStrings"], null)
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(c["Bools"], true)
+""");
+    }
+
+    public override async Task Column_with_custom_converter()
+    {
+        await base.Column_with_custom_converter();
+
+        AssertSql(
+            """
+@ints='1,2,3'
+
+SELECT VALUE c
+FROM root c
+WHERE (c["Ints"] = @ints)
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Parameter_with_inferred_value_converter()
+    {
+        await base.Parameter_with_inferred_value_converter();
+
+        AssertSql();
+    }
+
+    public override async Task Constant_with_inferred_value_converter()
+    {
+        // TODO: advanced type mapping inference for inline scalar collection, #34026
+        await AssertTranslationFailed(() => base.Constant_with_inferred_value_converter());
+
+        AssertSql();
+    }
+
+    [ConditionalFact]
+    public override Task Multidimensional_array_is_not_supported()
+        => base.Multidimensional_array_is_not_supported();
+
+    public override async Task Contains_on_Enumerable()
+    {
+        await base.Contains_on_Enumerable();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_on_MemoryExtensions()
+    {
+        await base.Contains_on_MemoryExtensions();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
+""");
+    }
+
+    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
+    {
+        await base.Contains_with_MemoryExtensions_with_null_comparer();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE c["Int"] IN (10, 999)
 """);
     }
 
@@ -1598,7 +1880,7 @@ WHERE (ARRAY(
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query);
 
-        Assert.Equal(SyncNotSupportedMessage, exception.Message);
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -1643,7 +1925,7 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             base.Parameter_collection_in_subquery_Count_as_compiled_query);
 
-        Assert.Equal(SyncNotSupportedMessage, exception.Message);
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -1657,9 +1939,23 @@ WHERE (ARRAY_LENGTH(SetUnion(@Skip, c["Ints"])) = 3)
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query);
 
-        Assert.Equal(SyncNotSupportedMessage, exception.Message);
+        Assert.Equal(CosmosStrings.SyncNotSupported, exception.Message);
 
         AssertSql();
+    }
+
+    public override async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        await base.Compiled_query_with_uncorrelated_parameter_collection_expression();
+
+        AssertSql(
+            """
+@ids='[]'
+
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(@ids) > 0)
+""");
     }
 
     public override async Task Column_collection_in_subquery_Union_parameter_collection()
@@ -1927,6 +2223,30 @@ WHERE ARRAY_CONTAINS(@strings, (ARRAY_CONTAINS(@ints, c["Int"]) ? "one" : "two")
 """);
     }
 
+    public override async Task Project_collection_from_entity_type_with_owned()
+    {
+        await base.Project_collection_from_entity_type_with_owned();
+
+        AssertSql(
+            """
+SELECT VALUE c["Ints"]
+FROM root c
+WHERE (c["$type"] = "TestEntityWithOwned")
+""");
+    }
+
+    public override async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        await base.Subquery_over_primitive_collection_on_inheritance_derived_type();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["$type"] = "SubType") AND (ARRAY_LENGTH(c["Ints"]) > 0))
+""");
+    }
+
     public override async Task Values_of_enum_casted_to_underlying_value()
     {
         await base.Values_of_enum_casted_to_underlying_value();
@@ -1976,92 +2296,6 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
 
     #endregion Cosmos-specific tests
 
-    public override async Task Parameter_collection_of_structs_Contains_struct()
-    {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_struct);
-
-        AssertSql();
-    }
-
-    public override async Task Parameter_collection_of_structs_Contains_nullable_struct()
-    {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_nullable_struct);
-
-        AssertSql();
-    }
-
-    public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer()
-    {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer);
-
-        AssertSql();
-    }
-
-    public override async Task Parameter_collection_of_nullable_structs_Contains_struct()
-    {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_struct);
-
-        AssertSql();
-    }
-
-    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct()
-    {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_nullable_struct);
-
-        AssertSql();
-    }
-
-    public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer()
-    {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer);
-
-        AssertSql();
-    }
-
-    public override async Task Contains_on_Enumerable()
-    {
-        await base.Contains_on_Enumerable();
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE c["Int"] IN (10, 999)
-""");
-    }
-
-    public override async Task Contains_on_MemoryExtensions()
-    {
-        await base.Contains_on_MemoryExtensions();
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE c["Int"] IN (10, 999)
-""");
-    }
-
-    public override async Task Contains_with_MemoryExtensions_with_null_comparer()
-    {
-        await base.Contains_with_MemoryExtensions_with_null_comparer();
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE c["Int"] IN (10, 999)
-""");
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -2089,10 +2323,4 @@ WHERE c["Int"] IN (10, 999)
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    private static readonly string SyncNotSupportedMessage
-        = CoreStrings.WarningAsErrorTemplate(
-            CosmosEventId.SyncNotSupported.ToString(),
-            CosmosResources.LogSyncNotSupported(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
-            "CosmosEventId.SyncNotSupported");
 }

@@ -2242,6 +2242,19 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             entryCount: 7);
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_split_entity_to_null(bool async)
+    {
+        await InitializeContextFactoryAsync(mb => mb
+            .Entity<EntityOne>()
+            .SplitToTable("SplitEntityOnePart", tb => tb.Property(e => e.IntValue3)));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<EntityOne>().Where(e => e != null),
+            entryCount: 5);
+    }
+
     #region TestHelpers
 
     protected async Task AssertQuery<TResult>(
@@ -2765,7 +2778,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
     #region Fixture
 
     protected async Task InitializeContextFactoryAsync(Action<ModelBuilder> onModelCreating)
-        => ContextFactory = await InitializeAsync<EntitySplittingContext>(
+        => ContextFactory = await InitializeNonSharedTest<EntitySplittingContext>(
             mb =>
             {
                 OnModelCreating(mb);
@@ -2778,10 +2791,10 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
             shouldLogCategory: _ => true);
 
     protected virtual EntitySplittingContext CreateContext()
-        => ContextFactory.CreateContext();
+        => ContextFactory.CreateDbContext();
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
             .UseSeeding((c, _) =>
             {
                 EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
@@ -2796,7 +2809,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "EntitySplittingQueryTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory

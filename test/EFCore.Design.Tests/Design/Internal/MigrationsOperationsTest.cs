@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class MigrationsOperationsTest
@@ -41,6 +43,46 @@ public class MigrationsOperationsTest
             args: null);
 
         testOperations.AddMigration("Test", null, null, null, dryRun: true);
+    }
+
+    [ConditionalFact]
+    public void AddMigration_throws_when_name_is_empty()
+    {
+        var assembly = MockAssembly.Create(typeof(AssemblyTestContext));
+        var operations = new TestMigrationsOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            "projectDir",
+            "RootNamespace",
+            "C#",
+            nullable: false,
+            args: []);
+
+        var exception = Assert.Throws<OperationException>(
+            () => operations.AddMigration("", null, null, null, dryRun: true));
+
+        Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
+    }
+
+    [ConditionalFact]
+    public void AddMigration_throws_when_name_is_whitespace()
+    {
+        var assembly = MockAssembly.Create(typeof(AssemblyTestContext));
+        var operations = new TestMigrationsOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            "projectDir",
+            "RootNamespace",
+            "C#",
+            nullable: false,
+            args: []);
+
+        var exception = Assert.Throws<OperationException>(
+            () => operations.AddMigration("   ", null, null, null, dryRun: true));
+
+        Assert.Equal(DesignStrings.MigrationNameRequired, exception.Message);
     }
 
     private class TestContext : DbContext;

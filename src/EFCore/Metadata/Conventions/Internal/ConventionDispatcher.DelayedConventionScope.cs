@@ -402,6 +402,12 @@ public partial class ConventionDispatcher
             return propertyBuilder.Metadata.IsNullable;
         }
 
+        public override bool? OnPropertyAutoLoadChanged(IConventionPropertyBuilder propertyBuilder)
+        {
+            Add(new OnPropertyAutoLoadChangedNode(propertyBuilder));
+            return propertyBuilder.Metadata.IsAutoLoaded;
+        }
+
         public override bool? OnElementTypeNullabilityChanged(IConventionElementTypeBuilder builder)
         {
             Add(new OnElementTypeNullabilityChangedNode(builder));
@@ -990,6 +996,14 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnPropertyNullabilityChanged(PropertyBuilder);
+    }
+
+    private sealed class OnPropertyAutoLoadChangedNode(IConventionPropertyBuilder propertyBuilder) : ConventionNode
+    {
+        public IConventionPropertyBuilder PropertyBuilder { get; } = propertyBuilder;
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnPropertyAutoLoadChanged(PropertyBuilder);
     }
 
     private sealed class OnElementTypeNullabilityChangedNode(IConventionElementTypeBuilder builder) : ConventionNode

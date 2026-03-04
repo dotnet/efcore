@@ -2408,6 +2408,27 @@ LIMIT 2
     public override Task Edit_single_property_collection_of_collection_of_single()
         => Assert.ThrowsAsync<ArgumentOutOfRangeException>(base.Edit_single_property_collection_of_collection_of_single);
 
+    public override async Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+    {
+        await base.Replace_json_reference_root_preserves_nested_owned_entities_in_memory();
+
+        AssertSql(
+            """
+@p0='{"Id":0,"Name":"Modified","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"10.0","Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 369)
+@p1='1'
+
+UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
+FROM "JsonEntitiesBasic" AS "j"
+LIMIT 2
+""");
+    }
+
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 

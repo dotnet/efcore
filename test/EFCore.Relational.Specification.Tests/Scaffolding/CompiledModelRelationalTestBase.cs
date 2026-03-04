@@ -44,7 +44,9 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
                     if (jsonColumns)
                     {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
+#pragma warning restore EF8001
                     }
                     else
                     {
@@ -69,7 +71,9 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 {
                     if (jsonColumns)
                     {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
+#pragma warning restore EF8001
                     }
                     else
                     {
@@ -1353,7 +1357,7 @@ public partial class DbContextModel
         return build;
     }
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 }

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocQuerySplittingQueryTests";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -34,21 +34,21 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Can_configure_SingleQuery_at_context_level()
     {
-        var contextFactory = await InitializeAsync<Context21355>(
+        var contextFactory = await InitializeNonSharedTest<Context21355>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SingleQuery));
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = context.Parents.Include(p => p.Children1).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = context.Parents.Include(p => p.Children1).AsSplitQuery().ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
         }
@@ -57,21 +57,21 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Can_configure_SplitQuery_at_context_level()
     {
-        var contextFactory = await InitializeAsync<Context21355>(
+        var contextFactory = await InitializeNonSharedTest<Context21355>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = context.Parents.Include(p => p.Children1).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = context.Parents.Include(p => p.Children1).AsSingleQuery().ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
         }
@@ -80,16 +80,16 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Unconfigured_query_splitting_behavior_throws_a_warning()
     {
-        var contextFactory = await InitializeAsync<Context21355>(
+        var contextFactory = await InitializeNonSharedTest<Context21355>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => ClearQuerySplittingBehavior(o));
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Assert.Contains(
                 RelationalResources.LogMultipleCollectionIncludeWarning(new TestLogger<TestRelationalLoggingDefinitions>())
@@ -102,40 +102,40 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Using_AsSingleQuery_without_context_configuration_does_not_throw_warning()
     {
-        var contextFactory = await InitializeAsync<Context21355>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21355>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSingleQuery().ToList();
     }
 
     [ConditionalFact]
     public virtual async Task SplitQuery_disposes_inner_data_readers()
     {
-        var contextFactory = await InitializeAsync<Context21355>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context21355>(seed: c => c.SeedAsync());
 
         ((RelationalTestStore)contextFactory.TestStore).CloseConnection();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             await context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToListAsync();
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).OrderBy(e => e.Id).AsSplitQuery().Single();
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             await context.Parents.Include(p => p.Children1).Include(p => p.Children2).OrderBy(e => e.Id).AsSplitQuery().SingleAsync();
 
@@ -220,8 +220,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     private async Task<(Context25225, Context25225)> CreateTwoContext25225()
     {
         var factory = await CreateContext25225Async();
-        var context1 = factory.CreateContext();
-        var context2 = factory.CreateContext();
+        var context1 = factory.CreateDbContext();
+        var context2 = factory.CreateDbContext();
 
         // Can't run in parallel with the same connection instance. Issue #22921
         Assert.NotSame(context1.Database.GetDbConnection(), context2.Database.GetDbConnection());
@@ -230,7 +230,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     }
 
     private async Task<ContextFactory<Context25225>> CreateContext25225Async()
-        => await InitializeAsync<Context25225>(
+        => await InitializeNonSharedTest<Context25225>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
             createTestStore: CreateTestStore25225);
@@ -316,11 +316,11 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task NoTracking_split_query_creates_only_required_instances(bool async)
     {
-        var contextFactory = await InitializeAsync<Context25400>(
+        var contextFactory = await InitializeNonSharedTest<Context25400>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         Context25400.Test.ConstructorCallCount = 0;
 
         var query = context.Set<Context25400.Test>().AsNoTracking().OrderBy(e => e.Id);
@@ -368,10 +368,10 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task NoTrackingWithIdentityResolution_split_query_basic(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34728>(
+        var contextFactory = await InitializeNonSharedTest<Context34728>(
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context34728.Blog>()
             .AsNoTrackingWithIdentityResolution()
             .Select(blog => new { blog.Id, Posts = blog.Posts.Select(blogPost => new { blogPost.Id, blogPost.Author }).ToList() });
@@ -384,10 +384,10 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task NoTrackingWithIdentityResolution_split_query_complex(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34728>(
+        var contextFactory = await InitializeNonSharedTest<Context34728>(
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context34728.Blog>()
             .AsNoTrackingWithIdentityResolution()
             .Select(blog => new

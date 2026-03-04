@@ -1487,6 +1487,7 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
@@ -1505,6 +1506,7 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? jsonColumnName)
