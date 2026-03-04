@@ -266,6 +266,37 @@ public class ModelSourceTest
 
     private class Context2(DbContextOptions options) : DbContext(options);
 
+    [ConditionalFact]
+    public void Compiled_model_provider_mismatch_warning_has_correct_message()
+    {
+        var definition = CoreResources.LogCompiledModelProviderMismatch(
+            new TestLogger<TestLoggingDefinitions>());
+
+        var message = definition.GenerateMessage("Microsoft.EntityFrameworkCore.SqlServer", "Microsoft.EntityFrameworkCore.InMemory");
+
+        Assert.Contains("Microsoft.EntityFrameworkCore.SqlServer", message);
+        Assert.Contains("Microsoft.EntityFrameworkCore.InMemory", message);
+    }
+
+    [ConditionalFact]
+    public void DbContextModelAttribute_stores_provider_name()
+    {
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object))
+        {
+            ProviderName = "TestProvider"
+        };
+
+        Assert.Equal("TestProvider", attr.ProviderName);
+    }
+
+    [ConditionalFact]
+    public void DbContextModelAttribute_provider_name_defaults_to_null()
+    {
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object));
+
+        Assert.Null(attr.ProviderName);
+    }
+
     private class DetailedErrorsContext(IServiceProvider serviceProvider) : DbContext
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
