@@ -46,7 +46,8 @@ public class SharedTableConventionTest
         var customerPkName = customerEntityType.FindPrimaryKey()!.GetName(
             StoreObjectIdentifier.Table("MyTable", "Schema2"));
 
-        Assert.NotEqual(orderPkName, customerPkName);
+        Assert.Equal("PK_MyTable", orderPkName);
+        Assert.Equal("PK_MyTable1", customerPkName);
     }
 
     private class Order
