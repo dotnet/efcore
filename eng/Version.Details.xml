@@ -1,80 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
-  <Source Uri="https://github.com/dotnet/dotnet" Mapping="efcore" Sha="5e82863e3383c65ebd0ca09ae0c05a6645753e00" BarId="304539" />
+  <Source Uri="https://github.com/dotnet/dotnet" Mapping="efcore" Sha="a66f7092aa9c3abff84d9b8ce1498c9087f6a10d" BarId="304615" />
   <ProductDependencies>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="10.0.6-servicing.26154.105">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="10.0.6-servicing.26154.114">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Logging" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Ref" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.Platforms" Version="10.0.6-servicing.26154.105">
+    <Dependency Name="Microsoft.NETCore.Platforms" Version="10.0.6-servicing.26154.114">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="System.Text.Json" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="System.Text.Encodings.Web" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="System.Formats.Asn1" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
     <Dependency Name="System.Runtime.Caching" Version="10.0.6">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="10.0.0-beta.26154.105">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="10.0.0-beta.26154.114">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="10.0.0-beta.26154.105">
+    <Dependency Name="Microsoft.DotNet.Build.Tasks.Templating" Version="10.0.0-beta.26154.114">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="10.0.0-beta.26154.105">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="10.0.0-beta.26154.114">
       <Uri>https://github.com/dotnet/dotnet</Uri>
-      <Sha>5e82863e3383c65ebd0ca09ae0c05a6645753e00</Sha>
+      <Sha>a66f7092aa9c3abff84d9b8ce1498c9087f6a10d</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
