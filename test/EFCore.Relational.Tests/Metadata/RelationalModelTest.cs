@@ -2997,6 +2997,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private static IQueryable<Order> GetOrdersForCustomer(string name)
             => throw new NotImplementedException();
 
+        private static IQueryable<EntityWithJsonOwnedType> GetEntitiesWithJsonOwnedType()
+            => throw new NotImplementedException();
+
         [ConditionalFact]
         public void Complex_property_container_column_type_is_used_in_relational_model()
         {
@@ -3264,6 +3267,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
+        [ConditionalFact]
+        public void Can_use_relational_model_with_functions_and_json_owned_types()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithJsonOwnedType>(cb =>
+            {
+                cb.HasKey(x => x.Id);
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+                cb.OwnsOne(x => x.OwnedData, o => o.ToJson("owned_data"));
+                cb.OwnsMany(x => x.OwnedItems, o => o.ToJson("owned_items"));
+#pragma warning restore EF8001
+            });
+
+            modelBuilder.HasDbFunction(
+                typeof(RelationalModelTest).GetMethod(
+                    nameof(GetEntitiesWithJsonOwnedType), BindingFlags.NonPublic | BindingFlags.Static));
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithJsonOwnedType));
+
+            var functionMappings = entityType.GetFunctionMappings().ToList();
+            Assert.Single(functionMappings);
+
+            var storeFunction = functionMappings[0].StoreFunction;
+            Assert.NotNull(storeFunction.FindColumn("owned_data"));
+            Assert.NotNull(storeFunction.FindColumn("owned_items"));
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -3406,6 +3439,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public string Value { get; set; }
             public int Number { get; set; }
+        }
+
+        private class EntityWithJsonOwnedType
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public OwnedJsonData OwnedData { get; set; }
+            public ICollection<OwnedJsonItem> OwnedItems { get; set; }
+        }
+
+        private class OwnedJsonData
+        {
+            public string Value { get; set; }
+        }
+
+        private class OwnedJsonItem
+        {
+            public string Description { get; set; }
         }
     }
 }
