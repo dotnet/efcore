@@ -3244,6 +3244,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
+        [ConditionalFact]
+        public void Complex_property_json_column_is_nullable_in_TPH_hierarchy()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TphBaseEntity>();
+            modelBuilder.Entity<EntityWithoutComplexProperty>();
+            modelBuilder.Entity<TphEntityWithComplexProperty>()
+                .ComplexProperty(e => e.ComplexProperty, b => b.ToJson());
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var table = relationalModel.Tables.Single();
+            var jsonColumn = table.Columns.Single(c => c.Name == "ComplexProperty");
+
+            Assert.True(jsonColumn.IsNullable);
+            Assert.IsType<JsonColumn>(jsonColumn);
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -3367,6 +3387,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public int Id { get; set; }
             public List<ComplexData> ComplexCollection { get; set; }
+        }
+
+        private abstract class TphBaseEntity
+        {
+            public int Id { get; set; }
+        }
+
+        private class EntityWithoutComplexProperty : TphBaseEntity;
+
+        private class TphEntityWithComplexProperty : TphBaseEntity
+        {
+            public ComplexData ComplexProperty { get; set; }
         }
 
         [ComplexType]
