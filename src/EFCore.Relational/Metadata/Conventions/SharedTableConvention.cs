@@ -53,14 +53,14 @@ public class SharedTableConvention : IModelFinalizingConvention
         var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
         var defaultConstraints = new Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)>();
         var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
-        foreach (var schemaGroup in tables.GroupBy(t => t.Key.Schema))
+        foreach (var schemaGroup in tables.GroupBy(t => t.Key.Schema).OrderBy(g => g.Key))
         {
             if (!KeysUniqueAcrossSchemas)
             {
                 keys.Clear();
             }
 
-            foreach (var ((tableName, schema), conventionEntityTypes) in schemaGroup)
+            foreach (var ((tableName, schema), conventionEntityTypes) in schemaGroup.OrderBy(t => t.Key.TableName))
             {
                 columns.Clear();
 

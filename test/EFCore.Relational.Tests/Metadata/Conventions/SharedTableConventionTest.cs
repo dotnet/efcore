@@ -11,43 +11,49 @@ public class SharedTableConventionTest
     [ConditionalFact]
     public virtual void Keys_are_not_uniquified_across_schemas_when_KeysUniqueAcrossSchemas_is_false()
     {
-        var modelBuilder = GetModelBuilder(keysUniqueAcrossSchemas: false);
-        modelBuilder.Entity<Order>().ToTable("MyTable", "Schema1").HasKey(e => e.Id);
-        modelBuilder.Entity<Customer>().ToTable("MyTable", "Schema2").HasKey(e => e.Id);
+        var (modelBuilder, context) = GetModelBuilder(keysUniqueAcrossSchemas: false);
+        using (context)
+        {
+            modelBuilder.Entity<Order>().ToTable("MyTable", "Schema1").HasKey(e => e.Id);
+            modelBuilder.Entity<Customer>().ToTable("MyTable", "Schema2").HasKey(e => e.Id);
 
-        var finalizedModel = modelBuilder.Model.FinalizeModel();
+            var finalizedModel = modelBuilder.Model.FinalizeModel();
 
-        var orderEntityType = finalizedModel.FindEntityType(typeof(Order))!;
-        var customerEntityType = finalizedModel.FindEntityType(typeof(Customer))!;
+            var orderEntityType = finalizedModel.FindEntityType(typeof(Order))!;
+            var customerEntityType = finalizedModel.FindEntityType(typeof(Customer))!;
 
-        var orderPkName = orderEntityType.FindPrimaryKey()!.GetName(
-            StoreObjectIdentifier.Table("MyTable", "Schema1"));
-        var customerPkName = customerEntityType.FindPrimaryKey()!.GetName(
-            StoreObjectIdentifier.Table("MyTable", "Schema2"));
+            var orderPkName = orderEntityType.FindPrimaryKey()!.GetName(
+                StoreObjectIdentifier.Table("MyTable", "Schema1"));
+            var customerPkName = customerEntityType.FindPrimaryKey()!.GetName(
+                StoreObjectIdentifier.Table("MyTable", "Schema2"));
 
-        Assert.Equal("PK_MyTable", orderPkName);
-        Assert.Equal("PK_MyTable", customerPkName);
+            Assert.Equal("PK_MyTable", orderPkName);
+            Assert.Equal("PK_MyTable", customerPkName);
+        }
     }
 
     [ConditionalFact]
     public virtual void Keys_are_uniquified_across_schemas_when_KeysUniqueAcrossSchemas_is_true()
     {
-        var modelBuilder = GetModelBuilder(keysUniqueAcrossSchemas: true);
-        modelBuilder.Entity<Order>().ToTable("MyTable", "Schema1").HasKey(e => e.Id);
-        modelBuilder.Entity<Customer>().ToTable("MyTable", "Schema2").HasKey(e => e.Id);
+        var (modelBuilder, context) = GetModelBuilder(keysUniqueAcrossSchemas: true);
+        using (context)
+        {
+            modelBuilder.Entity<Order>().ToTable("MyTable", "Schema1").HasKey(e => e.Id);
+            modelBuilder.Entity<Customer>().ToTable("MyTable", "Schema2").HasKey(e => e.Id);
 
-        var finalizedModel = modelBuilder.Model.FinalizeModel();
+            var finalizedModel = modelBuilder.Model.FinalizeModel();
 
-        var orderEntityType = finalizedModel.FindEntityType(typeof(Order))!;
-        var customerEntityType = finalizedModel.FindEntityType(typeof(Customer))!;
+            var orderEntityType = finalizedModel.FindEntityType(typeof(Order))!;
+            var customerEntityType = finalizedModel.FindEntityType(typeof(Customer))!;
 
-        var orderPkName = orderEntityType.FindPrimaryKey()!.GetName(
-            StoreObjectIdentifier.Table("MyTable", "Schema1"));
-        var customerPkName = customerEntityType.FindPrimaryKey()!.GetName(
-            StoreObjectIdentifier.Table("MyTable", "Schema2"));
+            var orderPkName = orderEntityType.FindPrimaryKey()!.GetName(
+                StoreObjectIdentifier.Table("MyTable", "Schema1"));
+            var customerPkName = customerEntityType.FindPrimaryKey()!.GetName(
+                StoreObjectIdentifier.Table("MyTable", "Schema2"));
 
-        Assert.Equal("PK_MyTable", orderPkName);
-        Assert.Equal("PK_MyTable1", customerPkName);
+            Assert.Equal("PK_MyTable", orderPkName);
+            Assert.Equal("PK_MyTable1", customerPkName);
+        }
     }
 
     private class Order
@@ -72,12 +78,13 @@ public class SharedTableConventionTest
             => false;
     }
 
-    private ModelBuilder GetModelBuilder(bool keysUniqueAcrossSchemas)
+    private (ModelBuilder, DbContext) GetModelBuilder(bool keysUniqueAcrossSchemas)
     {
         var conventionSet = new ConventionSet();
 
+        var context = new DbContext(new DbContextOptions<DbContext>());
         var dependencies = CreateDependencies()
-            .With(new CurrentDbContext(new DbContext(new DbContextOptions<DbContext>())));
+            .With(new CurrentDbContext(context));
         var relationalDependencies = CreateRelationalDependencies();
 
         if (keysUniqueAcrossSchemas)
@@ -91,7 +98,7 @@ public class SharedTableConventionTest
                 new TestSharedTableConvention(dependencies, relationalDependencies));
         }
 
-        return new ModelBuilder(conventionSet);
+        return (new ModelBuilder(conventionSet), context);
     }
 
     private class KeysUniqueAcrossTablesSharedTableConvention(
