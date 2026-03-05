@@ -11,12 +11,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.EntityFrameworkCore;
 
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider))]
-[Shared]
+[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider)), Shared]
 public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds
-        => ImmutableArray.Create(EFDiagnostics.InterpolatedStringUsageInRawQueries);
+        => [EFDiagnostics.InterpolatedStringUsageInRawQueries];
 
     public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
@@ -78,7 +77,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var oldNameToken = oldName.Identifier;
         var oldMethodName = oldNameToken.ValueText;
 
-        var replacementMethodName = InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
+        var replacementMethodName = StringsUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
         Debug.Assert(replacementMethodName != oldMethodName, "At this point we must find correct replacement name");
 
         var replacementToken = SyntaxFactory.Identifier(replacementMethodName).WithTriviaFrom(oldNameToken);

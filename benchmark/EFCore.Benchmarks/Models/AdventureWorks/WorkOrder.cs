@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class WorkOrder
 {
     public WorkOrder()
-    {
-        WorkOrderRouting = new HashSet<WorkOrderRouting>();
-    }
+        => WorkOrderRouting = new HashSet<WorkOrderRouting>();
 
     public int WorkOrderID { get; set; }
     public DateTime DueDate { get; set; }

@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class Store
 {
     public Store()
-    {
-        Customer = new HashSet<Customer>();
-    }
+        => Customer = new HashSet<Customer>();
 
     public int BusinessEntityID { get; set; }
     public DateTime ModifiedDate { get; set; }

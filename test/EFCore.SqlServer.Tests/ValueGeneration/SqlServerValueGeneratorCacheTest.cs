@@ -214,8 +214,8 @@ public class SqlServerValueGeneratorCacheTest
 
         Assert.StartsWith(
             CoreStrings.HiLoBadBlockSize,
-            Assert.Throws<ArgumentOutOfRangeException>(
-                () => cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy).Message);
+            Assert.Throws<ArgumentOutOfRangeException>(()
+                => cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy).Message);
     }
 
     [ConditionalFact]
@@ -449,17 +449,16 @@ public class SqlServerValueGeneratorCacheTest
         modelBuilder.HasSequence("Heaven");
         modelBuilder.HasSequence("Rosie");
 
-        modelBuilder.Entity<Led>(
-            b =>
-            {
-                b.Property<int>("Id");
-                b.Property(e => e.Zeppelin).UseHiLo("Heaven");
-                b.HasAlternateKey(e => e.Zeppelin);
-                b.Property(e => e.Stairway).UseHiLo("Heaven");
-                b.HasAlternateKey(e => e.Stairway);
-                b.Property(e => e.WholeLotta).UseHiLo("Rosie");
-                b.HasAlternateKey(e => e.WholeLotta);
-            });
+        modelBuilder.Entity<Led>(b =>
+        {
+            b.Property<int>("Id");
+            b.Property(e => e.Zeppelin).UseHiLo("Heaven");
+            b.HasAlternateKey(e => e.Zeppelin);
+            b.Property(e => e.Stairway).UseHiLo("Heaven");
+            b.HasAlternateKey(e => e.Stairway);
+            b.Property(e => e.WholeLotta).UseHiLo("Rosie");
+            b.HasAlternateKey(e => e.WholeLotta);
+        });
 
         return modelBuilder.Model.FinalizeModel();
     }

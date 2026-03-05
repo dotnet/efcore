@@ -23,7 +23,7 @@ public class DistinctExpression : SqlExpression
     public DistinctExpression(SqlExpression operand)
         : base(operand.Type, operand.TypeMapping)
     {
-        Check.NotNull(operand, nameof(operand));
+        Check.NotNull(operand);
 
         Operand = operand;
     }
@@ -36,7 +36,7 @@ public class DistinctExpression : SqlExpression
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        Check.NotNull(visitor, nameof(visitor));
+        Check.NotNull(visitor);
 
         return Update((SqlExpression)visitor.Visit(Operand));
     }
@@ -49,7 +49,7 @@ public class DistinctExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual DistinctExpression Update(SqlExpression operand)
     {
-        Check.NotNull(operand, nameof(operand));
+        Check.NotNull(operand);
 
         return operand != Operand
             ? new DistinctExpression(operand)
@@ -65,7 +65,7 @@ public class DistinctExpression : SqlExpression
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
-        Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+        Check.NotNull(expressionPrinter);
 
         expressionPrinter.Append("(DISTINCT ");
         expressionPrinter.Visit(Operand);

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
 public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
 {
     public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
@@ -229,11 +229,11 @@ User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
-INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
+INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @blogId
 WHERE [b].[IsVisible] = N'Y'
 """);
     }
@@ -245,11 +245,11 @@ WHERE [b].[IsVisible] = N'Y'
 
         AssertSql(
             """
-@__blogId_0='1'
+@blogId='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
+LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @blogId
 WHERE [b].[IsVisible] = N'Y'
 """);
     }
@@ -325,9 +325,7 @@ WHERE [b].[Id] = 1
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
-    [ConditionalTheory(Skip = "Issue #30730: TODO need to find the default type mapping.")]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory(Skip = "Issue #30730: TODO need to find the default type mapping."), InlineData(true), InlineData(false)]
     public virtual async Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
     {
         using var context = CreateContext();
@@ -398,8 +396,7 @@ WHERE N'Yeps' IN (
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base
                 .AddOptions(builder)
-                .ConfigureWarnings(
-                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+                .ConfigureWarnings(c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -118,19 +118,19 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ArgumentIsEmpty" xml:space="preserve">
-    <value>The string argument '{argumentName}' cannot be empty.</value>
+    <value>The string argument cannot be empty.</value>
   </data>
   <data name="ArgumentIsNegativeNumber" xml:space="preserve">
-    <value>The number argument '{argumentName}' cannot be negative number.</value>
+    <value>The number argument cannot be a negative number.</value>
   </data>
   <data name="CannotSpecifyBothIsDescendingAndAllDescending" xml:space="preserve">
     <value>IsDescending and AllDescending cannot both be specified on the [Index] attribute.</value>
   </data>
   <data name="CollectionArgumentHasEmptyElements" xml:space="preserve">
-    <value>The collection argument '{argumentName}' must not contain any empty elements.</value>
+    <value>The collection argument must not contain any empty elements.</value>
   </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
-    <value>The collection argument '{argumentName}' must contain at least one element.</value>
+    <value>The collection argument must contain at least one element.</value>
   </data>
   <data name="InvalidNumberOfIndexSortOrderValues" xml:space="preserve">
     <value>Invalid number of index sort order values: {numValues} values were provided, but the index has {numProperties} properties.</value>

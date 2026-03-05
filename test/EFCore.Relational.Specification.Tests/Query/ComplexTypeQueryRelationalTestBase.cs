@@ -39,15 +39,6 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
         AssertSql();
     }
 
-    public override async Task Complex_type_equals_null(bool async)
-    {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Complex_type_equals_null(async));
-
-        Assert.Equal(RelationalStrings.CannotCompareComplexTypeToNull, exception.Message);
-
-        AssertSql();
-    }
-
     public override async Task Subquery_over_struct_complex_type(bool async)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Subquery_over_struct_complex_type(async));

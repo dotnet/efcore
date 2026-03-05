@@ -6,4 +6,4 @@ using System.Runtime.CompilerServices;
 [assembly: TypeForwardedTo(typeof(AttributeCodeFragment))]
 [assembly: TypeForwardedTo(typeof(MethodCallCodeFragment))]
 [assembly: TypeForwardedTo(typeof(NestedClosureCodeFragment))]
-[assembly: TypeForwardedTo(typeof(SetPropertyCalls<>))]
+[assembly: TypeForwardedTo(typeof(UpdateSettersBuilder<>))]

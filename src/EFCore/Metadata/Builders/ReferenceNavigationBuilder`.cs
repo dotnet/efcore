@@ -74,7 +74,7 @@ public class ReferenceNavigationBuilder<TEntity, TRelatedEntity> : ReferenceNavi
             RelatedEntityType,
             DeclaringEntityType,
             WithManyBuilder(
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                Check.NullButNotEmpty(navigationName)).Metadata);
 
     /// <summary>
     ///     Configures this as a one-to-many relationship.
@@ -116,7 +116,7 @@ public class ReferenceNavigationBuilder<TEntity, TRelatedEntity> : ReferenceNavi
             DeclaringEntityType,
             RelatedEntityType,
             WithOneBuilder(
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                Check.NullButNotEmpty(navigationName)).Metadata);
 
     /// <summary>
     ///     Configures this as a one-to-one relationship.

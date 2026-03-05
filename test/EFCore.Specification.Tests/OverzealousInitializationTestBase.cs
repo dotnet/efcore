@@ -33,7 +33,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
 
     private static readonly Artist[] _artists =
     [
-        new Artist { Id = 1, Name = "Freddie" }, new Artist { Id = 2, Name = "Kendrick" }, new Artist { Id = 3, Name = "Jarvis" }
+        new() { Id = 1, Name = "Freddie" }, new() { Id = 2, Name = "Kendrick" }, new() { Id = 3, Name = "Jarvis" }
     ];
 
     protected class Album

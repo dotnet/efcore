@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
+public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -43,36 +43,35 @@ ORDER BY [u].[Id] DESC
     protected class Context22054(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<User22054>(
-                builder =>
-                {
-                    builder.HasKey(x => x.Id);
+            => modelBuilder.Entity<User22054>(builder =>
+            {
+                builder.HasKey(x => x.Id);
 
-                    builder.OwnsOne(
-                        x => x.Contact, contact =>
-                        {
-                            contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
+                builder.OwnsOne(
+                    x => x.Contact, contact =>
+                    {
+                        contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
 
-                            contact.OwnsOne(
-                                c => c.Address, address =>
-                                {
-                                    address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
-                                });
-                        });
+                        contact.OwnsOne(
+                            c => c.Address, address =>
+                            {
+                                address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
+                            });
+                    });
 
-                    builder.OwnsOne(e => e.Data)
-                        .Property<byte[]>("RowVersion")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnType("TIMESTAMP")
-                        .HasColumnName("RowVersion");
+                builder.OwnsOne(e => e.Data)
+                    .Property<byte[]>("RowVersion")
+                    .IsRowVersion()
+                    .IsRequired()
+                    .HasColumnType("TIMESTAMP")
+                    .HasColumnName("RowVersion");
 
-                    builder.Property(x => x.RowVersion)
-                        .HasColumnType("TIMESTAMP")
-                        .IsRowVersion()
-                        .IsRequired()
-                        .HasColumnName("RowVersion");
-                });
+                builder.Property(x => x.RowVersion)
+                    .HasColumnType("TIMESTAMP")
+                    .IsRowVersion()
+                    .IsRequired()
+                    .HasColumnName("RowVersion");
+            });
 
         public Task SeedAsync()
         {
@@ -203,8 +202,8 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
         {
             var masterTrunk = new MasterTrunk22340
             {
-                FungibleBag = new CurrencyBag22340 { Currencies = new[] { new Currency22340 { Amount = 10, Code = 999 } } },
-                StaticBag = new CurrencyBag22340 { Currencies = new[] { new Currency22340 { Amount = 555, Code = 111 } } }
+                FungibleBag = new CurrencyBag22340 { Currencies = [new Currency22340 { Amount = 10, Code = 999 }] },
+                StaticBag = new CurrencyBag22340 { Currencies = [new Currency22340 { Amount = 555, Code = 111 }] }
             };
             Add(masterTrunk);
 
@@ -266,7 +265,7 @@ FROM (
     FROM [Owner23211] AS [o]
     LEFT JOIN [Owned1_23211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
     LEFT JOIN [Owned2_23211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
-    ORDER BY [o].[Id]
+    ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]
 ) AS [s]
 INNER JOIN [Dependent23211] AS [d] ON [s].[Id] = [d].[Owner23211Id]
 ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
@@ -297,7 +296,7 @@ FROM (
     SELECT TOP(1) [s].[Id], [o].[SecondOwner23211Id]
     FROM [SecondOwner23211] AS [s]
     LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
-    ORDER BY [s].[Id]
+    ORDER BY [s].[Id], [o].[SecondOwner23211Id]
 ) AS [s1]
 INNER JOIN [SecondDependent23211] AS [s0] ON [s1].[Id] = [s0].[SecondOwner23211Id]
 ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
@@ -536,6 +535,7 @@ FROM (
     LEFT JOIN [MiddleB] AS [m] ON [r].[Id] = [m].[RootId]
     LEFT JOIN [ModdleA] AS [m0] ON [r].[Id] = [m0].[RootId]
     WHERE [r].[Id] = 3
+    ORDER BY [r].[Id], [m].[Id], [m0].[Id]
 ) AS [s]
 INNER JOIN [Leaf] AS [l0] ON [s].[Id1] = [l0].[ModdleAId]
 ORDER BY [s].[Id], [s].[Id0], [s].[Id1]
@@ -596,11 +596,11 @@ LEFT JOIN (
 
         AssertSql(
             """
-@__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
+@id='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
 
 SELECT TOP(1) [l].[Id]
 FROM [Location25680] AS [l]
-WHERE [l].[Id] = @__id_0
+WHERE [l].[Id] = @id
 ORDER BY [l].[Id]
 """);
     }
@@ -611,9 +611,9 @@ ORDER BY [l].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
+SELECT TOP(@p) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
 FROM [Companies] AS [c]
 LEFT JOIN [CustomerData] AS [c0] ON [c].[Id] = [c0].[CompanyId]
 LEFT JOIN [SupplierData] AS [s] ON [c].[Id] = [s].[CompanyId]
@@ -628,9 +628,9 @@ ORDER BY [c].[Id]
 
         AssertSql(
             """
-@__p_0='10'
+@p='10'
 
-SELECT TOP(@__p_0) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
+SELECT TOP(@p) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
 FROM [Owners] AS [o]
 LEFT JOIN [IntermediateOwnedEntity] AS [i] ON [o].[Id] = [i].[OwnerId]
 LEFT JOIN [IM_CustomerData] AS [i0] ON [i].[OwnerId] = [i0].[IntermediateOwnedEntityOwnerId]

@@ -166,14 +166,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var model = builder.Model;
             ((Model)model).SetProductVersion("2.1.0");
 
-            builder.Entity<Blog>(
-                b =>
-                {
-                    b.Property(e => e.Id);
-                    b.HasKey(e => e.Id);
+            builder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id);
+                b.HasKey(e => e.Id);
 
-                    b.OwnsOne(e => e.Details).WithOwner().HasForeignKey(e => e.BlogId);
-                });
+                b.OwnsOne(e => e.Details).WithOwner().HasForeignKey(e => e.BlogId);
+            });
 
             var reporter = new TestOperationReporter();
             new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
@@ -186,25 +185,112 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Name);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(OwnershipModelSnapshot2_0))]
-        [InlineData(typeof(OwnershipModelSnapshot2_1))]
-        [InlineData(typeof(OwnershipModelSnapshot2_2))]
-        [InlineData(typeof(OwnershipModelSnapshot3_0))]
+        [ConditionalTheory, InlineData(typeof(OwnershipModelSnapshot2_0)), InlineData(typeof(OwnershipModelSnapshot2_1)),
+         InlineData(typeof(OwnershipModelSnapshot2_2)), InlineData(typeof(OwnershipModelSnapshot3_0))]
         public void Can_diff_against_older_ownership_model(Type snapshotType)
         {
             using var context = new OwnershipContext();
             AssertSameSnapshot(snapshotType, context);
         }
 
-        [ConditionalTheory]
-        [InlineData(typeof(SequenceModelSnapshot1_1))]
-        [InlineData(typeof(SequenceModelSnapshot2_2))]
-        [InlineData(typeof(SequenceModelSnapshot3_1))]
+        [ConditionalTheory, InlineData(typeof(SequenceModelSnapshot1_1)), InlineData(typeof(SequenceModelSnapshot2_2)),
+         InlineData(typeof(SequenceModelSnapshot3_1))]
         public void Can_diff_against_older_sequence_model(Type snapshotType)
         {
             using var context = new SequenceContext();
             AssertSameSnapshot(snapshotType, context);
+        }
+
+        [ConditionalFact]
+        public void Updates_complex_property_nullability_for_pre_10_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("9.0.0");
+
+            var entityType = builder.Entity<EntityWithComplexProperty>();
+            entityType.ComplexProperty(e => e.StructComplexProperty, b =>
+            {
+                b.Property(c => c.Value);
+            });
+
+            var complexProperty = entityType.Metadata.GetComplexProperties().Single();
+            Assert.Equal(typeof(StructComplexType), complexProperty.ClrType);
+            
+            var complexPropertyInternal = (ComplexProperty)complexProperty;
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(complexProperty.IsNullable);
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.NotNull(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(complexProperty.IsNullable);
+            Assert.Empty(reporter.Messages);
+        }
+
+        [ConditionalFact]
+        public void Does_not_update_complex_property_nullability_for_10_or_later_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("10.0.0");
+
+            var entityType = builder.Entity<EntityWithComplexProperty>();
+            entityType.ComplexProperty(e => e.StructComplexProperty, b =>
+            {
+                b.Property(c => c.Value);
+            });
+
+            var complexProperty = entityType.Metadata.GetComplexProperties().Single();
+            var complexPropertyInternal = (ComplexProperty)complexProperty;
+            
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.Empty(reporter.Messages);
+        }
+
+        [ConditionalFact]
+        public void Updates_nested_complex_property_nullability_for_pre_10_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("9.0.0");
+
+            var entityType = builder.Entity<EntityWithNestedComplexProperty>();
+            entityType.ComplexProperty(e => e.OuterComplexProperty, b =>
+            {
+                b.Property(c => c.Value);
+                b.ComplexProperty(c => c.InnerComplexProperty, b2 =>
+                {
+                    b2.Property(c2 => c2.Value);
+                });
+            });
+
+            var outerComplexProperty = entityType.Metadata.GetComplexProperties().Single();
+            var innerComplexProperty = outerComplexProperty.ComplexType.GetComplexProperties().Single();
+
+            var outerComplexPropertyInternal = (ComplexProperty)outerComplexProperty;
+            var innerComplexPropertyInternal = (ComplexProperty)innerComplexProperty;
+            
+            Assert.Null(outerComplexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.Null(innerComplexPropertyInternal.GetIsNullableConfigurationSource());
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.NotNull(outerComplexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(outerComplexProperty.IsNullable);
+            Assert.NotNull(innerComplexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(innerComplexProperty.IsNullable);
+            Assert.Empty(reporter.Messages);
         }
 
         private static void AssertSameSnapshot(Type snapshotType, DbContext context)
@@ -268,15 +354,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             property.SetValueGenerated(null, ConfigurationSource.Explicit);
                         }
 
-                        if (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
+                        if (Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property) != SqlServerValueGenerationStrategy.None)
                         {
-                            property.SetValueGenerationStrategy(null);
+                            Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.SetValueGenerationStrategy(property, null);
                         }
                     }
-                    else if (property.GetValueGenerationStrategy() is SqlServerValueGenerationStrategy strategy
+                    else if (Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property) is var strategy
                              && strategy != SqlServerValueGenerationStrategy.None)
                     {
-                        property.SetValueGenerationStrategy(strategy);
+                        Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.SetValueGenerationStrategy(property, strategy);
                     }
                 }
             }
@@ -287,12 +373,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AddAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
-                         .Where(
-                             a => a != RelationalAnnotationNames.MaxIdentifierLength
+                         .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
 #pragma warning disable CS0618 // Type or member is obsolete
-                                 && a != RelationalAnnotationNames.SequencePrefix
+                             && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
-                                 && a.IndexOf(':') > 0)
+                             && a.IndexOf(':') > 0)
                          .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
             {
                 element[annotationName] = "Value";
@@ -302,28 +387,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AssertAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
-                         .Where(
-                             a => a != RelationalAnnotationNames.MaxIdentifierLength
-                                 && a != RelationalAnnotationNames.RelationalModel
-                                 && a != RelationalAnnotationNames.DefaultMappings
-                                 && a != RelationalAnnotationNames.DefaultColumnMappings
-                                 && a != RelationalAnnotationNames.TableMappings
-                                 && a != RelationalAnnotationNames.TableColumnMappings
-                                 && a != RelationalAnnotationNames.ViewMappings
-                                 && a != RelationalAnnotationNames.ViewColumnMappings
-                                 && a != RelationalAnnotationNames.SqlQueryMappings
-                                 && a != RelationalAnnotationNames.SqlQueryColumnMappings
-                                 && a != RelationalAnnotationNames.FunctionMappings
-                                 && a != RelationalAnnotationNames.FunctionColumnMappings
-                                 && a != RelationalAnnotationNames.ForeignKeyMappings
-                                 && a != RelationalAnnotationNames.TableIndexMappings
-                                 && a != RelationalAnnotationNames.UniqueConstraintMappings
-                                 && a != RelationalAnnotationNames.RelationalOverrides
-                                 && a != RelationalAnnotationNames.MappingFragments
+                         .Where(a => a != RelationalAnnotationNames.MaxIdentifierLength
+                             && a != RelationalAnnotationNames.RelationalModel
+                             && a != RelationalAnnotationNames.DefaultMappings
+                             && a != RelationalAnnotationNames.DefaultColumnMappings
+                             && a != RelationalAnnotationNames.TableMappings
+                             && a != RelationalAnnotationNames.TableColumnMappings
+                             && a != RelationalAnnotationNames.ViewMappings
+                             && a != RelationalAnnotationNames.ViewColumnMappings
+                             && a != RelationalAnnotationNames.SqlQueryMappings
+                             && a != RelationalAnnotationNames.SqlQueryColumnMappings
+                             && a != RelationalAnnotationNames.FunctionMappings
+                             && a != RelationalAnnotationNames.FunctionColumnMappings
+                             && a != RelationalAnnotationNames.ForeignKeyMappings
+                             && a != RelationalAnnotationNames.TableIndexMappings
+                             && a != RelationalAnnotationNames.UniqueConstraintMappings
+                             && a != RelationalAnnotationNames.RelationalOverrides
+                             && a != RelationalAnnotationNames.MappingFragments
 #pragma warning disable CS0618 // Type or member is obsolete
-                                 && a != RelationalAnnotationNames.SequencePrefix
+                             && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
-                                 && a.IndexOf(':') > 0))
+                             && a.IndexOf(':') > 0))
             {
                 Assert.Equal("Value", (string)element[annotationName]);
             }
@@ -369,6 +453,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int BlogId { get; set; }
 
             public ICollection<Post> Posts { get; set; }
+        }
+
+        private class EntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public StructComplexType StructComplexProperty { get; set; }
+        }
+
+        private struct StructComplexType
+        {
+            public int Value { get; set; }
+        }
+
+        private class EntityWithNestedComplexProperty
+        {
+            public int Id { get; set; }
+            public OuterStructComplexType OuterComplexProperty { get; set; }
+        }
+
+        private struct OuterStructComplexType
+        {
+            public int Value { get; set; }
+            public InnerStructComplexType InnerComplexProperty { get; set; }
+        }
+
+        private struct InnerStructComplexType
+        {
+            public int Value { get; set; }
         }
 
         private class OwnershipModelSnapshot2_0 : ModelSnapshot

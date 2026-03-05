@@ -191,7 +191,14 @@ public class SqlServerDatabaseCreatorTest
         public IRelationalCommand Build()
             => new FakeRelationalCommand();
 
-        public IRelationalCommandBuilder Append(string value)
+        public IRelationalCommandBuilder Append(string value, bool sensitive = false)
+        {
+            Instance.Append(value);
+
+            return this;
+        }
+
+        public IRelationalCommandBuilder Append(FormattableString value, bool sensitive = false)
         {
             Instance.Append(value);
 
@@ -226,6 +233,8 @@ public class SqlServerDatabaseCreatorTest
     private class FakeRelationalCommand : IRelationalCommand
     {
         public string CommandText { get; }
+
+        public string LogCommandText { get; }
 
         public IReadOnlyList<IRelationalParameter> Parameters { get; }
 

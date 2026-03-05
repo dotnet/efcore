@@ -19,8 +19,8 @@ public class DatabaseModelFactoryOptions
     /// <param name="schemas">A list of schemas to include. Empty to include all schemas.</param>
     public DatabaseModelFactoryOptions(IEnumerable<string>? tables = null, IEnumerable<string>? schemas = null)
     {
-        Tables = tables ?? Enumerable.Empty<string>();
-        Schemas = schemas ?? Enumerable.Empty<string>();
+        Tables = tables ?? [];
+        Schemas = schemas ?? [];
     }
 
     /// <summary>

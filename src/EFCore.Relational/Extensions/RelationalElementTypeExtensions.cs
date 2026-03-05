@@ -38,7 +38,7 @@ public static class RelationalElementTypeExtensions
     public static void SetStoreType(this IMutableElementType elementType, string? value)
         => elementType.SetOrRemoveAnnotation(
             RelationalAnnotationNames.StoreType,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the database type of the elements.
@@ -53,7 +53,7 @@ public static class RelationalElementTypeExtensions
         bool fromDataAnnotation = false)
         => (string?)elementType.SetOrRemoveAnnotation(
             RelationalAnnotationNames.StoreType,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>

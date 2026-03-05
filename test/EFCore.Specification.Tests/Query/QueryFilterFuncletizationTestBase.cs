@@ -312,8 +312,7 @@ public abstract class QueryFilterFuncletizationTestBase<TFixture>(TFixture fixtu
         Assert.Equal(
             CoreStrings.ExpressionParameterizationExceptionSensitive(
                 "value(Microsoft.EntityFrameworkCore.Query.QueryFilterFuncletizationContext+<>c__DisplayClass29_0).flag.Enabled"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Set<LocalVariableErrorFilter>().ToList()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Set<LocalVariableErrorFilter>().ToList()).Message);
     }
 
     [ConditionalFact]

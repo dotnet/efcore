@@ -128,11 +128,11 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbCommand CreateDbCommand()
-        => _relationalCommandResolver(_relationalQueryContext.ParameterValues)
+        => _relationalCommandResolver(_relationalQueryContext.Parameters)
             .CreateDbCommand(
                 new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
-                    _relationalQueryContext.ParameterValues,
+                    _relationalQueryContext.Parameters,
                     null,
                     null,
                     null,
@@ -269,7 +269,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             enumerator._dataReader = relationalCommand.ExecuteReader(
                 new RelationalCommandParameterObject(
                     enumerator._relationalQueryContext.Connection,
-                    enumerator._relationalQueryContext.ParameterValues,
+                    enumerator._relationalQueryContext.Parameters,
                     enumerator._readerColumns,
                     enumerator._relationalQueryContext.Context,
                     enumerator._relationalQueryContext.CommandLogger,
@@ -384,7 +384,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         enumerator._relationalQueryContext.Connection,
-                        enumerator._relationalQueryContext.ParameterValues,
+                        enumerator._relationalQueryContext.Parameters,
                         enumerator._readerColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,

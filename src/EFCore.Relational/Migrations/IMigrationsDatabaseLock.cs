@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 public interface IMigrationsDatabaseLock : IDisposable, IAsyncDisposable
 {
     /// <summary>
-    ///    The history repository.
+    ///     The history repository.
     /// </summary>
     protected IHistoryRepository HistoryRepository { get; }
 
@@ -22,13 +22,13 @@ public interface IMigrationsDatabaseLock : IDisposable, IAsyncDisposable
     /// <param name="connectionReopened">Indicates whether the connection was reopened.</param>
     /// <param name="transactionRestarted">
     ///     Indicates whether the transaction was restarted.
-    ///     <see langword="null"/> if there's no current transaction.
+    ///     <see langword="null" /> if there's no current transaction.
     /// </param>
     /// <returns>An object that can be disposed to release the lock.</returns>
     IMigrationsDatabaseLock ReacquireIfNeeded(bool connectionReopened, bool? transactionRestarted)
     {
         if ((connectionReopened && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Connection)
-                || (transactionRestarted is true && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Transaction))
+            || (transactionRestarted is true && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Transaction))
         {
             Dispose();
             return HistoryRepository.AcquireDatabaseLock();
@@ -43,15 +43,17 @@ public interface IMigrationsDatabaseLock : IDisposable, IAsyncDisposable
     /// <param name="connectionReopened">Indicates whether the connection was reopened.</param>
     /// <param name="transactionRestarted">
     ///     Indicates whether the transaction was restarted.
-    ///     <see langword="null"/> if there's no current transaction.
+    ///     <see langword="null" /> if there's no current transaction.
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
     async Task<IMigrationsDatabaseLock> ReacquireIfNeededAsync(
-        bool connectionReopened, bool? transactionRestarted, CancellationToken cancellationToken = default)
+        bool connectionReopened,
+        bool? transactionRestarted,
+        CancellationToken cancellationToken = default)
     {
         if ((connectionReopened && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Connection)
-                || (transactionRestarted is true && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Transaction))
+            || (transactionRestarted is true && HistoryRepository.LockReleaseBehavior == LockReleaseBehavior.Transaction))
         {
             await DisposeAsync().ConfigureAwait(false);
             return await HistoryRepository.AcquireDatabaseLockAsync(cancellationToken).ConfigureAwait(false);

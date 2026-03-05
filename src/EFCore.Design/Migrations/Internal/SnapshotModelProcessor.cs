@@ -34,9 +34,8 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         [
             ..typeof(RelationalAnnotationNames)
                 .GetRuntimeFields()
-                .Where(
-                    p => p.Name != nameof(RelationalAnnotationNames.Prefix)
-                        && p.Name != nameof(RelationalAnnotationNames.AllNames))
+                .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix)
+                    && p.Name != nameof(RelationalAnnotationNames.AllNames))
                 .Select(p => (string)p.GetValue(null)!)
                 .Where(v => v.IndexOf(':') > 0)
                 .Select(v => v[(RelationalAnnotationNames.Prefix.Length - 1)..])
@@ -78,6 +77,8 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
                     ProcessElement(element.DependentToPrincipal, version);
                     ProcessElement(element.PrincipalToDependent, version);
                 }
+
+                ProcessComplexProperties(entityType, version);
             }
         }
 
@@ -108,6 +109,31 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             && !entityType.IsOwned())
         {
             UpdateOwnedTypes(mutableEntityType);
+        }
+    }
+
+    private void ProcessComplexProperties(IReadOnlyTypeBase typeBase, string version)
+    {
+        foreach (var complexProperty in typeBase.GetComplexProperties())
+        {
+            ProcessElement(complexProperty, version);
+            
+            if (complexProperty is IMutableComplexProperty mutableComplexProperty)
+            {
+                UpdateComplexPropertyNullability(mutableComplexProperty, version);
+            }
+
+            ProcessComplexProperties(complexProperty.ComplexType, version);
+        }
+    }
+
+    private static void UpdateComplexPropertyNullability(IMutableComplexProperty complexProperty, string version)
+    {
+        if ((version.StartsWith("8.", StringComparison.Ordinal)
+                || version.StartsWith("9.", StringComparison.Ordinal))
+            && !complexProperty.ClrType.IsNullableType())
+        {
+            complexProperty.IsNullable = false;
         }
     }
 

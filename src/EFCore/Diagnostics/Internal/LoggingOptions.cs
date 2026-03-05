@@ -105,13 +105,5 @@ public class LoggingOptions : ILoggingOptions
 
     /// <inheritdoc />
     public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
-    {
-        if (_warnedForStringEnums.ContainsKey(enumType))
-        {
-            return false;
-        }
-
-        _warnedForStringEnums[enumType] = true;
-        return true;
-    }
+        => _warnedForStringEnums.TryAdd(enumType, true);
 }

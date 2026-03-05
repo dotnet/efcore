@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -180,7 +179,7 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
             }
         }
 
-        return Enumerable.Empty<IReadOnlyEntityType>();
+        return [];
     }
 
     private static int GetDerivedLevel(Type? derivedType, Dictionary<Type, int> derivedLevels)

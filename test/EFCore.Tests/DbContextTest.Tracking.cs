@@ -702,7 +702,7 @@ public partial class DbContextTest
             }
         };
 
-        await adder(context, new object[] { principal, dependent });
+        await adder(context, [principal, dependent]);
 
         Assert.Same(principal, context.Entry(principal).Entity);
         Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
@@ -923,13 +923,8 @@ public partial class DbContextTest
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, true)]
-    [InlineData(false, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, false, true)]
-    [InlineData(true, false, false)]
-    [InlineData(true, true, false)]
+    [ConditionalTheory, InlineData(false, false, true), InlineData(false, false, false), InlineData(false, true, false),
+     InlineData(true, false, true), InlineData(true, false, false), InlineData(true, true, false)]
     public async Task Can_add_new_entities_to_context_with_key_generation_graph(bool attachFirst, bool useEntry, bool async)
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
@@ -2449,10 +2444,8 @@ public partial class DbContextTest
         Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
     }
 
-    [ConditionalTheory] // Issue #17828
-    [InlineData(CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never)]
-    [InlineData(CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.Never),
+     InlineData(CascadeTiming.OnSaveChanges)] // Issue #17828
     public void Can_reparent_optional_without_DetectChanges(CascadeTiming cascadeTiming)
     {
         using var context = new Parent77Context();
@@ -2490,10 +2483,8 @@ public partial class DbContextTest
         Assert.Same(parent2, child.Parent77);
     }
 
-    [ConditionalTheory] // Issue #17828
-    [InlineData(CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never)]
-    [InlineData(CascadeTiming.OnSaveChanges)]
+    [ConditionalTheory, InlineData(CascadeTiming.Immediate), InlineData(CascadeTiming.Never),
+     InlineData(CascadeTiming.OnSaveChanges)] // Issue #17828
     public void Can_reparent_required_without_DetectChanges(CascadeTiming cascadeTiming)
     {
         using var context = new Parent77Context();
@@ -2537,12 +2528,11 @@ public partial class DbContextTest
             => optionsBuilder.UseInMemoryDatabase(nameof(Parent77Context));
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Parent77>(
-                b =>
-                {
-                    b.HasMany<Optional77>().WithOne(e => e.Parent77);
-                    b.HasMany<Required77>().WithOne(e => e.Parent77);
-                });
+            => modelBuilder.Entity<Parent77>(b =>
+            {
+                b.HasMany<Optional77>().WithOne(e => e.Parent77);
+                b.HasMany<Required77>().WithOne(e => e.Parent77);
+            });
     }
 
     private class Parent77

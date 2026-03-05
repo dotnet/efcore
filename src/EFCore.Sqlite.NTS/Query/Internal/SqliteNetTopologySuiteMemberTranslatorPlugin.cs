@@ -19,15 +19,15 @@ public class SqliteNetTopologySuiteMemberTranslatorPlugin : IMemberTranslatorPlu
     /// </summary>
     public SqliteNetTopologySuiteMemberTranslatorPlugin(
         ISqlExpressionFactory sqlExpressionFactory)
-        => Translators = new IMemberTranslator[]
-        {
+        => Translators =
+        [
             new SqliteGeometryMemberTranslator(sqlExpressionFactory),
             new SqliteGeometryCollectionMemberTranslator(sqlExpressionFactory),
             new SqliteLineStringMemberTranslator(sqlExpressionFactory),
             new SqliteMultiLineStringMemberTranslator(sqlExpressionFactory),
             new SqlitePointMemberTranslator(sqlExpressionFactory),
             new SqlitePolygonMemberTranslator(sqlExpressionFactory)
-        };
+        ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -23,27 +23,24 @@ public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContext
                 RelationalEventId.StoredProcedureConcurrencyTokenNotMapped.ToString(),
                 definition.GenerateMessage(nameof(Animal), "Animal_Update", nameof(Animal.Name)),
                 "RelationalEventId.StoredProcedureConcurrencyTokenNotMapped"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     protected class StoredProcedureConcurrencyTokenNotMappedContext(DbContextOptionsBuilder optionsBuilder)
         : DbContext(optionsBuilder.Options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Animal>(
-                b =>
+            => modelBuilder.Entity<Animal>(b =>
+            {
+                b.Ignore(a => a.FavoritePerson);
+                b.Property(e => e.Name).IsRowVersion();
+                b.UpdateUsingStoredProcedure(b =>
                 {
-                    b.Ignore(a => a.FavoritePerson);
-                    b.Property(e => e.Name).IsRowVersion();
-                    b.UpdateUsingStoredProcedure(
-                        b =>
-                        {
-                            b.HasOriginalValueParameter(e => e.Id);
-                            b.HasParameter(e => e.Name, p => p.IsOutput());
-                            b.HasRowsAffectedReturnValue();
-                        });
+                    b.HasOriginalValueParameter(e => e.Id);
+                    b.HasParameter(e => e.Name, p => p.IsOutput());
+                    b.HasRowsAffectedReturnValue();
                 });
+            });
     }
 
     protected override DbContextOptionsBuilder CreateOptionsBuilder(

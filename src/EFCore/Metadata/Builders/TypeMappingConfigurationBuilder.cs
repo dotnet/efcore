@@ -30,7 +30,7 @@ public class TypeMappingConfigurationBuilder
     [EntityFrameworkInternal]
     public TypeMappingConfigurationBuilder(PropertyConfiguration scalar)
     {
-        Check.NotNull(scalar, nameof(scalar));
+        Check.NotNull(scalar);
 
         Configuration = scalar;
     }
@@ -52,7 +52,7 @@ public class TypeMappingConfigurationBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual TypeMappingConfigurationBuilder HasAnnotation(string annotation, object value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Configuration[annotation] = value;
 
@@ -144,7 +144,7 @@ public class TypeMappingConfigurationBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual TypeMappingConfigurationBuilder HasConversion(Type conversionType)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {

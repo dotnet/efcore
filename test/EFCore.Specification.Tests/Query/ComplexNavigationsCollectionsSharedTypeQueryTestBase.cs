@@ -11,21 +11,19 @@ public abstract class
     public override async Task Multiple_complex_includes_self_ref(bool async)
         => Assert.Equal(
             CoreStrings.InvalidIncludeExpression("e.OneToOne_Optional_Self1"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Multiple_complex_includes_self_ref(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Multiple_complex_includes_self_ref(async))).Message);
 
     public override async Task Multiple_complex_includes_self_ref_EF_Property(bool async)
         => Assert.Equal(
             CoreStrings.InvalidIncludeExpression("Property(e, \"OneToOne_Optional_Self1\")"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Multiple_complex_includes_self_ref_EF_Property(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Multiple_complex_includes_self_ref_EF_Property(async)))
+            .Message);
 
     public override Task
         Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
-        => AssertTranslationFailed(
-            () => base
-                .Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
-                    async));
+        => AssertTranslationFailed(() => base
+            .Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
+                async));
 
     public override Task Include_collection_with_multiple_orderbys_complex(bool async)
         => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_complex(async));

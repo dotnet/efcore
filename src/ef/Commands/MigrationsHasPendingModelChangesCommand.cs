@@ -10,12 +10,11 @@ internal partial class MigrationsHasPendingModelChangesCommand
 {
     protected override int Execute(string[] args)
     {
-        if (new SemanticVersionComparer().Compare(EFCoreVersion, "8.0.0") < 0)
+        using var executor = CreateExecutor(args);
+        if (new SemanticVersionComparer().Compare(executor.EFCoreVersion, "8.0.0") < 0)
         {
             throw new CommandException(Resources.VersionRequired("8.0.0"));
         }
-
-        using var executor = CreateExecutor(args);
 
         executor.HasPendingModelChanges(Context!.Value());
 

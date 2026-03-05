@@ -11,11 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class CommandInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_passively(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<PassiveReaderCommandInterceptor>(inject);
@@ -45,11 +41,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
     protected class PassiveReaderCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader);
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_passively(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<PassiveScalarCommandInterceptor>(inject);
@@ -80,11 +72,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
     protected class PassiveScalarCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteScalar);
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_passively(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<PassiveNonQueryCommandInterceptor>(inject);
@@ -113,11 +101,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
     protected class PassiveNonQueryCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery);
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_suppress_execution(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<SuppressingReaderCommandInterceptor>(inject);
@@ -171,11 +155,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_query_to_suppress_command_creation(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<SuppressingCreateCommandInterceptor>(inject);
@@ -236,11 +216,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_suppress_execution(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<SuppressingScalarCommandInterceptor>(inject);
@@ -295,11 +271,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_suppress_execution(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<SuppressingNonQueryCommandInterceptor>(inject);
@@ -350,19 +322,11 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task<string> Intercept_query_to_mutate_command(bool async, bool inject)
         => QueryMutationTest<MutatingReaderCommandInterceptor>(async, inject);
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task<string> Intercept_CommandInitialized_to_mutate_query_command(bool async, bool inject)
         => QueryMutationTest<MutatingReaderCommandInitializedInterceptor>(async, inject);
 
@@ -431,19 +395,11 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Intercept_scalar_to_mutate_command(bool async, bool inject)
         => ScalarMutationTest<MutatingScalarCommandInterceptor>(async, inject);
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Intercept_CommandInitialized_to_mutate_scalar_command(bool async, bool inject)
         => ScalarMutationTest<MutatingScalarCommandInitializedInterceptor>(async, inject);
 
@@ -512,11 +468,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_mutate_command(bool async, bool inject)
     {
         var interceptor = new MutatingNonQueryCommandInterceptor(this);
@@ -572,11 +524,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<QueryReplacingReaderCommandInterceptor>(inject);
@@ -639,11 +587,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_replace_execution(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<QueryReplacingScalarCommandInterceptor>(inject);
@@ -706,11 +650,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_replace_execution(bool async, bool inject)
     {
         var interceptor = new QueryReplacingNonQueryCommandInterceptor(this);
@@ -776,11 +716,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_replace_result(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<ResultReplacingReaderCommandInterceptor>(inject);
@@ -915,11 +851,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
                 : _firstReader.GetString(ordinal);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_replace_result(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<ResultReplacingScalarCommandInterceptor>(inject);
@@ -974,11 +906,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_replace_result(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<ResultReplacingNonQueryCommandInterceptor>(inject);
@@ -1029,11 +957,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_query_that_throws(bool async, bool inject)
     {
         var badSql = NormalizeDelimitersInRawString("SELECT * FROM [TheVoid]");
@@ -1058,11 +982,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_that_throws(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<PassiveScalarCommandInterceptor>(inject);
@@ -1095,11 +1015,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_that_throws(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<PassiveNonQueryCommandInterceptor>(inject);
@@ -1126,11 +1042,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_query_to_throw(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<ThrowingReaderCommandInterceptor>(inject);
@@ -1144,11 +1056,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_throw(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<ThrowingReaderCommandInterceptor>(inject);
@@ -1168,11 +1076,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_throw(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<ThrowingReaderCommandInterceptor>(inject);
@@ -1234,9 +1138,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             => throw new Exception("Bang!");
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_query_with_one_app_and_one_injected_interceptor(bool async)
     {
         var appInterceptor = new ResultReplacingReaderCommandInterceptor();
@@ -1261,9 +1163,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         AssertNormalOutcome(context, interceptor2, async, CommandSource.LinqQuery);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_scalar_with_one_app_and_one_injected_interceptor(bool async)
     {
         using var context = await CreateContextAsync(
@@ -1287,9 +1187,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
                 : command.ExecuteScalar(commandParameterObject));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_non_query_one_app_and_one_injected_interceptor(bool async)
     {
         using var context = await CreateContextAsync(
@@ -1313,9 +1211,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_query_with_two_injected_interceptors(bool async)
     {
         var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
@@ -1325,9 +1221,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_scalar_with_two_injected_interceptors(bool async)
     {
         using var context = await CreateContextAsync(
@@ -1336,9 +1230,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         await TestCompositeScalarInterceptors(context, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_non_query_with_two_injected_interceptors(bool async)
     {
         using var context = await CreateContextAsync(
@@ -1347,13 +1239,11 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         await TestCompositeNonQueryInterceptors(context, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
     {
         using var context = await CreateContextAsync(
-            new IInterceptor[] { new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor() });
+            [new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor()]);
         var results = async
             ? await context.Set<Singularity>().ToListAsync()
             : context.Set<Singularity>().ToList();
@@ -1376,31 +1266,23 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         Assert.Equal("<999>", results[4].Type);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
     {
         using var context = await CreateContextAsync(
-            new IInterceptor[] { new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor() });
+            [new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor()]);
         await TestCompositeScalarInterceptors(context, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
     {
         using var context = await CreateContextAsync(
-            new IInterceptor[] { new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor() });
+            [new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor()]);
         await TestCompositeNonQueryInterceptors(context, async);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_call_DataReader_NextResult(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<NextResultCommandInterceptor>(inject);
@@ -1445,11 +1327,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_suppress_close_of_reader(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<SuppressReaderCloseCommandInterceptor>(inject);

@@ -45,8 +45,7 @@ public abstract class LoggingTestBase
                 CoreResources.LogInvalidIncludePath(CreateTestLogger())
                     .GenerateMessage("Wheels", "Wheels"),
                 "CoreEventId.InvalidIncludePathError"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Set<Animal>().Include("Wheels").Load()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Set<Animal>().Include("Wheels").Load()).Message);
     }
 
     protected class InvalidIncludePathErrorContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
