@@ -982,17 +982,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 continue;
             }
 
-            var functionMapping = CreateFunctionMapping(entityType, entityType, function, relationalModel, relationalTypeMappingSource, @default: false);
-
-            if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings)
-                is not List<FunctionMapping> functionMappings)
-            {
-                functionMappings = [];
-                entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, functionMappings);
-            }
-
-            functionMappings.Add(functionMapping);
-            ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
+            AddTvfMapping(entityType, function, relationalModel, relationalTypeMappingSource);
 
             foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
                          .Where(
@@ -1000,21 +990,29 @@ public class RelationalModel : Annotatable, IRelationalModel
                                  && n.TargetEntityType.IsMappedToJson()
                                  && n.ForeignKey.PrincipalToDependent == n))
             {
-                var ownedType = ownedJsonNavigation.TargetEntityType;
-                var ownedFunctionMapping = CreateFunctionMapping(
-                    ownedType, ownedType, function, relationalModel, relationalTypeMappingSource, @default: false);
-
-                if (ownedType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings)
-                    is not List<FunctionMapping> ownedFunctionMappings)
-                {
-                    ownedFunctionMappings = [];
-                    ownedType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, ownedFunctionMappings);
-                }
-
-                ownedFunctionMappings.Add(ownedFunctionMapping);
-                ((StoreFunction)ownedFunctionMapping.StoreFunction).EntityTypeMappings.Add(ownedFunctionMapping);
+                AddTvfMapping(ownedJsonNavigation.TargetEntityType, function, relationalModel, relationalTypeMappingSource);
             }
         }
+    }
+
+    private static void AddTvfMapping(
+        IEntityType entityType,
+        IRuntimeDbFunction function,
+        RelationalModel relationalModel,
+        IRelationalTypeMappingSource relationalTypeMappingSource)
+    {
+        var functionMapping = CreateFunctionMapping(
+            entityType, entityType, function, relationalModel, relationalTypeMappingSource, @default: false);
+
+        if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings)
+            is not List<FunctionMapping> functionMappings)
+        {
+            functionMappings = [];
+            entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, functionMappings);
+        }
+
+        functionMappings.Add(functionMapping);
+        ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
     }
 
     private static FunctionMapping CreateFunctionMapping(
