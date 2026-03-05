@@ -993,6 +993,27 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             functionMappings.Add(functionMapping);
             ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
+
+            foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
+                         .Where(
+                             n => n.ForeignKey.IsOwnership
+                                 && n.TargetEntityType.IsMappedToJson()
+                                 && n.ForeignKey.PrincipalToDependent == n))
+            {
+                var ownedType = ownedJsonNavigation.TargetEntityType;
+                var ownedFunctionMapping = CreateFunctionMapping(
+                    ownedType, ownedType, function, relationalModel, relationalTypeMappingSource, @default: false);
+
+                if (ownedType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings)
+                    is not List<FunctionMapping> ownedFunctionMappings)
+                {
+                    ownedFunctionMappings = [];
+                    ownedType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, ownedFunctionMappings);
+                }
+
+                ownedFunctionMappings.Add(ownedFunctionMapping);
+                ((StoreFunction)ownedFunctionMapping.StoreFunction).EntityTypeMappings.Add(ownedFunctionMapping);
+            }
         }
     }
 
@@ -1011,46 +1032,41 @@ public class RelationalModel : Annotatable, IRelationalModel
             entityType, storeFunction, dbFunction,
             includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null) { IsDefaultFunctionMapping = @default };
 
-        foreach (var property in mappedType.GetProperties())
+        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnType = mappedType.GetContainerColumnType();
+        if (!string.IsNullOrEmpty(containerColumnName))
         {
-            var columnName = property.GetColumnName(mappedFunction);
-            if (columnName == null)
-            {
-                continue;
-            }
-
-            var column = storeFunction.FindColumn(columnName);
-            if (column == null)
-            {
-                column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction)
-                {
-                    IsNullable = property.IsColumnNullable(mappedFunction)
-                };
-                storeFunction.Columns.Add(columnName, column);
-            }
-            else if (!property.IsColumnNullable(mappedFunction))
-            {
-                column.IsNullable = false;
-            }
-
-            CreateFunctionColumnMapping(column, property, functionMapping);
-        }
-
-        foreach (var navigation in entityType.GetNavigationsInHierarchy()
-                     .Where(
-                         n => n.ForeignKey.IsOwnership
-                             && n.TargetEntityType.IsMappedToJson()
-                             && n.ForeignKey.PrincipalToDependent == n))
-        {
-            var targetEntityType = navigation.TargetEntityType;
             CreateContainerColumn(
-                storeFunction,
-                targetEntityType.GetContainerColumnName()!,
-                targetEntityType.GetContainerColumnType(),
-                targetEntityType,
-                relationalTypeMappingSource,
+                storeFunction, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
                 static (colName, colType, table, mapping)
                     => new FunctionColumn(colName, colType ?? mapping.StoreType, (StoreFunction)table, mapping));
+        }
+        else
+        {
+            foreach (var property in mappedType.GetProperties())
+            {
+                var columnName = property.GetColumnName(mappedFunction);
+                if (columnName == null)
+                {
+                    continue;
+                }
+
+                var column = storeFunction.FindColumn(columnName);
+                if (column == null)
+                {
+                    column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction)
+                    {
+                        IsNullable = property.IsColumnNullable(mappedFunction)
+                    };
+                    storeFunction.Columns.Add(columnName, column);
+                }
+                else if (!property.IsColumnNullable(mappedFunction))
+                {
+                    column.IsNullable = false;
+                }
+
+                CreateFunctionColumnMapping(column, property, functionMapping);
+            }
         }
 
         return functionMapping;
