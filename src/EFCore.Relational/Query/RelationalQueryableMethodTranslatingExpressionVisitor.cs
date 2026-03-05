@@ -875,7 +875,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         if (joinPredicate != null)
         {
             var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
-            var isPrunable = isToOneJoin && IsRequiredStructuralTypeJoin(outer, inner, outerKeySelector, innerKeySelector);
+            var isPrunable = isToOneJoin && IsPrunableInnerJoin();
+
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
             var outerShaperExpression = outerSelectExpression.AddInnerJoin(
                 inner, joinPredicate, outer.ShaperExpression, isToOneJoin, isPrunable);
@@ -885,6 +886,85 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return null;
+
+        // An INNER JOIN is safe to prune when every outer row is guaranteed to have exactly one matching inner row.
+        // The caller checks IsToOneJoin (at most one match via PK/AK/unique index); this method checks that at least
+        // one matching row exists by looking for a required FK between the outer and inner entity types.
+        // However, the FK guarantee only holds when the full inner table is available. If the inner query has been
+        // filtered (via predicates, limit, offset, etc.), some rows may be missing and the join may filter the outer
+        // side; in that case, the join must not be pruned.
+        bool IsPrunableInnerJoin()
+        {
+            if ((SelectExpression)inner.QueryExpression is
+                {
+                    Predicate: null,
+                    Limit: null,
+                    Offset: null,
+                    Having: null,
+                    IsDistinct: false,
+                    GroupBy.Count: 0
+                }
+                && outer.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType outerEntityType }
+                && inner.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType innerEntityType })
+            {
+                var outerKeyProperties = ExtractKeyProperties(outerEntityType, outerKeySelector);
+                var innerKeyProperties = ExtractKeyProperties(innerEntityType, innerKeySelector);
+
+                if (outerKeyProperties is null || innerKeyProperties is null)
+                {
+                    return false;
+                }
+
+                Debug.Assert(outerKeyProperties.Count == innerKeyProperties.Count);
+
+                // Case 1: Outer is dependent, inner is principal — FK.IsRequired guarantees every dependent has a principal.
+                // Case 2: Outer is principal, inner is dependent — FK.IsRequiredDependent guarantees every principal has a dependent.
+                return HasMatchingRequiredForeignKey(
+                        outerEntityType, innerEntityType, outerKeyProperties, innerKeyProperties, checkIsRequired: true)
+                    || HasMatchingRequiredForeignKey(
+                        innerEntityType, outerEntityType, innerKeyProperties, outerKeyProperties, checkIsRequired: false);
+            }
+
+            return false;
+
+            // Checks whether the dependent entity type has a required FK to the principal whose properties match the key selectors.
+            // When checkIsRequired is true, checks FK.IsRequired (every dependent has a principal);
+            // when false, checks FK.IsRequiredDependent (every principal has a dependent).
+            // The key selector properties may appear in a different order than the FK properties, so we match positionally:
+            // for each (fkProperty[i], principalKeyProperty[i]) pair, both must appear at the same index in the respective key selectors.
+            static bool HasMatchingRequiredForeignKey(
+                IEntityType dependentEntityType,
+                IEntityType principalEntityType,
+                IReadOnlyList<IReadOnlyProperty> dependentKeyProperties,
+                IReadOnlyList<IReadOnlyProperty> principalKeyProperties,
+                bool checkIsRequired)
+            {
+                foreach (var fk in dependentEntityType.GetForeignKeys())
+                {
+                    if (fk.PrincipalEntityType == principalEntityType
+                        && (checkIsRequired ? fk.IsRequired : fk.IsRequiredDependent)
+                        && fk.Properties.Count == dependentKeyProperties.Count)
+                    {
+                        for (var i = 0; i < fk.Properties.Count; i++)
+                        {
+                            var dependentIndex = dependentKeyProperties.IndexOf(fk.Properties[i]);
+                            if (dependentIndex == -1
+                                || dependentIndex >= principalKeyProperties.Count
+                                || principalKeyProperties[dependentIndex] != fk.PrincipalKey.Properties[i])
+                            {
+                                goto NextForeignKey;
+                            }
+                        }
+
+                        return true;
+
+                    NextForeignKey:;
+                    }
+                }
+
+                return false;
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -2406,77 +2486,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     [Obsolete(
         "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
     protected class RelationalInferredTypeMappingApplier;
-
-    /// <summary>
-    ///     Determines whether a join is guaranteed to produce at least one matching inner row for every outer row.
-    ///     This is detected by checking whether a required foreign key exists between the outer and inner entity types
-    ///     whose properties match the join key selectors.
-    /// </summary>
-    private static bool IsRequiredStructuralTypeJoin(
-        ShapedQueryExpression outer,
-        ShapedQueryExpression inner,
-        LambdaExpression outerKeySelector,
-        LambdaExpression innerKeySelector)
-    {
-        if (outer.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType outerEntityType }
-            || inner.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType innerEntityType })
-        {
-            return false;
-        }
-
-        var outerKeyProperties = ExtractKeyProperties(outerEntityType, outerKeySelector);
-        var innerKeyProperties = ExtractKeyProperties(innerEntityType, innerKeySelector);
-
-        if (outerKeyProperties is null || innerKeyProperties is null)
-        {
-            return false;
-        }
-
-        // Case 1: Outer is dependent, inner is principal — FK.IsRequired guarantees every dependent has a principal.
-        // Case 2: Outer is principal, inner is dependent — FK.IsRequiredDependent guarantees every principal has a dependent.
-        return HasMatchingRequiredForeignKey(
-                outerEntityType, innerEntityType, outerKeyProperties, innerKeyProperties, checkIsRequired: true)
-            || HasMatchingRequiredForeignKey(
-                innerEntityType, outerEntityType, innerKeyProperties, outerKeyProperties, checkIsRequired: false);
-
-        // Checks whether the dependent entity type has a required FK to the principal whose properties match the key selectors.
-        // When checkIsRequired is true, checks FK.IsRequired (every dependent has a principal);
-        // when false, checks FK.IsRequiredDependent (every principal has a dependent).
-        // The key selector properties may appear in a different order than the FK properties, so we match positionally:
-        // for each (fkProperty[i], principalKeyProperty[i]) pair, both must appear at the same index in the respective key selectors.
-        static bool HasMatchingRequiredForeignKey(
-            IEntityType dependentEntityType,
-            IEntityType principalEntityType,
-            IReadOnlyList<IReadOnlyProperty> dependentKeyProperties,
-            IReadOnlyList<IReadOnlyProperty> principalKeyProperties,
-            bool checkIsRequired)
-        {
-            foreach (var fk in dependentEntityType.GetForeignKeys())
-            {
-                if (fk.PrincipalEntityType == principalEntityType
-                    && (checkIsRequired ? fk.IsRequired : fk.IsRequiredDependent)
-                    && fk.Properties.Count == dependentKeyProperties.Count)
-                {
-                    for (var i = 0; i < fk.Properties.Count; i++)
-                    {
-                        var dependentIndex = dependentKeyProperties.IndexOf(fk.Properties[i]);
-                        if (dependentIndex == -1
-                            || dependentIndex >= principalKeyProperties.Count
-                            || principalKeyProperties[dependentIndex] != fk.PrincipalKey.Properties[i])
-                        {
-                            goto NextForeignKey;
-                        }
-                    }
-
-                    return true;
-
-                NextForeignKey:;
-                }
-            }
-
-            return false;
-        }
-    }
 
     /// <summary>
     ///     Determines whether a join is guaranteed to match at most one inner row per outer row (a "to-one" join).
