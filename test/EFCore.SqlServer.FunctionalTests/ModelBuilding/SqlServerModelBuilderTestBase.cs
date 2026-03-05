@@ -3,6 +3,10 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.SqlTypes;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -254,6 +258,138 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("Latin1_General_CI_AI", entityType.FindProperty("Charm")!.GetCollation());
         }
 
+        [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+        [Experimental("EF9105")]
+        public virtual void Can_configure_vector_index_with_fluent_api()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<VectorIndexEntity>(b =>
+            {
+                b.Property(e => e.Vector).HasColumnType("vector(3)");
+
+                b.HasVectorIndex(e => e.Vector)
+                    .HasDatabaseName("IX_VectorIndexEntity_Vector")
+                    .UseMetric("cosine")
+                    .UseType("DiskANN");
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(VectorIndexEntity))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsVectorIndex());
+            Assert.Equal("IX_VectorIndexEntity_Vector", index.GetDatabaseName());
+            Assert.Equal("cosine", index.GetVectorMetric());
+            Assert.Equal("DiskANN", index.GetVectorIndexType());
+            Assert.Equal(nameof(VectorIndexEntity.Vector), index.Properties.Single().Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_full_text_index_with_fluent_api()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<FullTextEntity>(b =>
+            {
+                b.HasFullTextIndex(e => e.Title)
+                    .HasDatabaseName("FTI_FullTextEntity")
+                    .HasKeyIndex("PK_FullTextEntity")
+                    .OnCatalog("MyCatalog")
+                    .WithChangeTracking(FullTextChangeTracking.Manual)
+                    .HasLanguage("Title", "English");
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(FullTextEntity))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsFullTextIndex());
+            Assert.Equal("FTI_FullTextEntity", index.GetDatabaseName());
+            Assert.Equal("PK_FullTextEntity", index.GetFullTextKeyIndex());
+            Assert.Equal("MyCatalog", index.GetFullTextCatalog());
+            Assert.Equal(FullTextChangeTracking.Manual, index.GetFullTextChangeTracking());
+            Assert.Equal("English", index.GetFullTextLanguage("Title"));
+            Assert.Equal(nameof(FullTextEntity.Title), index.Properties.Single().Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_full_text_index_with_multiple_columns()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<FullTextEntity>(b =>
+            {
+                b.HasFullTextIndex(e => new { e.Title, e.Body })
+                    .HasKeyIndex("PK_FullTextEntity")
+                    .HasLanguage("Title", "English")
+                    .HasLanguage("Body", "French");
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(FullTextEntity))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsFullTextIndex());
+            Assert.Equal(2, index.Properties.Count);
+            Assert.Equal("Title", index.Properties[0].Name);
+            Assert.Equal("Body", index.Properties[1].Name);
+            Assert.Equal("English", index.GetFullTextLanguage("Title"));
+            Assert.Equal("French", index.GetFullTextLanguage("Body"));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_full_text_catalog_with_fluent_api()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.HasFullTextCatalog("MyCatalog")
+                .IsDefault()
+                .IsAccentSensitive(false);
+
+            modelBuilder.Entity<FullTextEntity>(b =>
+            {
+                b.HasFullTextIndex(e => e.Title)
+                    .HasKeyIndex("PK_FullTextEntity")
+                    .OnCatalog("MyCatalog");
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var catalogs = model.GetFullTextCatalogs().ToList();
+            Assert.Single(catalogs);
+            Assert.Equal("MyCatalog", catalogs[0].Name);
+            Assert.True(catalogs[0].IsDefault);
+            Assert.False(catalogs[0].IsAccentSensitive);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_full_text_index_with_change_tracking_off_no_population()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<FullTextEntity>(b =>
+            {
+                b.HasFullTextIndex(e => e.Title)
+                    .HasKeyIndex("PK_FullTextEntity")
+                    .WithChangeTracking(FullTextChangeTracking.OffNoPopulation);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(FullTextEntity))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.True(index.IsFullTextIndex());
+            Assert.Equal(FullTextChangeTracking.OffNoPopulation, index.GetFullTextChangeTracking());
+        }
+
+        protected class FullTextEntity
+        {
+            public int Id { get; set; }
+            public string? Title { get; set; }
+            public string? Body { get; set; }
+            public byte[]? Document { get; set; }
+        }
+
         [ConditionalTheory, InlineData(true), InlineData(false)]
         public virtual void Can_avoid_attributes_when_discovering_properties(bool useAttributes)
         {
@@ -284,6 +420,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             [Column(TypeName = "sql_variant")]
             public object? Value { get; set; }
+        }
+
+        protected class VectorIndexEntity
+        {
+            public int Id { get; set; }
+            public SqlVector<float>? Vector { get; set; }
         }
     }
 
@@ -1532,6 +1674,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(joinEntity.IsTemporal());
         }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
         [ConditionalFact]
         public virtual void Json_entity_and_normal_owned_can_exist_side_by_side_on_same_entity()
         {
@@ -1880,6 +2023,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             }
         }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
         [ConditionalFact]
         public virtual void Json_entity_mapped_to_view()
         {
@@ -2054,7 +2198,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("InnerEnum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
             }
         }
+#pragma warning restore EF8001
     }
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     public class SqlServerModelBuilderFixture : RelationalModelBuilderFixture
     {
@@ -2194,5 +2340,157 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public TestOwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
+    }
+
+#pragma warning disable EF9105 // Vector indexes are experimental
+    public abstract class TestVectorIndexBuilder<TEntity>
+        where TEntity : class
+    {
+        public abstract IMutableIndex Metadata { get; }
+        public abstract TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name);
+        public abstract TestVectorIndexBuilder<TEntity> UseMetric(string metric);
+        public abstract TestVectorIndexBuilder<TEntity> UseType(string? type);
+    }
+
+    public class GenericTestVectorIndexBuilder<TEntity>(SqlServerVectorIndexBuilder<TEntity> vectorIndexBuilder)
+        : TestVectorIndexBuilder<TEntity>,
+            IInfrastructure<SqlServerVectorIndexBuilder<TEntity>>
+        where TEntity : class
+    {
+        private SqlServerVectorIndexBuilder<TEntity> VectorIndexBuilder { get; } = vectorIndexBuilder;
+
+        SqlServerVectorIndexBuilder<TEntity> IInfrastructure<SqlServerVectorIndexBuilder<TEntity>>.Instance
+            => VectorIndexBuilder;
+
+        public override IMutableIndex Metadata
+            => VectorIndexBuilder.Metadata;
+
+        protected virtual TestVectorIndexBuilder<TEntity> Wrap(SqlServerVectorIndexBuilder<TEntity> vectorIndexBuilder)
+            => new GenericTestVectorIndexBuilder<TEntity>(vectorIndexBuilder);
+
+        public override TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
+            => Wrap(VectorIndexBuilder.HasDatabaseName(name));
+
+        public override TestVectorIndexBuilder<TEntity> UseMetric(string metric)
+            => Wrap(VectorIndexBuilder.UseMetric(metric));
+
+        public override TestVectorIndexBuilder<TEntity> UseType(string? type)
+            => Wrap(VectorIndexBuilder.UseType(type));
+    }
+
+    public class NonGenericTestVectorIndexBuilder<TEntity>(SqlServerVectorIndexBuilder vectorIndexBuilder)
+        : TestVectorIndexBuilder<TEntity>,
+            IInfrastructure<SqlServerVectorIndexBuilder>
+        where TEntity : class
+    {
+        private SqlServerVectorIndexBuilder VectorIndexBuilder { get; } = vectorIndexBuilder;
+
+        SqlServerVectorIndexBuilder IInfrastructure<SqlServerVectorIndexBuilder>.Instance
+            => VectorIndexBuilder;
+
+        public override IMutableIndex Metadata
+            => VectorIndexBuilder.Metadata;
+
+        protected virtual TestVectorIndexBuilder<TEntity> Wrap(SqlServerVectorIndexBuilder vectorIndexBuilder)
+            => new NonGenericTestVectorIndexBuilder<TEntity>(vectorIndexBuilder);
+
+        public override TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
+            => Wrap(VectorIndexBuilder.HasDatabaseName(name));
+
+        public override TestVectorIndexBuilder<TEntity> UseMetric(string metric)
+            => Wrap(VectorIndexBuilder.UseMetric(metric));
+
+        public override TestVectorIndexBuilder<TEntity> UseType(string? type)
+            => Wrap(VectorIndexBuilder.UseType(type));
+    }
+#pragma warning restore EF9105
+
+    public abstract class TestFullTextIndexBuilder<TEntity>
+        where TEntity : class
+    {
+        public abstract IMutableIndex Metadata { get; }
+        public abstract TestFullTextIndexBuilder<TEntity> HasDatabaseName(string? name);
+        public abstract TestFullTextIndexBuilder<TEntity> HasKeyIndex(string keyIndexName);
+        public abstract TestFullTextIndexBuilder<TEntity> OnCatalog(string catalogName);
+        public abstract TestFullTextIndexBuilder<TEntity> WithChangeTracking(FullTextChangeTracking changeTracking);
+        public abstract TestFullTextIndexBuilder<TEntity> HasLanguage(string propertyName, string language);
+    }
+
+    public class GenericTestFullTextIndexBuilder<TEntity>(SqlServerFullTextIndexBuilder<TEntity> fullTextIndexBuilder)
+        : TestFullTextIndexBuilder<TEntity>,
+            IInfrastructure<SqlServerFullTextIndexBuilder<TEntity>>
+        where TEntity : class
+    {
+        private SqlServerFullTextIndexBuilder<TEntity> FullTextIndexBuilder { get; } = fullTextIndexBuilder;
+
+        SqlServerFullTextIndexBuilder<TEntity> IInfrastructure<SqlServerFullTextIndexBuilder<TEntity>>.Instance
+            => FullTextIndexBuilder;
+
+        public override IMutableIndex Metadata
+            => FullTextIndexBuilder.Metadata;
+
+        protected virtual TestFullTextIndexBuilder<TEntity> Wrap(SqlServerFullTextIndexBuilder<TEntity> fullTextIndexBuilder)
+            => new GenericTestFullTextIndexBuilder<TEntity>(fullTextIndexBuilder);
+
+        public override TestFullTextIndexBuilder<TEntity> HasDatabaseName(string? name)
+            => Wrap(FullTextIndexBuilder.HasDatabaseName(name));
+
+        public override TestFullTextIndexBuilder<TEntity> HasKeyIndex(string keyIndexName)
+            => Wrap(FullTextIndexBuilder.HasKeyIndex(keyIndexName));
+
+        public override TestFullTextIndexBuilder<TEntity> OnCatalog(string catalogName)
+            => Wrap(FullTextIndexBuilder.OnCatalog(catalogName));
+
+        public override TestFullTextIndexBuilder<TEntity> WithChangeTracking(FullTextChangeTracking changeTracking)
+            => Wrap(FullTextIndexBuilder.WithChangeTracking(changeTracking));
+
+        public override TestFullTextIndexBuilder<TEntity> HasLanguage(string propertyName, string language)
+            => Wrap(FullTextIndexBuilder.HasLanguage(propertyName, language));
+    }
+
+    public class NonGenericTestFullTextIndexBuilder<TEntity>(SqlServerFullTextIndexBuilder fullTextIndexBuilder)
+        : TestFullTextIndexBuilder<TEntity>,
+            IInfrastructure<SqlServerFullTextIndexBuilder>
+        where TEntity : class
+    {
+        private SqlServerFullTextIndexBuilder FullTextIndexBuilder { get; } = fullTextIndexBuilder;
+
+        SqlServerFullTextIndexBuilder IInfrastructure<SqlServerFullTextIndexBuilder>.Instance
+            => FullTextIndexBuilder;
+
+        public override IMutableIndex Metadata
+            => FullTextIndexBuilder.Metadata;
+
+        protected virtual TestFullTextIndexBuilder<TEntity> Wrap(SqlServerFullTextIndexBuilder fullTextIndexBuilder)
+            => new NonGenericTestFullTextIndexBuilder<TEntity>(fullTextIndexBuilder);
+
+        public override TestFullTextIndexBuilder<TEntity> HasDatabaseName(string? name)
+            => Wrap(FullTextIndexBuilder.HasDatabaseName(name));
+
+        public override TestFullTextIndexBuilder<TEntity> HasKeyIndex(string keyIndexName)
+            => Wrap(FullTextIndexBuilder.HasKeyIndex(keyIndexName));
+
+        public override TestFullTextIndexBuilder<TEntity> OnCatalog(string catalogName)
+            => Wrap(FullTextIndexBuilder.OnCatalog(catalogName));
+
+        public override TestFullTextIndexBuilder<TEntity> WithChangeTracking(FullTextChangeTracking changeTracking)
+            => Wrap(FullTextIndexBuilder.WithChangeTracking(changeTracking));
+
+        public override TestFullTextIndexBuilder<TEntity> HasLanguage(string propertyName, string language)
+            => Wrap(FullTextIndexBuilder.HasLanguage(propertyName, language));
+    }
+
+    public class TestFullTextCatalogBuilder(SqlServerFullTextCatalogBuilder catalogBuilder)
+    {
+        private SqlServerFullTextCatalogBuilder CatalogBuilder { get; } = catalogBuilder;
+
+        public virtual TestFullTextCatalogBuilder IsDefault(bool @default = true)
+            => Wrap(CatalogBuilder.IsDefault(@default));
+
+        public virtual TestFullTextCatalogBuilder IsAccentSensitive(bool accentSensitive = true)
+            => Wrap(CatalogBuilder.IsAccentSensitive(accentSensitive));
+
+        private TestFullTextCatalogBuilder Wrap(SqlServerFullTextCatalogBuilder catalogBuilder)
+            => new(catalogBuilder);
     }
 }

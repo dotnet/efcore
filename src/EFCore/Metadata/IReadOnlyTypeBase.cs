@@ -162,15 +162,26 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     }
 
     /// <summary>
-    ///     Determines if this type derives from (or is the same as) a given type.
+    ///     Determines whether the current type can be assigned to the specified type, i.e. is derived from or identical to it.
     /// </summary>
-    /// <param name="derivedType">The type to check whether it derives from this type.</param>
+    /// <param name="targetType">The type to check.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="derivedType" /> derives from (or is the same as) this type,
+    ///     <see langword="true" /> if the current type is assignable to <paramref name="targetType" />,
+    ///     otherwise <see langword="false" />.
+    /// </returns>
+    bool IsAssignableTo(IReadOnlyTypeBase targetType)
+        => this == targetType || targetType.GetDerivedTypes().Contains(this);
+
+    /// <summary>
+    ///     Determines whether the current type can be assigned from the specified type, i.e. is a base type of or identical to it.
+    /// </summary>
+    /// <param name="derivedType">The type to check.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the current type is assignable from <paramref name="derivedType" />,
     ///     otherwise <see langword="false" />.
     /// </returns>
     bool IsAssignableFrom(IReadOnlyTypeBase derivedType)
-        => this == derivedType;
+        => this == derivedType || GetDerivedTypes().Contains(derivedType);
 
     /// <summary>
     ///     Determines if this type derives from (but is not the same as) a given type.

@@ -42,6 +42,7 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
         {
             annotations.Remove(CoreAnnotationNames.ModelDependencies);
             annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
+            annotations.Remove(CoreAnnotationNames.DetailedErrorsEnabled);
         }
 
         GenerateSimpleAnnotations(parameters);

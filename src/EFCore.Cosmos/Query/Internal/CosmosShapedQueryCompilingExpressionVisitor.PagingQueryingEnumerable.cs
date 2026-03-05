@@ -62,8 +62,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
             _maxItemCountParameterName = maxItemCountParameterName;
             _continuationTokenParameterName = continuationTokenParameterName;
-            _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
 
+            _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
@@ -155,6 +155,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         queryRequestOptions.PartitionKey = _cosmosPartitionKey;
                     }
 
+                    queryRequestOptions.SessionToken = _cosmosQueryContext.SessionTokenStorage.GetSessionToken(_cosmosContainer);
+
                     var cosmosClient = _cosmosQueryContext.CosmosClient;
                     _commandLogger.ExecutingSqlQuery(_cosmosContainer, _cosmosPartitionKey, sqlQuery);
                     _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
@@ -165,7 +167,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var feedIterator = cosmosClient.CreateQuery(
-                            _cosmosContainer, sqlQuery, continuationToken, queryRequestOptions);
+                            _cosmosContainer, sqlQuery, _cosmosQueryContext.SessionTokenStorage, continuationToken, queryRequestOptions);
 
                         using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
 

@@ -648,6 +648,19 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
 
+    public override async Task Update_set_constant_TagWith_null(bool async)
+    {
+        await base.Update_set_constant_TagWith_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+-- MyUpdate
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = NULL
+""");
+    }
+
     public override async Task Update_Where_set_constant(bool async)
     {
         await base.Update_Where_set_constant(async);

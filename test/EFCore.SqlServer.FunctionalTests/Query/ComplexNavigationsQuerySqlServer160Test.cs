@@ -2645,9 +2645,9 @@ OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 
-    public override async Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
+    public override async Task Join_on_anonymous_type_with_single_property(bool async)
     {
-        await base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(async);
+        await base.Join_on_anonymous_type_with_single_property(async);
 
         AssertSql(
             """
@@ -2657,9 +2657,9 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Optional_Self_Inverse1Id] = [l0]
 """);
     }
 
-    public override async Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(bool async)
+    public override async Task Join_on_anonymous_type_with_multiple_properties(bool async)
     {
-        await base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(async);
+        await base.Join_on_anonymous_type_with_multiple_properties(async);
 
         AssertSql(
             """

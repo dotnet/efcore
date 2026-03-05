@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
@@ -88,11 +89,12 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     }
 
     [ConditionalFact]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Test is very environment-dependent; when running the Cosmos emulator in a VM on Mac, ConnectionMode.Direct causes severe issues")]
     public async Task Should_not_throw_if_specified_connection_mode_is_right()
     {
-        var connectionMode = ConnectionMode.Direct;
-
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ConnectionMode(connectionMode));
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ConnectionMode(ConnectionMode.Direct));
         var options = CreateOptions(testDatabase);
 
         var customer = new Customer { Id = 42, Name = "Theon" };
@@ -155,7 +157,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         // All retrieved clients should be the same instance
         var clientsArray = clients.ToArray();
         Assert.Equal(threadCount * iterationsPerThread, clientsArray.Length);
-        
+
         var uniqueClients = clientsArray.Distinct().ToArray();
         Assert.Single(uniqueClients); // Should only have one unique client instance
     }

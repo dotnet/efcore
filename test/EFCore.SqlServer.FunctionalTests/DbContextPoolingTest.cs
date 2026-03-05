@@ -392,6 +392,43 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
     }
 
+    [Fact]
+    public async Task Parameterless_pooled_factory_should_use_ConfigureDbContext_options()
+    {
+        var services = new ServiceCollection();
+
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                .EnableServiceProviderCaching(false));
+
+        services.AddPooledDbContextFactory<DefaultOptionsPooledContext>();
+
+        using var provider = services.BuildServiceProvider();
+        var factory = provider.GetRequiredService<IDbContextFactory<DefaultOptionsPooledContext>>();
+        await using var db = await factory.CreateDbContextAsync();
+
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", db.Database.ProviderName);
+    }
+
+    [Fact]
+    public async Task Parameterless_pooled_factory_with_custom_pool_size_should_still_resolve()
+    {
+        var services = new ServiceCollection();
+
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                .EnableServiceProviderCaching(false));
+
+        services.AddPooledDbContextFactory<DefaultOptionsPooledContext>(poolSize: 256);
+
+        using var provider = services.BuildServiceProvider();
+        var factory = provider.GetRequiredService<IDbContextFactory<DefaultOptionsPooledContext>>();
+        await using var db = await factory.CreateDbContextAsync();
+
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", db.Database.ProviderName);
+        Assert.Equal(
+            256,
+            db.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>()!.MaxPoolSize);
+    }
+
     private class BadCtorContext : DbContext;
 
     [ConditionalFact]
@@ -1447,6 +1484,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             : BuildServiceProvider<PooledContext>();
 
         var pool = serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>();
+        Assert.Same(pool, serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>());
         var lease = new DbContextLease(pool, standalone: true);
         var context = (PooledContext)lease.Context;
         ((IDbContextPoolable)context).SetLease(lease);

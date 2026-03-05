@@ -132,7 +132,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         var blogId = new Guid();
 
         return TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => (BloggingContext)Fixture.CreateContext(maxBatchSize: maxBatchSize),
+            () => Fixture.CreateContext(maxBatchSize: maxBatchSize),
             UseTransaction, async context =>
             {
                 var owner = new Owner();
@@ -217,7 +217,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
         async Task RemoveAndAddPosts(Blog blog)
         {
-            using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
+            using var context = Fixture.CreateContext(useConnectionString: true);
 
             context.Attach(blog);
             blog.Posts.Clear();

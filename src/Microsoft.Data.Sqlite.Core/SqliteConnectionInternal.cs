@@ -8,6 +8,7 @@ using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
+using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
 
 namespace Microsoft.Data.Sqlite;
 
@@ -261,7 +262,4 @@ internal class SqliteConnectionInternal
 
         SqliteException.ThrowExceptionForRC(rc, _db);
     }
-
-    private static bool IsBusy(int rc)
-        => rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE;
 }

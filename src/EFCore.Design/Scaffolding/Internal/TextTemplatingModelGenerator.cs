@@ -167,6 +167,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
                             .GetAwaiter().GetResult();
                         entityTypeExtension = host.Extension;
                         CheckEncoding(host.OutputEncoding);
+                        HandleErrors(host);
                     }
 
                     generatedCode = compiledEntityTypeTemplate.Process();
@@ -211,6 +212,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
                             .GetAwaiter().GetResult();
                         configurationExtension = host.Extension;
                         CheckEncoding(host.OutputEncoding);
+                        HandleErrors(host);
                     }
 
                     generatedCode = compiledConfigurationTemplate.Process();

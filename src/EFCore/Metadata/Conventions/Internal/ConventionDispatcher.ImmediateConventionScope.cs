@@ -1575,6 +1575,41 @@ public partial class ConventionDispatcher
             return !propertyBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
+        public override bool? OnPropertyAutoLoadChanged(IConventionPropertyBuilder propertyBuilder)
+        {
+            if (!propertyBuilder.Metadata.DeclaringType.IsInModel)
+            {
+                return null;
+            }
+#if DEBUG
+            var initialValue = propertyBuilder.Metadata.IsAutoLoaded;
+#endif
+            using (dispatcher.DelayConventions())
+            {
+                _boolConventionContext.ResetState(propertyBuilder.Metadata.IsAutoLoaded);
+                foreach (var propertyConvention in conventionSet.PropertyAutoLoadChangedConventions)
+                {
+                    if (!propertyBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    propertyConvention.ProcessPropertyAutoLoadChanged(propertyBuilder, _boolConventionContext);
+                    if (_boolConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == propertyBuilder.Metadata.IsAutoLoaded,
+                        $"Convention {propertyConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !propertyBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
         public override bool? OnElementTypeNullabilityChanged(IConventionElementTypeBuilder builder)
         {
             if (!builder.Metadata.CollectionProperty.IsInModel)

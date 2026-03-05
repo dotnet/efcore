@@ -11,13 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalTableSqlServerTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "TemporalTableSqlServerTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     protected void AssertSql(params string[] expected)
@@ -26,8 +26,8 @@ public class TemporalTableSqlServerTest(NonSharedFixture fixture) : NonSharedMod
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_basic(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -46,8 +46,8 @@ LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_join(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -71,8 +71,8 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o0] ON [m0].[Id] = [o0].[MainEntityDif
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_set_operation(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -100,8 +100,8 @@ LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_FromSql(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -130,8 +130,8 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [m].[Id] = [o].[MainEntityDiffer
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_subquery(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -161,8 +161,8 @@ ORDER BY [m0].[Id] DESC
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_complex(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -199,8 +199,8 @@ ORDER BY [s0].[Id] DESC
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_complex_with_nontrivial_alias(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
 
@@ -237,8 +237,8 @@ ORDER BY [s0].[Id] DESC
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_range_operation_negative(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var message = async
                 ? (await Assert.ThrowsAsync<InvalidOperationException>(()
@@ -254,8 +254,8 @@ ORDER BY [s0].[Id] DESC
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_mapped_to_same_table(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
             var query = context.MainEntitiesSameTable.TemporalAsOf(date);
@@ -273,8 +273,8 @@ FROM [MainEntitiesSameTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000'
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_many(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
             var query = context.MainEntitiesMany.TemporalAsOf(date);
@@ -294,8 +294,8 @@ ORDER BY [m].[Id], [o].[MainEntityManyId]
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_with_union(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26451>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<MyContext26451>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var date = new DateTime(2000, 1, 1);
             var query = context.MainEntitiesMany.TemporalAsOf(date)
@@ -437,7 +437,7 @@ ORDER BY [u].[Id], [o].[MainEntityManyId]
     public virtual async Task Temporal_can_query_shared_derived_hierarchy(bool async)
     {
         var contectFactory = await InitializeAsync(OnModelCreating);
-        using var context = contectFactory.CreateContext();
+        using var context = contectFactory.CreateDbContext();
         var query = context.Set<FuelTank>().TemporalAsOf(new DateTime(2000, 1, 1));
         var _ = async ? await query.ToListAsync() : query.ToList();
 
@@ -452,7 +452,7 @@ WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
     protected Task<ContextFactory<TransportationContext>> InitializeAsync(
         Action<ModelBuilder> onModelCreating,
         bool seed = true)
-        => InitializeAsync<TransportationContext>(
+        => InitializeNonSharedTest<TransportationContext>(
             onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.SeedAsync() : null);
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)

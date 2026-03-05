@@ -20,12 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlNullabilityProcessor : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37204 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37204", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37152 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37152", out var enabled) && enabled;
-
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -34,9 +28,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     ///     Tracks parameters for collection expansion, allowing reuse.
     /// </summary>
     private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
-
-    private static readonly bool UseOldBehavior37216 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37216", out var enabled) && enabled;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
@@ -128,7 +119,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null);
                 var elementTypeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
                 var queryParameters = ParametersDecorator.GetAndDisableCaching();
-                var values = ((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+                var values = ((IEnumerable?)queryParameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
 
                 var intTypeMapping = (IntTypeMapping?)Dependencies.TypeMappingSource.FindMapping(typeof(int));
                 Check.DebugAssert(intTypeMapping is not null);
@@ -198,7 +189,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // We've inlined the user-provided collection from the values parameter into the SQL VALUES expression: (VALUES (1), (2)...).
                 // However, if the collection happens to be empty, this doesn't work as VALUES does not support empty sets. We convert it
                 // to a SELECT ... WHERE false to produce an empty result set instead.
-                if (!UseOldBehavior37216 && processedValues.Count == 0)
+                if (processedValues.Count == 0)
                 {
                     var select = new SelectExpression(
                         valuesExpression.Alias,
@@ -231,6 +222,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         SqlExpression ProcessJoinPredicate(SqlExpression predicate)
         {
+            // In LINQ equijoins, null is not equal null, just like in SQL
+            // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator).
+            // As a result, we handle top-level join predicate equality in a special way, not using the generic Visit logic
+            // (which would add null compensation).
+            // However, when two anonymous types are being compared, the LINQ behavior *does* treat nulls as equal.
+            // As a result, we differentiate between a single top-level comparison and multiple comparisons with ANDs.
+            // See additional notes in RelationalQueryableMethodTranslatingExpressionVisitor.CreateJoinPredicate().
             switch (predicate)
             {
                 case SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary:
@@ -258,6 +256,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     or ExpressionType.LessThanOrEqual
                 } binary:
                     return Visit(binary, allowOptimizedExpansion: true, out _);
+
+                case SqlConstantExpression { Value: bool }:
+                    return predicate;
 
                 default:
                     throw new InvalidOperationException(
@@ -863,7 +864,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // caching.
                 var elementTypeMapping = (RelationalTypeMapping)inExpression.ValuesParameter.TypeMapping!.ElementTypeMapping!;
                 var parameters = ParametersDecorator.GetAndDisableCaching();
-                var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object>().ToList() ?? [];
+                var values = ((IEnumerable?)parameters[valuesParameter.Name])?.Cast<object?>().ToList() ?? [];
 
                 processedValues = [];
 
@@ -1904,25 +1905,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             // We're looking at a parameter beyond its simple nullability, so we can't use the SQL cache for this query.
             var parameters = ParametersDecorator.GetAndDisableCaching();
-
-            IList values;
-            if (UseOldBehavior37204)
+            if (parameters[collectionParameter.Name] is not IEnumerable enumerable)
             {
-                if (parameters[collectionParameter.Name] is not IList list)
-                {
-                    throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
-                }
-                values = list;
-            }
-            else
-            {
-                if (parameters[collectionParameter.Name] is not IEnumerable enumerable)
-                {
-                    throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
-                }
-                values = enumerable.Cast<object?>().ToList();
+                throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
             }
 
+            var values = enumerable.Cast<object?>().ToList();
             IList? processedValues = null;
 
             for (var i = 0; i < values.Count; i++)
@@ -1933,7 +1921,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 {
                     if (processedValues is null)
                     {
-                        var elementClrType = values.GetType().GetSequenceType();
+                        // We found the first null value - we need to start copying values to a new list which will be used for the rewritten parameter.
+                        // The type of the new list must match that of the original enumerable parameter, as there may be value converters involved which
+                        // rely on the precise element type (see #37605). We therefore get the type of the element from the original list if it implements
+                        // IEnumerable<T>, or default to object.
+                        var elementClrType = enumerable.GetType().TryGetElementType(typeof(IEnumerable<>)) ?? typeof(object);
                         processedValues = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementClrType), values.Count)!;
                         for (var j = 0; j < i; j++)
                         {
@@ -1965,7 +1957,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             var rewrittenCollectionTable = UpdateParameterCollection(collectionTable, rewrittenParameter);
 
             // We clone the select expression since Update below doesn't create a pure copy, mutating the original as well (because of
-            // TableReferenceExpression). TODO: Remove this after #31327.
+            // TableReferenceExpression). TODO: Remove this after SelectExpression becomes fully mutable (#32927).
 #pragma warning disable EF1001
             rewrittenSelectExpression = selectExpression.Clone();
 #pragma warning restore EF1001
@@ -2253,10 +2245,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         if (expandedParameters.Count <= index)
         {
-            var parameterName = UseOldBehavior37152
-                ? Uniquifier.Uniquify(valuesParameterName, parameters, int.MaxValue)
 #pragma warning disable EF1001
-                : Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
+            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
 #pragma warning restore EF1001
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);

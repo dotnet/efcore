@@ -21,6 +21,7 @@ public abstract class ComplexTypesTrackingRelationalTestBase<TFixture> : Complex
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -85,5 +86,6 @@ public abstract class ComplexTypesTrackingRelationalTestBase<TFixture> : Complex
                 });
             }
         }
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
     }
 }

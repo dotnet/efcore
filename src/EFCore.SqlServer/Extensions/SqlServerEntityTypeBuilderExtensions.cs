@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -290,6 +292,128 @@ public static class SqlServerEntityTypeBuilderExtensions
         bool temporal = true,
         bool fromDataAnnotation = false)
         => entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.IsTemporal, temporal, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures a vector index on the specified property for SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="indexExpression">
+    ///     A lambda expression representing the property to create the vector index on
+    ///     (<c>blog => blog.Vector</c>).
+    /// </param>
+    /// <param name="name">The name to assign to the index.</param>
+    /// <returns>A builder to further configure the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static SqlServerVectorIndexBuilder<TEntity> HasVectorIndex<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        Expression<Func<TEntity, object?>> indexExpression,
+        string? name = null)
+        where TEntity : class
+    {
+        Check.NotNull(indexExpression);
+
+        var indexBuilder = name is null
+            ? entityTypeBuilder.HasIndex(indexExpression)
+            : entityTypeBuilder.HasIndex(indexExpression, name);
+
+        // Having a vector metric annotation is what marks an index as a vector index.
+        // The metric itself must be set later by the user via the builder API.
+        indexBuilder.Metadata.SetVectorMetric(null);
+
+        return new SqlServerVectorIndexBuilder<TEntity>(indexBuilder);
+    }
+
+    /// <summary>
+    ///     Configures a vector index on the specified property for SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="propertyName">The name of the property to create the vector index on.</param>
+    /// <param name="name">The name to assign to the index.</param>
+    /// <returns>A builder to further configure the vector index.</returns>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static SqlServerVectorIndexBuilder HasVectorIndex(
+        this EntityTypeBuilder entityTypeBuilder,
+        string propertyName,
+        string? name = null)
+    {
+        Check.NotEmpty(propertyName);
+
+        var indexBuilder = name is null
+            ? entityTypeBuilder.HasIndex(propertyName)
+            : entityTypeBuilder.HasIndex(propertyName, name);
+
+        // Having a vector metric annotation is what marks an index as a vector index.
+        // The metric itself must be set later by the user via the builder API.
+        indexBuilder.Metadata.SetVectorMetric(null);
+
+        return new SqlServerVectorIndexBuilder(indexBuilder);
+    }
+
+    /// <summary>
+    ///     Configures a full-text index on the specified properties for SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="indexExpression">
+    ///     A lambda expression representing the properties to include in the full-text index
+    ///     (<c>blog => new { blog.Title, blog.Content }</c>).
+    /// </param>
+    /// <returns>A builder to further configure the full-text index.</returns>
+    public static SqlServerFullTextIndexBuilder<TEntity> HasFullTextIndex<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        Expression<Func<TEntity, object?>> indexExpression)
+        where TEntity : class
+    {
+        Check.NotNull(indexExpression);
+
+        var indexBuilder = entityTypeBuilder.HasIndex(indexExpression);
+
+        // Having the FullTextIndex annotation (storing the KEY INDEX name) is what marks an index as a full-text index.
+        // The KEY INDEX name itself must be set later by the user via the builder API.
+        indexBuilder.Metadata.SetFullTextKeyIndex(null);
+
+        return new SqlServerFullTextIndexBuilder<TEntity>(indexBuilder);
+    }
+
+    /// <summary>
+    ///     Configures a full-text index on the specified properties for SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/sql/relational-databases/search/full-text-search">Full-Text Search</see>
+    ///     for more information on SQL Server full-text search.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="propertyNames">The names of the properties to include in the full-text index.</param>
+    /// <returns>A builder to further configure the full-text index.</returns>
+    public static SqlServerFullTextIndexBuilder HasFullTextIndex(
+        this EntityTypeBuilder entityTypeBuilder,
+        params string[] propertyNames)
+    {
+        Check.NotEmpty(propertyNames);
+
+        var indexBuilder = entityTypeBuilder.HasIndex(propertyNames);
+
+        // Having the FullTextIndex annotation (storing the KEY INDEX name) is what marks an index as a full-text index.
+        // The KEY INDEX name itself must be set later by the user via the builder API.
+        indexBuilder.Metadata.SetFullTextKeyIndex(null);
+
+        return new SqlServerFullTextIndexBuilder(indexBuilder);
+    }
 
     /// <summary>
     ///     Configures a history table name for the entity mapped to a temporal table.

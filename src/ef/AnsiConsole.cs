@@ -6,6 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 internal static class AnsiConsole
 {
     public static readonly AnsiTextWriter Out = new(Console.Out);
+    public static readonly AnsiTextWriter Error = new(Console.Error);
 
     public static void WriteLine(string? text)
         => Out.WriteLine(text);

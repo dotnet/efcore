@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHocNavigationsQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 10447
@@ -15,8 +15,8 @@ public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHo
     [ConditionalFact]
     public virtual async Task Nested_include_queries_do_not_populate_navigation_twice()
     {
-        var contextFactory = await InitializeAsync<Context10447>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context10447>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Blogs.Include(b => b.Posts);
 
         foreach (var blog in query)

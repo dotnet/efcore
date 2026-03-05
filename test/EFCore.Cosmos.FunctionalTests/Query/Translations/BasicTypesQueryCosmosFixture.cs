@@ -14,7 +14,10 @@ public class BasicTypesQueryCosmosFixture : BasicTypesQueryFixtureBase
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => builder.ConfigureWarnings(o => o.Ignore(CosmosEventId.NoPartitionKeyDefined));
+        => base.AddOptions(builder)
+            .ConfigureWarnings(o => o
+                .Ignore(CosmosEventId.PrimaryKeyValueNotSet)
+                .Ignore(CosmosEventId.NoPartitionKeyDefined));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
