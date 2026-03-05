@@ -47,7 +47,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateEntityType(entityType, logger);
             ValidateClrInheritance(entityType, validEntityTypes);
             ValidateData(entityType, identityMaps, sensitiveDataLogged, logger);
-            
+
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null)
             {
@@ -99,6 +99,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateInheritanceMapping(entityType, logger);
         ValidateFieldMapping(entityType, logger);
         ValidateQueryFilters(entityType, logger);
+        ValidateConstructorBindingAutoLoaded(entityType);
 
         foreach (var property in entityType.GetDeclaredProperties())
         {
@@ -136,6 +137,30 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         }
 
         LogShadowProperties(entityType, logger);
+    }
+
+    /// <summary>
+    ///     Validates that no constructor-bound property is configured as not auto-loaded.
+    /// </summary>
+    /// <param name="structuralType">The structural type to validate.</param>
+    protected virtual void ValidateConstructorBindingAutoLoaded(ITypeBase structuralType)
+    {
+        if (structuralType.ConstructorBinding is null)
+        {
+            return;
+        }
+
+        var typeName = structuralType.DisplayName();
+
+        foreach (var consumedProperty in structuralType.ConstructorBinding.ParameterBindings
+                     .SelectMany(p => p.ConsumedProperties))
+        {
+            if (consumedProperty is IProperty { IsAutoLoaded: false } property)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AutoLoadedConstructorProperty(property.Name, typeName));
+            }
+        }
     }
 
     /// <summary>
@@ -226,6 +251,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         var complexType = complexProperty.ComplexType;
 
         ValidateChangeTrackingStrategy(complexType, logger);
+        ValidateConstructorBindingAutoLoaded(complexType);
 
         foreach (var property in complexType.GetDeclaredProperties())
         {
