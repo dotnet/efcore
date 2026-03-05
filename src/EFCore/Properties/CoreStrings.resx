@@ -165,6 +165,18 @@
   <data name="AutoIncludeNavigationCycle" xml:space="preserve">
     <value>Cycle detected while auto-including navigations: {cycleNavigations}. To fix this issue, either don't configure at least one navigation in the cycle as auto included in 'OnModelCreating' or call 'IgnoreAutoInclude' method on the query.</value>
   </data>
+  <data name="AutoLoadedConcurrencyTokenProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is a concurrency token and cannot be configured as not auto-loaded. Concurrency tokens must always be loaded.</value>
+  </data>
+  <data name="AutoLoadedDiscriminatorProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is a discriminator and cannot be configured as not auto-loaded. Discriminator properties must always be loaded.</value>
+  </data>
+  <data name="AutoLoadedForeignKeyProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is part of a foreign key and cannot be configured as not auto-loaded. Foreign key properties must always be loaded.</value>
+  </data>
+  <data name="AutoLoadedKeyProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is part of a key and cannot be configured as not auto-loaded. Key properties must always be loaded.</value>
+  </data>
   <data name="BackingFieldOnIndexer" xml:space="preserve">
     <value>The backing field '{field}' cannot be set for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.</value>
   </data>
@@ -1055,6 +1067,10 @@
   <data name="LogOldModelVersion" xml:space="preserve">
     <value>The model supplied in the context options was created with EF Core version '{oldVersion}', but the context is from version '{newVersion}'. Update the externally built model.</value>
     <comment>Warning CoreEventId.OldModelVersionWarning string string</comment>
+  </data>
+  <data name="LogCompiledModelProviderMismatch" xml:space="preserve">
+    <value>A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.</value>
+    <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>

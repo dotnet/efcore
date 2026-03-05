@@ -19,6 +19,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     private InternalPropertyBuilder? _builder;
 
     private bool? _isConcurrencyToken;
+    private bool? _isAutoLoaded;
     private bool? _isNullable;
     private object? _sentinel;
     private ValueGenerated? _valueGenerated;
@@ -30,6 +31,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     private ConfigurationSource? _isNullableConfigurationSource;
     private ConfigurationSource? _sentinelConfigurationSource;
     private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
+    private ConfigurationSource? _isAutoLoadedConfigurationSource;
     private ConfigurationSource? _valueGeneratedConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
 
@@ -338,6 +340,55 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     /// </summary>
     public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource()
         => _isConcurrencyTokenConfigurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsAutoLoaded
+    {
+        get => _isAutoLoaded ?? DefaultIsAutoLoaded;
+        set => SetIsAutoLoaded(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? SetIsAutoLoaded(bool? autoLoaded, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        var isChanging = IsAutoLoaded != (autoLoaded ?? DefaultIsAutoLoaded);
+        if (isChanging)
+        {
+            _isAutoLoaded = autoLoaded;
+        }
+
+        _isAutoLoadedConfigurationSource = autoLoaded == null
+            ? null
+            : configurationSource.Max(_isAutoLoadedConfigurationSource);
+
+        return isChanging
+            ? DeclaringType.Model.ConventionDispatcher.OnPropertyAutoLoadChanged(Builder)
+            : autoLoaded;
+    }
+
+    private static bool DefaultIsAutoLoaded
+        => true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetIsAutoLoadedConfigurationSource()
+        => _isAutoLoadedConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1792,6 +1843,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     bool? IConventionProperty.SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation)
         => SetIsConcurrencyToken(
             concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool? IConventionProperty.SetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation)
+        => SetIsAutoLoaded(
+            autoLoaded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

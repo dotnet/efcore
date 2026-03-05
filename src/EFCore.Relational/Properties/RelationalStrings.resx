@@ -120,6 +120,9 @@
   <data name="AbstractTpc" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
+  <data name="AutoLoadedJsonProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is mapped to a JSON entity and cannot be configured as not auto-loaded. JSON-mapped entities are always loaded as a unit.</value>
+  </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize a sequence from model metadata. See inner exception for details.</value>
     <comment>Obsolete</comment>
@@ -327,6 +330,9 @@
   </data>
   <data name="DuplicateForeignKeyDeleteBehaviorMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but configured with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>
+  </data>
+  <data name="DuplicateForeignKeyExcludedFromMigrationsMismatch" xml:space="preserve">
+    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different migration exclusion configurations.</value>
   </data>
   <data name="DuplicateForeignKeyPrincipalColumnMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).</value>
@@ -864,7 +870,7 @@
   </data>
   <data name="LogNoMigrationsFound" xml:space="preserve">
     <value>No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.</value>
-    <comment>Information RelationalEventId.MigrationsNotFound string</comment>
+    <comment>Error RelationalEventId.MigrationsNotFound string</comment>
   </data>
   <data name="LogNoModelSnapshotFound" xml:space="preserve">
     <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>

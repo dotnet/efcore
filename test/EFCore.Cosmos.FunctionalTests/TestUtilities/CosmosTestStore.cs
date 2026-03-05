@@ -630,6 +630,9 @@ public class CosmosTestStore : TestStore
         public bool IsModified(IProperty property)
             => throw new NotImplementedException();
 
+        public bool IsLoaded(IProperty property)
+            => throw new NotImplementedException();
+
         public bool IsStoreGenerated(IProperty property)
             => throw new NotImplementedException();
 

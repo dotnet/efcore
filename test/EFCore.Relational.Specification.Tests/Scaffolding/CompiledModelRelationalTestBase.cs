@@ -81,6 +81,10 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     }
                 });
 
+            eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
+                .HasForeignKey<DependentBase<byte?>>()
+                .ExcludeForeignKeyFromMigrations();
+
             eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
                 .UsingEntity(jb =>
                 {
@@ -213,6 +217,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
         var dependentNavigation = principalDerived.GetDeclaredNavigations().First();
         var dependentForeignKey = dependentNavigation.ForeignKey;
+        Assert.False(dependentForeignKey.IsExcludedFromMigrations());
 
         var referenceOwnedNavigation = principalBase.GetNavigations().Single();
         var referenceOwnedType = referenceOwnedNavigation.TargetEntityType;

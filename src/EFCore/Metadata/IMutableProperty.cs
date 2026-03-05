@@ -51,6 +51,13 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     new bool IsConcurrencyToken { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether this property is automatically loaded when the entity is queried
+    ///     from the database. When set to <see langword="false" />, the property value will not be read from the database
+    ///     and the property will be excluded from <c>UPDATE</c> statements unless explicitly loaded or modified.
+    /// </summary>
+    new bool IsAutoLoaded { get; set; }
+
+    /// <summary>
     ///     Gets or sets the sentinel value that indicates that this property is not set.
     /// </summary>
     new object? Sentinel { get; set; }

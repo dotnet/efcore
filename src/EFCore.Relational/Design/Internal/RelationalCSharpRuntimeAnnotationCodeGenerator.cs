@@ -2168,6 +2168,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             parameters.Annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
         }
+        else
+        {
+            parameters.Annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+        }
 
         base.Generate(foreignKey, parameters);
     }

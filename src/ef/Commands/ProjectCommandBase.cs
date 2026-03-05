@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#if NET
-using System.Runtime.Loader;
-#else
+#if !NET
 using System.Configuration;
 #endif
 using System.Reflection;
@@ -80,47 +78,7 @@ internal abstract class ProjectCommandBase : EFCommandBase
                 Reporter.WriteWarning,
                 Reporter.WriteInformation,
                 Reporter.WriteVerbose);
-#if !NET
-            try
-            {
-                return new AppDomainOperationExecutor(
-                    Assembly!.Value()!,
-                    StartupAssembly!.Value(),
-                    _designAssembly!.Value(),
-                    Project!.Value(),
-                    _projectDir!.Value(),
-                    _dataDir!.Value(),
-                    _rootNamespace!.Value(),
-                    _language!.Value(),
-                    _nullable!.HasValue(),
-                    remainingArguments,
-                    reportHandler);
-            }
-            catch (MissingMethodException) // NB: Thrown with EF Core 3.1
-            {
-                var configurationFile = (StartupAssembly!.Value() ?? Assembly!.Value()!) + ".config";
-                if (File.Exists(configurationFile))
-                {
-                    AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configurationFile);
-                    try
-                    {
-                        typeof(ConfigurationManager)
-                            .GetField("s_initState", BindingFlags.Static | BindingFlags.NonPublic)
-                            .SetValue(null, 0);
-                        typeof(ConfigurationManager)
-                            .GetField("s_configSystem", BindingFlags.Static | BindingFlags.NonPublic)
-                            .SetValue(null, null);
-                        typeof(ConfigurationManager).Assembly
-                            .GetType("System.Configuration.ClientConfigPaths")
-                            .GetField("s_current", BindingFlags.Static | BindingFlags.NonPublic)
-                            .SetValue(null, null);
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-#endif
+
             return new ReflectionOperationExecutor(
                 Assembly!.Value()!,
                 StartupAssembly!.Value(),

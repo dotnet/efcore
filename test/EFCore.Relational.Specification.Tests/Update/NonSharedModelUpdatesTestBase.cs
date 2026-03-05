@@ -17,19 +17,13 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
-                mb.Entity<Author>(b =>
-                {
-                    b.HasOne(a => a.AuthorsClub)
+                mb.Entity<Author>(b => b.HasOne(a => a.AuthorsClub)
                         .WithMany()
-                        .HasForeignKey(a => a.AuthorsClubId);
-                });
+                        .HasForeignKey(a => a.AuthorsClubId));
 
-                mb.Entity<Book>(b =>
-                {
-                    b.HasOne(book => book.Author)
+                mb.Entity<Book>(b => b.HasOne(book => book.Author)
                         .WithMany()
-                        .HasForeignKey(book => book.AuthorId);
-                });
+                        .HasForeignKey(book => book.AuthorId));
             });
 
         await ExecuteWithStrategyInTransactionAsync(
@@ -124,15 +118,111 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string? Name { get; set; }
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(
+                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            seed: async context =>
+            {
+                context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Original description" });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var blog = new BlogWithDescription { Id = 1, Name = "Updated Blog" };
+                context.Update(blog);
+
+                var entry = context.Entry(blog);
+                // Description starts as not-loaded (IsAutoLoaded = false)
+                Assert.False(entry.Property(e => e.Description).IsLoaded);
+                Assert.False(entry.Property(e => e.Description).IsModified);
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var blog = await context.Set<BlogWithDescription>().SingleAsync();
+                Assert.Equal("Updated Blog", blog.Name);
+                Assert.Equal("Original description", blog.Description);
+            });
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Save_and_query_with_partially_loaded_primitive_collection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithTags>(
+                    b =>
+                    {
+                        b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
+                        b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
+                    }),
+            seed: async context =>
+            {
+                context.Add(new BlogWithTags { Name = "EF Blog", Tags = ["efcore", "dotnet"] });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var blog = new BlogWithTags { Id = 1, Name = "Updated Blog" };
+                context.Update(blog);
+
+                var entry = context.Entry(blog);
+                Assert.False(entry.Property(e => e.Tags).IsLoaded);
+                Assert.False(entry.Property(e => e.Tags).IsModified);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var blog = await context.Set<BlogWithTags>().SingleAsync();
+                Assert.Equal("Updated Blog", blog.Name);
+                Assert.Equal(new[] { "efcore", "dotnet" }, blog.Tags);
+            });
+    }
+
+    private class BlogWithDescription
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    private class BlogWithTags
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public List<string> Tags { get; set; } = [];
+    }
+
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #36059
     public virtual async Task Replacing_owned_entity_with_FK_to_another_entity(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
-                mb.Entity<Document36059>(b =>
-                {
-                    b.OwnsOne(d => d.File, fb =>
+                mb.Entity<Document36059>(b => b.OwnsOne(d => d.File, fb =>
                     {
                         fb.Property(f => f.Id).ValueGeneratedNever();
                         fb.HasOne(f => f.Content)
@@ -140,13 +230,9 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                             .HasForeignKey(f => f.ContentId)
                             .IsRequired()
                             .OnDelete(DeleteBehavior.Restrict);
-                    });
-                });
+                    }));
 
-                mb.Entity<Content36059>(b =>
-                {
-                    b.Property(c => c.Id).ValueGeneratedNever();
-                });
+                mb.Entity<Content36059>(b => b.Property(c => c.Id).ValueGeneratedNever());
             });
 
         var oldContentId = Guid.NewGuid();
