@@ -15,11 +15,10 @@ public class SharedTableConventionTest
         modelBuilder.Entity<Order>().ToTable("MyTable", "Schema1").HasKey(e => e.Id);
         modelBuilder.Entity<Customer>().ToTable("MyTable", "Schema2").HasKey(e => e.Id);
 
-        var model = modelBuilder.Model;
-        model.FinalizeModel();
+        var finalizedModel = modelBuilder.Model.FinalizeModel();
 
-        var orderEntityType = model.FindEntityType(typeof(Order))!;
-        var customerEntityType = model.FindEntityType(typeof(Customer))!;
+        var orderEntityType = finalizedModel.FindEntityType(typeof(Order))!;
+        var customerEntityType = finalizedModel.FindEntityType(typeof(Customer))!;
 
         var orderPkName = orderEntityType.FindPrimaryKey()!.GetName(
             StoreObjectIdentifier.Table("MyTable", "Schema1"));
@@ -37,11 +36,10 @@ public class SharedTableConventionTest
         modelBuilder.Entity<Order>().ToTable("MyTable", "Schema1").HasKey(e => e.Id);
         modelBuilder.Entity<Customer>().ToTable("MyTable", "Schema2").HasKey(e => e.Id);
 
-        var model = modelBuilder.Model;
-        model.FinalizeModel();
+        var finalizedModel = modelBuilder.Model.FinalizeModel();
 
-        var orderEntityType = model.FindEntityType(typeof(Order))!;
-        var customerEntityType = model.FindEntityType(typeof(Customer))!;
+        var orderEntityType = finalizedModel.FindEntityType(typeof(Order))!;
+        var customerEntityType = finalizedModel.FindEntityType(typeof(Customer))!;
 
         var orderPkName = orderEntityType.FindPrimaryKey()!.GetName(
             StoreObjectIdentifier.Table("MyTable", "Schema1"));
