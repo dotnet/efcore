@@ -49,6 +49,7 @@ When processing properties in conventions or validation, remember that complex t
 
 1. Add constant to `CoreAnnotationNames` and its `AllNames`
 2. Filter in `RuntimeModelConvention.ProcessModelAnnotations` if it's a design-time-only annotation (only used in migration operations)
+   1. If it was filtered out, add logic to the getters that throws an exception if accessed on the runtime model
 3. Filter in `CSharpRuntimeAnnotationCodeGenerator.Generate` if it can be computed lazily at runtime (e.g. based on other annotations)
 4. Propagate in `RelationalAnnotationProvider` if used in up-migrations or the relational model and `IMigrationsAnnotationProvider` if used in down-migrations
 

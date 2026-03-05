@@ -20,4 +20,4 @@ Translates LINQ expressions into database queries and materializes results.
 
 - `ToQueryString()` shows generated SQL without executing
 - `ExpressionPrinter` dumps expression trees at any pipeline stage
-- SQL baselines verified via `AssertSql()` in provider functional tests
+- SQL baselines verified via `AssertSql()` in provider functional tests and the generated SQL corresponds to the LINQ query in the base method
