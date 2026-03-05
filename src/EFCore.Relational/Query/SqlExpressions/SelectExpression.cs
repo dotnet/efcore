@@ -3566,11 +3566,26 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     /// <param name="outerShaper">An expression for outer shaper.</param>
-    /// <param name="isToOneJoin">
+    /// <returns>An expression which shapes the result of this join.</returns>
+    public Expression AddInnerJoin(
+        ShapedQueryExpression innerSource,
+        SqlExpression joinPredicate,
+        Expression outerShaper)
+        => AddJoin(
+            JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+            joinPredicate, isToOneJoin: false, isPrunableJoin: false);
+
+    /// <summary>
+    ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using INNER JOIN and combine shapers.
+    /// </summary>
+    /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <param name="toOneJoin">
     ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
     ///     are not added (#29182).
     /// </param>
-    /// <param name="isPrunableJoin">
+    /// <param name="prunableJoin">
     ///     Whether the join can be pruned if none of its columns are referenced. For INNER JOINs this requires both
     ///     a to-one guarantee and a required foreign key guaranteeing matching rows exist (#29182).
     /// </param>
@@ -3579,11 +3594,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         ShapedQueryExpression innerSource,
         SqlExpression joinPredicate,
         Expression outerShaper,
-        bool isToOneJoin = false,
-        bool isPrunableJoin = false)
+        bool toOneJoin = false,
+        bool prunableJoin = false)
         => AddJoin(
             JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
-            joinPredicate, isToOneJoin, isPrunableJoin);
+            joinPredicate, toOneJoin, prunableJoin);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
@@ -3591,23 +3606,39 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     /// <param name="outerShaper">An expression for outer shaper.</param>
-    /// <param name="isToOneJoin">
-    ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
-    ///     are not added.
-    /// </param>
-    /// <param name="isPrunableJoin">
-    ///     Whether the join can be pruned if none of its columns are referenced (#29182).
-    /// </param>
     /// <returns>An expression which shapes the result of this join.</returns>
     public Expression AddLeftJoin(
         ShapedQueryExpression innerSource,
         SqlExpression joinPredicate,
-        Expression outerShaper,
-        bool isToOneJoin = false,
-        bool isPrunableJoin = false)
+        Expression outerShaper)
         => AddJoin(
             JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
-            joinPredicate, isToOneJoin, isPrunableJoin);
+            joinPredicate, isToOneJoin: false, isPrunableJoin: false);
+
+    /// <summary>
+    ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
+    /// </summary>
+    /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <param name="toOneJoin">
+    ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
+    ///     are not added.
+    /// </param>
+    /// <param name="prunableJoin">
+    ///     Whether the join can be pruned if none of its columns are referenced (#29182).
+    /// </param>
+    /// <returns>An expression which shapes the result of this join.</returns>
+    [EntityFrameworkInternal]
+    public Expression AddLeftJoin(
+        ShapedQueryExpression innerSource,
+        SqlExpression joinPredicate,
+        Expression outerShaper,
+        bool toOneJoin,
+        bool prunableJoin)
+        => AddJoin(
+            JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+            joinPredicate, toOneJoin, prunableJoin);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using RIGHT JOIN and combine shapers.

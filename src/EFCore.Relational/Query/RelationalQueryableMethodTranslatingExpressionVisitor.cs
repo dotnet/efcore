@@ -981,7 +981,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
             var outerShaperExpression = outerSelectExpression.AddLeftJoin(
-                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, isPrunableJoin: isToOneJoin);
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, prunableJoin: isToOneJoin);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
