@@ -2997,9 +2997,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private static IQueryable<Order> GetOrdersForCustomer(string name)
             => throw new NotImplementedException();
 
-        private static IQueryable<EntityWithJsonOwnedType> GetEntitiesWithJsonOwnedType()
-            => throw new NotImplementedException();
-
         [ConditionalFact]
         public void Complex_property_container_column_type_is_used_in_relational_model()
         {
@@ -3272,29 +3269,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<EntityWithJsonOwnedType>(cb =>
+            modelBuilder.Entity<Order>(cb =>
             {
-                cb.HasKey(x => x.Id);
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.ComplexProperty);
+
 #pragma warning disable EF8001 // Owned JSON entities are obsolete
-                cb.OwnsOne(x => x.OwnedData, o => o.ToJson("owned_data"));
-                cb.OwnsMany(x => x.OwnedItems, o => o.ToJson("owned_items"));
+                cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
 #pragma warning restore EF8001
             });
 
             modelBuilder.HasDbFunction(
                 typeof(RelationalModelTest).GetMethod(
-                    nameof(GetEntitiesWithJsonOwnedType), BindingFlags.NonPublic | BindingFlags.Static));
+                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(int)]));
 
             var model = Finalize(modelBuilder);
 
-            var entityType = model.Model.FindEntityType(typeof(EntityWithJsonOwnedType));
+            var orderType = model.Model.FindEntityType(typeof(Order));
 
-            var functionMappings = entityType.GetFunctionMappings().ToList();
+            var functionMappings = orderType.GetFunctionMappings().ToList();
             Assert.Single(functionMappings);
 
             var storeFunction = functionMappings[0].StoreFunction;
-            Assert.NotNull(storeFunction.FindColumn("owned_data"));
-            Assert.NotNull(storeFunction.FindColumn("owned_items"));
+            Assert.Equal(
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "date_details"],
+                storeFunction.Columns.Select(m => m.Name));
+            Assert.NotNull(storeFunction.FindColumn("date_details"));
         }
 
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
@@ -3441,23 +3442,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int Number { get; set; }
         }
 
-        private class EntityWithJsonOwnedType
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public OwnedJsonData OwnedData { get; set; }
-            public ICollection<OwnedJsonItem> OwnedItems { get; set; }
-        }
-
-        private class OwnedJsonData
-        {
-            public string Value { get; set; }
-        }
-
-        private class OwnedJsonItem
-        {
-            public string Description { get; set; }
-        }
     }
 }
 
