@@ -164,7 +164,7 @@ public static class CosmosEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        if (!entityTypeBuilder.CanSetJsonPropertyName(name, fromDataAnnotation))
+        if (!entityTypeBuilder.CanSetJsonProperty(name, fromDataAnnotation))
         {
             return null;
         }
@@ -186,7 +186,7 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="name">The name of the parent property.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    public static bool CanSetJsonPropertyName(
+    public static bool CanSetJsonProperty(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         string? name,
         bool fromDataAnnotation = false)
@@ -195,25 +195,6 @@ public static class CosmosEntityTypeBuilderExtensions
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
     }
-
-    /// <summary>
-    ///     Returns a value indicating whether the parent property name to which the entity type is mapped to can be set
-    ///     from the current configuration source
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the parent property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    [Obsolete("Use CanSetJsonPropertyName() instead.")]
-    public static bool CanSetJsonProperty(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => CanSetJsonPropertyName(entityTypeBuilder, name, fromDataAnnotation);
 
     /// <summary>
     ///     Configures the properties that are used to store the parts of a simple or
