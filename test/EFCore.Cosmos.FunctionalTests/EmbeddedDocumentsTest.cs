@@ -107,8 +107,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
                 v => v.Addresses, b =>
                 {
-                    b.OwnsMany(a => a.Notes).HasJsonPropertyName("IdNotes");
-                    b.OwnsMany(a => a.IdNotes).HasJsonPropertyName("Notes");
+                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
                 })),
             seed: false);
 
@@ -394,10 +394,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
                 v => v.Addresses, b =>
                 {
-#pragma warning disable CS0618 // Type or member is obsolete
                     b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
                     b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
-#pragma warning restore CS0618 // Type or member is obsolete
                 })),
             seed: false);
 
@@ -768,7 +766,7 @@ OFFSET 0 LIMIT 1
             modelBuilder.Entity<Person>(eb => eb.OwnsMany(
                 v => v.Addresses, b =>
                 {
-                    b.HasJsonPropertyName("Stored Addresses");
+                    b.ToJsonProperty("Stored Addresses");
                     b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
                 }));
         }

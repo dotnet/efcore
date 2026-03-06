@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -537,7 +537,7 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 b.Property(x => x.Description).EnableFullTextSearch();
                 b.HasIndex(x => x.Description).IsFullTextIndex();
 
-                b.Property(x => x.ModifiedDescription).HasJsonPropertyName("CustomDecription");
+                b.Property(x => x.ModifiedDescription).ToJsonProperty("CustomDecription");
                 b.Property(x => x.ModifiedDescription).EnableFullTextSearch();
                 b.HasIndex(x => x.ModifiedDescription).IsFullTextIndex();
 
@@ -553,7 +553,7 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 
                     bb.OwnsOne(x => x.ModifiedNestedReference, bbb =>
                     {
-                        bbb.HasJsonPropertyName("CustomNestedReference");
+                        bbb.ToJsonProperty("CustomNestedReference");
                         bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
                         bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
                     });

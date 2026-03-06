@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -85,7 +85,7 @@ public class CosmosJsonIdConvention
             // undo anything that was done by previous execution of this convention.
             if (jsonIdProperty is not null)
             {
-                jsonIdProperty.Builder.HasJsonPropertyName(null);
+                jsonIdProperty.Builder.ToJsonProperty(null);
                 entityType.Builder.RemoveUnusedImplicitProperties([jsonIdProperty]);
             }
 
@@ -118,7 +118,7 @@ public class CosmosJsonIdConvention
                     ?? keyProperty!.ClrType;
 
                 if (clrType == typeof(string)
-                    && keyProperty.Builder.CanSetJsonPropertyName(IdPropertyJsonName))
+                    && keyProperty.Builder.CanSetJsonProperty(IdPropertyJsonName))
                 {
                     // We are at the point where we are going to map the `id` directly to the PK.
                     // However, if a previous run of this convention create the computed property, then we need to remove that
@@ -126,7 +126,7 @@ public class CosmosJsonIdConvention
                     if (computedIdProperty != null
                         && entityType.Builder.HasNoProperty(computedIdProperty) == null)
                     {
-                        computedIdProperty.Builder.HasJsonPropertyName(null);
+                        computedIdProperty.Builder.ToJsonProperty(null);
                     }
 
                     // If there was previously a different property mapped to `id`, but not one of our computed properties,
@@ -135,11 +135,11 @@ public class CosmosJsonIdConvention
                         && keyProperty != jsonIdProperty
                         && jsonIdProperty != computedIdProperty)
                     {
-                        jsonIdProperty.Builder.HasJsonPropertyName(null);
+                        jsonIdProperty.Builder.ToJsonProperty(null);
                     }
 
                     // Finally, actually map the primary key directly to the JSON `id`.
-                    keyProperty.Builder.HasJsonPropertyName(IdPropertyJsonName);
+                    keyProperty.Builder.ToJsonProperty(IdPropertyJsonName);
 
                     return;
                 }
@@ -151,9 +151,9 @@ public class CosmosJsonIdConvention
         // If so, then stop mapping it to JSON `id`.
         if (jsonIdProperty != null
             && jsonIdProperty != computedIdProperty
-            && jsonIdProperty.Builder.HasJsonPropertyName(null) == null)
+            && jsonIdProperty.Builder.ToJsonProperty(null) == null)
         {
-            // But if this fails (HasJsonPropertyName returns null) because the mapping to `id` is explicit, then we can't actually
+            // But if this fails (ToJsonProperty returns null) because the mapping to `id` is explicit, then we can't actually
             // create a computed property at all, so if we did, remove it.
             if (computedIdProperty != null)
             {
@@ -174,7 +174,7 @@ public class CosmosJsonIdConvention
         }
 
         // Don't chain, because each of these could return null if the property has been explicitly configured with some other value.
-        computedIdPropertyBuilder.HasJsonPropertyName(IdPropertyJsonName);
+        computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName);
         computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory));
         computedIdPropertyBuilder.AfterSave(PropertySaveBehavior.Throw);
         computedIdPropertyBuilder.IsRequired(true);

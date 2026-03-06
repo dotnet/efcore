@@ -115,7 +115,7 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="name">The name of the parent property.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static OwnedNavigationBuilder HasJsonPropertyName(
+    public static OwnedNavigationBuilder ToJsonProperty(
         this OwnedNavigationBuilder entityTypeBuilder,
         string? name)
     {
@@ -134,7 +134,7 @@ public static class CosmosEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="name">The name of the parent property.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasJsonPropertyName<TOwnerEntity, TDependentEntity>(
+    public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJsonProperty<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> entityTypeBuilder,
         string? name)
         where TOwnerEntity : class
@@ -159,7 +159,7 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    public static IConventionEntityTypeBuilder? HasJsonPropertyName(
+    public static IConventionEntityTypeBuilder? ToJsonProperty(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         string? name,
         bool fromDataAnnotation = false)
@@ -195,61 +195,6 @@ public static class CosmosEntityTypeBuilderExtensions
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
     }
-
-    /// <summary>
-    ///     Configures the property name that the entity is mapped to when stored as an embedded document.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the parent property.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete("Use HasJsonPropertyName() instead.")]
-    public static OwnedNavigationBuilder ToJsonProperty(
-        this OwnedNavigationBuilder entityTypeBuilder,
-        string? name)
-        => HasJsonPropertyName(entityTypeBuilder, name);
-
-    /// <summary>
-    ///     Configures the property name that the entity is mapped to when stored as an embedded document.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the parent property.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete("Use HasJsonPropertyName() instead.")]
-    public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJsonProperty<TOwnerEntity, TDependentEntity>(
-        this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> entityTypeBuilder,
-        string? name)
-        where TOwnerEntity : class
-        where TDependentEntity : class
-        => HasJsonPropertyName(entityTypeBuilder, name);
-
-    /// <summary>
-    ///     Configures the property name that the entity is mapped to when stored as an embedded document.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the parent property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    [Obsolete("Use HasJsonPropertyName() instead.")]
-    public static IConventionEntityTypeBuilder? ToJsonProperty(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => HasJsonPropertyName(entityTypeBuilder, name, fromDataAnnotation);
 
     /// <summary>
     ///     Returns a value indicating whether the parent property name to which the entity type is mapped to can be set

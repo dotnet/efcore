@@ -269,8 +269,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             b => b.Entity<CustomerGuid>(b =>
             {
-                b.Property(c => c.Id).HasJsonPropertyName("id");
-                b.Property(c => c.PartitionKey).HasConversion<string>().HasJsonPropertyName("pk");
+                b.Property(c => c.Id).ToJsonProperty("id");
+                b.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
                 b.HasPartitionKey(c => c.PartitionKey);
             }),
             shouldLogCategory: _ => true);
@@ -1247,7 +1247,7 @@ OFFSET 0 LIMIT 1
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerGuid>(cb =>
             {
-                cb.Property(c => c.Id).HasJsonPropertyName("id");
+                cb.Property(c => c.Id).ToJsonProperty("id");
                 cb.HasPartitionKey(c => c.Id);
             });
     }
@@ -1383,7 +1383,7 @@ OFFSET 0 LIMIT 1
     private class ExtraCustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().Property<string>("EMail").HasJsonPropertyName("e-mail");
+            => modelBuilder.Entity<Customer>().Property<string>("EMail").ToJsonProperty("e-mail");
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
@@ -1419,7 +1419,7 @@ OFFSET 0 LIMIT 1
     private class UnmappedCustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().Property(c => c.Name).HasJsonPropertyName("");
+            => modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
     }
 
     [ConditionalTheory, InlineData(false, Skip = "Fails only on C.I. See #33402"), InlineData(true, Skip = "Fails only on C.I. See #33402")]
