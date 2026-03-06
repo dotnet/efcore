@@ -138,11 +138,16 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
     /// </summary>
     public virtual Expression BindNavigation(INavigation navigation, bool clientEval)
     {
-        if (!StructuralType.IsAssignableFrom(navigation.DeclaringEntityType)
-            && !navigation.DeclaringEntityType.IsAssignableFrom(StructuralType))
+        if (StructuralType is not IEntityType entityType)
+        {
+            throw new UnreachableException("Navigations are only supported on entity types");
+        }
+
+        if (!entityType.IsAssignableFrom(navigation.DeclaringEntityType)
+            && !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
         {
             throw new InvalidOperationException(
-                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, StructuralType.DisplayName()));
+                CosmosStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, entityType.DisplayName()));
         }
 
         if (!_navigationExpressionsMap.TryGetValue(navigation, out var expression))
