@@ -1298,6 +1298,12 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
                 'Core Package Manager Console Tools don''t support this platform. See https://aka.ms/efcore-docs-pmc-tfms for more ' +
                 'information.'
         }
+        if ($targetPlatformIdentifier)
+        {
+            Write-Warning "Startup project '$($startupProject.ProjectName)' targets platform '$targetPlatformIdentifier'. The Entity " +
+                'Framework Core Package Manager Console Tools don''t support this platform. See https://aka.ms/efcore-docs-pmc-tfms ' +
+                'for more information.'
+        }
 
         $exePath = (Get-Command 'dotnet').Path
 

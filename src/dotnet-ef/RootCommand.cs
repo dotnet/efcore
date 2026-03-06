@@ -106,6 +106,12 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
+        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier))
+        {
+            Reporter.WriteWarning(
+                Resources.UnsupportedPlatform(startupProject.ProjectName, startupProject.TargetPlatformIdentifier));
+        }
+
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
         if (targetFramework.Identifier == ".NETFramework")
         {
