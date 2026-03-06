@@ -292,8 +292,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public int AddToProjection(StructuralTypeProjectionExpression entityProjection)
-        => AddToProjection(entityProjection, null);
+    public int AddToProjection(StructuralTypeProjectionExpression structuralTypeProjection)
+        => AddToProjection(structuralTypeProjection, null);
 
     private int AddToProjection(Expression expression, string? alias)
     {

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -316,12 +315,12 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is StructuralTypeProjectionExpression entityProjectionExpression
-                && Equals(entityProjectionExpression));
+                || obj is StructuralTypeProjectionExpression structuralTypeProjectionExpression
+                && Equals(structuralTypeProjectionExpression));
 
-    private bool Equals(StructuralTypeProjectionExpression entityProjectionExpression)
-        => Equals(StructuralType, entityProjectionExpression.StructuralType)
-            && Object.Equals(entityProjectionExpression.Object);
+    private bool Equals(StructuralTypeProjectionExpression structuralTypeProjectionExpression)
+        => Equals(StructuralType, structuralTypeProjectionExpression.StructuralType)
+            && Object.Equals(structuralTypeProjectionExpression.Object);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

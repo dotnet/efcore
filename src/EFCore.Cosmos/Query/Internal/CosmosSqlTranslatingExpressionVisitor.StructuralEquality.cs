@@ -24,8 +24,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
     {
         result = null;
 
-        if (item is not StructuralTypeReferenceExpression itemEntityReference ||
-            itemEntityReference.StructuralType is not IEntityType entityType) // #36468
+        if (item is not StructuralTypeReferenceExpression { StructuralType: IEntityType entityType })
         {
             return false;
         }
@@ -99,6 +98,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
     {
         switch (left, right)
         {
+            // Null equality always translates to = bull in cosmos, no matter the type of structural type.
             case (StructuralTypeReferenceExpression, SqlConstantExpression { Value: null }):
             case (SqlConstantExpression { Value: null }, StructuralTypeReferenceExpression):
                 return RewriteNullEquality(out result);

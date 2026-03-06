@@ -867,12 +867,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
-        if (source.ShaperExpression is not StructuralTypeShaperExpression entityShaperExpression)
+        if (source.ShaperExpression is not StructuralTypeShaperExpression structuralTypeShaperExpression)
         {
             return null;
         }
 
-        if (entityShaperExpression.StructuralType is not IEntityType entityType)
+        if (structuralTypeShaperExpression.StructuralType is not IEntityType entityType)
         {
             throw new UnreachableException("Complex types not supported in Cosmos");
         }
@@ -884,7 +884,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         var select = (SelectExpression)source.QueryExpression;
 
-        var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+        var parameterExpression = Expression.Parameter(structuralTypeShaperExpression.Type);
         var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
 
         if (!TryApplyPredicate(source, predicate))
@@ -895,23 +895,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
         if (baseType != null)
         {
-            return source.UpdateShaperExpression(entityShaperExpression.WithType(baseType));
+            return source.UpdateShaperExpression(structuralTypeShaperExpression.WithType(baseType));
         }
 
         var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
-        var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+        var projectionBindingExpression = (ProjectionBindingExpression)structuralTypeShaperExpression.ValueBufferExpression;
 
         var projectionMember = projectionBindingExpression.ProjectionMember;
         Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
 
-        var entityProjectionExpression = (StructuralTypeProjectionExpression)select.GetMappedProjection(projectionMember);
+        var structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)select.GetMappedProjection(projectionMember);
         select.ReplaceProjectionMapping(
             new Dictionary<ProjectionMember, Expression>
             {
-                { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+                { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
             });
 
-        return source.UpdateShaperExpression(entityShaperExpression.WithType(derivedType));
+        return source.UpdateShaperExpression(structuralTypeShaperExpression.WithType(derivedType));
     }
 
     /// <summary>

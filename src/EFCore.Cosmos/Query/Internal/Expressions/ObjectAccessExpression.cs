@@ -30,7 +30,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
 
-        PropertyBase = navigation;
+        StructuralProperty = navigation;
         StructuralType = navigation.TargetEntityType;
         Object = @object;
     }
@@ -43,7 +43,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     /// </summary>
     public ObjectAccessExpression(Expression @object, IComplexProperty complexProperty)
     {
-        PropertyBase = complexProperty;
+        StructuralProperty = complexProperty;
         PropertyName = complexProperty.Name;
         Object = @object;
         StructuralType = complexProperty.ComplexType;
@@ -73,7 +73,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => PropertyBase.ClrType;
+        => StructuralProperty.ClrType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,7 +97,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IPropertyBase PropertyBase { get; }
+    public virtual IPropertyBase StructuralProperty { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,9 +116,9 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     /// </summary>
     public virtual ObjectAccessExpression Update(Expression outerExpression)
         => outerExpression != Object
-            ? PropertyBase is INavigation navigation
+            ? StructuralProperty is INavigation navigation
                 ? new ObjectAccessExpression(outerExpression, navigation)
-                : new ObjectAccessExpression(outerExpression, (IComplexProperty)PropertyBase)
+                : new ObjectAccessExpression(outerExpression, (IComplexProperty)StructuralProperty)
             : this;
 
     /// <summary>
@@ -152,7 +152,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
                 && Equals(objectAccessExpression));
 
     private bool Equals(ObjectAccessExpression objectAccessExpression)
-        => PropertyBase == objectAccessExpression.PropertyBase
+        => StructuralProperty == objectAccessExpression.StructuralProperty
             && Object.Equals(objectAccessExpression.Object);
 
     /// <summary>
@@ -162,5 +162,5 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(PropertyBase, Object);
+        => HashCode.Combine(StructuralProperty, Object);
 }

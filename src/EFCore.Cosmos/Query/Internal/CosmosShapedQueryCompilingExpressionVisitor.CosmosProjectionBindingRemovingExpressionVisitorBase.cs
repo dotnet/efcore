@@ -108,8 +108,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     objectArrayProjectionExpression.Object, storeName, parameterExpression.Type);
                                 break;
 
-                            case StructuralTypeProjectionExpression entityProjectionExpression:
-                                var accessExpression = entityProjectionExpression.Object;
+                            case StructuralTypeProjectionExpression structuralTypeProjectionExpression:
+                                var accessExpression = structuralTypeProjectionExpression.Object;
                                 _projectionBindings[accessExpression] = parameterExpression;
 
                                 switch (accessExpression)
@@ -127,7 +127,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             accessExpression = objectAccessExpression.Object;
                                             storeNames.Add(objectAccessExpression.PropertyName);
                                             _ownerMappings[objectAccessExpression]
-                                                = ((IEntityType)objectAccessExpression.PropertyBase.DeclaringType, accessExpression);
+                                                = ((IEntityType)objectAccessExpression.StructuralProperty.DeclaringType, accessExpression);
                                         }
 
                                         valueExpression = CreateGetValueExpression(accessExpression, (string)null, typeof(JObject));
@@ -165,19 +165,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         else
                         {
-                            StructuralTypeProjectionExpression entityProjectionExpression;
+                            StructuralTypeProjectionExpression structuralTypeProjectionExpression;
                             if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
                             {
                                 var projection = GetProjection(projectionBindingExpression);
-                                entityProjectionExpression = (StructuralTypeProjectionExpression)projection.Expression;
+                                structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)projection.Expression;
                             }
                             else
                             {
                                 var projection = ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
-                                entityProjectionExpression = (StructuralTypeProjectionExpression)projection;
+                                structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)projection;
                             }
 
-                            _materializationContextBindings[parameterExpression] = entityProjectionExpression.Object;
+                            _materializationContextBindings[parameterExpression] = structuralTypeProjectionExpression.Object;
                         }
 
                         var updatedExpression = New(
@@ -288,7 +288,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var accessExpression = objectArrayAccess.InnerProjection.Object;
                     _projectionBindings[accessExpression] = jObjectParameter;
                     _ownerMappings[accessExpression] =
-                        ((IEntityType)objectArrayAccess.PropertyBase.DeclaringType, objectArrayAccess.Object);
+                        ((IEntityType)objectArrayAccess.StructuralProperty.DeclaringType, objectArrayAccess.Object);
                     _ordinalParameterBindings[accessExpression] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
 

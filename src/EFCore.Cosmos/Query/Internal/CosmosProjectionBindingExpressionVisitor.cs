@@ -215,11 +215,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 if (_clientEval)
                 {
-                    var entityProjection = (StructuralTypeProjectionExpression)projection;
+                    var structuralTypeProjection = (StructuralTypeProjectionExpression)projection;
 
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(
-                            _selectExpression, _selectExpression.AddToProjection(entityProjection), typeof(ValueBuffer)));
+                            _selectExpression, _selectExpression.AddToProjection(structuralTypeProjection), typeof(ValueBuffer)));
                 }
 
                 _projectionMapping[_projectionMembers.Peek()] = projection;
@@ -304,19 +304,19 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 return NullSafeUpdate(innerExpression);
         }
 
-        var innerEntityProjection = shaperExpression.ValueBufferExpression switch
+        var innerStructuralTypeProjection = shaperExpression.ValueBufferExpression switch
         {
             ProjectionBindingExpression innerProjectionBindingExpression
                 => (StructuralTypeProjectionExpression)_selectExpression.Projection[innerProjectionBindingExpression.Index!.Value].Expression,
 
-            // Unwrap EntityProjectionExpression when the root entity is not projected
+            // Unwrap StructuralTypeProjectionExpression when the root entity is not projected
             UnaryExpression unaryExpression
                 => (StructuralTypeProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand,
 
             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()))
         };
 
-        var navigationProjection = innerEntityProjection.BindMember(
+        var navigationProjection = innerStructuralTypeProjection.BindMember(
             memberExpression.Member, innerExpression.Type, clientEval: true, out var propertyBase);
 
         if (propertyBase is not INavigation navigation
@@ -327,10 +327,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
         switch (navigationProjection)
         {
-            case StructuralTypeProjectionExpression entityProjection:
+            case StructuralTypeProjectionExpression structuralTypeProjection:
                 return new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
-                    Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
+                    Expression.Convert(Expression.Convert(structuralTypeProjection, typeof(object)), typeof(ValueBuffer)),
                     nullable: true);
 
             case ObjectArrayAccessExpression objectArrayProjectionExpression:
@@ -526,10 +526,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            var innerEntityProjection = shaperExpression.ValueBufferExpression switch
+            var innerStructuralTypeProjection = shaperExpression.ValueBufferExpression switch
             {
-                StructuralTypeProjectionExpression entityProjection
-                    => entityProjection,
+                StructuralTypeProjectionExpression structuralTypeProjection
+                    => structuralTypeProjection,
 
                 ProjectionBindingExpression innerProjectionBindingExpression
                     => (StructuralTypeProjectionExpression)_selectExpression.Projection[innerProjectionBindingExpression.Index!.Value].Expression,
@@ -544,7 +544,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             var navigation = _includedNavigations.FirstOrDefault(n => n.Name == memberName);
             if (navigation == null)
             {
-                navigationProjection = innerEntityProjection.BindMember(
+                navigationProjection = innerStructuralTypeProjection.BindMember(
                     memberName, visitedSource.Type, clientEval: true, out var propertyBase);
 
                 if (propertyBase is not INavigation projectedNavigation || !projectedNavigation.IsEmbedded())
@@ -556,7 +556,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             }
             else
             {
-                navigationProjection = innerEntityProjection.BindNavigation(navigation, clientEval: true);
+                navigationProjection = innerStructuralTypeProjection.BindNavigation(navigation, clientEval: true);
             }
 
             switch (navigationProjection)

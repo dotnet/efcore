@@ -37,7 +37,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
 
-        PropertyBase = navigation;
+        StructuralProperty = navigation;
         Object = @object;
         InnerProjection = innerProjection
             ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
@@ -58,7 +58,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
         Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
 
         PropertyName = complexProperty.Name;
-        PropertyBase = complexProperty;
+        StructuralProperty = complexProperty;
         Object = @object;
         InnerProjection = innerProjection
             ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
@@ -103,7 +103,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IPropertyBase PropertyBase { get; }
+    public virtual IPropertyBase StructuralProperty { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,9 +137,9 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
         Expression accessExpression,
         StructuralTypeProjectionExpression innerProjection)
         => accessExpression != Object || innerProjection != InnerProjection
-            ? PropertyBase is INavigation navigation
+            ? StructuralProperty is INavigation navigation
                 ? new ObjectArrayAccessExpression(accessExpression, navigation, innerProjection)
-                : new ObjectArrayAccessExpression(accessExpression, (IComplexProperty)PropertyBase, innerProjection)
+                : new ObjectArrayAccessExpression(accessExpression, (IComplexProperty)StructuralProperty, innerProjection)
             : this;
 
     /// <summary>
