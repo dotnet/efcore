@@ -198,20 +198,15 @@ public abstract class OperationTaskBase : ToolTask
             args.Add(runtimeFrameworkVersion);
         }
 
-        var assemblyDir = Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!;
-        var packageRoot = Path.Combine(assemblyDir, "..", "..");
-#if NETFRAMEWORK
-        var toolsTfm = new DirectoryInfo(Path.Combine(packageRoot, "tools"))
-            .EnumerateDirectories().FirstOrDefault()?.Name
-            ?? throw new InvalidOperationException("Could not find the Entity Framework Core tools directory.");
-#else
-        var toolsTfm = new DirectoryInfo(assemblyDir).Name;
-#endif
+        var packageRoot = Path.Combine(
+            Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
+            "..",
+            "..");
         args.Add(
             Path.Combine(
                 packageRoot,
                 "tools",
-                toolsTfm,
+                "net",
                 "ef.dll"));
 
         args.AddRange(AdditionalArguments);
