@@ -864,7 +864,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         if (typeReference.StructuralType is not IEntityType entityType)
         {
-            return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+            return sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
         }
         
         if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
