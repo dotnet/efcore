@@ -1,7 +1,13 @@
 version: 2
+registries:
+  nuget-org:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
+    registries:
+      - nuget-org
     open-pull-requests-limit: 5
     schedule:
       interval: "weekly"

@@ -15,13 +15,22 @@
     <UsingToolXliff>false</UsingToolXliff>
   </PropertyGroup>
 
-  <PropertyGroup Label="MSBuild and Roslyn">
+  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(PreReleaseVersionLabel)' != 'servicing' Or $(VersionPrefix.EndsWith('.0')) Or $(VersionPrefix.EndsWith('.1'))">
     <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
     <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
     <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.0.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
     <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="MSBuild and Roslyn servicing" Condition="'$(PreReleaseVersionLabel)' == 'servicing' And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">
+    <MicrosoftBuildFrameworkVersion>18.5.0</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.5.0</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.5.0</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.5.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.5.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.5.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Test dependencies">
