@@ -13,9 +13,11 @@
 
     <!-- Arcade features -->
     <UsingToolXliff>false</UsingToolXliff>
+
+    <ShouldUseLiveRoslyn Condition="'$(PreReleaseVersionLabel)' != 'servicing' Or $(VersionPrefix.EndsWith('.0')) Or $(VersionPrefix.EndsWith('.1'))">true</ShouldUseLiveRoslyn>
   </PropertyGroup>
 
-  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(PreReleaseVersionLabel)' != 'servicing' Or $(VersionPrefix.EndsWith('.0')) Or $(VersionPrefix.EndsWith('.1'))">
+  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' == 'true'">
     <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
     <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
     <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
@@ -24,7 +26,7 @@
     <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="MSBuild and Roslyn servicing" Condition="'$(PreReleaseVersionLabel)' == 'servicing' And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">
+  <PropertyGroup Label="MSBuild and Roslyn servicing" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
     <MicrosoftBuildFrameworkVersion>18.5.0</MicrosoftBuildFrameworkVersion>
     <MicrosoftBuildUtilitiesCoreVersion>18.5.0</MicrosoftBuildUtilitiesCoreVersion>
     <MicrosoftBuildTasksCoreVersion>18.5.0</MicrosoftBuildTasksCoreVersion>
