@@ -416,11 +416,30 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyTypeBase typeBase)
-        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnName
-            ? columnName
-            : typeBase is IReadOnlyEntityType entityType
-                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
-                : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
+    {
+        if (typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnType)
+        {
+            return columnType;
+        }
+
+        var parentType = typeBase is IReadOnlyEntityType entityType
+            ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
+            : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
+
+        if (parentType != null)
+        {
+            return parentType;
+        }
+
+        if (typeBase.IsMappedToJson()
+            && typeBase.Model is IModel model)
+        {
+            return ((IRelationalTypeMappingSource)model.GetModelDependencies().TypeMappingSource)
+                .FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     Sets the type of the container column to which the type is mapped.

@@ -52,18 +52,8 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
         IConventionModelBuilder modelBuilder,
         IConventionContext<IConventionModelBuilder> context)
     {
-        var defaultJsonStoreType =
-            ((RelationalTypeMapping?)Dependencies.TypeMappingSource.FindMapping(typeof(JsonTypePlaceholder)))?.StoreType;
-
         foreach (var jsonEntityType in modelBuilder.Metadata.GetEntityTypes().Where(e => e.IsMappedToJson()))
         {
-            if (defaultJsonStoreType != null
-                && jsonEntityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string
-                && jsonEntityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType) == null)
-            {
-                jsonEntityType.SetContainerColumnType(defaultJsonStoreType);
-            }
-
             foreach (var enumProperty in jsonEntityType
                          .GetDeclaredProperties()
                          .Where(p => p.ClrType.UnwrapNullableType().IsEnum))
@@ -76,31 +66,6 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
                         typeof(JsonWarningEnumReaderWriter<>).MakeGenericType(enumProperty.ClrType.UnwrapNullableType()));
                 }
             }
-        }
-
-        if (defaultJsonStoreType != null)
-        {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-            {
-                SetDefaultContainerColumnTypeForComplexTypes(entityType, defaultJsonStoreType);
-            }
-        }
-    }
-
-    private static void SetDefaultContainerColumnTypeForComplexTypes(
-        IConventionTypeBase typeBase,
-        string defaultJsonStoreType)
-    {
-        foreach (var complexProperty in typeBase.GetComplexProperties())
-        {
-            var complexType = complexProperty.ComplexType;
-            if (complexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string
-                && complexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType) == null)
-            {
-                complexType.SetContainerColumnType(defaultJsonStoreType);
-            }
-
-            SetDefaultContainerColumnTypeForComplexTypes(complexType, defaultJsonStoreType);
         }
     }
 }
