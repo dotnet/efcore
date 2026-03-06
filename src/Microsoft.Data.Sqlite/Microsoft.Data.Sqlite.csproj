@@ -15,7 +15,7 @@ Microsoft.Data.Sqlite.SqliteFactory
 Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>$(NetMinimum);$(NetFrameworkToolCurrent)</TargetFrameworks>
     <MinClientVersion>3.6</MinClientVersion>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
     <IncludeSymbols>false</IncludeSymbols>
@@ -42,5 +42,8 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
 
   <Target Name="Compile" />
   <Target Name="CopyFilesToOutputDirectory" />
+
+  <!-- This is a packaging-only project with no native compilation; suppress the AnyCPU architecture check from SQLitePCLRaw native packages -->
+  <Target Name="CheckForAnyCPU" />
 
 </Project>
