@@ -98,7 +98,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
     {
         switch (left, right)
         {
-            // Null equality always translates to = bull in cosmos, no matter the type of structural type.
+            // Null equality always translates to = null in cosmos, no matter the type of structural type.
             case (StructuralTypeReferenceExpression, SqlConstantExpression { Value: null }):
             case (SqlConstantExpression { Value: null }, StructuralTypeReferenceExpression):
                 return RewriteNullEquality(out result);
