@@ -295,7 +295,9 @@ public static class RelationalForeignKeyExtensions
     /// <param name="foreignKey">The foreign key.</param>
     /// <returns><see langword="true" /> if the foreign key constraint is excluded from migrations.</returns>
     public static bool IsExcludedFromMigrations(this IReadOnlyForeignKey foreignKey)
-        => (bool?)foreignKey[RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations] ?? false;
+        => foreignKey is RuntimeForeignKey
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)foreignKey[RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations] ?? false;
 
     /// <summary>
     ///     Sets a value indicating whether the foreign key constraint is excluded from migrations.
