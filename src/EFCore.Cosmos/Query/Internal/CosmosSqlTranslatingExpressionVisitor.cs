@@ -3,9 +3,9 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -202,24 +202,23 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                         ?? QueryCompilationContext.NotTranslatedExpression;
         }
 
-        Expression ProcessGetType(StructuralTypeReferenceExpression structuralTypeReferenceExpression, Type comparisonType, bool match)
+        Expression ProcessGetType(StructuralTypeReferenceExpression typeReference, Type comparisonType, bool match)
         {
-            var structuralType = structuralTypeReferenceExpression.StructuralType;
-
-            if (structuralType.BaseType == null
-                && !structuralType.GetDirectlyDerivedTypes().Any())
+            if (typeReference.StructuralType is not IEntityType entityType
+                || (entityType.BaseType == null
+                    && !entityType.GetDirectlyDerivedTypes().Any()))
             {
                 // No hierarchy
-                return sqlExpressionFactory.Constant((structuralType.ClrType == comparisonType) == match);
+                return sqlExpressionFactory.Constant((typeReference.StructuralType.ClrType == comparisonType) == match);
             }
 
-            if (structuralType is IEntityType entityType && entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
+            if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
             {
                 // EntitySet will never contain a type of base type
                 return sqlExpressionFactory.Constant(!match);
             }
 
-            var derivedType = structuralType.GetDerivedTypesInclusive().SingleOrDefault(et => et.ClrType == comparisonType);
+            var derivedType = entityType.GetDerivedTypesInclusive().SingleOrDefault(et => et.ClrType == comparisonType);
             // If no derived type matches then fail the translation
             if (derivedType != null)
             {
@@ -232,8 +231,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 // Or add predicate for matching that particular type discriminator value
                 // All hierarchies have discriminator property
                 if (TryBindMember(
-                        structuralTypeReferenceExpression,
-                        MemberIdentity.Create(structuralType.GetDiscriminatorPropertyName()),
+                        typeReference,
+                        MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()),
                         out var discriminatorMember,
                         out _)
                     && discriminatorMember is SqlExpression discriminatorColumn)
@@ -858,35 +857,41 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     {
         var innerExpression = Visit(typeBinaryExpression.Expression);
 
-        if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
-            && innerExpression is StructuralTypeReferenceExpression structuralTypeReferenceExpression
-            && structuralTypeReferenceExpression.StructuralType is IEntityType entityType)
+        if (typeBinaryExpression.NodeType != ExpressionType.TypeIs
+            || innerExpression is not StructuralTypeReferenceExpression typeReference)
         {
-            if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
-            {
-                return sqlExpressionFactory.Constant(true);
-            }
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
 
-            var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
-            if (derivedType != null
-                && TryBindMember(
-                    structuralTypeReferenceExpression,
-                    MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()),
-                    out var discriminatorMember,
-                    out _)
-                && discriminatorMember is SqlExpression discriminatorColumn)
-            {
-                var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+        if (typeReference.StructuralType is not IEntityType entityType)
+        {
+            return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+        }
+        
+        if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
+        {
+            return sqlExpressionFactory.Constant(true);
+        }
 
-                return concreteEntityTypes.Count == 1
-                    ? sqlExpressionFactory.Equal(
-                        discriminatorColumn,
-                        sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
-                    : sqlExpressionFactory.In(
-                        discriminatorColumn,
-                        concreteEntityTypes
-                            .Select(et => sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type)).ToArray());
-            }
+        var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
+        if (derivedType != null
+            && TryBindMember(
+                typeReference,
+                MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()),
+                out var discriminatorMember,
+                out _)
+            && discriminatorMember is SqlExpression discriminatorColumn)
+        {
+            var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
+
+            return concreteEntityTypes.Count == 1
+                ? sqlExpressionFactory.Equal(
+                    discriminatorColumn,
+                    sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
+                : sqlExpressionFactory.In(
+                    discriminatorColumn,
+                    concreteEntityTypes
+                        .Select(et => sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type)).ToArray());
         }
 
         return QueryCompilationContext.NotTranslatedExpression;
@@ -952,17 +957,19 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         Check.DebugAssert(property is not null, "Property cannot be null if binding result was non-null");
 
-        if (wrapResultExpressionInReferenceExpression)
+        switch (expression)
         {
-            switch (expression)
-            {
-                case StructuralTypeShaperExpression shaper:
-                    expression = new StructuralTypeReferenceExpression(shaper);
-                    return true;                    
-            }
+            case StructuralTypeShaperExpression shaper when wrapResultExpressionInReferenceExpression:
+                expression = new StructuralTypeReferenceExpression(shaper);
+                return true;
+            // case ObjectArrayAccessExpression objectArrayProjectionExpression:
+            //     expression = objectArrayProjectionExpression;
+            //     return true;
+            default:
+                return true;
         }
 
-        return true;
+        // return true;
     }
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
@@ -1077,9 +1084,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 return this;
             }
 
-            return StructuralType is { } entityType
-                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
-                    ? new StructuralTypeReferenceExpression(this, derivedEntityType)
+            return StructuralType is { } structuralType
+                && structuralType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedStructuralType
+                    ? new StructuralTypeReferenceExpression(this, derivedStructuralType)
                     : QueryCompilationContext.NotTranslatedExpression;
         }
 
