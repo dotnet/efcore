@@ -434,10 +434,10 @@ public static class RelationalTypeBaseExtensions
 
         if (typeBase.IsMappedToJson()
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            && (Model)typeBase.Model is { IsReadOnly: true } model)
+            && (typeBase.Model is not Model model || model.IsReadOnly))
 #pragma warning restore EF1001 // Internal EF Core API usage.
         {
-            return ((IRelationalTypeMappingSource)((IModel)model).GetModelDependencies().TypeMappingSource)
+            return ((IRelationalTypeMappingSource)((IModel)typeBase.Model).GetModelDependencies().TypeMappingSource)
                 .FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
         }
 
