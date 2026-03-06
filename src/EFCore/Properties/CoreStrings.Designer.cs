@@ -161,6 +161,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type);
 
         /// <summary>
+        ///     The property '{property}' on type '{type}' is used in a constructor binding and cannot be configured as not auto-loaded. Constructor-bound properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedConstructorProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedConstructorProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     The property '{property}' on type '{type}' is a discriminator and cannot be configured as not auto-loaded. Discriminator properties must always be loaded.
         /// </summary>
         public static string AutoLoadedDiscriminatorProperty(object? property, object? type)

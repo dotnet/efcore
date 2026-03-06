@@ -29,6 +29,6 @@ public class SqlServerAutoLoadConvention(ProviderConventionSetBuilderDependencie
         // If there's a value converter, the CLR type may not reflect the store type,
         // so we can only check for SqlVector<> when there's no converter.
         return property.GetValueConverter() is not null
-            || property.ClrType.TryGetElementType(typeof(SqlVector<>)) is null;
+            || property.ClrType.UnwrapNullableType().TryGetElementType(typeof(SqlVector<>)) is null;
     }
 }

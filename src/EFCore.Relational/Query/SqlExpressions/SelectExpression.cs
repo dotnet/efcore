@@ -1420,6 +1420,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                         continue;
                     }
 
+                    if (!property.IsAutoLoaded)
+                    {
+                        continue;
+                    }
+
                     projections[property] = AddToProjection(typeProjection.BindProperty(property), alias: null);
                 }
 

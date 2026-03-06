@@ -154,7 +154,16 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             {
                 var blog = await context.Set<BlogWithDescription>().SingleAsync();
                 Assert.Equal("Updated Blog", blog.Name);
-                Assert.Equal("Original description", blog.Description);
+
+                // Description is not auto-loaded, so it should be null (sentinel) in the materialized entity
+                Assert.Null(blog.Description);
+
+                // Verify the data is correct in the database by explicitly projecting the non-auto-loaded property
+                var description = await context.Set<BlogWithDescription>()
+                    .Where(b => b.Description == "Original description")
+                    .Select(b => b.Description)
+                    .SingleAsync();
+                Assert.Equal("Original description", description);
             });
     }
 
@@ -198,7 +207,144 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             {
                 var blog = await context.Set<BlogWithTags>().SingleAsync();
                 Assert.Equal("Updated Blog", blog.Name);
-                Assert.Equal(new[] { "efcore", "dotnet" }, blog.Tags);
+                // Tags is not auto-loaded, so it should be the empty sentinel in the materialized entity
+                Assert.Empty(blog.Tags);
+            });
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Query_with_not_auto_loaded_property_tracked(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(
+                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            seed: async context =>
+            {
+                context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var blog = async
+                    ? await context.Set<BlogWithDescription>().SingleAsync()
+                    : context.Set<BlogWithDescription>().Single();
+
+                // The non-auto-loaded property should not have been fetched
+                Assert.Null(blog.Description);
+
+                // The change tracker should know the property is not loaded
+                var entry = context.Entry(blog);
+                Assert.False(entry.Property(e => e.Description).IsLoaded);
+            });
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Query_with_not_auto_loaded_property_no_tracking(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(
+                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            seed: async context =>
+            {
+                context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var blog = async
+                    ? await context.Set<BlogWithDescription>().AsNoTracking().SingleAsync()
+                    : context.Set<BlogWithDescription>().AsNoTracking().Single();
+
+                // The non-auto-loaded property should not have been fetched, and retains its default/sentinel value
+                Assert.Null(blog.Description);
+            });
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Explicit_select_of_not_auto_loaded_property(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(
+                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            seed: async context =>
+            {
+                context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                // Explicitly projecting the non-auto-loaded property should still work
+                var description = async
+                    ? await context.Set<BlogWithDescription>().Select(b => b.Description).SingleAsync()
+                    : context.Set<BlogWithDescription>().Select(b => b.Description).Single();
+
+                Assert.Equal("Some description", description);
+            });
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_on_not_auto_loaded_property(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(
+                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            seed: async context =>
+            {
+                context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                // Filtering on a non-auto-loaded property should work; the property must be available in the subquery
+                var blog = async
+                    ? await context.Set<BlogWithDescription>().Where(b => b.Description == "Some description").SingleAsync()
+                    : context.Set<BlogWithDescription>().Where(b => b.Description == "Some description").Single();
+
+                Assert.Equal("EF Blog", blog.Name);
+
+                // The non-auto-loaded property should still not be in the entity projection
+                Assert.Null(blog.Description);
+            });
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Query_with_not_auto_loaded_primitive_collection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<BlogWithTags>(
+                    b =>
+                    {
+                        b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
+                        b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
+                    }),
+            seed: async context =>
+            {
+                context.Add(new BlogWithTags { Name = "EF Blog", Tags = ["efcore", "dotnet"] });
+                await context.SaveChangesAsync();
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var blog = async
+                    ? await context.Set<BlogWithTags>().SingleAsync()
+                    : context.Set<BlogWithTags>().Single();
+
+                // The non-auto-loaded primitive collection should not have been fetched
+                Assert.Empty(blog.Tags);
             });
     }
 

@@ -85,7 +85,8 @@ namespace TestNamespace
                 typeof(SqlVector<float>?),
                 propertyInfo: typeof(CompiledModelSqlServerTest.VectorIndexEntity).GetProperty("Vector", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelSqlServerTest.VectorIndexEntity).GetField("<Vector>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
+                nullable: true,
+                autoLoaded: false);
             vector.SetGetter(
                 SqlVector<float>? (CompiledModelSqlServerTest.VectorIndexEntity instance) => VectorIndexEntityUnsafeAccessors.Vector(instance),
                 bool (CompiledModelSqlServerTest.VectorIndexEntity instance) => !(VectorIndexEntityUnsafeAccessors.Vector(instance).HasValue));
