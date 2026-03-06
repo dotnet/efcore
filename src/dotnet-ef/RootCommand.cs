@@ -106,10 +106,11 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
-        if (!IsCurrentPlatform(startupProject.TargetPlatformIdentifier))
+        var targetPlatformIdentifier = GetTargetPlatformIdentifier(startupProject.TargetFramework);
+        if (!IsCurrentPlatform(targetPlatformIdentifier))
         {
             Reporter.WriteWarning(
-                Resources.UnsupportedPlatform(startupProject.ProjectName, startupProject.TargetPlatformIdentifier));
+                Resources.UnsupportedPlatform(startupProject.ProjectName, targetPlatformIdentifier));
         }
 
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
@@ -326,28 +327,46 @@ internal class RootCommand : CommandBase
             return true;
         }
 
-        var currentPlatformIdentifier = GetTargetPlatformIdentifier();
-        return string.Equals(targetPlatformIdentifier, currentPlatformIdentifier, StringComparison.OrdinalIgnoreCase);
+        if (string.Equals(targetPlatformIdentifier, "windows", StringComparison.OrdinalIgnoreCase))
+        {
+            return OperatingSystem.IsWindows();
+        }
+
+        if (string.Equals(targetPlatformIdentifier, "linux", StringComparison.OrdinalIgnoreCase))
+        {
+            return OperatingSystem.IsLinux();
+        }
+
+        if (string.Equals(targetPlatformIdentifier, "osx", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(targetPlatformIdentifier, "macos", StringComparison.OrdinalIgnoreCase))
+        {
+            return OperatingSystem.IsMacOS();
+        }
+
+        return false;
     }
 
-    private static string? GetTargetPlatformIdentifier()
+    private static string? GetTargetPlatformIdentifier(string? targetFramework)
     {
-        if (OperatingSystem.IsWindows())
+        if (string.IsNullOrEmpty(targetFramework))
         {
-            return "Windows";
+            return null;
         }
 
-        if (OperatingSystem.IsLinux())
+        var dashIndex = targetFramework.IndexOf('-');
+        if (dashIndex < 0 || dashIndex >= targetFramework.Length - 1)
         {
-            return "Linux";
+            return null;
         }
 
-        if (OperatingSystem.IsMacOS())
+        var platformAndVersion = targetFramework[(dashIndex + 1)..];
+        var i = 0;
+        while (i < platformAndVersion.Length && !char.IsDigit(platformAndVersion[i]))
         {
-            return "macOS";
+            i++;
         }
 
-        return null;
+        return i > 0 ? platformAndVersion[..i] : null;
     }
 
     private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
