@@ -129,16 +129,16 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
             case ExpressionType.Equal:
             case ExpressionType.NotEqual when binaryExpression.Left.Type == typeof(Type):
-                if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
+                if (IsGetTypeMethodCall(binaryExpression.Left, out var structuralTypeReference1)
                     && IsTypeConstant(binaryExpression.Right, out var type1))
                 {
-                    return ProcessGetType(entityReference1!, type1!, binaryExpression.NodeType == ExpressionType.Equal);
+                    return ProcessGetType(structuralTypeReference1!, type1!, binaryExpression.NodeType == ExpressionType.Equal);
                 }
 
-                if (IsGetTypeMethodCall(binaryExpression.Right, out var entityReference2)
+                if (IsGetTypeMethodCall(binaryExpression.Right, out var structuralTypeReference2)
                     && IsTypeConstant(binaryExpression.Left, out var type2))
                 {
-                    return ProcessGetType(entityReference2!, type2!, binaryExpression.NodeType == ExpressionType.Equal);
+                    return ProcessGetType(structuralTypeReference2!, type2!, binaryExpression.NodeType == ExpressionType.Equal);
                 }
 
                 break;
@@ -922,16 +922,16 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         {
             case { Parameter: { } shaper }:
                 var valueBufferExpression = Visit(shaper.ValueBufferExpression);
-                var entityProjection = (StructuralTypeProjectionExpression)valueBufferExpression;
+                var structuralTypeProjection = (StructuralTypeProjectionExpression)valueBufferExpression;
 
                 expression = member switch
                 {
                     { MemberInfo: { } memberInfo }
-                        => entityProjection.BindMember(
+                        => structuralTypeProjection.BindMember(
                             memberInfo, typeReference.Type, clientEval: false, out property),
 
                     { Name: { } name }
-                        => entityProjection.BindMember(
+                        => structuralTypeProjection.BindMember(
                             name, typeReference.Type, clientEval: false, out property),
 
                     _ => throw new UnreachableException()
