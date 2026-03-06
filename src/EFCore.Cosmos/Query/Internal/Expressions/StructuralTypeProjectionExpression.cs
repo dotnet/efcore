@@ -192,10 +192,8 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             // TODO: Unify ObjectAccessExpression and ObjectArrayAccessExpression
             expression = complexProperty.IsCollection
                 ? new CollectionResultExpression(
-                    new StructuralTypeShaperExpression(
-                        complexProperty.ComplexType,
-                        new ObjectArrayAccessExpression(Object, complexProperty),
-                        nullable: true))
+                    new ObjectArrayAccessExpression(Object, complexProperty),
+                    complexProperty)
                 : new StructuralTypeShaperExpression(
                     complexProperty.ComplexType,
                     new StructuralTypeProjectionExpression(new ObjectAccessExpression(Object, complexProperty), complexProperty.ComplexType),

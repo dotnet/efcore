@@ -189,19 +189,21 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
         bool TryRewriteComplexTypeEquality(bool collection, out SqlExpression? result)
         {
-            var (leftShaper, leftComplexType) = ParseComplexType(left);
-            var (rightShaper, rightComplexType) = ParseComplexType(right);
-
-            if (leftShaper is null && rightShaper is null)
+            var leftComplexType = left switch
             {
-                result = null;
-                return false;
-            }
+                StructuralTypeReferenceExpression { StructuralType: IComplexType type } => type,
+                CollectionResultExpression { ComplexProperty: IComplexProperty { ComplexType: var type } } => type,
 
-            var shaper = leftShaper ?? rightShaper;
-            var complexType = leftComplexType ?? rightComplexType;
+                _ => null
+            };
 
-            Debug.Assert(complexType != null);
+            var rightComplexType = right switch
+            {
+                StructuralTypeReferenceExpression { StructuralType: IComplexType type } => type,
+                CollectionResultExpression { ComplexProperty: IComplexProperty { ComplexType: var type } } => type,
+
+                _ => null
+            };
 
             if (leftComplexType is not null
                 && rightComplexType is not null
@@ -213,65 +215,82 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                 return false;
             }
 
-            var leftAccess = leftShaper != null ? Visit(leftShaper.ValueBufferExpression) : ParseComplexAccess(left);
-            var rightAccess = rightShaper != null ? Visit(rightShaper.ValueBufferExpression) : ParseComplexAccess(right);
+            var boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
+            SqlExpression? comparison = null;
 
-            if (leftAccess is null || leftAccess == QueryCompilationContext.NotTranslatedExpression ||
-                rightAccess is null || rightAccess == QueryCompilationContext.NotTranslatedExpression)
+            // Generate an expression that compares by direct object access
+            if (!TryGenerateComparison(leftComplexType, rightComplexType, left, right, ref comparison))
             {
                 result = null;
                 return false;
             }
 
-            result = new SqlBinaryExpression(
-                    nodeType,
-                    leftAccess,
-                    rightAccess,
-                    typeof(bool),
-                    typeMappingSource.FindMapping(typeof(bool))!)!;
+            result = comparison;
             return true;
 
-            (StructuralTypeShaperExpression?, IComplexType?) ParseComplexType(Expression expression)
-                => expression switch
-                {
-                    StructuralTypeReferenceExpression { StructuralType: IComplexType type } reference
-                        => (reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression, type),
-                    CollectionResultExpression { ComplexProperty: IComplexProperty { ComplexType: var type } } collectionResult
-                        => (collectionResult.Parameter ?? (StructuralTypeShaperExpression)collectionResult.Subquery!.ShaperExpression, type),
-
-                    _ => (null, null)
-                };
-
-            Expression? ParseComplexAccess(Expression expression)
-                => expression switch
-                {
-                    SqlParameterExpression sqlParameterExpression
-                        => CreateJsonQueryParameter(sqlParameterExpression),
-                    SqlConstantExpression constant
-                        => sqlExpressionFactory.Constant(
-                            CosmosSerializationUtilities.SerializeObjectToComplexProperty(complexType, constant.Value, collection),
-                            CosmosTypeMapping.Default),
-
-                    _ => null
-                };
-
-            Expression CreateJsonQueryParameter(SqlParameterExpression sqlParameterExpression)
+            bool TryGenerateComparison(
+                IComplexType? leftComplexType,
+                IComplexType? rightComplexType,
+                Expression left,
+                Expression right,
+                [NotNullWhen(true)] ref SqlExpression? comparison)
             {
-                var lambda = Expression.Lambda(
-                                Expression.Call(
-                                    CosmosSerializationUtilities.SerializeObjectToComplexPropertyMethod,
-                                    Expression.Constant(complexType, typeof(IComplexType)),
-                                    Expression.Convert(
-                                        Expression.Call(
-                                            ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
-                                            QueryCompilationContext.QueryContextParameter,
-                                            Expression.Constant(sqlParameterExpression.Name, typeof(string))),
-                                        typeof(object)),
-                                    Expression.Constant(collection)),
-                                QueryCompilationContext.QueryContextParameter);
+                var complexType = leftComplexType ?? rightComplexType;
+                Debug.Assert(complexType != null);
 
-                var param = queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
-                return new SqlParameterExpression(param.Name, param.Type, CosmosTypeMapping.Default);
+                if (!TryProcessComplexAccess(left, out var leftAccess) || !TryProcessComplexAccess(right, out var rightAccess))
+                {
+                    comparison = null;
+                    return false;
+                }
+
+                comparison = new SqlBinaryExpression(
+                        nodeType,
+                        leftAccess,
+                        rightAccess,
+                        typeof(bool),
+                        boolTypeMapping)!;
+                return true;
+
+                bool TryProcessComplexAccess(Expression expression, [NotNullWhen(true)] out Expression? result)
+                {
+                    result = expression switch
+                    {
+                        StructuralTypeReferenceExpression { StructuralType: IComplexType } reference
+                            => Visit((reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression).ValueBufferExpression),
+                        CollectionResultExpression { ComplexProperty: IComplexProperty } collectionResult
+                            => collectionResult.QueryExpression,
+                        SqlParameterExpression sqlParameterExpression
+                            => CreateJsonQueryParameter(sqlParameterExpression),
+                        SqlConstantExpression constant
+                            => sqlExpressionFactory.Constant(
+                                CosmosSerializationUtilities.SerializeObjectToComplexProperty(complexType, constant.Value, collection),
+                                CosmosTypeMapping.Default),
+
+                        _ => null
+                    };
+
+                    return result != null;
+                }
+
+                SqlExpression CreateJsonQueryParameter(SqlParameterExpression sqlParameterExpression)
+                {
+                    var lambda = Expression.Lambda(
+                                    Expression.Call(
+                                        CosmosSerializationUtilities.SerializeObjectToComplexPropertyMethod,
+                                        Expression.Constant(complexType, typeof(IComplexType)),
+                                        Expression.Convert(
+                                            Expression.Call(
+                                                ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
+                                                QueryCompilationContext.QueryContextParameter,
+                                                Expression.Constant(sqlParameterExpression.Name, typeof(string))),
+                                            typeof(object)),
+                                        Expression.Constant(collection)),
+                                    QueryCompilationContext.QueryContextParameter);
+
+                    var param = queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
+                    return new SqlParameterExpression(param.Name, param.Type, CosmosTypeMapping.Default);
+                }
             }
         }
     }

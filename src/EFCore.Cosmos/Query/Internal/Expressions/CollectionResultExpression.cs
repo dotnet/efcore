@@ -11,80 +11,55 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-[DebuggerDisplay("{DebuggerDisplay(),nq}")]
-public class CollectionResultExpression : Expression
+public class CollectionResultExpression(
+    Expression queryExpression,
+    IComplexProperty complexProperty)
+    : Expression, IPrintableExpression
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     The query expression to get the collection.
     /// </summary>
-    public CollectionResultExpression(StructuralTypeShaperExpression parameter)
-    {
-        Parameter = parameter;
-        ComplexProperty = ((IComplexType)parameter.StructuralType).ComplexProperty;
-    }
+    public virtual Expression QueryExpression { get; } = queryExpression;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     The property associated with the collection. In cosmos, this can only be a complex property
     /// </summary>
-    public CollectionResultExpression(ShapedQueryExpression subquery)
-    {
-        Subquery = subquery;
-        ComplexProperty = ((IComplexType)((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType).ComplexProperty;
-    }
+    public virtual IComplexProperty ComplexProperty { get; } = complexProperty;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual new StructuralTypeShaperExpression? Parameter { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ShapedQueryExpression? Subquery { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IComplexProperty ComplexProperty { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public override Type Type
-        => ComplexProperty.ClrType;
+        => QueryExpression.Type;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public override ExpressionType NodeType
         => ExpressionType.Extension;
 
-    private string DebuggerDisplay()
-        => this switch
+    /// <inheritdoc />
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+        => Update(visitor.Visit(QueryExpression));
+
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="queryExpression">The <see cref="QueryExpression" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public virtual CollectionResultExpression Update(Expression queryExpression)
+        => queryExpression == QueryExpression
+            ? this
+            : new CollectionResultExpression(queryExpression, ComplexProperty);
+
+    /// <inheritdoc />
+    public virtual void Print(ExpressionPrinter expressionPrinter)
+    {
+        expressionPrinter.AppendLine("CollectionResultExpression:");
+        using (expressionPrinter.Indent())
         {
-            { Parameter: not null } => Parameter.DebuggerDisplay(),
-            { Subquery: not null } => ExpressionPrinter.Print(Subquery!),
-            _ => throw new UnreachableException()
-        };
+            expressionPrinter.Append("QueryExpression:");
+            expressionPrinter.Visit(QueryExpression);
+            expressionPrinter.AppendLine();
+
+            expressionPrinter.Append("Complex Property:").AppendLine(ComplexProperty.ToString()!);
+        }
+    }
 }

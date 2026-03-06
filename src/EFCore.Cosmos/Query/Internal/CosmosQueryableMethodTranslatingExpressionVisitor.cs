@@ -1369,7 +1369,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
     {
-        // Attempt to translate access into a primitive collection property
+        // Attempt to translate access into a primitive, complex or embedded navigation collection property
         if (_sqlTranslator.TryBindMember(
                 _sqlTranslator.Visit(source),
                 member,
@@ -1400,14 +1400,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                 case CollectionResultExpression collectionResult:
                 {
-                    Debug.Assert(collectionResult.Parameter != null, "CollectionResultExpression can't be bound to member without parameter.");
-
-                    var shaper = collectionResult.Parameter;
-                    var targetStructuralType = shaper.StructuralType;
+                    var query = collectionResult.QueryExpression;
+                    var targetStructuralType = collectionResult.ComplexProperty.ComplexType;
                     var projection = new StructuralTypeProjectionExpression(
                         new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);
                     var select = SelectExpression.CreateForCollection(
-                        shaper.ValueBufferExpression,
+                        query,
                         sourceAlias,
                         projection);
                     return CreateShapedQueryExpression(targetStructuralType, select);
