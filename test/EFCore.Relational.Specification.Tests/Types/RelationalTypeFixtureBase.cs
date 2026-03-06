@@ -16,6 +16,7 @@ public abstract class RelationalTypeFixtureBase<T> : TypeFixtureBase<T>, ITestSq
             b.ToTable(nameof(TypeEntity<>));
             b.Property(e => e.Value).HasColumnType(StoreType);
             b.Property(e => e.OtherValue).HasColumnType(StoreType);
+            b.PrimitiveCollection(e => e.ArrayValue).ElementType(e => e.HasStoreType(StoreType));
         });
 
         modelBuilder.Entity<JsonTypeEntity<T>>(b =>

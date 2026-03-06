@@ -3574,6 +3574,126 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void Add_foreign_key_excluded_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            _ => { },
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
+            ),
+            operations =>
+            {
+                var createIndexOperation = Assert.IsType<CreateIndexOperation>(Assert.Single(operations));
+                Assert.Equal("dbo", createIndexOperation.Schema);
+                Assert.Equal("Amoeba", createIndexOperation.Table);
+                Assert.Equal("IX_Amoeba_ParentId", createIndexOperation.Name);
+                Assert.Equal(new[] { "ParentId" }, createIndexOperation.Columns);
+            });
+
+    [ConditionalFact]
+    public void Remove_foreign_key_excluded_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
+            ),
+            _ => { },
+            operations =>
+            {
+                var dropIndexOperation = Assert.IsType<DropIndexOperation>(Assert.Single(operations));
+                Assert.Equal("dbo", dropIndexOperation.Schema);
+                Assert.Equal("Amoeba", dropIndexOperation.Table);
+                Assert.Equal("IX_Amoeba_ParentId", dropIndexOperation.Name);
+            });
+
+    [ConditionalFact]
+    public void Exclude_existing_foreign_key_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+            ),
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
+            ),
+            upOps =>
+            {
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(upOps));
+                Assert.Equal("dbo", dropFkOperation.Schema);
+                Assert.Equal("Amoeba", dropFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+            },
+            downOps =>
+            {
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(Assert.Single(downOps));
+                Assert.Equal("dbo", addFkOperation.Schema);
+                Assert.Equal("Amoeba", addFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+            });
+
+    [ConditionalFact]
+    public void Exclude_existing_foreign_key_from_migrations_and_change_delete_behavior()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict)
+            ),
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .ExcludeForeignKeyFromMigrations()
+            ),
+            upOps =>
+            {
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(upOps));
+                Assert.Equal("dbo", dropFkOperation.Schema);
+                Assert.Equal("Amoeba", dropFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+            },
+            downOps =>
+            {
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(Assert.Single(downOps));
+                Assert.Equal("dbo", addFkOperation.Schema);
+                Assert.Equal("Amoeba", addFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
+            });
+
+    [ConditionalFact]
     public void Add_optional_foreign_key()
         => Execute(
             source => source.Entity(

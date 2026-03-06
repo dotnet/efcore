@@ -153,6 +153,38 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 cycleNavigations);
 
         /// <summary>
+        ///     The property '{property}' on type '{type}' is a concurrency token and cannot be configured as not auto-loaded. Concurrency tokens must always be loaded.
+        /// </summary>
+        public static string AutoLoadedConcurrencyTokenProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedConcurrencyTokenProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is a discriminator and cannot be configured as not auto-loaded. Discriminator properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedDiscriminatorProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedDiscriminatorProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is part of a foreign key and cannot be configured as not auto-loaded. Foreign key properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedForeignKeyProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedForeignKeyProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is part of a key and cannot be configured as not auto-loaded. Key properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedKeyProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedKeyProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     The backing field '{field}' cannot be set for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
         /// </summary>
         public static string BackingFieldOnIndexer(object? field, object? entityType, object? property)
@@ -605,6 +637,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexCollectionNotInitialized", nameof(entityType), nameof(collection)),
                 entityType, collection);
+
+        /// <summary>
+        ///     The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).
+        /// </summary>
+        public static string ComplexCollectionOrdinalOutOfRange(object? ordinal, object? entityType, object? collection, object? count)
+            => string.Format(
+                GetString("ComplexCollectionOrdinalOutOfRange", nameof(ordinal), nameof(entityType), nameof(collection), nameof(count)),
+                ordinal, entityType, collection, count);
 
         /// <summary>
         ///     The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.
@@ -4677,6 +4717,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.OldModelVersionWarning,
                             _resourceManager.GetString("LogOldModelVersion")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     A compiled model was found but was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model to use the correct provider.
+        /// </summary>
+        public static EventDefinition<string, string> LogCompiledModelProviderMismatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCompiledModelProviderMismatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCompiledModelProviderMismatch,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.CompiledModelProviderMismatchWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.CompiledModelProviderMismatchWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.CompiledModelProviderMismatchWarning,
+                            _resourceManager.GetString("LogCompiledModelProviderMismatch")!)));
             }
 
             return (EventDefinition<string, string>)definition;

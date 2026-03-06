@@ -41,7 +41,7 @@ internal sealed class TypedArraySeedContext : MigrationContext<Patriarch, Conver
         });
     }
 
-    public override string GetExpectedMigrationCode(string migrationName, string rootNamespace)
+    public override string GetExpectedMigrationCode(string migrationId, string rootNamespace)
         => $@"using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.SqlServer.Types;
 
@@ -52,7 +52,7 @@ using Microsoft.SqlServer.Types;
 namespace {rootNamespace}.Migrations
 {{
     /// <inheritdoc />
-    public partial class {migrationName} : Migration
+    public partial class _{migrationId} : Migration
     {{
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

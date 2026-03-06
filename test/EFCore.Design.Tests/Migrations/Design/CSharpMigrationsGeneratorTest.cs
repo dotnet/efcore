@@ -102,7 +102,8 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
             RelationalAnnotationNames.ContainerColumnTypeMapping,
 #pragma warning restore CS0618
             RelationalAnnotationNames.StoreType,
-            RelationalAnnotationNames.UseNamedDefaultConstraints
+            RelationalAnnotationNames.UseNamedDefaultConstraints,
+            RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -263,7 +264,8 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
 #pragma warning restore CS0618
             RelationalAnnotationNames.JsonPropertyName,
             RelationalAnnotationNames.StoreType,
-            RelationalAnnotationNames.UseNamedDefaultConstraints
+            RelationalAnnotationNames.UseNamedDefaultConstraints,
+            RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";

@@ -34,6 +34,11 @@ WHERE [t].[Value].STEquals('POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0))') = CAST(1 A
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

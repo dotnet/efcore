@@ -348,6 +348,37 @@ public class RelationalMetadataExtensionsTest
     }
 
     [ConditionalFact]
+    public void Can_get_and_set_foreign_key_excluded_from_migrations()
+    {
+        var modelBuilder = new ModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id);
+
+        var foreignKey = modelBuilder
+            .Entity<Order>()
+            .HasOne<Customer>()
+            .WithOne()
+            .HasForeignKey<Order>(e => e.CustomerId)
+            .Metadata;
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+
+        foreignKey.SetIsExcludedFromMigrations(true);
+
+        Assert.True(foreignKey.IsExcludedFromMigrations());
+
+        foreignKey.SetIsExcludedFromMigrations(false);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+
+        foreignKey.SetIsExcludedFromMigrations(null);
+
+        Assert.False(foreignKey.IsExcludedFromMigrations());
+    }
+
+    [ConditionalFact]
     public void Can_get_and_set_index_name()
     {
         var modelBuilder = new ModelBuilder();

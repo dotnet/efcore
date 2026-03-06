@@ -21,8 +21,8 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
     [ConditionalTheory, InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false)]
     public virtual async Task Select_enumerable_navigation_backed_by_collection(bool async, bool split)
     {
-        var contextFactory = await InitializeAsync<Context21803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context21803.AppEntity>().Select(appEntity => appEntity.OtherEntities);
 
         if (split)

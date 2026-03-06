@@ -2058,6 +2058,20 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Does_not_detect_missing_discriminator_values_when_using_default_discriminator_name_with_non_string_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<C>();
+        modelBuilder.Entity<A>().HasDiscriminator<byte>("Discriminator")
+            .HasValue<A>(0)
+            .HasValue<C>(1)
+            .HasValue<D>(2);
+        modelBuilder.Entity<D>();
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_complex_type_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2229,5 +2243,150 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     protected class NonSignedIntegerKeyEntity
     {
         public uint Id { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Id))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedKeyProperty(nameof(AutoLoadEntity.Id), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_alternate_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+                eb.HasAlternateKey(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedKeyProperty(nameof(AutoLoadEntity.Name), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_foreign_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadPrincipal>(
+            eb =>
+            {
+                eb.HasKey(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+        modelBuilder.Entity<AutoLoadDependent>(
+            eb =>
+            {
+                eb.HasKey(e => e.Id);
+                eb.Property(e => e.PrincipalId);
+                eb.HasOne<AutoLoadPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadDependent))!.FindProperty(nameof(AutoLoadDependent.PrincipalId))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedForeignKeyProperty(nameof(AutoLoadDependent.PrincipalId), nameof(AutoLoadDependent)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_concurrency_token_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name).IsConcurrencyToken();
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedConcurrencyTokenProperty(nameof(AutoLoadEntity.Name), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_discriminator_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+                eb.HasDiscriminator(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedDiscriminatorProperty(nameof(AutoLoadEntity.Name), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Allows_non_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        Validate(modelBuilder);
+    }
+
+    protected class AutoLoadEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class AutoLoadPrincipal
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class AutoLoadDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
     }
 }

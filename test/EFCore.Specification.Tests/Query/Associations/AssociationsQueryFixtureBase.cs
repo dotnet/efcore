@@ -1,18 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.BulkUpdates;
-
 namespace Microsoft.EntityFrameworkCore.Query.Associations;
 
-public abstract class AssociationsQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>,
-    IQueryFixtureBase, IBulkUpdatesFixtureBase
+public abstract class AssociationsQueryFixtureBase : QueryFixtureBase<PoolableDbContext>
 {
     public virtual bool AreCollectionsOrdered
         => true;
 
-
-    public virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+    public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => throw new NotSupportedException();
 
     public AssociationsData Data { get; private set; }
@@ -45,10 +41,10 @@ public abstract class AssociationsQueryFixtureBase : SharedStoreFixtureBase<Pool
         }.ToDictionary(e => e.Key, e => e.Value);
     }
 
-    public Func<DbContext> GetContextCreator()
+    public override Func<DbContext> GetContextCreator()
         => CreateContext;
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => Data;
 
     protected virtual AssociationsData CreateData()
@@ -78,7 +74,7 @@ public abstract class AssociationsQueryFixtureBase : SharedStoreFixtureBase<Pool
             .IsRequired(false);
     }
 
-    public virtual IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, object>
     {
         { typeof(RootEntity), object? (RootEntity e) => ((RootEntity?)e)?.Id },
         { typeof(AssociateType), object? (AssociateType e) => ((AssociateType?)e)?.Id },
@@ -92,7 +88,7 @@ public abstract class AssociationsQueryFixtureBase : SharedStoreFixtureBase<Pool
         { typeof(ValueNestedType?), object? (ValueNestedType? e) => e?.Id }
     }.ToDictionary(e => e.Key, e => e.Value);
 
-    public virtual IReadOnlyDictionary<Type, object> EntityAsserters { get; }
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 
     protected virtual void AssertRootEntity(RootEntity e, RootEntity a)
     {

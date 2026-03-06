@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocComplexTypeQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+    protected override ITestStoreFactory NonSharedTestStoreFactory
+        => CosmosTestStoreFactory.Instance;
 
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
@@ -70,8 +71,8 @@ FROM root c
 """);
     }
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-       => base.AddOptions(builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+       => base.AddNonSharedOptions(builder)
                .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
     [ConditionalFact]
@@ -84,7 +85,7 @@ FROM root c
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    protected override Task<ContextFactory<TContext>> InitializeAsync<TContext>(
+    protected override Task<ContextFactory<TContext>> InitializeNonSharedTest<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
@@ -94,7 +95,7 @@ FROM root c
         Func<TestStore>? createTestStore = null,
         bool usePooling = true,
         bool useServiceProvider = true)
-        => base.InitializeAsync(model =>
+        => base.InitializeNonSharedTest(model =>
         {
             onModelCreating?.Invoke(model);
             AdHocCosmosTestHelpers.UseTestAutoIncrementIntIds(model);

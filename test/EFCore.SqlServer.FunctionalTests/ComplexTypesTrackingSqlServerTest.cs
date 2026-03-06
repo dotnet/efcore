@@ -8,11 +8,100 @@ public class ComplexTypesTrackingSqlServerTest(
     ITestOutputHelper testOutputHelper)
     : ComplexTypesTrackingSqlServerTestBase<ComplexTypesTrackingSqlServerTest.SqlServerFixture>(fixture, testOutputHelper)
 {
+    [ConditionalFact]
+    public virtual async Task Can_read_original_values_with_TPH_shared_complex_property_column_null()
+    {
+        await using var context = CreateContext();
+
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            context,
+            async context =>
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                context.Add(new InheritedItem1 { Name = "Item1" });
+                await context.SaveChangesAsync();
+
+                context.ChangeTracker.Clear();
+                var item = await context.Set<InheritedItemBase>().Where(i => i.Name == "Item1").FirstAsync();
+                var entry = context.ChangeTracker.Entries().First();
+                var originalItem = (InheritedItemBase)entry.OriginalValues.ToObject();
+
+                Assert.NotNull(originalItem);
+                Assert.Equal("Item1", originalItem.Name);
+            });
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_read_original_values_with_TPH_shared_complex_property_column_with_value()
+    {
+        await using var context = CreateContext();
+
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            context,
+            async context =>
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                context.Add(new InheritedItem1 { Name = "Item1", SharedPrice = new SharedPrice { Amount = "10.99" } });
+                await context.SaveChangesAsync();
+
+                context.ChangeTracker.Clear();
+                var item = await context.Set<InheritedItem1>().Where(i => i.Name == "Item1").FirstAsync();
+                var entry = context.ChangeTracker.Entries().First();
+                var originalItem = (InheritedItemBase)entry.OriginalValues.ToObject();
+
+                Assert.NotNull(originalItem);
+                Assert.Equal("Item1", originalItem.Name);
+                var item1 = Assert.IsType<InheritedItem1>(originalItem);
+                Assert.NotNull(item1.SharedPrice);
+                Assert.Equal("10.99", item1.SharedPrice.Amount);
+            });
+    }
+
     public class SqlServerFixture : SqlServerFixtureBase
     {
         protected override string StoreName
             => nameof(ComplexTypesTrackingSqlServerTest);
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<InheritedItemBase>().HasDiscriminator<string>("Discriminator")
+                .HasValue<InheritedItem1>("Item1")
+                .HasValue<InheritedItem2>("Item2");
+
+            modelBuilder.Entity<InheritedItem1>().ComplexProperty(
+                x => x.SharedPrice,
+                p => p.Property(a => a.Amount).HasColumnName("SharedPriceAmount"));
+
+            modelBuilder.Entity<InheritedItem2>().ComplexProperty(
+                x => x.SharedPrice,
+                p => p.Property(a => a.Amount).HasColumnName("SharedPriceAmount"));
+        }
     }
+}
+
+public abstract class InheritedItemBase
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+}
+
+public class InheritedItem1 : InheritedItemBase
+{
+    public SharedPrice? SharedPrice { get; set; }
+}
+
+public class InheritedItem2 : InheritedItemBase
+{
+    public SharedPrice? SharedPrice { get; set; }
+}
+
+public class SharedPrice
+{
+    public required string Amount { get; init; }
 }
 
 public class ComplexTypesTrackingProxiesSqlServerTest(
@@ -263,6 +352,16 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
     }
 
     // Issue #36175: Complex types with notification change tracking are not supported
+    public override void Can_remove_from_complex_collection_with_nested_complex_collection(bool trackFromQuery)
+    {
+    }
+
+    // Fields can't be proxied
+    public override void Can_remove_from_complex_field_collection_with_nested_complex_collection(bool trackFromQuery)
+    {
+    }
+
+    // Issue #36175: Complex types with notification change tracking are not supported
     public override void Throws_when_accessing_complex_entries_using_incorrect_cardinality()
     {
     }
@@ -340,6 +439,22 @@ public class ComplexTypesTrackingProxiesSqlServerTest(
 
     // Issue #36175: Complex types with notification change tracking are not supported
     public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
+        => Task.CompletedTask;
+
+    // Fields can't be proxied
+    public override Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Fields can't be proxied
+    public override Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
+        => Task.CompletedTask;
+
+    // Issue #36175: Complex types with notification change tracking are not supported
+    public override Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
         => Task.CompletedTask;
 
     public class SqlServerFixture : SqlServerFixtureBase

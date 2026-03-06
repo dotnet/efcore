@@ -1286,24 +1286,8 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
 
     if ($targetFramework -in '.NETFramework')
     {
-        $platformTarget = GetPlatformTarget $startupProject
-        if ($platformTarget -eq 'x86')
-        {
-            $exePath = Join-Path $PSScriptRoot 'net472\win-x86\ef.exe'
-        }
-        elseif ($platformTarget -eq 'ARM64')
-        {
-            $exePath = Join-Path $PSScriptRoot 'net472\win-arm64\ef.exe'
-        }
-        elseif ($platformTarget -in 'AnyCPU', 'x64')
-        {
-            $exePath = Join-Path $PSScriptRoot 'net472\any\ef.exe'
-        }
-        else
-        {
-            throw "Startup project '$($startupProject.ProjectName)' has an active platform of '$platformTarget'. Select " +
-                'a different platform and try again.'
-        }
+        throw "Startup project '$($startupProject.ProjectName)' targets framework '.NETFramework'. The Entity Framework Core Package " +
+            'Manager Console Tools don''t support .NET Framework projects. Consider updating the project to target .NET.'
     }
     elseif ($targetFramework -eq '.NETCoreApp')
     {
@@ -1322,6 +1306,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
+        # TODO: Remove TFM from the path, issue #37473
         $efPath = Join-Path $PSScriptRoot 'net10.0\any\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile

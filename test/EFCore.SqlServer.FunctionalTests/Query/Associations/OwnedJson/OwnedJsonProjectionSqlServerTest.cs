@@ -451,6 +451,26 @@ FROM [RootEntity] AS [r]
 
     #region Subquery
 
+    public override async Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r1].[c], [r1].[Id], [r1].[c0]
+FROM [RootEntity] AS [r]
+OUTER APPLY (
+    SELECT TOP(1) [r0].[AssociateCollection] AS [c], [r0].[Id], 1 AS [c0]
+    FROM [RootEntity] AS [r0]
+    ORDER BY [r0].[Id]
+) AS [r1]
+ORDER BY [r].[Id]
+""");
+        }
+    }
+
     public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior);

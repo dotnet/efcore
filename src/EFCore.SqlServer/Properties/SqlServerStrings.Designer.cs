@@ -162,22 +162,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer");
 
         /// <summary>
-        ///     Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.
-        /// </summary>
-        public static string FullTextIndexOnInvalidColumn(object? index, object? entityType, object? property)
-            => string.Format(
-                GetString("FullTextIndexOnInvalidColumn", nameof(index), nameof(entityType), nameof(property)),
-                index, entityType, property);
-
-        /// <summary>
-        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.
-        /// </summary>
-        public static string FullTextIndexMissingKeyIndex(object? index, object? entityType)
-            => string.Format(
-                GetString("FullTextIndexMissingKeyIndex", nameof(index), nameof(entityType)),
-                index, entityType);
-
-        /// <summary>
         ///     Entity type '{entityType}' has multiple full-text indexes configured. SQL Server supports only one full-text index per table.
         /// </summary>
         public static string FullTextIndexDuplicateOnTable(object? entityType)
@@ -191,6 +175,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string FullTextIndexLanguagePropertyNotInIndex(object? index, object? entityType, object? property)
             => string.Format(
                 GetString("FullTextIndexLanguagePropertyNotInIndex", nameof(index), nameof(entityType), nameof(property)),
+                index, entityType, property);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.
+        /// </summary>
+        public static string FullTextIndexMissingKeyIndex(object? index, object? entityType)
+            => string.Format(
+                GetString("FullTextIndexMissingKeyIndex", nameof(index), nameof(entityType)),
+                index, entityType);
+
+        /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.
+        /// </summary>
+        public static string FullTextIndexOnInvalidColumn(object? index, object? entityType, object? property)
+            => string.Format(
+                GetString("FullTextIndexOnInvalidColumn", nameof(index), nameof(entityType), nameof(property)),
                 index, entityType, property);
 
         /// <summary>
@@ -312,18 +312,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoInitialCatalog");
 
         /// <summary>
+        ///     SQL Server does not support releasing a savepoint.
+        /// </summary>
+        public static string NoSavepointRelease
+            => GetString("NoSavepointRelease");
+
+        /// <summary>
         ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because the required HierarchyId services have not been configured. Install the 'Microsoft.EntityFrameworkCore.SqlServer.HierarchyId' NuGet package and call 'UseHierarchyId' in your SQL Server provider configuration. See https://learn.microsoft.com/ef/core/providers/sql-server/hierarchyid for more information.
         /// </summary>
         public static string PropertyNotMappedHierarchyId(object? propertyType, object? entityType, object? property)
             => string.Format(
                 GetString("PropertyNotMappedHierarchyId", nameof(propertyType), nameof(entityType), nameof(property)),
                 propertyType, entityType, property);
-
-        /// <summary>
-        ///     SQL Server does not support releasing a savepoint.
-        /// </summary>
-        public static string NoSavepointRelease
-            => GetString("NoSavepointRelease");
 
         /// <summary>
         ///     The query is attempting to query a JSON collection of binary data in a context that requires preserving the ordering of the collection; this isn't supported by SQL Server.
@@ -636,6 +636,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             }
 
             return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is not supported by the Dataverse TDS Endpoint.
+        /// </summary>
+        public static EventDefinition<string, string> LogDataverseForeignKeyInvalid(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDataverseForeignKeyInvalid;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDataverseForeignKeyInvalid,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.DataverseForeignKeyInvalidWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.DataverseForeignKeyInvalidWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.DataverseForeignKeyInvalidWarning,
+                            _resourceManager.GetString("LogDataverseForeignKeyInvalid")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>

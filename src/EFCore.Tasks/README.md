@@ -4,7 +4,7 @@ This package should be referenced by the project containing the derived `DbConte
 
 ## Usage
 
-Install the package into your project, set `<EFOptimizeContext Condition="'$(Configuration)'=='Release'">true</EFOptimizeContext>` and then run build normally.
+Install the package into your project and if PublishAOT is true then just publish normally. Otherwise you can control code generation by the `$(EFScaffoldModelStage)` and `$(EFPrecompileQueriesStage)` properties, which can be set to either `publish` or `build` to control at what stage the code will be generated. Any other value will disable the corresponding generation.
 
 If the startup project is different from the current project it needs to be specified: `<EFStartupProject>..\Startup\Startup.csproj</EFStartupProject>`
 

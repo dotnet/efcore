@@ -527,11 +527,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         protected override TestHelpers TestHelpers
             => InMemoryTestHelpers.Instance;
 
-        protected override ITestStoreFactory TestStoreFactory
+        protected override ITestStoreFactory NonSharedTestStoreFactory
             => InMemoryTestStoreFactory.Instance;
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder)
+        protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+            => base.AddNonSharedOptions(builder)
                 .ConfigureWarnings(w => w.Ignore(CoreEventId.CollectionWithoutComparer));
 
         protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")

@@ -1594,6 +1594,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_excluded_from_migrations()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").ExcludeForeignKeyFromMigrations();
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            RelationalStrings.DuplicateForeignKeyExcludedFromMigrationsMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "FK_Animal_Person_Name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -3866,6 +3884,43 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         public static IQueryable<C> MethodF()
             => throw new NotImplementedException();
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_json_mapped_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<AutoLoadJsonPrincipal>(
+            eb =>
+            {
+                eb.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Property(e => e.Details);
+                    });
+            });
+
+        var model = modelBuilder.Model;
+        var ownedType = model.FindEntityType(typeof(AutoLoadJsonOwned))!;
+        ownedType.SetContainerColumnName("Owned");
+        var property = ownedType.FindProperty(nameof(AutoLoadJsonOwned.Details))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            RelationalStrings.AutoLoadedJsonProperty(nameof(AutoLoadJsonOwned.Details), ownedType.DisplayName()),
+            modelBuilder);
+    }
+
+    protected class AutoLoadJsonPrincipal
+    {
+        public int Id { get; set; }
+        public AutoLoadJsonOwned Owned { get; set; } = null!;
+    }
+
+    protected class AutoLoadJsonOwned
+    {
+        public string Details { get; set; } = null!;
     }
 
     protected virtual TestHelpers.TestModelBuilder CreateModelBuilderWithoutConvention<T>(bool sensitiveDataLoggingEnabled = false)
