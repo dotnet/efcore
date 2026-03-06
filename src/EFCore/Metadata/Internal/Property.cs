@@ -1019,7 +1019,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
                 providerClrType = pct;
             }
 
-            return vcFound | vctFound | pctFound;
+            return vcFound || vctFound || pctFound;
         }
 
         bool TryFindAndValidateConversionAnnotation(
