@@ -1306,7 +1306,11 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
-        $efToolsDir = Get-ChildItem -Path $PSScriptRoot -Directory | Where-Object { $_.Name -like 'net*' } | Select-Object -First 1
+        $efToolsDir = Get-ChildItem -Path $PSScriptRoot -Directory | Where-Object { $_.Name -match '^net\d' } | Select-Object -First 1
+        if (-not $efToolsDir)
+        {
+            throw 'Could not find the Entity Framework Core tools directory. Ensure the package is installed correctly.'
+        }
         $efPath = Join-Path $efToolsDir.FullName 'any\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
