@@ -135,12 +135,12 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             AddSqlQueries(databaseModel, entityType);
 
-            AddMappedFunctions(databaseModel, entityType);
+            AddMappedFunctions(databaseModel, entityType, relationalTypeMappingSource);
 
             AddStoredProcedures(databaseModel, entityType, relationalTypeMappingSource);
         }
 
-        AddTvfs(databaseModel);
+        AddTvfs(databaseModel, relationalTypeMappingSource);
 
         var tables = ((IRelationalModel)databaseModel).Tables;
         foreach (Table table in tables)
@@ -918,7 +918,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         queryMappings?.Reverse();
     }
 
-    private static void AddMappedFunctions(RelationalModel databaseModel, IEntityType entityType)
+    private static void AddMappedFunctions(RelationalModel databaseModel, IEntityType entityType, IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         var model = databaseModel.Model;
         var functionName = entityType.GetFunctionName();
@@ -940,7 +940,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var dbFunction = (IRuntimeDbFunction)model.FindDbFunction(mappedFunctionName)!;
-            var functionMapping = CreateFunctionMapping(entityType, mappedType, dbFunction, databaseModel, @default: true);
+            var functionMapping = CreateFunctionMapping(entityType, mappedType, dbFunction, databaseModel, relationalTypeMappingSource, @default: true);
 
             mappedType = mappedType.BaseType;
 
@@ -963,7 +963,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         functionMappings?.Reverse();
     }
 
-    private static void AddTvfs(RelationalModel relationalModel)
+    private static void AddTvfs(RelationalModel relationalModel, IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         var model = relationalModel.Model;
         foreach (IRuntimeDbFunction function in model.GetDbFunctions())
@@ -982,18 +982,37 @@ public class RelationalModel : Annotatable, IRelationalModel
                 continue;
             }
 
-            var functionMapping = CreateFunctionMapping(entityType, entityType, function, relationalModel, @default: false);
+            AddTvfMapping(entityType, function, relationalModel, relationalTypeMappingSource);
 
-            if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings)
-                is not List<FunctionMapping> functionMappings)
+            foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
+                         .Where(
+                             n => n.ForeignKey.IsOwnership
+                                 && n.TargetEntityType.IsMappedToJson()
+                                 && n.ForeignKey.PrincipalToDependent == n))
             {
-                functionMappings = [];
-                entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, functionMappings);
+                AddTvfMapping(ownedJsonNavigation.TargetEntityType, function, relationalModel, relationalTypeMappingSource);
             }
-
-            functionMappings.Add(functionMapping);
-            ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
         }
+    }
+
+    private static void AddTvfMapping(
+        IEntityType entityType,
+        IRuntimeDbFunction function,
+        RelationalModel relationalModel,
+        IRelationalTypeMappingSource relationalTypeMappingSource)
+    {
+        var functionMapping = CreateFunctionMapping(
+            entityType, entityType, function, relationalModel, relationalTypeMappingSource, @default: false);
+
+        if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings)
+            is not List<FunctionMapping> functionMappings)
+        {
+            functionMappings = [];
+            entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, functionMappings);
+        }
+
+        functionMappings.Add(functionMapping);
+        ((StoreFunction)functionMapping.StoreFunction).EntityTypeMappings.Add(functionMapping);
     }
 
     private static FunctionMapping CreateFunctionMapping(
@@ -1001,6 +1020,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         IEntityType mappedType,
         IRuntimeDbFunction dbFunction,
         RelationalModel model,
+        IRelationalTypeMappingSource relationalTypeMappingSource,
         bool @default)
     {
         var storeFunction = GetOrCreateStoreFunction(dbFunction, model);
@@ -1010,29 +1030,41 @@ public class RelationalModel : Annotatable, IRelationalModel
             entityType, storeFunction, dbFunction,
             includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null) { IsDefaultFunctionMapping = @default };
 
-        foreach (var property in mappedType.GetProperties())
+        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnType = mappedType.GetContainerColumnType();
+        if (!string.IsNullOrEmpty(containerColumnName))
         {
-            var columnName = property.GetColumnName(mappedFunction);
-            if (columnName == null)
+            CreateContainerColumn(
+                storeFunction, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
+                static (colName, colType, table, mapping)
+                    => new FunctionColumn(colName, colType ?? mapping.StoreType, (StoreFunction)table, mapping));
+        }
+        else
+        {
+            foreach (var property in mappedType.GetProperties())
             {
-                continue;
-            }
-
-            var column = storeFunction.FindColumn(columnName);
-            if (column == null)
-            {
-                column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction)
+                var columnName = property.GetColumnName(mappedFunction);
+                if (columnName == null)
                 {
-                    IsNullable = property.IsColumnNullable(mappedFunction)
-                };
-                storeFunction.Columns.Add(columnName, column);
-            }
-            else if (!property.IsColumnNullable(mappedFunction))
-            {
-                column.IsNullable = false;
-            }
+                    continue;
+                }
 
-            CreateFunctionColumnMapping(column, property, functionMapping);
+                var column = storeFunction.FindColumn(columnName);
+                if (column == null)
+                {
+                    column = new FunctionColumn(columnName, property.GetColumnType(mappedFunction), storeFunction)
+                    {
+                        IsNullable = property.IsColumnNullable(mappedFunction)
+                    };
+                    storeFunction.Columns.Add(columnName, column);
+                }
+                else if (!property.IsColumnNullable(mappedFunction))
+                {
+                    column.IsNullable = false;
+                }
+
+                CreateFunctionColumnMapping(column, property, functionMapping);
+            }
         }
 
         return functionMapping;

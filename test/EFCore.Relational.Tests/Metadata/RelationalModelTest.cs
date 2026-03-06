@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Ignore<DateDetails>();
             modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
             modelBuilder.Entity<Order>().ToTable(tb => tb.HasCheckConstraint("OrderCK", "[Id] > 0"));
 
             var options = FakeRelationalTestHelpers.Instance.CreateOptions((IModel)modelBuilder.Model);
@@ -2275,6 +2276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Entity<Order>(ob =>
             {
+                ob.Ignore(o => o.Addresses);
                 ob.Property(o => o.OrderDate).HasColumnName("OrderDate");
                 ob.Property(o => o.AlternateId).HasColumnName("AlternateId");
 
@@ -2934,6 +2936,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.Customer);
                 cb.Ignore(c => c.Details);
                 cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
 
                 cb.Property(c => c.AlternateId).HasColumnName("SomeName");
                 cb.HasNoKey();
@@ -3063,6 +3066,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.Customer);
                 cb.Ignore(c => c.Details);
                 cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
 
                 cb.Property(c => c.AlternateId).HasColumnName("SomeName");
                 cb.HasNoKey();
@@ -3264,6 +3268,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
+        [ConditionalFact]
+        public void Can_use_relational_model_with_functions_and_json_owned_types()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.ComplexProperty);
+
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+                cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
+                cb.OwnsMany(c => c.Addresses, o => o.ToJson("addresses"));
+#pragma warning restore EF8001
+            });
+
+            modelBuilder.HasDbFunction(
+                typeof(RelationalModelTest).GetMethod(
+                    nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static, [typeof(int)]));
+
+            var model = Finalize(modelBuilder);
+
+            var orderType = model.Model.FindEntityType(typeof(Order));
+
+            var functionMappings = orderType.GetFunctionMappings().ToList();
+            Assert.Single(functionMappings);
+
+            var storeFunction = functionMappings[0].StoreFunction;
+            Assert.Equal(
+                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "addresses", "date_details"],
+                storeFunction.Columns.Select(m => m.Name));
+            Assert.NotNull(storeFunction.FindColumn("date_details"));
+            Assert.NotNull(storeFunction.FindColumn("addresses"));
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -3350,6 +3390,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public OrderDetails Details { get; set; }
 
             public ComplexData ComplexProperty { get; set; }
+
+            public List<Address> Addresses { get; set; }
         }
 
         private class OrderDetails
