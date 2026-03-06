@@ -537,7 +537,7 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                 b.Property(x => x.Description).EnableFullTextSearch();
                 b.HasIndex(x => x.Description).IsFullTextIndex();
 
-                b.Property(x => x.ModifiedDescription).ToJsonProperty("CustomDecription");
+                b.Property(x => x.ModifiedDescription).HasJsonPropertyName("CustomDecription");
                 b.Property(x => x.ModifiedDescription).EnableFullTextSearch();
                 b.HasIndex(x => x.ModifiedDescription).IsFullTextIndex();
 
@@ -553,7 +553,7 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 
                     bb.OwnsOne(x => x.ModifiedNestedReference, bbb =>
                     {
-                        bbb.ToJsonProperty("CustomNestedReference");
+                        bbb.HasJsonPropertyName("CustomNestedReference");
                         bbb.Property(x => x.AnotherDescription).EnableFullTextSearch();
                         bbb.HasIndex(x => x.AnotherDescription).IsFullTextIndex();
                     });

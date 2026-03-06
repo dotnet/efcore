@@ -234,7 +234,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId)
-            .Property(c => c.PartitionId).ToJsonProperty("pk");
+            .Property(c => c.PartitionId).HasJsonPropertyName("pk");
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
         VerifyError(
@@ -254,7 +254,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>(b =>
         {
             b.ToContainer("Orders");
-            b.Property(e => e.Id).HasConversion<string>().ToJsonProperty("id");
+            b.Property(e => e.Id).HasConversion<string>().HasJsonPropertyName("id");
             b.Ignore(e => e.Name);
             b.Ignore(e => e.PartitionId);
             b.Ignore(e => e.Orders);
@@ -334,8 +334,8 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(ob =>
         {
-            ob.Property(o => o.Id).ToJsonProperty("Details");
-            ob.Property(o => o.PartitionId).ToJsonProperty("Details");
+            ob.Property(o => o.Id).HasJsonPropertyName("Details");
+            ob.Property(o => o.PartitionId).HasJsonPropertyName("Details");
         });
 
         VerifyError(
@@ -350,8 +350,8 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(ob =>
         {
-            ob.Property(o => o.PartitionId).ToJsonProperty("Details");
-            ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
+            ob.Property(o => o.PartitionId).HasJsonPropertyName("Details");
+            ob.OwnsOne(o => o.OrderDetails).HasJsonPropertyName("Details");
         });
 
         VerifyError(
@@ -368,7 +368,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             o => o.OrderDetails, b =>
             {
                 b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
-                    .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
+                    .HasJsonPropertyName(CosmosJsonIdConvention.IdPropertyJsonName);
             }));
 
         modelBuilder.Model

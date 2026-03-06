@@ -107,8 +107,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
                 v => v.Addresses, b =>
                 {
-                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
-                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                    b.OwnsMany(a => a.Notes).HasJsonPropertyName("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).HasJsonPropertyName("Notes");
                 })),
             seed: false);
 
@@ -394,8 +394,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
                 v => v.Addresses, b =>
                 {
-                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
-                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                    b.OwnsMany(a => a.Notes).HasJsonPropertyName("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).HasJsonPropertyName("Notes");
                 })),
             seed: false);
 
@@ -766,7 +766,7 @@ OFFSET 0 LIMIT 1
             modelBuilder.Entity<Person>(eb => eb.OwnsMany(
                 v => v.Addresses, b =>
                 {
-                    b.ToJsonProperty("Stored Addresses");
+                    b.HasJsonPropertyName("Stored Addresses");
                     b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
                 }));
         }

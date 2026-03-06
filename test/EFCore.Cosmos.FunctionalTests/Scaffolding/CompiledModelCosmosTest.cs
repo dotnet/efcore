@@ -35,7 +35,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                     eb.Property<ReadOnlyMemory<byte>>("Bytes");
                     eb.UseETagConcurrency();
                     eb.HasNoDiscriminator();
-                    eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
+                    eb.Property(d => d.Blob).HasJsonPropertyName("JsonBlob");
                 });
             },
             model =>

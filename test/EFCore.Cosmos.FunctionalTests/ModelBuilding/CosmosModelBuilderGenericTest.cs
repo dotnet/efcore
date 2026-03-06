@@ -260,7 +260,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             modelBuilder.Entity<Customer>()
                 .Property(c => c.Name)
-                .ToJsonProperty("Name");
+                .HasJsonPropertyName("Name");
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
@@ -284,7 +284,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             modelBuilder.Entity<Customer>()
                 .Property(c => c.Name)
-                .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
+                .HasJsonPropertyName(CosmosJsonIdConvention.IdPropertyJsonName);
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders);
@@ -305,7 +305,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             modelBuilder.Entity<Customer>()
                 .Property(c => c.Name)
-                .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
+                .HasJsonPropertyName(CosmosJsonIdConvention.IdPropertyJsonName);
             modelBuilder.Entity<Customer>()
                 .Ignore(c => c.Details)
                 .Ignore(c => c.Orders)
@@ -506,7 +506,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
                 .HasPartitionKey(b => b.AlternateKey)
-                .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
+                .Property(b => b.AlternateKey).HasConversion<string>().HasJsonPropertyName("id");
 
             var model = modelBuilder.FinalizeModel();
 
@@ -538,7 +538,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                     b.AlternateKey,
                     b.Title
                 })
-                .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
+                .Property(b => b.AlternateKey).HasConversion<string>().HasJsonPropertyName("id");
 
             var model = modelBuilder.FinalizeModel();
 

@@ -110,34 +110,34 @@ public static class CosmosTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestPropertyBuilder<TProperty> ToJsonProperty<TProperty>(
+    public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
         string name)
     {
         switch (builder)
         {
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
-                genericBuilder.Instance.ToJsonProperty(name);
+                genericBuilder.Instance.HasJsonPropertyName(name);
                 break;
             case IInfrastructure<PropertyBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.ToJsonProperty(name);
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> ToJsonProperty<TProperty>(
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
         string name)
     {
         switch (builder)
         {
             case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
-                genericBuilder.Instance.ToJsonProperty(name);
+                genericBuilder.Instance.HasJsonPropertyName(name);
                 break;
             case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.ToJsonProperty(name);
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
                 break;
         }
 

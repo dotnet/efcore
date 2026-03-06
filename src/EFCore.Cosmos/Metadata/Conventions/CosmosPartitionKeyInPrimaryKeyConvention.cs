@@ -89,7 +89,7 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
             && !entityType.IsKeyless)
         {
             var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName);
-            jObjectProperty?.ToJsonProperty("");
+            jObjectProperty?.HasJsonPropertyName("");
             jObjectProperty?.ValueGenerated(ValueGenerated.OnAddOrUpdate);
         }
         else

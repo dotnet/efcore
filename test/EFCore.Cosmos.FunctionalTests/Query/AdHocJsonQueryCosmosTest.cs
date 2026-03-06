@@ -1306,7 +1306,7 @@ WHERE (c["Id"] = 4)
                 x => x.ReferenceWithCtor, b =>
                 {
                     //    b.ToJson().HasColumnType(JsonColumnType);
-                    b.Property<int>("Shadow_Int").ToJsonProperty("ShadowInt");
+                    b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
                 });
 
             //b.OwnsMany(
