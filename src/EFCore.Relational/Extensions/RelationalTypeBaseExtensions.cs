@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -432,9 +433,11 @@ public static class RelationalTypeBaseExtensions
         }
 
         if (typeBase.IsMappedToJson()
-            && typeBase.Model is IModel model)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            && (Model)typeBase.Model is { IsReadOnly: true } model)
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
-            return ((IRelationalTypeMappingSource)model.GetModelDependencies().TypeMappingSource)
+            return ((IRelationalTypeMappingSource)((IModel)model).GetModelDependencies().TypeMappingSource)
                 .FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
         }
 
