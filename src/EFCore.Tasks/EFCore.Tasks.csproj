@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(NetCurrent);$(NetFrameworkToolCurrent)</TargetFrameworks>
+    <TargetFrameworks>$(NetMinimum);$(NetFrameworkToolCurrent)</TargetFrameworks>
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
@@ -37,8 +37,10 @@
 
   <ItemGroup>
     <None Include="**/*.props;**/*.targets"
+      Exclude="**/*.props.in"
       Pack="true"
       PackagePath="%(RecursiveDir)%(Filename)%(Extension)" />
+    <GeneratedContent Include="buildTransitive/*.props.in" />
   </ItemGroup>
 
   <ItemGroup>
@@ -61,6 +63,10 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="Runtime" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" PrivateAssets="all" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="System.Text.Json" PrivateAssets="All" />
     <Reference Include="Microsoft.Build" Pack="false" />
@@ -70,10 +76,20 @@
     <Reference Include="System.Configuration" Pack="false" />
   </ItemGroup>
 
-  <Target Name="AddPackContent">
-    <ItemGroup Condition="'$(TargetFramework)' == '$(NetCurrent)'">
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" PackagePath="tools/$(NetCurrent)" />
+  <Target Name="GenerateContent"
+    Inputs="$(MSBuildAllProjects);@(GeneratedContent)"
+    Outputs="@(GeneratedContent->'$(IntermediateOutputPath)%(RecursiveDir)%(FileName)')">
+    <GenerateFileFromTemplate
+      TemplateFile="%(GeneratedContent.Identity)"
+      Properties="NetMinimum=$(NetMinimum)"
+      OutputPath="$(IntermediateOutputPath)%(RecursiveDir)%(FileName)" />
+  </Target>
+
+  <Target Name="AddPackContent" DependsOnTargets="GenerateContent">
+    <ItemGroup Condition="'$(TargetFramework)' == '$(NetMinimum)'">
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(NetMinimum)/*" PackagePath="tools/$(NetMinimum)" />
       <TfmSpecificPackageFile Include="$(OutputPath)$(AssemblyName).deps.json" PackagePath="tasks/$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="$(IntermediateOutputPath)Microsoft.EntityFrameworkCore.Tasks.props" PackagePath="buildTransitive/" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == '$(NetFrameworkToolCurrent)'">

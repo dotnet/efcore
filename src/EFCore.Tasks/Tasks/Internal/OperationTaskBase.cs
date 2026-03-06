@@ -198,18 +198,19 @@ public abstract class OperationTaskBase : ToolTask
             args.Add(runtimeFrameworkVersion);
         }
 
-#if NET472
-#elif NET11_0
+        var assemblyDir = Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!;
+        var packageRoot = Path.Combine(assemblyDir, "..", "..");
+#if NETFRAMEWORK
+        var toolsTfm = new DirectoryInfo(Path.Combine(packageRoot, "tools"))
+            .EnumerateDirectories().First().Name;
 #else
-#error Target framework needs to be updated here
+        var toolsTfm = new DirectoryInfo(assemblyDir).Name;
 #endif
         args.Add(
             Path.Combine(
-                Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
-                "..",
-                "..",
+                packageRoot,
                 "tools",
-                "net11.0",
+                toolsTfm,
                 "ef.dll"));
 
         args.AddRange(AdditionalArguments);
