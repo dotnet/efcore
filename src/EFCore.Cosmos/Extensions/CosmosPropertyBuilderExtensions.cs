@@ -58,53 +58,6 @@ public static class CosmosPropertyBuilderExtensions
         => (PropertyBuilder<TProperty>)HasJsonPropertyName((PropertyBuilder)propertyBuilder, name);
 
     /// <summary>
-    ///     Configures the property name that the property is mapped to when targeting Azure Cosmos. If an empty string is
-    ///     supplied then the property will not be persisted.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="name">The name of the property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    public static IConventionPropertyBuilder? HasJsonPropertyName(
-        this IConventionPropertyBuilder propertyBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-    {
-        if (!propertyBuilder.CanSetJsonPropertyName(name, fromDataAnnotation))
-        {
-            return null;
-        }
-
-        propertyBuilder.Metadata.SetJsonPropertyName(name, fromDataAnnotation);
-
-        return propertyBuilder;
-    }
-
-    /// <summary>
-    ///     Returns a value indicating whether the given property name can be set.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="name">The name of the property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the property name can be set.</returns>
-    public static bool CanSetJsonPropertyName(
-        this IConventionPropertyBuilder propertyBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
-
-    /// <summary>
     ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
     /// </summary>
     /// <remarks>
@@ -162,7 +115,7 @@ public static class CosmosPropertyBuilderExtensions
         this IConventionPropertyBuilder propertyBuilder,
         string? name,
         bool fromDataAnnotation = false)
-        => HasJsonPropertyName(propertyBuilder, name, fromDataAnnotation);
+        => propertyBuilder.HasJsonPropertyName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Returns a value indicating whether the given property name can be set.
@@ -180,7 +133,7 @@ public static class CosmosPropertyBuilderExtensions
         this IConventionPropertyBuilder propertyBuilder,
         string? name,
         bool fromDataAnnotation = false)
-        => CanSetJsonPropertyName(propertyBuilder, name, fromDataAnnotation);
+        => propertyBuilder.CanSetJsonPropertyName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Configures the property as a vector for Azure Cosmos DB.
