@@ -3057,6 +3057,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Complex_property_gets_default_container_column_type_when_not_set_explicitly()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexProperty>(eb =>
+            {
+                eb.ComplexProperty(
+                    e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson("complex_data");
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "complex_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [ConditionalFact]
+        public void Complex_collection_gets_default_container_column_type_when_not_set_explicitly()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexCollection>(eb =>
+            {
+                eb.ComplexCollection(
+                    e => e.ComplexCollection, cb =>
+                    {
+                        cb.ToJson("collection_data");
+                    });
+            });
+
+            var model = Finalize(modelBuilder);
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexCollection));
+            var complexProperty = entityType.GetComplexProperties().Single();
+            var complexType = complexProperty.ComplexType;
+
+            Assert.Equal("some_json_mapping", complexType.GetContainerColumnType());
+
+            var table = entityType.GetTableMappings().Single().Table;
+            var column = table.Columns.Single(c => c.Name == "collection_data");
+            Assert.Equal("some_json_mapping", column.StoreType);
+        }
+
+        [ConditionalFact]
         public void Can_use_relational_model_with_functions()
         {
             var modelBuilder = CreateConventionModelBuilder();
