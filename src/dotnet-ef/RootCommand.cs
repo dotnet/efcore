@@ -106,7 +106,8 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
-        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier))
+        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier)
+            && !IsCurrentPlatform(startupProject.TargetPlatformIdentifier))
         {
             Reporter.WriteWarning(
                 Resources.UnsupportedPlatform(startupProject.ProjectName, startupProject.TargetPlatformIdentifier));
@@ -318,6 +319,14 @@ internal class RootCommand : CommandBase
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
+
+    private static bool IsCurrentPlatform(string targetPlatformIdentifier)
+        => string.Equals(targetPlatformIdentifier, "Windows", StringComparison.OrdinalIgnoreCase)
+            ? OperatingSystem.IsWindows()
+            : string.Equals(targetPlatformIdentifier, "Linux", StringComparison.OrdinalIgnoreCase)
+                ? OperatingSystem.IsLinux()
+                : string.Equals(targetPlatformIdentifier, "macOS", StringComparison.OrdinalIgnoreCase)
+                    && OperatingSystem.IsMacOS();
 
     private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
         => args.Count == 0
