@@ -173,6 +173,10 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     This property indicates whether the query uses client-side projection. We have to keep track of this
+    ///     because of #34067. We can't apply distinct to queries with client-side projection.
+    /// </remarks>
     public bool UsesClientProjection { get; private set; }
 
     /// <summary>
