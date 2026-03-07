@@ -249,17 +249,17 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        bool IsGetTypeMethodCall(Expression expression, [NotNullWhen(true)] out StructuralTypeReferenceExpression? structuralTypeReferenceExpression)
+        bool IsGetTypeMethodCall(Expression expression, [NotNullWhen(true)] out StructuralTypeReferenceExpression? typeReference)
         {
-            structuralTypeReferenceExpression = null;
+            typeReference = null;
             if (expression is not MethodCallExpression methodCallExpression
                 || methodCallExpression.Method != GetTypeMethodInfo)
             {
                 return false;
             }
 
-            structuralTypeReferenceExpression = Visit(methodCallExpression.Object) as StructuralTypeReferenceExpression;
-            return structuralTypeReferenceExpression != null;
+            typeReference = Visit(methodCallExpression.Object) as StructuralTypeReferenceExpression;
+            return typeReference != null;
         }
 
         static bool IsTypeConstant(Expression expression, [NotNullWhen(true)] out Type? type)
@@ -482,24 +482,37 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     /// </summary>
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
-        var innerExpression = Visit(memberExpression.Expression);
+        var member = memberExpression.Member;
+        var inner = Visit(memberExpression.Expression);
 
-        if (innerExpression != null && memberExpression.Member.DeclaringType?.IsNullableValueType() == true)
+        // Try binding the member to a property on the structural type
+        if (TryBindMember(inner, MemberIdentity.Create(memberExpression.Member), out var expression, out _))
         {
-            if (memberExpression.Member.Name == nameof(Nullable<>.HasValue))
-            {
-                return Visit(Expression.NotEqual(memberExpression.Expression!, Expression.Constant(null, memberExpression.Member.DeclaringType)));
-            }
+            return expression;
+        }
 
-            if (memberExpression.Member.Name == nameof(Nullable<>.Value))
+        // We handle translations for Nullable<> members here.
+        // These can't be handled in regular IMemberTranslators, since those only support scalars (SqlExpressions);
+        // but we also need to handle nullable value complex types.
+        if (member.DeclaringType?.IsGenericType == true
+            && member.DeclaringType.GetGenericTypeDefinition() == typeof(Nullable<>)
+            && inner is not null)
+        {
+            switch (member.Name)
             {
-                return Visit(memberExpression.Expression)!;
+                case nameof(Nullable<>.Value):
+                    return inner;
+                case nameof(Nullable<>.HasValue) when inner is SqlExpression sqlInner:
+                    return sqlExpressionFactory.IsNotNull(sqlInner);
+                case nameof(Nullable<>.HasValue)
+                    when inner is StructuralTypeReferenceExpression
+                        && TryRewriteStructuralTypeEquality(
+                            ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null), equalsMethod: false, out var result):
+                    return result;
             }
         }
 
-        return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var expression, out _)
-            ? expression
-            : (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
+        return (TranslationFailed(memberExpression.Expression, inner, out var sqlInnerExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : memberTranslatorProvider.Translate(
                     sqlInnerExpression, memberExpression.Member, memberExpression.Type, queryCompilationContext.Logger))
