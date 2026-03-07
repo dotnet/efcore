@@ -1690,9 +1690,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         var identity = operation[SqlServerAnnotationNames.Identity] as string;
-        var isHistoryTable = operation[SqlServerAnnotationNames.TemporalHistoryTableName] != null
-                     || table.EndsWith("History", StringComparison.OrdinalIgnoreCase)
-                     || table.EndsWith("History]", StringComparison.OrdinalIgnoreCase);
+        var isHistoryTable = model?.GetRelationalModel().Tables
+            .Any(t => t.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName)?.Value as string == table
+                && (t.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema)?.Value as string ?? t.Schema) == schema) == true;
+
         if ((identity != null
             || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
             == SqlServerValueGenerationStrategy.IdentityColumn) && !isHistoryTable)
