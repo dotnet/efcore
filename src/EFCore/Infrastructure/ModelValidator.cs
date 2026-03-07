@@ -99,7 +99,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateInheritanceMapping(entityType, logger);
         ValidateFieldMapping(entityType, logger);
         ValidateQueryFilters(entityType, logger);
-        ValidateConstructorBindingAutoLoaded(entityType);
 
         foreach (var property in entityType.GetDeclaredProperties())
         {
@@ -140,30 +139,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Validates that no constructor-bound property is configured as not auto-loaded.
-    /// </summary>
-    /// <param name="structuralType">The structural type to validate.</param>
-    protected virtual void ValidateConstructorBindingAutoLoaded(ITypeBase structuralType)
-    {
-        if (structuralType.ConstructorBinding is null)
-        {
-            return;
-        }
-
-        var typeName = structuralType.DisplayName();
-
-        foreach (var consumedProperty in structuralType.ConstructorBinding.ParameterBindings
-                     .SelectMany(p => p.ConsumedProperties))
-        {
-            if (consumedProperty is IProperty { IsAutoLoaded: false } property)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.AutoLoadedConstructorProperty(property.Name, typeName));
-            }
-        }
-    }
-
-    /// <summary>
     ///     Validates inheritance mapping for an entity type.
     /// </summary>
     /// <param name="entityType">The entity type to validate.</param>
@@ -196,7 +171,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token or discriminator.
+    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token, discriminator,
+    ///     or consumed by a constructor binding.
     /// </summary>
     /// <param name="property">The property to validate.</param>
     /// <param name="structuralType">The structural type containing the property.</param>
@@ -237,6 +213,18 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             throw new InvalidOperationException(
                 CoreStrings.AutoLoadedDiscriminatorProperty(property.Name, typeName));
         }
+
+        foreach (var derivedType in structuralType.GetDerivedTypesInclusive())
+        {
+            if (derivedType.ConstructorBinding is not null
+                && derivedType.ConstructorBinding.ParameterBindings
+                    .SelectMany(p => p.ConsumedProperties)
+                    .Contains(property))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AutoLoadedConstructorProperty(property.Name, derivedType.DisplayName()));
+            }
+        }
     }
 
     /// <summary>
@@ -251,7 +239,6 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         var complexType = complexProperty.ComplexType;
 
         ValidateChangeTrackingStrategy(complexType, logger);
-        ValidateConstructorBindingAutoLoaded(complexType);
 
         foreach (var property in complexType.GetDeclaredProperties())
         {
