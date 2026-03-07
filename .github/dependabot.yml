@@ -1,13 +1,13 @@
 version: 2
 registries:
-  nuget-org:
+  dotnet-public:
     type: nuget-feed
-    url: https://api.nuget.org/v3/index.json
+    url: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
     registries:
-      - nuget-org
+      - dotnet-public
     open-pull-requests-limit: 5
     schedule:
       interval: "weekly"
