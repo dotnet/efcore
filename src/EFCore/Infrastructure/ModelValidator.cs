@@ -171,7 +171,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     /// <summary>
-    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token or discriminator.
+    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token, discriminator,
+    ///     or consumed by a constructor binding.
     /// </summary>
     /// <param name="property">The property to validate.</param>
     /// <param name="structuralType">The structural type containing the property.</param>
@@ -213,13 +214,16 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 CoreStrings.AutoLoadedDiscriminatorProperty(property.Name, typeName));
         }
 
-        if (structuralType.ConstructorBinding is not null
-            && structuralType.ConstructorBinding.ParameterBindings
-                .SelectMany(p => p.ConsumedProperties)
-                .Contains(property))
+        foreach (var derivedType in structuralType.GetDerivedTypesInclusive())
         {
-            throw new InvalidOperationException(
-                CoreStrings.AutoLoadedConstructorProperty(property.Name, typeName));
+            if (derivedType.ConstructorBinding is not null
+                && derivedType.ConstructorBinding.ParameterBindings
+                    .SelectMany(p => p.ConsumedProperties)
+                    .Contains(property))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AutoLoadedConstructorProperty(property.Name, derivedType.DisplayName()));
+            }
         }
     }
 
