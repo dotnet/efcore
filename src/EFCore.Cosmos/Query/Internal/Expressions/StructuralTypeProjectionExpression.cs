@@ -287,6 +287,11 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
     /// </summary>
     public virtual StructuralTypeProjectionExpression UpdateEntityType(IEntityType derivedType)
     {
+        if (StructuralType is not IEntityType entityType)
+        {
+            throw new UnreachableException($"{nameof(UpdateEntityType)} called on non-entity type '{StructuralType.DisplayName()}'");
+        }
+
         if (!derivedType.GetAllBaseTypes().Contains(StructuralType))
         {
             throw new InvalidOperationException(
