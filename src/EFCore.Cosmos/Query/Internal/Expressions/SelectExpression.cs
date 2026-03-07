@@ -38,14 +38,15 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(
+    private SelectExpression(
         List<SourceExpression> sources,
         SqlExpression? predicate,
         List<ProjectionExpression> projections,
         bool distinct,
         List<OrderingExpression> orderings,
         SqlExpression? offset,
-        SqlExpression? limit)
+        SqlExpression? limit,
+        bool usesClientProjection)
     {
         _sources = sources;
         Predicate = predicate is SqlConstantExpression { Value: true } ? null : predicate;
@@ -54,6 +55,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         _orderings = orderings;
         Offset = offset;
         Limit = limit;
+        UsesClientProjection = usesClientProjection;
     }
 
     /// <summary>
@@ -100,7 +102,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                 distinct: false,
                 orderings: [],
                 offset: null,
-                limit: null);
+                limit: null,
+                usesClientProjection: false);
         }
 
         var source = new SourceExpression(sourceExpression, sourceAlias, withIn: true);
@@ -639,7 +642,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         if (changed)
         {
-            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
+            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit, UsesClientProjection)
             {
                 _projectionMapping = projectionMapping
             };
@@ -670,7 +673,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
+        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit, UsesClientProjection)
         {
             _projectionMapping = projectionMapping, ReadItemInfo = ReadItemInfo
         };
@@ -683,7 +686,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpression WithReadItemInfo(ReadItemInfo readItemInfo)
-        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
+        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit, UsesClientProjection)
         {
             _projectionMapping = _projectionMapping, ReadItemInfo = readItemInfo
         };
@@ -702,7 +705,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
+        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit, UsesClientProjection)
         {
             _projectionMapping = projectionMapping
         };
