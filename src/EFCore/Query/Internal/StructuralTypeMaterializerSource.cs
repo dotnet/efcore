@@ -75,7 +75,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         bindingInfo.ServiceInstances.Add(instanceVariable);
 
         var properties = new HashSet<IPropertyBase>(
-            structuralType.GetProperties().Cast<IPropertyBase>().Where(p => !p.IsShadowProperty() && p is not IProperty { IsAutoLoaded: false })
+            structuralType.GetProperties().Where(p => !p.IsShadowProperty() && p.IsAutoLoaded).Cast<IPropertyBase>()
                 .Concat(structuralType.GetComplexProperties().Where(p => !p.IsShadowProperty())));
 
         var blockExpressions = new List<Expression>();
