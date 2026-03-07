@@ -1096,8 +1096,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 return this;
             }
 
-            return StructuralType is { } structuralType
-                && structuralType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedStructuralType
+            return StructuralType is IEntityType entityType
+                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedStructuralType
                     ? new StructuralTypeReferenceExpression(this, derivedStructuralType)
                     : QueryCompilationContext.NotTranslatedExpression;
         }
