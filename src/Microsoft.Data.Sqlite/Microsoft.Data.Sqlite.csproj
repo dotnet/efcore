@@ -46,4 +46,10 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   <!-- This is a packaging-only project with no native compilation; suppress the AnyCPU architecture check from SQLitePCLRaw native packages -->
   <Target Name="CheckForAnyCPU" />
 
+  <Target Name="CheckNetMinimumLibDirectory" BeforeTargets="Build">
+    <Error
+      Condition="'$(NetMinimum)' != 'net10.0'"
+      Text="NetMinimum has changed to '$(NetMinimum)'. Rename the 'lib\net10.0' directory to 'lib\$(NetMinimum)'." />
+  </Target>
+
 </Project>
