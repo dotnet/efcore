@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="NorthwindFSharpQuerySqlServerFixture.fs" />
     <Compile Include="NorthwindQueryFSharpTest.fs" />
   </ItemGroup>

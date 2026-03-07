@@ -42,6 +42,9 @@
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.1" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
 
+    <!-- F# dependencies -->
+    <PackageVersion Include="FSharp.Core" Version="$(FSCorePackageVersion)" />
+
     <!-- external dependencies -->
     <PackageVersion Include="Castle.Core" Version="5.2.1" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
