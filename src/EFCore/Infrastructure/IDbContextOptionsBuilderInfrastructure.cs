@@ -42,7 +42,7 @@ public interface IDbContextOptionsBuilderInfrastructure
     ///         Removes the extension of the given type from the options. If no extension of the given type exists, this is a no-op.
     ///     </para>
     ///     <para>
-    ///         This property is intended for use by extension methods to configure the context. It is not intended to be used in
+    ///         This method is intended for use by extension methods to configure the context. It is not intended to be used in
     ///         application code.
     ///     </para>
     /// </summary>

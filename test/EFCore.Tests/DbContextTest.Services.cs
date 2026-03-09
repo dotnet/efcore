@@ -3922,15 +3922,36 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
 
             serviceCollection.RemoveDbContext<ConstructorTestContext1A>();
 
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+        }
+
+        [ConditionalFact]
+        public void RemoveDbContext_does_not_remove_services_for_different_context()
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(b => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                .AddDbContext<ConstructorTestContextWithOC3A>(b => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)));
+
+            serviceCollection.RemoveDbContext<ConstructorTestContext1A>();
+
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContextWithOC3A));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContextWithOC3A>));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContextWithOC3A>));
         }
 
         [ConditionalFact]
