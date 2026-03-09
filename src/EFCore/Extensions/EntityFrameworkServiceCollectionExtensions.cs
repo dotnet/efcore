@@ -1207,6 +1207,8 @@ public static class EntityFrameworkServiceCollectionExtensions
             var descriptorsToRemove = serviceCollection
                 .Where(d => d.ServiceType == typeof(TContext)
                     || d.ServiceType == typeof(DbContextOptions<TContext>)
+                    || (d.ServiceType == typeof(DbContextOptions)
+                        && d.ImplementationFactory != null)
                     || d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)
                     || d.ServiceType == typeof(IDbContextFactorySource<TContext>)
                     || d.ServiceType == typeof(IDbContextFactory<TContext>)

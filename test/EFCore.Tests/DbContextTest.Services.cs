@@ -3922,12 +3922,14 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
 
             serviceCollection.RemoveDbContext<ConstructorTestContext1A>();
 
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
         }
 
