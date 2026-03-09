@@ -5,10 +5,10 @@ This file should be imported by eng/Versions.props
 -->
 <Project>
   <PropertyGroup>
-    <!-- dotnet/dotnet dependencies -->
-    <MicrosoftDotNetArcadeSdkPackageVersion>10.0.0-beta.26157.106</MicrosoftDotNetArcadeSdkPackageVersion>
-    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>10.0.0-beta.26157.106</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
-    <MicrosoftDotNetHelixSdkPackageVersion>10.0.0-beta.26157.106</MicrosoftDotNetHelixSdkPackageVersion>
+    <!-- dotnet-dotnet dependencies -->
+    <MicrosoftDotNetArcadeSdkPackageVersion>10.0.0-beta.26159.102</MicrosoftDotNetArcadeSdkPackageVersion>
+    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>10.0.0-beta.26159.102</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
+    <MicrosoftDotNetHelixSdkPackageVersion>10.0.0-beta.26159.102</MicrosoftDotNetHelixSdkPackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>10.0.6</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsConfigurationPackageVersion>10.0.6</MicrosoftExtensionsConfigurationPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>10.0.6</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
@@ -16,10 +16,10 @@ This file should be imported by eng/Versions.props
     <MicrosoftExtensionsConfigurationJsonPackageVersion>10.0.6</MicrosoftExtensionsConfigurationJsonPackageVersion>
     <MicrosoftExtensionsDependencyInjectionPackageVersion>10.0.6</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>10.0.6</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>10.0.6-servicing.26157.106</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>10.0.6-servicing.26159.102</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
     <MicrosoftExtensionsLoggingPackageVersion>10.0.6</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreAppRefPackageVersion>10.0.6</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>10.0.6-servicing.26157.106</MicrosoftNETCorePlatformsPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>10.0.6-servicing.26159.102</MicrosoftNETCorePlatformsPackageVersion>
     <SystemFormatsAsn1PackageVersion>10.0.6</SystemFormatsAsn1PackageVersion>
     <SystemRuntimeCachingPackageVersion>10.0.6</SystemRuntimeCachingPackageVersion>
     <SystemTextEncodingsWebPackageVersion>10.0.6</SystemTextEncodingsWebPackageVersion>
@@ -27,7 +27,7 @@ This file should be imported by eng/Versions.props
   </PropertyGroup>
   <!--Property group for alternate package version names-->
   <PropertyGroup>
-    <!-- dotnet/dotnet dependencies -->
+    <!-- dotnet-dotnet dependencies -->
     <MicrosoftDotNetArcadeSdkVersion>$(MicrosoftDotNetArcadeSdkPackageVersion)</MicrosoftDotNetArcadeSdkVersion>
     <MicrosoftDotNetBuildTasksTemplatingVersion>$(MicrosoftDotNetBuildTasksTemplatingPackageVersion)</MicrosoftDotNetBuildTasksTemplatingVersion>
     <MicrosoftDotNetHelixSdkVersion>$(MicrosoftDotNetHelixSdkPackageVersion)</MicrosoftDotNetHelixSdkVersion>
