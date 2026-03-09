@@ -15,7 +15,7 @@ Microsoft.Data.Sqlite.SqliteFactory
 Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <TargetFrameworks>$(NetMinimum);$(NetFrameworkToolCurrent)</TargetFrameworks>
+    <TargetFrameworks>$(NetMinimum)</TargetFrameworks>
     <MinClientVersion>3.6</MinClientVersion>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
     <IncludeSymbols>false</IncludeSymbols>
@@ -46,7 +46,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   <!-- This is a packaging-only project with no native compilation; suppress the AnyCPU architecture check from SQLitePCLRaw native packages -->
   <Target Name="CheckForAnyCPU" />
 
-  <Target Name="CheckNetMinimumLibDirectory" BeforeTargets="Build">
+  <Target Name="CheckNetMinimumLibDirectory" BeforeTargets="DispatchToInnerBuilds">
     <Error
       Condition="'$(NetMinimum)' != 'net10.0'"
       Text="NetMinimum has changed to '$(NetMinimum)'. Rename the 'lib\net10.0' directory to 'lib\$(NetMinimum)'." />
