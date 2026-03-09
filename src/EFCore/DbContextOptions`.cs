@@ -57,6 +57,10 @@ public class DbContextOptions<TContext> : DbContextOptions
         return new DbContextOptions<TContext>(ExtensionsMap.SetItem(type, (extension, ordinal)));
     }
 
+    /// <inheritdoc />
+    public override DbContextOptions WithoutExtension<TExtension>()
+        => new DbContextOptions<TContext>(ExtensionsMap.Remove(typeof(TExtension)));
+
     /// <summary>
     ///     The type of context that these options are for (<typeparamref name="TContext" />).
     /// </summary>

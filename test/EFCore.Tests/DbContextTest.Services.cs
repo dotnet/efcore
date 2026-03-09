@@ -3911,6 +3911,69 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private class DerivedContext2(DbContextOptions<DerivedContext2> options) : DerivedContext1(options);
+
+        [ConditionalFact]
+        public void RemoveDbContext_removes_all_context_services()
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(b => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)));
+
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+
+            serviceCollection.RemoveDbContext<ConstructorTestContext1A>();
+
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+        }
+
+        [ConditionalFact]
+        public void RemoveDbContext_with_removeConfiguration_only_removes_configurations()
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(b => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)));
+
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+
+            serviceCollection.RemoveDbContext<ConstructorTestContext1A>(removeConfiguration: true);
+
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
+            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
+            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+        }
+
+        [ConditionalFact]
+        public void RemoveDbContext_allows_re_registration_with_different_provider()
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContext<ConstructorTestContext1A>(b => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase("OriginalDb")
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)));
+
+            serviceCollection.RemoveDbContext<ConstructorTestContext1A>();
+            serviceCollection.AddDbContext<ConstructorTestContext1A>(b => b.EnableServiceProviderCaching(false)
+                .UseInMemoryDatabase("ReplacementDb")
+                .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)));
+
+            var appServiceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
+
+            using var serviceScope = appServiceProvider
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+            Assert.NotNull(context);
+            Assert.Equal(
+                "ReplacementDb",
+                context.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+        }
     }
 }
 

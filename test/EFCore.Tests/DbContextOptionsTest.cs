@@ -97,6 +97,42 @@ public class DbContextOptionsTest
     }
 
     [ConditionalFact]
+    public void Can_remove_an_existing_extension()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+
+        var extension1 = new FakeDbContextOptionsExtension1();
+        var extension2 = new FakeDbContextOptionsExtension2();
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension1);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2);
+
+        Assert.Equal(2, optionsBuilder.Options.Extensions.Count());
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).RemoveExtension<FakeDbContextOptionsExtension1>();
+
+        Assert.Single(optionsBuilder.Options.Extensions);
+        Assert.Null(optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+        Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
+    }
+
+    [ConditionalFact]
+    public void Removing_non_existent_extension_is_no_op()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+
+        var extension = new FakeDbContextOptionsExtension1();
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        Assert.Single(optionsBuilder.Options.Extensions);
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).RemoveExtension<FakeDbContextOptionsExtension2>();
+
+        Assert.Single(optionsBuilder.Options.Extensions);
+        Assert.Same(extension, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+    }
+
+    [ConditionalFact]
     public void IsConfigured_returns_true_if_any_provider_extensions_have_been_added()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
