@@ -2152,7 +2152,7 @@ SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j]
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-ORDER BY [j].[Id], [j0].[Id]
+ORDER BY [j].[Id]
 """);
     }
 
@@ -2231,7 +2231,7 @@ SELECT JSON_QUERY([j].[OwnedCollectionRoot], '$[0]'), [j].[Id], [j0].[Id], [j0].
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-ORDER BY [j].[Id], [j0].[Id]
+ORDER BY [j].[Id]
 """);
     }
 
@@ -2245,7 +2245,7 @@ SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollect
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
-ORDER BY [j].[Id], [j0].[Id]
+ORDER BY [j].[Id]
 """);
 
         //        AssertSql(

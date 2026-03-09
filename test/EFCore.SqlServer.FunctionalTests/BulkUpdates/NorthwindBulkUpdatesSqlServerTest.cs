@@ -532,18 +532,8 @@ INNER JOIN (
 
         AssertSql(
             """
-@p='0'
-@p1='100'
-
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-LEFT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
     }
@@ -554,18 +544,8 @@ WHERE [o].[OrderID] < 10276
 
         AssertSql(
             """
-@p='0'
-@p1='100'
-
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-LEFT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
     }
