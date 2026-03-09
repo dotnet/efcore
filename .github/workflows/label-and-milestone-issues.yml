@@ -30,7 +30,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const mergeCommitSha = context.payload.pull_request.merge_commit_sha;
 
-            // Find issues closed by this PR using GraphQL
+            // Find issues closed by this PR using GraphQL (include current milestone)
             const query = `
               query($owner: String!, $repo: String!, $prNumber: Int!) {
                 repository(owner: $owner, name: $repo) {
@@ -38,6 +38,9 @@ jobs:
                     closingIssuesReferences(first: 50) {
                       nodes {
                         number
+                        milestone {
+                          title
+                        }
                       }
                     }
                   }
@@ -118,9 +121,20 @@ jobs:
               throw new Error(`Milestone '${targetMilestoneName}' not found`);
             }
 
-            // Set the milestone on all closing issues
+            // Set the milestone on closing issues, applying a "min" strategy:
+            // only update if the issue has no version milestone or the target is earlier
+            const targetVersion = parseVersion(versionPrefix);
             for (const issue of closingIssues) {
-              console.log(`Setting milestone on issue #${issue.number} to '${targetMilestoneName}'`);
+              const currentTitle = issue.milestone?.title;
+              const currentVersion = currentTitle ? parseVersion(currentTitle) : null;
+
+              if (currentVersion && compareVersions(currentVersion, targetVersion) <= 0) {
+                console.log(`Issue #${issue.number} already has milestone '${currentTitle}' <= '${targetMilestoneName}', skipping`);
+                continue;
+              }
+
+              const from = currentTitle ? `'${currentTitle}'` : 'none';
+              console.log(`Setting milestone on issue #${issue.number} from ${from} to '${targetMilestoneName}'`);
               try {
                 await github.rest.issues.update({
                   owner,
@@ -138,3 +152,17 @@ jobs:
             }
 
             console.log(`Done. Processed ${closingIssues.length} issue(s) with label '${label ?? 'none'}' and milestone '${targetMilestoneName}'`);
+
+            // Parses a milestone title as a semver version, or returns null for
+            // non-version milestones (e.g. "Backlog", "MQ", "Discussions")
+            function parseVersion(title) {
+              const m = title.match(/^(\d+)\.(\d+)\.(\d+)$/);
+              return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : null;
+            }
+
+            function compareVersions(a, b) {
+              for (let i = 0; i < 3; i++) {
+                if (a[i] !== b[i]) return a[i] - b[i];
+              }
+              return 0;
+            }
