@@ -561,9 +561,6 @@ INNER JOIN (
 
         AssertSql(
             """
-@p='0'
-@p1='100'
-
 SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Order Details] AS [o]
@@ -577,9 +574,6 @@ WHERE [o].[OrderID] < 10276
 
         AssertSql(
             """
-@p='0'
-@p1='100'
-
 SET NOCOUNT OFF;
 DELETE FROM [o]
 FROM [Order Details] AS [o]
