@@ -47,7 +47,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateEntityType(entityType, logger);
             ValidateClrInheritance(entityType, validEntityTypes);
             ValidateData(entityType, identityMaps, sensitiveDataLogged, logger);
-            
+
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null)
             {
@@ -167,6 +167,64 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     {
         ValidateTypeMapping(property, logger);
         ValidatePrimitiveCollection(property, logger);
+        ValidateAutoLoaded(property, structuralType, logger);
+    }
+
+    /// <summary>
+    ///     Validates that a property configured as not auto-loaded is not a key, foreign key, concurrency token, discriminator,
+    ///     or consumed by a constructor binding.
+    /// </summary>
+    /// <param name="property">The property to validate.</param>
+    /// <param name="structuralType">The structural type containing the property.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateAutoLoaded(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (property.IsAutoLoaded)
+        {
+            return;
+        }
+
+        var typeName = structuralType.DisplayName();
+
+        if (property.IsKey())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AutoLoadedKeyProperty(property.Name, typeName));
+        }
+
+        if (property.IsForeignKey())
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AutoLoadedForeignKeyProperty(property.Name, typeName));
+        }
+
+        if (property.IsConcurrencyToken)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AutoLoadedConcurrencyTokenProperty(property.Name, typeName));
+        }
+
+        if (structuralType is IEntityType entityType
+            && entityType.FindDiscriminatorProperty() == property)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.AutoLoadedDiscriminatorProperty(property.Name, typeName));
+        }
+
+        foreach (var derivedType in structuralType.GetDerivedTypesInclusive())
+        {
+            if (derivedType.ConstructorBinding is not null
+                && derivedType.ConstructorBinding.ParameterBindings
+                    .SelectMany(p => p.ConsumedProperties)
+                    .Contains(property))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.AutoLoadedConstructorProperty(property.Name, derivedType.DisplayName()));
+            }
+        }
     }
 
     /// <summary>

@@ -878,14 +878,14 @@ WHERE [c].[Id] = @custId
 
         AssertSql(
             """
-SELECT [c].[Id], [s].[CustomerName], [s].[OrderId], [s].[Id]
+SELECT [c].[Id], [s].[CustomerName], [s].[OrderId]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId], [c0].[Id]
+    SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     INNER JOIN [Customers] AS [c0] ON [g].[CustomerId] = [c0].[Id]
 ) AS [s]
-ORDER BY [c].[Id], [s].[OrderId]
+ORDER BY [c].[Id]
 """);
     }
 

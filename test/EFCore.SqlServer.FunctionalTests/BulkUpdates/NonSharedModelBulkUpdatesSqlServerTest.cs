@@ -176,7 +176,6 @@ INNER JOIN [BlogsPart1] AS [b0] ON [b].[Id] = [b0].[Id]
 SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Context30572_Principal] AS [c]
-LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
 """);
     }
 

@@ -470,10 +470,20 @@ public static class RelationalEntityTypeExtensions
     public static string? GetFunctionName(this IReadOnlyEntityType entityType)
     {
         var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.FunctionName);
-        return nameAnnotation != null
-            ? (string?)nameAnnotation.Value
-            : entityType.BaseType != null
-                ? entityType.GetRootType().GetFunctionName()
+        if (nameAnnotation != null)
+        {
+            return (string?)nameAnnotation.Value;
+        }
+
+        if (entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetFunctionName();
+        }
+
+        var ownership = entityType.FindOwnership();
+        return ownership != null
+            && (ownership.IsUnique || entityType.IsMappedToJson())
+                ? ownership.PrincipalEntityType.GetFunctionName()
                 : null;
     }
 

@@ -3557,6 +3557,137 @@ public class ConventionDispatcherTest
     }
 
     [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), ConditionalTheory]
+    public void OnPropertyAutoLoadChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyAutoLoadChangedConvention(false);
+        var convention2 = new PropertyAutoLoadChangedConvention(true);
+        var convention3 = new PropertyAutoLoadChangedConvention(false);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
+
+        var model = new Model(conventions);
+
+        var scope = useScope ? model.DelayConventions() : null;
+
+        var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
+            .Property(typeof(string), "Name", ConfigurationSource.Convention);
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = false;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsAutoLoaded(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsAutoLoaded = false;
+        }
+
+        scope?.Dispose();
+
+        if (useScope)
+        {
+            Assert.Equal(new bool?[] { false, false, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, false, false }, convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(
+            new PropertyAutoLoadChangedConvention(terminate: true),
+            conventions, conventions.PropertyAutoLoadChangedConventions);
+    }
+
+    private class PropertyAutoLoadChangedConvention(bool terminate) : IPropertyAutoLoadChangedConvention
+    {
+        public readonly List<bool?> Calls = [];
+        private readonly bool _terminate = terminate;
+
+        public void ProcessPropertyAutoLoadChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<bool?> context)
+        {
+            Calls.Add(propertyBuilder.Metadata.IsAutoLoaded);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true), ConditionalTheory]
     public void OnPropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();

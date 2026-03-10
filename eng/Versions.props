@@ -13,15 +13,26 @@
 
     <!-- Arcade features -->
     <UsingToolXliff>false</UsingToolXliff>
+
+    <ShouldUseLiveRoslyn Condition="'$(PreReleaseVersionLabel)' == 'servicing' And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">true</ShouldUseLiveRoslyn>
   </PropertyGroup>
 
-  <PropertyGroup Label="MSBuild and Roslyn">
-    <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.0.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
+  <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
+    <MicrosoftBuildFrameworkVersion>18.3.3</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.3.3</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.3.3</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.3.0-2.final</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.3.0-2.final</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.3.0-2.final</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="MSBuild and Roslyn servicing" Condition="'$(ShouldUseLiveRoslyn)' == 'true'">
+    <MicrosoftBuildFrameworkVersion>18.5.0</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.5.0</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.5.0</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.5.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.5.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.5.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Test dependencies">

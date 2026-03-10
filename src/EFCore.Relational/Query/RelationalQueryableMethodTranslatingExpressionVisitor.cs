@@ -874,14 +874,97 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
         if (joinPredicate != null)
         {
+            var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
+            var isPrunable = isToOneJoin && IsPrunableInnerJoin();
+
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            var outerShaperExpression = outerSelectExpression.AddInnerJoin(inner, joinPredicate, outer.ShaperExpression);
+            var outerShaperExpression = outerSelectExpression.AddInnerJoin(
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, isPrunable);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
         }
 
         return null;
+
+        // An INNER JOIN is safe to prune when every outer row is guaranteed to have exactly one matching inner row.
+        // The caller checks IsToOneJoin (at most one match via PK/AK/unique index); this method checks that at least
+        // one matching row exists by looking for a required FK between the outer and inner entity types.
+        // However, the FK guarantee only holds when the full inner table is available. If the inner query has been
+        // filtered (via predicates, limit, offset, etc.), some rows may be missing and the join may filter the outer
+        // side; in that case, the join must not be pruned.
+        bool IsPrunableInnerJoin()
+        {
+            if ((SelectExpression)inner.QueryExpression is
+                {
+                    Predicate: null,
+                    Limit: null,
+                    Offset: null,
+                    Having: null,
+                    IsDistinct: false,
+                    GroupBy.Count: 0
+                }
+                && outer.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType outerEntityType }
+                && inner.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType innerEntityType })
+            {
+                var outerKeyProperties = ExtractKeyProperties(outerEntityType, outerKeySelector);
+                var innerKeyProperties = ExtractKeyProperties(innerEntityType, innerKeySelector);
+
+                if (outerKeyProperties is null || innerKeyProperties is null)
+                {
+                    return false;
+                }
+
+                Debug.Assert(outerKeyProperties.Count == innerKeyProperties.Count);
+
+                // Case 1: Outer is dependent, inner is principal — FK.IsRequired guarantees every dependent has a principal.
+                // Case 2: Outer is principal, inner is dependent — FK.IsRequiredDependent guarantees every principal has a dependent.
+                return HasMatchingRequiredForeignKey(
+                        outerEntityType, innerEntityType, outerKeyProperties, innerKeyProperties, checkIsRequired: true)
+                    || HasMatchingRequiredForeignKey(
+                        innerEntityType, outerEntityType, innerKeyProperties, outerKeyProperties, checkIsRequired: false);
+            }
+
+            return false;
+
+            // Checks whether the dependent entity type has a required FK to the principal whose properties match the key selectors.
+            // When checkIsRequired is true, checks FK.IsRequired (every dependent has a principal);
+            // when false, checks FK.IsRequiredDependent (every principal has a dependent).
+            // The key selector properties may appear in a different order than the FK properties, so we match positionally:
+            // for each (fkProperty[i], principalKeyProperty[i]) pair, both must appear at the same index in the respective key selectors.
+            static bool HasMatchingRequiredForeignKey(
+                IEntityType dependentEntityType,
+                IEntityType principalEntityType,
+                IReadOnlyList<IReadOnlyProperty> dependentKeyProperties,
+                IReadOnlyList<IReadOnlyProperty> principalKeyProperties,
+                bool checkIsRequired)
+            {
+                foreach (var fk in dependentEntityType.GetForeignKeys())
+                {
+                    if (fk.PrincipalEntityType == principalEntityType
+                        && (checkIsRequired ? fk.IsRequired : fk.IsRequiredDependent)
+                        && fk.Properties.Count == dependentKeyProperties.Count)
+                    {
+                        for (var i = 0; i < fk.Properties.Count; i++)
+                        {
+                            var dependentIndex = dependentKeyProperties.IndexOf(fk.Properties[i]);
+                            if (dependentIndex == -1
+                                || dependentIndex >= principalKeyProperties.Count
+                                || principalKeyProperties[dependentIndex] != fk.PrincipalKey.Properties[i])
+                            {
+                                goto NextForeignKey;
+                            }
+                        }
+
+                        return true;
+
+                    NextForeignKey:;
+                    }
+                }
+
+                return false;
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -895,8 +978,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
         if (joinPredicate != null)
         {
+            var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            var outerShaperExpression = outerSelectExpression.AddLeftJoin(inner, joinPredicate, outer.ShaperExpression);
+            var outerShaperExpression = outerSelectExpression.AddLeftJoin(
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, prunableJoin: isToOneJoin);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
@@ -2401,4 +2486,87 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     [Obsolete(
         "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
     protected class RelationalInferredTypeMappingApplier;
+
+    /// <summary>
+    ///     Determines whether a join is guaranteed to match at most one inner row per outer row (a "to-one" join).
+    ///     This is detected by checking whether the inner key selector's properties form a primary/alternate key
+    ///     or are covered by a unique index on the inner entity type.
+    /// </summary>
+    private static bool IsToOneJoin(ShapedQueryExpression inner, LambdaExpression innerKeySelector)
+    {
+        if (inner.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType })
+        {
+            return false;
+        }
+
+        var keyProperties = ExtractKeyProperties(entityType, innerKeySelector);
+        if (keyProperties is null)
+        {
+            return false;
+        }
+
+        // Check if the inner key properties form a primary or alternate key.
+        if (entityType.FindKey(keyProperties) is not null)
+        {
+            return true;
+        }
+
+        // Check if the inner key properties are covered by a unique index (e.g. unique FK in a 1:1 relationship).
+        foreach (var index in entityType.GetIndexes())
+        {
+            if (index.IsUnique && index.Properties.SequenceEqual(keyProperties))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Extracts the <see cref="IProperty" /> instances referenced by the inner key selector lambda.
+    ///     Returns <see langword="null" /> if properties cannot be determined.
+    /// </summary>
+    private static IReadOnlyList<IReadOnlyProperty>? ExtractKeyProperties(
+        IEntityType entityType,
+        LambdaExpression innerKeySelector)
+    {
+        switch (innerKeySelector.Body.UnwrapTypeConversion(out _))
+        {
+            // Composite key: new[] { Convert(EF.Property<T>(...)), ... }
+            case NewArrayExpression { NodeType: ExpressionType.NewArrayInit } newArray:
+            {
+                var properties = new IReadOnlyProperty[newArray.Expressions.Count];
+                for (var i = 0; i < newArray.Expressions.Count; i++)
+                {
+                    var property = ExtractSingleKeyProperty(entityType, newArray.Expressions[i].UnwrapTypeConversion(out _));
+                    if (property is null)
+                    {
+                        return null;
+                    }
+
+                    properties[i] = property;
+                }
+
+                return properties;
+            }
+
+            // Single key
+            case var e when ExtractSingleKeyProperty(entityType, e) is IProperty singleProperty:
+                return [singleProperty];
+
+            default:
+                return null;
+        }
+
+        static IReadOnlyProperty? ExtractSingleKeyProperty(IEntityType entityType, Expression expression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+
+            return Infrastructure.ExpressionExtensions.IsMemberAccess(expression, entityType.Model, out _, out var memberIdentity)
+                && memberIdentity.Name is not null
+                    ? entityType.FindProperty(memberIdentity.Name)
+                    : null;
+        }
+    }
 }

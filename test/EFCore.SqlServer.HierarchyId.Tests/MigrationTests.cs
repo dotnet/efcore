@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class MigrationTests
 {
-    private delegate string MigrationCodeGetter(string migrationName, string rootNamespace);
+    private delegate string MigrationCodeGetter(string migrationId, string rootNamespace);
 
     private delegate string SnapshotCodeGetter(string rootNamespace, string migrationId);
 
@@ -56,7 +56,7 @@ public class MigrationTests
             .GetRequiredService<IMigrationsScaffolder>()
             .ScaffoldMigration(migrationName, rootNamespace);
 
-        var expectedMigration = migrationCodeGetter(migrationName, rootNamespace);
+        var expectedMigration = migrationCodeGetter(migration.MigrationId, rootNamespace);
         var expectedSnapshot = snapshotCodeGetter(rootNamespace, migration.MigrationId);
 
         Assert.Equal(expectedMigration, migration.MigrationCode, ignoreLineEndingDifferences: true);

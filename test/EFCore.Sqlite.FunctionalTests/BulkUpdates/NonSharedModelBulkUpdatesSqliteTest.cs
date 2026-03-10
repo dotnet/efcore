@@ -160,7 +160,6 @@ DELETE FROM "Context30572_Principal" AS "c"
 WHERE "c"."Id" IN (
     SELECT "c0"."Id"
     FROM "Context30572_Principal" AS "c0"
-    LEFT JOIN "Context30572_Dependent" AS "c1" ON "c0"."DependentId" = "c1"."Id"
 )
 """);
     }

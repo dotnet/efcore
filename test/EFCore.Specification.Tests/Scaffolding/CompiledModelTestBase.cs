@@ -268,6 +268,11 @@ namespace TestNamespace
             b.Property(e => e.TimeSpanToTicksConverterProperty).HasConversion<TimeSpanToTicksConverter>();
             b.Property(e => e.UriToStringConverterProperty).HasConversion<UriToStringConverter>();
             b.Property(e => e.NullIntToNullStringConverterProperty).HasConversion<NullIntToNullStringConverter>();
+
+            if (SupportsNonAutoLoadedProperties)
+            {
+                b.Property(e => e.NullableString).Metadata.IsAutoLoaded = false;
+            }
         });
     }
 
@@ -282,6 +287,9 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(manyTypesType.ConstructorBinding);
         Assert.Null(manyTypesType.FindIndexerPropertyInfo());
         Assert.Equal(ChangeTrackingStrategy.Snapshot, manyTypesType.GetChangeTrackingStrategy());
+
+        var stringProp = manyTypesType.FindProperty(nameof(ManyTypes.NullableString))!;
+        Assert.Equal(!SupportsNonAutoLoadedProperties, stringProp.IsAutoLoaded);
 
         var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection));
         if (ipAddressCollection != null)
@@ -1367,6 +1375,9 @@ namespace TestNamespace
     protected virtual int ExpectedComplexTypeProperties
         => 14;
 
+    protected virtual bool SupportsNonAutoLoadedProperties
+        => true;
+
     public class CustomValueComparer<T>() : ValueComparer<T>(false);
 
     public class ManyTypesIdConverter() : ValueConverter<ManyTypesId, int>(v => v.Id, v => new ManyTypesId(v));
@@ -2076,6 +2087,7 @@ namespace TestNamespace
         options ??= new CompiledModelCodeGenerationOptions { ForNativeAot = true };
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
+        options.ProviderName ??= context.GetService<IDatabaseProvider>().Name;
 
         var generator = TestHelpers.CreateDesignServiceProvider(
                 context.GetService<IDatabaseProvider>().Name,

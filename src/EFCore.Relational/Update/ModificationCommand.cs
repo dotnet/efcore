@@ -408,10 +408,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     // Note that for stored procedures we always need to send all parameters, regardless of whether the property
                     // actually changed.
                     writeValue = !columnPropagator?.TryPropagate(columnMapping, entry)
-                        ?? (entry.EntityState == EntityState.Added
-                            || entry.EntityState == EntityState.Deleted
-                            || ColumnModification.IsModified(entry, property)
-                            || StoreStoredProcedure is not null);
+                        ?? (entry.IsLoaded(property)
+                            && (entry.EntityState == EntityState.Added
+                                || entry.EntityState == EntityState.Deleted
+                                || ColumnModification.IsModified(entry, property)
+                                || StoreStoredProcedure is not null));
                 }
             }
 
@@ -581,20 +582,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         static List<JsonPartialUpdatePathEntry>? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
         {
             var result = new List<JsonPartialUpdatePathEntry>();
-            var currentEntry = entry;
+            IUpdateEntry? currentEntry = entry;
             var currentOwnership = currentEntry.EntityType.FindOwnership()!;
 
-            while (currentEntry.EntityType.IsMappedToJson())
+            while (currentEntry is not null && currentEntry.EntityType.IsMappedToJson())
             {
                 var jsonPropertyName = currentEntry.EntityType.GetJsonPropertyName()!;
                 currentOwnership = currentEntry.EntityType.FindOwnership()!;
                 var previousEntry = currentEntry;
 #pragma warning disable EF1001 // Internal EF Core API usage.
                 currentEntry = ((InternalEntityEntry)currentEntry).StateManager.FindPrincipal(
-                    (InternalEntityEntry)currentEntry, currentOwnership)!;
+                    (InternalEntityEntry)currentEntry, currentOwnership);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-                if (processedEntries.Contains(currentEntry))
+                if (currentEntry == null || processedEntries.Contains(currentEntry))
                 {
                     return null;
                 }
@@ -635,7 +636,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
 
             // parent entity got deleted, no need to do any json-specific processing
-            if (currentEntry.EntityState == EntityState.Deleted)
+            if (currentEntry?.EntityState == EntityState.Deleted)
             {
                 return null;
             }
@@ -1207,6 +1208,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             {
                 case EntityState.Modified:
                     if (!_write
+                        && entry.IsLoaded(property)
                         && Update.ColumnModification.IsModified(entry, property))
                     {
                         _write = true;

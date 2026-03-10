@@ -484,7 +484,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
+SELECT [p].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference] AS [r] ON [p].[Id] = [r].[ParentId]
 LEFT JOIN [Collection] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -493,7 +493,7 @@ LEFT JOIN (
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[ParentId]
-ORDER BY [p].[Id], [r].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
+ORDER BY [p].[Id], [c].[Id], [s].[ParentId]
 """,
             //
             """
