@@ -561,13 +561,10 @@ INNER JOIN (
 
         AssertSql(
             """
-<<<<<<< fix/execute-update-rows-affected
 @p='0'
 @p1='100'
 
 SET NOCOUNT OFF;
-=======
->>>>>>> main
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] < 10276
@@ -580,13 +577,10 @@ WHERE [o].[OrderID] < 10276
 
         AssertSql(
             """
-<<<<<<< fix/execute-update-rows-affected
 @p='0'
 @p1='100'
 
 SET NOCOUNT OFF;
-=======
->>>>>>> main
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] < 10276
