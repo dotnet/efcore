@@ -786,6 +786,17 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     void IDbContextOptionsBuilderInfrastructure.AddOrUpdateExtension<TExtension>(TExtension extension)
         => _options = _options.WithExtension(extension);
 
+    /// <summary>
+    ///     Removes the extension of the given type from the options. If no extension of the given type exists, this is a no-op.
+    /// </summary>
+    /// <remarks>
+    ///     This method is intended for use by extension methods to configure the context. It is not intended to be used in
+    ///     application code.
+    /// </remarks>
+    /// <typeparam name="TExtension">The type of extension to be removed.</typeparam>
+    void IDbContextOptionsBuilderInfrastructure.RemoveExtension<TExtension>()
+        => _options = _options.WithoutExtension<TExtension>();
+
     private DbContextOptionsBuilder WithOption(Func<CoreOptionsExtension, CoreOptionsExtension> withFunc)
     {
         ((IDbContextOptionsBuilderInfrastructure)this).AddOrUpdateExtension(
