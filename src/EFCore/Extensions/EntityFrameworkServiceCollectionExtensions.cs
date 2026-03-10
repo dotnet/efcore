@@ -1177,7 +1177,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </remarks>
     /// <typeparam name="TContext">The type of context to be removed.</typeparam>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to remove services from.</param>
-    /// <param name="removeConfiguration">
+    /// <param name="removeConfigurationOnly">
     ///     If <see langword="true" />, only the <see cref="IDbContextOptionsConfiguration{TContext}" /> registrations will be removed;
     ///     the context itself will remain registered. If <see langword="false" /> (the default), all services related to the context
     ///     will be removed.
@@ -1186,12 +1186,12 @@ public static class EntityFrameworkServiceCollectionExtensions
     public static IServiceCollection RemoveDbContext
         <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
             this IServiceCollection serviceCollection,
-            bool removeConfiguration = false)
+            bool removeConfigurationOnly = false)
         where TContext : DbContext
     {
         Check.NotNull(serviceCollection);
 
-        if (removeConfiguration)
+        if (removeConfigurationOnly)
         {
             var configurations = serviceCollection
                 .Where(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>))
@@ -1210,7 +1210,8 @@ public static class EntityFrameworkServiceCollectionExtensions
                     || d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)
                     || d.ServiceType == typeof(IDbContextFactorySource<TContext>)
                     || d.ServiceType == typeof(IDbContextFactory<TContext>)
-                    || d.ServiceType == typeof(IDbContextPool<TContext>))
+                    || d.ServiceType == typeof(IDbContextPool<TContext>)
+                    || d.ServiceType == typeof(IScopedDbContextLease<TContext>))
                 .ToList();
 
             foreach (var descriptor in descriptorsToRemove)
