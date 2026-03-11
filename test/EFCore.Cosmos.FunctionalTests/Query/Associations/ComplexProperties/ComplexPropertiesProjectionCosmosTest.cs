@@ -98,7 +98,6 @@ FROM root c
 """);
     }
 
-
     [ConditionalFact]
     public Task Select_distinct_associate()
         => AssertTranslationFailed(() => AssertQuery(

@@ -1364,7 +1364,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
     {
-        // Attempt to translate access into a primitive, complex or embedded navigation collection property
+        // Attempt to translate access into a primitive, complex or embedded owned navigation collection property
         if (_sqlTranslator.TryBindMember(
                 _sqlTranslator.Visit(source),
                 member,

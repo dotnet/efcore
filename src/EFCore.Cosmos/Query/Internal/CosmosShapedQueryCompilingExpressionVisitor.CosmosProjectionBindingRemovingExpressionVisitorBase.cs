@@ -126,6 +126,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         {
                                             accessExpression = objectAccessExpression.Object;
                                             storeNames.Add(objectAccessExpression.PropertyName);
+                                            // The ShapedQueryCompilingExpressionVisitor will not generate StructuralTypeProjections for complex properties, so
+                                            // an ObjectAccessExpression in a StructuralTypeProjectionExpression can only be generated for owned navigations
+                                            // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
                                             _ownerMappings[objectAccessExpression]
                                                 = ((IEntityType)objectAccessExpression.StructuralProperty.DeclaringType, accessExpression);
                                         }
@@ -287,6 +290,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var accessExpression = objectArrayAccess.InnerProjection.Object;
                     _projectionBindings[accessExpression] = jObjectParameter;
+                    // The ShapedQueryCompilingExpressionVisitor will not generate CollectionShaperExpression for complex collection properties, so
+                    // an ObjectArrayAccessExpression in a CollectionShaperExpression can only be generated for owned collections
+                    // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
                     _ownerMappings[accessExpression] =
                         ((IEntityType)objectArrayAccess.StructuralProperty.DeclaringType, objectArrayAccess.Object);
                     _ordinalParameterBindings[accessExpression] = Add(
