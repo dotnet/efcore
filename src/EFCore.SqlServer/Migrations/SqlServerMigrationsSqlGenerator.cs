@@ -1897,9 +1897,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         var identity = operation[SqlServerAnnotationNames.Identity] as string;
-        if (identity != null
+        var isHistoryTable = model?.GetRelationalModel().Tables
+            .Any(t => t.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName)?.Value as string == table
+                && (t.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema)?.Value as string ?? t.Schema) == schema) == true;
+
+        if ((identity != null
             || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
-            == SqlServerValueGenerationStrategy.IdentityColumn)
+            == SqlServerValueGenerationStrategy.IdentityColumn) && !isHistoryTable)
         {
             builder.Append(" IDENTITY");
 

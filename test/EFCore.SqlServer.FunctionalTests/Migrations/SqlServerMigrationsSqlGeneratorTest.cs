@@ -1820,6 +1820,30 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
         Assert.Equal(RelationalStrings.UnsupportedTypeForColumn("TestTable", "TestColumn", "FileStream"), ex.Message);
     }
 
+    [ConditionalFact]
+    public void Migration_should_not_generate_identity_on_history_table_column()
+    {
+        var operation = new AddColumnOperation
+        {
+            Table = "CustomersHistory",
+            Name = "NewColumn",
+            ClrType = typeof(int),
+            ColumnType = "int",
+            IsNullable = false,
+            [SqlServerAnnotationNames.Identity] = "1, 1"
+        };
+
+        Generate(
+            builder => builder.Entity("Customer", eb =>
+            {
+                eb.Property<int>("Id").ValueGeneratedOnAdd();
+                eb.ToTable("Customers", tb => tb.IsTemporal());
+            }),
+            operation);
+
+        Assert.DoesNotContain("IDENTITY", Sql);
+    }
+
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>
