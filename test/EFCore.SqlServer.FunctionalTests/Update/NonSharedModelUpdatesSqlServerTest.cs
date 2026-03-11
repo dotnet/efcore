@@ -212,8 +212,14 @@ WHERE [Id] = @p1;
 """,
             //
             """
-SELECT TOP(2) [b].[Id], [b].[Description], [b].[Name]
+SELECT TOP(2) [b].[Id], [b].[Name]
 FROM [BlogWithDescription] AS [b]
+""",
+            //
+            """
+SELECT TOP(2) [b].[Description]
+FROM [BlogWithDescription] AS [b]
+WHERE [b].[Description] = N'Original description'
 """);
     }
 
@@ -234,7 +240,63 @@ WHERE [Id] = @p1;
 """,
             //
             """
-SELECT TOP(2) [b].[Id], [b].[Name], [b].[Tags]
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithTags] AS [b]
+""");
+    }
+
+    public override async Task Query_with_not_auto_loaded_property_tracked(bool async)
+    {
+        await base.Query_with_not_auto_loaded_property_tracked(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Query_with_not_auto_loaded_property_no_tracking(bool async)
+    {
+        await base.Query_with_not_auto_loaded_property_no_tracking(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Explicit_select_of_not_auto_loaded_property(bool async)
+    {
+        await base.Explicit_select_of_not_auto_loaded_property(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Description]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Where_on_not_auto_loaded_property(bool async)
+    {
+        await base.Where_on_not_auto_loaded_property(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+WHERE [b].[Description] = N'Some description'
+""");
+    }
+
+    public override async Task Query_with_not_auto_loaded_primitive_collection(bool async)
+    {
+        await base.Query_with_not_auto_loaded_primitive_collection(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
 FROM [BlogWithTags] AS [b]
 """);
     }

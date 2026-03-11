@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -416,11 +417,32 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyTypeBase typeBase)
-        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnName
-            ? columnName
-            : typeBase is IReadOnlyEntityType entityType
-                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
-                : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
+    {
+        if (typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnType)
+        {
+            return columnType;
+        }
+
+        var parentType = typeBase is IReadOnlyEntityType entityType
+            ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
+            : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
+
+        if (parentType != null)
+        {
+            return parentType;
+        }
+
+        if (typeBase.IsMappedToJson()
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            && (typeBase.Model is not Model model || model.IsReadOnly))
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        {
+            return ((IRelationalTypeMappingSource)((IModel)typeBase.Model).GetModelDependencies().TypeMappingSource)
+                .FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     Sets the type of the container column to which the type is mapped.

@@ -37,7 +37,7 @@ public class VectorTranslationsSqlServerTest : IClassFixture<VectorTranslationsS
 @p='1'
 @vector='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
 
-SELECT TOP(@p) [v].[Id], [v].[Vector]
+SELECT TOP(@p) [v].[Id]
 FROM [VectorEntities] AS [v]
 ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], @vector)
 """);
@@ -59,7 +59,7 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], @vector)
             """
 @p='1'
 
-SELECT TOP(@p) [v].[Id], [v].[Vector]
+SELECT TOP(@p) [v].[Id]
 FROM [VectorEntities] AS [v]
 ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], CAST('[1,2,100]' AS VECTOR(3)))
 """);
@@ -84,7 +84,7 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], CAST('[1,2,100]' AS VECTOR(3)))
 @p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
 @p1='1'
 
-SELECT [v].[Id], [v].[Vector], [v0].[Distance]
+SELECT [v].[Id], [v0].[Distance]
 FROM VECTOR_SEARCH(
     TABLE = [VectorEntities] AS [v],
     COLUMN = [Vector],
@@ -120,7 +120,7 @@ FROM VECTOR_SEARCH(
 @p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
 @p1='3'
 
-SELECT [v].[Id], [v].[Vector]
+SELECT [v].[Id]
 FROM VECTOR_SEARCH(
     TABLE = [VectorEntities] AS [v],
     COLUMN = [Vector],

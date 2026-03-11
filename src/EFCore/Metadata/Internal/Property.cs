@@ -923,53 +923,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
                     }
 
                     var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                    if (principalProperty == cycleBreakingProperty)
+                    if (principalProperty == cycleBreakingProperty
+                        || TryGetConversion(
+                            principalProperty, throwOnValueConverterConflict, throwOnProviderClrTypeConflict,
+                            ref valueConverter, ref valueConverterType, ref providerClrType))
                     {
                         break;
                     }
 
-                    var annotationFound = GetConversion(
-                        principalProperty,
-                        throwOnValueConverterConflict,
-                        throwOnProviderClrTypeConflict,
-                        ref valueConverter,
-                        ref valueConverterType,
-                        ref providerClrType);
-                    if (!annotationFound)
-                    {
-                        var useQueue = queue != null;
-                        if (currentNode != null)
-                        {
-                            useQueue = true;
-                            queue =
-                                new Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength
-                                    )>();
-                            queue.Enqueue(currentNode.Value);
-                            visitedProperties = [property];
-                        }
-
-                        if (visitedProperties?.Contains(principalProperty) == true)
-                        {
-                            break;
-                        }
-
-                        if (cyclePosition == maxCycleLength - 1)
-                        {
-                            // We need to use different primes to ensure a different cycleBreakingProperty is selected
-                            // each time when traversing properties that participate in multiple relationship cycles
-                            currentNode = (principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1));
-                        }
-                        else
-                        {
-                            currentNode = (principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength);
-                        }
-
-                        if (useQueue)
-                        {
-                            queue!.Enqueue(currentNode.Value);
-                            currentNode = null;
-                        }
-                    }
+                    EnqueueForTraversal(
+                        principalProperty, property, cycleBreakingProperty, cyclePosition, maxCycleLength,
+                        ref currentNode, ref queue, ref visitedProperties);
 
                     break;
                 }
@@ -978,7 +942,45 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
 
         return (valueConverter, valueConverterType, providerClrType);
 
-        bool GetConversion(
+        static void EnqueueForTraversal(
+            Property principalProperty,
+            Property property,
+            Property cycleBreakingProperty,
+            int cyclePosition,
+            int maxCycleLength,
+            ref (Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)? currentNode,
+            ref Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)>? queue,
+            ref HashSet<Property>? visitedProperties)
+        {
+            var useQueue = queue != null;
+            if (currentNode != null)
+            {
+                useQueue = true;
+                queue =
+                    new Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)>();
+                queue.Enqueue(currentNode.Value);
+                visitedProperties = [property];
+            }
+
+            if (visitedProperties?.Contains(principalProperty) == true)
+            {
+                return;
+            }
+
+            // We need to use different primes to ensure a different cycleBreakingProperty is selected
+            // each time when traversing properties that participate in multiple relationship cycles
+            currentNode = cyclePosition == maxCycleLength - 1
+                ? (principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1))
+                : (principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength);
+
+            if (useQueue)
+            {
+                queue!.Enqueue(currentNode.Value);
+                currentNode = null;
+            }
+        }
+
+        bool TryGetConversion(
             Property principalProperty,
             bool throwOnValueConverterConflict,
             bool throwOnProviderClrTypeConflict,
@@ -986,126 +988,93 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             ref Type? valueConverterType,
             ref Type? providerClrType)
         {
-            var annotationFound = false;
-            var valueConverterAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
-            if (valueConverterAnnotation != null)
+            var vcFound = TryFindAndValidateConversionAnnotation(
+                principalProperty, CoreAnnotationNames.ValueConverter,
+                valueConverter?.GetType(), valueConverterType,
+                throwOnProviderClrTypeConflict ? providerClrType : null, null,
+                out var vcValue);
+            if (vcFound && vcValue is ValueConverter vc)
             {
-                var annotationValue = (ValueConverter?)valueConverterAnnotation.Value;
-                if (annotationValue != null)
-                {
-                    if (valueConverter != null
-                        && annotationValue.GetType() != valueConverter.GetType())
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverter.GetType().ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                    }
-
-                    if (valueConverterType != null
-                        && annotationValue.GetType() != valueConverterType)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverterType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                    }
-
-                    if (providerClrType != null
-                        && throwOnProviderClrTypeConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                providerClrType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                    }
-
-                    valueConverter = annotationValue;
-                }
-
-                annotationFound = true;
+                valueConverter = vc;
             }
 
-            var valueConverterTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverterType);
-            if (valueConverterTypeAnnotation != null)
+            var vctFound = TryFindAndValidateConversionAnnotation(
+                principalProperty, CoreAnnotationNames.ValueConverterType,
+                valueConverter?.GetType(), valueConverterType,
+                throwOnProviderClrTypeConflict ? providerClrType : null, null,
+                out var vctValue);
+            if (vctFound && vctValue is Type vct)
             {
-                var annotationValue = (Type?)valueConverterTypeAnnotation.Value;
-                if (annotationValue != null)
-                {
-                    if (valueConverter != null
-                        && valueConverter.GetType() != annotationValue)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (valueConverterType != null
-                        && valueConverterType != annotationValue)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverterType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (providerClrType != null
-                        && throwOnProviderClrTypeConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    valueConverterType = annotationValue;
-                }
-
-                annotationFound = true;
+                valueConverterType = vct;
             }
 
-            var providerClrTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
-            if (providerClrTypeAnnotation != null)
+            var pctFound = TryFindAndValidateConversionAnnotation(
+                principalProperty, CoreAnnotationNames.ProviderClrType,
+                providerClrType, null,
+                throwOnValueConverterConflict ? valueConverter?.GetType() : null,
+                throwOnValueConverterConflict ? valueConverterType : null,
+                out var pctValue);
+            if (pctFound && pctValue is Type pct)
             {
-                var annotationValue = (Type?)providerClrTypeAnnotation.Value;
-                if (annotationValue != null)
-                {
-                    if (providerClrType != null
-                        && annotationValue != providerClrType)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (valueConverter != null
-                        && throwOnValueConverterConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    if (valueConverterType != null
-                        && throwOnValueConverterConflict)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ConflictingRelationshipConversions(
-                                DeclaringType.DisplayName(), Name,
-                                valueConverterType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                    }
-
-                    providerClrType = annotationValue;
-                }
-
-                annotationFound = true;
+                providerClrType = pct;
             }
 
-            return annotationFound;
+            return vcFound || vctFound || pctFound;
         }
+
+        bool TryFindAndValidateConversionAnnotation(
+            Property principalProperty,
+            string annotationName,
+            Type? firstTypeToCheck, Type? secondTypeToCheck,
+            Type? firstConflictingType, Type? secondConflictingType,
+            out object? value)
+        {
+            var annotation = principalProperty.FindAnnotation(annotationName);
+            if (annotation == null)
+            {
+                value = null;
+                return false;
+            }
+
+            var type = annotation.Value switch
+            {
+                ValueConverter vc => vc.GetType(),
+                Type t => t,
+                _ => null
+            };
+
+            if (type != null)
+            {
+                ThrowIfIncompatible(type, firstTypeToCheck);
+                ThrowIfIncompatible(type, secondTypeToCheck);
+                ThrowIfConflicting(type, firstConflictingType);
+                ThrowIfConflicting(type, secondConflictingType);
+            }
+
+            value = annotation.Value;
+            return true;
+        }
+
+        void ThrowIfIncompatible(Type newType, Type? existingType)
+        {
+            if (existingType != null && newType != existingType)
+            {
+                ThrowConflictingConversions(existingType, newType);
+            }
+        }
+
+        void ThrowIfConflicting(Type newType, Type? existingType)
+        {
+            if (existingType != null)
+            {
+                ThrowConflictingConversions(existingType, newType);
+            }
+        }
+
+        void ThrowConflictingConversions(Type existingType, Type newType)
+            => throw new InvalidOperationException(
+                CoreStrings.ConflictingRelationshipConversions(
+                    DeclaringType.DisplayName(), Name, existingType.ShortDisplayName(), newType.ShortDisplayName()));
     }
 
     /// <summary>
