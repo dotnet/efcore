@@ -330,6 +330,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     {
         switch (extensionExpression)
         {
+            case ObjectAccessExpression:
+            case ObjectArrayAccessExpression:
             case StructuralTypeProjectionExpression:
             case StructuralTypeReferenceExpression:
             case SqlExpression:

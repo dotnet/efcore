@@ -109,11 +109,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
             case (StructuralTypeReferenceExpression { StructuralType: IComplexType }, _):
             case (_, StructuralTypeReferenceExpression { StructuralType: IComplexType }):
-                return TryRewriteComplexTypeEquality(collection: false, out result);
-
-            case (CollectionResultExpression, _):
-            case (_, CollectionResultExpression):
-                return TryRewriteComplexTypeEquality(collection: true, out result);
+                return TryRewriteComplexTypeEquality(out result);
 
             default:
                 result = null;
@@ -187,23 +183,17 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
         }
 
-        bool TryRewriteComplexTypeEquality(bool collection, out SqlExpression? result)
+        bool TryRewriteComplexTypeEquality(out SqlExpression? result)
         {
-            var leftComplexType = left switch
-            {
-                StructuralTypeReferenceExpression { StructuralType: IComplexType type } => type,
-                CollectionResultExpression { ComplexProperty: IComplexProperty { ComplexType: var type } } => type,
+            var leftReference = left as StructuralTypeReferenceExpression;
+            var rightReference = right as StructuralTypeReferenceExpression;
 
-                _ => null
-            };
+            var reference = leftReference ?? rightReference;
+            Debug.Assert(reference != null, "We checked that at least one side is a StructuralTypeReferenceExpression before calling this function");
+            var collection = (reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression is ObjectArrayAccessExpression;
 
-            var rightComplexType = right switch
-            {
-                StructuralTypeReferenceExpression { StructuralType: IComplexType type } => type,
-                CollectionResultExpression { ComplexProperty: IComplexProperty { ComplexType: var type } } => type,
-
-                _ => null
-            };
+            var leftComplexType = leftReference?.StructuralType as IComplexType;
+            var rightComplexType = rightReference?.StructuralType as IComplexType;
 
             if (leftComplexType is not null
                 && rightComplexType is not null
@@ -258,8 +248,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                     {
                         StructuralTypeReferenceExpression { StructuralType: IComplexType } reference
                             => Visit((reference.Parameter ?? (StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression).ValueBufferExpression),
-                        CollectionResultExpression { ComplexProperty: IComplexProperty } collectionResult
-                            => collectionResult.QueryExpression,
                         SqlParameterExpression sqlParameterExpression
                             => CreateJsonQueryParameter(sqlParameterExpression),
                         SqlConstantExpression constant
@@ -270,7 +258,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                         _ => null
                     };
 
-                    return result != null;
+                    return result != null && result != QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 SqlExpression CreateJsonQueryParameter(SqlParameterExpression sqlParameterExpression)
