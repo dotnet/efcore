@@ -84,28 +84,4 @@ FROM root c
 
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
-
-    protected override Task<ContextFactory<TContext>> InitializeNonSharedTest<TContext>(
-        Action<ModelBuilder>? onModelCreating = null,
-        Action<DbContextOptionsBuilder>? onConfiguring = null,
-        Func<IServiceCollection, IServiceCollection>? addServices = null,
-        Action<ModelConfigurationBuilder>? configureConventions = null,
-        Func<TContext, Task>? seed = null,
-        Func<string, bool>? shouldLogCategory = null,
-        Func<TestStore>? createTestStore = null,
-        bool usePooling = true,
-        bool useServiceProvider = true)
-        => base.InitializeNonSharedTest(model =>
-        {
-            onModelCreating?.Invoke(model);
-            AdHocCosmosTestHelpers.UseTestAutoIncrementIntIds(model);
-        },
-            onConfiguring,
-            addServices,
-            configureConventions,
-            seed,
-            shouldLogCategory,
-            createTestStore,
-            usePooling,
-            useServiceProvider);
 }

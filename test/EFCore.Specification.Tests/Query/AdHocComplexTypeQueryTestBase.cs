@@ -18,6 +18,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.AddRange(
                     new Context33449.EntityType
                     {
+                        Id = 1,
                         ComplexContainer = new Context33449.ComplexContainer
                         {
                             Id = 1,
@@ -43,12 +44,15 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     private class Context33449(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<EntityType>().ComplexProperty(
-                b => b.ComplexContainer, x =>
+            => modelBuilder.Entity<EntityType>(b =>
+            {
+                b.Property(b => b.Id).ValueGeneratedNever();
+                b.ComplexProperty(b => b.ComplexContainer, x =>
                 {
                     x.ComplexProperty(c => c.Containee1);
                     x.ComplexProperty(c => c.Containee2);
                 });
+            });
 
         public class EntityType
         {
@@ -94,6 +98,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<EntityType>(b =>
             {
+                b.Property(b => b.Id).ValueGeneratedNever();
                 b.ComplexProperty(x => x.Complex);
                 b.OwnsOne(x => x.OwnedReference);
             });
@@ -132,14 +137,17 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.AddRange(
                     new ContextShadowDiscriminator.EntityType
                     {
+                        Id = 1,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
+                        Id = 2,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = null }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
+                        Id = 3,
                         AllOptionalsComplexType = null
                     }
                     );
@@ -158,8 +166,11 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     private class ContextShadowDiscriminator(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<EntityType>()
-                .ComplexProperty(b => b.AllOptionalsComplexType, x => x.HasDiscriminator());
+            => modelBuilder.Entity<EntityType>(b =>
+            {
+                b.Property(b => b.Id).ValueGeneratedNever();
+                b.ComplexProperty(b => b.AllOptionalsComplexType, x => x.HasDiscriminator());
+            });
 
         public class EntityType
         {
@@ -186,6 +197,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 context.Add(
                     new Context37162.EntityType
                     {
+                        Id = 1,
                         NonOptionalComplexType = new Context37162.ComplexTypeWithAllNulls
                         {
                             // All properties are null
@@ -206,7 +218,11 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     private class Context37162(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.NonOptionalComplexType);
+            => modelBuilder.Entity<EntityType>(b =>
+            {
+                b.Property(b => b.Id).ValueGeneratedNever();
+                b.ComplexProperty(b => b.NonOptionalComplexType);
+            });
 
         public class EntityType
         {
@@ -235,6 +251,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             {
                 var entity = new Context37337.EntityType
                 {
+                    Id = Guid.NewGuid(),
                     Prop = new Context37337.OptionalComplexProperty
                     {
                         OptionalValue = true
@@ -263,7 +280,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var entity = modelBuilder.Entity<EntityType>();
-            entity.Property(p => p.Id);
+            entity.Property(p => p.Id).ValueGeneratedNever();
             entity.HasKey(p => p.Id);
 
             var compl = entity.ComplexProperty(p => p.Prop);

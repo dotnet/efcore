@@ -12,29 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocCosmosTestHelpers
 {
-    public static void UseTestAutoIncrementIntIds(ModelBuilder modelBuilder)
-    {
-        foreach (var rootDocument in modelBuilder.Model.GetEntityTypes().Where(x => x.IsDocumentRoot()))
-        {
-            var primaryKey = rootDocument.FindPrimaryKey();
-
-            if (primaryKey != null && primaryKey.Properties.Count == 1 && primaryKey.Properties[0].ClrType == typeof(int))
-            {
-                var valueGenerator = new TestAutoIncrementIntValueGenerator();
-                primaryKey.Properties[0].SetValueGeneratorFactory((_, _) => valueGenerator);
-            }
-        }
-    }
-
-    private class TestAutoIncrementIntValueGenerator : ValueGenerator<int>
-    {
-        private int _autoIncrementingId;
-
-        public override bool GeneratesTemporaryValues => false;
-
-        public override int Next(EntityEntry entry) => Interlocked.Increment(ref _autoIncrementingId);
-    }
-
     public static async Task CreateCustomEntityHelperAsync(
         Container container,
         string json,
