@@ -328,7 +328,6 @@ ORDER BY c["Id"]
 """);
     }
 
-
     public override async Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_nullable_value_type(queryTrackingBehavior);

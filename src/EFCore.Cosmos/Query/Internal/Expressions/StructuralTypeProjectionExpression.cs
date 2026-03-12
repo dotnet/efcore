@@ -257,8 +257,8 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
         if (structuralType is IEntityType entityType)
         {
             var navigation = member.MemberInfo == null
-            ? entityType.FindNavigation(member.Name!)
-            : entityType.FindNavigation(member.MemberInfo);
+                ? entityType.FindNavigation(member.Name!)
+                : entityType.FindNavigation(member.MemberInfo);
             if (navigation != null)
             {
                 propertyBase = navigation;
