@@ -867,46 +867,46 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
-        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType } shaper)
+        if (source.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType } shaper)
         {
-            if (entityType.ClrType == resultType)
-            {
-                return source;
-            }
-
-            var select = (SelectExpression)source.QueryExpression;
-
-            var parameterExpression = Expression.Parameter(shaper.Type);
-            var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
-
-            if (!TryApplyPredicate(source, predicate))
-            {
-                return null;
-            }
-
-            var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
-            if (baseType != null)
-            {
-                return source.UpdateShaperExpression(shaper.WithType(baseType));
-            }
-
-            var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
-            var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
-
-            var projectionMember = projectionBindingExpression.ProjectionMember;
-            Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
-
-            var structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)select.GetMappedProjection(projectionMember);
-            select.ReplaceProjectionMapping(
-                new Dictionary<ProjectionMember, Expression>
-                {
-                    { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
-                });
-
-            return source.UpdateShaperExpression(shaper.WithType(derivedType));
+            return null;
         }
 
-        return null;
+        if (entityType.ClrType == resultType)
+        {
+            return source;
+        }
+
+        var select = (SelectExpression)source.QueryExpression;
+
+        var parameterExpression = Expression.Parameter(shaper.Type);
+        var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
+
+        if (!TryApplyPredicate(source, predicate))
+        {
+            return null;
+        }
+
+        var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+        if (baseType != null)
+        {
+            return source.UpdateShaperExpression(shaper.WithType(baseType));
+        }
+
+        var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
+        var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
+
+        var projectionMember = projectionBindingExpression.ProjectionMember;
+        Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
+
+        var structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)select.GetMappedProjection(projectionMember);
+        select.ReplaceProjectionMapping(
+            new Dictionary<ProjectionMember, Expression>
+            {
+                    { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
+            });
+
+        return source.UpdateShaperExpression(shaper.WithType(derivedType));
     }
 
     /// <summary>
