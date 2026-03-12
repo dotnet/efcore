@@ -17,23 +17,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </remarks>
 public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessExpression
 {
+    private ObjectAccessExpression (Expression @object, string propertyName, IPropertyBase structuralProperty, ITypeBase structuralType)
+    {
+        Object = @object;
+        PropertyName = propertyName;
+        StructuralProperty = structuralProperty;
+        StructuralType = structuralType;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ObjectAccessExpression(Expression @object, INavigation navigation)
-    {
-        PropertyName = navigation.TargetEntityType.GetContainingPropertyName()
+    public ObjectAccessExpression(Expression @object, INavigation navigation) : this(
+        @object,
+        navigation.TargetEntityType.GetContainingPropertyName()
             ?? throw new InvalidOperationException(
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
-                    navigation.DeclaringEntityType.DisplayName(), navigation.Name));
-
-        StructuralProperty = navigation;
-        StructuralType = navigation.TargetEntityType;
-        Object = @object;
-    }
+                    navigation.DeclaringEntityType.DisplayName(), navigation.Name)),
+        navigation,
+        navigation.TargetEntityType) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,13 +46,11 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ObjectAccessExpression(Expression @object, IComplexProperty complexProperty)
-    {
-        StructuralProperty = complexProperty;
-        PropertyName = complexProperty.Name;
-        Object = @object;
-        StructuralType = complexProperty.ComplexType;
-    }
+    public ObjectAccessExpression(Expression @object, IComplexProperty complexProperty) : this(
+        @object,
+        complexProperty.Name,
+        complexProperty,
+        complexProperty.ComplexType) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

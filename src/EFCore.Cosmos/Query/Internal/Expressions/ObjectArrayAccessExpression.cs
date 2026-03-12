@@ -18,6 +18,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </remarks>
 public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAccessExpression
 {
+    private ObjectArrayAccessExpression(
+        Expression @object,
+        string propertyName,
+        ITypeBase targetType,
+        IPropertyBase structuralProperty,
+        StructuralTypeProjectionExpression? innerProjection)
+    {
+        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
+        PropertyName = propertyName;
+        StructuralProperty = structuralProperty;
+        Object = @object;
+        InnerProjection = innerProjection
+            ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
+    }
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -27,21 +41,15 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     public ObjectArrayAccessExpression(
         Expression @object,
         INavigation navigation,
-        StructuralTypeProjectionExpression? innerProjection = null)
-    {
-        var targetType = navigation.TargetEntityType;
-        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
-
-        PropertyName = targetType.GetContainingPropertyName()
+        StructuralTypeProjectionExpression? innerProjection = null) : this(
+            @object,
+            navigation.TargetEntityType.GetContainingPropertyName()
             ?? throw new InvalidOperationException(
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
-                    navigation.DeclaringEntityType.DisplayName(), navigation.Name));
-
-        StructuralProperty = navigation;
-        Object = @object;
-        InnerProjection = innerProjection
-            ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
-    }
+                    navigation.DeclaringEntityType.DisplayName(), navigation.Name)),
+            navigation.TargetEntityType,
+            navigation,
+            innerProjection) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,17 +60,12 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     public ObjectArrayAccessExpression(
         Expression @object,
         IComplexProperty complexProperty,
-        StructuralTypeProjectionExpression? innerProjection = null)
-    {
-        var targetType = complexProperty.ComplexType;
-        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
-
-        PropertyName = complexProperty.Name;
-        StructuralProperty = complexProperty;
-        Object = @object;
-        InnerProjection = innerProjection
-            ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
-    }
+        StructuralTypeProjectionExpression? innerProjection = null) : this(
+            @object,
+            complexProperty.Name,
+            complexProperty.ComplexType,
+            complexProperty,
+            innerProjection) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
