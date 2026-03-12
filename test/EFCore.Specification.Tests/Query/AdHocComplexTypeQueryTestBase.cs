@@ -225,6 +225,8 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #region Issue37337
 
+    private const string Issue37337CreatedByShadowPropertyName = "CreatedBy";
+
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_and_shadow_property()
     {
@@ -239,7 +241,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                     }
                 };
                 context.Add(entity);
-                context.Entry(entity).Property("CreatedBy").CurrentValue = "Seeder";
+                context.Entry(entity).Property(Issue37337CreatedByShadowPropertyName).CurrentValue = "Seeder";
                 return context.SaveChangesAsync();
             });
 
@@ -253,7 +255,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         Assert.True(entity.Prop.OptionalValue);
 
         var entry = context.Entry(entity);
-        Assert.Equal("Seeder", entry.Property("CreatedBy").CurrentValue);
+        Assert.Equal("Seeder", entry.Property(Issue37337CreatedByShadowPropertyName).CurrentValue);
     }
 
     protected class Context37337(DbContextOptions options) : DbContext(options)
@@ -269,7 +271,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             compl.HasDiscriminator();
 
             // Shadow property added via convention (e.g., audit field)
-            entity.Property<string>("CreatedBy").IsRequired(false);
+            entity.Property<string>(Issue37337CreatedByShadowPropertyName).IsRequired(false);
         }
 
         public class EntityType
