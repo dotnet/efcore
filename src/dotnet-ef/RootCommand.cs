@@ -106,6 +106,13 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
+        var targetPlatformIdentifier = GetTargetPlatformIdentifier(startupProject.TargetFramework);
+        if (!IsCurrentPlatform(targetPlatformIdentifier))
+        {
+            Reporter.WriteWarning(
+                Resources.UnsupportedPlatform(startupProject.ProjectName, targetPlatformIdentifier));
+        }
+
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
         if (targetFramework.Identifier == ".NETFramework")
         {
@@ -312,6 +319,55 @@ internal class RootCommand : CommandBase
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
+
+    private static bool IsCurrentPlatform(string? targetPlatformIdentifier)
+    {
+        if (string.IsNullOrEmpty(targetPlatformIdentifier))
+        {
+            return true;
+        }
+
+        if (string.Equals(targetPlatformIdentifier, "windows", StringComparison.OrdinalIgnoreCase))
+        {
+            return OperatingSystem.IsWindows();
+        }
+
+        if (string.Equals(targetPlatformIdentifier, "linux", StringComparison.OrdinalIgnoreCase))
+        {
+            return OperatingSystem.IsLinux();
+        }
+
+        if (string.Equals(targetPlatformIdentifier, "osx", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(targetPlatformIdentifier, "macos", StringComparison.OrdinalIgnoreCase))
+        {
+            return OperatingSystem.IsMacOS();
+        }
+
+        return false;
+    }
+
+    private static string? GetTargetPlatformIdentifier(string? targetFramework)
+    {
+        if (string.IsNullOrEmpty(targetFramework))
+        {
+            return null;
+        }
+
+        var dashIndex = targetFramework.IndexOf('-');
+        if (dashIndex < 0 || dashIndex >= targetFramework.Length - 1)
+        {
+            return null;
+        }
+
+        var platformAndVersion = targetFramework[(dashIndex + 1)..];
+        var i = 0;
+        while (i < platformAndVersion.Length && !char.IsDigit(platformAndVersion[i]))
+        {
+            i++;
+        }
+
+        return i > 0 ? platformAndVersion[..i] : null;
+    }
 
     private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
         => args.Count == 0
