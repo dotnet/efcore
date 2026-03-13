@@ -1,15 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
+namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
-public class OwnedNavigationsSetOperationsCosmosTest : OwnedNavigationsSetOperationsTestBase<OwnedNavigationsCosmosFixture>
+public class ComplexPropertiesSetOperationsCosmosTest
+    : ComplexPropertiesSetOperationsTestBase<ComplexPropertiesCosmosFixture>
 {
-    public OwnedNavigationsSetOperationsCosmosTest(OwnedNavigationsCosmosFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+    public ComplexPropertiesSetOperationsCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
     }
 
     public override async Task Over_associate_collections()
