@@ -51,7 +51,7 @@ Create the file with required YAML frontmatter:
 ---
 name: <skill-name>
 description: <description of what the skill does and when to use it>
-user-invokable: <Optional, defaults to true. Set to false for background knowledge skills.>
+user-invocable: <Optional, defaults to true. Set to false for background knowledge skills.>
 argument-hint: <Optional, guidance for how agents should format arguments when invoking the skill.>
 disable-model-invocation: <Optional, set to true to prevent agents from invoking the skill and only allow to be used through manual invocation.>
 compatibility: <Optional, specify any environment, tool, or context requirements for the skill.>

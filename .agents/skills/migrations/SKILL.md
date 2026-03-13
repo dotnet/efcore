@@ -1,7 +1,7 @@
 ---
 name: migrations
 description: 'Implementation details for EF Core migrations. Use when changing MigrationsSqlGenerator, model diffing, migration operations, HistoryRepository, the Migrator or related classes.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Migrations

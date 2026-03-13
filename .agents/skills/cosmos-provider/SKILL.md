@@ -1,7 +1,7 @@
 ---
 name: cosmos-provider
 description: 'Implementation details for the EF Core Azure Cosmos DB provider. Use when changing Cosmos-specific code.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Cosmos DB Provider

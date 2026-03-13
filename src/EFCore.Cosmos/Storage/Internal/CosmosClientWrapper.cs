@@ -368,7 +368,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             }
         }
 
-        var response = await container.CreateItemStreamAsync(
+        using var response = await container.CreateItemStreamAsync(
                 stream,
                 partitionKeyValue,
                 itemRequestOptions,

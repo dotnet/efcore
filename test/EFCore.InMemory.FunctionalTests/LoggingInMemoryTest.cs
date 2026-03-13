@@ -24,5 +24,5 @@ public class LoggingInMemoryTest : LoggingTestBase
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
     protected override string DefaultOptions
-        => "StoreName=LoggingInMemoryTest ";
+        => "StoreName=LoggingInMemoryTest NullabilityChecksEnabled ";
 }

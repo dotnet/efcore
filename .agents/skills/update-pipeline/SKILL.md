@@ -1,7 +1,7 @@
 ---
 name: update-pipeline
 description: 'Implementation details for EF Core SaveChanges and the update pipeline. Use when changing CommandBatchPreparer, UpdateSqlGenerator, ModificationCommand, or related classes.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Update Pipeline

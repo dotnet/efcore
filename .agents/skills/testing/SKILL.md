@@ -1,7 +1,7 @@
 ---
 name: testing
 description: 'Implementation details for EF Core test infrastructure. Use when changing test fixtures, SQL baseline assertions, test helpers, the test class hierarchy, or when adding new tests.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Testing
@@ -70,6 +70,7 @@ Each test gets a fresh model/store. Call `InitializeAsync<TContext>(onModelCreat
 2. **Provider override**: Override in `EFCore.{Provider}.FunctionalTests` with `AssertSql()`
 3. **Unit test**: Add to `EFCore.{Provider}.Tests`
 4. Run with `EF_TEST_REWRITE_BASELINES=1` to capture initial baselines
+5. When testing cross-platform code (e.g., file paths, path separators), verify the fix works on both Windows and Linux/macOS
 
 ## Common Pitfalls
 

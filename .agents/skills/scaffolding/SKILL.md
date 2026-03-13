@@ -1,7 +1,7 @@
 ---
 name: scaffolding
 description: 'Implementation details for EF Core scaffolding (reverse engineering). Use when changing ef dbcontext scaffold pipeline implementation, database schema reading, CSharpModelGenerator, or related classes.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Scaffolding
