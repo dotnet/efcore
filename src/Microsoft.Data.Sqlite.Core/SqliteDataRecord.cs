@@ -195,9 +195,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         }
     }
 
-#if NET6_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     public virtual Type GetFieldType(int ordinal)
     {
         var sqliteType = GetSqliteType(ordinal);
@@ -214,9 +212,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         return GetFieldTypeFromSqliteType(sqliteType);
     }
 
-#if NET6_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     internal static Type GetFieldTypeFromSqliteType(int sqliteType)
     {
         switch (sqliteType)
@@ -236,9 +232,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         }
     }
 
-#if NET6_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     public static Type GetFieldType(string type)
     {
         switch (type)

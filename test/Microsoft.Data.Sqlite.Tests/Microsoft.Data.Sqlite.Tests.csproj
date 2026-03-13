@@ -1,13 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(NetFrameworkCurrent)</TargetFrameworks>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework)</TargetFrameworks>
     <DefineConstants>$(DefineConstants);E_SQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == '$(NetFrameworkCurrent)'">
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
