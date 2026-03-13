@@ -246,6 +246,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [ConditionalFact]
+    public virtual Task Inline_collection_Contains_with_Nullable_Int_IEnumerable_Array_Containing_Null_EF_Parameter()
+    {
+        int?[] data = [ null, 1 ];
+
+        return AssertQuery(
+                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(data).Contains(c.NullableInt)),
+                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => data.Contains(c.NullableInt)));
+    }
+
+    [ConditionalFact]
     public virtual Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Count(i => i > c.Id) == 2),
