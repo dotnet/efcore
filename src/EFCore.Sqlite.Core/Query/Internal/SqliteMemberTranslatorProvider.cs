@@ -26,7 +26,8 @@ public class SqliteMemberTranslatorProvider : RelationalMemberTranslatorProvider
         [
             new SqliteDateTimeMemberTranslator(sqlExpressionFactory),
             new SqliteStringLengthTranslator(sqlExpressionFactory),
-            new SqliteDateOnlyMemberTranslator(sqlExpressionFactory)
+            new SqliteDateOnlyMemberTranslator(sqlExpressionFactory),
+            new SqliteTimeSpanMemberTranslator(sqlExpressionFactory)
         ]);
     }
 }

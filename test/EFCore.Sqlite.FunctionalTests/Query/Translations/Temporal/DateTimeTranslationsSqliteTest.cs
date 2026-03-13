@@ -186,8 +186,19 @@ WHERE rtrim(rtrim(strftime('%H:%M:%f', "b"."DateTime"), '0'), '.') = '00:00:00'
 """);
     }
 
-    public override Task subtract_and_TotalDays()
-        => AssertTranslationFailed(() => base.subtract_and_TotalDays());
+    public override async Task Subtract_and_TotalDays()
+    {
+        await base.Subtract_and_TotalDays();
+
+        AssertSql(
+            """
+@date='1997-01-01T00:00:00.0000000' (DbType = DateTime)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE ef_days(ef_timespan(julianday("b"."DateTime") - julianday(@date))) > 365.0
+""");
+    }
 
     public override async Task Parse_with_constant()
     {
