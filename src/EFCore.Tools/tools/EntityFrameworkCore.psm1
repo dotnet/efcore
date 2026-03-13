@@ -1306,8 +1306,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
         $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
-        # TODO: Remove TFM from the path, issue #37473
-        $efPath = Join-Path $PSScriptRoot 'net10.0\any\ef.dll'
+        $efPath = Join-Path $PSScriptRoot 'net\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 

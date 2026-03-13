@@ -69,12 +69,11 @@
 
   <!-- PDBs are currently always included as PackAsTool packages don't support excluding them.
        https://github.com/dotnet/sdk/issues/53226 -->
-  <!-- TODO: Remove TFM from the path, issue #37473 -->
   <Target Name="AddEfProjectOutput">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
-      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/$(TargetFramework)/any" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.dll" PackagePath="tools/$(TargetFramework)/any/tools/net" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.runtimeconfig.json" PackagePath="tools/$(TargetFramework)/any/tools/net" />
+      <TfmSpecificPackageFile Include="$(ArtifactsBinDir)ef/$(Configuration)/$(TargetFramework)/ef.pdb" PackagePath="tools/$(TargetFramework)/any/tools/net" />
     </ItemGroup>
   </Target>
 
