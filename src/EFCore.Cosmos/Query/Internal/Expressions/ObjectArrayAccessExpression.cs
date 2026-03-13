@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -18,54 +19,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </remarks>
 public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAccessExpression
 {
-    private ObjectArrayAccessExpression(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ObjectArrayAccessExpression(
         Expression @object,
-        string propertyName,
-        ITypeBase targetType,
         IPropertyBase structuralProperty,
-        StructuralTypeProjectionExpression? innerProjection)
+        StructuralTypeProjectionExpression? innerProjection = null)
     {
-        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
+        ITypeBase targetType;
+        string propertyName;
+
+        switch (structuralProperty)
+        {
+            case INavigation navigation:
+                targetType = navigation.TargetEntityType;
+                propertyName = navigation.TargetEntityType.GetContainingPropertyName()
+                    ?? throw new InvalidOperationException(
+                        CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
+                            navigation.DeclaringEntityType.DisplayName(), navigation.Name));
+                break;
+            case IComplexProperty complexProperty:
+                targetType = complexProperty.ComplexType;
+                propertyName = complexProperty.Name;
+                break;
+            default:
+                throw new UnreachableException($"Unexpected structural property type: {structuralProperty.GetType().FullName}");
+        }
+
         PropertyName = propertyName;
+        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
         StructuralProperty = structuralProperty;
         Object = @object;
         InnerProjection = innerProjection
             ?? new StructuralTypeProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
     }
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public ObjectArrayAccessExpression(
-        Expression @object,
-        INavigation navigation,
-        StructuralTypeProjectionExpression? innerProjection = null) : this(
-            @object,
-            navigation.TargetEntityType.GetContainingPropertyName()
-            ?? throw new InvalidOperationException(
-                CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
-                    navigation.DeclaringEntityType.DisplayName(), navigation.Name)),
-            navigation.TargetEntityType,
-            navigation,
-            innerProjection) { }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public ObjectArrayAccessExpression(
-        Expression @object,
-        IComplexProperty complexProperty,
-        StructuralTypeProjectionExpression? innerProjection = null) : this(
-            @object,
-            complexProperty.Name,
-            complexProperty.ComplexType,
-            complexProperty,
-            innerProjection) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,9 +131,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
         Expression accessExpression,
         StructuralTypeProjectionExpression innerProjection)
         => accessExpression != Object || innerProjection != InnerProjection
-            ? StructuralProperty is INavigation navigation
-                ? new ObjectArrayAccessExpression(accessExpression, navigation, innerProjection)
-                : new ObjectArrayAccessExpression(accessExpression, (IComplexProperty)StructuralProperty, innerProjection)
+            ? new ObjectArrayAccessExpression(accessExpression, StructuralProperty, innerProjection)
             : this;
 
     /// <summary>

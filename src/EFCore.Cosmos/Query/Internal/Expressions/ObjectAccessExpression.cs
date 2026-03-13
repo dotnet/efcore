@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -17,40 +18,41 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </remarks>
 public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessExpression
 {
-    private ObjectAccessExpression (Expression @object, string propertyName, IPropertyBase structuralProperty, ITypeBase structuralType)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public ObjectAccessExpression(
+        Expression @object,
+        IPropertyBase structuralProperty)
     {
-        Object = @object;
+        ITypeBase structuralType;
+        string propertyName;
+
+        switch (structuralProperty)
+        {
+            case INavigation navigation:
+                structuralType = navigation.TargetEntityType;
+                propertyName = navigation.TargetEntityType.GetContainingPropertyName()
+                    ?? throw new InvalidOperationException(
+                        CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
+                            navigation.DeclaringEntityType.DisplayName(), navigation.Name));
+                break;
+            case IComplexProperty complexProperty:
+                structuralType = complexProperty.ComplexType;
+                propertyName = complexProperty.Name;
+                break;
+            default:
+                throw new UnreachableException($"Unexpected structural property type: {structuralProperty.GetType().FullName}");
+        }
+
         PropertyName = propertyName;
         StructuralProperty = structuralProperty;
+        Object = @object;
         StructuralType = structuralType;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public ObjectAccessExpression(Expression @object, INavigation navigation) : this(
-        @object,
-        navigation.TargetEntityType.GetContainingPropertyName()
-            ?? throw new InvalidOperationException(
-                CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
-                    navigation.DeclaringEntityType.DisplayName(), navigation.Name)),
-        navigation,
-        navigation.TargetEntityType) { }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public ObjectAccessExpression(Expression @object, IComplexProperty complexProperty) : this(
-        @object,
-        complexProperty.Name,
-        complexProperty,
-        complexProperty.ComplexType) { }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,9 +121,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     /// </summary>
     public virtual ObjectAccessExpression Update(Expression outerExpression)
         => outerExpression != Object
-            ? StructuralProperty is INavigation navigation
-                ? new ObjectAccessExpression(outerExpression, navigation)
-                : new ObjectAccessExpression(outerExpression, (IComplexProperty)StructuralProperty)
+            ? new ObjectAccessExpression(outerExpression, StructuralProperty)
             : this;
 
     /// <summary>
