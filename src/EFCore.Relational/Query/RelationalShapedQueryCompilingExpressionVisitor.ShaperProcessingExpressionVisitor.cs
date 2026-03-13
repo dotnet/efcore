@@ -2903,9 +2903,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 entity,
                 relatedEntity,
                 Constant(true));
-
         private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            => _selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
+        {
+            return _selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
+        }
 
         private static bool IsNullableProjection(ProjectionExpression projection)
             => projection.Expression is not ColumnExpression column || column.IsNullable;
@@ -2918,6 +2919,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Type type,
             IPropertyBase? property = null)
         {
+            Check.DebugAssert(
+                property != null || type.IsNullableType() || type.IsValueType, 
+                "Must read nullable value from database if property is not specified.");
+
             var getMethod = typeMapping.GetDataReaderMethod();
 
             Expression indexExpression = Constant(index);
@@ -2926,6 +2931,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 indexExpression = ArrayIndex(_indexMapParameter, indexExpression);
             }
 
+            // القراءة الأصلية تحافظ على الـ Value Converters وتمنع خطأ DateOnly
             Expression valueExpression
                 = Call(
                     getMethod.DeclaringType != typeof(DbDataReader)
@@ -2981,16 +2987,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var converterExpression = default(Expression);
             if (converter != null)
             {
-                // if IProperty is available, we can reliably get the converter from the model and then incorporate FromProvider(Typed) delegate
-                // into the expression. This way we have consistent behavior between precompiled and normal queries (same code path)
-                // however, if IProperty is not available, we could try to get TypeMapping from TypeMappingSource based on ClrType, but that may
-                // return incorrect mapping. So for that case we would prefer to incorporate the FromProvider lambda, like we used to do before AOT
-                // and only resort to unreliable TypeMappingSource lookup, if the converter expression captures "forbidden" constant
-                // see issue #33517 for more details
-                // UPDATE: instead of guessing the type mapping in case where we don't have IProperty and converter uses non-literal constant,
-                // we just revert to the pre-AOT behavior, i.e. we still use converter.ConvertFromProviderExpression
-                // this will not work for precompiled query (which realistically was already broken for this scenario - type mapping we "guess"
-                // is pretty much always wrong), but regular case (not pre-compiled) will continue to work.
                 if (property != null)
                 {
                     var typeMappingExpression = Call(
@@ -3009,7 +3005,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var typedConverterType = converterType.GetGenericTypeImplementations(typeof(ValueConverter<,>)).FirstOrDefault();
                     Expression invocationExpression;
 
-                    // TODO: do we even need to do this check? can we ever have a custom ValueConverter that is not generic?
                     if (typedConverterType != null)
                     {
                         if (converterExpression.Type != converter.GetType())
@@ -3063,9 +3058,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 Expression replaceExpression;
                 if (converter?.ConvertsNulls == true)
                 {
-                    // we potentially have to repeat logic from above here. We can check if we computed converterExpression before
-                    // if so, it means there are liftable constants in the ConvertFromProvider expression
-                    // we can also reuse converter expression, just switch argument to the Invoke for default(provier type) or object
                     if (converterExpression != null)
                     {
                         var converterType = converter.GetType();
@@ -3119,8 +3111,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     valueExpression);
             }
 
-            if (_detailedErrorsEnabled
-                && !buffering)
+            if (_detailedErrorsEnabled && !buffering)
             {
                 var exceptionParameter = Parameter(typeof(Exception), name: "e");
 
@@ -3142,7 +3133,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             return valueExpression;
         }
-
         private Expression CreateReadJsonPropertyValueExpression(
             ParameterExpression jsonReaderManagerParameter,
             IProperty property)
