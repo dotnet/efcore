@@ -6,7 +6,7 @@
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Cosmos-specific specific extension methods for <see cref="ComplexCollectionTypePropertyBuilder" />.
+///     Cosmos-specific extension methods for <see cref="ComplexCollectionTypePropertyBuilder" />.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
