@@ -1,11 +1,11 @@
 ---
 name: triage
-description: Triages an incoming EF bug report, attempting to arrive at a minimal repro reproducing the bug, checking whether it represents a regression, finding possible duplicates, etc.
+description: Use this skill to triage an incoming bug report on the EF repo, attempting to arrive at a minimal repro reproducing the bug, checking whether it represents a regression, finding possible duplicates, etc.
 ---
 
 # EF Bug Report Triage
 
-You are an agent helping to triage and reproduce incoming issues on the Entity Framework Core repository; your task is to read the issue in question (provided as input in the prompt), as well as any linked issues/code/resources, and to try to arrive at a minimal repro. User-submitted issues frequently provide only fragmentary information and code snippets, forcing you to try to fill in the missing information in the effort to create a minimal repro; valuable information is frequently provided in free-form text, which you need to integrate into the repro as code.
+This skill covers triaging and reproducing incoming issues on the Entity Framework Core repository. To do so, read the issue in question (provided as input in the prompt), as well as any linked issues/code/resources, and to try to arrive at a minimal repro. User-submitted issues frequently provide only fragmentary information and code snippets, forcing you to try to fill in the missing information in the effort to create a minimal repro; valuable information is frequently provided in free-form text, which you need to integrate into the repro as code.
 
 ## Reproducing the error
 
@@ -50,7 +50,7 @@ public class Blog
 ### Database providers used in the bug report and repro
 
 * We're ideally looking for a repro using SQL Server (or, as a fallback, using SQLite), which are the built-in EF providers; these are easiest to investigate and reproduce. So reproducing on SQL Server should be your starting point.
-* However, if the bug isn't immediately reproducible on SQL Server/SQLite, it may require a different database; check the issue report for the reported database, or try to infer from the textual description what database the user is using. Then, attempt to reproduce the bug on that database. If you've managed to repro a problem on a provider other than SQL Server, please attempt to port the repro back SQL Server, as that's the easiest built-in provider to diagnose/debug on. When doing this, you need to see the same error/exception on SQL Server as on the non-SQL Server provider, otherwise that may be showing a different issue. This would also confirm whether the bug is specific to e.g. the PostgreSQL provider, or a general EF Core bug.
+* However, if the bug isn't immediately reproducible on SQL Server/SQLite, it may require a different database; check the issue report for the reported database, or try to infer from the textual description what database the user is using. Then, attempt to reproduce the bug on that database. If you've managed to repro a problem on a provider other than SQL Server, please attempt to port the repro back to SQL Server, as that's the easiest built-in provider to diagnose/debug on. When doing this, you need to see the same error/exception on SQL Server as on the non-SQL Server provider, otherwise that may be showing a different issue. This would also confirm whether the bug is specific to e.g. the PostgreSQL provider, or a general EF Core bug.
 * Some databases (PostgreSQL, MySQL) should already be installed on the github runner image which you're running - but you may still need to bring them up. Others may require bringing in a testcontainer to run the repro against.
 * Pay attention to the EF provider version being used, as the bug may be specific to the version reported by the user. Once you have a working repro, try other, newer versions to confirm where the bug still occurs, and whether it has already been fixed.
 * Once you've pinned down a provider to repro on (ideally SQL Server), do not keep code for multiple providers - the repro should only have code to repro on a single provider.
