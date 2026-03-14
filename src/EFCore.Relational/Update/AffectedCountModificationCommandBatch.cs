@@ -134,7 +134,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -256,7 +256,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -317,7 +317,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             return commandIndex - 1;
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -387,7 +387,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             return commandIndex - 1;
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,

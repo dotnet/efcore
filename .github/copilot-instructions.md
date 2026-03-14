@@ -88,11 +88,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 ### Testing
 
 - Follow the existing test patterns in the corresponding test projects
-- Create both unit tests and functional tests where appropriate
-- Fix `SQL` and `C#` baselines for tests when necessary by setting the `EF_TEST_REWRITE_BASELINES` env var to `1`
 - Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
-- When testing cross-platform code (e.g., file paths, path separators), verify the fix works on both Windows and Linux/macOS
-- When testing `dotnet-ef` tool changes, create a test project and manually run the affected commands to verify behavior
 
 #### Environment Setup
 - **ALWAYS** run `restore.cmd` (Windows) or `. ./restore.sh` (Linux/Mac) first to restore dependencies

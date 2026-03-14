@@ -1,7 +1,7 @@
 ---
 name: dbcontext-and-services
 description: 'Implementation details for EF Core DbContext and the DI service infrastructure. Use when changing context configuration, service registration, service lifetimes, DbContext pooling, or the Dependencies pattern.'
-user-invokable: false
+user-invocable: false
 ---
 
 # DbContext & Services

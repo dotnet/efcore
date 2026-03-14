@@ -232,7 +232,7 @@ After creating or modifying an agent, verify:
 | Using `isSticky: true` unnecessarily | Only set sticky if the agent should persist between turns by default |
 | No `extensionDependencies` on `github.copilot-chat` | Add it; otherwise the contribution point may not be available |
 | Agent invoked as subagent unexpectedly | Set `disable-model-invocation: true` |
-| Subagent appears in the dropdown | Set `user-invokable: false` |
+| Subagent appears in the dropdown | Set `user-invocable: false` |
 
 ## References
 

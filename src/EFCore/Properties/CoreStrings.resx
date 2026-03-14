@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -351,11 +351,11 @@
   <data name="ComplexCollectionNotInitialized" xml:space="preserve">
     <value>The complex type collection '{entityType}.{collection}' must be initialized to a non-null value before the elements can be accessed.</value>
   </data>
-  <data name="ComplexCollectionOrdinalOutOfRange" xml:space="preserve">
-    <value>The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).</value>
-  </data>
   <data name="ComplexCollectionNullElementSetter" xml:space="preserve">
     <value>The value for the property '{complexType}.{property}' cannot be set, because it's on the complex type collection element '{collectionDeclaringType}.{collection}[{ordinal}]' that contains a 'null' value.</value>
+  </data>
+  <data name="ComplexCollectionOrdinalOutOfRange" xml:space="preserve">
+    <value>The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).</value>
   </data>
   <data name="ComplexCollectionOriginalEntryAddedEntity" xml:space="preserve">
     <value>The complex entry at the original ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the added state.</value>
@@ -923,6 +923,10 @@
     <value>The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
     <comment>Warning CoreEventId.CollectionWithoutComparer string string</comment>
   </data>
+  <data name="LogCompiledModelProviderMismatch" xml:space="preserve">
+    <value>A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.</value>
+    <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
+  </data>
   <data name="LogComplexElementPropertyChangeDetected" xml:space="preserve">
     <value>The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
     <comment>Debug CoreEventId.ComplexElementPropertyChangeDetected string string</comment>
@@ -1070,10 +1074,6 @@
   <data name="LogOldModelVersion" xml:space="preserve">
     <value>The model supplied in the context options was created with EF Core version '{oldVersion}', but the context is from version '{newVersion}'. Update the externally built model.</value>
     <comment>Warning CoreEventId.OldModelVersionWarning string string</comment>
-  </data>
-  <data name="LogCompiledModelProviderMismatch" xml:space="preserve">
-    <value>A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.</value>
-    <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
@@ -1727,6 +1727,9 @@
   </data>
   <data name="SkipNavigationNonCollection" xml:space="preserve">
     <value>The skip navigation '{1_entityType}.{0_navigation}' is not a collection. Only collection skip navigations are currently supported.</value>
+  </data>
+  <data name="SkipNavigationSelfInverse" xml:space="preserve">
+    <value>The skip navigation '{navigation}' on entity type '{entityType}' cannot be set as its own inverse.</value>
   </data>
   <data name="SkipNavigationWrongInverse" xml:space="preserve">
     <value>The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}', which targets '{targetEntityType}'. The inverse navigation should be declared on the target entity type.</value>

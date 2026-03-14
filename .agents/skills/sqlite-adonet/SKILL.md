@@ -1,7 +1,7 @@
 ---
 name: sqlite-adonet
 description: 'Implementation details for the Microsoft.Data.Sqlite ADO.NET provider. Use when changing files under `src/Microsoft.Data.Sqlite.Core/`.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Microsoft.Data.Sqlite
