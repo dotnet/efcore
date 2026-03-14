@@ -40,4 +40,4 @@ jobs:
 
     steps:
       - name: Export connection string for the agent's session
-        run: echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=master;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+        run: echo 'Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true' >> "$GITHUB_ENV"
