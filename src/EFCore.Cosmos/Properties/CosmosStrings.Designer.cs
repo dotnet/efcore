@@ -594,9 +594,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 memberType, member, entityType);
 
         /// <summary>
-        ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.
-        /// </summary>
-        /// <summary>
         ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
         /// </summary>
         public static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor)
