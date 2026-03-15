@@ -18,13 +18,8 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         If an empty string is supplied, the property will not be persisted.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    ///     </para>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
     /// <param name="name">The name of the property.</param>
