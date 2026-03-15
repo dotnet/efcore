@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Complex property extension methods cosmos metadata.
+///     Complex property extension methods for Cosmos metadata.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
