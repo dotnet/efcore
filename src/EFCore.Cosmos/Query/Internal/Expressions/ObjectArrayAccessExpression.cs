@@ -43,7 +43,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
                 break;
             case IComplexProperty complexProperty:
                 targetType = complexProperty.ComplexType;
-                propertyName = complexProperty.GetJsonPropertyName();;
+                propertyName = complexProperty.GetJsonPropertyName();
                 break;
             default:
                 throw new UnreachableException($"Unexpected structural property type: {structuralProperty.GetType().FullName}");

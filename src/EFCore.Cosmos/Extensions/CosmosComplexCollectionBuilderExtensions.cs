@@ -31,7 +31,7 @@ public static class CosmosComplexCollectionBuilderExtensions
     }
 
     /// <summary>
-    ///     Configures the property name that the the complex collection is mapped to when stored as an embedded document.
+    ///     Configures the property name that the complex collection is mapped to when stored as an embedded document.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
