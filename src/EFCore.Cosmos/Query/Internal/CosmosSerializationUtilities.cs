@@ -56,6 +56,11 @@ public static class CosmosSerializationUtilities
         {
             var jsonPropertyName = property.GetJsonPropertyName();
 
+            if (string.IsNullOrEmpty(jsonPropertyName))
+            {
+                continue;
+            }
+
             var propertyValue = property.GetGetter().GetClrValue(value);
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var providerValue = property.ConvertToProviderValue(propertyValue);

@@ -663,6 +663,108 @@ OFFSET 0 LIMIT 1
         }
     }
 
+    [ConditionalFact]
+    public virtual async Task Can_use_non_persisted_properties_owned()
+    {
+        var options = await Fixture.CreateOptions(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Vehicle>(eb => eb.OwnsOne(
+                    v => v.Operator, b =>
+                    {
+                        b.Property(x => x.Name).ToJsonProperty("");
+                    }));
+            },
+            seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = new Vehicle
+            {
+                Name = "Test Vehicle",
+                Operator = new Operator { Name = "Test Operator" }
+            };
+            await context.AddAsync(vehicle);
+            await context.SaveChangesAsync();
+
+            Assert.Equal("Test Operator", vehicle.Operator.Name);
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync();
+            Assert.Null(vehicle.Operator.Name);
+
+            vehicle.Operator.Name = "Theon Greyjoy";
+            // Assert.Equal(0, await context.SaveChangesAsync()); // @TODO: #37929 non-persisted property changes should not cause SaveChanges to update the document
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync();
+            Assert.Null(vehicle.Operator.Name);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_use_non_persisted_properties_complex()
+    {
+        var options = await Fixture.CreateOptions(
+
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Vehicle>(eb =>
+                {
+                    eb.Ignore(x => x.Operator);
+                    eb.ComplexProperty(
+                        v => v.Operator, b =>
+                        {
+                            b.Property(x => x.Name).ToJsonProperty("");
+                        });
+                });
+            },
+            seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = new Vehicle
+            {
+                Name = "Test Vehicle",
+                Operator = new Operator { Name = "Test Operator" }
+            };
+            await context.AddAsync(vehicle);
+            await context.SaveChangesAsync();
+
+            Assert.Equal("Test Operator", vehicle.Operator.Name);
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync(x => x.Operator == new Operator());
+
+            AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE (c["$type"] IN ("Vehicle", "PoweredVehicle") AND (c["Operator"] = {"VehicleName":null,"Details":null}))
+OFFSET 0 LIMIT 2
+""");
+
+            Assert.Null(vehicle.Operator.Name);
+
+            vehicle.Operator.Name = "Theon Greyjoy";
+            // Assert.Equal(0, await context.SaveChangesAsync()); // @TODO: #37929 non-persisted property changes should not cause SaveChanges to update the document
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var vehicle = await context.Vehicles.SingleAsync(x => x.Operator == new Operator());
+            Assert.Null(vehicle.Operator.Name);
+        }
+    }
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
 
@@ -702,7 +804,7 @@ OFFSET 0 LIMIT 1
             => ((EmbeddedTransportationContext)context).Options.OnModelCreating?.Invoke(modelBuilder);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedNavigationIgnoredWarning));
 
         protected override object GetAdditionalModelCacheKey(DbContext context)
         {
