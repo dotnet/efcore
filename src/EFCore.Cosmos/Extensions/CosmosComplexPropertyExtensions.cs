@@ -31,5 +31,5 @@ public static class CosmosComplexPropertyExtensions
     public static void SetJsonPropertyName(this IMutableComplexProperty property, string? name)
         => property.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
-            name);
+            Check.NullButNotEmpty(name));
 }

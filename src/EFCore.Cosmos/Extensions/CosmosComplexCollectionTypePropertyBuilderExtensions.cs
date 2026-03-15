@@ -33,7 +33,7 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
         this ComplexCollectionTypePropertyBuilder propertyBuilder,
         string name)
     {
-        Check.NotNull(name);
+        Check.NotEmpty(name);
 
         propertyBuilder.Metadata.SetJsonPropertyName(name);
 
