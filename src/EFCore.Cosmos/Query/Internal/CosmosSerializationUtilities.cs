@@ -3,7 +3,7 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
