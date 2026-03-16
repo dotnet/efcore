@@ -221,9 +221,12 @@ FROM root c
     }
 
 
-    // Cosmos doesn't support entity collection navigations across documents.
-    public override Task Project_struct_complex_type_with_entity_collection_navigation()
-        => Task.CompletedTask;
+    public override async Task Project_struct_complex_type_with_entity_collection_navigation()
+    {
+        await base.Project_struct_complex_type_with_entity_collection_navigation();
+
+        AssertSql();
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

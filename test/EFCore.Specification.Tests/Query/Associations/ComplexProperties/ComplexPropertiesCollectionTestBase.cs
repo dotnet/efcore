@@ -17,8 +17,9 @@ public abstract class ComplexPropertiesCollectionTestBase<TFixture>(TFixture fix
             {
                 context.Add(new Context37926.Parent
                 {
+                    Id = 1,
                     Coords = new Context37926.Coords { X = 1, Y = 2 },
-                    Children = [new() { Name = "Child1" }]
+                    Children = [new() { Id = 1, Name = "Child1" }]
                 });
                 await context.SaveChangesAsync();
             });
@@ -37,11 +38,16 @@ public abstract class ComplexPropertiesCollectionTestBase<TFixture>(TFixture fix
     protected class Context37926(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Parent>(b =>
+        {
+            modelBuilder.Entity<Parent>(b =>
             {
+                b.Property(e => e.Id).ValueGeneratedNever();
                 b.ComplexProperty(e => e.Coords);
                 b.HasMany(e => e.Children).WithOne().HasForeignKey(c => c.ParentId);
             });
+
+            modelBuilder.Entity<Child>().Property(e => e.Id).ValueGeneratedNever();
+        }
 
         public class Parent
         {
