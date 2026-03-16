@@ -268,6 +268,11 @@ namespace TestNamespace
             b.Property(e => e.TimeSpanToTicksConverterProperty).HasConversion<TimeSpanToTicksConverter>();
             b.Property(e => e.UriToStringConverterProperty).HasConversion<UriToStringConverter>();
             b.Property(e => e.NullIntToNullStringConverterProperty).HasConversion<NullIntToNullStringConverter>();
+
+            if (SupportsNonAutoLoadedProperties)
+            {
+                b.Property(e => e.NullableString).Metadata.IsAutoLoaded = false;
+            }
         });
     }
 
@@ -282,6 +287,9 @@ namespace TestNamespace
         Assert.IsType<ConstructorBinding>(manyTypesType.ConstructorBinding);
         Assert.Null(manyTypesType.FindIndexerPropertyInfo());
         Assert.Equal(ChangeTrackingStrategy.Snapshot, manyTypesType.GetChangeTrackingStrategy());
+
+        var stringProp = manyTypesType.FindProperty(nameof(ManyTypes.NullableString))!;
+        Assert.Equal(!SupportsNonAutoLoadedProperties, stringProp.IsAutoLoaded);
 
         var ipAddressCollection = manyTypesType.FindProperty(nameof(ManyTypes.IPAddressReadOnlyCollection));
         if (ipAddressCollection != null)
@@ -1167,6 +1175,21 @@ namespace TestNamespace
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
+    [ConditionalFact]
+    public virtual Task Throws_for_Backing_Field_Not_Found()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<EntityWithNoBackingFieldScalar>(eb =>
+                {
+                    eb.Property(e => e.Computed)
+                        .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                });
+            },
+            options: new CompiledModelCodeGenerationOptions { ForNativeAot = true },
+            expectedExceptionMessage: CoreStrings.NoFieldOrSetter("Computed", "EntityWithNoBackingFieldScalar"),
+            skipValidation: true);
+
     protected virtual void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PrincipalBase>(eb =>
@@ -1351,6 +1374,9 @@ namespace TestNamespace
 
     protected virtual int ExpectedComplexTypeProperties
         => 14;
+
+    protected virtual bool SupportsNonAutoLoadedProperties
+        => true;
 
     public class CustomValueComparer<T>() : ValueComparer<T>(false);
 
@@ -1790,6 +1816,12 @@ namespace TestNamespace
         public byte[]? Blob { get; set; }
     }
 
+    public class EntityWithNoBackingFieldScalar
+    {
+        public int Id { get; set; }
+        public int Computed => 1;
+    }
+
     public class PrincipalBase : AbstractBase
     {
         public new long? Id { get; set; }
@@ -1968,7 +2000,7 @@ namespace TestNamespace
 
     protected abstract TestHelpers TestHelpers { get; }
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "CompiledModelTest";
 
     private string _filePath = "";
@@ -2007,6 +2039,7 @@ namespace TestNamespace
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         => Test<DbContext>(
             onModelCreating,
@@ -2019,6 +2052,7 @@ namespace TestNamespace
             additionalSourceFiles,
             assertAssembly,
             expectedExceptionMessage,
+            skipValidation,
             testName);
 
     protected virtual async Task<(TContext?, IModel?)> Test<TContext>(
@@ -2032,6 +2066,7 @@ namespace TestNamespace
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         where TContext : DbContext
     {
@@ -2044,13 +2079,15 @@ namespace TestNamespace
                 onModelCreating?.Invoke(modelBuilder);
             },
             onConfiguring,
-            addServices);
-        using var context = contextFactory.CreateContext();
+            addServices,
+            skipValidation: skipValidation);
+        using var context = contextFactory.CreateDbContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
         options ??= new CompiledModelCodeGenerationOptions { ForNativeAot = true };
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
+        options.ProviderName ??= context.GetService<IDatabaseProvider>().Name;
 
         var generator = TestHelpers.CreateDesignServiceProvider(
                 context.GetService<IDatabaseProvider>().Name,
@@ -2092,7 +2129,7 @@ namespace TestNamespace
 
         if (useContext != null)
         {
-            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
+            await NonSharedTestStore.InitializeAsync(NonSharedServiceProvider, contextFactory.CreateDbContext);
             ListLoggerFactory.Clear();
 
             using var compiledModelContext = CreateContextFactory<TContext>(
@@ -2102,7 +2139,7 @@ namespace TestNamespace
                         options.UseModel(compiledModel);
                     },
                     addServices: addServices)
-                .CreateContext();
+                .CreateDbContext();
             await useContext(compiledModelContext);
         }
 

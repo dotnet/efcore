@@ -34,6 +34,11 @@ WHERE [t].[Value].STEquals('MULTIPOINT ((-122.35 47.62), (-122.345 47.615))') = 
 """);
     }
 
+    public override async Task Primitive_collection_in_query()
+    {
+        await base.Primitive_collection_in_query();
+    }
+
     public override async Task SaveChanges()
     {
         await base.SaveChanges();

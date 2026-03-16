@@ -3274,8 +3274,56 @@ WHERE [j].[Id] = 1
 """);
     }
 
+    public override async Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+    {
+        await base.Replace_json_reference_root_preserves_nested_owned_entities_in_memory();
+
+        AssertSql(
+            """
+@p0='{"Id":0,"Name":"Modified","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 367)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
+
+    public override async Task Replace_derived_entity_with_json_to_base_entity_with_same_key()
+    {
+        await base.Replace_derived_entity_with_json_to_base_entity_with_same_key();
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='{"Date":"2010-01-01T00:00:00","Enum":-1,"Enums":[-1],"Fraction":1.0,"Id":0,"NullableEnum":null,"NullableEnums":[null],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"leaf"}}' (Nullable = false) (Size = 194)
+@p4='2'
+@p2='JsonEntityInheritanceBase' (Nullable = false) (Size = 34)
+@p3='ReplacementBase' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesInheritance] SET [CollectionOnBase] = @p0, [ReferenceOnBase] = @p1, [Discriminator] = @p2, [Name] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived]
+FROM [JsonEntitiesInheritance] AS [j]
+WHERE [j].[Id] = 2
+""");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

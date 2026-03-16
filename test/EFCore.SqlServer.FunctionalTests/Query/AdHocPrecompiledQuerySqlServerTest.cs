@@ -105,15 +105,15 @@ FROM [Books] AS [b]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     protected override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers
         => SqlServerPrecompiledQueryTestHelpers.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder);
+        builder = base.AddNonSharedOptions(builder);
 
         // TODO: Figure out if there's a nice way to continue using the retrying strategy
         var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);

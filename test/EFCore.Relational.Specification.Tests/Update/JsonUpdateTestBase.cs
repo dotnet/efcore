@@ -3671,6 +3671,103 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
            });
 
+    [ConditionalFact]
+    public virtual Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+
+                // Save original leaf value
+                var originalLeaf = entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf;
+                var originalLeafValue = originalLeaf.SomethingSomething;
+
+                // Replace the owned reference with a new instance that shares nested reference navigations
+                var oldRoot = entity.OwnedReferenceRoot;
+                entity.OwnedReferenceRoot = new JsonOwnedRoot
+                {
+                    Name = "Modified",
+                    Number = oldRoot.Number,
+                    Names = oldRoot.Names,
+                    Numbers = oldRoot.Numbers,
+                    OwnedReferenceBranch = new JsonOwnedBranch
+                    {
+                        Id = oldRoot.OwnedReferenceBranch.Id,
+                        Date = oldRoot.OwnedReferenceBranch.Date,
+                        Enum = oldRoot.OwnedReferenceBranch.Enum,
+                        Fraction = oldRoot.OwnedReferenceBranch.Fraction,
+                        NullableEnum = oldRoot.OwnedReferenceBranch.NullableEnum,
+                        Enums = oldRoot.OwnedReferenceBranch.Enums,
+                        NullableEnums = oldRoot.OwnedReferenceBranch.NullableEnums,
+                        OwnedReferenceLeaf = originalLeaf,
+                        OwnedCollectionLeaf = [],
+                    },
+                    OwnedCollectionBranch = [],
+                };
+
+                // Before DetectChanges, leaf should be accessible
+                Assert.Same(originalLeaf, entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                context.ChangeTracker.DetectChanges();
+
+                // After DetectChanges, leaf should still be accessible
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+
+                // After SaveChanges, nested owned entities should still be accessible in memory
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch);
+                Assert.NotNull(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+                Assert.Equal(originalLeafValue, entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal("Modified", result.OwnedReferenceRoot.Name);
+                Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch);
+                Assert.NotNull(result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+            });
+
+    [ConditionalFact]
+    public virtual Task Replace_derived_entity_with_json_to_base_entity_with_same_key()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.JsonEntitiesInheritance.OfType<JsonEntityInheritanceDerived>().SingleAsync();
+                context.Remove(entity);
+                context.Add(new JsonEntityInheritanceBase
+                {
+                    Id = entity.Id,
+                    Name = "ReplacementBase",
+                    ReferenceOnBase = new JsonOwnedBranch
+                    {
+                        Date = new DateTime(2010, 1, 1),
+                        Fraction = 1.0m,
+                        Enum = JsonEnum.One,
+                        Enums = [JsonEnum.One],
+                        NullableEnums = [null],
+                        OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "leaf" },
+                        OwnedCollectionLeaf = []
+                    },
+                    CollectionOnBase = []
+                });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var entity = await context.JsonEntitiesInheritance.SingleAsync(x => x.Id == 2);
+                Assert.IsNotType<JsonEntityInheritanceDerived>(entity);
+                Assert.Equal("ReplacementBase", entity.Name);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

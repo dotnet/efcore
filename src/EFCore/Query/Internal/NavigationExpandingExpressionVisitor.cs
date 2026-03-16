@@ -58,6 +58,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<string, object?> _parameters = new();
 
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1082,11 +1083,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
         // Apply any pending selector before processing the ExecuteUpdate setters; this adds a Select() (if necessary) before
         // ExecuteUpdate, to avoid the pending selector flowing into each setter lambda and making it more complicated.
+        // However, only do this when the pending selector produces entity/structural type references (i.e. the snapshot is not just
+        // a DefaultExpression). When the pending selector projects only scalar values (e.g. select new { p.Used, n.Qty }),
+        // applying it would lose the connection between the projected scalar and the original entity property, breaking
+        // ExecuteUpdate's property selector recognition (#37771).
         var newStructure = SnapshotExpression(source.PendingSelector);
-        var queryable = Reduce(source);
-        var navigationTree = new NavigationTreeExpression(newStructure);
-        var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
-        source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
+        if (newStructure is not DefaultExpression)
+        {
+            var queryable = Reduce(source);
+            var navigationTree = new NavigationTreeExpression(newStructure);
+            var parameterName = source.CurrentParameter.Name ?? GetParameterName("e");
+            source = new NavigationExpansionExpression(queryable, navigationTree, navigationTree, parameterName);
+        }
 
         NewArrayExpression settersArray;
         switch (setters)

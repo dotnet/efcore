@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelBulkUpdatesRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     [ConditionalFact]
@@ -160,7 +160,6 @@ DELETE FROM "Context30572_Principal" AS "c"
 WHERE "c"."Id" IN (
     SELECT "c0"."Id"
     FROM "Context30572_Principal" AS "c0"
-    LEFT JOIN "Context30572_Dependent" AS "c1" ON "c0"."DependentId" = "c1"."Id"
 )
 """);
     }
@@ -247,8 +246,8 @@ SET "ComplexThing_Prop1" = @p
 """);
     }
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
 
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);

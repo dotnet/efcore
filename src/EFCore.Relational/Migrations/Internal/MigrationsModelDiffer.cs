@@ -1400,6 +1400,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Add,
             Remove,
             (s, t, context) => s.Name == t.Name
+                && s.IsExcludedFromMigrations == t.IsExcludedFromMigrations
                 && s.Columns.Select(c => c.Name).SequenceEqual(
                     t.Columns.Select(c => context.FindSource(c)?.Name))
                 && s.PrincipalTable == context.FindSource(t.PrincipalTable)
@@ -1429,7 +1430,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     protected virtual IEnumerable<MigrationOperation> Add(IForeignKeyConstraint target, DiffContext diffContext)
     {
         var targetTable = target.Table;
-        if (targetTable.IsExcludedFromMigrations)
+        if (targetTable.IsExcludedFromMigrations
+            || target.IsExcludedFromMigrations)
         {
             yield break;
         }
@@ -1456,7 +1458,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     protected virtual IEnumerable<MigrationOperation> Remove(IForeignKeyConstraint source, DiffContext diffContext)
     {
         var sourceTable = source.Table;
-        if (sourceTable.IsExcludedFromMigrations)
+        if (sourceTable.IsExcludedFromMigrations
+            || source.IsExcludedFromMigrations)
         {
             yield break;
         }

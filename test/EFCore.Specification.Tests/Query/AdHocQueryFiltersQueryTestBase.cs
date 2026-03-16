@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocQueryFiltersQueryTests";
 
     #region 8576
@@ -16,8 +16,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Named_query_filters()
     {
-        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576_NamedFilters>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Entities.ToList();
         Assert.Single(result);
@@ -26,8 +26,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Named_query_filters_ignore_some()
     {
-        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576_NamedFilters>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var result = context.Entities
             .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
             .ToList();
@@ -38,13 +38,13 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     public virtual async Task Named_query_filters_caching()
     {
         var cacheLog = new List<string>();
-        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync(), onConfiguring: builder =>
+        var contextFactory = await InitializeNonSharedTest<Context8576_NamedFilters>(seed: c => c.SeedAsync(), onConfiguring: builder =>
         {
             builder.EnableSensitiveDataLogging();
             builder.LogTo(cacheLog.Add, filter: (eventid, _) => eventid.Name == CoreEventId.QueryCompilationStarting.Name);
         });
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         _ = context.Entities
             .IgnoreQueryFilters(["ActiveFilter", "NameFilter"])
@@ -62,8 +62,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Named_query_filters_ignore_all()
     {
-        var contextFactory = await InitializeAsync<Context8576_NamedFilters>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576_NamedFilters>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Entities
             .IgnoreQueryFilters()
@@ -74,8 +74,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Named_query_filters_anonymous()
     {
-        var contextFactory = await InitializeAsync<Context8576>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Entities
             .ToList();
@@ -85,8 +85,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Named_query_filters_anonymous_ignore()
     {
-        var contextFactory = await InitializeAsync<Context8576>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Entities
             .IgnoreQueryFilters()
@@ -99,15 +99,15 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     {
         var exception =
             await Assert.ThrowsAsync<InvalidOperationException>(async ()
-                => await InitializeAsync<Context8576_Combined>(seed: c => c.SeedAsync()));
+                => await InitializeNonSharedTest<Context8576_Combined>(seed: c => c.SeedAsync()));
         Assert.Equal(exception.Message, CoreStrings.AnonymousAndNamedFiltersCombined);
     }
 
     [ConditionalFact]
     public virtual async Task Named_query_filters_overwriting()
     {
-        var contextFactory = await InitializeAsync<Context8576_Overwriting>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576_Overwriting>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Entities.ToList();
         Assert.Single(result);
@@ -116,8 +116,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Named_query_filters_removing()
     {
-        var contextFactory = await InitializeAsync<Context8576_Removing>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8576_Removing>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Entities.ToList();
         Assert.Equal(2, result.Count);
@@ -190,8 +190,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Query_filter_with_contains_evaluates_correctly()
     {
-        var contextFactory = await InitializeAsync<Context10295>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context10295>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var result = context.Entities.ToList();
         Assert.Single(result);
     }
@@ -227,9 +227,9 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task MultiContext_query_filter_test()
     {
-        var contextFactory = await InitializeAsync<FilterContext10301>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<FilterContext10301>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Assert.Empty(context.Blogs.ToList());
 
@@ -277,8 +277,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Weak_entities_with_query_filter_subquery_flattening()
     {
-        var contextFactory = await InitializeAsync<Context12170>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context12170>();
+        using var context = contextFactory.CreateDbContext();
         var result = context.Definitions.Any();
 
         Assert.False(result);
@@ -338,8 +338,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Query_filter_with_pk_fk_optimization()
     {
-        var contextFactory = await InitializeAsync<Context13517>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context13517>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         context.Entities.Select(s =>
             new Context13517.EntityDto13517
             {
@@ -401,15 +401,15 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Self_reference_in_query_filter_works()
     {
-        var contextFactory = await InitializeAsync<Context17253>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context17253>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.EntitiesWithQueryFilterSelfReference.Where(e => e.Name != "Foo");
             var result = query.ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.EntitiesReferencingEntityWithQueryFilterSelfReference.Where(e => e.Name != "Foo");
             var result = query.ToList();
@@ -496,8 +496,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Invoke_inside_query_filter_gets_correctly_evaluated_during_translation()
     {
-        var contextFactory = await InitializeAsync<Context18510>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context18510>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         context.TenantId = 1;
 
         var query1 = context.Entities.ToList();
@@ -572,8 +572,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Query_filter_with_null_constant()
     {
-        var contextFactory = await InitializeAsync<Context18759>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context18759>();
+        using var context = contextFactory.CreateDbContext();
         var people = context.People.ToList();
     }
 
@@ -605,8 +605,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task IsDeleted_query_filter_with_conversion_to_int_works(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26428>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26428>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Suppliers.Include(s => s.Location).OrderBy(s => s.Name);
 
@@ -686,8 +686,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27163>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27163>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Parents
             .GroupBy(x => new { })
@@ -711,8 +711,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27163>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27163>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Parents
             .GroupBy(x => new { })
@@ -786,8 +786,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Query_filter_with_context_accessor_with_constant(bool async)
     {
-        var contextFactory = await InitializeAsync<Context35111>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context35111>();
+        using var context = contextFactory.CreateDbContext();
 
         var data = async
             ? await context.Set<FooBar35111>().ToListAsync()

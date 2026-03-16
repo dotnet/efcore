@@ -50,10 +50,11 @@ public class SqlServerModelValidator(
         ITypeBase structuralType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        ValidateVectorProperty(property, logger);
+
         base.ValidateProperty(property, structuralType, logger);
 
         ValidateDecimalColumn(property, logger);
-        ValidateVectorProperty(property, logger);
     }
 
     /// <summary>
@@ -835,5 +836,26 @@ public class SqlServerModelValidator(
                 }
             }
         }
+    }
+
+    /// <inheritdoc />
+    protected override void ThrowPropertyNotMappedException(
+        string propertyType,
+        ITypeBase typeBase,
+        IProperty unmappedProperty)
+    {
+        if (unmappedProperty.ClrType.FullName is "Microsoft.EntityFrameworkCore.HierarchyId"
+                or "Microsoft.SqlServer.Types.SqlHierarchyId"
+            || typeBase.ClrType.FullName is "Microsoft.EntityFrameworkCore.HierarchyId"
+                or "Microsoft.SqlServer.Types.SqlHierarchyId")
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.PropertyNotMappedHierarchyId(
+                    propertyType,
+                    typeBase.DisplayName(),
+                    unmappedProperty.Name));
+        }
+
+        base.ThrowPropertyNotMappedException(propertyType, typeBase, unmappedProperty);
     }
 }

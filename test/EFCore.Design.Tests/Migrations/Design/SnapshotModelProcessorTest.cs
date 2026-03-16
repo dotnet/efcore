@@ -201,6 +201,98 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             AssertSameSnapshot(snapshotType, context);
         }
 
+        [ConditionalFact]
+        public void Updates_complex_property_nullability_for_pre_10_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("9.0.0");
+
+            var entityType = builder.Entity<EntityWithComplexProperty>();
+            entityType.ComplexProperty(e => e.StructComplexProperty, b =>
+            {
+                b.Property(c => c.Value);
+            });
+
+            var complexProperty = entityType.Metadata.GetComplexProperties().Single();
+            Assert.Equal(typeof(StructComplexType), complexProperty.ClrType);
+            
+            var complexPropertyInternal = (ComplexProperty)complexProperty;
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(complexProperty.IsNullable);
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.NotNull(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(complexProperty.IsNullable);
+            Assert.Empty(reporter.Messages);
+        }
+
+        [ConditionalFact]
+        public void Does_not_update_complex_property_nullability_for_10_or_later_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("10.0.0");
+
+            var entityType = builder.Entity<EntityWithComplexProperty>();
+            entityType.ComplexProperty(e => e.StructComplexProperty, b =>
+            {
+                b.Property(c => c.Value);
+            });
+
+            var complexProperty = entityType.Metadata.GetComplexProperties().Single();
+            var complexPropertyInternal = (ComplexProperty)complexProperty;
+            
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.Empty(reporter.Messages);
+        }
+
+        [ConditionalFact]
+        public void Updates_nested_complex_property_nullability_for_pre_10_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("9.0.0");
+
+            var entityType = builder.Entity<EntityWithNestedComplexProperty>();
+            entityType.ComplexProperty(e => e.OuterComplexProperty, b =>
+            {
+                b.Property(c => c.Value);
+                b.ComplexProperty(c => c.InnerComplexProperty, b2 =>
+                {
+                    b2.Property(c2 => c2.Value);
+                });
+            });
+
+            var outerComplexProperty = entityType.Metadata.GetComplexProperties().Single();
+            var innerComplexProperty = outerComplexProperty.ComplexType.GetComplexProperties().Single();
+
+            var outerComplexPropertyInternal = (ComplexProperty)outerComplexProperty;
+            var innerComplexPropertyInternal = (ComplexProperty)innerComplexProperty;
+            
+            Assert.Null(outerComplexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.Null(innerComplexPropertyInternal.GetIsNullableConfigurationSource());
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.NotNull(outerComplexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(outerComplexProperty.IsNullable);
+            Assert.NotNull(innerComplexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(innerComplexProperty.IsNullable);
+            Assert.Empty(reporter.Messages);
+        }
+
         private static void AssertSameSnapshot(Type snapshotType, DbContext context)
         {
             var differ = context.GetService<IMigrationsModelDiffer>();
@@ -361,6 +453,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int BlogId { get; set; }
 
             public ICollection<Post> Posts { get; set; }
+        }
+
+        private class EntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public StructComplexType StructComplexProperty { get; set; }
+        }
+
+        private struct StructComplexType
+        {
+            public int Value { get; set; }
+        }
+
+        private class EntityWithNestedComplexProperty
+        {
+            public int Id { get; set; }
+            public OuterStructComplexType OuterComplexProperty { get; set; }
+        }
+
+        private struct OuterStructComplexType
+        {
+            public int Value { get; set; }
+            public InnerStructComplexType InnerComplexProperty { get; set; }
+        }
+
+        private struct InnerStructComplexType
+        {
+            public int Value { get; set; }
         }
 
         private class OwnershipModelSnapshot2_0 : ModelSnapshot

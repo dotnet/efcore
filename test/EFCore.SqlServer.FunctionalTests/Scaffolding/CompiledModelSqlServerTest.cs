@@ -210,6 +210,9 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             model =>
             {
                 var entityType = model.FindEntityType(typeof(VectorIndexEntity))!;
+                var vectorProperty = entityType.FindProperty(nameof(VectorIndexEntity.Vector))!;
+                Assert.False(vectorProperty.IsAutoLoaded);
+
                 var index = entityType.GetIndexes().Single();
                 // Vector index annotations are not used at runtime, so they are not included in the compiled model
                 Assert.Null(index[SqlServerAnnotationNames.VectorIndexMetric]);
@@ -482,12 +485,12 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder)
+        builder = base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w.Ignore(SqlServerEventId.DecimalTypeDefaultWarning));
         new SqlServerDbContextOptionsBuilder(builder).UseNetTopologySuite();
         return builder;

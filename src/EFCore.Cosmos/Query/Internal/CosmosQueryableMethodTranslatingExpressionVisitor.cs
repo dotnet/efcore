@@ -252,7 +252,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var alias = _aliasManager.GenerateSourceAlias(fromSql);
                 var selectExpression = new SelectExpression(
                     new SourceExpression(fromSql, alias),
-                    new EntityProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
+                    new StructuralTypeProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
                 return CreateShapedQueryExpression(entityType, selectExpression) ?? QueryCompilationContext.NotTranslatedExpression;
 
             default:
@@ -300,7 +300,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var alias = _aliasManager.GenerateSourceAlias("c");
         var selectExpression = new SelectExpression(
             new SourceExpression(new ObjectReferenceExpression(entityType, "root"), alias),
-            new EntityProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
+            new StructuralTypeProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
 
         // Add discriminator predicate
         var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
@@ -323,7 +323,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 "Missing discriminator property in hierarchy");
             if (discriminatorProperty is not null)
             {
-                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
+                var discriminatorColumn = ((StructuralTypeProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .BindProperty(discriminatorProperty, clientEval: false);
 
                 var success = TryApplyPredicate(
@@ -340,9 +340,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         return CreateShapedQueryExpression(entityType, selectExpression);
     }
 
-    private ShapedQueryExpression? CreateShapedQueryExpression(IEntityType entityType, SelectExpression queryExpression)
+    private ShapedQueryExpression? CreateShapedQueryExpression(ITypeBase structuralType, SelectExpression queryExpression)
     {
-        if (!entityType.IsOwned())
+        if (structuralType is IEntityType entityType && !entityType.IsOwned())
         {
             var existingEntityType = _queryCompilationContext.RootEntityType;
             if (existingEntityType is not null && existingEntityType != entityType)
@@ -358,7 +358,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         return new ShapedQueryExpression(
             queryExpression,
             new StructuralTypeShaperExpression(
-                entityType,
+                structuralType,
                 new ProjectionBindingExpression(queryExpression, new ProjectionMember(), typeof(ValueBuffer)),
                 nullable: false));
     }
@@ -532,6 +532,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
+        // We can not apply distinct because SQL DISTINCT operates on the full
+        // structural type, but the shaper extracts only a subset of that data.
+        // Cosmos: Projecting out nested documents retrieves the entire document #34067
+        if (select.UsesClientProjection)
+        {
+            return null;
+        }
+
         select.ApplyDistinct();
 
         return source;
@@ -607,7 +615,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                 var translatedSelect =
                     new SelectExpression(
-                        new EntityProjectionExpression(translation, (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                        new StructuralTypeProjectionExpression(translation, projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
                     new StructuralTypeShaperExpression(
@@ -859,14 +867,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
-        if (source.ShaperExpression is not StructuralTypeShaperExpression entityShaperExpression)
+        if (source.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType } shaper)
         {
             return null;
-        }
-
-        if (entityShaperExpression.StructuralType is not IEntityType entityType)
-        {
-            throw new UnreachableException("Complex types not supported in Cosmos");
         }
 
         if (entityType.ClrType == resultType)
@@ -876,7 +879,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         var select = (SelectExpression)source.QueryExpression;
 
-        var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+        var parameterExpression = Expression.Parameter(shaper.Type);
         var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
 
         if (!TryApplyPredicate(source, predicate))
@@ -887,23 +890,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
         if (baseType != null)
         {
-            return source.UpdateShaperExpression(entityShaperExpression.WithType(baseType));
+            return source.UpdateShaperExpression(shaper.WithType(baseType));
         }
 
         var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
-        var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+        var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
 
         var projectionMember = projectionBindingExpression.ProjectionMember;
         Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
 
-        var entityProjectionExpression = (EntityProjectionExpression)select.GetMappedProjection(projectionMember);
+        var structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)select.GetMappedProjection(projectionMember);
         select.ReplaceProjectionMapping(
             new Dictionary<ProjectionMember, Expression>
             {
-                { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+                    { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
             });
 
-        return source.UpdateShaperExpression(entityShaperExpression.WithType(derivedType));
+        return source.UpdateShaperExpression(shaper.WithType(derivedType));
     }
 
     /// <summary>
@@ -1131,9 +1134,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
                     alias,
-                    new EntityProjectionExpression(
-                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, alias),
-                        (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                    new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(projectedStructuralTypeShaper.StructuralType, alias),
+                        projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
                     new StructuralTypeShaperExpression(
@@ -1270,9 +1273,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
                     alias,
-                    new EntityProjectionExpression(
-                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, alias),
-                        (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                    new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(projectedStructuralTypeShaper.StructuralType, alias),
+                        projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
                     new StructuralTypeShaperExpression(
@@ -1361,7 +1364,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
     {
-        // Attempt to translate access into a primitive collection property
+        // Attempt to translate access into a primitive, complex or embedded owned navigation collection property
         if (_sqlTranslator.TryBindMember(
                 _sqlTranslator.Visit(source),
                 member,
@@ -1378,19 +1381,18 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
             switch (translatedExpression)
             {
-                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }:
+                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }
+                                                                         or IComplexProperty { IsCollection: true }:
                 {
-                    var targetEntityType = (IEntityType)shaper.StructuralType;
-                    var projection = new EntityProjectionExpression(
-                        new ObjectReferenceExpression(targetEntityType, sourceAlias), targetEntityType);
+                    var targetStructuralType = shaper.StructuralType;
+                    var projection = new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);
                     var select = SelectExpression.CreateForCollection(
                         shaper.ValueBufferExpression,
                         sourceAlias,
                         projection);
-                    return CreateShapedQueryExpression(targetEntityType, select);
+                    return CreateShapedQueryExpression(targetStructuralType, select);
                 }
-
-                // TODO: Collection of complex type (#31253)
 
                 // Note that non-collection navigations/complex types are handled in CosmosSqlTranslatingExpressionVisitor
                 // (no collection -> no queryable operators)
@@ -1666,7 +1668,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translation = new ObjectFunctionExpression(functionName, [array1, array2], arrayType);
                 var alias = _aliasManager.GenerateSourceAlias(translation);
                 var select = SelectExpression.CreateForCollection(
-                    translation, alias, new ObjectReferenceExpression((IEntityType)structuralType1, alias));
+                    translation, alias, new ObjectReferenceExpression(structuralType1, alias));
                 return CreateShapedQueryExpression(select, structuralType1.ClrType);
             }
         }

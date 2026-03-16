@@ -102,6 +102,12 @@ FROM root c
         }
     }
 
+    [ConditionalFact]
+    public Task Select_distinct_associate()
+        => AssertTranslationFailed(() => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
+
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_optional_associate(queryTrackingBehavior);
@@ -332,6 +338,14 @@ FROM root c
     #endregion Multiple
 
     #region Subquery
+
+    public override async Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            await AssertTranslationFailed(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
+        }
+    }
 
     public override async Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
     {

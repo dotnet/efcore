@@ -22,17 +22,6 @@ public static class InternalUpdateEntryExtensions
     public static object? GetCurrentProviderValue(this IInternalEntry updateEntry, IProperty property)
     {
         var value = updateEntry.GetCurrentValue(property);
-        var typeMapping = property.GetTypeMapping();
-        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
-            : value;
-
-        var converter = typeMapping.Converter;
-        if (converter != null)
-        {
-            value = converter.ConvertToProvider(value);
-        }
-
-        return value;
+        return property.ConvertToProviderValue(value);
     }
 }

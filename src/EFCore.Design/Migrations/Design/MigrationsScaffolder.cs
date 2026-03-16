@@ -174,20 +174,21 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
         var migrationCode = codeGenerator.GenerateMigration(
             migrationNamespace,
-            migrationName,
+            migrationId,
             upOperations,
             downOperations);
         var migrationMetadataCode = codeGenerator.GenerateMetadata(
             migrationNamespace,
             _contextType,
-            migrationName,
+            migrationId,
             migrationId,
             Dependencies.Model);
         var modelSnapshotCode = codeGenerator.GenerateSnapshot(
             modelSnapshotNamespace,
             _contextType,
             modelSnapshotName,
-            Dependencies.Model);
+            Dependencies.Model,
+            migrationId);
 
         return new ScaffoldedMigration(
             codeGenerator.FileExtension,
@@ -346,6 +347,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             }
         }
 
+        var latestMigrationId = migrations.Count > 1 ? migrations[^2].GetId() : null;
+
         var modelSnapshotName = modelSnapshot.GetType().Name;
         var modelSnapshotFileName = modelSnapshotName + codeGenerator.FileExtension;
         var modelSnapshotFile = TryGetProjectFile(projectDir, modelSnapshotFileName);
@@ -378,7 +381,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 modelSnapshotNamespace,
                 _contextType,
                 modelSnapshotName,
-                model);
+                model,
+                latestMigrationId);
 
             modelSnapshotFile ??= Path.Combine(
                 GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
@@ -418,11 +422,12 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         if (!dryRun)
         {
             Directory.CreateDirectory(migrationDirectory);
+            Directory.CreateDirectory(modelSnapshotDirectory);
+
             File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
             File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
-            Directory.CreateDirectory(modelSnapshotDirectory);
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
         }
 

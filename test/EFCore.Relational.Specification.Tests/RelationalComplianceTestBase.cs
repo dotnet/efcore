@@ -17,10 +17,8 @@ public abstract class RelationalComplianceTestBase : ComplianceTestBase
         var queryFixturesWithoutTestSqlLogger = TargetAssembly
             .GetTypes()
             .Where(x => x.BaseType != typeof(object) && (x.IsPublic || x.IsNestedPublic))
-            .Select(x => new { Type = x, Interfaces = x.GetInterfaces().ToList() })
-            .Where(x => x.Interfaces.Contains(typeof(IQueryFixtureBase)))
-            .Where(x => !x.Interfaces.Contains(typeof(ITestSqlLoggerFactory)))
-            .Select(x => x.Type)
+            .Where(x => typeof(IQueryFixtureBase).IsAssignableFrom(x))
+            .Where(x => !x.GetInterfaces().Contains(typeof(ITestSqlLoggerFactory)))
             .ToList();
 
         Assert.False(

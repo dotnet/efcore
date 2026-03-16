@@ -32,6 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
+        ///     The property '{property}' on type '{type}' cannot be configured as not auto-loaded. The Cosmos provider stores entire documents as JSON, so partial property loading is not supported.
+        /// </summary>
+        public static string AutoLoadedCosmosProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedCosmosProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.
         /// </summary>
         public static string BadDictionaryType(object? givenType, object? dictionaryType)

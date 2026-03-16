@@ -123,6 +123,63 @@ namespace MyNamespace
     }
 
     [ConditionalFact]
+    public void Snapshot_with_migration_id()
+    {
+        var generator = CreateMigrationsCodeGenerator();
+
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
+        {
+            x.Property(e => e.Id);
+        });
+
+        var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
+
+        var modelSnapshotCode = generator.GenerateSnapshot(
+            "MyNamespace",
+            typeof(MyContext),
+            "MySnapshot",
+            finalizedModel,
+            "20240101120000_InitialCreate");
+
+        Assert.Contains("public override string LatestMigrationId => \"20240101120000_InitialCreate\";", modelSnapshotCode);
+        Assert.Contains("// If you encounter a merge conflict in the line below, it means you need to", modelSnapshotCode);
+        Assert.Contains("// discard one of the migration branches and recreate its migrations on top of", modelSnapshotCode);
+        Assert.Contains("// the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.", modelSnapshotCode);
+
+        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
+        Assert.NotNull(snapshot.Model);
+        Assert.Equal("20240101120000_InitialCreate", snapshot.LatestMigrationId);
+    }
+
+    [ConditionalFact]
+    public void Snapshot_without_migration_id()
+    {
+        var generator = CreateMigrationsCodeGenerator();
+
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
+        {
+            x.Property(e => e.Id);
+        });
+
+        var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
+
+        var modelSnapshotCode = generator.GenerateSnapshot(
+            "MyNamespace",
+            typeof(MyContext),
+            "MySnapshot",
+            finalizedModel);
+
+        Assert.DoesNotContain("LatestMigrationId", modelSnapshotCode);
+        Assert.DoesNotContain("merge conflict", modelSnapshotCode);
+
+        var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot", typeof(MyContext));
+        Assert.NotNull(snapshot.Model);
+        Assert.Null(snapshot.LatestMigrationId);
+    }
+
+    [ConditionalFact]
     public void Snapshot_default_values_are_round_tripped()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -7959,6 +8016,72 @@ namespace RootNamespace
 """),
             o => Assert.Equal(
                 "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]));
+
+    [ConditionalFact]
+    public virtual void ForeignKey_excluded_from_migrations_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithTwoProperties>()
+                    .HasOne(e => e.EntityWithOneProperty)
+                    .WithOne(e => e.EntityWithTwoProperties)
+                    .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                    .ExcludeForeignKeyFromMigrations();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlternateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlternateId")
+                        .IsUnique();
+
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+                {
+                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", "EntityWithOneProperty")
+                        .WithOne("EntityWithTwoProperties")
+                        .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "AlternateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .ExcludeForeignKeyFromMigrations(true);
+
+                    b.Navigation("EntityWithOneProperty");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Navigation("EntityWithTwoProperties");
+                });
+"""),
+            o => Assert.True(
+                o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First().IsExcludedFromMigrations()));
 
     [ConditionalFact]
     public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()

@@ -61,7 +61,6 @@ public static class DesignTimeServiceCollectionExtensions
                     new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                 .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
                 .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
-                .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                 .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
                 .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
                 .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()

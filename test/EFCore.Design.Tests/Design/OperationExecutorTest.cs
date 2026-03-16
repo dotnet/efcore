@@ -76,6 +76,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         string processedOutputDir,
         string productVersion)
     {
+        var migrationTypeName = $"_11112233445566_{processedMigrationName}";
         using var tempPath = new TempDirectory();
         var resultHandler = ExecuteAddMigration(tempPath, migrationName, Path.Combine(tempPath, outputDir), productVersion);
 
@@ -124,7 +125,7 @@ namespace My.Gnomespace.Data
 {
     [DbContext(typeof(OperationExecutorTest.GnomeContext))]
     [Migration("11112233445566_{{migrationName}}")]
-    partial class {{processedMigrationName}}
+    partial class {{migrationTypeName}}
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -147,7 +148,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace My.Gnomespace.Data
 {
     /// <inheritdoc />
-    public partial class {{processedMigrationName}} : Migration
+    public partial class {{migrationTypeName}} : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -180,6 +181,11 @@ namespace My.Gnomespace.Data
     [DbContext(typeof(OperationExecutorTest.GnomeContext))]
     partial class GnomeContextModelSnapshot : ModelSnapshot
     {
+        // If you encounter a merge conflict in the line below, it means you need to
+        // discard one of the migration branches and recreate its migrations on top of
+        // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
+        public override string LatestMigrationId => "11112233445566_{{migrationName}}";
+
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -1301,7 +1307,8 @@ namespace My.Gnomespace.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseSqlite(_connection)
-                .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>();
+                .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>()
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsNotFound));
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator
         {

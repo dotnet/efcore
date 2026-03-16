@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
 public class ComplexPropertiesProjectionCosmosTest : ComplexPropertiesProjectionTestBase<ComplexPropertiesCosmosFixture>
@@ -26,7 +24,6 @@ FROM root c
 
     #region Scalar properties
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_scalar_property_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_scalar_property_on_required_associate(queryTrackingBehavior);
@@ -38,7 +35,6 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_property_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
@@ -55,7 +51,6 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_value_type_property_on_null_associate_throws(QueryTrackingBehavior queryTrackingBehavior)
     {
         // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
@@ -72,7 +67,6 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_nullable_value_type_property_on_null_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
@@ -103,6 +97,12 @@ SELECT VALUE c
 FROM root c
 """);
     }
+
+    [ConditionalFact]
+    public Task Select_distinct_associate()
+        => AssertTranslationFailed(() => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
 
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -174,7 +174,6 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task Select_untranslatable_method_on_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_untranslatable_method_on_associate_scalar_property(queryTrackingBehavior);
@@ -226,7 +225,6 @@ ORDER BY c["Id"]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.SelectMany_associate_collection(queryTrackingBehavior);
@@ -239,7 +237,6 @@ JOIN a IN c["AssociateCollection"]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
@@ -252,7 +249,6 @@ JOIN n IN c["RequiredAssociate"]["NestedCollection"]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO: Query projection")]
     public override async Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
@@ -296,6 +292,9 @@ FROM root c
 
     #region Subquery
 
+    public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertTranslationFailed(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
+
     public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
         => AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
 
@@ -305,6 +304,7 @@ FROM root c
     #endregion Subquery
 
     #region Value types
+
     public override async Task Select_root_with_value_types(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_root_with_value_types(queryTrackingBehavior);

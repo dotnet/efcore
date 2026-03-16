@@ -1957,7 +1957,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             var rewrittenCollectionTable = UpdateParameterCollection(collectionTable, rewrittenParameter);
 
             // We clone the select expression since Update below doesn't create a pure copy, mutating the original as well (because of
-            // TableReferenceExpression). TODO: Remove this after #31327.
+            // TableReferenceExpression). TODO: Remove this after SelectExpression becomes fully mutable (#32927).
 #pragma warning disable EF1001
             rewrittenSelectExpression = selectExpression.Clone();
 #pragma warning restore EF1001

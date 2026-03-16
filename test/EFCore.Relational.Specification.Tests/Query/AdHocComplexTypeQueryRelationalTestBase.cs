@@ -10,9 +10,9 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
     [ConditionalFact]
     public virtual async Task Complex_json_collection_inside_left_join_subquery()
     {
-        var contextFactory = await InitializeAsync<Context37205>();
+        var contextFactory = await InitializeNonSharedTest<Context37205>();
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         _ = await context.Set<Context37205.Parent>().Include(p => p.Child).ToListAsync();
     }
@@ -57,8 +57,8 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
     [ConditionalFact]
     public virtual async Task Select_TPC_base_with_ComplexType()
     {
-        var contextFactory = await InitializeAsync<Context35025>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context35025>();
+        using var context = contextFactory.CreateDbContext();
 
         var count = await context.TpcBases.ToListAsync();
 
@@ -120,7 +120,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
     [ConditionalFact]
     public virtual async Task Complex_type_on_an_entity_mapped_to_view_and_table()
     {
-        var contextFactory = await InitializeAsync<Context34706>(
+        var contextFactory = await InitializeNonSharedTest<Context34706>(
             onModelCreating: mb => mb.Entity<Context34706.Blog>(eb => eb
                 .ToTable("Blogs")
                 .ToView("BlogsView")
@@ -144,7 +144,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
                 string Q(string name) => sqlGenerationHelper.DelimitIdentifier(name);
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var entity = await context.Set<Context34706.Blog>().SingleAsync();
 

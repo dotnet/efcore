@@ -5,10 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CosmosBulkEndToEndTestNoBatching(NonSharedFixture fixture) : EndToEndCosmosTest(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName => nameof(CosmosBulkEndToEndTestNoBatching);
-
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled());
+    protected override string NonSharedStoreName => nameof(CosmosBulkEndToEndTestNoBatching);
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder).UseCosmos(x => x.BulkExecutionEnabled());
 
     protected override TContext CreateContext<TContext>(ContextFactory<TContext> factory, bool transactionalBatch)
     {

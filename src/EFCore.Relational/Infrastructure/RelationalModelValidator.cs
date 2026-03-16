@@ -180,6 +180,22 @@ public class RelationalModelValidator(
     }
 
     /// <inheritdoc />
+    protected override void ValidateAutoLoaded(
+        IProperty property,
+        ITypeBase structuralType,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateAutoLoaded(property, structuralType, logger);
+
+        if (!property.IsAutoLoaded
+            && structuralType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.AutoLoadedJsonProperty(property.Name, structuralType.DisplayName()));
+        }
+    }
+
+    /// <inheritdoc />
     protected override void ValidateKey(
         IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
@@ -3253,6 +3269,16 @@ public class RelationalModelValidator(
         ITypeBase typeBase,
         IProperty unmappedProperty)
     {
+        if (unmappedProperty.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true
+            || typeBase.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.PropertyNotMappedSpatial(
+                    propertyType,
+                    typeBase.DisplayName(),
+                    unmappedProperty.Name));
+        }
+
         var storeType = unmappedProperty.GetColumnType();
         if (storeType != null)
         {
