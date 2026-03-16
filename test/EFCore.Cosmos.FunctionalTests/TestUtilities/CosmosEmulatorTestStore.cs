@@ -237,7 +237,6 @@ public class CosmosEmulatorTestStore
             var difference = newContainerCount - info.ContainerCount;
             if (difference > 0)
             {
-                // @TODO: Can never be 0 right? Unless info.ContainerCount is 0, but then _containerCount == info.ContainerCount == true
                 if (_currentContainerCount == 0 || _currentContainerCount == info.ContainerCount || _currentContainerCount + difference <= RecommendedContainerCount) // @TODO: We could allow some leeway here? RecommendedContainerCount -> MaxContainerCount?
                 {
                     _currentContainerCount += difference;
@@ -247,7 +246,7 @@ public class CosmosEmulatorTestStore
                 // Re enter the queue.
                 if (_databaseCreated)
                 {
-                    await DeleteContainersAsync(dbContext); // @TODO: Does this have to happen inside the lock?
+                    await DeleteContainersAsync(dbContext);
                 }
                 _currentContainerCount -= info.ContainerCount;
                 info.Reenter(newContainerCount);
@@ -259,7 +258,7 @@ public class CosmosEmulatorTestStore
             {
                 if (_databaseCreated)
                 {
-                    await DeleteContainersAsync(dbContext); // @TODO: Does this have to happen inside the lock?
+                    await DeleteContainersAsync(dbContext);
                 }
 
                 _currentContainerCount += difference;
