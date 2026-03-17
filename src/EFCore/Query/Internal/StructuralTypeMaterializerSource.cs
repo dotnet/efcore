@@ -34,6 +34,9 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
     private static readonly bool UseOldBehavior37162 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37162", out var enabled37162) && enabled37162;
 
+    private static readonly bool UseOldBehavior37304 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37304", out var enabled37304) && enabled37304;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -207,7 +210,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
             IComplexProperty complexProperty
                 => CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", complexProperty.ClrType, nullable || complexProperty.IsNullable, QueryTrackingBehavior: null),
+                    new StructuralTypeMaterializerSourceParameters(
+                        complexProperty.ComplexType,
+                        "complexType",
+                        complexProperty.ClrType,
+                        UseOldBehavior37304 ? nullable || complexProperty.IsNullable : complexProperty.IsNullable,
+                        QueryTrackingBehavior: null),
                     bindingInfo.MaterializationContextExpression),
 
             _ => throw new UnreachableException()
