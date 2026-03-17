@@ -591,14 +591,22 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         var documentSource = GetDocumentSource(entry.EntityType);
         var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
 
-        return exception switch
+        switch (exception)
         {
-            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
-                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
-            CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
-            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
-        };
+            case CosmosException { StatusCode: HttpStatusCode.PreconditionFailed } cosmosException:
+                if (!string.IsNullOrWhiteSpace(cosmosException.Headers.Session))
+                {
+                    // Document has been updated since it was read, or stale data was read.
+                    // Cosmos returns a session token in the response header which will retrieve the latest version of the document if used.
+                    // Track this session token so that if the user reloads the entity to retry the operation, they will get the latest version of the document.
+                    SessionTokenStorage.TrackSessionToken(documentSource.GetContainerId(), cosmosException.Headers.Session);
+                }
+                return new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries);
+            case CosmosException { StatusCode: HttpStatusCode.Conflict }:
+                return new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries);
+            default:
+                return new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries);
+        }
     }
 
     void IResettableService.ResetState()

@@ -583,6 +583,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 .ToList();
 
             var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
+            foreach (var header in response.Headers)
+            {
+                exception.Headers[header] = response.Headers[header];
+            }
             return new CosmosTransactionalBatchResult(errorEntries, exception);
         }
 
