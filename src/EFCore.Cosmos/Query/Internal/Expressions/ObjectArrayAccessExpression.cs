@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -44,7 +43,7 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
                 break;
             case IComplexProperty complexProperty:
                 targetType = complexProperty.ComplexType;
-                propertyName = complexProperty.Name;
+                propertyName = complexProperty.GetJsonPropertyName();
                 break;
             default:
                 throw new UnreachableException($"Unexpected structural property type: {structuralProperty.GetType().FullName}");
