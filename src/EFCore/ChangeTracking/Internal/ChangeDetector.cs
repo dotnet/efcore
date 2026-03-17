@@ -351,7 +351,7 @@ public class ChangeDetector : IChangeDetector
                 // Only mark properties that are tracked, can be modified, and are loaded
                 if (innerProperty.GetOriginalValueIndex() >= 0
                     && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                        && entry.IsLoaded(innerProperty))
+                    && entry.IsLoaded(innerProperty))
                 {
                     entry.SetPropertyModified(innerProperty);
                 }
