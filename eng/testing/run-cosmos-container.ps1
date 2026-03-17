@@ -14,6 +14,16 @@ Write-Host "Pulling image: $image"
 docker pull $image
 if ($LASTEXITCODE -ne 0) { throw "docker pull failed with exit code $LASTEXITCODE" }
 
+Write-Host "Checking for existing container named $containerName..."
+$existingContainerId = docker ps -a --filter "name=^${containerName}$" --format '{{.ID}}'
+if ($LASTEXITCODE -ne 0) { throw "docker ps failed with exit code $LASTEXITCODE" }
+if ($existingContainerId) {
+    Write-Host "Existing container '$containerName' found. Stopping and removing it..."
+    docker stop $containerName 2>$null
+    docker rm -f $containerName
+    if ($LASTEXITCODE -ne 0) { throw "docker rm failed with exit code $LASTEXITCODE" }
+}
+
 # -t is required because Start.ps1 sets [Console]::BufferWidth which needs a TTY handle.
 Write-Host "Starting Cosmos DB Emulator container on port $port..."
 docker run -d -t `
@@ -27,14 +37,11 @@ Write-Host "Waiting for emulator to be ready (up to $($maxRetries * $retryDelayS
 $ready = $false
 for ($i = 0; $i -lt $maxRetries; $i++) {
     Start-Sleep -Seconds $retryDelaySec
-    try {
-        # Any HTTP response (even 401) means the emulator is up and accepting connections.
-        $null = Invoke-WebRequest -Uri "https://localhost:${port}/" -UseBasicParsing -TimeoutSec 5
+    # Any HTTP response (even 401) means the emulator is up and accepting connections.
+    $null = & curl.exe -k "https://localhost:${port}/" --silent --output NUL --max-time 5
+    if ($LASTEXITCODE -eq 0) {
         $ready = $true
-    } catch [Microsoft.PowerShell.Commands.HttpResponseException] {
-        # Got an HTTP error response (401, 404, etc.) — emulator is reachable.
-        $ready = $true
-    } catch {
+    } else {
         Write-Host "  Attempt $($i+1)/$maxRetries - not ready yet..."
     }
     if ($ready) {

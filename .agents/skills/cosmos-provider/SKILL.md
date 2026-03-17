@@ -23,7 +23,7 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 
 ## Azure Cosmos DB Emulator in Docker
 
-Cosmos tests run on Helix via Docker sidecar containers:
+Cosmos tests on Helix start the emulator from the work item via `PreCommands` that run a Docker container using:
 - `eng/testing/run-cosmos-container.ps1`
 - `eng/testing/run-cosmos-container.sh`
 
