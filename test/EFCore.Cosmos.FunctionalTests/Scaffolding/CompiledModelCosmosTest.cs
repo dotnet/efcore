@@ -219,15 +219,13 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
         });
 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(b =>
-        {
             // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
             b.OwnsMany(
                 typeof(OwnedType).FullName!, "ManyOwned", b =>
                 {
                     b.Ignore("RefTypeArray");
                     b.Ignore("RefTypeList");
-                });
-        });
+                }));
 
         modelBuilder.Entity<ManyTypes>(b =>
         {
@@ -635,27 +633,19 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                 });
         });
 
-        // TODO: Complex collections not supported. Issue #31253
-        modelBuilder.Ignore<PrincipalDerived<DependentBase<byte?>>>();
-
-        //modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-        //    eb =>
-        //    {
-        //        eb.ComplexCollection<IList<OwnedType>, OwnedType>(
-        //            "ManyOwned", "OwnedCollection", ob =>
-        //            {
-        //                ob.Ignore(e => e.RefTypeArray);
-        //                ob.Ignore(e => e.RefTypeList);
-        //                ob.ComplexProperty(
-        //                    o => o.Principal, cb =>
-        //                    {
-        //                        cb.Ignore(e => e.RefTypeList);
-        //                        cb.Ignore(e => e.RefTypeArray);
-        //                    });
-        //            });
-        //        eb.Ignore(p => p.Dependent);
-        //        eb.Ignore(p => p.Principals);
-        //    });
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+            eb => eb.ComplexCollection<IList<OwnedType>, OwnedType>(
+                    "ManyOwned", "OwnedCollection", ob =>
+                    {
+                        ob.Ignore(e => e.RefTypeArray);
+                        ob.Ignore(e => e.RefTypeList);
+                        ob.ComplexProperty(
+                            o => o.Principal, cb =>
+                            {
+                                cb.Ignore(e => e.RefTypeList);
+                                cb.Ignore(e => e.RefTypeArray);
+                            });
+                    }));
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -669,10 +659,13 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     protected override int ExpectedComplexTypeProperties
         => 12;
 
+    protected override bool SupportsNonAutoLoadedProperties
+        => false;
+
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
@@ -694,6 +687,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
         IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         Action<Assembly>? assertAssembly = null,
         string? expectedExceptionMessage = null,
+        bool skipValidation = false,
         [CallerMemberName] string testName = "")
         where TContext : class
         => base.Test(
@@ -711,5 +705,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             additionalSourceFiles,
             assertAssembly,
             expectedExceptionMessage,
+            skipValidation,
             testName);
 }

@@ -1487,6 +1487,7 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
@@ -1505,6 +1506,7 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    [Obsolete(EFDiagnostics.OwnedJsonObsoleteMessage, DiagnosticId = EFDiagnostics.OwnedJsonObsolete)]
     public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? jsonColumnName)
@@ -1600,6 +1602,39 @@ public static class RelationalTestModelBuilderExtensions
                 break;
         }
 
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> ExcludeForeignKeyFromMigrations
+        <TOwnerEntity, TDependentEntity>(
+            this ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> builder,
+            bool excluded = true)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        builder.Metadata.SetIsExcludedFromMigrations(excluded);
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestReferenceReferenceBuilder<TOwnerEntity, TDependentEntity> ExcludeForeignKeyFromMigrations
+        <TOwnerEntity, TDependentEntity>(
+            this ModelBuilderTest.TestReferenceReferenceBuilder<TOwnerEntity, TDependentEntity> builder,
+            bool excluded = true)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        builder.Metadata.SetIsExcludedFromMigrations(excluded);
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestReferenceCollectionBuilder<TOwnerEntity, TDependentEntity> ExcludeForeignKeyFromMigrations
+        <TOwnerEntity, TDependentEntity>(
+            this ModelBuilderTest.TestReferenceCollectionBuilder<TOwnerEntity, TDependentEntity> builder,
+            bool excluded = true)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        builder.Metadata.SetIsExcludedFromMigrations(excluded);
         return builder;
     }
 

@@ -16,9 +16,6 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
     JsonValueReaderWriter<TModel>,
     IJsonConvertedValueReaderWriter
 {
-    private static readonly bool UseOldBehavior36856 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36856", out var enabled) && enabled;
-
     private readonly JsonValueReaderWriter<TProvider> _providerReaderWriter;
     private readonly ValueConverter _converter;
 
@@ -55,17 +52,12 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
 
     /// <inheritdoc />
     public override Expression ConstructorExpression
-        => UseOldBehavior36856
-            ? Expression.New(
-                _constructorInfo,
-                ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
-                ((IJsonConvertedValueReaderWriter)this).Converter.ConstructorExpression)
-            : Expression.New(
-                _constructorInfo,
-                ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
-                // We shouldn't quote converters, because it will create a new instance every time and
-                // it will have to compile the expression again and
-                // it will have a negative performance impact. See #36856 for more info.
-                // This means this is currently unsupported scenario for precompilation.
-                Expression.Constant(((IJsonConvertedValueReaderWriter)this).Converter));
+        => Expression.New(
+            _constructorInfo,
+            ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
+            // We shouldn't quote converters, because it will create a new instance every time and
+            // it will have to compile the expression again and
+            // it will have a negative performance impact. See #36856 for more info.
+            // This means this is currently unsupported scenario for precompilation.
+            Expression.Constant(((IJsonConvertedValueReaderWriter)this).Converter));
 }

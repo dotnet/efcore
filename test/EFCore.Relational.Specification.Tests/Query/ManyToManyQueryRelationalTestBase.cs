@@ -233,11 +233,4 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixtu
                 new ExpectedFilteredInclude<EntityOne, EntityTwo>(et => et.Collection, includeFilter: x => x.Where(i => i.Id > 15)),
                 new ExpectedFilteredInclude<EntityTwo, EntityThree>(
                     et => et.ThreeSkipFull, "Collection", includeFilter: x => x.Where(i => i.Id < 5))));
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture,
-            RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression,
-            ignoreEntryCount: IgnoreEntryCount);
 }

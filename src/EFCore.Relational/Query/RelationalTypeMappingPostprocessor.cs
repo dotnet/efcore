@@ -175,12 +175,28 @@ public class RelationalTypeMappingPostprocessor(
 
             // VALUES over a values parameter (i.e. a parameter representing the entire collection, that will be constantized into the SQL
             // later). Apply the inferred type mapping on the parameter.
-            case { ValuesParameter: { TypeMapping: null } valuesParameter }
-                when inferredTypeMappings[1] is { } elementTypeMapping:
+            case { ValuesParameter: { TypeMapping: null } valuesParameter }:
             {
-                if (RelationalDependencies.TypeMappingSource.FindMapping(
-                        valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping) is not
-                    { ElementTypeMapping: not null } collectionParameterTypeMapping)
+                RelationalTypeMapping? collectionParameterTypeMapping;
+
+                if (inferredTypeMappings[1] is { } elementTypeMapping)
+                {
+                    // In the usual case, some operation performed against the elements of the collection (e.g. comparison to a column) provides us with
+                    // an element type mapping; infer the collection's type mapping from that.
+                    collectionParameterTypeMapping = RelationalDependencies.TypeMappingSource.FindMapping(
+                            valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping);
+                }
+                else
+                {
+                    // We have no inferred type mapping for the element type. This means that there was nothing in the query done
+                    // against the elements of the collection (e.g. comparison to a column), which tells us what type mapping it is.
+                    // In normal circumstances, such an expression would get client-evaluated in the funceltizer (no reference to a
+                    // column/database-side object), but with compiled queries the collection parameter gets preserved as-is.
+                    // The only thing we can do is apply the default type mapping.
+                    collectionParameterTypeMapping = RelationalDependencies.TypeMappingSource.FindMapping(valuesParameter.Type, QueryCompilationContext.Model);
+                }
+
+                if (collectionParameterTypeMapping is not { ElementTypeMapping: not null })
                 {
                     throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
                 }

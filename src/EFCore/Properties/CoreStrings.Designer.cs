@@ -153,6 +153,46 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 cycleNavigations);
 
         /// <summary>
+        ///     The property '{property}' on type '{type}' is a concurrency token and cannot be configured as not auto-loaded. Concurrency tokens must always be loaded.
+        /// </summary>
+        public static string AutoLoadedConcurrencyTokenProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedConcurrencyTokenProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is used in a constructor binding and cannot be configured as not auto-loaded. Constructor-bound properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedConstructorProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedConstructorProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is a discriminator and cannot be configured as not auto-loaded. Discriminator properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedDiscriminatorProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedDiscriminatorProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is part of a foreign key and cannot be configured as not auto-loaded. Foreign key properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedForeignKeyProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedForeignKeyProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     The property '{property}' on type '{type}' is part of a key and cannot be configured as not auto-loaded. Key properties must always be loaded.
+        /// </summary>
+        public static string AutoLoadedKeyProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedKeyProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
         ///     The backing field '{field}' cannot be set for the indexer property '{entityType}.{property}'. Ensure no backing fields are specified for indexer properties.
         /// </summary>
         public static string BackingFieldOnIndexer(object? field, object? entityType, object? property)
@@ -613,6 +653,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexCollectionNullElementSetter", nameof(complexType), nameof(property), nameof(collectionDeclaringType), nameof(collection), nameof(ordinal)),
                 complexType, property, collectionDeclaringType, collection, ordinal);
+
+        /// <summary>
+        ///     The ordinal {ordinal} is out of range for the complex type collection '{entityType}.{collection}' which has {count} element(s).
+        /// </summary>
+        public static string ComplexCollectionOrdinalOutOfRange(object? ordinal, object? entityType, object? collection, object? count)
+            => string.Format(
+                GetString("ComplexCollectionOrdinalOutOfRange", nameof(ordinal), nameof(entityType), nameof(collection), nameof(count)),
+                ordinal, entityType, collection, count);
 
         /// <summary>
         ///     The complex entry at the original ordinal '{ordinal}' for the collection '{declaringType}.{collection}' cannot be accessed as the containing entry is in the added state.
@@ -1317,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType, actualType);
 
         /// <summary>
-        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information. 
+        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.
         /// </summary>
         public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
             => string.Format(
@@ -1489,6 +1537,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FunctionOnClient", nameof(methodName)),
                 methodName);
+
+        /// <summary>
+        ///     '{function}' can only be used with Entity Framework Core queries.
+        /// </summary>
+        public static string FunctionOnNonEfLinqProvider(object? function)
+            => string.Format(
+                GetString("FunctionOnNonEfLinqProvider", nameof(function)),
+                function);
 
         /// <summary>
         ///     The provided edge cannot be added because the graph does not contain the vertex '{vertex}'.
@@ -2350,12 +2406,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, collectionType, changeTrackingStrategy);
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        ///     The following 'ExecuteUpdate' or 'ExecuteDelete' expression could not be translated, see inner exception for more details: '{expression}'
         /// </summary>
-        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
+        public static string NonQueryTranslationFailed(object? expression)
             => string.Format(
-                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
-                expression, details);
+                GetString("NonQueryTranslationFailed", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The foreign key {foreignKeyProperties} on the entity type '{declaringEntityType}' cannot have a required dependent end since it is not unique.
@@ -2916,7 +2972,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("RelationshipCannotBeInverted");
 
         /// <summary>
-        ///     The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        ///     The association between entity types '{firstType}' and '{secondType}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string RelationshipConceptualNull(object? firstType, object? secondType)
             => string.Format(
@@ -2924,7 +2980,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstType, secondType);
 
         /// <summary>
-        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes.
+        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes. If the dependent is being moved to a different principal consider setting 'context.ChangeTracker.DeleteOrphansTiming', see https://aka.ms/efcore-docs-changing-relationships for more information.
         /// </summary>
         public static string RelationshipConceptualNullSensitive(object? firstType, object? secondType, object? secondKeyValue)
             => string.Format(
@@ -3241,6 +3297,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string SkipNavigationNonCollection(object? navigation, object? entityType)
             => string.Format(
                 GetString("SkipNavigationNonCollection", "0_navigation", "1_entityType"),
+                navigation, entityType);
+
+        /// <summary>
+        ///     The skip navigation '{navigation}' on entity type '{entityType}' cannot be set as its own inverse.
+        /// </summary>
+        public static string SkipNavigationSelfInverse(object? navigation, object? entityType)
+            => string.Format(
+                GetString("SkipNavigationSelfInverse", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
 
         /// <summary>
@@ -3744,6 +3808,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.CollectionWithoutComparer,
                             _resourceManager.GetString("LogCollectionWithoutComparer")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.
+        /// </summary>
+        public static EventDefinition<string, string> LogCompiledModelProviderMismatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCompiledModelProviderMismatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCompiledModelProviderMismatch,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.CompiledModelProviderMismatchWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.CompiledModelProviderMismatchWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.CompiledModelProviderMismatchWarning,
+                            _resourceManager.GetString("LogCompiledModelProviderMismatch")!)));
             }
 
             return (EventDefinition<string, string>)definition;

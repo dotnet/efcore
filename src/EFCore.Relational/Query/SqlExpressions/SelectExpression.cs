@@ -53,9 +53,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private static ConstructorInfo? _quotingConstructor;
 
-    private static readonly bool UseOldBehavior37178 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37178", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -899,7 +896,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerShaperExpression);
                         }
 
-                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _);
+                        // Single-result (to-one) joins never increase result cardinality, so the outer entity's
+                        // identifiers are already sufficient to uniquely identify rows. We don't need to add the
+                        // inner's identifiers to our own; doing so would cause unnecessary reference table JOINs,
+                        // ORDER BY columns, and projections in split collection queries (#29182).
+                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _, isToOneJoin: true, isPrunableJoin: true);
                         var offset = _clientProjections.Count;
                         var count = innerSelectExpression._clientProjections.Count;
 
@@ -1419,6 +1420,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                     if (typeProjection is { StructuralType: IEntityType entityType }
                         && entityType.IsMappedToJson()
                         && property.IsOrdinalKeyProperty())
+                    {
+                        continue;
+                    }
+
+                    if (!property.IsAutoLoaded)
                     {
                         continue;
                     }
@@ -2075,7 +2081,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         SelectExpression select2,
         bool distinct)
     {
-        // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
             alias: null, tables: _tables.ToList(), groupBy: _groupBy.ToList(), projections: [], orderings: _orderings.ToList(),
             annotations: Annotations, sqlAliasManager: _sqlAliasManager)
@@ -2436,15 +2441,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
                 }
 
-                Check.DebugAssert(
-                    structuralProjection1.TableMap.Count == structuralProjection2.TableMap.Count,
-                    "Set operation over entity projections with different table map counts");
-                Check.DebugAssert(
-                    structuralProjection1.TableMap.Keys.All(t => structuralProjection2.TableMap.ContainsKey(t)),
-                    "Set operation over entity projections with table map discrepancy");
-
-                var tableMap = structuralProjection1.TableMap.ToDictionary(kvp => kvp.Key, _ => setOperationAlias);
-
                 var discriminatorExpression = structuralProjection1.DiscriminatorExpression;
                 if (structuralProjection1.DiscriminatorExpression != null
                     && structuralProjection2.DiscriminatorExpression != null)
@@ -2457,7 +2453,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
 
                 var outerProjection = new StructuralTypeProjectionExpression(
-                    type, propertyExpressions, complexPropertyCache, tableMap, nullable: false, discriminatorExpression);
+                    type, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression);
 
                 if (outerIdentifiers.Length > 0 && outerProjection is { StructuralType: IEntityType entityType })
                 {
@@ -2499,13 +2495,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Applies <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> on the <see cref="SelectExpression" />.
-    /// </summary>
-    /// <param name="sqlExpressionFactory">A factory to use for generating required sql expressions.</param>
-    public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
-        => ApplyDefaultIfEmpty(sqlExpressionFactory, shaperNullable: null);
-
-    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -2513,16 +2502,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     [EntityFrameworkInternal]
     public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory, bool shaperNullable)
-        => ApplyDefaultIfEmpty(sqlExpressionFactory, (bool?)shaperNullable);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory, bool? shaperNullable)
     {
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
             new SqlConstantExpression(null, typeof(string), null));
@@ -2561,16 +2540,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     [EntityFrameworkInternal]
     public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory, bool shaperNullable)
-        => MakeProjectionNullable(sqlExpressionFactory, (bool?)shaperNullable);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public void MakeProjectionNullable(ISqlExpressionFactory sqlExpressionFactory, bool? shaperNullable)
     {
         // Go over all projected columns and make them nullable; for non-nullable value types, add a SQL COALESCE as well.
 
@@ -2589,8 +2558,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             // type, we need to apply a COALESCE to get the CLR default instead.
             // Note that the projections observed above in _projectionMapping don't contain accurate nullability information,
             // since SQL expressions get Nullable<T> stripped out. So we instead flow the shaper nullability into here.
-            if (newProjection is SqlExpression { Type: var type } newSqlProjection
-                && (UseOldBehavior37178 || shaperNullable is null ? !type.IsNullableType() : shaperNullable is false))
+            if (newProjection is SqlExpression { Type: var type } newSqlProjection && !shaperNullable)
             {
                 newProjection = sqlExpressionFactory.Coalesce(
                     newSqlProjection,
@@ -2632,9 +2600,12 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         var expressions = GetPropertyExpressions(sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn);
 
+        // TODO: support for complex types on owned entity types, #33170
+        var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
+
         var entityShaper = new RelationalStructuralTypeShaperExpression(
             navigation.TargetEntityType,
-            new StructuralTypeProjectionExpression(navigation.TargetEntityType, expressions, principalEntityProjection.TableMap),
+            new StructuralTypeProjectionExpression(navigation.TargetEntityType, expressions, complexPropertyMap),
             identifyingColumn.IsNullable || navigation.DeclaringEntityType.BaseType != null || !navigation.ForeignKey.IsRequiredDependent);
         principalEntityProjection.AddNavigationBinding(navigation, entityShaper);
 
@@ -2886,109 +2857,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public static Expression GenerateComplexPropertyShaperExpression(
-        StructuralTypeProjectionExpression containerProjection,
-        IComplexProperty complexProperty)
-    {
-        var complexType = complexProperty.ComplexType;
-        var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-
-        // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
-        // See Issue #32853 and Issue #31248
-        var viewOrTableTable = complexType.GetViewOrTableMappings().Single().Table;
-        var complexTypeTable = viewOrTableTable;
-
-        if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
-        {
-            complexTypeTable = complexType.GetDefaultMappings().Single().Table;
-            tableAlias = containerProjection.TableMap[complexTypeTable];
-        }
-
-        var isComplexTypeNullable = containerProjection.IsNullable || complexProperty.IsNullable;
-
-        // If the complex property is declared on a type that's derived relative to the type being projected, the projected column is
-        // nullable.
-        if (!isComplexTypeNullable
-            && containerProjection.StructuralType is IEntityType entityType
-            && !entityType.GetAllBaseTypesInclusiveAscending().Contains(complexProperty.DeclaringType))
-        {
-            isComplexTypeNullable = true;
-        }
-
-        // The target type is a JSON complex type - generate a JsonQueryExpression.
-        if (complexType.IsMappedToJson())
-        {
-            var containerColumnName = complexType.GetContainerColumnName();
-            Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-
-            // TODO: when the JSON column is on a FromSql() source, we use the default mappings from the relational model (see just above),
-            // but those don't yet contain complex types (#34627). We work around this here, get the column from the table mapping instead
-            // of from the default mapping.
-            var containerColumn = complexTypeTable.FindColumn(containerColumnName) ?? viewOrTableTable.FindColumn(containerColumnName);
-            Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
-
-            // If the source type is a JSON complex type; since we're binding over StructuralTypeProjectionExpression - which represents a relational
-            // table-like thing - this means that an internal JSON collection has been converted to a relational table (e.g. OPENJSON on SQL Server)
-            // and we're now binding over that table.
-            // Otherwise, if the source type isn't mapped to JSON, we're just binding to an actual JSON column in a relational table, and not within it.
-            var containerColumnExpression = complexProperty.DeclaringType.IsMappedToJson()
-                ? new ColumnExpression(
-                    complexType.GetJsonPropertyName()
-                    ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
-                    tableAlias,
-                    complexProperty.ClrType.UnwrapNullableType(),
-                    typeMapping: containerColumn.StoreTypeMapping,
-                    isComplexTypeNullable)
-                : new ColumnExpression(
-                    containerColumn.Name,
-                    tableAlias,
-                    containerColumn,
-                    complexProperty.ClrType.UnwrapNullableType(),
-                    containerColumn.StoreTypeMapping,
-                    isComplexTypeNullable);
-
-            var jsonQuery = new JsonQueryExpression(
-                complexType,
-                containerColumnExpression,
-                keyPropertyMap: null,
-                complexProperty.ClrType,
-                complexProperty.IsCollection);
-
-            return complexProperty.IsCollection
-                ? new CollectionResultExpression(jsonQuery, complexProperty, elementType: complexType.ClrType)
-                : new RelationalStructuralTypeShaperExpression(complexType, jsonQuery, isComplexTypeNullable);
-        }
-
-        // Table splitting
-        foreach (var property in complexType.GetProperties())
-        {
-            // TODO: Reimplement EntityProjectionExpression via TableMap, and then use that here
-            var column = complexTypeTable.FindColumn(property)!;
-            propertyExpressionMap[property] = CreateColumnExpression(
-                property, column, tableAlias, isComplexTypeNullable || column.IsNullable);
-        }
-
-        // The table map of the target complex type should only ever contains a single table (no table splitting).
-        // If the source is itself a complex type (nested complex type), its table map is already suitable and we can just pass it on.
-        var newTableMap = containerProjection.TableMap.Count == 1
-            ? containerProjection.TableMap
-            : new Dictionary<ITableBase, string> { [complexTypeTable] = tableAlias };
-
-        Check.DebugAssert(newTableMap.Single().Key == complexTypeTable, "Bad new table map");
-
-        return new RelationalStructuralTypeShaperExpression(
-            complexType,
-            new StructuralTypeProjectionExpression(complexProperty.ComplexType, propertyExpressionMap, newTableMap, isComplexTypeNullable),
-            isComplexTypeNullable);
-    }
-
-    /// <summary>
     ///     Retrieves the <see cref="TableExpressionBase" /> referenced by the given column, looking it up on this
     ///     <see cref="SelectExpression" /> based on its alias.
     /// </summary>
@@ -3040,9 +2908,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         SelectExpression innerSelect,
         Expression outerShaper,
         Expression innerShaper,
-        SqlExpression? joinPredicate = null)
+        SqlExpression? joinPredicate = null,
+        bool isToOneJoin = false,
+        bool isPrunableJoin = false)
     {
-        AddJoin(joinType, ref innerSelect, out _, joinPredicate);
+        AddJoin(joinType, ref innerSelect, out _, joinPredicate, isToOneJoin, isPrunableJoin);
 
         var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaper.Type, innerShaper.Type);
         var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
@@ -3159,7 +3029,9 @@ public sealed partial class SelectExpression : TableExpressionBase
         JoinType joinType,
         ref SelectExpression innerSelect,
         out bool innerPushdownOccurred,
-        SqlExpression? joinPredicate = null)
+        SqlExpression? joinPredicate = null,
+        bool isToOneJoin = false,
+        bool isPrunableJoin = false)
     {
         innerPushdownOccurred = false;
         // Try to convert Apply to normal join
@@ -3240,7 +3112,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                             joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin,
                             ref innerSelect,
                             out innerPushdownOccurred,
-                            joinPredicate);
+                            joinPredicate,
+                            isToOneJoin,
+                            isPrunableJoin);
 
                         return;
                     }
@@ -3294,8 +3168,19 @@ public sealed partial class SelectExpression : TableExpressionBase
             innerPushdownOccurred = true;
         }
 
-        if (_identifier.Count > 0 && innerSelect._identifier.Count > 0)
+        // If this is a to-one join, then we know that it doesn't increase cardinality — the outer identifiers are already sufficient.
+        // Skipping the inner's identifiers avoids unnecessary ORDER BY columns and projections (#29182).
+        if (_identifier.Count == 0 || innerSelect._identifier.Count == 0)
         {
+            // Either the outer and inner sides aren't uniquely identifiable; mark everything as non-uniquely-identifiable.
+            _identifier.Clear();
+            innerSelect._identifier.Clear();
+        }
+        else if (!isToOneJoin || joinType is JoinType.RightJoin)
+        {
+            // This is cardinality-increasing join - add identifiers from the inner.
+            // Note that we do the same for right joins, since these make the outer identifiers nullable; that could mean that
+            // multiple inner rows get the same NULL identifier.
             switch (joinType)
             {
                 case JoinType.LeftJoin or JoinType.OuterApply:
@@ -3303,9 +3188,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                     break;
 
                 case JoinType.RightJoin:
-                    var nullableOuterIdentifier = _identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)).ToList();
-                    _identifier.Clear();
-                    _identifier.AddRange(nullableOuterIdentifier);
+                    // Make the outer identifiers nullable, then add the inner identifiers
+                    for (var i = 0; i < _identifier.Count; i++)
+                    {
+                        var identifier = _identifier[i];
+                        _identifier[i] = (identifier.Column.MakeNullable(), identifier.Comparer);
+                    }
+
                     _identifier.AddRange(innerSelect._identifier);
                     break;
 
@@ -3314,19 +3203,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                     break;
             }
         }
-        else
-        {
-            // if the subquery that is joined to can't be uniquely identified
-            // then the entire join should also not be marked as non-identifiable
-            _identifier.Clear();
-            innerSelect._identifier.Clear();
-        }
 
         var innerTable = innerSelect.Tables.Single();
         var joinTable = joinType switch
         {
-            JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!),
-            JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!),
+            JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!, isPrunableJoin),
+            JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!, isPrunableJoin),
             JoinType.RightJoin => new RightJoinExpression(innerTable, joinPredicate!),
             JoinType.CrossJoin => new CrossJoinExpression(innerTable),
             JoinType.CrossApply => new CrossApplyExpression(innerTable),
@@ -3696,7 +3578,32 @@ public sealed partial class SelectExpression : TableExpressionBase
         Expression outerShaper)
         => AddJoin(
             JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
-            joinPredicate);
+            joinPredicate, isToOneJoin: false, isPrunableJoin: false);
+
+    /// <summary>
+    ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using INNER JOIN and combine shapers.
+    /// </summary>
+    /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <param name="toOneJoin">
+    ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
+    ///     are not added (#29182).
+    /// </param>
+    /// <param name="prunableJoin">
+    ///     Whether the join can be pruned if none of its columns are referenced. For INNER JOINs this requires both
+    ///     a to-one guarantee and a required foreign key guaranteeing matching rows exist (#29182).
+    /// </param>
+    /// <returns>An expression which shapes the result of this join.</returns>
+    public Expression AddInnerJoin(
+        ShapedQueryExpression innerSource,
+        SqlExpression joinPredicate,
+        Expression outerShaper,
+        bool toOneJoin = false,
+        bool prunableJoin = false)
+        => AddJoin(
+            JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+            joinPredicate, toOneJoin, prunableJoin);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
@@ -3710,7 +3617,33 @@ public sealed partial class SelectExpression : TableExpressionBase
         SqlExpression joinPredicate,
         Expression outerShaper)
         => AddJoin(
-            JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
+            JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+            joinPredicate, isToOneJoin: false, isPrunableJoin: false);
+
+    /// <summary>
+    ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
+    /// </summary>
+    /// <param name="innerSource">A <see cref="ShapedQueryExpression" /> to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="outerShaper">An expression for outer shaper.</param>
+    /// <param name="toOneJoin">
+    ///     Whether each outer row is guaranteed to match at most one inner row. When <see langword="true" />, inner identifiers
+    ///     are not added.
+    /// </param>
+    /// <param name="prunableJoin">
+    ///     Whether the join can be pruned if none of its columns are referenced (#29182).
+    /// </param>
+    /// <returns>An expression which shapes the result of this join.</returns>
+    [EntityFrameworkInternal]
+    public Expression AddLeftJoin(
+        ShapedQueryExpression innerSource,
+        SqlExpression joinPredicate,
+        Expression outerShaper,
+        bool toOneJoin,
+        bool prunableJoin)
+        => AddJoin(
+            JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+            joinPredicate, toOneJoin, prunableJoin);
 
     /// <summary>
     ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using RIGHT JOIN and combine shapers.
@@ -4018,10 +3951,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 projectionMap[projection.DiscriminatorExpression] = discriminatorExpression;
             }
 
-            var tableMap = projection.TableMap.ToDictionary(kvp => kvp.Key, _ => subqueryAlias);
-
             var newEntityProjection = new StructuralTypeProjectionExpression(
-                projection.StructuralType, propertyExpressions, complexPropertyCache, tableMap, nullable: false, discriminatorExpression);
+                projection.StructuralType, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression);
 
             if (projection.StructuralType is IEntityType entityType2)
             {

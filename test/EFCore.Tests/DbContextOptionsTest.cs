@@ -97,6 +97,76 @@ public class DbContextOptionsTest
     }
 
     [ConditionalFact]
+    public void Can_remove_an_existing_extension()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+
+        var extension1 = new FakeDbContextOptionsExtension1();
+        var extension2 = new FakeDbContextOptionsExtension2();
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension1);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2);
+
+        Assert.Equal(2, optionsBuilder.Options.Extensions.Count());
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).RemoveExtension<FakeDbContextOptionsExtension1>();
+
+        Assert.Single(optionsBuilder.Options.Extensions);
+        Assert.Null(optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+        Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
+    }
+
+    [ConditionalFact]
+    public void Removing_non_existent_extension_is_no_op()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+
+        var extension = new FakeDbContextOptionsExtension1();
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        Assert.Single(optionsBuilder.Options.Extensions);
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).RemoveExtension<FakeDbContextOptionsExtension2>();
+
+        Assert.Single(optionsBuilder.Options.Extensions);
+        Assert.Same(extension, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+    }
+
+    [ConditionalFact]
+    public void Removing_extension_from_middle_renormalizes_ordinals_and_preserves_insertion_order()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+
+        var extension1 = new FakeDbContextOptionsExtension1();
+        var extension2 = new FakeDbContextOptionsExtension2();
+        var extension3 = new FakeDbContextOptionsExtension3();
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension1);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension3);
+
+        Assert.Equal(3, optionsBuilder.Options.Extensions.Count());
+
+        // Remove the middle extension
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).RemoveExtension<FakeDbContextOptionsExtension2>();
+
+        Assert.Equal(2, optionsBuilder.Options.Extensions.Count());
+        var extensionsList = optionsBuilder.Options.Extensions.ToList();
+        Assert.Same(extension1, extensionsList[0]);
+        Assert.Same(extension3, extensionsList[1]);
+
+        // Add a new extension after removing the middle one - ordinals should stay contiguous
+        var extension2New = new FakeDbContextOptionsExtension2();
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2New);
+
+        Assert.Equal(3, optionsBuilder.Options.Extensions.Count());
+        extensionsList = optionsBuilder.Options.Extensions.ToList();
+        Assert.Same(extension1, extensionsList[0]);
+        Assert.Same(extension3, extensionsList[1]);
+        Assert.Same(extension2New, extensionsList[2]);
+    }
+
+    [ConditionalFact]
     public void IsConfigured_returns_true_if_any_provider_extensions_have_been_added()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -183,6 +253,42 @@ public class DbContextOptionsTest
         {
             public override bool IsDatabaseProvider
                 => true;
+
+            public override int GetServiceProviderHashCode()
+                => 0;
+
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => true;
+
+            public override string LogFragment
+                => "";
+
+            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+            {
+            }
+        }
+    }
+
+    private class FakeDbContextOptionsExtension3 : IDbContextOptionsExtension
+    {
+        private DbContextOptionsExtensionInfo _info;
+
+        public DbContextOptionsExtensionInfo Info
+            => _info ??= new ExtensionInfo(this);
+
+        public bool AppliedServices { get; private set; }
+
+        public virtual void ApplyServices(IServiceCollection services)
+            => AppliedServices = true;
+
+        public virtual void Validate(IDbContextOptions options)
+        {
+        }
+
+        private sealed class ExtensionInfo(IDbContextOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
+        {
+            public override bool IsDatabaseProvider
+                => false;
 
             public override int GetServiceProviderHashCode()
                 => 0;

@@ -107,7 +107,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         Assert.Equal(typeof(HumanizerPluralizer), serviceProvider.GetRequiredService<IPluralizer>().GetType());
         Assert.Equal(
             typeof(RelationalScaffoldingModelFactory), serviceProvider.GetRequiredService<IScaffoldingModelFactory>().GetType());
-        Assert.Equal(typeof(ScaffoldingTypeMapper), serviceProvider.GetRequiredService<IScaffoldingTypeMapper>().GetType());
+        Assert.Equal(typeof(SqlServerScaffoldingTypeMapper), serviceProvider.GetRequiredService<IScaffoldingTypeMapper>().GetType());
         Assert.Equal(
             typeof(MigrationsCodeGeneratorDependencies),
             serviceProvider.GetRequiredService<MigrationsCodeGeneratorDependencies>().GetType());

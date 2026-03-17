@@ -20,9 +20,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         bool trackQueryResults)
         : ExpressionVisitor
     {
-        private static readonly MethodInfo GetItemMethodInfo
-            = typeof(JObject).GetRuntimeProperties()
-                .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
+        public static readonly MethodInfo GetItemMethodInfo
+            = typeof(JToken).GetRuntimeProperties()
+                .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(object))
                 .GetMethod;
 
         private static readonly PropertyInfo JTokenTypePropertyInfo
@@ -56,7 +56,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private List<IncludeExpression> _pendingIncludes
             = [];
 
-        private static readonly MethodInfo ToObjectWithSerializerMethodInfo
+        public static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
 
@@ -72,18 +72,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         string storeName = null;
 
                         // Values injected by JObjectInjectingExpressionVisitor
-                        var projectionExpression = ((UnaryExpression)binaryExpression.Right).Operand;
-
-                        if (projectionExpression is UnaryExpression
-                            {
-                                NodeType: ExpressionType.Convert,
-                                Operand: UnaryExpression operand
-                            })
-                        {
-                            // Unwrap EntityProjectionExpression when the root entity is not projected
-                            // That is, this is handling the projection of a non-root entity type.
-                            projectionExpression = operand.Operand;
-                        }
+                        var projectionExpression = binaryExpression.Right.UnwrapTypeConversion(out _);
 
                         switch (projectionExpression)
                         {
@@ -105,7 +94,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 storeName = e.PropertyName;
                                 break;
 
-                            case EntityProjectionExpression e:
+                            case StructuralTypeProjectionExpression e:
                                 storeName = e.PropertyName;
                                 break;
                         }
@@ -119,8 +108,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     objectArrayProjectionExpression.Object, storeName, parameterExpression.Type);
                                 break;
 
-                            case EntityProjectionExpression entityProjectionExpression:
-                                var accessExpression = entityProjectionExpression.Object;
+                            case StructuralTypeProjectionExpression structuralTypeProjectionExpression:
+                                var accessExpression = structuralTypeProjectionExpression.Object;
                                 _projectionBindings[accessExpression] = parameterExpression;
 
                                 switch (accessExpression)
@@ -137,8 +126,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         {
                                             accessExpression = objectAccessExpression.Object;
                                             storeNames.Add(objectAccessExpression.PropertyName);
+                                            // The ShapedQueryCompilingExpressionVisitor will not generate StructuralTypeProjections for complex properties, so
+                                            // an ObjectAccessExpression in a StructuralTypeProjectionExpression can only be generated for owned navigations
+                                            // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
                                             _ownerMappings[objectAccessExpression]
-                                                = (objectAccessExpression.Navigation.DeclaringEntityType, accessExpression);
+                                                = ((IEntityType)objectAccessExpression.StructuralProperty.DeclaringType, accessExpression);
                                         }
 
                                         valueExpression = CreateGetValueExpression(accessExpression, (string)null, typeof(JObject));
@@ -154,7 +146,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 }
 
                                 break;
-
+                            case MethodCallExpression { Method.IsGenericMethod: true } jObjectMethodCallExpression
+                                when jObjectMethodCallExpression.Method.GetGenericMethodDefinition() == ToObjectWithSerializerMethodInfo:
+                                // JObject assignment already uses ToObjectWithSerializerMethodInfo. This can happen because code was generated for complex properties that already leverages JObject correctly.
+                                return binaryExpression;
                             default:
                                 throw new UnreachableException();
                         }
@@ -166,19 +161,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var newExpression = (NewExpression)binaryExpression.Right;
 
-                        EntityProjectionExpression entityProjectionExpression;
-                        if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
+                        if (newExpression.Arguments[0] is ComplexPropertyBindingExpression complexPropertyBindingExpression)
                         {
-                            var projection = GetProjection(projectionBindingExpression);
-                            entityProjectionExpression = (EntityProjectionExpression)projection.Expression;
+                            _materializationContextBindings[parameterExpression] = complexPropertyBindingExpression;
+                            _projectionBindings[complexPropertyBindingExpression] = complexPropertyBindingExpression.JObjectParameter;
                         }
                         else
                         {
-                            var projection = ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
-                            entityProjectionExpression = (EntityProjectionExpression)projection;
-                        }
+                            StructuralTypeProjectionExpression structuralTypeProjectionExpression;
+                            if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
+                            {
+                                var projection = GetProjection(projectionBindingExpression);
+                                structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)projection.Expression;
+                            }
+                            else
+                            {
+                                var projection = ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
+                                structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)projection;
+                            }
 
-                        _materializationContextBindings[parameterExpression] = entityProjectionExpression.Object;
+                            _materializationContextBindings[parameterExpression] = structuralTypeProjectionExpression.Object;
+                        }
 
                         var updatedExpression = New(
                             newExpression.Constructor,
@@ -287,8 +290,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var accessExpression = objectArrayAccess.InnerProjection.Object;
                     _projectionBindings[accessExpression] = jObjectParameter;
+                    // The ShapedQueryCompilingExpressionVisitor will not generate CollectionShaperExpression for complex collection properties, so
+                    // an ObjectArrayAccessExpression in a CollectionShaperExpression can only be generated for owned collections
+                    // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
                     _ownerMappings[accessExpression] =
-                        (objectArrayAccess.Navigation.DeclaringEntityType, objectArrayAccess.Object);
+                        ((IEntityType)objectArrayAccess.StructuralProperty.DeclaringType, objectArrayAccess.Object);
                     _ordinalParameterBindings[accessExpression] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
 
@@ -595,7 +601,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 relatedEntity,
                 Constant(true));
 
-        private static readonly MethodInfo PopulateCollectionMethodInfo
+        public static readonly MethodInfo PopulateCollectionMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(PopulateCollection));
 

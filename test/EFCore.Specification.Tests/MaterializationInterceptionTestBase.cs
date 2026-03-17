@@ -7,7 +7,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
     : SingletonInterceptorsTestBase<TContext>(fixture)
     where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "MaterializationInterception";
 
     [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]

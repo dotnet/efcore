@@ -18,9 +18,6 @@ public class ChangeDetector : IChangeDetector
     private readonly ILoggingOptions _loggingOptions;
     private bool _inCascadeDelete;
 
-    private static readonly bool UseOldBehavior37387 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37387", out var enabled) && enabled;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -67,9 +64,8 @@ public class ChangeDetector : IChangeDetector
             case IComplexProperty { IsCollection: false } complexProperty:
                 // TODO: This requires notification change tracking for complex types
                 // Issue #36175
-                if (!UseOldBehavior37387
-                    && entry.EntityState is not EntityState.Deleted
-                    && setModified
+                if (entry.EntityState is not EntityState.Deleted 
+                    && setModified 
                     && entry is InternalEntryBase entryBase
                     && complexProperty.IsNullable 
                     && complexProperty.GetOriginalValueIndex() >= 0)
@@ -285,6 +281,17 @@ public class ChangeDetector : IChangeDetector
         var changesFound = false;
         foreach (var property in entry.StructuralType.GetFlattenedProperties())
         {
+            if (!entry.IsLoaded(property))
+            {
+                if (!property.GetValueComparer().Equals(entry[property], property.Sentinel))
+                {
+                    entry.SetPropertyModified(property);
+                    changesFound = true;
+                }
+
+                continue;
+            }
+
             if (property.GetOriginalValueIndex() >= 0
                 && !entry.IsModified(property)
                 && !entry.IsConceptualNull(property))
@@ -310,9 +317,7 @@ public class ChangeDetector : IChangeDetector
                     changesFound = true;
                 }
             }
-            else if (!UseOldBehavior37387
-                && complexProperty.IsNullable
-                && complexProperty.GetOriginalValueIndex() >= 0)
+            else if (complexProperty.IsNullable && complexProperty.GetOriginalValueIndex() >= 0)
             {
                 if (DetectComplexPropertyChange(entry, complexProperty))
                 {
@@ -345,9 +350,10 @@ public class ChangeDetector : IChangeDetector
             {
                 foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
                 {
-                    // Only mark properties that are tracked and can be modified
+                    // Only mark properties that are tracked, can be modified, and are loaded
                     if (innerProperty.GetOriginalValueIndex() >= 0
-                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                        && entry.IsLoaded(innerProperty))
                     {
                         entry.SetPropertyModified(innerProperty);
                     }
@@ -798,6 +804,11 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public bool DetectValueChange(IInternalEntry entry, IProperty property)
     {
+        if (!entry.IsLoaded(property))
+        {
+            return false;
+        }
+
         var current = entry[property];
         var original = entry.GetOriginalValue(property);
 

@@ -12,6 +12,7 @@ public class ComplexJsonSqlServerFixture : ComplexJsonRelationalFixtureBase
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {
         var options = base.AddOptions(builder);
+
         return TestEnvironment.SqlServerMajorVersion < 17
             ? options
             : options.UseSqlServerCompatibilityLevel(170);
