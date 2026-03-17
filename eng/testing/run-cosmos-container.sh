@@ -28,7 +28,7 @@ docker run -d \
     --protocol https \
     --enable-explorer false
 
-echo "Waiting for emulator to be ready (up to ~$((max_retries * retry_delay * 2))s)..."
+echo "Waiting for emulator to be ready (up to ~$((max_retries * retry_delay))s)..."
 ready=false
 for i in $(seq 1 "$max_retries"); do
     sleep "$retry_delay"
