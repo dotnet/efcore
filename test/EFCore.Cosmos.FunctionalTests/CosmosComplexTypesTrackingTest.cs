@@ -121,6 +121,11 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
             ? base.Can_save_default_values_in_optional_complex_property_with_multiple_properties(async)
             : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
+    public override Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
+        => async
+            ? base.Can_null_complex_property_with_default_values_and_multiple_properties(async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
+
     protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
