@@ -1479,7 +1479,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 if (_containsCollectionMaterialization)
                 {
-                    _valuesArrayInitializers!.Add(parameter);
+                    var expressionToAdd = (Expression)parameter;
+                    if (expressionToAdd.Type.IsValueType)
+                    {
+                        expressionToAdd = Convert(expressionToAdd, typeof(object));
+                    }
+
+                    _valuesArrayInitializers!.Add(expressionToAdd);
                     return Convert(
                         ArrayIndex(
                             _valuesArrayExpression!,
