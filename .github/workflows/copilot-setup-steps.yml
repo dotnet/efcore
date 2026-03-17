@@ -45,9 +45,15 @@ jobs:
         env:
           PROTOCOL: https
           ENABLE_EXPLORER: "false"
+        options: >-
+          --health-cmd="curl -k https://localhost:8081/ || exit 1"
+          --health-start-period=120s
+          --health-interval=5s
+          --health-retries=60
+          --health-timeout=5s
 
     steps:
-      - name: Export environment variables the agent's session
+      - name: Export environment variables for the agent's session
         run: |
           echo 'Test__SqlServer__DefaultConnection=Server=localhost;Database=master;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true' >> "$GITHUB_ENV"
           echo 'Test__Cosmos__EmulatorType=linux' >> "$GITHUB_ENV"

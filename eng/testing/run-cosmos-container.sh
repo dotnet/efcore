@@ -28,11 +28,11 @@ docker run -d \
     --protocol https \
     --enable-explorer false
 
-echo "Waiting for emulator to be ready (up to $((max_retries * retry_delay))s)..."
+echo "Waiting for emulator to be ready (up to ~$((max_retries * retry_delay * 2))s)..."
 ready=false
 for i in $(seq 1 "$max_retries"); do
     sleep "$retry_delay"
-    if curl -ks "https://localhost:${port}/" -o /dev/null; then
+    if curl -ks --connect-timeout "$retry_delay" --max-time "$retry_delay" "https://localhost:${port}/" -o /dev/null; then
         ready=true
         echo "Cosmos DB Emulator is ready."
         break
