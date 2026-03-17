@@ -764,12 +764,13 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
             Assert.NotEqual(createdSessionToken, updatedSessionToken);
             Assert.Equal(createdSessionToken, context.Database.GetSessionToken());
-            var exception = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
 
             var afterExceptionSessionToken = context.Database.GetSessionToken();
             Assert.Equal(updatedSessionToken, afterExceptionSessionToken);
 
             await context.Entry(customer).ReloadAsync();
+            customer.Name = "updated again";
             await context.SaveChangesAsync();
         }
     }
