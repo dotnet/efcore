@@ -115,10 +115,16 @@ jobs:
                 }
               }
             `, { owner, repo, title: targetMilestoneName });
-            const milestoneNode = milestoneResult.repository.milestones.nodes
+            let milestoneNode = milestoneResult.repository.milestones.nodes
               .find(m => m.title === targetMilestoneName);
             if (!milestoneNode) {
-              throw new Error(`Milestone '${targetMilestoneName}' not found`);
+              console.log(`Milestone '${targetMilestoneName}' not found, creating it`);
+              const { data: created } = await github.rest.issues.createMilestone({
+                owner,
+                repo,
+                title: targetMilestoneName
+              });
+              milestoneNode = { number: created.number, title: created.title };
             }
 
             // Set the milestone on closing issues, applying a "min" strategy:
