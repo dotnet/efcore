@@ -55,6 +55,4 @@ public static class CosmosComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string name)
         => (ComplexTypePropertyBuilder<TProperty>)ToJsonProperty((ComplexTypePropertyBuilder)propertyBuilder, name);
-
-    // Vector and fulltext properties are not supported on complex types, because you can't define indexes on complex types
 }
