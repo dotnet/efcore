@@ -244,7 +244,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
     {
-        var contextFactory = await InitializeAsync<Context37304>(
+        var contextFactory = await InitializeNonSharedTest<Context37304>(
             seed: context =>
             {
                 context.Add(
