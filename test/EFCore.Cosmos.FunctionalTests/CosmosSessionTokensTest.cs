@@ -802,7 +802,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             using var context2 = contextFactory.CreateDbContext();
             context2.Add(customer);
             await Assert.ThrowsAsync<DbUpdateException>(() => context2.SaveChangesAsync());
-            var afterExceptionSessionToken = context.Database.GetSessionToken();
+            var afterExceptionSessionToken = context2.Database.GetSessionToken();
 
             Assert.Equal(createdSessionToken, afterExceptionSessionToken);
         }
@@ -830,7 +830,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             for (var i = 0; i < 10; i++)
             {
                 result = await context.OtherContainerCustomers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1");
-                if (result == null) // We could theoratically hit a read replica that hasn't synced the delete yet. Because we used createdSessionToken. Chances are small
+                if (result == null) // We could theoretically hit a read replica that hasn't synced the delete yet. Because we used createdSessionToken. Chances are small
                 {
                     break;
                 }
@@ -879,7 +879,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         public IReadOnlyDictionary<string, string?> GetTrackedTokens() => SessionTokens;
         public void SetDefaultContainerSessionToken(string sessionToken) => SetDefaultContainerSessionTokenCalls.Add(sessionToken);
         public void SetSessionTokens(IReadOnlyDictionary<string, string?> sessionTokens) => SetSessionTokensCalls.Add(sessionTokens);
-        public void TrackSessionToken(string containerName, string sessionToken) => TrackSessionTokenCalls.Add((containerName, sessionToken));
+        public void TrackSessionToken(string containerName, string? sessionToken) => TrackSessionTokenCalls.Add((containerName, sessionToken!));
     }
 
     public class CosmosFixture : SharedStoreFixtureBase<CosmosSessionTokenContext>

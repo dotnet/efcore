@@ -43,7 +43,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private const string SubStatusCodeHeaderName = "x-ms-substatus";
 
-
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
     private readonly string _databaseId;
     private readonly IExecutionStrategy _executionStrategy;
