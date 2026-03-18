@@ -14,7 +14,7 @@ The script works with any dotnet repository that uses Azure DevOps and Helix:
 
 Use `-Repository` to specify the target:
 ```powershell
-./scripts/Get-CIStatus.ps1 -PRNumber 12345 -Repository "dotnet/aspnetcore"
+./scripts/Get-CIStatus.ps1 -PRNumber 12345 -Repository "dotnet/efcore"
 ```
 
 ## Build Definition IDs (Example: dotnet/aspnetcore)
@@ -64,7 +64,7 @@ Other repos have different pipelines - the script discovers them automatically f
 - [dnceng-public AzDO](https://dev.azure.com/dnceng-public/public/_build): Public builds for all dotnet repos
 
 ### Repository-specific docs:
-- [aspnetcore: Area Owners](https://github.com/dotnet/aspnetcore/blob/main/docs/area-owners.md)
+- [efcore: Area Owners](https://github.com/dotnet/efcore/blob/main/docs/AreaOwners.md)
 
 ## Test Execution Types
 

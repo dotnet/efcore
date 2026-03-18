@@ -34,7 +34,7 @@ However, the analysis patterns in this skill (interpreting failures, correlating
 ## Quick Start
 
 ```powershell
-# Analyze PR failures (most common) - defaults to dotnet/aspnetcore
+# Analyze PR failures (most common) - defaults to dotnet/efcore
 ./scripts/Get-CIStatus.ps1 -PRNumber 123445 -ShowLogs
 
 # Analyze by build ID
@@ -56,7 +56,7 @@ However, the analysis patterns in this skill (interpreting failures, correlating
 | `-PRNumber` | GitHub PR number to analyze |
 | `-BuildId` | Azure DevOps build ID |
 | `-ShowLogs` | Fetch and display Helix console logs |
-| `-Repository` | Target repo (default: dotnet/aspnetcore) |
+| `-Repository` | Target repo (default: dotnet/efcore) |
 | `-MaxJobs` | Max failed jobs to show (default: 5) |
 | `-SearchMihuBot` | Search MihuBot for related issues |
 

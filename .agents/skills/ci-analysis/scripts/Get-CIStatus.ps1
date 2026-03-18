@@ -20,7 +20,7 @@
     The Helix work item name to query (requires -HelixJob).
 
 .PARAMETER Repository
-    The GitHub repository (owner/repo format). Default: dotnet/aspnetcore
+    The GitHub repository (owner/repo format). Default: dotnet/efcore
 
 .PARAMETER Organization
     The Azure DevOps organization. Default: dnceng-public
@@ -71,7 +71,7 @@
     .\Get-CIStatus.ps1 -PRNumber 123445 -ShowLogs
 
 .EXAMPLE
-    .\Get-CIStatus.ps1 -PRNumber 123445 -Repository dotnet/aspnetcore
+    .\Get-CIStatus.ps1 -PRNumber 123445 -Repository dotnet/efcore
 
 .EXAMPLE
     .\Get-CIStatus.ps1 -HelixJob "4b24b2c2-ad5a-4c46-8a84-844be03b1d51" -WorkItem "iOS.Device.Aot.Test"
@@ -104,7 +104,7 @@ param(
     [Parameter(ParameterSetName = 'ClearCache', Mandatory = $true)]
     [switch]$ClearCache,
 
-    [string]$Repository = "dotnet/aspnetcore",
+    [string]$Repository = "dotnet/efcore",
     [string]$Organization = "dnceng-public",
     [string]$Project = "cbb18261-c48f-4abb-8651-8cdcb5474649",
     [switch]$ShowLogs,
@@ -918,7 +918,7 @@ function Search-MihuBotIssues {
     param(
         [string[]]$SearchTerms,
         [string]$ExtraContext = "",
-        [string]$Repository = "dotnet/aspnetcore",
+        [string]$Repository = "dotnet/efcore",
         [bool]$IncludeOpen = $true,
         [bool]$IncludeClosed = $true,
         [int]$TimeoutSec = 30
@@ -1000,7 +1000,7 @@ function Search-KnownIssues {
     param(
         [string]$TestName,
         [string]$ErrorMessage,
-        [string]$Repository = "dotnet/aspnetcore"
+        [string]$Repository = "dotnet/efcore"
     )
 
     # Search for known issues using the "Known Build Error" label
