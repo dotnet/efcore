@@ -131,47 +131,46 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         using var c = CreateContext();
         try
         {
-            await c.Database.CreateExecutionStrategy()
-                .ExecuteAsync(
-                    c,
-                    async context =>
+            await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                c,
+                async context =>
+                {
+                    using (var innerContext = CreateContext())
                     {
-                        using (var innerContext = CreateContext())
-                        {
-                            await testOperation(innerContext);
-                        }
-
-                        if (nestedTestOperation1 == null)
-                        {
-                            return;
-                        }
-
-                        using (var innerContext1 = CreateContext())
-                        {
-                            await nestedTestOperation1(innerContext1);
-                        }
-
-                        if (nestedTestOperation2 == null)
-                        {
-                            return;
-                        }
-
-                        using (var innerContext2 = CreateContext())
-                        {
-                            await nestedTestOperation2(innerContext2);
-                        }
-
-                        if (nestedTestOperation3 == null)
-                        {
-                            return;
-                        }
-
-                        using (var innerContext3 = CreateContext())
-                        {
-                            await nestedTestOperation3(innerContext3);
-                        }
+                        await testOperation(innerContext);
                     }
-                );
+
+                    if (nestedTestOperation1 == null)
+                    {
+                        return;
+                    }
+
+                    using (var innerContext1 = CreateContext())
+                    {
+                        await nestedTestOperation1(innerContext1);
+                    }
+
+                    if (nestedTestOperation2 == null)
+                    {
+                        return;
+                    }
+
+                    using (var innerContext2 = CreateContext())
+                    {
+                        await nestedTestOperation2(innerContext2);
+                    }
+
+                    if (nestedTestOperation3 == null)
+                    {
+                        return;
+                    }
+
+                    using (var innerContext3 = CreateContext())
+                    {
+                        await nestedTestOperation3(innerContext3);
+                    }
+                }
+            );
         }
         finally
         {
