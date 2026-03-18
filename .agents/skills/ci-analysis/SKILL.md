@@ -51,7 +51,7 @@ However, the analysis patterns in this skill (interpreting failures, correlating
 
 ### Internal Helix Builds
 
-Helix jobs started from the internal AzDO project (`dnceng/internal`) require authentication. When the script encounters 401/403 errors from the Helix API, ask the user for a Helix access token and re-run with `-HelixAccessToken`. The token is appended as an `access_token` query parameter to all Helix API requests.
+Helix jobs started from the internal AzDO project (`dnceng/internal`) require authentication. The Helix API does not return 401/403 errors — instead it returns empty results (`[]`) or `{"Message":"NotFound","ActivityId":"..."}`. When Helix results appear unexpectedly empty or show "NotFound" for jobs that should exist, ask the user for a Helix access token and re-run with `-HelixAccessToken`. The token is appended as an `access_token` query parameter to all Helix API requests.
 
 > ⚠️ **The Helix access token is a secret.** Do not log it, include it in comments, or expose it in any output. Handle it with the same care as any other credential.
 
