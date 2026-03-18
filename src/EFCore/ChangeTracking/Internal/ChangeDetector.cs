@@ -64,10 +64,10 @@ public class ChangeDetector : IChangeDetector
             case IComplexProperty { IsCollection: false } complexProperty:
                 // TODO: This requires notification change tracking for complex types
                 // Issue #36175
-                if (entry.EntityState is not EntityState.Deleted 
-                    && setModified 
+                if (entry.EntityState is not EntityState.Deleted
+                    && setModified
                     && entry is InternalEntryBase entryBase
-                    && complexProperty.IsNullable 
+                    && complexProperty.IsNullable
                     && complexProperty.GetOriginalValueIndex() >= 0)
                 {
                     DetectComplexPropertyChange(entryBase, complexProperty);
@@ -344,19 +344,16 @@ public class ChangeDetector : IChangeDetector
 
         if ((currentValue is null) != (originalValue is null))
         {
-            // If it changed from null to non-null, mark all inner properties as modified
+            // If it changed from null to non-null or from non-null to null, mark all inner properties as modified
             // to ensure the entity is detected as modified and the complex type properties are persisted
-            if (currentValue is not null)
+            foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
             {
-                foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
+                // Only mark properties that are tracked, can be modified, and are loaded
+                if (innerProperty.GetOriginalValueIndex() >= 0
+                    && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                    && entry.IsLoaded(innerProperty))
                 {
-                    // Only mark properties that are tracked, can be modified, and are loaded
-                    if (innerProperty.GetOriginalValueIndex() >= 0
-                        && innerProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                        && entry.IsLoaded(innerProperty))
-                    {
-                        entry.SetPropertyModified(innerProperty);
-                    }
+                    entry.SetPropertyModified(innerProperty);
                 }
             }
 
