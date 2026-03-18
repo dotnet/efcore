@@ -41,7 +41,7 @@ Always query the specific work item to see what's available rather than assuming
 | `run-*.log` | XHarness execution logs | Mobile test failures |
 | `device-*.log` | Device-specific logs | iOS/Android device issues |
 | `dotnetTestLog.*.log` | dotnet test output | Test framework issues |
-| `vstest.*.log` | VSTest output | aspnetcore/SDK test issues |
+| `vstest.*.log` | VSTest output | efcore/SDK test issues |
 | `core.*`, `*.dmp` | Core dumps | Crashes, hangs |
 | `testResults.xml` | Test results | Detailed pass/fail info |
 

@@ -5,7 +5,7 @@ description: Analyze CI build and test status from Azure DevOps and Helix for do
 
 # Azure DevOps and Helix CI Analysis
 
-Analyze CI build status and test failures in Azure DevOps and Helix for dotnet repositories (aspnetcore, runtime, sdk, roslyn, and more).
+Analyze CI build status and test failures in Azure DevOps and Helix for dotnet repositories (efcore, runtime, sdk, roslyn, and more).
 
 > 🚨 **NEVER** use `gh pr review --approve` or `--request-changes`. Only `--comment` is allowed. Approval and blocking are human-only actions.
 

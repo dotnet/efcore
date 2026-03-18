@@ -319,7 +319,7 @@ function Test-RepositoryFormat {
     # Validate repository format to prevent command injection
     $repoPattern = '^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$'
     if ($Repo -notmatch $repoPattern) {
-        throw "Invalid repository format '$Repo'. Expected 'owner/repo' (e.g., 'dotnet/aspnetcore')."
+        throw "Invalid repository format '$Repo'. Expected 'owner/repo' (e.g., 'dotnet/efcore')."
     }
     return $true
 }
@@ -459,7 +459,7 @@ function Get-BuildAnalysisKnownIssues {
         }
 
         # Parse known issues from the output text
-        # Format: <a href="https://github.com/dotnet/aspnetcore/issues/117164">Issue Title</a>
+        # Format: <a href="https://github.com/dotnet/efcore/issues/117164">Issue Title</a>
         $knownIssues = @()
         $issuePattern = '<a href="(https://github\.com/[^/]+/[^/]+/issues/(\d+))">([^<]+)</a>'
         $matches = [regex]::Matches($output.text, $issuePattern)

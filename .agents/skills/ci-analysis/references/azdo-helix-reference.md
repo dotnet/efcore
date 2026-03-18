@@ -8,7 +8,7 @@ The script works with any dotnet repository that uses Azure DevOps and Helix:
 |------------|-----------------|
 | `dotnet/runtime` | runtime, runtime-dev-innerloop, dotnet-linker-tests |
 | `dotnet/sdk` | dotnet-sdk (mix of local and Helix tests) |
-| `dotnet/aspnetcore` | aspnetcore-ci |
+| `dotnet/efcore` | efcore-ci |
 | `dotnet/roslyn` | roslyn-CI |
 | `dotnet/maui` | maui-public |
 
@@ -17,16 +17,13 @@ Use `-Repository` to specify the target:
 ./scripts/Get-CIStatus.ps1 -PRNumber 12345 -Repository "dotnet/efcore"
 ```
 
-## Build Definition IDs (Example: dotnet/aspnetcore)
+## Build Definition IDs (Example: dotnet/efcore)
 
-Each repository has its own build definition IDs. Here are common ones for dotnet/aspnetcore:
+Each repository has its own build definition IDs. Here are common ones for dotnet/efcore:
 
 | Definition ID | Name | Description |
 |---------------|------|-------------|
-| `83` | aspnetcore-ci | Main PR validation build |
-| `86` | aspnetcore-quarantined-pr | Flaky tests quarantined into their own pipeline |
-| `87` | aspnetcore-components-e2e | Components end-to-end tests |
-| `318` | aspnetcore-template-tests-pr | Template tests |
+| N/A | efcore-ci | Main PR validation build |
 
 **Note:** The script auto-discovers builds for a PR, so you rarely need to know definition IDs.
 
@@ -45,14 +42,11 @@ Override with:
 ./scripts/Get-CIStatus.ps1 -BuildId 1276327 -Organization "dnceng" -Project "internal-project-guid"
 ```
 
-## Common Pipeline Names (Example: dotnet/aspnetcore)
+## Common Pipeline Names (Example: dotnet/efcore)
 
 | Pipeline | Description |
 |----------|-------------|
-| `aspnetcore-ci` | Main PR validation build |
-| `aspnetcore-quarantined-pr` | Flaky tests quarantined into their own pipeline |
-| `aspnetcore-components-e2e` | Components end-to-end tests |
-| `aspnetcore-template-tests-pr` | Template tests |
+| `efcore-ci` | Main PR validation build |
 
 Other repos have different pipelines - the script discovers them automatically from the PR.
 
@@ -84,8 +78,8 @@ Example searches (use `search_issues` when GitHub MCP is available, `gh` CLI oth
 # Search in runtime
 gh issue list --repo dotnet/runtime --label "Known Build Error" --search "FileSystemWatcher"
 
-# Search in aspnetcore
-gh issue list --repo dotnet/aspnetcore --label "Known Build Error" --search "Blazor"
+# Search in efcore
+gh issue list --repo dotnet/efcore --label "Known Build Error" --search "SaveChanges"
 
 # Search in sdk
 gh issue list --repo dotnet/sdk --label "Known Build Error" --search "template"
