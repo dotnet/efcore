@@ -1645,8 +1645,9 @@ try {
 
                 # Fetch console log
                 $encodedWorkItem = [uri]::EscapeDataString($WorkItem)
-                $consoleUrl = Get-HelixApiUrl "https://helix.dot.net/api/2019-06-17/jobs/$HelixJob/workitems/$encodedWorkItem/console"
-                Write-Host "`n  Console Log: $consoleUrl" -ForegroundColor Yellow
+                $consoleBaseUrl = "https://helix.dot.net/api/2019-06-17/jobs/$HelixJob/workitems/$encodedWorkItem/console"
+                Write-Host "`n  Console Log: $consoleBaseUrl" -ForegroundColor Yellow
+                $consoleUrl = Get-HelixApiUrl $consoleBaseUrl
 
                 $consoleLog = Get-HelixConsoleLog -Url $consoleUrl
                 if ($consoleLog) {
