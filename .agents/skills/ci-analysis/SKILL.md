@@ -1,6 +1,6 @@
 ---
 name: ci-analysis
-description: Analyze CI build and test status from Azure DevOps and Helix for dotnet repository PRs. Use when checking CI status, investigating failures, determining if a PR is ready to merge, or given URLs containing dev.azure.com or helix.dot.net. Also use when asked "why is CI red", "test failures", "retry CI", "rerun tests", "is CI green", "build failed", "checks failing", or "flaky tests".
+description: Analyze CI build and test status from Azure DevOps and Helix for dotnet repository PRs. Use when checking CI status, investigating failures, determining if a PR is ready to merge, or when given URLs containing dev.azure.com or helix.dot.net. Also use when asked "why is CI red", "test failures", "retry CI", "rerun tests", "is CI green", "build failed", "checks failing", or "flaky tests".
 ---
 
 # Azure DevOps and Helix CI Analysis
@@ -9,24 +9,12 @@ Analyze CI build status and test failures in Azure DevOps and Helix for dotnet r
 
 > 🚨 **NEVER** use `gh pr review --approve` or `--request-changes`. Only `--comment` is allowed. Approval and blocking are human-only actions.
 
-**Workflow**: Gather PR context (Step 0) → run the script → read the human-readable output + `[CI_ANALYSIS_SUMMARY]` JSON → synthesize recommendations yourself. The script collects data; you generate the advice. For supplementary investigation beyond the script, MCP tools (AzDO, Helix, GitHub) provide structured access when available; the script and `gh` CLI work independently when they're not.
-
-## When to Use This Skill
-
-Use this skill when:
-- Checking CI status on a PR ("is CI passing?", "what's the build status?", "why is CI red?")
-- Investigating CI failures or checking why a PR's tests are failing
-- Determining if a PR is ready to merge based on CI results
-- Debugging Helix test issues or analyzing build errors
-- Given URLs containing `dev.azure.com`, `helix.dot.net`, or GitHub PR links with failing checks
-- Asked questions like "why is this PR failing", "analyze the CI", "is CI green", "retry CI", "rerun tests", or "test failures"
-- Investigating canceled or timed-out jobs for recoverable results
+**Workflow**: Gather PR context → run the Get-CIStatus.ps1 script → read the output + `[CI_ANALYSIS_SUMMARY]` JSON → synthesize recommendations. The script collects data; you generate the advice. For supplementary investigation beyond the script, MCP tools (AzDO, Helix, GitHub) provide structured access when available in addition to the script and `gh` CLI.
 
 ## Script Limitations
 
 The `Get-CIStatus.ps1` script targets **Azure DevOps + Helix** infrastructure specifically. It won't help with:
 - **GitHub Actions** workflows (different API, different log format)
-- Repos not using **Helix** for test distribution (no Helix work items to query)
 - Pure **build performance** questions (use MSBuild binlog analysis instead)
 
 However, the analysis patterns in this skill (interpreting failures, correlating with PR changes, distinguishing infrastructure vs. code issues) apply broadly even outside AzDO/Helix.
@@ -85,7 +73,6 @@ The script operates in three distinct modes depending on what information you ha
 8. Correlates failures with PR file changes
 9. **Emits structured summary** — `[CI_ANALYSIS_SUMMARY]` JSON block with all key facts for the agent to reason over
 
-> **After the script runs**, you (the agent) generate recommendations. The script collects data; you synthesize the advice. See [Generating Recommendations](#generating-recommendations) below.
 
 ### Build ID Mode (`-BuildId`)
 1. Fetches the build timeline directly (skips PR discovery)
@@ -141,7 +128,7 @@ When an AzDO job is canceled (timeout) or Helix work items show `Crash` (exit co
    - Some work items have `failed > 0` in testResults.xml → **Real test failures.** Investigate those specific tests.
    - No testResults.xml uploaded → Tests may not have run at all. Check console logs for errors.
 
-> This pattern is common with long-running test suites (e.g., WasmBuildTests) where tests complete but the Helix work item wrapper exceeds its timeout during result upload or cleanup.
+> This pattern is common with long-running test suites where tests complete but the Helix work item wrapper exceeds its timeout during result upload or cleanup.
 
 ## Generating Recommendations
 
@@ -204,7 +191,7 @@ Before running the script, read the PR to understand what you're analyzing. Cont
 3. **Check existing comments** — has someone already diagnosed the failures? Is there a retry pending?
 4. **Note the changed files** — you'll use these to evaluate correlation after the script runs
 
-> ❌ **Don't skip Step 0.** Running the script without PR context leads to misdiagnosis — especially for flow PRs where "package not found" looks like infrastructure but is actually a code issue.
+> ❌ **Don't skip Step 1.** Running the script without PR context leads to misdiagnosis — especially for flow PRs where "package not found" looks like infrastructure but is actually a code issue.
 
 ### Step 1: Run the script
 

@@ -73,7 +73,7 @@ $timeline.records | Where-Object { $_.result -eq "failed" -and $_.type -eq "Job"
 
 ## Examining Pipeline YAML
 
-All dotnet repos that use arcade put their pipeline definitions under `eng/pipelines/`. Use `az pipelines show` to find the YAML file path, then fetch it:
+All dotnet repos that use arcade put their pipeline definitions under `eng/pipelines/` or in the root. Use `az pipelines show` to find the YAML file path, then fetch it:
 
 ```powershell
 # Find the YAML path for a pipeline

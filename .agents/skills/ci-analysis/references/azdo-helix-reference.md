@@ -23,7 +23,7 @@ Each repository has its own build definition IDs. Here are common ones for dotne
 
 | Definition ID | Name | Description |
 |---------------|------|-------------|
-| N/A | efcore-ci | Main PR validation build |
+| `17` | efcore-ci | Main PR validation build |
 
 **Note:** The script auto-discovers builds for a PR, so you rarely need to know definition IDs.
 
@@ -57,16 +57,13 @@ Other repos have different pipelines - the script discovers them automatically f
 - [Build Analysis](https://github.com/dotnet/arcade/blob/main/Documentation/Projects/Build%20Analysis/LandingPage.md): Known issues tracking (arcade infrastructure)
 - [dnceng-public AzDO](https://dev.azure.com/dnceng-public/public/_build): Public builds for all dotnet repos
 
-### Repository-specific docs:
-- [efcore: Area Owners](https://github.com/dotnet/efcore/blob/main/docs/AreaOwners.md)
-
 ## Test Execution Types
 
 ### Helix Tests
 Tests run on Helix distributed test infrastructure. The script extracts console log URLs and can fetch detailed failure info with `-ShowLogs`.
 
 ### Local Tests (Non-Helix)
-Some repositories (e.g., dotnet/sdk) run tests directly on the build agent. The script detects these and extracts Azure DevOps Test Run URLs.
+Some repositories (e.g., dotnet/efcore and dotnet/sdk) run tests directly on the build agent. The script detects these and extracts Azure DevOps Test Run URLs.
 
 ## Known Issue Labels
 
