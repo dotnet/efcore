@@ -1625,7 +1625,8 @@ try {
                 }
 
                 # Fetch console log
-                $consoleUrl = "https://helix.dot.net/api/2019-06-17/jobs/$HelixJob/workitems/$WorkItem/console"
+                $encodedWorkItem = [uri]::EscapeDataString($WorkItem)
+                $consoleUrl = "https://helix.dot.net/api/2019-06-17/jobs/$HelixJob/workitems/$encodedWorkItem/console"
                 Write-Host "`n  Console Log: $consoleUrl" -ForegroundColor Yellow
 
                 $consoleLog = Get-HelixConsoleLog -Url $consoleUrl
@@ -2005,13 +2006,13 @@ try {
                                     $jobDetail.errorCategory = "test-failure"
                                     $jobDetail.errorSnippet = ($failures | Select-Object -First 3 | ForEach-Object { $_.TestName }) -join "; "
                                 }
+                            }
 
                             # Extract and optionally fetch Helix URLs
                             $helixUrls = Extract-HelixUrls -LogContent $logContent
 
                             if ($helixUrls.Count -gt 0 -and $ShowLogs) {
                                 Write-Host "`n  Helix Console Logs:" -ForegroundColor Yellow
-
                                 foreach ($url in $helixUrls | Select-Object -First 3) {
                                     Write-Host "`n  $url" -ForegroundColor Gray
 
