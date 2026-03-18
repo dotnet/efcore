@@ -14,7 +14,7 @@ This repository uses specific patterns across all workflows. Follow these conven
 ### File Location and Naming
 
 - All workflows live in `.github/workflows/`
-- Use kebab-case names: `copilot-ci-notify.yml`, `label-and-milestone-issues.yml`
+- Use kebab-case names: `label-and-milestone-issues.yml`, `validate-pr-target-branch.yml`
 - Start with a descriptive comment block explaining the workflow's purpose
 
 ### Runner
@@ -124,7 +124,6 @@ Study these workflows as reference:
 |----------|---------|---------|
 | `validate-pr-target-branch.yml` | `pull_request_target: [opened, edited, reopened]` | Closes external PRs targeting release branches, adds community labels |
 | `label-and-milestone-issues.yml` | `pull_request_target: [closed]` | Labels and milestones issues when their fixing PR is merged |
-| `copilot-ci-notify.yml` | `check_suite: [completed]` | Notifies @copilot when CI fails on its PRs |
 | `copilot-setup-steps.yml` | `workflow_dispatch`, `push`, `pull_request` | Sets up the development environment for Copilot |
 | `inter-branch-merge-flow.yml` | `push` to `release/**` | Triggers inter-branch merge via arcade |
 
