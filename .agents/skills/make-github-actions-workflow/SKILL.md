@@ -32,6 +32,7 @@ This repository uses specific patterns across all workflows. Follow these conven
   - Issue management: `issues: write`
   - Code read: `contents: read`
 - For workflows that need write access to PRs from external contributors, use `pull_request_target` instead of `pull_request`
+  - **Security warning:** `pull_request_target` workflows run in the base repository context with its permissions. Do **not** check out or execute code from the PR branch in these workflows. Instead, use the event payload and/or GitHub API (`actions/github-script`, `github.rest.*`, etc.) to inspect and act on the PR safely.
 
 ### Scripting
 

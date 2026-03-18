@@ -1584,7 +1584,7 @@ try {
     # Handle direct Helix job query
     if ($PSCmdlet.ParameterSetName -eq 'HelixJob') {
         Write-Host "`n=== Helix Job $HelixJob ===" -ForegroundColor Yellow
-        Write-Host "URL: https://helix.dot.net/api/jobs/$HelixJob" -ForegroundColor Gray
+        Write-Host "URL: https://helix.dot.net/api/2019-06-17/jobs/$HelixJob" -ForegroundColor Gray
 
         # Get job details
         $jobDetails = Get-HelixJobDetails -JobId $HelixJob
