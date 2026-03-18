@@ -263,7 +263,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var parent = await context.Set<Context37304.Parent>().Include(p => p.Children).SingleAsync();
 
