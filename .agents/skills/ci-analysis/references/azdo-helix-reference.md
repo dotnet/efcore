@@ -1,22 +1,5 @@
 # Azure DevOps and Helix Reference
 
-## Supported Repositories
-
-The script works with any dotnet repository that uses Azure DevOps and Helix:
-
-| Repository | Common Pipelines |
-|------------|-----------------|
-| `dotnet/runtime` | runtime, runtime-dev-innerloop, dotnet-linker-tests |
-| `dotnet/sdk` | dotnet-sdk (mix of local and Helix tests) |
-| `dotnet/efcore` | efcore-ci |
-| `dotnet/roslyn` | roslyn-CI |
-| `dotnet/maui` | maui-public |
-
-Use `-Repository` to specify the target:
-```powershell
-./scripts/Get-CIStatus.ps1 -PRNumber 12345 -Repository "dotnet/efcore"
-```
-
 ## Build Definition IDs (Example: dotnet/efcore)
 
 Each repository has its own build definition IDs. Here are common ones for dotnet/efcore:
@@ -77,7 +60,4 @@ gh issue list --repo dotnet/runtime --label "Known Build Error" --search "FileSy
 
 # Search in efcore
 gh issue list --repo dotnet/efcore --label "Known Build Error" --search "SaveChanges"
-
-# Search in sdk
-gh issue list --repo dotnet/sdk --label "Known Build Error" --search "template"
 ```

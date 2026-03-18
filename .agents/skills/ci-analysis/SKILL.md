@@ -47,6 +47,13 @@ However, the analysis patterns in this skill (interpreting failures, correlating
 | `-Repository` | Target repo (default: dotnet/efcore) |
 | `-MaxJobs` | Max failed jobs to show (default: 5) |
 | `-SearchMihuBot` | Search MihuBot for related issues |
+| `-HelixAccessToken` | Access token for internal Helix jobs (see below) |
+
+### Internal Helix Builds
+
+Helix jobs started from the internal AzDO project (`dnceng/internal`) require authentication. When the script encounters 401/403 errors from the Helix API, ask the user for a Helix access token and re-run with `-HelixAccessToken`. The token is appended as an `access_token` query parameter to all Helix API requests.
+
+> ⚠️ **The Helix access token is a secret.** Do not log it, include it in comments, or expose it in any output. Handle it with the same care as any other credential.
 
 ## Three Modes
 
