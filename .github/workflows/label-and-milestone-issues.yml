@@ -102,7 +102,9 @@ jobs:
             }
 
             // Look up the target milestone (e.g. "11.0.0", "10.0.5") via GraphQL,
-            // including closed milestones to avoid recreating one that already exists
+            // including closed milestones to avoid recreating one that already exists.
+            // The GraphQL query parameter does fuzzy/substring matching (no exact match
+            // option), so we fetch multiple results and filter client-side.
             const targetMilestoneName = versionPrefix;
             const milestoneResult = await github.graphql(`
               query($owner: String!, $repo: String!, $title: String!) {
