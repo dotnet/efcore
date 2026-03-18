@@ -129,46 +129,55 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
     protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
-        await c.Database.CreateExecutionStrategy().ExecuteAsync(
-            c, async context =>
-            {
-                using (var innerContext = CreateContext())
-                {
-                    await testOperation(innerContext);
-                }
+        try
+        {
+            await c.Database.CreateExecutionStrategy()
+                .ExecuteAsync(
+                    c,
+                    async context =>
+                    {
+                        using (var innerContext = CreateContext())
+                        {
+                            await testOperation(innerContext);
+                        }
 
-                if (nestedTestOperation1 == null)
-                {
-                    return;
-                }
+                        if (nestedTestOperation1 == null)
+                        {
+                            return;
+                        }
 
-                using (var innerContext1 = CreateContext())
-                {
-                    await nestedTestOperation1(innerContext1);
-                }
+                        using (var innerContext1 = CreateContext())
+                        {
+                            await nestedTestOperation1(innerContext1);
+                        }
 
-                if (nestedTestOperation2 == null)
-                {
-                    return;
-                }
+                        if (nestedTestOperation2 == null)
+                        {
+                            return;
+                        }
 
-                using (var innerContext2 = CreateContext())
-                {
-                    await nestedTestOperation2(innerContext2);
-                }
+                        using (var innerContext2 = CreateContext())
+                        {
+                            await nestedTestOperation2(innerContext2);
+                        }
 
-                if (nestedTestOperation3 == null)
-                {
-                    return;
-                }
+                        if (nestedTestOperation3 == null)
+                        {
+                            return;
+                        }
 
-                using (var innerContext3 = CreateContext())
-                {
-                    await nestedTestOperation3(innerContext3);
-                }
-            });
-        // Cosmos does not support rolling back transactions, so clean the database instead
-        await Fixture.TestStore.CleanAsync(c);
+                        using (var innerContext3 = CreateContext())
+                        {
+                            await nestedTestOperation3(innerContext3);
+                        }
+                    }
+                );
+        }
+        finally
+        {
+            // Cosmos does not support rolling back transactions, so clean the database instead
+            await Fixture.TestStore.CleanAsync(c);
+        }
     }
 
     public class CosmosFixture : FixtureBase
