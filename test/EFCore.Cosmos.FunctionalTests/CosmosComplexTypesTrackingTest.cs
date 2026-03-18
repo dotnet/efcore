@@ -167,6 +167,8 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
                     await nestedTestOperation3(innerContext3);
                 }
             });
+        // Cosmos does not support rolling back transactions, so clean the database instead
+        await Fixture.TestStore.CleanAsync(c);
     }
 
     public class CosmosFixture : FixtureBase
