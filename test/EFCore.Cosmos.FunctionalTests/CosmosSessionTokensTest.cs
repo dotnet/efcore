@@ -766,12 +766,79 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Equal(createdSessionToken, context.Database.GetSessionToken());
             await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
 
-            var afterExceptionSessionToken = context.Database.GetSessionToken();
-            Assert.Equal(updatedSessionToken, afterExceptionSessionToken);
+            var afterUpdateExceptionSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(updatedSessionToken, afterUpdateExceptionSessionToken);
 
             await context.Entry(customer).ReloadAsync();
             customer.Name = "updated again";
             await context.SaveChangesAsync();
+
+            await context2.Entry(customer2).ReloadAsync();
+            context2.Remove(customer2);
+            await context2.SaveChangesAsync();
+            var removedSessionToken = context2.Database.GetSessionToken();
+
+            context.Remove(customer);
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            var afterRemoveExceptionSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(removedSessionToken, afterRemoveExceptionSessionToken);
+        }
+
+        [ConditionalTheory]
+        [InlineData(AutoTransactionBehavior.Never)]
+        [InlineData(AutoTransactionBehavior.Always)]
+        public virtual async Task Add_conflict_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context = contextFactory.CreateDbContext();
+            context.Database.AutoTransactionBehavior = autoTransactionBehavior;
+            var customer = new Customer { Id = "1", PartitionKey = "1" };
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
+
+            var createdSessionToken = context.Database.GetSessionToken();
+
+            using var context2 = contextFactory.CreateDbContext();
+            context2.Add(customer);
+            await Assert.ThrowsAsync<DbUpdateException>(() => context2.SaveChangesAsync());
+            var afterExceptionSessionToken = context.Database.GetSessionToken();
+
+            Assert.Equal(createdSessionToken, afterExceptionSessionToken);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Read_item_not_found_updates_session_token()
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context2 = contextFactory.CreateDbContext();
+            var customer = new OtherContainerCustomer { Id = "1", PartitionKey = "1" };
+            context2.Add(customer);
+            await context2.SaveChangesAsync();
+
+            var createdSessionToken = context2.Database.GetSessionToken()!;
+            var customer2 = await context2.OtherContainerCustomers.FirstAsync(x => x.Id == "1" && x.PartitionKey == "1");
+            context2.Remove(customer2);
+            await context2.SaveChangesAsync();
+
+            var removedSessionToken = context2.Database.GetSessionToken();
+            using var context = contextFactory.CreateDbContext();
+            context.Database.UseSessionToken(createdSessionToken); // Guarantee we don't read before creation, and we don't use the deleted session token.
+
+            OtherContainerCustomer? result = null;
+            for (var i = 0; i < 10; i++)
+            {
+                result = await context.OtherContainerCustomers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1");
+                if (result == null) // We could theoratically hit a read replica that hasn't synced the delete yet. Because we used createdSessionToken. Chances are small
+                {
+                    break;
+                }
+                await Task.Delay(1000);
+            }
+
+            var afterNotFoundSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
         }
     }
 
