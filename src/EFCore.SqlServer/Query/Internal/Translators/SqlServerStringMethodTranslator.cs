@@ -220,7 +220,7 @@ public class SqlServerStringMethodTranslator(
         SqlExpression searchExpression,
         SqlExpression? startIndex)
     {
-        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression);
         searchExpression = sqlExpressionFactory.ApplyTypeMapping(
             searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 
@@ -239,7 +239,7 @@ public class SqlServerStringMethodTranslator(
         var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Count);
 
         SqlExpression charIndexExpression;
-        var storeType = stringTypeMapping.StoreType;
+        var storeType = stringTypeMapping?.StoreType;
         if (string.Equals(storeType, "nvarchar(max)", StringComparison.OrdinalIgnoreCase)
             || string.Equals(storeType, "varchar(max)", StringComparison.OrdinalIgnoreCase))
         {
