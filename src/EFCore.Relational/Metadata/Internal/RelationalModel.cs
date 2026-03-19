@@ -547,6 +547,23 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         foreach (var complexProperty in mappedType.GetComplexProperties())
         {
+            // For TPT: skip complex properties declared on base entity types that have their own table.
+            // Those complex properties will be processed when mapping the declaring entity type's own table.
+            // For TPC, all properties (including inherited) must be included in each concrete table, so skip this check.
+            if (mappedType is IEntityType mappedEntityType
+                && mappedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy
+                && complexProperty.DeclaringType is IEntityType complexPropertyDeclaringEntityType
+                && complexPropertyDeclaringEntityType != mappedEntityType)
+            {
+                var declaringTableName = complexPropertyDeclaringEntityType.GetTableName();
+                if (declaringTableName != null
+                    && (declaringTableName != mappedTable.Name
+                        || complexPropertyDeclaringEntityType.GetSchema() != mappedTable.Schema))
+                {
+                    continue;
+                }
+            }
+
             var complexType = complexProperty.ComplexType;
 
             var complexTableMappings =
