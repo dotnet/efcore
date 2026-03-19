@@ -14,7 +14,7 @@ This skill covers triaging and reproducing incoming issues on the Entity Framewo
 3. Determine whether the issue is a feature or bug, and set the GitHub issue type accordingly.
 4. Determine what area of EF the issue relates to, and apply area labels to the GitHub issue accordingly (see below for more details).
 5. Produce a minimal repro
-    1. If the issue was determined to be a feature request, your work is complete - no minimal repro is needed.
+    1. If the issue was determined to be a feature request, skip the minimal repro in this step; continue with the remaining triage steps (duplicate search and final report).
     2. If, on the other hand, the issue was determined to be a bug report, attempt to produce a minimal repro as a console program which confirms that the bug is genuine. See "Creating a minimal repro" below for instructions.
     3. If you've managed to confirm a bug in your repro, test your repro on both the failing version and the previous working version. Provide clear feedback confirming or refuting the fact that the reported issue is a regression.
 6. Try to find possible duplicate issues - opened or closed - in the EF Core repo (https://github.com/dotnet/efcore), and include the likely candidates in your final report.
