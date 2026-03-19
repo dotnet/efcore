@@ -2623,6 +2623,54 @@ WHERE 1 = [t].[Id]
         }
     }
 
+    #region 37940
+
+    [ConditionalFact]
+    public virtual async Task IndexOf_on_value_converter_property_via_cast_does_not_throw()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37940>(
+            seed: async c =>
+            {
+                c.Blogs.Add(new Context37940.Blog { Parameters = new Dictionary<string, string> { ["key"] = "value" } });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Blogs
+            .Select(s => ((string)(object)s.Parameters).IndexOf("key"))
+            .ToListAsync();
+
+        AssertSql(
+            """
+SELECT CAST(CHARINDEX(N'key', CAST([b].[Parameters] AS nvarchar(max))) AS int) - 1
+FROM [Blogs] AS [b]
+""");
+        Assert.Equal([0], result);
+    }
+
+    protected class Context37940(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Blog> Blogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blog>()
+                .Property(b => b.Parameters)
+                .HasConversion(
+                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions)null),
+                    v => System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(v, (System.Text.Json.JsonSerializerOptions)null));
+        }
+
+        public class Blog
+        {
+            public int Id { get; set; }
+            public Dictionary<string, string> Parameters { get; set; }
+        }
+    }
+
+    #endregion
+
     #region 37327
 
     [ConditionalFact]
