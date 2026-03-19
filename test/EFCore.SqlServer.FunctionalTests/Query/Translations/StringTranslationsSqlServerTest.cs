@@ -279,9 +279,14 @@ END = 1
 
         AssertSql(
             """
+@pattern='5' (Size = 4000)
+
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE CAST(CHARINDEX(N'5', CAST([b].[Int] AS nvarchar(max))) AS int) - 1 <> -1
+WHERE CAST(CHARINDEX(@pattern, CAST([b].[Int] AS nvarchar(max))) AS int) - CASE
+    WHEN @pattern = N'' THEN 0
+    ELSE 1
+END <> -1
 """);
     }
 

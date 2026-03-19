@@ -269,9 +269,11 @@ WHERE instr('12559', CAST("b"."Int" AS TEXT)) - 1 = 1
 
         AssertSql(
             """
+@pattern='5' (Size = 1)
+
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE instr(CAST("b"."Int" AS TEXT), '5') - 1 <> -1
+WHERE instr(CAST("b"."Int" AS TEXT), @pattern) - 1 <> -1
 """);
     }
 

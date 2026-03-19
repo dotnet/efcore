@@ -77,9 +77,12 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
 
     [ConditionalFact]
     public virtual Task IndexOf_with_non_string_column_using_double_cast()
-        => AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(b => ((string)(object)b.Int).IndexOf("5") != -1),
-            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int.ToString().Contains("5")));
+    {
+        var pattern = "5";
+        return AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(b => ((string)(object)b.Int).IndexOf(pattern) != -1),
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int.ToString().Contains(pattern)));
+    }
 
     #endregion IndexOf
 
