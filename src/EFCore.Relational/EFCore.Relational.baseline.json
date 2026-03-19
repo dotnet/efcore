@@ -7352,10 +7352,10 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.JsonQueryExpression BindStructuralProperty(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase structuralProperty);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
+          "Member": "override bool Equals(object? obj);"
         },
         {
-          "Member": "override bool Equals(object? obj);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
         },
         {
           "Member": "override int GetHashCode();"
@@ -17424,6 +17424,9 @@
         },
         {
           "Member": "static string? GetContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase typeBase);"
+        },
+        {
+          "Member": "static string? GetContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase typeBase, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetContainerColumnNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase typeBase);"

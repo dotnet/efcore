@@ -509,7 +509,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
         };
 
-        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnName = mappedType.GetContainerColumnName(mappedTable);
         var containerColumnType = mappedType.GetContainerColumnType();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
@@ -1028,7 +1028,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
         };
 
-        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnName = mappedType.GetContainerColumnName(mappedView);
         var containerColumnType = mappedType.GetContainerColumnType();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
