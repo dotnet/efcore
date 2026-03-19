@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Use this skill to triage an incoming bug report on the EF repo. Sets the issue type (bug/feature), assigns EF area labels, attempts to arrive at a minimal repro reproducing the bug, checks whether it represents a regression, finds possible duplicates, etc.
+description: Use this skill to triage an incoming issue on the EF Core repo (bug report or feature request). Sets the issue type (bug/feature), assigns EF area labels, attempts to arrive at a minimal repro reproducing the bug, checks whether it represents a regression, finds possible duplicates, etc.
 ---
 
 # EF Issue Triage
