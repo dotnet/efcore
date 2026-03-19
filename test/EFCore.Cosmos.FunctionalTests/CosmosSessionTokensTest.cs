@@ -837,6 +837,10 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
                 await Task.Delay(1000);
             }
 
+            Assert.True(
+                result is null,
+                "Timed out waiting for the deleted document to be not found before comparing session tokens.");
+
             var afterNotFoundSessionToken = context.Database.GetSessionToken();
             Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
         }
