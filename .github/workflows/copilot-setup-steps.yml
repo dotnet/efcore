@@ -13,11 +13,12 @@ on:
     paths:
       - .github/workflows/copilot-setup-steps.yml
 
-permissions: {}
-
 jobs:
   # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
   copilot-setup-steps:
+    permissions:
+      contents: read # Read permission is required to check out the repository's code.
+
     runs-on: ubuntu-24.04
 
     # Install SQL Server via a docker container.
@@ -39,5 +40,14 @@ jobs:
           --health-timeout=5s
 
     steps:
-      - name: Export connection string for the agent's session
-        run: echo 'Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true' >> "$GITHUB_ENV"
+      - uses: actions/checkout@v6
+
+      - name: Restore .NET SDK
+        continue-on-error: true
+        run: ./restore.sh
+
+      - name: Export environment variables for the agent's session
+        run: |
+          echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+          echo "DOTNET_ROOT=$PWD/.dotnet/" >> "$GITHUB_ENV"
+          echo "$PWD/.dotnet/" >> $GITHUB_PATH
