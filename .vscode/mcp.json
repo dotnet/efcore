@@ -4,10 +4,6 @@
       "type": "http",
       "url": "https://learn.microsoft.com/api/mcp"
     },
-    "mihubot": {
-      "type": "http",
-      "url": "https://mihubot.xyz/mcp"
-    },
     "nuget": {
       "type": "stdio",
       "command": "dnx",

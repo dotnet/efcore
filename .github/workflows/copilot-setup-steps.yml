@@ -40,14 +40,14 @@ jobs:
           --health-timeout=5s
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Restore .NET SDK
         continue-on-error: true
-        run: ./restore.sh || true
+        run: ./restore.sh
 
       - name: Export environment variables for the agent's session
-        run:
-          echo 'Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true' >> "$GITHUB_ENV"
+        run: |
+          echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+          echo "DOTNET_ROOT=$PWD/.dotnet/" >> "$GITHUB_ENV"
           echo "$PWD/.dotnet/" >> $GITHUB_PATH
-          echo "$PWD/.dotnet/" >> $DOTNET_ROOT

@@ -84,9 +84,9 @@ Include these recommended sections, following this file's structure:
 
 ### Step 6: Write Scripts (Script-driven Only)
 
-- Prefer Powershell, but can also use Python or Javascript
+- Prefer PowerShell, but can also use Python or JavaScript
 - Standard param block with defaults
-- For Powershell, use PowershellWrite-Section helper for consistent output
+- Ensure scripts produce clear, structured, and parseable console output (for example, section headers and status lines)
 - Emoji status: ✅ green / ⚠️ yellow / 🔴 red
 - **Fail-closed error handling** — Unknown ≠ Healthy
 
