@@ -3,6 +3,7 @@
 If the script doesn't provide enough information, use these manual investigation steps.
 
 ## Table of Contents
+
 - [Get Build Timeline](#get-build-timeline)
 - [Find Helix Tasks](#find-helix-tasks)
 - [Get Build Logs](#get-build-logs)
@@ -62,6 +63,7 @@ $workItem.Files | ForEach-Object { Write-Host "$($_.FileName): $($_.Uri)" }
 ```
 
 Common artifacts:
+
 - `console.*.log` - Console output
 - `*.binlog` - MSBuild binary logs
 - `run-*.log` - XHarness/test runner logs
@@ -70,6 +72,7 @@ Common artifacts:
 ## Analyze Binlogs
 
 Binlogs contain detailed MSBuild execution traces for diagnosing:
+
 - AOT compilation failures
 - Static web asset issues
 - NuGet restore problems
@@ -89,6 +92,7 @@ curl -s "https://helix.dot.net/api/2019-06-17/jobs/JOB_ID/workitems/WORK_ITEM_NA
 ```
 
 Example output:
+
 ```
 DOTNET_JitStress=1
 DOTNET_TieredCompilation=0
