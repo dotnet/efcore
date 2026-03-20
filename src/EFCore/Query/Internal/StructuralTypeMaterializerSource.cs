@@ -204,7 +204,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
             IComplexProperty complexProperty
                 => CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexProperty.ComplexType, "complexType", complexProperty.ClrType, nullable || complexProperty.IsNullable, QueryTrackingBehavior: null),
+                    new StructuralTypeMaterializerSourceParameters(
+                        complexProperty.ComplexType,
+                        "complexType",
+                        complexProperty.ClrType,
+                        complexProperty.IsNullable,
+                        QueryTrackingBehavior: null),
                     bindingInfo.MaterializationContextExpression),
 
             _ => throw new UnreachableException()

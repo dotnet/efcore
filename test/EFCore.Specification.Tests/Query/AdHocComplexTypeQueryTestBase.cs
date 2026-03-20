@@ -239,6 +239,80 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion 37162
 
+    #region 37304
+
+    [ConditionalFact]
+    public virtual async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37304>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context37304.Parent
+                    {
+                        Id = 1,
+                        Children =
+                        [
+                            new Context37304.Child
+                            {
+                                Id = 1,
+                                ComplexType = new Context37304.ComplexTypeWithAllNulls()
+                            }
+                        ]
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var parent = await context.Set<Context37304.Parent>().Include(p => p.Children).SingleAsync();
+
+        var child = parent.Children.Single();
+        Assert.NotNull(child.ComplexType);
+        Assert.Null(child.ComplexType.NullableString);
+        Assert.Null(child.ComplexType.NullableDateTime);
+    }
+
+    private class Context37304(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.Property(p => p.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<Child>(b =>
+            {
+                b.Property(c => c.Id).ValueGeneratedNever();
+                b.HasOne(c => c.Parent).WithMany(p => p.Children).HasForeignKey(c => c.ParentId);
+                b.ComplexProperty(c => c.ComplexType);
+            });
+        }
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent Parent { get; set; } = null!;
+            public ComplexTypeWithAllNulls ComplexType { get; set; } = null!;
+        }
+
+        public class ComplexTypeWithAllNulls
+        {
+            public string? NullableString { get; set; }
+            public DateTime? NullableDateTime { get; set; }
+        }
+    }
+
+    #endregion 37304
+
     #region Issue37337
 
     private const string Issue37337CreatedByShadowPropertyName = "CreatedBy";
