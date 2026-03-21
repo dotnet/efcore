@@ -481,6 +481,20 @@ WHERE ARRAY_CONTAINS(@Select, c["NullableString"])
 """);
     }
 
+    public override async Task Inline_collection_Contains_with_Nullable_Int_IEnumerable_Array_Containing_Null_EF_Parameter()
+    {
+        await base.Inline_collection_Contains_with_Nullable_Int_IEnumerable_Array_Containing_Null_EF_Parameter();
+
+        AssertSql(
+"""
+@data='[null,1]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@data, c["NullableInt"])
+""");
+    }
+
     public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
     {
         await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter();
