@@ -10008,6 +10008,52 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 #pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
+    public virtual void Add_complex_collection_mapped_to_json_uses_empty_array_as_default_value()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                            "ComplexCollection", cp =>
+                            {
+                                cp.IsRequired();
+                                cp.ToJson("json_collection");
+                                cp.Property(x => x.Value);
+                                cp.Property(x => x.Date);
+                            });
+                    });
+            },
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("json_collection", operation.Name);
+                Assert.Equal("[]", operation.DefaultValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+                Assert.IsType<DropColumnOperation>(downOps[0]);
+            });
+
+    [ConditionalFact]
     public virtual void Noop_on_complex_properties()
         => Execute(
             builder =>

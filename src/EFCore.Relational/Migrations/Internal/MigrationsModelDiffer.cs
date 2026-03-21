@@ -1279,10 +1279,20 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.ClrType = typeof(string);
         columnOperation.DefaultValue = inline || isNullable
             ? null
-            : "{}";
+            : IsJsonCollectionColumn(jsonColumn) ? "[]" : "{}";
 
         columnOperation.AddAnnotations(migrationsAnnotations);
     }
+
+    private static bool IsJsonCollectionColumn(JsonColumn jsonColumn)
+        => jsonColumn.Table.ComplexTypeMappings.Any(
+               m => m.TypeBase is IComplexType ct
+                   && ct.GetContainerColumnName() == jsonColumn.Name
+                   && ct.ComplexProperty.IsCollection)
+           || jsonColumn.Table.EntityTypeMappings.Any(
+               m => m.TypeBase is IEntityType et
+                   && et.GetContainerColumnName() == jsonColumn.Name
+                   && et.FindOwnership() is { IsUnique: false });
 
     #endregion
 
