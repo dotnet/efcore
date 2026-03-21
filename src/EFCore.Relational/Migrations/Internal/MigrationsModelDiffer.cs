@@ -1292,7 +1292,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
            || jsonColumn.Table.EntityTypeMappings.Any(
                m => m.TypeBase is IEntityType et
                    && et.GetContainerColumnName() == jsonColumn.Name
-                   && et.FindOwnership() is { IsUnique: false });
+                   && et.FindOwnership() is { IsUnique: false, PrincipalEntityType: var principal }
+                   && !principal.IsMappedToJson());
 
     #endregion
 

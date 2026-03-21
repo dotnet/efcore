@@ -10102,6 +10102,59 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 #pragma warning restore EF8001 // Owned JSON entities are obsolete
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+    [ConditionalFact]
+    public virtual void Add_owned_reference_with_nested_collection_mapped_to_json_uses_empty_object_as_default_value()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.OwnsOne(
+                            "Owned", "json_reference", o =>
+                            {
+                                o.ToJson();
+                                o.Property<string>("Value");
+                                o.OwnsMany(
+                                    "Nested", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                            });
+
+                        e.Navigation("json_reference").IsRequired();
+                    });
+            },
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("json_reference", operation.Name);
+                Assert.Equal("{}", operation.DefaultValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+                Assert.IsType<DropColumnOperation>(downOps[0]);
+            });
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
+
     [ConditionalFact]
     public virtual void Noop_on_complex_properties()
         => Execute(
