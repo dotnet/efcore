@@ -59,31 +59,39 @@ internal class RootCommand : CommandBase
             return ShowHelp(_help.HasValue(), commands);
         }
 
+        var config = DotNetEfConfigLoader.Load(Directory.GetCurrentDirectory());
+        var projectPath = _project!.Value() ?? config?.Project;
+        var startupProjectPath = _startupProject!.Value() ?? config?.StartupProject;
+        var framework = _framework!.Value() ?? config?.Framework;
+        var configuration = _configuration!.Value() ?? config?.Configuration;
+        var context = ResolveContext(_args!, config?.Context);
+        var remainingArguments = CreateRemainingArguments(_args!, context);
+
         var (projectFile, startupProjectFile) = ResolveProjects(
-            _project!.Value(),
-            _startupProject!.Value());
+            projectPath,
+            startupProjectPath);
 
         Reporter.WriteVerbose(Resources.UsingProject(projectFile));
         Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
         var project = Project.FromFile(
             projectFile,
-            _framework!.Value(),
-            _configuration!.Value(),
+            framework,
+            configuration,
             _runtime!.Value());
         var startupProject = Project.FromFile(
             startupProjectFile,
-            _framework!.Value(),
-            _configuration!.Value(),
+            framework,
+            configuration,
             _runtime!.Value());
 
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
-            var skipOptimization = _args!.Count > 2
-                && _args[0] == "dbcontext"
-                && _args[1] == "optimize"
-                && !_args.Any(a => a == "--no-scaffold");
+            var skipOptimization = remainingArguments.Count > 2
+                && remainingArguments[0] == "dbcontext"
+                && remainingArguments[1] == "optimize"
+                && !remainingArguments.Any(a => a == "--no-scaffold");
             startupProject.Build(skipOptimization ? ["/p:EFScaffoldModelStage=none", "/p:EFPrecompileQueriesStage=none"] : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
@@ -162,7 +170,7 @@ internal class RootCommand : CommandBase
                 Resources.UnsupportedFramework(startupProject.ProjectName, targetFramework.Identifier));
         }
 
-        args.AddRange(_args!);
+        args.AddRange(remainingArguments);
         args.Add("--assembly");
         args.Add(targetPath);
         args.Add("--project");
@@ -187,10 +195,10 @@ internal class RootCommand : CommandBase
             args.Add(designAssembly);
         }
 
-        if (_configuration.HasValue())
+        if (configuration != null)
         {
             args.Add("--configuration");
-            args.Add(_configuration.Value()!);
+            args.Add(configuration);
         }
 
         if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
@@ -304,6 +312,54 @@ internal class RootCommand : CommandBase
 
         return projectFiles;
     }
+
+    internal static string? ResolveContext(IList<string> args, string? configValue)
+        => configValue != null
+            && AppliesToContext(args)
+            && !ContainsOption(args, "-c", "--context")
+                ? configValue
+                : null;
+
+    internal static List<string> CreateRemainingArguments(
+        IList<string> args,
+        string? context)
+    {
+        var remainingArguments = new List<string>(args);
+
+        if (context != null)
+        {
+            remainingArguments.Add("--context");
+            remainingArguments.Add(context);
+        }
+
+        return remainingArguments;
+    }
+
+    private static bool AppliesToContext(IList<string> args)
+        => args.Count >= 2
+            && (args[0], args[1]) switch
+            {
+                ("database", "drop") => true,
+                ("database", "update") => true,
+                ("dbcontext", "info") => true,
+                ("dbcontext", "optimize") => true,
+                ("dbcontext", "script") => true,
+                ("migrations", "add") => true,
+                ("migrations", "bundle") => true,
+                ("migrations", "has-pending-model-changes") => true,
+                ("migrations", "list") => true,
+                ("migrations", "remove") => true,
+                ("migrations", "script") => true,
+                _ => false
+            };
+
+    private static bool ContainsOption(
+        IList<string> args,
+        params string[] names)
+        => args.Any(
+            argument => names.Any(
+                name => string.Equals(argument, name, StringComparison.Ordinal)
+                    || argument.StartsWith(name + "=", StringComparison.Ordinal)));
 
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
