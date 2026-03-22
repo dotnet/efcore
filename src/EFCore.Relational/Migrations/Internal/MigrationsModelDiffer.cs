@@ -1288,7 +1288,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         => jsonColumn.Table.ComplexTypeMappings.Any(
                m => m.TypeBase is IComplexType ct
                    && ct.GetContainerColumnName() == jsonColumn.Name
-                   && ct.ComplexProperty.IsCollection)
+                   && ct.ComplexProperty.IsCollection
+                   && !ct.ComplexProperty.DeclaringType.IsMappedToJson())
            || jsonColumn.Table.EntityTypeMappings.Any(
                m => m.TypeBase is IEntityType et
                    && et.GetContainerColumnName() == jsonColumn.Name
