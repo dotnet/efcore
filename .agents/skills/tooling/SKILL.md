@@ -1,7 +1,7 @@
 ---
 name: tooling
 description: 'Implementation details for the EF Core dotnet-ef CLI and tooling. Use when changing dotnet-ef commands, the ef wrapper, EFCore.Tools (PMC), or EFCore.Tasks MSBuild integration.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Tooling

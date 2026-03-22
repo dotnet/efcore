@@ -1058,7 +1058,7 @@ public class DbContext :
     public virtual void Dispose()
     {
         var lease = _lease;
-        var contextShouldBeDisposed = lease.IsActive && _lease.IsStandalone;
+        var contextShouldBeDisposed = lease.IsActive && lease.IsStandalone;
 
         if (DisposeSync(lease.IsActive, contextShouldBeDisposed))
         {

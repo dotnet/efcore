@@ -803,7 +803,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             {
                 converter = (ValueConverter?)Activator.CreateInstance(converterType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueConverter(
@@ -1176,7 +1176,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             {
                 comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueComparer(
@@ -1285,7 +1285,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
             {
                 comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCritical())
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotCreateValueComparer(

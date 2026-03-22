@@ -1,7 +1,7 @@
 ---
 name: query-pipeline
 description: 'Implementation details for EF Core LINQ query translation and SQL generation. Use when changing expression visitors, SqlExpressions, QuerySqlGenerator, ShaperProcessingExpressionVisitor, or related classes.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Query Pipeline

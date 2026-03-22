@@ -34,10 +34,11 @@ jobs:
             
             // Helper function to check if a user is a bot
             const isBot = (username) => {
-              return username === 'copilot' || 
-                     username === 'dotnet-bot' || 
-                     username.startsWith('app/') || 
-                     username.includes('[bot]');
+              const lower = username.toLowerCase();
+              return lower === 'copilot' || 
+                     lower === 'dotnet-bot' || 
+                     lower.startsWith('app/') || 
+                     lower.includes('[bot]');
             };
             
             // If action is 'edited', check if the base branch was actually changed
@@ -64,8 +65,14 @@ jobs:
               hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
               console.log(`User ${triggeredBy} has permission level: ${permissions.permission}`);
             } catch (error) {
+              // If the user cannot be found (e.g. non-user accounts like Copilot), skip
+              if (error.status === 404) {
+                console.log(`User ${triggeredBy} not found - skipping`);
+                return;
+              }
               console.error('Error checking permissions:', error);
-              // If we can't determine permissions, assume external contributor
+              // If we can't determine permissions for other reasons, skip to avoid false positives
+              return;
             }
             
             // Check if target branch is a release branch

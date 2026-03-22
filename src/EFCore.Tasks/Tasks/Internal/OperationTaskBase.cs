@@ -198,18 +198,15 @@ public abstract class OperationTaskBase : ToolTask
             args.Add(runtimeFrameworkVersion);
         }
 
-#if NET472
-#elif NET11_0
-#else
-#error Target framework needs to be updated here
-#endif
+        var packageRoot = Path.Combine(
+            Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
+            "..",
+            "..");
         args.Add(
             Path.Combine(
-                Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
-                "..",
-                "..",
+                packageRoot,
                 "tools",
-                "net11.0",
+                "net",
                 "ef.dll"));
 
         args.AddRange(AdditionalArguments);

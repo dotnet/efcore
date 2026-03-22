@@ -138,7 +138,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                         }
                     }
                 }
-                catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+                catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
                 {
                     var exception = WrapUpdateException(ex, transaction.Entries.Select(x => x.Entry).ToArray());
                     throw exception;
@@ -523,7 +523,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 _ => throw new UnreachableException(),
             };
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not UnreachableException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             var errorEntries = new[] { updateEntry.Entry };
             var exception = WrapUpdateException(ex, errorEntries);

@@ -147,7 +147,7 @@ public class DocumentSource
         foreach (var complexProperty in structuralType.GetComplexProperties())
         {
             var embeddedValue = entry.GetCurrentValue(complexProperty);
-            var embeddedPropertyName = complexProperty.Name;
+            var embeddedPropertyName = complexProperty.GetJsonPropertyName();
             if (embeddedValue == null)
             {
                 document[embeddedPropertyName] = null;
@@ -287,7 +287,7 @@ public class DocumentSource
         foreach (var complexProperty in structuralType.GetComplexProperties())
         {
             var embeddedValue = entry.GetCurrentValue(complexProperty);
-            var embeddedPropertyName = complexProperty.Name;
+            var embeddedPropertyName = complexProperty.GetJsonPropertyName();
             if (embeddedValue == null)
             {
                 if (document[embeddedPropertyName] != null)

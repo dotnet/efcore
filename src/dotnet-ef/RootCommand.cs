@@ -150,11 +150,7 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-#if !NET10_0
-#error Target framework needs to be updated here, as well as in Microsoft.EntityFrameworkCore.Tasks.props and EntityFrameworkCore.psm1
-#endif
-            // TODO: Remove TFM from the path, issue #37473
-            args.Add(Path.Combine(toolsPath, "net10.0", "any", "ef.dll"));
+            args.Add(Path.Combine(toolsPath, "net", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {

@@ -101,12 +101,15 @@ jobs:
               }
             }
 
-            // Look up the target milestone (e.g. "11.0.0", "10.0.5") via GraphQL
+            // Look up the target milestone (e.g. "11.0.0", "10.0.5") via GraphQL,
+            // including closed milestones to avoid recreating one that already exists.
+            // The GraphQL query parameter does fuzzy/substring matching (no exact match
+            // option), so we fetch multiple results and filter client-side.
             const targetMilestoneName = versionPrefix;
             const milestoneResult = await github.graphql(`
               query($owner: String!, $repo: String!, $title: String!) {
                 repository(owner: $owner, name: $repo) {
-                  milestones(query: $title, first: 1) {
+                  milestones(query: $title, states: [OPEN, CLOSED], first: 10) {
                     nodes {
                       number
                       title
@@ -115,10 +118,20 @@ jobs:
                 }
               }
             `, { owner, repo, title: targetMilestoneName });
-            const milestoneNode = milestoneResult.repository.milestones.nodes
+            let milestoneNode = milestoneResult.repository.milestones.nodes
               .find(m => m.title === targetMilestoneName);
             if (!milestoneNode) {
-              throw new Error(`Milestone '${targetMilestoneName}' not found`);
+              console.log(`Milestone '${targetMilestoneName}' not found, creating it`);
+              try {
+                const { data: created } = await github.rest.issues.createMilestone({
+                  owner,
+                  repo,
+                  title: targetMilestoneName
+                });
+                milestoneNode = { number: created.number, title: created.title };
+              } catch (error) {
+                throw new Error(`Failed to create milestone '${targetMilestoneName}': ${error.message}`);
+              }
             }
 
             // Set the milestone on closing issues, applying a "min" strategy:

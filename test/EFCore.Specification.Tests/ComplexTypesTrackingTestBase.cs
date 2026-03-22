@@ -2014,6 +2014,56 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Assert.Throws<InvalidOperationException>(() => entry.ComplexCollection(e => (IList<Team>)e.FeaturedTeam)).Message);
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = Fixture.UseProxies
+                    ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                    : new EntityWithOptionalMultiPropComplex();
+
+                entity.Id = Guid.NewGuid();
+                // Set the complex property with default values
+                entity.ComplexProp = new MultiPropComplex
+                {
+                    IntValue = 0,
+                    BoolValue = false,
+                    DateValue = default,
+                };
+
+                _ = async ? await context.AddAsync(entity) : context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.NotNull(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.NotNull(entity.ComplexProp);
+
+                entity.ComplexProp = null;
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.Null(entity.ComplexProp);
+            });
+    }
+
     protected void AssertPropertyValues(EntityEntry entry)
     {
         Assert.Equal("The FBI", entry.Property("Name").CurrentValue);

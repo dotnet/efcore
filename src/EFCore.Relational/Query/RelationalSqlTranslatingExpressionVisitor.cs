@@ -1056,7 +1056,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         if (typeReference.StructuralType is not IEntityType entityType)
         {
-            return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+            return _sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
         }
 
         if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))

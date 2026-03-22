@@ -1,7 +1,7 @@
 ---
 name: change-tracking
 description: 'Implementation details for EF Core change tracking. Use when changing InternalEntityEntry, ChangeDetector, SnapshotFactoryFactory, or related entity state, snapshot, or property accessor code.'
-user-invokable: false
+user-invocable: false
 ---
 
 # Change Tracking

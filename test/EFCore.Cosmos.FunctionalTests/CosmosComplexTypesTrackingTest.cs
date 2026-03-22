@@ -82,121 +82,101 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
     }
 
     public override Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
-
-        return base.Can_save_null_second_level_complex_property_with_required_properties(async);
-    }
+        => async
+            ? base.Can_save_null_second_level_complex_property_with_required_properties(async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     public override Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
+        => async
+            ? base.Can_save_null_third_level_complex_property_with_all_optional_properties(async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
-        return base.Can_save_null_third_level_complex_property_with_all_optional_properties(async);
-    }
-    
     protected override Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
-
-        return base.TrackAndSaveTest(state, async, createPub);
-    }
+        => async
+            ? base.TrackAndSaveTest(state, async, createPub)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     public override Task Can_change_state_from_Deleted_with_complex_collection(EntityState newState, bool async)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
-
-        return base.Can_change_state_from_Deleted_with_complex_collection(newState, async);
-    }
+        => async
+            ? base.Can_change_state_from_Deleted_with_complex_collection(newState, async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     public override Task Can_change_state_from_Deleted_with_complex_record_collection(EntityState newState, bool async)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
-
-        return base.Can_change_state_from_Deleted_with_complex_record_collection(newState, async);
-    }
+        => async
+            ? base.Can_change_state_from_Deleted_with_complex_record_collection(newState, async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     public override Task Can_change_state_from_Deleted_with_complex_field_collection(EntityState newState, bool async)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
-
-        return base.Can_change_state_from_Deleted_with_complex_field_collection(newState, async);
-    }
+        => async
+            ? base.Can_change_state_from_Deleted_with_complex_field_collection(newState, async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     public override Task Can_change_state_from_Deleted_with_complex_field_record_collection(EntityState newState, bool async)
-    {
-        if (!async)
-        {
-            throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
-        }
-
-        return base.Can_change_state_from_Deleted_with_complex_field_record_collection(newState, async);
-    }
+        => async
+            ? base.Can_change_state_from_Deleted_with_complex_field_record_collection(newState, async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     public override Task Can_save_default_values_in_optional_complex_property_with_multiple_properties(bool async)
-        // Optional complex properties are not supported on Cosmos
-        // See https://github.com/dotnet/efcore/issues/31253
-        => Task.CompletedTask;
+        => async
+            ? base.Can_save_default_values_in_optional_complex_property_with_multiple_properties(async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
+
+    public override Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
+        => async
+            ? base.Can_null_complex_property_with_default_values_and_multiple_properties(async)
+            : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
-        await c.Database.CreateExecutionStrategy().ExecuteAsync(
-            c, async context =>
-            {
-                using (var innerContext = CreateContext())
+        try
+        {
+            await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                c,
+                async context =>
                 {
-                    await testOperation(innerContext);
-                }
+                    using (var innerContext = CreateContext())
+                    {
+                        await testOperation(innerContext);
+                    }
 
-                if (nestedTestOperation1 == null)
-                {
-                    return;
-                }
+                    if (nestedTestOperation1 == null)
+                    {
+                        return;
+                    }
 
-                using (var innerContext1 = CreateContext())
-                {
-                    await nestedTestOperation1(innerContext1);
-                }
+                    using (var innerContext1 = CreateContext())
+                    {
+                        await nestedTestOperation1(innerContext1);
+                    }
 
-                if (nestedTestOperation2 == null)
-                {
-                    return;
-                }
+                    if (nestedTestOperation2 == null)
+                    {
+                        return;
+                    }
 
-                using (var innerContext2 = CreateContext())
-                {
-                    await nestedTestOperation2(innerContext2);
-                }
+                    using (var innerContext2 = CreateContext())
+                    {
+                        await nestedTestOperation2(innerContext2);
+                    }
 
-                if (nestedTestOperation3 == null)
-                {
-                    return;
-                }
+                    if (nestedTestOperation3 == null)
+                    {
+                        return;
+                    }
 
-                using (var innerContext3 = CreateContext())
-                {
-                    await nestedTestOperation3(innerContext3);
+                    using (var innerContext3 = CreateContext())
+                    {
+                        await nestedTestOperation3(innerContext3);
+                    }
                 }
-            });
+            );
+        }
+        finally
+        {
+            // Cosmos does not support rolling back transactions, so clean the database instead
+            await Fixture.TestStore.CleanAsync(c);
+        }
     }
 
     public class CosmosFixture : FixtureBase

@@ -394,6 +394,9 @@
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>
   </data>
+  <data name="UnhandledExpressionInVisitor" xml:space="preserve">
+    <value>Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.</value>
+  </data>
   <data name="UnsupportedOperatorForSqlExpression" xml:space="preserve">
     <value>Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.</value>
   </data>
