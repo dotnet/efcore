@@ -514,7 +514,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 if (relatedEntities != null)
                 {
-                    // Enumarator contains logic for tracking the entities, so we need to make sure to enumerate it
+                    // Enumerator contains logic for tracking the entities, so we need to make sure to enumerate it
                     using var enumerator = relatedEntities.GetEnumerator();
                     while (enumerator.MoveNext())
                     {
