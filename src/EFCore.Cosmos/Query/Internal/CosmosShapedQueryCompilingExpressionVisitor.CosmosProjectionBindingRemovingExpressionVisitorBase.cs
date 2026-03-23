@@ -37,10 +37,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
-        private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate));
-
         private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
             = new Dictionary<ParameterExpression, Expression>();
 
@@ -491,10 +487,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            if (relatedEntities != null)
-            {
-                navigation.GetCollectionAccessor()!.GetOrCreate(entity, forMaterialization: true);
-            }
+            navigation.GetCollectionAccessor()!.GetOrCreate(entity, forMaterialization: true);
 
             if (entry == null)
             {
