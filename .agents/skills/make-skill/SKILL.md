@@ -82,7 +82,17 @@ Include these recommended sections, following this file's structure:
 └── assets/           # Optional: templates, resources and other data files that aren't executable or Markdown
 ```
 
-### Step 6: Validate the skill
+### Step 6: Write Scripts (Script-driven Only)
+
+- Prefer PowerShell, but can also use Python or JavaScript
+- Standard param block with defaults
+- Ensure scripts produce clear, structured, and parseable console output (for example, section headers and status lines)
+- Emoji status: ✅ green / ⚠️ yellow / 🔴 red
+- **Fail-closed error handling** — Unknown ≠ Healthy
+
+> ❌ **NEVER** count API failures as success. Return "Unknown" and exclude from positive counts.
+
+### Step 7: Validate the skill
 
 Ensure the name:
 - Does not start or end with a hyphen
@@ -102,6 +112,20 @@ After creating a skill, verify:
 - [ ] Common pitfalls are relevant and have solutions
 - [ ] Optional directories are used appropriately
 - [ ] Scripts handle edge cases gracefully and return structured outputs and helpful error messages when applicable
+
+### Step 8: Test with Multi-Model Subagents
+
+Follow [references/testing-patterns.md](references/testing-patterns.md):
+
+1. Select top-tier model from 2-4 different families
+2. Give each the same test prompt exercising the skill
+3. Launch in parallel via `task` tool with `model` parameter
+4. Synthesize: consensus findings = high confidence
+5. Fix errors first, then warnings, then consider suggestions
+6. **Retrospective**: When an agent misapplies guidance, ask the *same model* why it made that choice — its self-analysis reveals guidance gaps you can close with targeted anti-patterns (see references/anti-patterns.md)
+7. **A/B test**: After fixing issues, re-run the same task to verify improvement — same model, same prompt, compare correctness/speed/tool calls (see references/testing-patterns.md)
+
+**For new skills or major restructuring**, use the writer-critic convergence loop instead: one agent writes, a different-model agent critiques, writer applies fixes, repeat until convergence (2-3 rounds). See references/testing-patterns.md#writer-critic-convergence-loop.
 
 ## Common Pitfalls
 

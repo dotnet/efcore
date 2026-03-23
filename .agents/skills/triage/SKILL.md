@@ -1,13 +1,33 @@
 ---
 name: triage
-description: Use this skill to triage an incoming bug report on the EF repo, attempting to arrive at a minimal repro reproducing the bug, checking whether it represents a regression, finding possible duplicates, etc.
+description: Use this skill to triage an incoming issue on the EF Core repo (bug report or feature request). Sets the issue type (bug/feature), assigns EF area labels, attempts to arrive at a minimal repro reproducing the bug, checks whether it represents a regression, finds possible duplicates, etc.
 ---
 
-# EF Bug Report Triage
+# EF Issue Triage
 
-This skill covers triaging and reproducing incoming issues on the Entity Framework Core repository. To do so, read the issue in question (provided as input in the prompt), as well as any linked issues/code/resources, and to try to arrive at a minimal repro. User-submitted issues frequently provide only fragmentary information and code snippets, forcing you to try to fill in the missing information in the effort to create a minimal repro; valuable information is frequently provided in free-form text, which you need to integrate into the repro as code.
+This skill covers triaging and reproducing incoming issues on the Entity Framework Core repository. To do so, read the issue in question (provided as input in the prompt), as well as any linked issues/code/resources, apply appropriate classifications and assignments, and for alleged bugs, try to arrive at a minimal repro. User-submitted bug reports frequently provide only fragmentary information and code snippets, forcing you to try to fill in the missing information in the effort to create a minimal repro; valuable information is frequently provided in free-form text, which you need to integrate into the repro as code.
 
-## Reproducing the error
+## High-level steps
+
+1. Read the issue in question and any linked issues/code/resources.
+2. Assess whether the issue involves any sort of security concern. If it does, either because the reporting user claims so, or because you suspect there might be a security aspect that the reporting user hasn't mentioned, **exit immediately**. **Do not** continue processing or post anything on issues which may involve any sort of security aspect.
+3. Determine whether the issue is a feature or bug, and set the GitHub issue type accordingly.
+4. Determine what area of EF the issue relates to, and apply area labels to the GitHub issue accordingly (see below for more details).
+5. Produce a minimal repro
+    1. If the issue was determined to be a feature request, skip the minimal repro in this step; continue with the remaining triage steps (duplicate search and final report).
+    2. If, on the other hand, the issue was determined to be a bug report, attempt to produce a minimal repro as a console program which confirms that the bug is genuine. See "Creating a minimal repro" below for instructions.
+    3. If you've managed to confirm a bug in your repro, test your repro on both the failing version and the previous working version. Provide clear feedback confirming or refuting the fact that the reported issue is a regression.
+6. Try to find possible duplicate issues - opened or closed - in the EF Core repo (https://github.com/dotnet/efcore), and include the likely candidates in your final report.
+7. Post your final report as a comment on the issue being triaged.
+
+## Area labels
+
+The EF repo contains a set of "area" labels that express which part of EF is affected. Area labels always start with an `area-` prefix. You can see the canonical list of area labels at https://github.com/dotnet/efcore/labels?q=area-, or fetch them using the GitHub CLI with `gh label list --search "area-" --repo dotnet/efcore`.
+
+* If an issue affects only a specific provider, make sure to add the label corresponding to that provider (e.g. `area-sqlserver`, `area-cosmos`...). However, if an issue affects *all* providers, do not add provider labels.
+* The same issue can have multiple labels when relevant. For example, a Cosmos query bug should have both `area-cosmos` and `area-query`.
+
+## Creating a minimal repro
 
 The minimal repro should be created as a completely separate console program, outside of the EF repo. Use the following as your starting point:
 
@@ -55,7 +75,7 @@ public class Blog
 * Pay attention to the EF provider version being used, as the bug may be specific to the version reported by the user. Once you have a working repro, try other, newer versions to confirm where the bug still occurs, and whether it has already been fixed.
 * Once you've pinned down a provider to repro on (ideally SQL Server), do not keep code for multiple providers - the repro should only have code to repro on a single provider.
 
-## Make the repro as minimal as possible
+### Make the repro as minimal as possible
 
 Once you've managed to reproduce the bug, work to make the repro as minimal as possible, removing any code that isn't absolutely necessary to triggering the bug:
 
@@ -69,14 +89,9 @@ Once you've managed to reproduce the bug, work to make the repro as minimal as p
 * Do DbContext configuration within the OnConfiguring method of the DbContext type, rather than building the options externally and passing them to the constructor. Avoid any sort of DI unless it's necessary to reproducing the bug.
 * In general, the less lines of code, the better.
 
-## Post-repro steps
-
-* If you've managed to confirm a bug in your repro and the user claims they are reporting a regression, please test your repro on both the failing version and the previous working version, to confirm that it's indeed a regression. Provide clear feedback confirming or refuting the fact that the reported issue is a regression.
-* If you've managed to confirm a bug, please try to find possible duplicate issues - opened or closed - in the EF Core repo (https://github.com/dotnet/efcore), and post some candidates.
-
 ## Posting your findings
 
 * Post your findings on the triaged issue as a comment.
 * The comment should begin with a first-level heading with the text "AI Triage", followed by the sentence "The below is an AI-generated analysis and may contain inaccuracies."
-* The minimal repro console program should be contained within the posted comment, wrapped inside a collapsible HTML `<details>` block, to not take up too much space (the summary should be "minimal repro").
-* In your response, make sure that all links to issues, pull requests or source files are to the repo on github.com, and not local `vscode://` links, as your answer will be posted online.
+* If there's a minimal repro, its source code should be contained within the posted comment, wrapped inside a collapsible HTML `<details>` block, to not take up too much space (the summary should be "minimal repro").
+* In your response, make sure that all links to issues, pull requests or source files are to the repo on github.com, and not local (e.g. `file://` or `vscode://`) links, as your answer will be posted online.

@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocComplexTypeQueryTestBase(fixture)
@@ -58,6 +60,16 @@ SELECT VALUE c
 FROM root c
 OFFSET 0 LIMIT 2
 """);
+    }
+
+    public override async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
+    {
+        Assert.Equal(
+            CosmosStrings.UpdateConflict("1"),
+            (await Assert.ThrowsAsync<DbUpdateException>(
+                () => base.Non_optional_complex_type_with_all_nullable_properties_via_left_join())).Message);
+
+        AssertSql();
     }
 
     public override async Task Nullable_complex_type_with_discriminator_and_shadow_property()

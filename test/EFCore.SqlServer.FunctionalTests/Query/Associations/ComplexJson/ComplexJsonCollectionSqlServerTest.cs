@@ -352,6 +352,23 @@ FROM [RootEntity] AS [r]
         }
     }
 
+    public override async Task Project_struct_complex_type_with_entity_collection_navigation()
+    {
+        await base.Project_struct_complex_type_with_entity_collection_navigation();
+
+        AssertSql(
+            """
+SELECT [p0].[Coords_X], [p0].[Coords_Y], [p0].[Id], [c].[Id], [c].[Name], [c].[ParentId]
+FROM (
+    SELECT TOP(1) [p].[Coords_X], [p].[Coords_Y], [p].[Id]
+    FROM [Parent] AS [p]
+    ORDER BY [p].[Id]
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
