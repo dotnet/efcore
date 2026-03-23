@@ -641,7 +641,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             throw;
         }
 
-
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
 
         ProcessWriteResponse(entry, response.Headers.ETag, response.Content);
