@@ -502,16 +502,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 if (relatedEntities != null)
                 {
+                    var enumarated = false;
                     foreach (var relatedEntity in relatedEntities)
                     {
+                        enumarated = true;
                         fixup(includingEntity, relatedEntity);
                         inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
+
+                    if (enumarated)
+                    {
+                        return;
+                    }
                 }
-                else
-                {
-                    initialize(includingEntity);
-                }
+
+                initialize(includingEntity);
             }
             else
             {
@@ -525,14 +530,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 if (relatedEntities != null)
                 {
                     using var enumerator = relatedEntities.GetEnumerator();
+                    var enumerated = false;
                     while (enumerator.MoveNext())
                     {
+                        enumerated = true;
+                    }
+
+                    if (enumerated)
+                    {
+                        return;
                     }
                 }
-                else
-                {
-                    initialize((TIncludingEntity)entity);
-                }
+
+                initialize((TIncludingEntity)entity);
             }
         }
 
