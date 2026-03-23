@@ -827,19 +827,22 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             context.Database.UseSessionToken(createdSessionToken); // Guarantee we don't read before creation, and we don't use the deleted session token.
 
             OtherContainerCustomer? result = null;
-            for (var i = 0; i < 10; i++)
+            var timeout = TimeSpan.FromSeconds(10);
+            var startTime = DateTime.UtcNow;
+            while (DateTime.UtcNow - startTime < timeout)
             {
                 result = await context.OtherContainerCustomers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1");
                 if (result == null) // We could theoretically hit a read replica that hasn't synced the delete yet. Because we used createdSessionToken. Chances are small
                 {
                     break;
                 }
+
                 await Task.Delay(100);
             }
 
             Assert.True(
                 result is null,
-                "Timed out waiting for the deleted document to be not found before comparing session tokens.");
+                $"Timed out after waiting {timeout} for the deleted document to be not found before comparing session tokens.");
 
             var afterNotFoundSessionToken = context.Database.GetSessionToken();
             Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
