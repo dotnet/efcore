@@ -26,6 +26,7 @@ WHERE (ARRAY_LENGTH(c["AssociateCollection"]) = 2)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Where()
     {
         await base.Where();
@@ -87,6 +88,7 @@ WHERE (c["AssociateCollection"][0] != @entity_equality_param)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ElementAt()
     {
         // 'ORDER BY' is not supported in subqueries.
@@ -158,6 +160,7 @@ WHERE (c["AssociateCollection"][@i]["Int"] = 8)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Index_column()
     {
         // The specified query includes 'member indexer' which is currently not supported
@@ -205,6 +208,7 @@ WHERE (c["RequiredAssociate"]["NestedCollection"][0]["Int"] = 8)
 
     #endregion GroupBy
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {
         await base.Select_within_Select_within_Select_with_aggregates();

@@ -36,6 +36,7 @@ WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10 < c["Pr
 """);
             });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Order_by_length_twice(bool async)
     {
         // Always throws for sync.
