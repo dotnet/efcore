@@ -66,11 +66,15 @@ jobs:
               const major = releaseBranchMatch[1];
               const minor = releaseBranchMatch[2];
 
-              const { data: tagRefs } = await github.rest.git.listMatchingRefs({
-                owner,
-                repo,
-                ref: `tags/v${major}.${minor}.`
-              });
+              const tagRefs = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: `tags/v${major}.${minor}.`,
+                  per_page: 100
+                }
+              );
 
               let highestPatch = -1;
               for (const ref of tagRefs) {
@@ -105,11 +109,15 @@ jobs:
               targetMilestoneName = `${major}.${minor}.0`;
 
               // List release branches for this major.minor to find what's already been branched
-              const { data: branchRefs } = await github.rest.git.listMatchingRefs({
-                owner,
-                repo,
-                ref: `heads/release/${major}.${minor}-`
-              });
+              const branchRefs = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: `heads/release/${major}.${minor}-`,
+                  per_page: 100
+                }
+              );
 
               let highestPreview = 0;
               let highestRc = 0;
