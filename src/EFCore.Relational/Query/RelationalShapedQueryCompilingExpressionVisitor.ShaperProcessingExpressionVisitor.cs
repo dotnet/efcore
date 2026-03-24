@@ -3188,6 +3188,56 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     resultExpression = Convert(resultExpression, property.ClrType);
                 }
 
+                var converter = property.GetTypeMapping().Converter;
+                Expression nullExpression;
+                if (converter?.ConvertsNulls == true)
+                {
+                    var typeMappingExpression = Call(
+                        Convert(
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                property,
+                                LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(property),
+                                property.Name + "Property",
+                                typeof(IPropertyBase)),
+                            typeof(IReadOnlyProperty)),
+                        PropertyGetTypeMappingMethod);
+
+                    var converterExpression = (Expression)Property(typeMappingExpression, nameof(CoreTypeMapping.Converter));
+
+                    var converterType = converter.GetType();
+                    var typedConverterType = converterType.GetGenericTypeImplementations(typeof(ValueConverter<,>)).FirstOrDefault();
+                    if (typedConverterType != null)
+                    {
+                        if (converterExpression.Type != converter.GetType())
+                        {
+                            converterExpression = Convert(converterExpression, converter.GetType());
+                        }
+
+                        nullExpression = Invoke(
+                            Property(
+                                converterExpression,
+                                nameof(ValueConverter<object, object>.ConvertFromProviderTyped)),
+                            Default(converter.ProviderClrType));
+                    }
+                    else
+                    {
+                        nullExpression = Invoke(
+                            Property(
+                                converterExpression,
+                                nameof(ValueConverter.ConvertFromProvider)),
+                            Default(typeof(object)));
+                    }
+
+                    if (nullExpression.Type != property.ClrType)
+                    {
+                        nullExpression = Convert(nullExpression, property.ClrType);
+                    }
+                }
+                else
+                {
+                    nullExpression = Default(property.ClrType);
+                }
+
                 resultExpression = Condition(
                     Equal(
                         Property(
@@ -3196,7 +3246,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Utf8JsonReaderManagerCurrentReaderField),
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
-                    Default(property.ClrType),
+                    nullExpression,
                     resultExpression);
             }
 

@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using IColumnMapping = Microsoft.EntityFrameworkCore.Metadata.IColumnMapping;
 using ITableMapping = Microsoft.EntityFrameworkCore.Metadata.ITableMapping;
 
@@ -969,11 +970,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 #pragma warning disable EF1001 // Internal EF Core API usage.
             writer.WritePropertyName(jsonPropertyName);
 
-            if (propertyValue is not null)
+            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            if (propertyValue is not null ||
+                jsonValueReaderWriter is IJsonConvertedValueReaderWriter { Converter.ConvertsNulls: true })
             {
-                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
-                jsonValueReaderWriter.ToJson(writer, propertyValue);
+                jsonValueReaderWriter.ToJson(writer, propertyValue!);
             }
             else
             {
