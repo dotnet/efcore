@@ -1,6 +1,6 @@
 # This workflow automatically labels issues with the preview/RC version when their fixing PR
 # is merged into main or a release branch, and sets their milestone to the current version.
-# The version is inferred from tags and branches in the repo rather than eng/Versions.props.
+# The version is inferred from tags and branches in the repo, with the major/minor on main taken from eng/Versions.props.
 
 name: Label and milestone closed issues
 
