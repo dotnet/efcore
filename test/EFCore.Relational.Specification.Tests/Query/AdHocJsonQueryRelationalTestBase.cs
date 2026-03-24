@@ -693,6 +693,74 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #endregion HasJsonPropertyName
 
+    #region Value converter equality null scalar
+
+    [ConditionalFact]
+    public virtual async Task Value_converter_equality_null_scalar()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37983>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context37983.Entity>().ComplexProperty(e => e.Json, b =>
+            {
+                b.ToJson();
+
+                b.Property(j => j.IntToString).HasConversion(new Context37983_StringToIntConverter());
+            }),
+            seed: context =>
+            {
+                context.Set<Context37983.Entity>().Add(new Context37983.Entity
+                {
+                    Json = new Context37983.JsonComplexType
+                    {
+                        IntToString = null,
+                    }
+                });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        TestSqlLoggerFactory.Clear();
+
+        var complexType = new Context37983.JsonComplexType
+        {
+            IntToString = null,
+        };
+
+        Assert.Equal(1, await context.Set<Context37983.Entity>().CountAsync(e => e.Json == complexType));
+    }
+
+    protected class Context37983(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public JsonComplexType Json { get; set; }
+        }
+
+        public class JsonComplexType
+        {
+            public int? IntToString { get; set; }
+        }
+    }
+
+    protected class Context37983_StringToIntConverter : ValueConverter<int?, string>
+    {
+        public Context37983_StringToIntConverter()
+            : base(
+                v => v == null ? "<null>" : v.ToString(),
+                v => int.Parse(v))
+        {
+        }
+
+        public override bool ConvertsNulls => true;
+    }
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
