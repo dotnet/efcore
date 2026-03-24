@@ -21,6 +21,9 @@ public class ChangeDetector : IChangeDetector
     private static readonly bool UseOldBehavior37387 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37387", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior37890 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37890", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -339,9 +342,9 @@ public class ChangeDetector : IChangeDetector
 
         if ((currentValue is null) != (originalValue is null))
         {
-            // If it changed from null to non-null, mark all inner properties as modified
+            // If it changed from null to non-null or from non-null to null, mark all inner properties as modified
             // to ensure the entity is detected as modified and the complex type properties are persisted
-            if (currentValue is not null)
+            if (!UseOldBehavior37890 || currentValue is not null)
             {
                 foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
                 {
