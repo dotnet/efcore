@@ -53,6 +53,12 @@ jobs:
               return;
             }
             
+            // If the PR is from a branch (not a fork), it must be from an internal contributor
+            if (pr.head.repo && pr.head.repo.id === pr.base.repo.id) {
+              console.log('PR is from a branch in the same repo - skipping validation');
+              return;
+            }
+            
             // Check if the user who triggered the action has push permissions
             let hasWriteAccess = false;
             try {
