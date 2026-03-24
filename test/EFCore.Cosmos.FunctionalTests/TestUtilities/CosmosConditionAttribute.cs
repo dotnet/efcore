@@ -34,6 +34,11 @@ public sealed class CosmosConditionAttribute(CosmosCondition conditions) : Attri
             isMet &= !TestEnvironment.IsEmulator;
         }
 
+        if (Conditions.HasFlag(CosmosCondition.IsNotLinuxEmulator))
+        {
+            isMet &= !TestEnvironment.IsLinuxEmulator;
+        }
+
         return ValueTask.FromResult(isMet);
     }
 

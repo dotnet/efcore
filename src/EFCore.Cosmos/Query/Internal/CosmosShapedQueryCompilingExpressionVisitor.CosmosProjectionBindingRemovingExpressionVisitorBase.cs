@@ -37,10 +37,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
-        private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate));
-
         private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
             = new Dictionary<ParameterExpression, Expression>();
 
@@ -402,7 +398,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var inverseNavigation = navigation.Inverse;
             var fixup = GenerateFixup(
                 includingClrType, relatedEntityClrType, navigation, inverseNavigation);
-            var initialize = GenerateInitialize(includingClrType, navigation);
 
             var navigationExpression = Visit(includeExpression.NavigationExpression);
 
@@ -421,7 +416,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Constant(navigation),
                         Constant(inverseNavigation, typeof(INavigation)),
                         Constant(fixup),
-                        Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
 #pragma warning disable EF1001 // Internal EF Core API usage.
                         Constant(includeExpression.SetLoaded))));
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -441,8 +435,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             INavigation navigation,
             INavigation inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
-            Action<TIncludingEntity> _,
-            bool __)
+            bool _)
         {
             if (entity == null
                 || !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
@@ -486,7 +479,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             INavigation navigation,
             INavigation inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
-            Action<TIncludingEntity> initialize,
             bool setLoaded)
         {
             if (entity == null
@@ -494,6 +486,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 return;
             }
+
+            navigation.GetCollectionAccessor()!.GetOrCreate(entity, forMaterialization: true);
 
             if (entry == null)
             {
@@ -508,10 +502,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
-                else
-                {
-                    initialize(includingEntity);
-                }
             }
             else
             {
@@ -524,14 +514,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 if (relatedEntities != null)
                 {
+                    // Enumerator contains logic for tracking the entities, so we need to make sure to enumerate it
                     using var enumerator = relatedEntities.GetEnumerator();
                     while (enumerator.MoveNext())
                     {
                     }
-                }
-                else
-                {
-                    initialize((TIncludingEntity)entity);
                 }
             }
         }
@@ -560,27 +547,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return Lambda(Block(typeof(void), expressions), entityParameter, relatedEntityParameter)
-                .Compile();
-        }
-
-        private static Delegate GenerateInitialize(
-            Type entityType,
-            INavigation navigation)
-        {
-            if (!navigation.IsCollection)
-            {
-                return null;
-            }
-
-            var entityParameter = Parameter(entityType);
-
-            var getOrCreateExpression = Call(
-                Constant(navigation.GetCollectionAccessor()),
-                CollectionAccessorGetOrCreateMethodInfo,
-                entityParameter,
-                Constant(true));
-
-            return Lambda(Block(typeof(void), getOrCreateExpression), entityParameter)
                 .Compile();
         }
 

@@ -24,6 +24,7 @@ public abstract class QueryLoggingCosmosTestBase
         => true;
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Queryable_simple()
     {
         using var context = CreateContext();
@@ -64,6 +65,7 @@ FROM root c
     }
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Queryable_with_parameter_outputs_parameter_value_logging_warning()
     {
         using var context = CreateContext();
