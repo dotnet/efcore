@@ -238,7 +238,7 @@ jobs:
               throw new Error(`Errors processing issues:\n${errors.join('\n')}`);
             }
 
-            console.log(`Done. Processed ${closingIssues.length} issue(s) with label '${label ?? 'none'}' and milestone '${targetMilestoneName}'`);
+            console.log(`Done. Processed ${closingIssues.length} issue(s) with labels [${labelsToApply.join(', ') || 'none'}] and milestone '${targetMilestoneName}'`);
 
             // Parses a milestone title as a semver version, or returns null for
             // non-version milestones (e.g. "Backlog", "MQ", "Discussions")
