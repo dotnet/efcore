@@ -152,18 +152,26 @@ jobs:
             // (don't filter by state to avoid race conditions where GitHub
             // hasn't closed the issue yet when this workflow runs)
             const errors = [];
+            const labelsToApply = [];
             if (label) {
+              labelsToApply.push(label);
+            }
+            // If the PR has the community-contribution label, propagate it to closing issues
+            if (context.payload.pull_request.labels.some(l => l.name === 'community-contribution')) {
+              labelsToApply.push('community-contribution');
+            }
+            if (labelsToApply.length > 0) {
               for (const issue of closingIssues) {
-                console.log(`Adding label '${label}' to issue #${issue.number}`);
+                console.log(`Adding labels [${labelsToApply.join(', ')}] to issue #${issue.number}`);
                 try {
                   await github.rest.issues.addLabels({
                     owner,
                     repo,
                     issue_number: issue.number,
-                    labels: [label]
+                    labels: labelsToApply
                   });
                 } catch (error) {
-                  errors.push(`Failed to add label to issue #${issue.number}: ${error.message}`);
+                  errors.push(`Failed to add labels to issue #${issue.number}: ${error.message}`);
                 }
               }
             }
@@ -230,7 +238,7 @@ jobs:
               throw new Error(`Errors processing issues:\n${errors.join('\n')}`);
             }
 
-            console.log(`Done. Processed ${closingIssues.length} issue(s) with label '${label ?? 'none'}' and milestone '${targetMilestoneName}'`);
+            console.log(`Done. Processed ${closingIssues.length} issue(s) with labels [${labelsToApply.join(', ') || 'none'}] and milestone '${targetMilestoneName}'`);
 
             // Parses a milestone title as a semver version, or returns null for
             // non-version milestones (e.g. "Backlog", "MQ", "Discussions")
