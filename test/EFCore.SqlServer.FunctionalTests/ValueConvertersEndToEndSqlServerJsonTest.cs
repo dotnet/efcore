@@ -30,6 +30,8 @@ public class ValueConvertersEndToEndSqlServerJsonTest(ValueConvertersEndToEndSql
 
     public class ValueConvertersEndToEndSqlServerJsonFixture : ValueConvertersEndToEndFixtureBase
     {
+        protected override string StoreName => nameof(ValueConvertersEndToEndSqlServerJsonFixture);
+
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
