@@ -1284,6 +1284,18 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     $frameworkName = New-Object 'System.Runtime.Versioning.FrameworkName' $targetFrameworkMoniker
     $targetFramework = $frameworkName.Identifier
 
+    $targetPlatformIdentifier = $null
+    $targetFrameworkValue = $null
+    if (IsCpsProject $startupProject)
+    {
+        $targetPlatformIdentifier = GetCpsProperty $startupProject 'TargetPlatformIdentifier'
+        $targetFrameworkValue = GetCpsProperty $startupProject 'TargetFramework'
+    }
+    if ($targetPlatformIdentifier -or (HasPlatformInTargetFramework $targetFrameworkValue))
+    {
+        Write-Warning "Startup project '$($startupProject.ProjectName)' targets a platform-specific framework: '$targetFrameworkValue'. The Entity Framework Core Package Manager Console Tools might not function correctly. Implement IDesignTimeDbContextFactory<> to ensure design-time tools work correctly with this project. See https://aka.ms/efcore-docs-migrations-projects for more information."
+    }
+
     if ($targetFramework -in '.NETFramework')
     {
         throw "Startup project '$($startupProject.ProjectName)' targets framework '.NETFramework'. The Entity Framework Core Package " +
@@ -1291,14 +1303,6 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
     elseif ($targetFramework -eq '.NETCoreApp')
     {
-        $targetPlatformIdentifier = GetCpsProperty $startupProject 'TargetPlatformIdentifier'
-        if ($targetPlatformIdentifier -and $targetPlatformIdentifier -ne 'Windows')
-        {
-            throw "Startup project '$($startupProject.ProjectName)' targets platform '$targetPlatformIdentifier'. The Entity Framework " +
-                'Core Package Manager Console Tools don''t support this platform. See https://aka.ms/efcore-docs-pmc-tfms for more ' +
-                'information.'
-        }
-
         $exePath = (Get-Command 'dotnet').Path
 
         $startupTargetName = GetProperty $startupProject.Properties 'AssemblyName'
@@ -1500,6 +1504,18 @@ function IsCpsProject($project)
         [type[]]([Microsoft.VisualStudio.Shell.Interop.IVsHierarchy], [string]))
 
     return $isCapabilityMatch.Invoke($null, ($hierarchy, 'CPS'))
+}
+
+function HasPlatformInTargetFramework($targetFramework)
+{
+    if (-not $targetFramework)
+    {
+        return $false
+    }
+
+    # Check for netX.Y-Z form (e.g. net8.0-windows10.0.19041.0)
+    $dashIndex = $targetFramework.IndexOf('-')
+    return $dashIndex -gt 0 -and $dashIndex -lt ($targetFramework.Length - 1)
 }
 
 function IsWeb($project)
