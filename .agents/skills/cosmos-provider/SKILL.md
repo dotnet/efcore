@@ -24,5 +24,5 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 ## Azure Cosmos DB Emulator for Tests
 
 - `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when no emulator is configured or already running locally. Set `Test__Cosmos__DefaultConnection` to skip auto-detection.
-- The Linux (vnext) emulator does **not** support transactional batches — `LinuxEmulatorSaveChangesInterceptor` forces `AutoTransactionBehavior.Never`. Guard tests requiring unsupported features with `[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]`.
+- Skip tests requiring unsupported features on the Linux emulator with `[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]`.
 - When `Test__Cosmos__SkipConnectionCheck=true` (CI), testcontainer startup failures propagate immediately instead of being caught.

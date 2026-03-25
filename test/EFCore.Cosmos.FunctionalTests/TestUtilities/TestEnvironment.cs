@@ -27,9 +27,12 @@ public static class TestEnvironment
     private static bool _initialized;
     private static readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
-    public static string DefaultConnection { get; private set; } = string.IsNullOrEmpty(Config["DefaultConnection"])
-        ? "https://localhost:8081"
-        : Config["DefaultConnection"];
+    private static string _defaultConnection;
+
+    public static string DefaultConnection
+        => _initialized
+            ? _defaultConnection
+            : throw new InvalidOperationException("TestEnvironment.InitializeAsync() must be called before accessing DefaultConnection.");
 
     internal static HttpMessageHandler HttpMessageHandler { get; private set; }
 
@@ -53,7 +56,7 @@ public static class TestEnvironment
             var configured = Config["DefaultConnection"];
             if (!string.IsNullOrEmpty(configured))
             {
-                DefaultConnection = configured;
+                _defaultConnection = configured;
                 _initialized = true;
                 return;
             }
@@ -61,7 +64,7 @@ public static class TestEnvironment
             // Try to connect to the default emulator endpoint.
             if (await TryProbeEmulatorAsync("https://localhost:8081").ConfigureAwait(false))
             {
-                DefaultConnection = "https://localhost:8081";
+                _defaultConnection = "https://localhost:8081";
                 _initialized = true;
                 return;
             }
@@ -87,7 +90,7 @@ public static class TestEnvironment
                     }
                 };
 
-                DefaultConnection = new UriBuilder(
+                _defaultConnection = new UriBuilder(
                     Uri.UriSchemeHttp,
                     _container.Hostname,
                     _container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
@@ -98,7 +101,7 @@ public static class TestEnvironment
                 // Any failure (Docker not installed, daemon not running, image pull failure, etc.)
                 // falls back to the default endpoint. The connection check in CosmosTestStore will
                 // determine whether the emulator is actually reachable and skip tests if not.
-                DefaultConnection = "https://localhost:8081";
+                _defaultConnection = "https://localhost:8081";
             }
 
             _initialized = true;
