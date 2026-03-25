@@ -487,7 +487,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Can_write_original_values_for_properties_of_complex_property_bag_collections(bool trackFromQuery)
         => WriteOriginalValuesTest(trackFromQuery, CreatePubWithPropertyBagCollections);
 
-    private async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
+    protected virtual async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
         where TEntity : class
         => await ExecuteWithStrategyInTransactionAsync(async context =>
         {
@@ -907,72 +907,56 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
-    public virtual async Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
-    {
-        await using var context = CreateContext();
+    public virtual Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var yogurt = CreateYogurt(context, nullLicense: true);
+            _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
-        List<int> a = [1, 2];
-
-        await context.Database.CreateExecutionStrategy().ExecuteAsync(
-            context, async context =>
+            if (async)
             {
-                await using var transaction = await context.Database.BeginTransactionAsync();
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.SaveChanges();
+            }
 
-                var yogurt = CreateYogurt(context, nullLicense: true);
-                _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+            // #31376
+            //var actualYogurt = async
+            //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+            //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
 
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
-
-                // #31376
-                //var actualYogurt = async
-                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
-                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
-
-                //Assert.Null(actualYogurt.Culture.License!.Value.Tag);
-                //Assert.Null(actualYogurt.Culture.Manufacturer.Tag);
-                //Assert.Null(actualYogurt.Milk.License!.Value.Tag);
-                //Assert.Null(actualYogurt.Milk.Manufacturer.Tag);
-            });
-    }
+            //Assert.Null(actualYogurt.Culture.License!.Value.Tag);
+            //Assert.Null(actualYogurt.Culture.Manufacturer.Tag);
+            //Assert.Null(actualYogurt.Milk.License!.Value.Tag);
+            //Assert.Null(actualYogurt.Milk.Manufacturer.Tag);
+        });
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
-    public virtual async Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
-    {
-        await using var context = CreateContext();
+    public virtual Task Can_save_null_third_level_complex_property_with_all_optional_properties(bool async)
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var yogurt = CreateYogurt(context, nullTag: true);
+            _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
 
-        await context.Database.CreateExecutionStrategy().ExecuteAsync(
-            context, async context =>
+            if (async)
             {
-                await using var transaction = await context.Database.BeginTransactionAsync();
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.SaveChanges();
+            }
 
-                var yogurt = CreateYogurt(context, nullTag: true);
-                _ = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+            // #31376
+            //var actualYogurt = async
+            //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
+            //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
 
-                if (async)
-                {
-                    await context.SaveChangesAsync();
-                }
-                else
-                {
-                    context.SaveChanges();
-                }
-
-                // #31376
-                //var actualYogurt = async
-                //    ? await context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().FirstAsync()
-                //    : context.Set<Yogurt>().OrderBy(y => y.Id).AsNoTracking().First();
-
-                //Assert.Null(actualYogurt.Culture.License);
-                //Assert.Null(actualYogurt.Milk.License);
-            });
-    }
+            //Assert.Null(actualYogurt.Culture.License);
+            //Assert.Null(actualYogurt.Milk.License);
+        });
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void Detect_changes_in_complex_struct_type_properties(bool trackFromQuery)
@@ -2028,6 +2012,56 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             CoreStrings.ComplexCollectionIsReference(
                 entry.Metadata.DisplayName(), nameof(PubWithCollections.FeaturedTeam), "ComplexCollection", "ComplexProperty"),
             Assert.Throws<InvalidOperationException>(() => entry.ComplexCollection(e => (IList<Team>)e.FeaturedTeam)).Message);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_null_complex_property_with_default_values_and_multiple_properties(bool async)
+    {
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entity = Fixture.UseProxies
+                    ? context.CreateProxy<EntityWithOptionalMultiPropComplex>()
+                    : new EntityWithOptionalMultiPropComplex();
+
+                entity.Id = Guid.NewGuid();
+                // Set the complex property with default values
+                entity.ComplexProp = new MultiPropComplex
+                {
+                    IntValue = 0,
+                    BoolValue = false,
+                    DateValue = default,
+                };
+
+                _ = async ? await context.AddAsync(entity) : context.Add(entity);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.NotNull(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.NotNull(entity.ComplexProp);
+
+                entity.ComplexProp = null;
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+
+                Assert.Null(entity.ComplexProp);
+            },
+            async context =>
+            {
+                var entity = async
+                    ? await context.Set<EntityWithOptionalMultiPropComplex>().SingleAsync()
+                    : context.Set<EntityWithOptionalMultiPropComplex>().Single();
+
+                Assert.Null(entity.ComplexProp);
+            });
     }
 
     protected void AssertPropertyValues(EntityEntry entry)

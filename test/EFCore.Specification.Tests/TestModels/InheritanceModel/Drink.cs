@@ -8,4 +8,7 @@ public class Drink
     public int Id { get; set; }
     public int SortIndex { get; set; }
     public DrinkType Discriminator { get; set; }
+
+    public ComplexType? ParentComplexType { get; set; }
+    public List<ComplexType> ComplexTypeCollection { get; set; } = [];
 }

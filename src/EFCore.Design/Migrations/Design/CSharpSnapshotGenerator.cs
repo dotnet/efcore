@@ -707,8 +707,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         if (typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
             && !typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
         {
-            var containerColumnType = property.ComplexType.GetContainerColumnType()
-                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+            var containerColumnType = property.ComplexType.GetContainerColumnType();
             if (containerColumnType != null)
             {
                 typeAnnotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
@@ -921,8 +920,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         if (annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
             && !annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
         {
-            var containerColumnType = entityType.GetContainerColumnType()
-                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+            var containerColumnType = entityType.GetContainerColumnType();
             if (containerColumnType != null)
             {
                 annotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(

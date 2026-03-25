@@ -506,6 +506,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         {
             annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
         }
+        else
+        {
+            annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+        }
     }
 
     private RuntimeStoredProcedure Create(IStoredProcedure storedProcedure, RuntimeEntityType runtimeEntityType)

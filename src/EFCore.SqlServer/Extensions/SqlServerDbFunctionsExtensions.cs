@@ -3,6 +3,7 @@
 
 // ReSharper disable once CheckNamespace
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -93,6 +94,33 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
     #endregion Full-text search
+
+    #region JSON functions
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>JSON_CONTAINS</c> function.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="json">The JSON value to search.</param>
+    /// <param name="searchValue">The JSON value to search for.</param>
+    /// <param name="path">The JSON path to search within.</param>
+    /// <param name="searchMode">The search mode.</param>
+    /// <returns>1 if the JSON value contains the given value; otherwise 0.</returns>
+    [Experimental(EFDiagnostics.JsonContainsExperimental)]
+    public static int JsonContains(
+        this DbFunctions _,
+        object json,
+        object searchValue,
+        string? path = null,
+        int? searchMode = null)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonContains)));
+
+    #endregion JSON functions
 
     #region DateDiffYear
 
@@ -2471,8 +2499,7 @@ public static class SqlServerDbFunctionsExtensions
     ///     Vector distance is always exact and doesn't use any vector index, even if available.
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-distance-transact-sql">
-    ///     SQL Server documentation for
-    ///     <c>VECTOR_DISTANCE</c>.
+    ///     SQL Server documentation for <c>VECTOR_DISTANCE()</c>.
     /// </seealso>
     /// <seealso href="https://learn.microsoft.com/sql/relational-databases/vectors/vectors-sql-server">Vectors in the SQL Database Engine.</seealso>
     public static double VectorDistance<T>(

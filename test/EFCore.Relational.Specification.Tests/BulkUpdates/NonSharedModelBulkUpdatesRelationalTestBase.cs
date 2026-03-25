@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixture fixture) : NonSharedModelBulkUpdatesTestBase(fixture)
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "NonSharedModelBulkUpdatesTests";
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_non_owned_throws(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28671>(
+        var contextFactory = await InitializeNonSharedTest<Context28671>(
             onModelCreating: mb =>
             {
                 mb.Entity<Owner>().HasOne<OtherReference>().WithOne().HasForeignKey<OtherReference>(e => e.Id);
@@ -23,16 +23,16 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             });
 
         await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)),
             () => AssertDelete(
-                async, contextFactory.CreateContext,
-                context => context.Set<Owner>(), rowsAffectedCount: 0),
-            RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
+                async, contextFactory.CreateDbContext,
+                context => context.Set<Owner>(), rowsAffectedCount: 0));
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_main_table_in_entity_with_entity_splitting(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb => mb.Entity<Blog>()
                 .ToTable("Blogs")
                 .SplitToTable(
@@ -49,7 +49,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Blog>(),
             s => s.SetProperty(b => b.CreationTimestamp, b => new DateTime(2020, 1, 1)),
             rowsAffectedCount: 1);
@@ -58,7 +58,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb => mb.Entity<Blog>()
                 .ToTable("Blogs")
                 .SplitToTable(
@@ -75,7 +75,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Set<Blog>(),
             s => s
                 .SetProperty(b => b.Title, b => b.Rating.ToString())
@@ -86,11 +86,11 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Delete_with_view_mapping(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
+        var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
 
         await AssertDelete(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Foos,
             rowsAffectedCount: 1);
     }
@@ -98,28 +98,40 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
     [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Update_with_view_mapping(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
+        var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
 
         await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Foos,
             s => s.SetProperty(f => f.Data, "Updated"),
             rowsAffectedCount: 1);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677, #34706
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
     public virtual async Task Update_complex_type_with_view_mapping(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34677>(seed: async context => await context.Seed());
+        var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
 
-        // #34706
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertUpdate(
+        await AssertUpdate(
             async,
-            contextFactory.CreateContext,
+            contextFactory.CreateDbContext,
             ss => ss.Foos,
             s => s.SetProperty(f => f.ComplexThing, new Context34677.ComplexThing { Prop1 = 3, Prop2 = 4 }),
-            rowsAffectedCount: 1));
+            rowsAffectedCount: 1);
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #34677
+    public virtual async Task Update_complex_type_property_with_view_mapping(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34677>(seed: async context => await context.Seed());
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateDbContext,
+            ss => ss.Foos,
+            s => s.SetProperty(f => f.ComplexThing.Prop1, 6),
+            rowsAffectedCount: 1);
     }
 
     protected class Context34677(DbContextOptions options) : DbContext(options)
@@ -163,11 +175,13 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 
     #region HelperMethods
 
-    protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
-        => Assert.Contains(
-            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query))
-            .Message);
+    protected static async Task AssertTranslationFailedWithDetails(string details, Func<Task> query)
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal(details, innerException.Message);
+    }
 
     public override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

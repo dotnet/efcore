@@ -36,4 +36,21 @@ public interface IDbContextOptionsBuilderInfrastructure
     /// <param name="extension">The extension to be added.</param>
     void AddOrUpdateExtension<TExtension>(TExtension extension)
         where TExtension : class, IDbContextOptionsExtension;
+
+    /// <summary>
+    ///     <para>
+    ///         Removes the extension of the given type from the options. If no extension of the given type exists, this is a no-op.
+    ///     </para>
+    ///     <para>
+    ///         This method is intended for use by extension methods to configure the context. It is not intended to be used in
+    ///         application code.
+    ///     </para>
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TExtension">The type of extension to be removed.</typeparam>
+    void RemoveExtension<TExtension>()
+        where TExtension : class, IDbContextOptionsExtension;
 }

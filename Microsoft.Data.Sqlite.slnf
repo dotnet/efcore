@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "EFCore.sln",
+    "path": "EFCore.slnx",
     "projects": [
       "src\\Microsoft.Data.Sqlite.Core\\Microsoft.Data.Sqlite.Core.csproj",
       "src\\Microsoft.Data.Sqlite\\Microsoft.Data.Sqlite.csproj",

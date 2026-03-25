@@ -38,6 +38,6 @@ SELECT NOT EXISTS (
             .Property(e => e.Computed).HasComputedColumnSql("1");
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

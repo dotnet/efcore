@@ -90,12 +90,26 @@ public class CosmosTestStore : TestStore
         => new TestStoreContext(this);
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-        => TestEnvironment.UseTokenCredential
+    {
+        var result = TestEnvironment.UseTokenCredential
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
+        if (TestEnvironment.IsLinuxEmulator)
+        {
+            result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
+        }
+
+        return result;
+    }
+
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
+        if (TestEnvironment.SkipConnectionCheck)
+        {
+            return true;
+        }
+
         if (_connectionAvailable == null)
         {
             await _connectionSemaphore.WaitAsync();
@@ -241,7 +255,7 @@ public class CosmosTestStore : TestStore
                                                     document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -332,14 +346,19 @@ public class CosmosTestStore : TestStore
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
-    public override async Task CleanAsync(DbContext context)
+    public override async Task CleanAsync(DbContext context, bool createTables = true)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try
         {
             if (!created)
             {
-                await DeleteContainers(context).ConfigureAwait(false);
+                await DeleteContainersAsync(context).ConfigureAwait(false);
+            }
+
+            if (!createTables)
+            {
+                return;
             }
 
             if (!TestEnvironment.UseTokenCredential)
@@ -508,7 +527,7 @@ public class CosmosTestStore : TestStore
             : [CosmosClientWrapper.DefaultPartitionKey];
     }
 
-    private async Task DeleteContainers(DbContext context)
+    private async Task DeleteContainersAsync(DbContext context)
     {
         if (!TestEnvironment.UseTokenCredential)
         {
@@ -623,6 +642,9 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public bool IsModified(IProperty property)
+            => throw new NotImplementedException();
+
+        public bool IsLoaded(IProperty property)
             => throw new NotImplementedException();
 
         public bool IsStoreGenerated(IProperty property)

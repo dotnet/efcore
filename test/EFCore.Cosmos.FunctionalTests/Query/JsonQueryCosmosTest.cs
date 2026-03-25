@@ -567,6 +567,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         Assert.Equal(NotImplementedBindPropertyMessage, message);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Json_collection_index_in_predicate_using_column(bool async)
     {
         // Always throws for sync.
@@ -576,6 +577,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
     {
         // Always throws for sync.

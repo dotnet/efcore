@@ -754,8 +754,10 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                     shadowProperties.Select(
                                         p =>
                                             Convert(
-                                                valueBufferExpression.CreateValueBufferReadValueExpression(
-                                                    p.ClrType, p.GetIndex(), p), typeof(object)))))));
+                                                p is IProperty { IsAutoLoaded: false }
+                                                    ? (p.Sentinel is null ? Default(p.ClrType) : Constant(p.Sentinel, p.ClrType))
+                                                    : valueBufferExpression.CreateValueBufferReadValueExpression(
+                                                        p.ClrType, p.GetIndex(), p), typeof(object)))))));
                 }
             }
 

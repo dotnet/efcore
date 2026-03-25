@@ -20,6 +20,11 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
     {
         public override HashSet<Type> FluentApiTypes { get; } =
         [
+            typeof(CosmosComplexCollectionBuilderExtensions),
+            typeof(CosmosComplexCollectionTypePropertyBuilderExtensions),
+            typeof(CosmosComplexPropertyBuilderExtensions),
+            typeof(CosmosComplexTypePrimitiveCollectionBuilderExtensions),
+            typeof(CosmosComplexTypePropertyBuilderExtensions),
             typeof(CosmosPrimitiveCollectionBuilderExtensions),
             typeof(CosmosModelBuilderExtensions),
             typeof(CosmosPropertyBuilderExtensions),
@@ -65,7 +70,16 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
                         typeof(CosmosPropertyBuilderExtensions),
                         null
                     )
-                }
+                },
+                {
+                    typeof(IReadOnlyComplexProperty), (
+                        typeof(CosmosComplexPropertyExtensions),
+                        null,
+                        null,
+                        typeof(CosmosComplexPropertyBuilderExtensions),
+                        null
+                    )
+            },
             };
     }
 }

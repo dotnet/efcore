@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+
 public abstract class OwnedJsonRelationalFixtureBase : OwnedNavigationsFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName

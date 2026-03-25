@@ -363,6 +363,16 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_set_constant_TagWith_null(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().TagWith("MyUpdate"),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, (string)null),
+            rowsAffectedCount: 91,
+            (b, a) => Assert.All(a, c => Assert.Null(c.ContactName)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_set_constant(bool async)
         => AssertUpdate(
             async,
@@ -381,6 +391,16 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
             s => s.SetProperty(c => c.ContactName, _ => "Updated"),
             rowsAffectedCount: 8,
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_Where_set_nullable_int_constant_via_discard_lambda(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Product>().Where(p => p.ProductID < 5),
+            e => e,
+            s => s.SetProperty(c => c.SupplierID, _ => 1),
+            rowsAffectedCount: 4,
+            (b, a) => Assert.All(a, p => Assert.Equal(1, p.SupplierID)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_Where_parameter_set_constant(bool async)

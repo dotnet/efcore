@@ -427,26 +427,26 @@ public static class RelationalEntityTypeExtensions
     ///     Sets the SQL string used to provide data for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <param name="name">The SQL string to set.</param>
-    public static void SetSqlQuery(this IMutableEntityType entityType, string? name)
+    /// <param name="query">The SQL string to set.</param>
+    public static void SetSqlQuery(this IMutableEntityType entityType, string? query)
         => entityType.SetAnnotation(
             RelationalAnnotationNames.SqlQuery,
-            Check.NullButNotEmpty(name));
+            Check.NullButNotEmpty(query));
 
     /// <summary>
     ///     Sets the SQL string used to provide data for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <param name="name">The SQL string to set.</param>
+    /// <param name="query">The SQL string to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetSqlQuery(
         this IConventionEntityType entityType,
-        string? name,
+        string? query,
         bool fromDataAnnotation = false)
         => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.SqlQuery,
-            Check.NullButNotEmpty(name),
+            Check.NullButNotEmpty(query),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -470,10 +470,20 @@ public static class RelationalEntityTypeExtensions
     public static string? GetFunctionName(this IReadOnlyEntityType entityType)
     {
         var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.FunctionName);
-        return nameAnnotation != null
-            ? (string?)nameAnnotation.Value
-            : entityType.BaseType != null
-                ? entityType.GetRootType().GetFunctionName()
+        if (nameAnnotation != null)
+        {
+            return (string?)nameAnnotation.Value;
+        }
+
+        if (entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetFunctionName();
+        }
+
+        var ownership = entityType.FindOwnership();
+        return ownership != null
+            && (ownership.IsUnique || entityType.IsMappedToJson())
+                ? ownership.PrincipalEntityType.GetFunctionName()
                 : null;
     }
 
@@ -1620,10 +1630,7 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => (string?)entityType.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name),
-            fromDataAnnotation)?.Value;
+        => ((IConventionTypeBase)entityType).SetJsonPropertyName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
@@ -1652,9 +1659,7 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <param name="name">The name to be used.</param>
     public static void SetJsonPropertyName(this IMutableEntityType entityType, string? name)
-        => entityType.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name));
+        => ((IMutableTypeBase)entityType).SetJsonPropertyName(name);
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.
@@ -1662,7 +1667,7 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
+        => ((IConventionTypeBase)entityType).GetJsonPropertyNameConfigurationSource();
 
     #endregion
 }
