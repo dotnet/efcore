@@ -1293,9 +1293,14 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     {
         $targetPlatformIdentifier = GetCpsProperty $startupProject 'TargetPlatformIdentifier'
         $targetFrameworkValue = GetCpsProperty $startupProject 'TargetFramework'
-        if ($targetPlatformIdentifier -or ($targetFrameworkValue -and $targetFrameworkValue.IndexOf('-') -gt 0 -and $targetFrameworkValue.IndexOf('-') -lt ($targetFrameworkValue.Length - 1)))
+        $dashIndex = if ($targetFrameworkValue) { $targetFrameworkValue.IndexOf('-') } else { -1 }
+        if ($targetPlatformIdentifier -or $dashIndex -gt 0)
         {
-            Write-Warning "Startup project '$($startupProject.ProjectName)' targets a platform-specific framework: '$targetFrameworkValue'. The Entity Framework Core Package Manager Console Tools might not function correctly. Implement IDesignTimeDbContextFactory<> to ensure design-time tools work correctly with this project. See https://aka.ms/efcore-docs-migrations-projects for more information."
+            Write-Warning ("Startup project '$($startupProject.ProjectName)' targets a platform-specific" +
+                " framework: '$targetFrameworkValue'. The Entity Framework Core Package Manager Console" +
+                ' Tools might not function correctly. Implement IDesignTimeDbContextFactory<> to ensure' +
+                ' design-time tools work correctly with this project.' +
+                ' See https://aka.ms/efcore-docs-migrations-projects for more information.')
         }
 
         if ($targetPlatformIdentifier -and $targetPlatformIdentifier -ne 'Windows')
