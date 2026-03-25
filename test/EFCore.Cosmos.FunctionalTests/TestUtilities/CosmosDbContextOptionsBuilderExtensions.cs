@@ -9,14 +9,18 @@ public static class CosmosDbContextOptionsBuilderExtensions
 {
     public static CosmosDbContextOptionsBuilder ApplyConfiguration(this CosmosDbContextOptionsBuilder optionsBuilder)
     {
+        var handlerFactory = TestEnvironment.HttpMessageHandlerFactory;
+
         optionsBuilder
             .ExecutionStrategy(d => new TestCosmosExecutionStrategy(d))
             .RequestTimeout(TimeSpan.FromMinutes(20))
-            .HttpClientFactory(() => new HttpClient(
-                new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                }))
+            .HttpClientFactory(handlerFactory != null
+                ? () => new HttpClient(handlerFactory())
+                : () => new HttpClient(
+                    new HttpClientHandler
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    }))
             .ConnectionMode(ConnectionMode.Gateway);
 
         return optionsBuilder;

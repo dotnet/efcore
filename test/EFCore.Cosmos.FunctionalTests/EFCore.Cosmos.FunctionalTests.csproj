@@ -80,6 +80,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.ResourceManager.CosmosDB" />
+    <PackageReference Include="Testcontainers.CosmosDb" />
   </ItemGroup>
 
 </Project>
