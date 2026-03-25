@@ -694,7 +694,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IAsyncEnumerable<JToken> ExecuteSqlQueryAsync(
+    public virtual IAsyncEnumerable<MemoryStream> ExecuteSqlQueryAsync(
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query,
@@ -702,7 +702,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentAsyncEnumerable(this, containerId, partitionKeyValue, query, sessionTokenStorage);
+        return new ResponseAsyncEnumerable(this, containerId, partitionKeyValue, query, sessionTokenStorage);
     }
 
     /// <summary>
@@ -829,13 +829,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return jsonReader;
     }
 
-    private sealed class DocumentAsyncEnumerable(
+    private sealed class ResponseAsyncEnumerable(
         CosmosClientWrapper cosmosClient,
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery,
         ISessionTokenStorage sessionTokenStorage)
-        : IAsyncEnumerable<JToken>
+        : IAsyncEnumerable<MemoryStream>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
         private readonly string _containerId = containerId;
@@ -843,11 +843,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
         private readonly ISessionTokenStorage _sessionTokenStorage = sessionTokenStorage;
 
-        public IAsyncEnumerator<JToken> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public IAsyncEnumerator<MemoryStream> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
 
-        private sealed class AsyncEnumerator(DocumentAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
-            : IAsyncEnumerator<JToken>
+        private sealed class AsyncEnumerator(ResponseAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
+            : IAsyncEnumerator<MemoryStream>
         {
             private readonly CosmosClientWrapper _cosmosClientWrapper = documentEnumerable._cosmosClient;
             private readonly string _containerId = documentEnumerable._containerId;
@@ -855,13 +855,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             private readonly CosmosSqlQuery _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
             private readonly ISessionTokenStorage _sessionTokenStorage = documentEnumerable._sessionTokenStorage;
 
-            private JToken? _current;
-            private ResponseMessage? _responseMessage;
-            private IAsyncEnumerator<JToken>? _responseMessageEnumerator;
-
             private FeedIterator? _query;
+            private MemoryStream? _current;
 
-            public JToken Current
+            public MemoryStream Current
                 => _current ?? throw new InvalidOperationException();
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -869,179 +866,54 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (_responseMessageEnumerator == null)
+                if (_query is null)
                 {
-                    if (_query is null)
+                    var queryRequestOptions = new QueryRequestOptions();
+                    if (_partitionKeyValue != PartitionKey.None)
                     {
-                        var queryRequestOptions = new QueryRequestOptions();
-                        if (_partitionKeyValue != PartitionKey.None)
-                        {
-                            queryRequestOptions.PartitionKey = _partitionKeyValue;
-                        }
-
-                        queryRequestOptions.SessionToken = _sessionTokenStorage.GetSessionToken(_containerId);
-
-                        _query = _cosmosClientWrapper.CreateQuery(
-                            _containerId, _cosmosSqlQuery, _sessionTokenStorage, continuationToken: null, queryRequestOptions);
+                        queryRequestOptions.PartitionKey = _partitionKeyValue;
                     }
 
-                    if (!_query.HasMoreResults)
-                    {
-                        _current = null;
-                        return false;
-                    }
+                    queryRequestOptions.SessionToken = _sessionTokenStorage.GetSessionToken(_containerId);
 
-                    _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
-                        (_query, _cosmosClientWrapper),
-                        static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
-                        null,
-                        cancellationToken).ConfigureAwait(false);
-
-                    _cosmosClientWrapper._commandLogger.ExecutedReadNext(
-                        _responseMessage.Diagnostics.GetClientElapsedTime(),
-                        _responseMessage.Headers.RequestCharge,
-                        _responseMessage.Headers.ActivityId,
-                        _containerId,
-                        _partitionKeyValue,
-                        _cosmosSqlQuery);
-
-                    _responseMessage.EnsureSuccessStatusCode();
-
-                    _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetAsyncEnumerator(cancellationToken);
+                    _query = _cosmosClientWrapper.CreateQuery(
+                        _containerId, _cosmosSqlQuery, _sessionTokenStorage, continuationToken: null, queryRequestOptions);
                 }
 
-                if (await _responseMessageEnumerator.MoveNextAsync().ConfigureAwait(false))
+                if (!_query.HasMoreResults)
                 {
-                    _current = _responseMessageEnumerator.Current;
-                    return true;
+                    _current = null;
+                    return false;
                 }
 
-                await ResetReadAsync().ConfigureAwait(false);
+                var responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
+                    (_query, _cosmosClientWrapper),
+                    static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
+                    null,
+                    cancellationToken).ConfigureAwait(false);
 
-                return await MoveNextAsync().ConfigureAwait(false);
-            }
+                _cosmosClientWrapper._commandLogger.ExecutedReadNext(
+                    responseMessage.Diagnostics.GetClientElapsedTime(),
+                    responseMessage.Headers.RequestCharge,
+                    responseMessage.Headers.ActivityId,
+                    _containerId,
+                    _partitionKeyValue,
+                    _cosmosSqlQuery);
 
-            private async Task ResetReadAsync()
-            {
-                if (_responseMessageEnumerator is not null)
-                {
-                    await _responseMessageEnumerator.DisposeAsync().ConfigureAwait(false);
-                    _responseMessageEnumerator = null;
-                }
+                responseMessage.EnsureSuccessStatusCode();
 
-                _responseMessage?.Dispose();
+                // Throw if this isn't a memory stream anymore
+                _current = (MemoryStream)responseMessage.Content;
+
+                return true;
             }
 
             public async ValueTask DisposeAsync()
             {
-                await ResetReadAsync().ConfigureAwait(false);
                 _query?.Dispose();
             }
         }
     }
-
-    #region ResponseMessageEnumerable
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IEnumerable<JToken> GetResponseMessageEnumerable(ResponseMessage responseMessage)
-        => new ResponseMessageEnumerable(responseMessage);
-
-    private sealed class ResponseMessageEnumerable(ResponseMessage responseMessage) : IEnumerable<JToken>, IAsyncEnumerable<JToken>
-    {
-        public IEnumerator<JToken> GetEnumerator()
-            => new ResponseMessageEnumerator(responseMessage);
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
-
-        public IAsyncEnumerator<JToken> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-            => new ResponseMessageAsyncEnumerator(responseMessage);
-    }
-
-    private sealed class ResponseMessageEnumerator : IEnumerator<JToken>
-    {
-        private readonly Stream _responseStream;
-        private readonly StreamReader _reader;
-        private readonly JsonTextReader _jsonReader;
-
-        private JToken? _current;
-
-        public ResponseMessageEnumerator(ResponseMessage responseMessage)
-        {
-            _responseStream = responseMessage.Content;
-            _reader = new StreamReader(_responseStream);
-            _jsonReader = CreateJsonReader(_reader);
-        }
-
-        public bool MoveNext()
-        {
-            while (_jsonReader.Read())
-            {
-                return TryDeserializeNextToken(_jsonReader, out _current);
-            }
-
-            return false;
-        }
-
-        public JToken Current
-            => _current ?? throw new InvalidOperationException();
-
-        object IEnumerator.Current
-            => Current;
-
-        public void Dispose()
-        {
-            _jsonReader.Close();
-            _reader.Dispose();
-            _responseStream.Dispose();
-        }
-
-        public void Reset()
-            => throw new NotSupportedException();
-    }
-
-    private sealed class ResponseMessageAsyncEnumerator : IAsyncEnumerator<JToken>
-    {
-        private readonly Stream _responseStream;
-        private readonly StreamReader _reader;
-        private readonly JsonTextReader _jsonReader;
-
-        private JToken? _current;
-
-        public ResponseMessageAsyncEnumerator(ResponseMessage responseMessage)
-        {
-            _responseStream = responseMessage.Content;
-            _reader = new StreamReader(_responseStream);
-            _jsonReader = CreateJsonReader(_reader);
-        }
-
-        public async ValueTask<bool> MoveNextAsync()
-        {
-            while (await _jsonReader.ReadAsync().ConfigureAwait(false))
-            {
-                return TryDeserializeNextToken(_jsonReader, out _current);
-            }
-
-            return false;
-        }
-
-        public JToken Current
-            => _current ?? throw new InvalidOperationException();
-
-        public async ValueTask DisposeAsync()
-        {
-            _jsonReader.Close();
-            _reader.Dispose();
-            await _responseStream.DisposeAsync().ConfigureAwait(false);
-        }
-    }
-
-    #endregion ResponseMessageEnumerable
 
     private sealed class CosmosFeedIteratorWrapper : FeedIterator
     {

@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Collections;
 using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json.Linq;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -24,7 +23,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JToken, T> _shaper;
+        private readonly Func<CosmosQueryContext, JsonReaderData, T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -38,7 +37,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JToken, T> shaper,
+            Func<CosmosQueryContext, JsonReaderData, T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -76,7 +75,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _sqlExpressionFactory,
                         _cosmosQueryContext.Parameters)
                     .Visit(_selectExpression),
-                _cosmosQueryContext.Parameters);
+                _cosmosQueryContext.Parameters!);
 
         public string ToQueryString()
         {
@@ -104,17 +103,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
+            private readonly Func<CosmosQueryContext, JsonReaderData, T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
-            private readonly IConcurrencyDetector _concurrencyDetector;
+            private readonly IConcurrencyDetector? _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-            private IAsyncEnumerator<JToken> _enumerator;
+            private T? _current;
+            private Stream? _stream;
+            private JsonReaderData? _readerData;
+            private IAsyncEnumerator<Stream>? _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
             {
@@ -134,14 +136,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     : null;
             }
 
-            public T Current { get; private set; }
+            public T Current => _current ?? throw new InvalidOperationException();
 
             public async ValueTask<bool> MoveNextAsync()
             {
                 try
                 {
-                    using var _ = _concurrencyDetector?.EnterCriticalSection();
-
                     if (_enumerator == null)
                     {
                         var sqlQuery = _queryingEnumerable.GenerateQuery();
@@ -154,14 +154,43 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
-                    var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+                    if (_readerData == null)
+                    {
+                        var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+                        if (!hasNext)
+                        {
+                            return false;
+                        }
+                        _stream = _enumerator.Current;
+                        _readerData = new JsonReaderData(_stream);
 
-                    Current
-                        = hasNext
-                            ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                            : default;
+                        var firstManager = new Utf8JsonReaderManager(_readerData, _queryLogger);
 
-                    return hasNext;
+                        while (firstManager.MoveNext() != JsonTokenType.PropertyName || firstManager.CurrentReader.GetString() == "Documents")
+                        {
+                        }
+                        firstManager.MoveNext();
+                        firstManager.MoveNext();
+                        var token = firstManager.MoveNext();
+                        Debug.Assert(token == JsonTokenType.StartArray);
+                        firstManager.CaptureState();
+                    }
+
+                    var manager = new Utf8JsonReaderManager(_readerData, _queryLogger);
+                    manager.MoveNext();
+
+                    if (manager.CurrentReader.TokenType == JsonTokenType.EndArray) // @TODO: Have a look at MaterializeJsonEntityCollection?
+                    {
+                        _stream!.Dispose();
+                        _readerData = null;
+                        return await MoveNextAsync().ConfigureAwait(false);
+                    }
+
+                    manager.CaptureState();
+
+                    using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
+                    _current = _shaper(_cosmosQueryContext, _readerData);
+                    return true;
                 }
                 catch (Exception exception)
                 {

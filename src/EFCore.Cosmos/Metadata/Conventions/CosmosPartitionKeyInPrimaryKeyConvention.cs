@@ -27,15 +27,6 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
     IEntityTypeBaseTypeChangedConvention
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public static readonly string JObjectPropertyName = "__jObject";
-
-    /// <summary>
     ///     Creates a new instance of <see cref="CosmosPartitionKeyInPrimaryKeyConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
@@ -82,33 +73,12 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
         }
     }
 
-    private static void ProcessJObjectProperty(IConventionEntityTypeBuilder entityTypeBuilder)
-    {
-        var entityType = entityTypeBuilder.Metadata;
-        if (entityType.BaseType == null
-            && !entityType.IsKeyless)
-        {
-            var jObjectProperty = entityTypeBuilder.Property(typeof(JObject), JObjectPropertyName);
-            jObjectProperty?.ToJsonProperty("");
-            jObjectProperty?.ValueGenerated(ValueGenerated.OnAddOrUpdate);
-        }
-        else
-        {
-            var jObjectProperty = entityType.FindDeclaredProperty(JObjectPropertyName);
-            if (jObjectProperty != null)
-            {
-                entityType.Builder.RemoveUnusedImplicitProperties([jObjectProperty]);
-            }
-        }
-    }
-
     /// <inheritdoc />
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
     {
         ProcessIdProperty(entityTypeBuilder);
-        ProcessJObjectProperty(entityTypeBuilder);
     }
 
     /// <inheritdoc />
@@ -139,7 +109,6 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
         if (entityTypeBuilder.Metadata.GetKeys().Count() == 1)
         {
             ProcessIdProperty(entityTypeBuilder);
-            ProcessJObjectProperty(entityTypeBuilder);
         }
     }
 
@@ -157,7 +126,6 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
         if (entityTypeBuilder.Metadata.IsKeyless)
         {
             ProcessIdProperty(entityTypeBuilder);
-            ProcessJObjectProperty(entityTypeBuilder);
         }
     }
 
@@ -189,7 +157,6 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
         if (entityTypeBuilder.Metadata.BaseType == newBaseType)
         {
             ProcessIdProperty(entityTypeBuilder);
-            ProcessJObjectProperty(entityTypeBuilder);
         }
     }
 

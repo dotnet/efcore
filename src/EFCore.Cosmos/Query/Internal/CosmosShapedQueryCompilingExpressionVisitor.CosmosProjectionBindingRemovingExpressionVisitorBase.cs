@@ -157,12 +157,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         var newExpression = (NewExpression)binaryExpression.Right;
 
-                        if (newExpression.Arguments[0] is ComplexPropertyBindingExpression complexPropertyBindingExpression)
-                        {
-                            _materializationContextBindings[parameterExpression] = complexPropertyBindingExpression;
-                            _projectionBindings[complexPropertyBindingExpression] = complexPropertyBindingExpression.JObjectParameter;
-                        }
-                        else
+                        //if (newExpression.Arguments[0] is ComplexPropertyBindingExpression complexPropertyBindingExpression)
+                        //{
+                        //    _materializationContextBindings[parameterExpression] = complexPropertyBindingExpression;
+                        //    _projectionBindings[complexPropertyBindingExpression] = complexPropertyBindingExpression.JObjectParameter;
+                        //}
+                        //else
                         {
                             StructuralTypeProjectionExpression structuralTypeProjectionExpression;
                             if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
@@ -598,10 +598,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IProperty property,
             Type type)
         {
-            if (property.Name == CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName)
-            {
-                return _projectionBindings[jTokenExpression];
-            }
+            //if (property.Name == CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName)
+            //{
+            //    return _projectionBindings[jTokenExpression];
+            //}
 
             var entityType = property.DeclaringType as IEntityType;
             var ownership = entityType?.FindOwnership();
