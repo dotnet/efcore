@@ -50,6 +50,8 @@ public static class TestEnvironment
         }
 
         // Try to start a testcontainer with the Linux emulator.
+        // Synchronous blocking is required here because this runs in a Lazy<T> initializer
+        // which cannot be async. This matches the pattern used in SQL Server's TestEnvironment.
         try
         {
             var container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
@@ -64,7 +66,8 @@ public static class TestEnvironment
                 }
                 catch
                 {
-                    // Ignore errors during container cleanup
+                    // Best-effort cleanup: container may already be stopped or Docker daemon
+                    // may have exited before the process exit handler runs.
                 }
             };
 
@@ -77,9 +80,9 @@ public static class TestEnvironment
         }
         catch
         {
-            // Docker not available or container failed to start.
-            // Fall back to the default endpoint; the connection check will
-            // determine whether the emulator is actually reachable.
+            // Any failure (Docker not installed, daemon not running, image pull failure, etc.)
+            // falls back to the default endpoint. The connection check in CosmosTestStore will
+            // determine whether the emulator is actually reachable and skip tests if not.
             return ("https://localhost:8081", null);
         }
     }
@@ -93,11 +96,14 @@ public static class TestEnvironment
                 ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             };
             using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(3) };
+            // Any successful response (even 401) means the emulator is up and accepting connections.
             using var response = client.GetAsync(endpoint).GetAwaiter().GetResult();
             return true;
         }
         catch
         {
+            // Expected: HttpRequestException (connection refused), TaskCanceledException (timeout),
+            // or SocketException when the emulator is not running.
             return false;
         }
     }

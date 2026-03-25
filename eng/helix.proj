@@ -64,11 +64,6 @@
       <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
     </XUnitProject>
   </ItemGroup>
-  
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11`))'">
-    <XUnitProject Update="$(CosmosTests)">
-    </XUnitProject>
-  </ItemGroup>
 
   <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Only run SqlServer tests. -->
   <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`helix-sqlserver`))'">
