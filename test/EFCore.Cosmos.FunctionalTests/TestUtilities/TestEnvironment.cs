@@ -23,71 +23,90 @@ public static class TestEnvironment
         .Build()
         .GetSection("Test:Cosmos");
 
-    private static readonly Lazy<(string Connection, CosmosDbContainer Container)> _connectionInfo = new(InitializeConnection);
+    private static CosmosDbContainer _container;
+    private static bool _initialized;
+    private static readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
-    public static string DefaultConnection => _connectionInfo.Value.Connection;
+    public static string DefaultConnection { get; private set; }
 
-    private static CosmosDbContainer Container => _connectionInfo.Value.Container;
+    internal static HttpMessageHandler HttpMessageHandler { get; private set; }
 
-    public static bool IsTestContainer => Container != null;
-
-    internal static Func<HttpMessageHandler> HttpMessageHandlerFactory
-        => Container != null ? () => Container.HttpMessageHandler : null;
-
-    private static (string Connection, CosmosDbContainer Container) InitializeConnection()
+    public static async Task InitializeAsync()
     {
-        // If a connection string is specified (env var, config.json...), always use that.
-        var configured = Config["DefaultConnection"];
-        if (!string.IsNullOrEmpty(configured))
+        if (_initialized)
         {
-            return (configured, null);
+            return;
         }
 
-        // Try to connect to the default emulator endpoint.
-        if (TryProbeEmulator("https://localhost:8081"))
-        {
-            return ("https://localhost:8081", null);
-        }
+        await _initSemaphore.WaitAsync().ConfigureAwait(false);
 
-        // Try to start a testcontainer with the Linux emulator.
-        // Synchronous blocking is required here because this runs in a Lazy<T> initializer
-        // which cannot be async. This matches the pattern used in SQL Server's TestEnvironment.
         try
         {
-            var container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
-                .Build();
-            container.StartAsync().GetAwaiter().GetResult();
-
-            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            if (_initialized)
             {
-                try
-                {
-                    container.DisposeAsync().AsTask().GetAwaiter().GetResult();
-                }
-                catch
-                {
-                    // Best-effort cleanup: container may already be stopped or Docker daemon
-                    // may have exited before the process exit handler runs.
-                }
-            };
+                return;
+            }
 
-            var endpoint = new UriBuilder(
-                Uri.UriSchemeHttp,
-                container.Hostname,
-                container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
+            // If a connection string is specified (env var, config.json...), always use that.
+            var configured = Config["DefaultConnection"];
+            if (!string.IsNullOrEmpty(configured))
+            {
+                DefaultConnection = configured;
+                _initialized = true;
+                return;
+            }
 
-            return (endpoint, container);
+            // Try to connect to the default emulator endpoint.
+            if (await TryProbeEmulatorAsync("https://localhost:8081").ConfigureAwait(false))
+            {
+                DefaultConnection = "https://localhost:8081";
+                _initialized = true;
+                return;
+            }
+
+            // Try to start a testcontainer with the Linux emulator.
+            try
+            {
+                _container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
+                    .Build();
+                await _container.StartAsync().ConfigureAwait(false);
+
+                AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+                {
+                    try
+                    {
+                        _container.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                    }
+                    catch
+                    {
+                        // Best-effort cleanup: container may already be stopped or Docker daemon
+                        // may have exited before the process exit handler runs.
+                    }
+                };
+
+                DefaultConnection = new UriBuilder(
+                    Uri.UriSchemeHttp,
+                    _container.Hostname,
+                    _container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
+                HttpMessageHandler = _container.HttpMessageHandler;
+            }
+            catch when (!SkipConnectionCheck)
+            {
+                // Any failure (Docker not installed, daemon not running, image pull failure, etc.)
+                // falls back to the default endpoint. The connection check in CosmosTestStore will
+                // determine whether the emulator is actually reachable and skip tests if not.
+                DefaultConnection = "https://localhost:8081";
+            }
+
+            _initialized = true;
         }
-        catch
+        finally
         {
-            // Any failure (Docker not installed, daemon not running, image pull failure, etc.)
-            // falls back to the default endpoint. The connection check in CosmosTestStore will
-            // determine whether the emulator is actually reachable and skip tests if not.
-            return ("https://localhost:8081", null);
+            _initSemaphore.Release();
         }
     }
 
-    private static bool TryProbeEmulator(string endpoint)
+    private static async Task<bool> TryProbeEmulatorAsync(string endpoint)
     {
         try
         {
@@ -97,7 +116,7 @@ public static class TestEnvironment
             };
             using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(3) };
             // Any successful response (even 401) means the emulator is up and accepting connections.
-            using var response = client.GetAsync(endpoint).GetAwaiter().GetResult();
+            using var response = await client.GetAsync(endpoint).ConfigureAwait(false);
             return true;
         }
         catch
@@ -131,7 +150,7 @@ public static class TestEnvironment
 
     public static bool SkipConnectionCheck { get; } = string.Equals(Config["SkipConnectionCheck"], "true", StringComparison.OrdinalIgnoreCase);
 
-    public static string EmulatorType => IsTestContainer
+    public static string EmulatorType => _container != null
         ? "linux"
         : Config["EmulatorType"] ?? (!OperatingSystem.IsWindows() ? "linux" : "");
 
