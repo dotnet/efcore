@@ -106,11 +106,15 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
-        var targetPlatformIdentifier = GetTargetPlatformIdentifier(startupProject.TargetFramework);
-        if (!IsCurrentPlatform(targetPlatformIdentifier))
+        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier))
         {
             Reporter.WriteWarning(
-                Resources.UnsupportedPlatform(startupProject.ProjectName, targetPlatformIdentifier));
+                Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetPlatformIdentifier));
+        }
+        else if (HasPlatformInTargetFramework(startupProject.TargetFramework))
+        {
+            Reporter.WriteWarning(
+                Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetFramework));
         }
 
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
@@ -320,53 +324,16 @@ internal class RootCommand : CommandBase
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
 
-    private static bool IsCurrentPlatform(string? targetPlatformIdentifier)
-    {
-        if (string.IsNullOrEmpty(targetPlatformIdentifier))
-        {
-            return true;
-        }
-
-        if (string.Equals(targetPlatformIdentifier, "windows", StringComparison.OrdinalIgnoreCase))
-        {
-            return OperatingSystem.IsWindows();
-        }
-
-        if (string.Equals(targetPlatformIdentifier, "linux", StringComparison.OrdinalIgnoreCase))
-        {
-            return OperatingSystem.IsLinux();
-        }
-
-        if (string.Equals(targetPlatformIdentifier, "osx", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(targetPlatformIdentifier, "macos", StringComparison.OrdinalIgnoreCase))
-        {
-            return OperatingSystem.IsMacOS();
-        }
-
-        return false;
-    }
-
-    private static string? GetTargetPlatformIdentifier(string? targetFramework)
+    private static bool HasPlatformInTargetFramework(string? targetFramework)
     {
         if (string.IsNullOrEmpty(targetFramework))
         {
-            return null;
+            return false;
         }
 
+        // Check for netX.Y-Z form (e.g. net8.0-windows10.0.19041.0)
         var dashIndex = targetFramework.IndexOf('-');
-        if (dashIndex < 0 || dashIndex >= targetFramework.Length - 1)
-        {
-            return null;
-        }
-
-        var platformAndVersion = targetFramework[(dashIndex + 1)..];
-        var i = 0;
-        while (i < platformAndVersion.Length && !char.IsDigit(platformAndVersion[i]))
-        {
-            i++;
-        }
-
-        return i > 0 ? platformAndVersion[..i] : null;
+        return dashIndex > 0 && dashIndex < targetFramework.Length - 1;
     }
 
     private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
