@@ -28,13 +28,33 @@ public static class TestEnvironment
     private static readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
     private static string _defaultConnection;
+    private static HttpMessageHandler _httpMessageHandler;
 
     public static string DefaultConnection
-        => _initialized
-            ? _defaultConnection
-            : throw new InvalidOperationException("TestEnvironment.InitializeAsync() must be called before accessing DefaultConnection.");
+    {
+        get
+        {
+            EnsureInitialized();
+            return _defaultConnection;
+        }
+    }
 
-    internal static HttpMessageHandler HttpMessageHandler { get; private set; }
+    internal static HttpMessageHandler HttpMessageHandler
+    {
+        get
+        {
+            EnsureInitialized();
+            return _httpMessageHandler;
+        }
+    }
+
+    private static void EnsureInitialized()
+    {
+        if (!_initialized)
+        {
+            InitializeAsync().GetAwaiter().GetResult();
+        }
+    }
 
     public static async Task InitializeAsync()
     {
@@ -94,7 +114,7 @@ public static class TestEnvironment
                     Uri.UriSchemeHttp,
                     _container.Hostname,
                     _container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
-                HttpMessageHandler = _container.HttpMessageHandler;
+                _httpMessageHandler = _container.HttpMessageHandler;
             }
             catch when (!SkipConnectionCheck)
             {
