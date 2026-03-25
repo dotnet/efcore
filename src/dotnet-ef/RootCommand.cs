@@ -106,12 +106,8 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
-        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier))
-        {
-            Reporter.WriteWarning(
-                Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetPlatformIdentifier));
-        }
-        else if (HasPlatformInTargetFramework(startupProject.TargetFramework))
+        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier)
+            || HasPlatformInTargetFramework(startupProject.TargetFramework))
         {
             Reporter.WriteWarning(
                 Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetFramework));
