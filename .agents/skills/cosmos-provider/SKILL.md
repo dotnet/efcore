@@ -23,32 +23,6 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 
 ## Azure Cosmos DB Emulator for Tests
 
-### Automatic Testcontainer Startup
-
-Cosmos functional tests automatically manage the emulator lifecycle via [Testcontainers](https://testcontainers.com/modules/cosmodb/?language=dotnet) (`Testcontainers.CosmosDb` NuGet package). The async initialization logic in `TestEnvironment.InitializeAsync()` (called from `CosmosTestStore.IsConnectionAvailableAsync()`) follows this order:
-
-1. **Configured endpoint**: If `Test__Cosmos__DefaultConnection` env var (or `cosmosConfig.json` / `cosmosConfig.test.json`) is set, it is used directly — no container is started.
-2. **Local emulator probe**: A quick HTTPS probe is sent to `https://localhost:8081`. If a running emulator responds, it is used.
-3. **Testcontainer fallback**: If neither of the above succeeds, a `CosmosDbContainer` is started with the Linux emulator image (`mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview`). The container is disposed on process exit.
-4. **Graceful skip**: If Docker is unavailable and no emulator is reachable, the default endpoint is used and `IsConnectionAvailableAsync()` returns `false`, causing tests to be skipped. However, if `Test__Cosmos__SkipConnectionCheck=true` is set (e.g. in CI), the testcontainer failure is **not** caught so that infrastructure problems surface immediately.
-
-### Linux Emulator Detection
-
-`TestEnvironment.IsLinuxEmulator` is `true` when:
-- A testcontainer is running (always the Linux image), **or**
-- The OS is not Windows (assumes the local emulator is the Linux Docker image), **or**
-- `Test__Cosmos__EmulatorType` is explicitly set to `linux`.
-
-The Linux (vnext) emulator does **not** support transactional batches, so `LinuxEmulatorSaveChangesInterceptor` forces `AutoTransactionBehavior.Never` on every `SaveChanges` call. Tests that require features absent from the Linux emulator are guarded with `[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]`.
-
-### HttpClient Handling
-
-When a testcontainer is active, `CosmosDbContextOptionsBuilderExtensions.ApplyConfiguration` uses the container's `HttpMessageHandler` (a URI rewriter that routes requests to the mapped container port over HTTP), captured once during initialization. When connecting to a local HTTPS emulator, it uses `DangerousAcceptAnyServerCertificateValidator` instead.
-
-### Key Files
-
-- `test/EFCore.Cosmos.FunctionalTests/TestUtilities/TestEnvironment.cs` — async connection auto-detection and testcontainer lifecycle
-- `test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosTestStore.cs` — test store creation, seeding, cleanup
-- `test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosDbContextOptionsBuilderExtensions.cs` — shared Cosmos options (execution strategy, timeout, HttpClient, Gateway mode)
-- `test/EFCore.Cosmos.FunctionalTests/TestUtilities/LinuxEmulatorSaveChangesInterceptor.cs` — disables transactional batches for the Linux emulator
-- `test/EFCore.Cosmos.FunctionalTests/TestUtilities/CosmosConditionAttribute.cs` — conditional test execution based on emulator type
+- `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when no emulator is configured or already running locally. Set `Test__Cosmos__DefaultConnection` to skip auto-detection.
+- The Linux (vnext) emulator does **not** support transactional batches — `LinuxEmulatorSaveChangesInterceptor` forces `AutoTransactionBehavior.Never`. Guard tests requiring unsupported features with `[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]`.
+- When `Test__Cosmos__SkipConnectionCheck=true` (CI), testcontainer startup failures propagate immediately instead of being caught.

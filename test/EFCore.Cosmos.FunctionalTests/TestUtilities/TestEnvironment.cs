@@ -27,7 +27,9 @@ public static class TestEnvironment
     private static bool _initialized;
     private static readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
-    public static string DefaultConnection { get; private set; }
+    public static string DefaultConnection { get; private set; } = string.IsNullOrEmpty(Config["DefaultConnection"])
+        ? "https://localhost:8081"
+        : Config["DefaultConnection"];
 
     internal static HttpMessageHandler HttpMessageHandler { get; private set; }
 
@@ -67,9 +69,10 @@ public static class TestEnvironment
             // Try to start a testcontainer with the Linux emulator.
             try
             {
-                _container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
+                var container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
                     .Build();
-                await _container.StartAsync().ConfigureAwait(false);
+                await container.StartAsync().ConfigureAwait(false);
+                _container = container;
 
                 AppDomain.CurrentDomain.ProcessExit += (_, _) =>
                 {

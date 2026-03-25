@@ -10,7 +10,7 @@ public static class CosmosDbContextOptionsBuilderExtensions
     public static CosmosDbContextOptionsBuilder ApplyConfiguration(this CosmosDbContextOptionsBuilder optionsBuilder)
     {
         var httpClient = TestEnvironment.HttpMessageHandler != null
-            ? new HttpClient(TestEnvironment.HttpMessageHandler)
+            ? new HttpClient(TestEnvironment.HttpMessageHandler, disposeHandler: false)
             : new HttpClient(
                 new HttpClientHandler
                 {
