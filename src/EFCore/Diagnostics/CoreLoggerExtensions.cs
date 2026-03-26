@@ -231,6 +231,46 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.CompiledModelProviderMismatchWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="compiledProviderName">The provider name stored in the compiled model.</param>
+    /// <param name="currentProviderName">The provider name currently configured.</param>
+    public static void CompiledModelProviderMismatchWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+        string compiledProviderName,
+        string currentProviderName)
+    {
+        var definition = CoreResources.LogCompiledModelProviderMismatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                compiledProviderName,
+                currentProviderName);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ProviderMismatchEventData(
+                definition,
+                CompiledModelProviderMismatch,
+                compiledProviderName,
+                currentProviderName);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string CompiledModelProviderMismatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (ProviderMismatchEventData)payload;
+        return d.GenerateMessage(p.CompiledProviderName, p.CurrentProviderName);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

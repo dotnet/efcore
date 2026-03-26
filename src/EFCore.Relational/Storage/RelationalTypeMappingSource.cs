@@ -78,7 +78,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </summary>
     /// <param name="mappingInfo">The mapping info to use to create the mapping.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none could be found.</returns>
-    protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+    protected override RelationalTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
         => throw new InvalidOperationException(
             RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
@@ -250,7 +250,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </remarks>
     /// <param name="property">The property.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    public override CoreTypeMapping? FindMapping(IProperty property)
+    public override RelationalTypeMapping? FindMapping(IProperty property)
     {
         var principals = property.GetPrincipals();
 
@@ -291,7 +291,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </remarks>
     /// <param name="elementType">The collection element.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    public override CoreTypeMapping? FindMapping(IElementType elementType)
+    public override RelationalTypeMapping? FindMapping(IElementType elementType)
     {
         var storeTypeName = (string?)elementType[RelationalAnnotationNames.StoreType];
         var isFixedLength = elementType.IsFixedLength();

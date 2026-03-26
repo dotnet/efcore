@@ -30,7 +30,7 @@ WHERE (c["Guid"] = "df36f493-463f-4123-83f9-6b135deeb7ba")
 
         AssertSql(
             """
-@p=?
+@p='df36f493-463f-4123-83f9-6b135deeb7ba'
 
 SELECT VALUE c
 FROM root c

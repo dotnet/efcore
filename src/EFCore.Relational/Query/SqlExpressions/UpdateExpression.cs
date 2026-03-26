@@ -117,7 +117,7 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
 
         return selectExpression == SelectExpression && table == Table && columnValueSetters is null
             ? this
-            : new UpdateExpression(table, selectExpression, columnValueSetters ?? ColumnValueSetters);
+            : new UpdateExpression(table, selectExpression, columnValueSetters ?? ColumnValueSetters, Tags);
     }
 
     /// <summary>

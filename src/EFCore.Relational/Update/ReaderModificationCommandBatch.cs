@@ -352,7 +352,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
             Consume(dataReader);
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -392,7 +392,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
             await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException and not UnreachableException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,

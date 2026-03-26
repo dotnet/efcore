@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -304,7 +305,7 @@ namespace System.Runtime.CompilerServices
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     file sealed class InterceptsLocationAttribute : Attribute
     {
-        public InterceptsLocationAttribute(string filePath, int line, int column) { }
+        public InterceptsLocationAttribute(int version, string data) { }
     }
 }
 """
@@ -313,8 +314,8 @@ namespace System.Runtime.CompilerServices
         var name = Uniquifier.Uniquify(
             Path.GetFileNameWithoutExtension(syntaxTree.FilePath),
             generatedFileNames,
-            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath),
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath));
         return new ScaffoldedFile(name, _code.ToString());
     }
 
@@ -496,10 +497,11 @@ namespace System.Runtime.CompilerServices
         };
 
         // Output the interceptor method signature preceded by the [InterceptsLocation] attribute.
-        var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
-        code.AppendLine(
-            $"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"", "\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        var invocationSyntax = (InvocationExpressionSyntax)operatorSyntax;
+        var interceptableLocation = semanticModel.GetInterceptableLocation(invocationSyntax, cancellationToken)
+            ?? throw new InvalidOperationException(DesignStrings.CouldNotGetInterceptableLocation(operatorSyntax));
+        code.AppendLine(interceptableLocation.GetInterceptsLocationAttributeSyntax());
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
 
@@ -736,6 +738,14 @@ namespace System.Runtime.CompilerServices
 
                         if (parameterType == typeof(CancellationToken))
                         {
+                            // Set the cancellation token on the query context
+                            if (!declaredQueryContextVariable)
+                            {
+                                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
+                                declaredQueryContextVariable = true;
+                            }
+
+                            code.AppendLine($"queryContext.CancellationToken = {parameterName};");
                             continue;
                         }
 
@@ -1207,7 +1217,10 @@ namespace System.Runtime.CompilerServices
             throw new InvalidOperationException(RelationalStrings.InvalidArgumentToExecuteUpdate);
         }
 
-        return settersBuilder.BuildSettersExpression();
+        // The expression tree is nested inside-out (last SetProperty call is the outermost node),
+        // so setters were added in reverse order. Reverse to restore source code order.
+        var settersArray = settersBuilder.BuildSettersExpression();
+        return Expression.NewArrayInit(settersArray.Type.GetElementType()!, settersArray.Expressions.Reverse());
     }
 
     /// <summary>

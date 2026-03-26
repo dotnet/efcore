@@ -74,19 +74,19 @@ public class RelationalParameterBasedSqlProcessor
     ///     optimize it for given parameter values.
     /// </summary>
     /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="Decorator">A decorator allowing access to parameters in a cache-safe way.</param>
+    /// <param name="decorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>A processed query expression.</returns>
-    protected virtual Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator Decorator)
-        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, Decorator);
+    protected virtual Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator decorator)
+        => new SqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, decorator);
 
     /// <summary>
     ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the query expression for given parameter values.
     /// </summary>
     /// <param name="queryExpression">A query expression to optimize.</param>
-    /// <param name="Decorator">A decorator allowing access to parameters in a cache-safe way.</param>
+    /// <param name="decorator">A decorator allowing access to parameters in a cache-safe way.</param>
     /// <returns>A processed query expression.</returns>
-    protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, ParametersCacheDecorator Decorator)
-        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, Decorator);
+    protected virtual Expression ExpandFromSqlParameter(Expression queryExpression, ParametersCacheDecorator decorator)
+        => new RelationalParameterProcessor(Dependencies).Expand(queryExpression, decorator);
 
     /// <summary>
     ///     Optimizes the query expression for given parameter values.

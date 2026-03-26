@@ -66,7 +66,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var nullable = false;
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
-        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
+        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, options.ProviderName, nullable);
         var assemblyInfoFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
         scaffoldedFiles.Add(new ScaffoldedFile(assemblyInfoFileName, assemblyAttributesCode));
 
@@ -134,8 +134,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         => Uniquifier.Uniquify(
             name,
             options.GeneratedFileNames,
-            (options.Suffix ?? "") + FileExtension,
-            CompiledModelScaffolder.MaxFileNameLength);
+            CompiledModelScaffolder.MaxFileNameLength,
+            (options.Suffix ?? "") + FileExtension);
 
     private static string GenerateHeader(SortedSet<string> namespaces, string currentNamespace, bool nullable)
     {
@@ -174,6 +174,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private string CreateAssemblyAttributes(
         string @namespace,
         Type contextType,
+        string? providerName,
         bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
@@ -183,7 +184,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder
             .Append("[assembly: DbContextModel(typeof(").Append(_code.Reference(contextType))
-            .Append("), typeof(").Append(GetModelClassName(contextType)).AppendLine("))]");
+            .Append("), typeof(").Append(GetModelClassName(contextType)).Append(")");
+
+        if (providerName != null)
+        {
+            mainBuilder
+                .Append(", ProviderName = ").Append(_code.Literal(providerName));
+        }
+
+        mainBuilder.AppendLine(")]");
 
         return GenerateHeader(namespaces, currentNamespace: "", nullable) + mainBuilder;
     }
@@ -1199,6 +1208,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.UnknownLiteral(sentinel));
         }
 
+        if (!property.IsAutoLoaded)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("autoLoaded: ")
+                .Append(_code.Literal(false));
+        }
+
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
         if (jsonValueReaderWriterType != null)
         {
@@ -1769,7 +1785,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
         ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
-        var member = property.GetMemberInfo(forMaterialization, forSet);
+        if (!property.TryGetMemberInfo(forMaterialization, forSet, out var member, out var error))
+        {
+            throw new InvalidOperationException(error);
+        }
+
+        if (member == null)
+        {
+            return null;
+        }
         switch (member)
         {
             case FieldInfo field:
@@ -1799,6 +1823,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         memberAccessReplacements ??= [];
+
         var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
 
         var declaringType = member.DeclaringType!;
@@ -1811,8 +1836,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix,
-                    int.MaxValue);
+                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, int.MaxValue,
+                    UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 
@@ -1825,7 +1850,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
             {
                 className = Uniquifier.Uniquify(
-                    declaringType.Name, unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix, int.MaxValue);
+                    declaringType.Name, unsafeAccessorClassNames.Inverse, int.MaxValue, UnsafeAccessorsSuffix);
                 unsafeAccessorClassNames[declaringType] = className;
             }
 

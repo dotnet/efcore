@@ -1,0 +1,68 @@
+name: "Copilot Setup Steps"
+
+# See https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment
+
+# Automatically run the setup steps when they are changed to allow for easy validation, and
+# allow manual testing through the repository's "Actions" tab
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
+  copilot-setup-steps:
+    permissions:
+      contents: read # Read permission is required to check out the repository's code.
+
+    runs-on: ubuntu-24.04
+
+    # Install SQL Server via a docker container.
+    # It's better to do this rather than e.g. use a testcontainer, because then the agent can reuse the same container
+    # and instance of SQL Server rather than have to start it up each time it needs to iterate and run a test.
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2025-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: 'PLACEHOLDERPass$$w0rd'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' -C"
+          --health-start-period=20s
+          --health-interval=2s
+          --health-retries=30
+          --health-timeout=5s
+
+      cosmosdb:
+        image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+        ports:
+          - 8081:8081
+        env:
+          PROTOCOL: https
+          ENABLE_EXPLORER: "false"
+        options: >-
+          --health-cmd="curl -k https://localhost:8081/ || exit 1"
+          --health-start-period=120s
+          --health-interval=5s
+          --health-retries=60
+          --health-timeout=5s
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Restore .NET SDK
+        continue-on-error: true
+        run: ./restore.sh
+
+      - name: Export environment variables for the agent's session
+        run: |
+          echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+          echo "Test__Cosmos__EmulatorType=linux" >> "$GITHUB_ENV"
+          echo "DOTNET_ROOT=$PWD/.dotnet/" >> "$GITHUB_ENV"
+          echo "$PWD/.dotnet/" >> $GITHUB_PATH

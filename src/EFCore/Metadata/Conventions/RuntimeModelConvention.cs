@@ -378,7 +378,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 providerValueComparer: property.GetProviderValueComparer(),
                 jsonValueReaderWriter: property.GetJsonValueReaderWriter(),
                 typeMapping: property.GetTypeMapping(),
-                sentinel: property.Sentinel)
+                sentinel: property.Sentinel,
+                autoLoaded: property.IsAutoLoaded)
             : ((RuntimeComplexType)runtimeType).AddProperty(
                 property.Name,
                 property.ClrType,
@@ -402,7 +403,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 providerValueComparer: property.GetProviderValueComparer(),
                 jsonValueReaderWriter: property.GetJsonValueReaderWriter(),
                 typeMapping: property.GetTypeMapping(),
-                sentinel: property.Sentinel);
+                sentinel: property.Sentinel,
+                autoLoaded: property.IsAutoLoaded);
 
     private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element)
         => runtimeProperty.SetElementType(

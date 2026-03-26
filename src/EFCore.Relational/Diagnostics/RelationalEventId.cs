@@ -99,7 +99,7 @@ public static class RelationalEventId
         // Model validation events
         ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
         BoolWithDefaultWarning,
-        AllIndexPropertiesNotToMappedToAnyTable,
+        AllIndexPropertiesNotMappedToAnyTable,
         IndexPropertiesBothMappedAndNotMappedToTable,
         IndexPropertiesMappedToNonOverlappingTables,
         ForeignKeyPropertiesMappedToUnrelatedTables,
@@ -914,8 +914,8 @@ public static class RelationalEventId
     ///         This event uses the <see cref="IndexEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable =
-        MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
+    public static readonly EventId AllIndexPropertiesNotMappedToAnyTable =
+        MakeValidationId(Id.AllIndexPropertiesNotMappedToAnyTable);
 
     /// <summary>
     ///     An index specifies properties some of which are mapped and some of which are not mapped to a column in a table.

@@ -171,6 +171,21 @@
   <data name="ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer" xml:space="preserve">
     <value>'ExecuteUpdate' cannot set a property in a JSON column to an expression containing a column on SQL Server versions before 2022. If you're on SQL Server 2022 and above, your compatibility level may be set to a lower value; consider raising it.</value>
   </data>
+  <data name="FullTextIndexDuplicateOnTable" xml:space="preserve">
+    <value>Entity type '{entityType}' has multiple full-text indexes configured. SQL Server supports only one full-text index per table.</value>
+  </data>
+  <data name="FullTextIndexLanguagePropertyNotInIndex" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' specifies a language for property '{property}', but that property is not part of the index.</value>
+  </data>
+  <data name="FullTextIndexMissingKeyIndex" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.</value>
+  </data>
+  <data name="FullTextIndexOnInvalidColumn" xml:space="preserve">
+    <value>Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.</value>
+  </data>
+  <data name="FullTextMultipleDefaultCatalogs" xml:space="preserve">
+    <value>Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.</value>
+  </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>
@@ -191,6 +206,9 @@
   </data>
   <data name="IndexTableRequired" xml:space="preserve">
     <value>SQL Server requires the table name to be specified for index operations. Specify table name in calls to 'MigrationBuilder.RenameIndex' and 'DropIndex'.</value>
+  </data>
+  <data name="InvalidCollationName" xml:space="preserve">
+    <value>Collation name '{collation}' is invalid; collation names may only contain alphanumeric characters and underscores.</value>
   </data>
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
     <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
@@ -218,6 +236,10 @@
   <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
     <value>Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.</value>
     <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
+  </data>
+  <data name="LogDataverseForeignKeyInvalid" xml:space="preserve">
+    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is not supported by the Dataverse TDS Endpoint.</value>
+    <comment>Warning SqlServerEventId.DataverseForeignKeyInvalidWarning string string</comment>
   </data>
   <data name="LogDecimalTypeKey" xml:space="preserve">
     <value>The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database, this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key, or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.</value>
@@ -308,6 +330,9 @@
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
+  <data name="PropertyNotMappedHierarchyId" xml:space="preserve">
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped because the required HierarchyId services have not been configured. Install the 'Microsoft.EntityFrameworkCore.SqlServer.HierarchyId' NuGet package and call 'UseHierarchyId' in your SQL Server provider configuration. See https://learn.microsoft.com/ef/core/providers/sql-server/hierarchyid for more information.</value>
+  </data>
   <data name="QueryingOrderedBinaryJsonCollectionsNotSupported" xml:space="preserve">
     <value>The query is attempting to query a JSON collection of binary data in a context that requires preserving the ordering of the collection; this isn't supported by SQL Server.</value>
   </data>
@@ -374,7 +399,22 @@
   <data name="VectorDimensionsMissing" xml:space="preserve">
     <value>Vector property '{structuralType}.{propertyName}' was not configured with the number of dimensions. Set the column type to 'vector(x)' with the desired number of dimensions, or use the 'MaxLength' APIs.</value>
   </data>
+  <data name="VectorIndexOnNonVectorProperty" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.</value>
+  </data>
+  <data name="VectorIndexRequiresMetric" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.</value>
+  </data>
+  <data name="VectorIndexRequiresSingleProperty" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.</value>
+  </data>
+  <data name="VectorIndexRequiresType" xml:space="preserve">
+    <value>Vector index '{index}' on entity type '{entityType}' cannot have an empty vector index type.</value>
+  </data>
   <data name="VectorPropertiesNotSupportedInJson" xml:space="preserve">
     <value>Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.</value>
+  </data>
+  <data name="VectorSearchRequiresColumn" xml:space="preserve">
+    <value>VectorSearch() requires a valid vector column.</value>
   </data>
 </root>

@@ -532,18 +532,8 @@ INNER JOIN (
 
         AssertSql(
             """
-@p='0'
-@p1='100'
-
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-LEFT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
     }
@@ -554,18 +544,8 @@ WHERE [o].[OrderID] < 10276
 
         AssertSql(
             """
-@p='0'
-@p1='100'
-
 DELETE FROM [o]
 FROM [Order Details] AS [o]
-LEFT JOIN (
-    SELECT [o0].[OrderID]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] < 10300
-    ORDER BY [o0].[OrderID]
-    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
-) AS [o1] ON [o].[OrderID] = [o1].[OrderID]
 WHERE [o].[OrderID] < 10276
 """);
     }
@@ -666,6 +646,20 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
+    public override async Task Update_set_constant_TagWith_null(bool async)
+    {
+        await base.Update_set_constant_TagWith_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+-- MyUpdate
+
+UPDATE [c]
+SET [c].[ContactName] = NULL
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Update_Where_set_constant(bool async)
     {
         await base.Update_Where_set_constant(async);
@@ -691,6 +685,19 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Update_Where_set_nullable_int_constant_via_discard_lambda(bool async)
+    {
+        await base.Update_Where_set_nullable_int_constant_via_discard_lambda(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [p]
+SET [p].[SupplierID] = 1
+FROM [Products] AS [p]
+WHERE [p].[ProductID] < 5
 """);
     }
 

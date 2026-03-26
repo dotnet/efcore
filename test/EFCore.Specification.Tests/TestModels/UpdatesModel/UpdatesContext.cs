@@ -15,6 +15,8 @@ public class UpdatesContext(DbContextOptions options) : PoolableDbContext(option
     public DbSet<ProductTableWithView> ProductTable { get; set; } = null!;
     public DbSet<ProductTableView> ProductTableView { get; set; } = null!;
     public DbSet<Rodney> Trotters { get; set; } = null!;
+    public DbSet<CrunchyNougat> CrunchyNougats { get; set; } = null!;
+    public DbSet<SoftNougat> SoftNougats { get; set; } = null!;
 
     public static Task SeedAsync(UpdatesContext context)
     {

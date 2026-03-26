@@ -54,7 +54,7 @@ internal class RootCommand : CommandBase
     {
         var commands = _args!.TakeWhile(a => a[0] != '-').ToList();
         if (_help!.HasValue()
-            || ShouldHelp(commands))
+            || ShouldHelp(commands, _args!))
         {
             return ShowHelp(_help.HasValue(), commands);
         }
@@ -84,7 +84,7 @@ internal class RootCommand : CommandBase
                 && _args[0] == "dbcontext"
                 && _args[1] == "optimize"
                 && !_args.Any(a => a == "--no-scaffold");
-            startupProject.Build(skipOptimization ? new[] { "/p:EFOptimizeContext=false" } : null);
+            startupProject.Build(skipOptimization ? ["/p:EFScaffoldModelStage=none", "/p:EFPrecompileQueriesStage=none"] : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
 
@@ -106,39 +106,25 @@ internal class RootCommand : CommandBase
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
+        if (!string.IsNullOrEmpty(startupProject.TargetPlatformIdentifier)
+            || HasPlatformInTargetFramework(startupProject.TargetFramework))
+        {
+            Reporter.WriteWarning(
+                Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetFramework));
+        }
+
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
         if (targetFramework.Identifier == ".NETFramework")
         {
-            executable = Path.Combine(
-                toolsPath,
-                "net472",
-                startupProject.PlatformTarget == "x86"
-                    ? "win-x86"
-                    : "any",
-                "ef.exe");
+            throw new CommandException(
+                Resources.NETFrameworkStartupProject(startupProject.ProjectName));
         }
         else if (targetFramework.Identifier == ".NETCoreApp")
         {
-            if (targetFramework.Version < new Version(2, 0))
+            if (targetFramework.Version < new Version(5, 0))
             {
                 throw new CommandException(
                     Resources.NETCoreApp1StartupProject(startupProject.ProjectName, targetFramework.Version));
-            }
-
-            var targetPlatformIdentifier = startupProject.TargetPlatformIdentifier!;
-            if (targetPlatformIdentifier.Length != 0
-                && !string.Equals(targetPlatformIdentifier, "Windows", StringComparison.OrdinalIgnoreCase))
-            {
-                executable = Path.Combine(
-                    toolsPath,
-                    "net472",
-                    startupProject.PlatformTarget switch
-                    {
-                        "x86" => "win-x86",
-                        "ARM64" => "win-arm64",
-                        _ => "any"
-                    },
-                    "ef.exe");
             }
 
             executable = "dotnet";
@@ -171,10 +157,7 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-#if !NET8_0
-#error Target framework needs to be updated here, as well as in Microsoft.EntityFrameworkCore.Tasks.props and EntityFrameworkCore.psm1
-#endif
-            args.Add(Path.Combine(toolsPath, "net8.0", "any", "ef.dll"));
+            args.Add(Path.Combine(toolsPath, "net", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {
@@ -333,9 +316,23 @@ internal class RootCommand : CommandBase
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion;
 
-    private static bool ShouldHelp(IReadOnlyList<string> commands)
-        => commands.Count == 0
-            || (commands.Count == 1
+    private static bool HasPlatformInTargetFramework(string? targetFramework)
+    {
+        if (string.IsNullOrEmpty(targetFramework))
+        {
+            return false;
+        }
+
+        // Check for netX.Y-Z form (e.g. net8.0-windows10.0.19041.0)
+        var dashIndex = targetFramework.IndexOf('-');
+        return dashIndex > 0 && dashIndex < targetFramework.Length - 1;
+    }
+
+    private static bool ShouldHelp(IReadOnlyList<string> commands, IList<string> args)
+        => args.Count == 0
+            || commands.Count == 0
+            || (args.Count == 1
+                && commands.Count == 1
                 && (commands[0] == "database"
                     || commands[0] == "dbcontext"
                     || commands[0] == "migrations"));

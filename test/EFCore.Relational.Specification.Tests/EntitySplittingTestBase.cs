@@ -50,10 +50,9 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         await TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
             UseTransaction,
-            async context => Assert.Contains(
-                CoreStrings.NonQueryTranslationFailedWithDetails(
-                    "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
-                (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 {
                     if (async)
                     {
@@ -63,7 +62,12 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
                     {
                         context.MeterReadings.ExecuteDelete();
                     }
-                })).Message));
+                });
+
+                Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+                var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+                Assert.StartsWith(RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"), innerException.Message);
+            });
     }
 
     // See additional tests bulk update tests in NonSharedModelBulkUpdatesTestBase
@@ -71,7 +75,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "EntitySplittingTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -99,7 +103,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         Func<DbContextOptionsBuilder, Task> onConfiguring = null,
         Func<EntitySplittingContext, Task> seed = null,
         bool sensitiveLogEnabled = true)
-        => ContextFactory = await InitializeAsync(
+        => ContextFactory = await InitializeNonSharedTest(
             onModelCreating,
             seed: seed,
             shouldLogCategory: _ => true,
@@ -113,7 +117,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase, IClassFi
         );
 
     protected virtual EntitySplittingContext CreateContext()
-        => ContextFactory.CreateContext();
+        => ContextFactory.CreateDbContext();
 
     public override async Task DisposeAsync()
     {

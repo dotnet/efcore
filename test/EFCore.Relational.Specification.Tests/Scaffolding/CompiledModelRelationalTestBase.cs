@@ -44,7 +44,9 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
                     if (jsonColumns)
                     {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
+#pragma warning restore EF8001
                     }
                     else
                     {
@@ -69,13 +71,19 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 {
                     if (jsonColumns)
                     {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
+#pragma warning restore EF8001
                     }
                     else
                     {
                         ob.ToTable("ManyOwned");
                     }
                 });
+
+            eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
+                .HasForeignKey<DependentBase<byte?>>()
+                .ExcludeForeignKeyFromMigrations();
 
             eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
                 .UsingEntity(jb =>
@@ -209,6 +217,10 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
         var dependentNavigation = principalDerived.GetDeclaredNavigations().First();
         var dependentForeignKey = dependentNavigation.ForeignKey;
+        Assert.Null(dependentForeignKey[RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations]);
+        Assert.Equal(
+            CoreStrings.RuntimeModelMissingData,
+            Assert.Throws<InvalidOperationException>(() => dependentForeignKey.IsExcludedFromMigrations()).Message);
 
         var referenceOwnedNavigation = principalBase.GetNavigations().Single();
         var referenceOwnedType = referenceOwnedNavigation.TargetEntityType;
@@ -1353,7 +1365,7 @@ public partial class DbContextModel
         return build;
     }
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 }

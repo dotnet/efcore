@@ -1,0 +1,255 @@
+# This workflow automatically labels issues with the preview/RC version when their fixing PR
+# is merged into main or a release branch, and sets their milestone to the current version.
+# The version is inferred from tags and branches in the repo, with the major/minor on main taken from eng/Versions.props.
+
+name: Label and milestone closed issues
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches:
+      - main
+      - release/**
+
+permissions:
+  issues: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  label:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-slim
+    steps:
+      - name: Label issues and update milestones
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            // Find issues closed by this PR using GraphQL (include current milestone)
+            const query = `
+              query($owner: String!, $repo: String!, $prNumber: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $prNumber) {
+                    closingIssuesReferences(first: 50) {
+                      nodes {
+                        number
+                        milestone {
+                          title
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, { owner, repo, prNumber });
+            const closingIssues = result.repository.pullRequest.closingIssuesReferences.nodes;
+
+            if (closingIssues.length === 0) {
+              console.log('No closing issues linked to this PR, skipping');
+              return;
+            }
+
+            // Detect version and label from tags/branches based on the target branch
+            const targetBranch = context.payload.pull_request.base.ref;
+            let targetMilestoneName;
+            let label;
+
+            const releaseBranchMatch = targetBranch.match(/^release\/(\d+)\.(\d+)$/);
+            if (releaseBranchMatch) {
+              // Servicing branch (e.g. release/10.0): find the next patch version from tags
+              const major = releaseBranchMatch[1];
+              const minor = releaseBranchMatch[2];
+
+              const tagRefs = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: `tags/v${major}.${minor}.`,
+                  per_page: 100
+                }
+              );
+
+              let highestPatch = -1;
+              for (const ref of tagRefs) {
+                const m = ref.ref.match(/^refs\/tags\/v\d+\.\d+\.(\d+)$/);
+                if (m) {
+                  const patch = parseInt(m[1]);
+                  if (patch < 100 && patch > highestPatch) {
+                    highestPatch = patch;
+                  }
+                }
+              }
+
+              targetMilestoneName = `${major}.${minor}.${highestPatch + 1}`;
+              // No preview/rc label for servicing branches
+            } else if (targetBranch === 'main') {
+              // Main branch: read major.minor from Versions.props, then infer
+              // the next preview/rc from existing release branches
+              const { data: versionFileData } = await github.rest.repos.getContent({
+                owner,
+                repo,
+                path: 'eng/Versions.props',
+                ref: context.payload.pull_request.merge_commit_sha
+              });
+              const versionFileContent = Buffer.from(versionFileData.content, 'base64').toString('utf-8');
+              const versionPrefixMatch = versionFileContent.match(/<VersionPrefix>(\d+)\.(\d+)\.\d+<\/VersionPrefix>/);
+              if (!versionPrefixMatch) {
+                throw new Error('Could not parse VersionPrefix from eng/Versions.props');
+              }
+              const major = versionPrefixMatch[1];
+              const minor = versionPrefixMatch[2];
+
+              targetMilestoneName = `${major}.${minor}.0`;
+
+              // List release branches for this major.minor to find what's already been branched
+              const branchRefs = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: `heads/release/${major}.${minor}-`,
+                  per_page: 100
+                }
+              );
+
+              let highestPreview = 0;
+              let highestRc = 0;
+              for (const ref of branchRefs) {
+                const previewMatch = ref.ref.match(/^refs\/heads\/release\/\d+\.\d+-preview(\d+)$/);
+                if (previewMatch) {
+                  highestPreview = Math.max(highestPreview, parseInt(previewMatch[1]));
+                  continue;
+                }
+                const rcMatch = ref.ref.match(/^refs\/heads\/release\/\d+\.\d+-rc(\d+)$/);
+                if (rcMatch) {
+                  highestRc = Math.max(highestRc, parseInt(rcMatch[1]));
+                }
+              }
+
+              if (highestRc >= 2) {
+                // After rc2, we're heading to GA — no label
+              } else if (highestRc === 1) {
+                label = 'rc-2';
+              } else if (highestPreview >= 7) {
+                label = 'rc-1';
+              } else {
+                label = `preview-${highestPreview + 1}`;
+              }
+            } else {
+              throw new Error(`Unexpected target branch: ${targetBranch}`);
+            }
+
+            console.log(`Target branch: ${targetBranch}, milestone: ${targetMilestoneName}, label: ${label ?? 'none'}`);
+
+            // Label all closing issues
+            // (don't filter by state to avoid race conditions where GitHub
+            // hasn't closed the issue yet when this workflow runs)
+            const errors = [];
+            const labelsToApply = [];
+            if (label) {
+              labelsToApply.push(label);
+            }
+            // If the PR has the community-contribution label, propagate it to closing issues
+            if (context.payload.pull_request.labels.some(l => l.name === 'community-contribution')) {
+              labelsToApply.push('community-contribution');
+            }
+            if (labelsToApply.length > 0) {
+              for (const issue of closingIssues) {
+                console.log(`Adding labels [${labelsToApply.join(', ')}] to issue #${issue.number}`);
+                try {
+                  await github.rest.issues.addLabels({
+                    owner,
+                    repo,
+                    issue_number: issue.number,
+                    labels: labelsToApply
+                  });
+                } catch (error) {
+                  errors.push(`Failed to add labels to issue #${issue.number}: ${error.message}`);
+                }
+              }
+            }
+
+            // Look up the target milestone via GraphQL, including closed milestones
+            // to avoid recreating one that already exists. The GraphQL query parameter
+            // does fuzzy/substring matching (no exact match option), so we fetch
+            // multiple results and filter client-side.
+            const milestoneResult = await github.graphql(`
+              query($owner: String!, $repo: String!, $title: String!) {
+                repository(owner: $owner, name: $repo) {
+                  milestones(query: $title, states: [OPEN, CLOSED], first: 10) {
+                    nodes {
+                      number
+                      title
+                    }
+                  }
+                }
+              }
+            `, { owner, repo, title: targetMilestoneName });
+            let milestoneNode = milestoneResult.repository.milestones.nodes
+              .find(m => m.title === targetMilestoneName);
+            if (!milestoneNode) {
+              console.log(`Milestone '${targetMilestoneName}' not found, creating it`);
+              try {
+                const { data: created } = await github.rest.issues.createMilestone({
+                  owner,
+                  repo,
+                  title: targetMilestoneName
+                });
+                milestoneNode = { number: created.number, title: created.title };
+              } catch (error) {
+                throw new Error(`Failed to create milestone '${targetMilestoneName}': ${error.message}`);
+              }
+            }
+
+            // Set the milestone on closing issues, applying a "min" strategy:
+            // only update if the issue has no version milestone or the target is earlier
+            const targetVersion = parseVersion(targetMilestoneName);
+            for (const issue of closingIssues) {
+              const currentTitle = issue.milestone?.title;
+              const currentVersion = currentTitle ? parseVersion(currentTitle) : null;
+
+              if (currentVersion && compareVersions(currentVersion, targetVersion) <= 0) {
+                console.log(`Issue #${issue.number} already has milestone '${currentTitle}' <= '${targetMilestoneName}', skipping`);
+                continue;
+              }
+
+              const from = currentTitle ? `'${currentTitle}'` : 'none';
+              console.log(`Setting milestone on issue #${issue.number} from ${from} to '${targetMilestoneName}'`);
+              try {
+                await github.rest.issues.update({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  milestone: milestoneNode.number
+                });
+              } catch (error) {
+                errors.push(`Failed to set milestone on issue #${issue.number}: ${error.message}`);
+              }
+            }
+
+            if (errors.length > 0) {
+              throw new Error(`Errors processing issues:\n${errors.join('\n')}`);
+            }
+
+            console.log(`Done. Processed ${closingIssues.length} issue(s) with labels [${labelsToApply.join(', ') || 'none'}] and milestone '${targetMilestoneName}'`);
+
+            // Parses a milestone title as a semver version, or returns null for
+            // non-version milestones (e.g. "Backlog", "MQ", "Discussions")
+            function parseVersion(title) {
+              const m = title.match(/^(\d+)\.(\d+)\.(\d+)$/);
+              return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : null;
+            }
+
+            function compareVersions(a, b) {
+              for (let i = 0; i < 3; i++) {
+                if (a[i] !== b[i]) return a[i] - b[i];
+              }
+              return 0;
+            }
