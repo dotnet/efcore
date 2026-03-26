@@ -7,22 +7,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public static class CosmosDbContextOptionsBuilderExtensions
 {
-    private static HttpClient? _httpClient;
+    private static HttpMessageHandler? _handler;
+    private static Func<HttpClient>? _httpClientFactory;
 
     public static CosmosDbContextOptionsBuilder ApplyConfiguration(this CosmosDbContextOptionsBuilder optionsBuilder)
     {
-        _httpClient ??= TestEnvironment.HttpMessageHandler != null
-            ? new HttpClient(TestEnvironment.HttpMessageHandler, disposeHandler: false)
-            : new HttpClient(
-                new HttpClientHandler
+        if (_httpClientFactory == null)
+        {
+            _handler = TestEnvironment.HttpMessageHandler
+                ?? new HttpClientHandler
                 {
                     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                });
+                };
+            _httpClientFactory = () => new HttpClient(_handler, disposeHandler: false);
+        }
 
         optionsBuilder
             .ExecutionStrategy(d => new TestCosmosExecutionStrategy(d))
             .RequestTimeout(TimeSpan.FromMinutes(20))
-            .HttpClientFactory(() => _httpClient)
+            .HttpClientFactory(_httpClientFactory)
             .ConnectionMode(ConnectionMode.Gateway);
 
         return optionsBuilder;
