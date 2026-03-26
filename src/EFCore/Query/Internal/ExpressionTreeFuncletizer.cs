@@ -28,6 +28,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly bool UseOldBehavior37465 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37465", out var enabled37465) && enabled37465;
 
+    private static readonly bool UseOldBehavior37974 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37974", out var enabled37974) && enabled37974;
+
     // The general algorithm here is the following.
     // 1. First, for each node type, visit that node's children and get their states (evaluatable, contains evaluatable, no evaluatable).
     // 2. Calculate the parent node's aggregate state from its children; a container node whose children are all evaluatable is itself
@@ -2012,9 +2015,17 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return evaluatableRoot;
         }
 
-        return ConvertIfNeeded(
+        var constantExpression = ConvertIfNeeded(
             Constant(value, value is null ? evaluatableRoot.Type : value.GetType()),
             evaluatableRoot.Type);
+
+        // ConvertIfNeeded calls Visit which may have modified _state; reset it since we've already evaluated this root as a constant.
+        if (!UseOldBehavior37974)
+        {
+            state = State.NoEvaluatability;
+        }
+
+        return constantExpression;
 
         bool TryHandleNonEvaluatableAsRoot(Expression root, State state, bool asParameter, [NotNullWhen(true)] out Expression? result)
         {
