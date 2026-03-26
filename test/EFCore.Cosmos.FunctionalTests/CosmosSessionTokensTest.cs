@@ -1,10 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -278,7 +276,6 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
     {
         using var context = await CreateContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
-
 
         var customer = new Customer { Id = "1", PartitionKey = "1" };
         var otherContainerCustomer = new OtherContainerCustomer { Id = "1", PartitionKey = "1" };
@@ -742,6 +739,169 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
             Assert.Same(sessionTokenStorageCopy, ((CosmosDatabaseWrapper)newContext.GetService<IDatabase>()).SessionTokenStorage);
             Assert.True(_sessionTokenStorage.ClearCalled);
         }
+
+        [ConditionalTheory]
+        [InlineData(AutoTransactionBehavior.Never)]
+        [InlineData(AutoTransactionBehavior.Always)]
+        public virtual async Task Optimistic_concurrency_precondition_failure_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context = contextFactory.CreateDbContext();
+            context.Database.AutoTransactionBehavior = autoTransactionBehavior;
+            var customer = new Customer { Id = "1", PartitionKey = "1" };
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
+
+            var createdSessionToken = context.Database.GetSessionToken();
+
+            using var context2 = contextFactory.CreateDbContext();
+            var customer2 = await context2.Customers.FirstAsync(x => x.Id == "1" && x.PartitionKey == "1");
+            customer2.Name = "updated";
+            await context2.SaveChangesAsync();
+
+            var updatedSessionToken = context2.Database.GetSessionToken();
+
+            customer.Name = "updated again";
+
+            Assert.NotEqual(createdSessionToken, updatedSessionToken);
+            Assert.Equal(createdSessionToken, context.Database.GetSessionToken());
+            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+
+            var afterUpdateExceptionSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(updatedSessionToken, afterUpdateExceptionSessionToken);
+
+            await context.Entry(customer).ReloadAsync();
+            customer.Name = "updated again";
+            await context.SaveChangesAsync();
+
+            await context2.Entry(customer2).ReloadAsync();
+            context2.Remove(customer2);
+            await context2.SaveChangesAsync();
+            var removedSessionToken = context2.Database.GetSessionToken();
+
+            context.Remove(customer);
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            var afterRemoveExceptionSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(removedSessionToken, afterRemoveExceptionSessionToken);
+        }
+
+        [ConditionalTheory]
+        [InlineData(AutoTransactionBehavior.Never)]
+        [InlineData(AutoTransactionBehavior.Always)]
+        public virtual async Task Add_conflict_updates_session_token(AutoTransactionBehavior autoTransactionBehavior)
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context = contextFactory.CreateDbContext();
+            context.Database.AutoTransactionBehavior = autoTransactionBehavior;
+            var customer = new Customer { Id = "1", PartitionKey = "1" };
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
+
+            var createdSessionToken = context.Database.GetSessionToken();
+
+            using var context2 = contextFactory.CreateDbContext();
+            context2.Add(customer);
+            await Assert.ThrowsAsync<DbUpdateException>(() => context2.SaveChangesAsync());
+            var afterExceptionSessionToken = context2.Database.GetSessionToken();
+
+            Assert.Equal(createdSessionToken, afterExceptionSessionToken);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Read_item_not_found_updates_session_token()
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context2 = contextFactory.CreateDbContext();
+            var customer = new OtherContainerCustomer { Id = "1", PartitionKey = "1" };
+            context2.Add(customer);
+            await context2.SaveChangesAsync();
+
+            var createdSessionToken = context2.Database.GetSessionToken()!;
+            var customer2 = await context2.OtherContainerCustomers.FirstAsync(x => x.Id == "1" && x.PartitionKey == "1");
+            context2.Remove(customer2);
+            await context2.SaveChangesAsync();
+
+            var removedSessionToken = context2.Database.GetSessionToken();
+            using var context = contextFactory.CreateDbContext();
+            context.Database.UseSessionToken(createdSessionToken); // Guarantee we don't read before creation, and we don't use the deleted session token.
+
+            OtherContainerCustomer? result = null;
+            var timeout = TimeSpan.FromSeconds(10);
+            var startTime = DateTime.UtcNow;
+            while (DateTime.UtcNow - startTime < timeout)
+            {
+                result = await context.OtherContainerCustomers.FirstOrDefaultAsync(x => x.Id == "1" && x.PartitionKey == "1");
+                if (result == null) // We could theoretically hit a read replica that hasn't synced the delete yet. Because we used createdSessionToken. Chances are small
+                {
+                    break;
+                }
+
+                await Task.Delay(100);
+            }
+
+            Assert.True(
+                result is null,
+                $"Timed out after waiting {timeout} for the deleted document to be not found before comparing session tokens.");
+
+            var afterNotFoundSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Remove_not_found_updates_session_token()
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context2 = contextFactory.CreateDbContext();
+            var customer = new OtherContainerCustomer { Id = "1", PartitionKey = "1" };
+            context2.Add(customer);
+            await context2.SaveChangesAsync();
+
+            var createdSessionToken = context2.Database.GetSessionToken()!;
+            var customer2 = await context2.OtherContainerCustomers.FirstAsync(x => x.Id == "1" && x.PartitionKey == "1");
+            context2.Remove(customer2);
+            await context2.SaveChangesAsync();
+
+            var removedSessionToken = context2.Database.GetSessionToken();
+            using var context = contextFactory.CreateDbContext();
+            context.Database.UseSessionToken(createdSessionToken); // Guarantee we don't read before creation, and we don't use the deleted session token.
+
+            context.Remove(customer);
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+            var afterNotFoundSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Replace_not_found_updates_session_token()
+        {
+            var contextFactory = await InitializeNonSharedTest<CosmosSessionTokenContext>();
+
+            using var context2 = contextFactory.CreateDbContext();
+            var customer = new OtherContainerCustomer { Id = "1", PartitionKey = "1" };
+            context2.Add(customer);
+            await context2.SaveChangesAsync();
+
+            var createdSessionToken = context2.Database.GetSessionToken()!;
+            var customer2 = await context2.OtherContainerCustomers.FirstAsync(x => x.Id == "1" && x.PartitionKey == "1");
+            context2.Remove(customer2);
+            await context2.SaveChangesAsync();
+
+            var removedSessionToken = context2.Database.GetSessionToken();
+            using var context = contextFactory.CreateDbContext();
+            context.Database.UseSessionToken(createdSessionToken); // Guarantee we don't read before creation, and we don't use the deleted session token.
+
+            customer.Name = "updated";
+            context.Update(customer);
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+
+            var afterNotFoundSessionToken = context.Database.GetSessionToken();
+            Assert.Equal(removedSessionToken, afterNotFoundSessionToken);
+        }
     }
 
     protected async Task<CosmosSessionTokenContext> CreateContext()
@@ -781,7 +941,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         public IReadOnlyDictionary<string, string?> GetTrackedTokens() => SessionTokens;
         public void SetDefaultContainerSessionToken(string sessionToken) => SetDefaultContainerSessionTokenCalls.Add(sessionToken);
         public void SetSessionTokens(IReadOnlyDictionary<string, string?> sessionTokens) => SetSessionTokensCalls.Add(sessionTokens);
-        public void TrackSessionToken(string containerName, string sessionToken) => TrackSessionTokenCalls.Add((containerName, sessionToken));
+        public void TrackSessionToken(string containerName, string? sessionToken) => TrackSessionTokenCalls.Add((containerName, sessionToken!));
     }
 
     public class CosmosFixture : SharedStoreFixtureBase<CosmosSessionTokenContext>
