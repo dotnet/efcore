@@ -223,33 +223,22 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
-                  parameters:
-                    federatedServiceConnection: 'dotnetbuilds-internal-read'
-                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                    expiryInHours: 1
-                    base64Encode: false
-                    storageAccount: dotnetbuilds
-                    container: internal
-                    permissions: rl
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_macOS_x64
@@ -276,32 +265,22 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
-                  parameters:
-                    federatedServiceConnection: 'dotnetbuilds-internal-read'
-                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                    expiryInHours: 1
-                    base64Encode: false
-                    storageAccount: dotnetbuilds
-                    container: internal
-                    permissions: rl
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
                   COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
@@ -329,33 +308,22 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
-                  parameters:
-                    federatedServiceConnection: 'dotnetbuilds-internal-read'
-                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                    expiryInHours: 1
-                    base64Encode: false
-                    storageAccount: dotnetbuilds
-                    container: internal
-                    permissions: rl
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu_SqlServer
@@ -382,16 +350,15 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
-                  parameters:
-                    federatedServiceConnection: 'dotnetbuilds-internal-read'
-                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                    expiryInHours: 1
-                    base64Encode: false
-                    storageAccount: dotnetbuilds
-                    container: internal
-                    permissions: rl
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
@@ -400,7 +367,6 @@ extends:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                   MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu_Cosmos
@@ -427,16 +393,15 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
-                  parameters:
-                    federatedServiceConnection: 'dotnetbuilds-internal-read'
-                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                    expiryInHours: 1
-                    base64Encode: false
-                    storageAccount: dotnetbuilds
-                    container: internal
-                    permissions: rl
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
@@ -444,8 +409,6 @@ extends:
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu
@@ -472,31 +435,20 @@ extends:
                   arguments: 'locals all -clear'
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - template: /eng/common/core-templates/steps/get-delegation-sas.yml
-                  parameters:
-                    federatedServiceConnection: 'dotnetbuilds-internal-read'
-                    outputVariableName: 'dotnetbuilds-internal-container-read-token'
-                    expiryInHours: 1
-                    base64Encode: false
-                    storageAccount: dotnetbuilds
-                    container: internal
-                    permissions: rl
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)

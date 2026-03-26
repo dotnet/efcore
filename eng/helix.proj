@@ -102,23 +102,10 @@
     <XUnitProject Remove="$(CosmosTests)"/>
   </ItemGroup>
 
-  <!-- Filter by TestScope: UnitTests keeps only non-functional tests, FunctionalTests keeps only *FunctionalTests* projects -->
-  <ItemGroup Condition="'$(TestScope)' == 'UnitTests'">
-    <XUnitProject Remove="$(RepoRoot)/test/*FunctionalTests*/*.csproj" />
-    <XUnitProject Remove="$(RepoRoot)/test/*FunctionalTests*/*.vbproj" />
-    <XUnitProject Remove="$(RepoRoot)/test/*FunctionalTests*/*.fsproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TestScope)' == 'FunctionalTests'">
-    <_UnitTestProject Include="@(XUnitProject)" Condition="!$([System.String]::new('%(Filename)').Contains('FunctionalTests'))" />
-    <XUnitProject Remove="@(_UnitTestProject)" />
-  </ItemGroup>
-
   <PropertyGroup>
     <XUnitPublishTargetFramework>$(NetCurrent)</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitArguments>-verbose</XUnitArguments>
-    <XUnitWorkItemTimeout Condition="'$(TestScope)' == 'UnitTests'">00:10:00</XUnitWorkItemTimeout>
     <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>
 </Project>

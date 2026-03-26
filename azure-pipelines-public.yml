@@ -164,21 +164,11 @@ stages:
                   arguments: 'locals all -clear'
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_macOS_x64
@@ -205,20 +195,11 @@ stages:
                   arguments: 'locals all -clear'
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
                   COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
@@ -246,21 +227,11 @@ stages:
                   arguments: 'locals all -clear'
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu_SqlServer
@@ -293,7 +264,6 @@ stages:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                   MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu_Cosmos
@@ -325,8 +295,6 @@ stages:
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu
@@ -353,19 +321,9 @@ stages:
                   arguments: 'locals all -clear'
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=UnitTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixUnit.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send unit tests to helix
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /p:TestScope=FunctionalTests /bl:artifacts/log/$(_BuildConfig)/SendToHelixFunctional.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send functional tests to helix
-                env:
-                  HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
