@@ -27,34 +27,11 @@ public static class TestEnvironment
     private static bool _initialized;
     private static readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
-    private static string _defaultConnection;
-    private static HttpMessageHandler _httpMessageHandler;
+    public static string DefaultConnection { get; private set; } = string.IsNullOrEmpty(Config["DefaultConnection"])
+        ? "https://localhost:8081"
+        : Config["DefaultConnection"];
 
-    public static string DefaultConnection
-    {
-        get
-        {
-            EnsureInitialized();
-            return _defaultConnection;
-        }
-    }
-
-    internal static HttpMessageHandler HttpMessageHandler
-    {
-        get
-        {
-            EnsureInitialized();
-            return _httpMessageHandler;
-        }
-    }
-
-    private static void EnsureInitialized()
-    {
-        if (!_initialized)
-        {
-            InitializeAsync().GetAwaiter().GetResult();
-        }
-    }
+    internal static HttpMessageHandler HttpMessageHandler { get; private set; }
 
     public static async Task InitializeAsync()
     {
@@ -76,7 +53,7 @@ public static class TestEnvironment
             var configured = Config["DefaultConnection"];
             if (!string.IsNullOrEmpty(configured))
             {
-                _defaultConnection = configured;
+                DefaultConnection = configured;
                 _initialized = true;
                 return;
             }
@@ -84,7 +61,7 @@ public static class TestEnvironment
             // Try to connect to the default emulator endpoint.
             if (await TryProbeEmulatorAsync("https://localhost:8081").ConfigureAwait(false))
             {
-                _defaultConnection = "https://localhost:8081";
+                DefaultConnection = "https://localhost:8081";
                 _initialized = true;
                 return;
             }
@@ -110,18 +87,18 @@ public static class TestEnvironment
                     }
                 };
 
-                _defaultConnection = new UriBuilder(
+                DefaultConnection = new UriBuilder(
                     Uri.UriSchemeHttp,
                     _container.Hostname,
                     _container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
-                _httpMessageHandler = _container.HttpMessageHandler;
+                HttpMessageHandler = _container.HttpMessageHandler;
             }
             catch when (!SkipConnectionCheck)
             {
                 // Any failure (Docker not installed, daemon not running, image pull failure, etc.)
                 // falls back to the default endpoint. The connection check in CosmosTestStore will
                 // determine whether the emulator is actually reachable and skip tests if not.
-                _defaultConnection = "https://localhost:8081";
+                DefaultConnection = "https://localhost:8081";
             }
 
             _initialized = true;
