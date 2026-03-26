@@ -11,8 +11,6 @@ using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ContainerProperties = Microsoft.Azure.Cosmos.ContainerProperties;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
@@ -20,7 +18,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class CosmosTestStore : TestStore
 {
     private readonly TestStoreContext _storeContext;
-    private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
     private bool _initialized;
 
@@ -42,13 +39,9 @@ public class CosmosTestStore : TestStore
     public static CosmosTestStore GetOrCreate(string name)
         => new(name);
 
-    public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
-        => new(name, dataFilePath: dataFilePath);
-
     private CosmosTestStore(
         string name,
         bool shared = true,
-        string? dataFilePath = null,
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         : base(CreateName(name), shared)
     {
@@ -65,17 +58,12 @@ public class CosmosTestStore : TestStore
             };
 
         _storeContext = new TestStoreContext(this);
-
-        if (dataFilePath != null)
-        {
-            _dataFilePath = Path.Combine(
-                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location)!,
-                dataFilePath);
-        }
     }
 
+    private static readonly string[] _reservedNames = ["Northwind", "Northwind2", "Northwind3"];
+
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
+        => TestEnvironment.IsEmulator || _reservedNames.Contains(name)
             ? name
             : name + _runId;
 
@@ -182,96 +170,7 @@ public class CosmosTestStore : TestStore
             return;
         }
 
-        if (_dataFilePath == null)
-        {
-            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
-        }
-        else
-        {
-            using var context = createContext();
-            await CreateFromFile(context).ConfigureAwait(false);
-        }
-    }
-
-    private async Task CreateFromFile(DbContext context)
-    {
-        if (await EnsureCreatedAsync(context).ConfigureAwait(false))
-        {
-            if (!TestEnvironment.UseTokenCredential)
-            {
-                await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
-            }
-            else
-            {
-                await CreateContainersAsync(context).ConfigureAwait(false);
-            }
-
-            var cosmosClient = context.GetService<ICosmosClientWrapper>();
-            var serializer = CosmosClientWrapper.Serializer;
-            using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
-            using var sr = new StreamReader(fs);
-            using var reader = new JsonTextReader(sr);
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonToken.StartArray)
-                {
-                    NextEntityType:
-                    while (reader.Read())
-                    {
-                        if (reader.TokenType == JsonToken.StartObject)
-                        {
-                            string? entityName = null;
-                            string? containerName = null;
-                            bool? discriminatorInId = null;
-                            while (reader.Read())
-                            {
-                                if (reader.TokenType == JsonToken.PropertyName)
-                                {
-                                    switch (reader.Value)
-                                    {
-                                        case "Name":
-                                            reader.Read();
-                                            entityName = (string)reader.Value;
-                                            break;
-                                        case "Container":
-                                            reader.Read();
-                                            containerName = (string)reader.Value;
-                                            break;
-                                        case "DiscriminatorInId":
-                                            reader.Read();
-                                            discriminatorInId = (bool)reader.Value;
-                                            break;
-                                        case "Data":
-                                            while (reader.Read())
-                                            {
-                                                if (reader.TokenType == JsonToken.StartObject)
-                                                {
-                                                    var document = serializer.Deserialize<JObject>(reader)!;
-
-                                                    document["id"] = discriminatorInId == true
-                                                        ? $"{entityName}|{document["id"]}"
-                                                        : $"{document["id"]}";
-
-                                                    document["$type"] = entityName;
-
-                                                    await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
-                                                }
-                                                else if (reader.TokenType == JsonToken.EndObject)
-                                                {
-                                                    goto NextEntityType;
-                                                }
-                                            }
-
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
     }
 
     private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
@@ -571,7 +470,7 @@ public class CosmosTestStore : TestStore
     public override async ValueTask DisposeAsync()
     {
         if (_initialized
-            && _dataFilePath == null)
+            && !_reservedNames.Contains(Name))
         {
             if (_connectionAvailable == false)
             {
