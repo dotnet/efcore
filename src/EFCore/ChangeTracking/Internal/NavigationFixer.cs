@@ -22,7 +22,7 @@ public class NavigationFixer : INavigationFixer
         bool SetModified)>? _danglingJoinEntities;
 
     private readonly IEntityGraphAttacher _attacher;
-    private readonly IEntityMaterializerSource _entityMaterializerSource;
+    private readonly IStructuralTypeMaterializerSource _entityMaterializerSource;
     private bool _inFixup;
     private bool _inAttachGraph;
 
@@ -34,7 +34,7 @@ public class NavigationFixer : INavigationFixer
     /// </summary>
     public NavigationFixer(
         IEntityGraphAttacher attacher,
-        IEntityMaterializerSource entityMaterializerSource)
+        IStructuralTypeMaterializerSource entityMaterializerSource)
     {
         _attacher = attacher;
         _entityMaterializerSource = entityMaterializerSource;
@@ -208,9 +208,8 @@ public class NavigationFixer : INavigationFixer
                     // Clear the inverse reference, unless it has already been changed
                     if (inverse != null
                         && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                        && (entry.EntityType.GetNavigations().All(
-                            n => n == navigation
-                                || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                        && (entry.EntityType.GetNavigations().All(n => n == navigation
+                            || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                     {
                         SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
                     }
@@ -1204,15 +1203,14 @@ public class NavigationFixer : INavigationFixer
             IForeignKey secondForeignKey,
             out InternalEntityEntry? joinEntry)
         {
-            var key = joinEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
+            var key = joinEntityType.FindKey([firstForeignKey.Properties[0], secondForeignKey.Properties[0]]);
             if (key != null)
             {
                 joinEntry = entry.StateManager.TryGetEntry(
                     key,
-                    new[]
-                    {
+                    [
                         firstEntry[firstForeignKey.PrincipalKey.Properties[0]], secondEntry[secondForeignKey.PrincipalKey.Properties[0]]
-                    });
+                    ]);
                 return true;
             }
 

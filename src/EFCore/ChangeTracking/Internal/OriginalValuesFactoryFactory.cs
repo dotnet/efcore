@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class OriginalValuesFactoryFactory : SnapshotFactoryFactory<InternalEntityEntry>
+public class OriginalValuesFactoryFactory : SnapshotFactoryFactory<IInternalEntry>
 {
     private static readonly MethodInfo _getValueComparerMethod
         = typeof(IProperty).GetMethod(nameof(IProperty.GetValueComparer))!;
@@ -43,8 +43,8 @@ public class OriginalValuesFactoryFactory : SnapshotFactoryFactory<InternalEntit
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override int GetPropertyCount(IRuntimeEntityType entityType)
-        => entityType.OriginalValueCount;
+    protected override int GetPropertyCount(IRuntimeTypeBase structuralType)
+        => structuralType.CalculateCounts().OriginalValueCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

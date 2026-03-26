@@ -22,8 +22,7 @@ public class ProductCategory
     [InverseProperty("ProductCategory")]
     public virtual ICollection<Product> Product { get; set; }
 
-    [ForeignKey("ParentProductCategoryID")]
-    [InverseProperty("InverseParentProductCategory")]
+    [ForeignKey("ParentProductCategoryID"), InverseProperty("InverseParentProductCategory")]
     public virtual ProductCategory ParentProductCategory { get; set; }
 
     [InverseProperty("ParentProductCategory")]

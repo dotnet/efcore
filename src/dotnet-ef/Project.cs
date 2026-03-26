@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
@@ -27,6 +29,7 @@ internal class Project
     public string ProjectName { get; }
 
     public string? AssemblyName { get; set; }
+    public string? DesignAssembly { get; set; }
     public string? Language { get; set; }
     public string? OutputPath { get; set; }
     public string? PlatformTarget { get; set; }
@@ -42,115 +45,158 @@ internal class Project
 
     public static Project FromFile(
         string file,
-        string? buildExtensionsDir,
         string? framework = null,
         string? configuration = null,
         string? runtime = null)
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        buildExtensionsDir ??= Path.Combine(Path.GetDirectoryName(file)!, "obj");
+        var args = new List<string> { "msbuild", };
 
-        Directory.CreateDirectory(buildExtensionsDir);
-
-        byte[] efTargets;
-        using (var input = typeof(Resources).Assembly.GetManifestResourceStream(
-                   "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
+        if (framework != null)
         {
-            efTargets = new byte[input.Length];
-            input.ReadExactly(efTargets);
+            args.Add($"/property:TargetFramework={framework}");
         }
 
-        var efTargetsPath = Path.Combine(
-            buildExtensionsDir,
-            Path.GetFileName(file) + ".EntityFrameworkCore.targets");
-
-        bool FileMatches()
+        if (configuration != null)
         {
-            try
-            {
-                return File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets);
-            }
-            catch
-            {
-                return false;
-            }
+            args.Add($"/property:Configuration={configuration}");
         }
 
-        // Avoid touching the targets file, if it matches what we need, to enable incremental builds
-        if (!File.Exists(efTargetsPath) || !FileMatches())
+        if (runtime != null)
         {
-            Reporter.WriteVerbose(Resources.WritingFile(efTargetsPath));
-            File.WriteAllBytes(efTargetsPath, efTargets);
+            args.Add($"/property:RuntimeIdentifier={runtime}");
         }
 
-        IDictionary<string, string> metadata;
-        var metadataFile = Path.GetTempFileName();
-        try
+        foreach (var property in typeof(Project).GetProperties())
         {
-            var propertyArg = "/property:EFProjectMetadataFile=" + metadataFile;
-            if (framework != null)
-            {
-                propertyArg += ";TargetFramework=" + framework;
-            }
-
-            if (configuration != null)
-            {
-                propertyArg += ";Configuration=" + configuration;
-            }
-
-            if (runtime != null)
-            {
-                propertyArg += ";RuntimeIdentifier=" + runtime;
-            }
-
-            var args = new List<string>
-            {
-                "msbuild",
-                "/target:GetEFProjectMetadata",
-                propertyArg,
-                "/verbosity:quiet",
-                "/nologo"
-            };
-
-            args.Add(file);
-
-            var exitCode = Exe.Run("dotnet", args);
-            if (exitCode != 0)
-            {
-                throw new CommandException(Resources.GetMetadataFailed);
-            }
-
-            metadata = File.ReadLines(metadataFile).Select(l => l.Split([':'], 2))
-                .ToDictionary(s => s[0], s => s[1].TrimStart());
-        }
-        finally
-        {
-            File.Delete(metadataFile);
+            args.Add($"/getProperty:{property.Name}");
         }
 
-        var platformTarget = metadata["PlatformTarget"];
+        args.Add("/getProperty:Platform");
+
+        args.Add("/t:ResolvePackageAssets");
+        args.Add("/getItem:RuntimeCopyLocalItems");
+
+        args.Add(file);
+
+        var output = new StringBuilder();
+
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        if (exitCode != 0)
+        {
+            if (framework == null && HasMultipleTargetFrameworks(file))
+            {
+                throw new CommandException(Resources.MultipleTargetFrameworks);
+            }
+
+            throw new CommandException(Resources.GetMetadataFailed);
+        }
+
+        var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;
+
+        var runtimeCopyLocalItems = metadata.Items["RuntimeCopyLocalItems"];
+
+        var designAssembly = runtimeCopyLocalItems
+            .Select(i => i["FullPath"])
+            .FirstOrDefault(i => i.Contains("Microsoft.EntityFrameworkCore.Design", StringComparison.InvariantCulture))
+            ?.Replace('\\', Path.DirectorySeparatorChar);
+        var properties = metadata.Properties;
+
+        var normalizedOutputPath = properties[nameof(OutputPath)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedProjectDir = properties[nameof(ProjectDir)]!.Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedProjectAssetsFile = properties[nameof(ProjectAssetsFile)]?.Replace('\\', Path.DirectorySeparatorChar);
+        var outputPath = Path.GetFullPath(Path.Combine(normalizedProjectDir, normalizedOutputPath));
+        CopyBuildHost(runtimeCopyLocalItems, outputPath);
+
+        var platformTarget = properties[nameof(PlatformTarget)];
         if (platformTarget.Length == 0)
         {
-            platformTarget = metadata["Platform"];
+            platformTarget = properties["Platform"];
         }
 
         return new Project(file, framework, configuration, runtime)
         {
-            AssemblyName = metadata["AssemblyName"],
-            Language = metadata["Language"],
-            OutputPath = metadata["OutputPath"],
+            AssemblyName = properties[nameof(AssemblyName)],
+            DesignAssembly = designAssembly,
+            Language = properties[nameof(Language)],
+            OutputPath = normalizedOutputPath,
             PlatformTarget = platformTarget,
-            ProjectAssetsFile = metadata["ProjectAssetsFile"],
-            ProjectDir = metadata["ProjectDir"],
-            RootNamespace = metadata["RootNamespace"],
-            RuntimeFrameworkVersion = metadata["RuntimeFrameworkVersion"],
-            TargetFileName = metadata["TargetFileName"],
-            TargetFrameworkMoniker = metadata["TargetFrameworkMoniker"],
-            Nullable = metadata["Nullable"],
-            TargetFramework = metadata["TargetFramework"],
-            TargetPlatformIdentifier = metadata["TargetPlatformIdentifier"]
+            ProjectAssetsFile = normalizedProjectAssetsFile,
+            ProjectDir = normalizedProjectDir,
+            RootNamespace = properties[nameof(RootNamespace)],
+            RuntimeFrameworkVersion = properties[nameof(RuntimeFrameworkVersion)],
+            TargetFileName = properties[nameof(TargetFileName)],
+            TargetFrameworkMoniker = properties[nameof(TargetFrameworkMoniker)],
+            Nullable = properties[nameof(Nullable)],
+            TargetFramework = properties[nameof(TargetFramework)],
+            TargetPlatformIdentifier = properties[nameof(TargetPlatformIdentifier)]
         };
+    }
+
+    private record class ProjectMetadata
+    {
+        public Dictionary<string, string> Properties { get; set; } = null!;
+        public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
+    }
+
+    private static bool HasMultipleTargetFrameworks(string file)
+    {
+        var args = new List<string> { "msbuild", "/getProperty:TargetFrameworks", file };
+
+        var output = new StringBuilder();
+        var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
+        if (exitCode != 0)
+        {
+            return false;
+        }
+
+        var outputString = output.ToString();
+        return !string.IsNullOrWhiteSpace(outputString);
+    }
+
+    private static void CopyBuildHost(
+        Dictionary<string, string>[] runtimeCopyLocalItems,
+        string targetDir)
+    {
+        var msbuildWorkspacesItem = runtimeCopyLocalItems.FirstOrDefault(item =>
+            string.Equals(item["Filename"], "Microsoft.CodeAnalysis.Workspaces.MSBuild", StringComparison.OrdinalIgnoreCase));
+
+        if (msbuildWorkspacesItem == null
+            || !msbuildWorkspacesItem.TryGetValue("CopyLocal", out var copyLocal)
+            || !string.Equals(copyLocal, "true", StringComparison.OrdinalIgnoreCase)
+            || !msbuildWorkspacesItem.TryGetValue("FullPath", out var fullPath)
+            || string.IsNullOrEmpty(fullPath))
+        {
+            return;
+        }
+
+        var contentFilesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
+            CopyDirectoryRecursive(contentFilesPath, targetDir);
+    }
+
+    private static void CopyDirectoryRecursive(string sourceDir, string targetDir)
+    {
+        var directory = new DirectoryInfo(sourceDir);
+        if (!directory.Exists)
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(targetDir);
+        foreach (var file in directory.GetFiles())
+        {
+            var filePath = Path.Combine(targetDir, file.Name);
+            if (!File.Exists(filePath))
+            {
+                file.CopyTo(filePath, overwrite: false);
+            }
+        }
+
+        foreach (var subDir in directory.GetDirectories())
+        {
+            CopyDirectoryRecursive(subDir.FullName, Path.Combine(targetDir, subDir.Name));
+        }
     }
 
     public void Build(IEnumerable<string>? additionalArgs)

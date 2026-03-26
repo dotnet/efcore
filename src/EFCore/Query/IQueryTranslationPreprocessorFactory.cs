@@ -25,5 +25,6 @@ public interface IQueryTranslationPreprocessorFactory
     /// </summary>
     /// <param name="queryCompilationContext">The query compilation context to use.</param>
     /// <returns>The created visitor.</returns>
+    [DebuggerStepThrough]
     QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext);
 }

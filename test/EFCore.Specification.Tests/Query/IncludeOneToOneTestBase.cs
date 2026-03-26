@@ -205,16 +205,14 @@ public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : ICla
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder
-                .Entity<Address>(
-                    e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
-                        .HasPrincipalKey<Person>(person => person.Id));
+                .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
+                    .HasPrincipalKey<Person>(person => person.Id));
 
             modelBuilder.Entity<Address2>().Property<int>("PersonId");
 
             modelBuilder
-                .Entity<Person2>(
-                    e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
-                        .HasForeignKey<Address2>("PersonId"));
+                .Entity<Person2>(e => e.HasOne(p => p.Address).WithOne(a => a.Resident)
+                    .HasForeignKey<Address2>("PersonId"));
         }
 
         protected override Task SeedAsync(PoolableDbContext context)

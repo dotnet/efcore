@@ -50,6 +50,7 @@ public class FakeDbConnection(
     public override Task OpenAsync(CancellationToken cancellationToken)
     {
         OpenAsyncCount++;
+        cancellationToken.ThrowIfCancellationRequested();
         return base.OpenAsync(cancellationToken);
     }
 

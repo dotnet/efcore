@@ -29,7 +29,7 @@ public class CosmosQueryCompilationContext(QueryCompilationContextDependencies d
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual List<Expression> PartitionKeyPropertyValues { get; internal set; } = new();
+    public virtual List<Expression> PartitionKeyPropertyValues { get; internal set; } = [];
 
     /// <summary>
     ///     A manager for aliases, capable of generate uniquified source aliases.

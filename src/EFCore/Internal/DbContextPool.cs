@@ -55,7 +55,7 @@ public class DbContextPool<TContext> : IDbContextPool<TContext>, IDisposable, IA
             .Where(c => c is { IsStatic: false, IsPublic: true } && c.GetParameters().Length > 0).ToArray();
 
         if (constructors.Length == 1
-            && constructors[0].GetParameters() is { } parameters
+            && constructors[0].GetParameters() is var parameters
             && parameters.Any(p => p.ParameterType == typeof(DbContextOptions) || p.ParameterType == typeof(DbContextOptions<TContext>)))
         {
             if (parameters.Length == 1)

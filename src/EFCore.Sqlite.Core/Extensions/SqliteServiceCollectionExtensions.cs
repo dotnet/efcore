@@ -59,12 +59,11 @@ public static class SqliteServiceCollectionExtensions
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
-        => serviceCollection.AddDbContext<TContext>(
-            (_, options) =>
-            {
-                optionsAction?.Invoke(options);
-                options.UseSqlite(connectionString, sqliteOptionsAction);
-            });
+        => serviceCollection.AddDbContext<TContext>((_, options) =>
+        {
+            optionsAction?.Invoke(options);
+            options.UseSqlite(connectionString, sqliteOptionsAction);
+        });
 
     /// <summary>
     ///     <para>
@@ -116,8 +115,7 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
             .TryAdd<ISqlExpressionFactory, SqliteSqlExpressionFactory>()
             .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqliteParameterBasedSqlProcessorFactory>()
-            .TryAddProviderSpecificServices(
-                b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>())
+            .TryAddProviderSpecificServices(b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>())
             .TryAddCoreServices();
 
         return serviceCollection;

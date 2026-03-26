@@ -24,7 +24,7 @@ public class CosmosEventIdTest : EventIdTestBase
             {
                 typeof(CosmosSqlQuery), () => new CosmosSqlQuery(
                     "Some SQL...",
-                    new[] { new SqlParameter("P1", "V1"), new SqlParameter("P2", "V2") })
+                    [new SqlParameter("P1", "V1"), new SqlParameter("P2", "V2")])
             },
             { typeof(string), () => "Fake" }
         };

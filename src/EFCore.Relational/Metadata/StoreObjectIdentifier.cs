@@ -26,7 +26,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The store object id.</returns>
     public static StoreObjectIdentifier? Create(IReadOnlyTypeBase typeBase, StoreObjectType type)
     {
-        Check.NotNull(typeBase, nameof(typeBase));
+        Check.NotNull(typeBase);
 
         switch (type)
         {
@@ -70,7 +70,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The table id.</returns>
     public static StoreObjectIdentifier Table(string name, string? schema = null)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return new StoreObjectIdentifier(StoreObjectType.Table, name, schema);
     }
@@ -83,7 +83,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The view id.</returns>
     public static StoreObjectIdentifier View(string name, string? schema = null)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return new StoreObjectIdentifier(StoreObjectType.View, name, schema);
     }
@@ -95,7 +95,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The SQL query id.</returns>
     public static StoreObjectIdentifier SqlQuery(IReadOnlyEntityType entityType)
     {
-        Check.NotNull(entityType, nameof(entityType));
+        Check.NotNull(entityType);
 
         return new StoreObjectIdentifier(StoreObjectType.SqlQuery, entityType.GetDefaultSqlQueryName());
     }
@@ -107,7 +107,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The SQL query id.</returns>
     public static StoreObjectIdentifier SqlQuery(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return new StoreObjectIdentifier(StoreObjectType.SqlQuery, name);
     }
@@ -119,7 +119,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The function id.</returns>
     public static StoreObjectIdentifier DbFunction(string modelName)
     {
-        Check.NotNull(modelName, nameof(modelName));
+        Check.NotNull(modelName);
 
         return new StoreObjectIdentifier(StoreObjectType.Function, modelName);
     }
@@ -132,7 +132,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The stored procedure id.</returns>
     public static StoreObjectIdentifier InsertStoredProcedure(string name, string? schema = null)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return new StoreObjectIdentifier(StoreObjectType.InsertStoredProcedure, name, schema);
     }
@@ -145,7 +145,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The stored procedure id.</returns>
     public static StoreObjectIdentifier DeleteStoredProcedure(string name, string? schema = null)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return new StoreObjectIdentifier(StoreObjectType.DeleteStoredProcedure, name, schema);
     }
@@ -158,7 +158,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     /// <returns>The stored procedure id.</returns>
     public static StoreObjectIdentifier UpdateStoredProcedure(string name, string? schema = null)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return new StoreObjectIdentifier(StoreObjectType.UpdateStoredProcedure, name, schema);
     }

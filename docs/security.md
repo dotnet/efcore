@@ -5,10 +5,6 @@ The document serves two purposes:
 * **Designing, reviewing, and verifying Entity Framework** to ensure it meets the agreed upon security principles.
 * **Helping developers write secure applications** by raising awareness of the security concerns that EF handles and guidance that should be followed when using EF.
 
-***
-**NOTE:** THIS DOCUMENT CAPTURES THE SECURITY DESIGN FOR EF CORE. SINCE EF CORE IS STILL PRE-RELEASE, NOT ALL GUARANTEES LISTED HERE MAY BE IMPLEMENTED AND/OR VERIFIED YET.
-***
-
 ## User Input
 
 ### Security Note: Validate user input

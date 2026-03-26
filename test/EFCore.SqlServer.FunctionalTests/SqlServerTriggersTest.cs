@@ -98,21 +98,19 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>(
-                eb =>
+            modelBuilder.Entity<Product>(eb =>
+            {
+                eb.ToTable(tb =>
                 {
-                    eb.ToTable(
-                        tb =>
-                        {
-                            tb.HasTrigger("TRG_InsertProduct");
-                            tb.HasTrigger("TRG_UpdateProduct");
-                            tb.HasTrigger("TRG_DeleteProduct");
-                        });
-                    eb.Property(e => e.Version)
-                        .ValueGeneratedOnAddOrUpdate()
-                        .IsConcurrencyToken();
-                    eb.Ignore(e => e.StoreUpdated);
+                    tb.HasTrigger("TRG_InsertProduct");
+                    tb.HasTrigger("TRG_UpdateProduct");
+                    tb.HasTrigger("TRG_DeleteProduct");
                 });
+                eb.Property(e => e.Version)
+                    .ValueGeneratedOnAddOrUpdate()
+                    .IsConcurrencyToken();
+                eb.Ignore(e => e.StoreUpdated);
+            });
 
             modelBuilder.Entity<ProductBackup>()
                 .Property(e => e.Id).ValueGeneratedNever();

@@ -20,10 +20,10 @@ public class SqlServerNetTopologySuiteAggregateMethodCallTranslatorPlugin : IAgg
     public SqlServerNetTopologySuiteAggregateMethodCallTranslatorPlugin(
         IRelationalTypeMappingSource typeMappingSource,
         ISqlExpressionFactory sqlExpressionFactory)
-        => Translators = new IAggregateMethodCallTranslator[]
-        {
+        => Translators =
+        [
             new SqlServerNetTopologySuiteAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
-        };
+        ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

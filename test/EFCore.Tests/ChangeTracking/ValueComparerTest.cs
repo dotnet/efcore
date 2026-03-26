@@ -51,23 +51,13 @@ public class ValueComparerTest
             => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>((ValueComparer)null, new FakeValueComparer());
     }
 
-    [ConditionalTheory]
-    [InlineData(typeof(byte), (byte)1, (byte)2, 1)]
-    [InlineData(typeof(ushort), (ushort)1, (ushort)2, 1)]
-    [InlineData(typeof(uint), (uint)1, (uint)2, 1)]
-    [InlineData(typeof(ulong), (ulong)1, (ulong)2, null)]
-    [InlineData(typeof(sbyte), (sbyte)1, (sbyte)2, 1)]
-    [InlineData(typeof(short), (short)1, (short)2, 1)]
-    [InlineData(typeof(int), 1, 2, 1)]
-    [InlineData(typeof(long), (long)1, (long)2, null)]
-    [InlineData(typeof(char), 'A', 'B', (int)'A')]
-    [InlineData(typeof(string), "A", "B", null)]
-    [InlineData(typeof(bool), true, false, null)]
-    [InlineData(typeof(object), 1, "B", null)]
-    [InlineData(typeof(float), (float)1, (float)2, null)]
-    [InlineData(typeof(double), (double)1, (double)2, null)]
-    [InlineData(typeof(JustAnEnum), JustAnEnum.A, JustAnEnum.B, null)]
-    [InlineData(typeof(int[]), new[] { 1, 2 }, new[] { 3, 4 }, null)]
+    [ConditionalTheory, InlineData(typeof(byte), (byte)1, (byte)2, 1), InlineData(typeof(ushort), (ushort)1, (ushort)2, 1),
+     InlineData(typeof(uint), (uint)1, (uint)2, 1), InlineData(typeof(ulong), (ulong)1, (ulong)2, null),
+     InlineData(typeof(sbyte), (sbyte)1, (sbyte)2, 1), InlineData(typeof(short), (short)1, (short)2, 1), InlineData(typeof(int), 1, 2, 1),
+     InlineData(typeof(long), (long)1, (long)2, null), InlineData(typeof(char), 'A', 'B', (int)'A'),
+     InlineData(typeof(string), "A", "B", null), InlineData(typeof(bool), true, false, null), InlineData(typeof(object), 1, "B", null),
+     InlineData(typeof(float), (float)1, (float)2, null), InlineData(typeof(double), (double)1, (double)2, null),
+     InlineData(typeof(JustAnEnum), JustAnEnum.A, JustAnEnum.B, null), InlineData(typeof(int[]), new[] { 1, 2 }, new[] { 3, 4 }, null)]
     public ValueComparer Default_comparer_works_for_normal_types(Type type, object value1, object value2, int? hashCode)
         => CompareTest(type, value1, value2, hashCode);
 

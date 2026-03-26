@@ -451,107 +451,72 @@ public class TypeExtensionsTest
             typeof(Outer<List<Guid>>).GetNamespaces().ToArray());
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory, InlineData(typeof(int), "int"), InlineData(typeof(List<int>), "System.Collections.Generic.List<int>"),
+     InlineData(typeof(Dictionary<int, string>), "System.Collections.Generic.Dictionary<int, string>"), InlineData(
+         typeof(Dictionary<int, List<string>>), "System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<string>>"),
+     InlineData(typeof(List<List<string>>), "System.Collections.Generic.List<System.Collections.Generic.List<string>>"), InlineData(
+         typeof(A),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+A"), InlineData(
+         typeof(B<int>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<int>"), InlineData(
+         typeof(C<int, string>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+C<int, string>"), InlineData(
+         typeof(B<B<string>>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<string>>"), InlineData(
+         typeof(C<int, B<string>>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+C<int, Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<string>>"), InlineData(
+         typeof(Outer<int>.D),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+D"), InlineData(
+         typeof(Outer<int>.E<int>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<int>"), InlineData(
+         typeof(Outer<int>.F<int, string>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+F<int, string>"), InlineData(
+         typeof(Level1<int>.Level2<bool>.Level3<int>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Level1<int>+Level2<bool>+Level3<int>"), InlineData(
+         typeof(Outer<int>.E<Outer<int>.E<string>>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<string>>"),
+     InlineData(
+         typeof(Outer<int>.F<int, Outer<int>.E<string>>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+F<int, Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<string>>"),
+     InlineData(
+         typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>),
+         "Microsoft.EntityFrameworkCore.TypeExtensionsTest+OuterGeneric<int>+InnerNonGeneric+InnerGeneric<int, string>+InnerGenericLeafNode<bool>")]
     // Predefined Types
-    [InlineData(typeof(int), "int")]
-    [InlineData(typeof(List<int>), "System.Collections.Generic.List<int>")]
-    [InlineData(typeof(Dictionary<int, string>), "System.Collections.Generic.Dictionary<int, string>")]
-    [InlineData(
-        typeof(Dictionary<int, List<string>>), "System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<string>>")]
-    [InlineData(typeof(List<List<string>>), "System.Collections.Generic.List<System.Collections.Generic.List<string>>")]
     // Classes inside NonGeneric class
-    [InlineData(
-        typeof(A),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+A")]
-    [InlineData(
-        typeof(B<int>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<int>")]
-    [InlineData(
-        typeof(C<int, string>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+C<int, string>")]
-    [InlineData(
-        typeof(B<B<string>>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<string>>")]
-    [InlineData(
-        typeof(C<int, B<string>>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+C<int, Microsoft.EntityFrameworkCore.TypeExtensionsTest+B<string>>")]
     // Classes inside Generic class
-    [InlineData(
-        typeof(Outer<int>.D),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+D")]
-    [InlineData(
-        typeof(Outer<int>.E<int>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<int>")]
-    [InlineData(
-        typeof(Outer<int>.F<int, string>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+F<int, string>")]
-    [InlineData(
-        typeof(Level1<int>.Level2<bool>.Level3<int>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Level1<int>+Level2<bool>+Level3<int>")]
-    [InlineData(
-        typeof(Outer<int>.E<Outer<int>.E<string>>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<string>>")]
-    [InlineData(
-        typeof(Outer<int>.F<int, Outer<int>.E<string>>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+F<int, Microsoft.EntityFrameworkCore.TypeExtensionsTest+Outer<int>+E<string>>")]
-    [InlineData(
-        typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>),
-        "Microsoft.EntityFrameworkCore.TypeExtensionsTest+OuterGeneric<int>+InnerNonGeneric+InnerGeneric<int, string>+InnerGenericLeafNode<bool>")]
     public void Can_pretty_print_CLR_full_name(Type type, string expected)
         => Assert.Equal(expected, type.DisplayName());
 
-    [ConditionalTheory]
+    [ConditionalTheory, InlineData(typeof(int), "int"), InlineData(typeof(List<int>), "List<int>"),
+     InlineData(typeof(Dictionary<int, string>), "Dictionary<int, string>"),
+     InlineData(typeof(Dictionary<int, List<string>>), "Dictionary<int, List<string>>"),
+     InlineData(typeof(List<List<string>>), "List<List<string>>"), InlineData(typeof(A), "A"), InlineData(typeof(B<int>), "B<int>"),
+     InlineData(typeof(C<int, string>), "C<int, string>"), InlineData(typeof(C<int, B<string>>), "C<int, B<string>>"),
+     InlineData(typeof(B<B<string>>), "B<B<string>>"), InlineData(typeof(Outer<int>.D), "D"),
+     InlineData(typeof(Outer<int>.E<int>), "E<int>"), InlineData(typeof(Outer<int>.F<int, string>), "F<int, string>"),
+     InlineData(typeof(Outer<int>.F<int, Outer<int>.E<string>>), "F<int, E<string>>"),
+     InlineData(typeof(Outer<int>.E<Outer<int>.E<string>>), "E<E<string>>"), InlineData(
+         typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>), "InnerGenericLeafNode<bool>")]
     // Predefined Types
-    [InlineData(typeof(int), "int")]
-    [InlineData(typeof(List<int>), "List<int>")]
-    [InlineData(typeof(Dictionary<int, string>), "Dictionary<int, string>")]
-    [InlineData(typeof(Dictionary<int, List<string>>), "Dictionary<int, List<string>>")]
-    [InlineData(typeof(List<List<string>>), "List<List<string>>")]
     // Classes inside NonGeneric class
-    [InlineData(typeof(A), "A")]
-    [InlineData(typeof(B<int>), "B<int>")]
-    [InlineData(typeof(C<int, string>), "C<int, string>")]
-    [InlineData(typeof(C<int, B<string>>), "C<int, B<string>>")]
-    [InlineData(typeof(B<B<string>>), "B<B<string>>")]
     // Classes inside Generic class
-    [InlineData(typeof(Outer<int>.D), "D")]
-    [InlineData(typeof(Outer<int>.E<int>), "E<int>")]
-    [InlineData(typeof(Outer<int>.F<int, string>), "F<int, string>")]
-    [InlineData(typeof(Outer<int>.F<int, Outer<int>.E<string>>), "F<int, E<string>>")]
-    [InlineData(typeof(Outer<int>.E<Outer<int>.E<string>>), "E<E<string>>")]
-    [InlineData(
-        typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>), "InnerGenericLeafNode<bool>")]
     public void Can_pretty_print_CLR_name(Type type, string expected)
         => Assert.Equal(expected, type.ShortDisplayName());
 
-    [ConditionalTheory]
-    [InlineData(typeof(bool), "bool")]
-    [InlineData(typeof(byte), "byte")]
-    [InlineData(typeof(char), "char")]
-    [InlineData(typeof(decimal), "decimal")]
-    [InlineData(typeof(double), "double")]
-    [InlineData(typeof(float), "float")]
-    [InlineData(typeof(int), "int")]
-    [InlineData(typeof(long), "long")]
-    [InlineData(typeof(object), "object")]
-    [InlineData(typeof(sbyte), "sbyte")]
-    [InlineData(typeof(short), "short")]
-    [InlineData(typeof(string), "string")]
-    [InlineData(typeof(uint), "uint")]
-    [InlineData(typeof(ulong), "ulong")]
-    [InlineData(typeof(ushort), "ushort")]
-    [InlineData(typeof(void), "void")]
+    [ConditionalTheory, InlineData(typeof(bool), "bool"), InlineData(typeof(byte), "byte"), InlineData(typeof(char), "char"),
+     InlineData(typeof(decimal), "decimal"), InlineData(typeof(double), "double"), InlineData(typeof(float), "float"),
+     InlineData(typeof(int), "int"), InlineData(typeof(long), "long"), InlineData(typeof(object), "object"),
+     InlineData(typeof(sbyte), "sbyte"), InlineData(typeof(short), "short"), InlineData(typeof(string), "string"),
+     InlineData(typeof(uint), "uint"), InlineData(typeof(ulong), "ulong"), InlineData(typeof(ushort), "ushort"),
+     InlineData(typeof(void), "void")]
     public void Returns_common_name_for_built_in_types(Type type, string expected)
         => Assert.Equal(expected, type.DisplayName());
 
-    [ConditionalTheory]
-    [InlineData(typeof(int[]), true, "int[]")]
-    [InlineData(typeof(string[][]), true, "string[][]")]
-    [InlineData(typeof(int[,]), true, "int[,]")]
-    [InlineData(typeof(bool[,,,]), true, "bool[,,,]")]
-    [InlineData(typeof(A[,][,,]), true, "Microsoft.EntityFrameworkCore.TypeExtensionsTest+A[,][,,]")]
-    [InlineData(typeof(List<int[,][,,]>), true, "System.Collections.Generic.List<int[,][,,]>")]
-    [InlineData(typeof(List<int[,,][,]>[,][,,]), false, "List<int[,,][,]>[,][,,]")]
+    [ConditionalTheory, InlineData(typeof(int[]), true, "int[]"), InlineData(typeof(string[][]), true, "string[][]"),
+     InlineData(typeof(int[,]), true, "int[,]"), InlineData(typeof(bool[,,,]), true, "bool[,,,]"),
+     InlineData(typeof(A[,][,,]), true, "Microsoft.EntityFrameworkCore.TypeExtensionsTest+A[,][,,]"),
+     InlineData(typeof(List<int[,][,,]>), true, "System.Collections.Generic.List<int[,][,,]>"),
+     InlineData(typeof(List<int[,,][,]>[,][,,]), false, "List<int[,,][,]>[,][,,]")]
     public void Can_pretty_print_array_name(Type type, bool fullName, string expected)
         => Assert.Equal(expected, type.DisplayName(fullName));
 

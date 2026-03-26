@@ -80,7 +80,7 @@ public static class RelationalTriggerExtensions
     public static void SetDatabaseName(this IMutableTrigger trigger, string? name)
         => trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the trigger in the database.
@@ -92,7 +92,7 @@ public static class RelationalTriggerExtensions
     public static string? SetDatabaseName(this IConventionTrigger trigger, string? name, bool fromDataAnnotation = false)
         => (string?)trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -130,7 +130,7 @@ public static class RelationalTriggerExtensions
     public static void SetTableName(this IMutableTrigger trigger, string? name)
         => trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.TableName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the table on which this trigger is defined.
@@ -142,7 +142,7 @@ public static class RelationalTriggerExtensions
     public static string? SetTableName(this IConventionTrigger trigger, string? name, bool fromDataAnnotation = false)
         => (string?)trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.TableName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -170,7 +170,7 @@ public static class RelationalTriggerExtensions
     public static void SetTableSchema(this IMutableTrigger trigger, string? schema)
         => trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Schema,
-            Check.NullButNotEmpty(schema, nameof(schema)));
+            Check.NullButNotEmpty(schema));
 
     /// <summary>
     ///     Sets the schema of the table on which this trigger is defined.
@@ -182,7 +182,7 @@ public static class RelationalTriggerExtensions
     public static string? SetTableSchema(this IConventionTrigger trigger, string? schema, bool fromDataAnnotation = false)
         => (string?)trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Schema,
-            Check.NullButNotEmpty(schema, nameof(schema)),
+            Check.NullButNotEmpty(schema),
             fromDataAnnotation)?.Value;
 
     /// <summary>

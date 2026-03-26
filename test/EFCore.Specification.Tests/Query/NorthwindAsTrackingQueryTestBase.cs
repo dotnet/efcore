@@ -11,9 +11,7 @@ public abstract class NorthwindAsTrackingQueryTestBase<TFixture>(TFixture fixtur
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void Entity_added_to_state_manager(bool useParam)
     {
         using var context = CreateContext();

@@ -7,8 +7,13 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class AdHocPrecompiledQueryRelationalTestBase(ITestOutputHelper testOutputHelper) : NonSharedModelTestBase
+[Collection("PrecompiledQuery")]
+public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
+    public AdHocPrecompiledQueryRelationalTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
+        => TestOutputHelper = testOutputHelper;
+
     [ConditionalFact]
     public virtual async Task Index_no_evaluatability()
     {
@@ -129,16 +134,15 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
         public DbSet<NonPublicEntity> NonPublicEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<NonPublicEntity>(
-                b =>
-                {
-                    b.Property<int?>("_privateField");
-                    b.Property<int?>("PrivateProperty");
-                    b.Property<int?>("PrivateAutoProperty");
-                    b.Ignore(b => b.PrivateFieldExposer);
-                    b.Ignore(b => b.PrivatePropertyExposer);
-                    b.Ignore(b => b.PrivateAutoPropertyExposer);
-                });
+            => modelBuilder.Entity<NonPublicEntity>(b =>
+            {
+                b.Property<int?>("_privateField");
+                b.Property<int?>("PrivateProperty");
+                b.Property<int?>("PrivateAutoProperty");
+                b.Ignore(b => b.PrivateFieldExposer);
+                b.Ignore(b => b.PrivatePropertyExposer);
+                b.Ignore(b => b.PrivateAutoPropertyExposer);
+            });
     }
 
 #pragma warning disable CS0169
@@ -224,7 +228,7 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
         var options = contextFactory.GetOptions();
 
         await Test(
-"""
+            """
 await using var context = new AdHocPrecompiledQueryRelationalTestBase.PrecompiledContext34760(dbContextOptions);
 var publishDates = await context.Books.Select(x => x.PublishDate).ToListAsync();
 """,
@@ -243,7 +247,7 @@ var publishDates = await context.Books.Select(x => x.PublishDate).ToListAsync();
         var options = contextFactory.GetOptions();
 
         await Test(
-"""
+            """
 await using var context = new AdHocPrecompiledQueryRelationalTestBase.PrecompiledContext34760(dbContextOptions);
 var audiobookDates = await context.Books.Select(x => x.AudiobookDate).ToListAsync();
 """,
@@ -258,7 +262,7 @@ var audiobookDates = await context.Books.Select(x => x.AudiobookDate).ToListAsyn
         var options = contextFactory.GetOptions();
 
         await Test(
-"""
+            """
 await using var context = new AdHocPrecompiledQueryRelationalTestBase.PrecompiledContext34760(dbContextOptions);
 var books = await context.Books.ToListAsync();
 """,
@@ -273,7 +277,8 @@ var books = await context.Books.ToListAsync();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>().Property(e => e.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Book>().Property(e => e.PublishDate).HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
+            modelBuilder.Entity<Book>().Property(e => e.PublishDate)
+                .HasConversion(new MyDateTimeValueConverterWithClosure(new MyDatetimeConverter()));
             modelBuilder.Entity<Book>().Property(e => e.AudiobookDate).HasConversion(new MyDateTimeValueConverterWithoutClosure());
         }
 
@@ -351,7 +356,7 @@ var books = await context.Books.ToListAsync();
         Action<List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>>? precompilationErrorAsserter = null,
         [CallerMemberName] string callerName = "")
         => PrecompiledQueryTestHelpers.Test(
-            sourceCode, dbContextOptions, dbContextType, interceptorCodeAsserter, precompilationErrorAsserter, testOutputHelper,
+            sourceCode, dbContextOptions, dbContextType, interceptorCodeAsserter, precompilationErrorAsserter, TestOutputHelper!,
             AlwaysPrintGeneratedSources,
             callerName);
 

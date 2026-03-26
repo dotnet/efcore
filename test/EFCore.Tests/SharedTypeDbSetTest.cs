@@ -593,9 +593,7 @@ public class SharedTypeDbSetTest
         Assert.Equal(expectedState, entry.State);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Can_add_new_entities_to_context_with_key_generation(bool async)
     {
         using var context = new EarlyLearningCenter();

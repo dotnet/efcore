@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsAzureSql)]
 public class SqlAzureFundamentalsTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
 {
     public SqlAzureFixture Fixture { get; } = fixture;

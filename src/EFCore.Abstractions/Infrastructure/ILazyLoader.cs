@@ -40,7 +40,7 @@ public interface ILazyLoader
     /// </summary>
     /// <param name="entity">The entity on which the navigation property is located.</param>
     /// <param name="navigationName">The navigation property name.</param>
-    /// <returns><see langword="true" />if the navigation is known to be loaded.</returns>
+    /// <returns><see langword="true" /> if the navigation is known to be loaded.</returns>
     bool IsLoaded(
         object entity,
         [CallerMemberName] string navigationName = "");

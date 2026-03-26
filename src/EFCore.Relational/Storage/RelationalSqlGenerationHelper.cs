@@ -74,9 +74,7 @@ public class RelationalSqlGenerationHelper : ISqlGenerationHelper
     ///     A valid name based on the candidate name.
     /// </returns>
     public virtual string GenerateParameterName(string name)
-        => name.StartsWith("@", StringComparison.Ordinal)
-            ? name
-            : "@" + name;
+        => name.StartsWith('@') ? name : "@" + name;
 
     /// <summary>
     ///     Writes a valid parameter name for the given candidate name.

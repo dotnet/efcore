@@ -36,7 +36,7 @@ public class ModelConfigurationBuilder
     [EntityFrameworkInternal]
     public ModelConfigurationBuilder(ConventionSet conventions, IServiceProvider serviceProvider)
     {
-        Check.NotNull(conventions, nameof(conventions));
+        Check.NotNull(conventions);
 
         _conventions = conventions;
         _conventionSetBuilder = new ConventionSetBuilder(conventions, serviceProvider);
@@ -85,7 +85,7 @@ public class ModelConfigurationBuilder
     /// </returns>
     public virtual ModelConfigurationBuilder IgnoreAny(Type type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         _modelConfiguration.AddIgnored(type);
 
@@ -133,7 +133,7 @@ public class ModelConfigurationBuilder
     public virtual ModelConfigurationBuilder Properties<TProperty>(
         Action<PropertiesConfigurationBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var propertyBuilder = Properties<TProperty>();
         buildAction(propertyBuilder);
@@ -158,7 +158,7 @@ public class ModelConfigurationBuilder
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PropertiesConfigurationBuilder Properties(Type propertyType)
     {
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(propertyType);
 
         var property = _modelConfiguration.GetOrAddProperty(propertyType);
 
@@ -187,8 +187,8 @@ public class ModelConfigurationBuilder
         Type propertyType,
         Action<PropertiesConfigurationBuilder> buildAction)
     {
-        Check.NotNull(propertyType, nameof(propertyType));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(propertyType);
+        Check.NotNull(buildAction);
 
         var propertyBuilder = Properties(propertyType);
         buildAction(propertyBuilder);
@@ -251,7 +251,7 @@ public class ModelConfigurationBuilder
     public virtual ModelConfigurationBuilder DefaultTypeMapping<TScalar>(
         Action<TypeMappingConfigurationBuilder<TScalar>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var scalarBuilder = DefaultTypeMapping<TScalar>();
         buildAction(scalarBuilder);
@@ -281,7 +281,7 @@ public class ModelConfigurationBuilder
     /// <returns>An object that can be used to configure the scalars.</returns>
     public virtual TypeMappingConfigurationBuilder DefaultTypeMapping(Type scalarType)
     {
-        Check.NotNull(scalarType, nameof(scalarType));
+        Check.NotNull(scalarType);
 
         var scalar = _modelConfiguration.GetOrAddTypeMapping(scalarType);
 
@@ -315,8 +315,8 @@ public class ModelConfigurationBuilder
         Type scalarType,
         Action<TypeMappingConfigurationBuilder> buildAction)
     {
-        Check.NotNull(scalarType, nameof(scalarType));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(scalarType);
+        Check.NotNull(buildAction);
 
         var scalarBuilder = DefaultTypeMapping(scalarType);
         buildAction(scalarBuilder);
@@ -362,7 +362,7 @@ public class ModelConfigurationBuilder
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertiesConfigurationBuilder ComplexProperties(Type propertyType)
     {
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(propertyType);
 
         var property = _modelConfiguration.GetOrAddComplexProperty(propertyType);
 

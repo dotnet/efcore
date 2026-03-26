@@ -48,8 +48,7 @@ public abstract class InternalEntityEntryTestBase<
 
         Assert.Equal(
             CoreStrings.ValueCannotBeNull("Id", "SomeSimpleEntityBase", "int"),
-            Assert.Throws<InvalidOperationException>(
-                () => entry.SetStoreGeneratedValue(keyProperty, null)).Message);
+            Assert.Throws<InvalidOperationException>(() => entry.SetStoreGeneratedValue(keyProperty, null)).Message);
     }
 
     [ConditionalFact]
@@ -67,9 +66,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Contains(entry, context.GetService<IStateManager>().Entries);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void Changing_state_to_Unknown_causes_entity_to_stop_tracking(bool useTempValue)
     {
         using var context = new TKContext();
@@ -176,16 +173,14 @@ public abstract class InternalEntityEntryTestBase<
 
         Assert.Equal(
             CoreStrings.KeyReadOnly("Id", "SomeEntity"),
-            Assert.Throws<InvalidOperationException>(
-                () => entry.SetPropertyModified(keyProperty)).Message);
+            Assert.Throws<InvalidOperationException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
         Assert.Equal(EntityState.Unchanged, entry.EntityState);
         Assert.False(entry.IsModified(keyProperty));
 
         Assert.Equal(
             CoreStrings.KeyReadOnly("Id", "SomeEntity"),
-            Assert.Throws<InvalidOperationException>(
-                () => entry[keyProperty] = 2).Message);
+            Assert.Throws<InvalidOperationException>(() => entry[keyProperty] = 2).Message);
 
         Assert.Equal(EntityState.Unchanged, entry.EntityState);
         Assert.False(entry.IsModified(keyProperty));
@@ -254,10 +249,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.False(entry.IsModified(nonKeyProperty));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Deleted)]
     public virtual void Changing_state_with_temp_value_throws(EntityState targetState)
     {
         using var context = new TKContext();
@@ -727,9 +719,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(entityState, entry.EntityState);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Added)]
+    [ConditionalTheory, InlineData(EntityState.Modified), InlineData(EntityState.Added)]
     public void AcceptChanges_makes_entities_Unchanged(EntityState entityState)
     {
         using var context = new TKContext();
@@ -879,40 +869,36 @@ public abstract class InternalEntityEntryTestBase<
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TSomeSimpleEntityBase>(
-                b =>
-                {
-                    b.Property<int>("Id");
-                    b.HasKey("Id");
-                    b.Property<int>("NonId").ValueGeneratedOnAdd();
-                    b.HasAlternateKey("NonId");
-                });
+            modelBuilder.Entity<TSomeSimpleEntityBase>(b =>
+            {
+                b.Property<int>("Id");
+                b.HasKey("Id");
+                b.Property<int>("NonId").ValueGeneratedOnAdd();
+                b.HasAlternateKey("NonId");
+            });
 
             modelBuilder.Entity<TSomeEntity>().Property<string>("Name").IsConcurrencyToken().ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<TSomeCompositeEntityBase>(
-                b =>
-                {
-                    b.Property<int>("Id1");
-                    b.Property<string>("Id2");
-                    b.HasKey("Id1", "Id2");
-                });
+            modelBuilder.Entity<TSomeCompositeEntityBase>(b =>
+            {
+                b.Property<int>("Id1");
+                b.Property<string>("Id2");
+                b.HasKey("Id1", "Id2");
+            });
 
-            modelBuilder.Entity<TSomeDependentEntity>(
-                b =>
-                {
-                    b.Property<int>("SomeEntityId");
-                    b.HasOne<TSomeEntity>().WithMany().HasForeignKey("SomeEntityId");
-                    b.Property<int>("JustAProperty").HasValueGenerator((p, e) => new InMemoryIntegerValueGenerator<int>(p.GetIndex()));
-                });
+            modelBuilder.Entity<TSomeDependentEntity>(b =>
+            {
+                b.Property<int>("SomeEntityId");
+                b.HasOne<TSomeEntity>().WithMany().HasForeignKey("SomeEntityId");
+                b.Property<int>("JustAProperty").HasValueGenerator((p, e) => new InMemoryIntegerValueGenerator<int>(p.GetIndex()));
+            });
 
-            modelBuilder.Entity<TSomeMoreDependentEntity>(
-                b =>
-                {
-                    b.Property<int>("Fk11");
-                    b.Property<string>("Fk2");
-                    b.HasOne<TSomeDependentEntity>().WithMany().HasForeignKey("Fk1", "Fk2");
-                });
+            modelBuilder.Entity<TSomeMoreDependentEntity>(b =>
+            {
+                b.Property<int>("Fk11");
+                b.Property<string>("Fk2");
+                b.HasOne<TSomeDependentEntity>().WithMany().HasForeignKey("Fk1", "Fk2");
+            });
         }
     }
 
@@ -920,71 +906,64 @@ public abstract class InternalEntityEntryTestBase<
     {
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TFirstDependent>(
-                b =>
-                {
-                    b.Property<int>("Id");
-                    b.HasOne(e => (TSecondDependent)e.Second)
-                        .WithOne(e => (TFirstDependent)e.First)
-                        .HasForeignKey<TSecondDependent>("Id")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+            modelBuilder.Entity<TFirstDependent>(b =>
+            {
+                b.Property<int>("Id");
+                b.HasOne(e => (TSecondDependent)e.Second)
+                    .WithOne(e => (TFirstDependent)e.First)
+                    .HasForeignKey<TSecondDependent>("Id")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder
-                .Entity<TRoot>(
-                    b =>
-                    {
-                        b.Property<int>("Id").ValueGeneratedNever();
-                        b.HasOne(e => (TFirstDependent)e.First)
-                            .WithOne(e => (TRoot)e.Root)
-                            .HasForeignKey<TFirstDependent>("Id");
-                    });
-
-            modelBuilder.Entity<TCompositeRoot>(
-                b =>
+                .Entity<TRoot>(b =>
                 {
-                    b.Property<int>("Id1");
-                    b.Property<string>("Id2");
-                    b.HasKey("Id1", "Id2");
+                    b.Property<int>("Id").ValueGeneratedNever();
+                    b.HasOne(e => (TFirstDependent)e.First)
+                        .WithOne(e => (TRoot)e.Root)
+                        .HasForeignKey<TFirstDependent>("Id");
                 });
 
-            modelBuilder.Entity<TCompositeFirstDependent>(
-                b =>
-                {
-                    b.Property<int>("Id1");
-                    b.Property<string>("Id2");
-                    b.Property<int>("RootId1");
-                    b.Property<string>("RootId2");
-                    b.HasKey("Id1", "Id2");
-                });
+            modelBuilder.Entity<TCompositeRoot>(b =>
+            {
+                b.Property<int>("Id1");
+                b.Property<string>("Id2");
+                b.HasKey("Id1", "Id2");
+            });
 
-            modelBuilder.Entity<TCompositeSecondDependent>(
-                b =>
-                {
-                    b.Property<int>("FirstId1");
-                    b.Property<string>("FirstId2");
-                    b.Property<int>("Id1");
-                    b.Property<string>("Id2");
-                    b.HasKey("Id1", "Id2");
-                });
+            modelBuilder.Entity<TCompositeFirstDependent>(b =>
+            {
+                b.Property<int>("Id1");
+                b.Property<string>("Id2");
+                b.Property<int>("RootId1");
+                b.Property<string>("RootId2");
+                b.HasKey("Id1", "Id2");
+            });
 
-            modelBuilder.Entity<TCompositeRoot>(
-                b =>
-                {
-                    b.HasOne(e => (TCompositeFirstDependent)e.First)
-                        .WithOne(e => (TCompositeRoot)e.Root)
-                        .HasForeignKey<TCompositeFirstDependent>("RootId1", "RootId2")
-                        .IsRequired(false);
-                });
+            modelBuilder.Entity<TCompositeSecondDependent>(b =>
+            {
+                b.Property<int>("FirstId1");
+                b.Property<string>("FirstId2");
+                b.Property<int>("Id1");
+                b.Property<string>("Id2");
+                b.HasKey("Id1", "Id2");
+            });
 
-            modelBuilder.Entity<TCompositeFirstDependent>(
-                b =>
-                {
-                    b.HasOne(e => (TCompositeSecondDependent)e.Second)
-                        .WithOne(e => (TCompositeFirstDependent)e.First)
-                        .HasForeignKey<TCompositeSecondDependent>("FirstId1", "FirstId2")
-                        .IsRequired(false);
-                });
+            modelBuilder.Entity<TCompositeRoot>(b =>
+            {
+                b.HasOne(e => (TCompositeFirstDependent)e.First)
+                    .WithOne(e => (TCompositeRoot)e.Root)
+                    .HasForeignKey<TCompositeFirstDependent>("RootId1", "RootId2")
+                    .IsRequired(false);
+            });
+
+            modelBuilder.Entity<TCompositeFirstDependent>(b =>
+            {
+                b.HasOne(e => (TCompositeSecondDependent)e.Second)
+                    .WithOne(e => (TCompositeFirstDependent)e.First)
+                    .HasForeignKey<TCompositeSecondDependent>("FirstId1", "FirstId2")
+                    .IsRequired(false);
+            });
         }
     }
 
@@ -994,40 +973,37 @@ public abstract class InternalEntityEntryTestBase<
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<TCompositeRoot>(
-                b =>
-                {
-                    b.Property<int>("Id1");
-                    b.Property<string>("Id2");
-                    b.HasKey("Id1", "Id2");
-                    b.HasOne(e => (TCompositeFirstDependent)e.First)
-                        .WithOne(e => (TCompositeRoot)e.Root)
-                        .HasForeignKey<TCompositeFirstDependent>("RootId1", "RootId2")
-                        .IsRequired();
-                });
+            modelBuilder.Entity<TCompositeRoot>(b =>
+            {
+                b.Property<int>("Id1");
+                b.Property<string>("Id2");
+                b.HasKey("Id1", "Id2");
+                b.HasOne(e => (TCompositeFirstDependent)e.First)
+                    .WithOne(e => (TCompositeRoot)e.Root)
+                    .HasForeignKey<TCompositeFirstDependent>("RootId1", "RootId2")
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity<TCompositeFirstDependent>(
-                b =>
-                {
-                    b.HasOne(e => (TCompositeSecondDependent)e.Second)
-                        .WithOne(e => (TCompositeFirstDependent)e.First)
-                        .HasForeignKey<TCompositeSecondDependent>("FirstId1", "FirstId2")
-                        .IsRequired();
-                });
+            modelBuilder.Entity<TCompositeFirstDependent>(b =>
+            {
+                b.HasOne(e => (TCompositeSecondDependent)e.Second)
+                    .WithOne(e => (TCompositeFirstDependent)e.First)
+                    .HasForeignKey<TCompositeSecondDependent>("FirstId1", "FirstId2")
+                    .IsRequired();
+            });
         }
     }
 
     public class KSnapContext : KContext
     {
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<TSomeEntity>(
-                b =>
-                {
-                    b.Property<int>("Id");
-                    b.HasKey("Id");
-                    b.Property<string>("Name").IsConcurrencyToken();
-                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-                });
+            => modelBuilder.Entity<TSomeEntity>(b =>
+            {
+                b.Property<int>("Id");
+                b.HasKey("Id");
+                b.Property<string>("Name").IsConcurrencyToken();
+                b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+            });
     }
 }
 

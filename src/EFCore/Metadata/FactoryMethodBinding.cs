@@ -26,8 +26,8 @@ public class FactoryMethodBinding : InstantiationBinding
         Type runtimeType)
         : base(parameterBindings)
     {
-        Check.NotNull(factoryMethod, nameof(factoryMethod));
-        Check.NotNull(runtimeType, nameof(runtimeType));
+        Check.NotNull(factoryMethod);
+        Check.NotNull(runtimeType);
 
         _factoryMethod = factoryMethod;
         RuntimeType = runtimeType;
@@ -47,7 +47,7 @@ public class FactoryMethodBinding : InstantiationBinding
         Type runtimeType)
         : this(factoryMethod, parameterBindings, runtimeType)
     {
-        Check.NotNull(factoryInstance, nameof(factoryInstance));
+        Check.NotNull(factoryInstance);
 
         _factoryInstance = factoryInstance;
     }

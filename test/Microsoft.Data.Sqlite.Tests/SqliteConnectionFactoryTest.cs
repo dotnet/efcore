@@ -12,8 +12,7 @@ using Xunit;
 
 namespace Microsoft.Data.Sqlite;
 
-[Collection(nameof(SqliteConnectionFactoryTest))]
-[CollectionDefinition(nameof(SqliteConnectionFactoryTest), DisableParallelization = true)]
+[Collection(nameof(SqliteConnectionFactoryTest)), CollectionDefinition(nameof(SqliteConnectionFactoryTest), DisableParallelization = true)]
 public class SqliteConnectionFactoryTest : IDisposable
 {
     private const string FileName = "pooled.db";
@@ -64,9 +63,7 @@ public class SqliteConnectionFactoryTest : IDisposable
         Assert.NotSame(db, connection.Handle);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Internal_connections_are_not_reused_after_clearing_pool(bool allPools)
     {
         using var connection = new SqliteConnection(ConnectionString);
@@ -115,7 +112,7 @@ public class SqliteConnectionFactoryTest : IDisposable
             };
         }
 
-        for (int j = 0; j < 30; j++)
+        for (var j = 0; j < 30; j++)
         {
             var runningTasks = usingTasks.Select(Task.Run).ToArray();
 
@@ -131,9 +128,7 @@ public class SqliteConnectionFactoryTest : IDisposable
         }
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Internal_connections_are_not_reused_after_clearing_pool_when_open(bool allPools)
     {
         using var connection = new SqliteConnection(ConnectionString);
@@ -246,8 +241,7 @@ public class SqliteConnectionFactoryTest : IDisposable
                 return;
             }
 
-            ex = Assert.Throws<SqliteException>(
-                () => connection1.ExecuteNonQuery("SELECT load_extension('unknown');"));
+            ex = Assert.Throws<SqliteException>(() => connection1.ExecuteNonQuery("SELECT load_extension('unknown');"));
             disabledMessage = ex.Message;
 
             connection1.EnableExtensions();
@@ -257,8 +251,7 @@ public class SqliteConnectionFactoryTest : IDisposable
         connection2.Open();
         Assert.Same(db, connection2.Handle);
 
-        ex = Assert.Throws<SqliteException>(
-            () => connection2.ExecuteNonQuery("SELECT load_extension('unknown');"));
+        ex = Assert.Throws<SqliteException>(() => connection2.ExecuteNonQuery("SELECT load_extension('unknown');"));
         Assert.Equal(disabledMessage, ex.Message);
     }
 

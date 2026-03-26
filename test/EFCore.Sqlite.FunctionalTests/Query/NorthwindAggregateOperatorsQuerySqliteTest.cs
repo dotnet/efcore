@@ -69,7 +69,7 @@ FROM "Order Details" AS "o"
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT ef_avg(CAST((
     SELECT AVG(CAST(5 + (
@@ -82,7 +82,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     ORDER BY "c"."CustomerID"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
@@ -93,7 +93,7 @@ FROM (
 
         AssertSql(
             """
-@__p_0='3'
+@p='3'
 
 SELECT ef_avg(CAST((
     SELECT AVG(5.0 + (
@@ -106,7 +106,7 @@ FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     ORDER BY "c"."CustomerID"
-    LIMIT @__p_0
+    LIMIT @p
 ) AS "c0"
 """);
     }
@@ -114,8 +114,8 @@ FROM (
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
 
     public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
         => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
@@ -129,13 +129,11 @@ FROM (
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COUNT(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
 END)
 FROM "Customers" AS "c"
 GROUP BY "c"."Country"
@@ -148,13 +146,11 @@ GROUP BY "c"."Country"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT AVG(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
-    ) THEN 1.0
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1.0
     ELSE 0.0
 END)
 FROM "Customers" AS "c"
@@ -167,13 +163,11 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COALESCE(SUM(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
     ELSE 0
 END), 0)
 FROM "Customers" AS "c"
@@ -186,14 +180,12 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE "c"."City" IN (
-    SELECT "c0"."value"
-    FROM json_each(@__cities_0) AS "c0"
-)
+WHERE "c"."City" IN (@cities1, @cities2)
 """);
     }
 
@@ -203,14 +195,12 @@ WHERE "c"."City" IN (
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE "c"."City" IN (
-    SELECT "c0"."value"
-    FROM json_each(@__cities_0) AS "c0"
-)
+WHERE "c"."City" IN (@cities1, @cities2)
 """);
     }
 
@@ -220,13 +210,11 @@ WHERE "c"."City" IN (
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT MAX(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
     ELSE 0
 END)
 FROM "Customers" AS "c"
@@ -239,13 +227,11 @@ FROM "Customers" AS "c"
 
         AssertSql(
             """
-@__cities_0='["London","Berlin"]' (Size = 19)
+@cities1='London' (Size = 6)
+@cities2='Berlin' (Size = 6)
 
 SELECT MIN(CASE
-    WHEN "c"."City" IN (
-        SELECT "c0"."value"
-        FROM json_each(@__cities_0) AS "c0"
-    ) THEN 1
+    WHEN "c"."City" IN (@cities1, @cities2) THEN 1
     ELSE 0
 END)
 FROM "Customers" AS "c"

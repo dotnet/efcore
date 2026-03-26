@@ -280,11 +280,10 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
         => NorthwindData.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            c => c
-                .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
-                .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
-                .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
-                .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
-                .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+        => base.AddOptions(builder).ConfigureWarnings(c => c
+            .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
+            .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+            .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
+            .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
+            .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 }

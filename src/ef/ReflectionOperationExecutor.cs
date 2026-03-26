@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
+#if NET
+using System.Runtime.Loader;
+#endif
+
 namespace Microsoft.EntityFrameworkCore.Tools;
 
 internal class ReflectionOperationExecutor : OperationExecutorBase
@@ -17,10 +21,15 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
     private const string ReportHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationReportHandler";
     private const string ResultHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationResultHandler";
     private readonly Type _resultHandlerType;
+    private string? _efcoreVersion;
+#if NET
+    private AssemblyLoadContext? _assemblyLoadContext;
+#endif
 
     public ReflectionOperationExecutor(
         string assembly,
         string? startupAssembly,
+        string? designAssembly,
         string? project,
         string? projectDir,
         string? dataDirectory,
@@ -29,7 +38,9 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
         bool nullable,
         string[] remainingArguments,
         IOperationReportHandler reportHandler)
-        : base(assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
+        : base(
+            assembly, startupAssembly, designAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments,
+            reportHandler)
     {
         var reporter = new OperationReporter(reportHandler);
         var configurationFile = (startupAssembly ?? assembly) + ".config";
@@ -47,7 +58,15 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
 
         AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
-        _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });
+#if NET
+        _commandsAssembly = DesignAssemblyPath != null
+            ? AssemblyLoadContext.LoadFromAssemblyPath(DesignAssemblyPath)
+            : AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
+#else
+        _commandsAssembly = DesignAssemblyPath != null
+            ? Assembly.LoadFrom(DesignAssemblyPath)
+            : Assembly.Load(DesignAssemblyName);
+#endif
         var reportHandlerType = _commandsAssembly.GetType(ReportHandlerTypeName, throwOnError: true, ignoreCase: false)!;
 
         var designReportHandler = Activator.CreateInstance(
@@ -74,6 +93,53 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
             })!;
 
         _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false)!;
+    }
+
+#if NET
+    protected AssemblyLoadContext AssemblyLoadContext
+    {
+        get
+        {
+            if (_assemblyLoadContext != null)
+            {
+                return _assemblyLoadContext;
+            }
+
+            AssemblyLoadContext.Default.Resolving += (context, name) =>
+            {
+                var assemblyPath = Path.Combine(AppBasePath, name.Name + ".dll");
+                return File.Exists(assemblyPath) ? context.LoadFromAssemblyPath(assemblyPath) : null;
+            };
+            _assemblyLoadContext = AssemblyLoadContext.Default;
+
+            return AssemblyLoadContext.Default;
+        }
+    }
+#endif
+
+    public override string? EFCoreVersion
+    {
+        get
+        {
+            if (_efcoreVersion != null)
+            {
+                return _efcoreVersion;
+            }
+
+            Assembly? assembly = null;
+#if NET
+            assembly = DesignAssemblyPath != null
+                ? AssemblyLoadContext.LoadFromAssemblyPath(DesignAssemblyPath)
+                : AssemblyLoadContext.LoadFromAssemblyName(new AssemblyName(DesignAssemblyName));
+#else
+            assembly = DesignAssemblyPath != null
+                ? Assembly.LoadFrom(DesignAssemblyPath)
+                : Assembly.Load(DesignAssemblyName);
+#endif
+            _efcoreVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion;
+            return _efcoreVersion;
+        }
     }
 
     protected override object CreateResultHandler()

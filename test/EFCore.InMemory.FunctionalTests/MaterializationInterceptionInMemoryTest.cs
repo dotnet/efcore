@@ -5,8 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionInMemoryTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionInMemoryTest.InMemoryLibraryContext>
+public class MaterializationInterceptionInMemoryTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionInMemoryTest.InMemoryLibraryContext>(fixture)
 {
     public class InMemoryLibraryContext(DbContextOptions options) : LibraryContext(options)
     {

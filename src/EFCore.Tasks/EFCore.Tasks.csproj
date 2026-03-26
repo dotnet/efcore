@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MSBuild tasks for Entity Framework Core projects.</Description>
-    <TargetFrameworks>$(DefaultNetCoreTargetFramework);net472</TargetFrameworks>
+    <TargetFrameworks>$(NetToolCurrent);net472</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IncludeSymbols>false</IncludeSymbols>
@@ -49,7 +49,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
-    <PackageReference Include="Microsoft.Build.Framework" PrivateAssets="all" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="all" ExcludeAssets="Runtime" />
   </ItemGroup>
 
@@ -76,7 +75,8 @@
       <NuspecProperty Include="AssemblyName=$(AssemblyName)" />
       <NuspecProperty Include="OutputPath=$(OutputPath)" />
       <NuspecProperty Include="ArtifactsBinDir=$(ArtifactsBinDir)" />
-      <NuspecProperty Include="DefaultNetCoreTargetFramework=$(DefaultNetCoreTargetFramework)" />
+      <NuspecProperty Include="NetToolCurrent=$(NetToolCurrent)" />
+      <NuspecProperty Include="NetToolMinimum=$(NetToolMinimum)" />
       <NuspecProperty Include="Configuration=$(Configuration)" />
     </ItemGroup>
   </Target>

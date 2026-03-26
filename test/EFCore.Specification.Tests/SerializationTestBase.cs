@@ -16,13 +16,8 @@ public abstract class SerializationTestBase<TFixture>(TFixture fixture) : IClass
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(false, false, true)]
-    [InlineData(true, true, false)]
-    [InlineData(true, true, true)]
-    [InlineData(true, false, false)]
-    [InlineData(true, false, true)]
+    [ConditionalTheory, InlineData(false, false, false), InlineData(false, false, true), InlineData(true, true, false),
+     InlineData(true, true, true), InlineData(true, false, false), InlineData(true, false, true)]
     public virtual void Can_round_trip_through_JSON(bool useNewtonsoft, bool ignoreLoops, bool writeIndented)
     {
         using var context = Fixture.CreateContext();

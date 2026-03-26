@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator : QuerySqlGenerator
 {
-    private static readonly bool UseOldBehavior36112 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue36112", out var enabled36112) && enabled36112;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -106,15 +103,19 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // however, we can instead wrap the nested set operation in a SELECT * FROM () to achieve the same effect.
         // The following is a copy-paste of the base implementation from QuerySqlGenerator, adding the SELECT.
 
-        // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-        // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
-        // - including different distinctness.
-        // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
-        if (!UseOldBehavior36112
-            && TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
-            && (nestedSetOperation is ExceptExpression
-                || nestedSetOperation.GetType() != setOperation.GetType()
-                || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
+        if (
+            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+            // To preserve evaluation order, add parentheses whenever a set operation is nested within a different set operation
+            // - including different distinctness.
+            // In addition, EXCEPT is non-commutative (unlike UNION/INTERSECT), so add parentheses for that case too (see #36105).
+            (TryUnwrapBareSetOperation(operand, out var nestedSetOperation)
+                && (nestedSetOperation is ExceptExpression
+                    || nestedSetOperation.GetType() != setOperation.GetType()
+                    || nestedSetOperation.IsDistinct != setOperation.IsDistinct))
+            ||
+            // ValuesExpression with multiple rows uses UNION ALL by default.
+            // We wrap it in a SELECT * FROM () to ensure that the rows are treated as a single set operation.
+            (operand is { Tables: [ValuesExpression { RowValues.Count: > 1 }] }))
         {
             Sql.AppendLine("SELECT * FROM (");
 
@@ -144,10 +145,9 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                     GroupBy: []
                 }
                 && selectExpression.Projection.Count == s.Source1.Projection.Count
-                && selectExpression.Projection.Select(
-                        (pe, index) => pe.Expression is ColumnExpression column
-                            && column.TableAlias == s.Alias
-                            && column.Name == s.Source1.Projection[index].Alias)
+                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                        && column.TableAlias == s.Alias
+                        && column.Name == s.Source1.Projection[index].Alias)
                     .All(e => e))
             {
                 setOperation = s;
@@ -208,51 +208,66 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         {
             Sql.Append(", ");
 
-            // Note the difference with the JSONPATH rendering in VisitJsonScalar below, where we take advantage of SQLite's ->> operator
-            // (we can't do that here).
-            Sql.Append("'$");
-
-            var inJsonpathString = true;
-
-            for (var i = 0; i < path.Count; i++)
-            {
-                switch (path[i])
-                {
-                    case { PropertyName: string propertyName }:
-                        Sql.Append(".").Append(propertyName);
-                        break;
-
-                    case { ArrayIndex: SqlExpression arrayIndex }:
-                        Sql.Append("[");
-
-                        if (arrayIndex is SqlConstantExpression)
-                        {
-                            Visit(arrayIndex);
-                        }
-                        else
-                        {
-                            Sql.Append("' || ");
-                            Visit(arrayIndex);
-                            Sql.Append(" || '");
-                        }
-
-                        Sql.Append("]");
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            if (inJsonpathString)
-            {
-                Sql.Append("'");
-            }
+            GenerateJsonPath(path);
         }
 
         Sql.Append(")");
 
         Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonEachExpression.Alias));
+    }
+
+    private void GenerateJsonPath(IReadOnlyList<PathSegment> path)
+    {
+        Sql.Append("'$");
+
+        for (var i = 0; i < path.Count; i++)
+        {
+            switch (path[i])
+            {
+                case { PropertyName: { } propertyName }:
+                    Sql.Append(".").Append(propertyName);
+                    break;
+
+                case { ArrayIndex: { } arrayIndex }:
+                    Sql.Append("[");
+
+                    if (arrayIndex is SqlConstantExpression)
+                    {
+                        Visit(arrayIndex);
+                    }
+                    else
+                    {
+                        Sql.Append("' || ");
+                        Visit(arrayIndex);
+                        Sql.Append(" || '");
+                    }
+
+                    Sql.Append("]");
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        Sql.Append("'");
+    }
+
+    /// <summary>
+    ///     Generates SQL for a constant.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The <see cref="SqlConstantExpression" /> for which to generate SQL.</param>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        // Certain JSON functions (e.g. json_set()) accept a JSONPATH argument - this is (currently) flown here as a SqlConstantExpression
+        // over IReadOnlyList<PathSegment>. Render that to a string here.
+        if (sqlConstantExpression is { Value: IReadOnlyList<PathSegment> path })
+        {
+            GenerateJsonPath(path);
+            return sqlConstantExpression;
+        }
+
+        return base.VisitSqlConstant(sqlConstantExpression);
     }
 
     /// <summary>
@@ -276,12 +291,14 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
         for (var i = 0; i < path.Count; i++)
         {
+            // Note that we don't use GenerateJsonPath() to generate the JSONPATH string here, since we take advantage of SQLite's ->> operator
+            // for JsonScalarExpression.
             var pathSegment = path[i];
             var isLast = i == path.Count - 1;
 
             switch (pathSegment)
             {
-                case { PropertyName: string propertyName }:
+                case { PropertyName: { } propertyName }:
                     if (inJsonpathString)
                     {
                         Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
@@ -334,7 +351,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
                     Sql.Append(" ->> ");
 
-                    Check.DebugAssert(pathSegment.ArrayIndex is not null, "pathSegment.ArrayIndex is not null");
+                    Check.DebugAssert(pathSegment.ArrayIndex is not null);
 
                     var requiresParentheses = RequiresParentheses(jsonScalarExpression, pathSegment.ArrayIndex);
                     if (requiresParentheses)

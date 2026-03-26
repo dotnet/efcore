@@ -85,7 +85,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         params string[] foreignKeyPropertyNames)
     {
         Builder = Builder.HasForeignKey(
-            Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
+            Check.NotNull(foreignKeyPropertyNames),
             (EntityType)DependentEntityType,
             ConfigurationSource.Explicit)!;
         return new OwnershipBuilder<TEntity, TDependentEntity>(
@@ -127,7 +127,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
     {
         Builder = Builder.HasForeignKey(
-            Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList(),
+            Check.NotNull(foreignKeyExpression).GetMemberAccessList(),
             (EntityType)DependentEntityType,
             ConfigurationSource.Explicit)!;
         return new OwnershipBuilder<TEntity, TDependentEntity>(
@@ -148,7 +148,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         params string[] keyPropertyNames)
     {
         Builder = Builder.HasPrincipalKey(
-            Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
+            Check.NotNull(keyPropertyNames),
             ConfigurationSource.Explicit)!;
         return new OwnershipBuilder<TEntity, TDependentEntity>(
             Builder,
@@ -177,7 +177,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         Expression<Func<TEntity, object?>> keyExpression)
     {
         Builder = Builder.HasPrincipalKey(
-            Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
+            Check.NotNull(keyExpression).GetMemberAccessList(),
             ConfigurationSource.Explicit)!;
         return new OwnershipBuilder<TEntity, TDependentEntity>(
             Builder,

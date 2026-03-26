@@ -42,7 +42,7 @@ public static class SqlServerModelExtensions
     /// <param name="name">The value to set.</param>
     public static void SetHiLoSequenceName(this IMutableModel model, string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         model.SetOrRemoveAnnotation(SqlServerAnnotationNames.HiLoSequenceName, name);
     }
@@ -60,7 +60,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -87,7 +87,7 @@ public static class SqlServerModelExtensions
     /// <param name="value">The value to set.</param>
     public static void SetHiLoSequenceSchema(this IMutableModel model, string? value)
     {
-        Check.NullButNotEmpty(value, nameof(value));
+        Check.NullButNotEmpty(value);
 
         model.SetOrRemoveAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, value);
     }
@@ -105,7 +105,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceSchema,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -132,7 +132,7 @@ public static class SqlServerModelExtensions
     /// <param name="name">The value to set.</param>
     public static void SetSequenceNameSuffix(this IMutableModel model, string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         model.SetOrRemoveAnnotation(SqlServerAnnotationNames.SequenceNameSuffix, name);
     }
@@ -150,7 +150,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceNameSuffix,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -177,7 +177,7 @@ public static class SqlServerModelExtensions
     /// <param name="value">The value to set.</param>
     public static void SetSequenceSchema(this IMutableModel model, string? value)
     {
-        Check.NullButNotEmpty(value, nameof(value));
+        Check.NullButNotEmpty(value);
 
         model.SetOrRemoveAnnotation(SqlServerAnnotationNames.SequenceSchema, value);
     }
@@ -195,7 +195,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceSchema,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>

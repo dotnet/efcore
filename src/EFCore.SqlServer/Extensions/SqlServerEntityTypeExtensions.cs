@@ -199,7 +199,7 @@ public static class SqlServerEntityTypeExtensions
             : entityType[SqlServerAnnotationNames.TemporalHistoryTableName] is string historyTableName
                 ? historyTableName
                 : entityType[SqlServerAnnotationNames.IsTemporal] as bool? == true
-                    ? entityType.GetTableName() is string tableName
+                    ? entityType.GetTableName() is { } tableName
                         ? tableName + DefaultHistoryTableNameSuffix
                         : null
                     : null;
@@ -277,6 +277,25 @@ public static class SqlServerEntityTypeExtensions
     /// <returns>The configuration source for the temporal history table schema setting.</returns>
     public static ConfigurationSource? GetHistoryTableSchemaConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the name of the history table to which the entity type is mapped prepended by the schema
+    ///     or <see langword="null" /> if not mapped to a table.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the history table name for.</param>
+    /// <returns>The name of the history table to which the entity type is mapped prepended by the schema.</returns>
+    public static string? GetSchemaQualifiedHistoryTableName(this IReadOnlyEntityType entityType)
+    {
+        var historyTableName = entityType.GetHistoryTableName();
+        if (historyTableName == null)
+        {
+            return null;
+        }
+
+        var schema = entityType.GetHistoryTableSchema();
+
+        return (string.IsNullOrEmpty(schema) ? "" : schema + ".") + historyTableName;
+    }
 
     #endregion Temporal table
 

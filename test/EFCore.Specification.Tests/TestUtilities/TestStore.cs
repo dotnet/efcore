@@ -5,7 +5,7 @@ using System.Transactions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public abstract class TestStore(string name, bool shared) : IDisposable
+public abstract class TestStore(string name, bool shared) : IAsyncDisposable
 {
     private static readonly TestStoreIndex GlobalTestStoreIndex = new();
     public IServiceProvider? ServiceProvider { get; protected set; }
@@ -83,15 +83,8 @@ public abstract class TestStore(string name, bool shared) : IDisposable
     protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider? serviceProvider)
         => GlobalTestStoreIndex;
 
-    public virtual void Dispose()
-    {
-    }
-
-    public virtual Task DisposeAsync()
-    {
-        Dispose();
-        return Task.CompletedTask;
-    }
+    public virtual ValueTask DisposeAsync()
+        => default;
 
     private static readonly SemaphoreSlim _transactionSyncRoot = new(1);
 

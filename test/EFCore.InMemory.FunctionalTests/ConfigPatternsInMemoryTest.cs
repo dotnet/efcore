@@ -153,14 +153,13 @@ public class ConfigPatternsInMemoryTest
     public void Throws_on_attempt_to_use_context_with_no_store()
         => Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                {
-                    using var context = new NoServicesAndNoConfigBlogContext();
-                    context.Blogs.Add(
-                        new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                using var context = new NoServicesAndNoConfigBlogContext();
+                context.Blogs.Add(
+                    new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
+            }).Message);
 
     private class NoServicesAndNoConfigBlogContext : DbContext
     {
@@ -180,14 +179,13 @@ public class ConfigPatternsInMemoryTest
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                {
-                    using var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider);
-                    context.Blogs.Add(
-                        new Blog { Name = "The Waffle Cart" });
-                    context.SaveChanges();
-                }).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                using var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider);
+                context.Blogs.Add(
+                    new Blog { Name = "The Waffle Cart" });
+                context.SaveChanges();
+            }).Message);
     }
 
     private class ImplicitConfigButNoServicesBlogContext(IServiceProvider serviceProvider) : DbContext

@@ -121,7 +121,7 @@ public class DiagnosticsLogger<TLoggerCategory> : IDiagnosticsLogger<TLoggerCate
         => ((IDiagnosticsLogger)this).DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
     /// <summary>
-    ///     Checks whether or not the message should be sent to the <see cref="ILogger" />.
+    ///     Checks whether the message should be sent to the <see cref="ILogger" />.
     /// </summary>
     /// <param name="definition">The definition of the event to log.</param>
     /// <returns>
@@ -133,7 +133,7 @@ public class DiagnosticsLogger<TLoggerCategory> : IDiagnosticsLogger<TLoggerCate
         => ((IDiagnosticsLogger)this).ShouldLog(definition);
 
     /// <summary>
-    ///     Determines whether or not an <see cref="EventData" /> instance is needed based on whether or
+    ///     Determines whether an <see cref="EventData" /> instance is needed based on whether or
     ///     not there is a <see cref="DiagnosticSource" />, an <see cref="IDbContextLogger" />, or an <see cref="IInterceptor" /> enabled for
     ///     the given event.
     /// </summary>

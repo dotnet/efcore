@@ -8,9 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class ValueConvertersEndToEndInMemoryTest(ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture fixture)
     : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture>(fixture)
 {
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_converter_and_null_check(bool async) // Issue #29603
     {
         using (var context = CreateContext())
