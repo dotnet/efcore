@@ -7,9 +7,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public static class CosmosDbContextOptionsBuilderExtensions
 {
+    private static HttpClient? _httpClient;
+
     public static CosmosDbContextOptionsBuilder ApplyConfiguration(this CosmosDbContextOptionsBuilder optionsBuilder)
     {
-        var httpClient = TestEnvironment.HttpMessageHandler != null
+        _httpClient ??= TestEnvironment.HttpMessageHandler != null
             ? new HttpClient(TestEnvironment.HttpMessageHandler, disposeHandler: false)
             : new HttpClient(
                 new HttpClientHandler
@@ -20,7 +22,7 @@ public static class CosmosDbContextOptionsBuilderExtensions
         optionsBuilder
             .ExecutionStrategy(d => new TestCosmosExecutionStrategy(d))
             .RequestTimeout(TimeSpan.FromMinutes(20))
-            .HttpClientFactory(() => httpClient)
+            .HttpClientFactory(() => _httpClient)
             .ConnectionMode(ConnectionMode.Gateway);
 
         return optionsBuilder;
