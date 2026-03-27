@@ -77,13 +77,26 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
                 ? null
                 : convertFunc(Sanitize<TIn>(v));
 
+    private static readonly bool UseOldBehavior38008 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38008", out var enabled) && enabled;
+
     private static T Sanitize<T>(object value)
     {
         var unwrappedType = typeof(T).UnwrapNullableType();
 
-        return (T)(!unwrappedType.IsInstanceOfType(value)
-            ? Convert.ChangeType(value, unwrappedType)
-            : value);
+        if (unwrappedType.IsInstanceOfType(value))
+        {
+            return (T)value;
+        }
+
+        // Convert.ChangeType cannot convert to enum types; use Enum.ToObject instead, which handles
+        // conversion from different enum types (with the same underlying type) or from integral types.
+        if (!UseOldBehavior38008 && unwrappedType.IsEnum)
+        {
+            return (T)Enum.ToObject(unwrappedType, value);
+        }
+
+        return (T)Convert.ChangeType(value, unwrappedType);
     }
 
     /// <summary>
