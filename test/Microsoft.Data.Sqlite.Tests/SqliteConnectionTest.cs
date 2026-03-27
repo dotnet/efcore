@@ -266,7 +266,7 @@ public class SqliteConnectionTest
     {
 #if E_SQLITE3 || WINSQLITE3
         Open_works_when_password_unsupported();
-#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+#elif SQLITE3MC
         Open_works_when_password_supported();
 #elif SQLITE3
         Open_works_when_password_might_be_supported();
@@ -313,7 +313,7 @@ public class SqliteConnectionTest
         connection.Open();
     }
 
-#if E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+#if SQLITE3MC
     [Fact]
     public void Open_decrypts_lazily_when_no_password()
     {
@@ -1287,7 +1287,7 @@ public class SqliteConnectionTest
             var ex = Assert.Throws<InvalidOperationException>(connection.Open);
             Assert.Equal(Resources.EncryptionNotSupported(GetNativeLibraryName()), ex.Message);
             Assert.Equal(ConnectionState.Closed, connection.State);
-#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+#elif SQLITE3MC
             var ex = Assert.Throws<SqliteException>(connection.Open);
             Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
             Assert.Equal(ConnectionState.Closed, connection.State);
