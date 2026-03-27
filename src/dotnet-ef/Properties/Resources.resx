@@ -330,6 +330,9 @@
   <data name="PrecompileQueriesWarning" xml:space="preserve">
     <value>Query precompilation is an experimental feature and should be used with caution.</value>
   </data>
+  <data name="PlatformSpecificProject" xml:space="preserve">
+    <value>Startup project '{startupProject}' targets a platform-specific framework: '{targetFrameworkValue}'. The Entity Framework Core .NET Command-line Tools might not function correctly. Implement IDesignTimeDbContextFactory&lt;&gt; to ensure design-time tools work correctly with this project. See https://aka.ms/efcore-docs-migrations-projects for more information.</value>
+  </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
   </data>

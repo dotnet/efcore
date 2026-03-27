@@ -469,6 +469,7 @@ FROM root c
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_arithmetic(bool async)
     {
         // Always throws for sync.
@@ -486,6 +487,7 @@ ORDER BY (c["EmployeeID"] - c["EmployeeID"])
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_condition_comparison(bool async)
     {
         // Always throws for sync.
@@ -504,6 +506,7 @@ ORDER BY (c["UnitsInStock"] > 0), c["ProductID"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ternary_conditions(bool async)
     {
         // Always throws for sync.
@@ -801,6 +804,7 @@ OFFSET 0 LIMIT @p
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Any_simple(bool async)
     {
         // Always throws for sync.
@@ -820,6 +824,7 @@ SELECT VALUE EXISTS (
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Any_predicate(bool async)
     {
         // Always throws for sync.
@@ -1293,6 +1298,7 @@ SELECT VALUE EXISTS (
             () => base.Skip_Take_Distinct(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Skip_Take_Any(bool async)
     {
         // Always throws for sync.
@@ -1356,6 +1362,7 @@ ORDER BY c["id"]
 """);
             });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_true(bool async)
     {
         // Always throws for sync.
@@ -1373,6 +1380,7 @@ ORDER BY true
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_integer(bool async)
     {
         // Always throws for sync.
@@ -1389,6 +1397,7 @@ ORDER BY 3
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_parameter(bool async)
     {
         // Always throws for sync.
@@ -1468,6 +1477,7 @@ ORDER BY c["id"]
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_shadow(bool async)
     {
         // Always throws for sync.
@@ -1484,6 +1494,7 @@ ORDER BY c["Title"], c["EmployeeID"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_multiple(bool async)
     {
         // Always throws for sync.
@@ -1502,6 +1513,7 @@ ORDER BY c["Country"], c["City"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ThenBy_Any(bool async)
     {
         // Always throws for sync.
@@ -1719,6 +1731,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_null_coalesce_operator(bool async)
     {
         // Always throws for sync.
@@ -1736,6 +1749,7 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Select_null_coalesce_operator(bool async)
     {
         // Always throws for sync.
@@ -1757,6 +1771,7 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_conditional_operator(bool async)
     {
         // Always throws for sync.
@@ -1787,6 +1802,7 @@ ORDER BY c["City"]
 """);
             });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_comparison_operator(bool async)
     {
         // Always throws for sync.
@@ -1843,6 +1859,7 @@ WHERE (((c["ContactName"] != null) ? c["ContactName"] : c["CompanyName"]) = "Liz
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Select_take_null_coalesce_operator(bool async)
     {
         // Always throws for sync.
@@ -1895,6 +1912,7 @@ OFFSET 0 LIMIT @p
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Selected_column_can_coalesce(bool async)
     {
         // Always throws for sync.
@@ -2307,6 +2325,7 @@ WHERE (((c["$type"] = "Order") AND (c["OrderDate"] != null)) AND (DateTimePart("
         );
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_skip_take(bool async)
     {
         // Always throws for sync.
@@ -2530,6 +2549,7 @@ WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
         );
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Anonymous_complex_orderby(bool async)
     {
         // Always throws for sync.
@@ -2616,6 +2636,7 @@ WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task DTO_complex_orderby(bool async)
     {
         // Always throws for sync.
@@ -3062,6 +3083,7 @@ OFFSET @p LIMIT @p1
         );
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_empty_list_contains(bool async)
     {
         // Always throws for sync.
@@ -3079,6 +3101,7 @@ ORDER BY ARRAY_CONTAINS(@list, c["id"])
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_empty_list_does_not_contains(bool async)
     {
         // Always throws for sync.
@@ -3202,6 +3225,7 @@ WHERE (c["City"] != null)
 """);
             });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Entity_equality_orderby_descending_composite_key(bool async)
     {
         // Always throws for sync.
@@ -3287,6 +3311,7 @@ ORDER BY c["id"]
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderByDescending_ThenBy(bool async)
     {
         // Always throws for sync.
@@ -3304,6 +3329,7 @@ ORDER BY c["id"] DESC, c["Country"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderByDescending_ThenByDescending(bool async)
     {
         // Always throws for sync.
@@ -3329,6 +3355,7 @@ ORDER BY c["id"] DESC, c["Country"] DESC
         );
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ThenBy(bool async)
     {
         // Always throws for sync.
@@ -3346,6 +3373,7 @@ ORDER BY c["id"], c["Country"]
         }
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ThenBy_predicate(bool async)
     {
         // Always throws for sync.
@@ -4826,6 +4854,7 @@ WHERE ((c["$type"] = "Order") AND (((DateTimePart("ns", c["OrderDate"]) % 1000) 
     #region ToPageAsync
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task ToPageAsync()
     {
         await using var context = CreateContext();
@@ -4881,6 +4910,7 @@ ORDER BY c["id"]
     }
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task ToPageAsync_with_scalar()
     {
         await using var context = CreateContext();
@@ -5030,6 +5060,7 @@ WHERE (c["id"] = "ALFKI")
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Cast_to_object_over_parameter_directly_in_lambda(bool async)
     {
         // Sync always throws before getting to exception being tested.

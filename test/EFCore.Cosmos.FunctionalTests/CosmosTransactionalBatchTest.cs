@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFixture fixture) : IClassFixture<CosmosTransactionalBatchTest.CosmosFixture>, IAsyncLifetime
 {
     private const string DatabaseName = nameof(CosmosTransactionalBatchTest);

@@ -20,6 +20,7 @@ public class CosmosBulkWarningTest(CosmosBulkWarningTest.ThrowingFixture fixture
     }
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task AutoTransactionBehaviorWhenNeeded_Throws()
     {
         using var context = fixture.CreateContext();
@@ -31,6 +32,7 @@ public class CosmosBulkWarningTest(CosmosBulkWarningTest.ThrowingFixture fixture
     }
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task AutoTransactionBehaviorAlways_Throws()
     {
         using var context = fixture.CreateContext();

@@ -611,6 +611,29 @@ public class SessionTokenStorageTest
         }
     }
 
+    [ConditionalTheory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void TrackSessionToken_WhenTokenIsNull_DoesNotTrackSessionToken(SessionTokenManagementMode mode)
+    {
+        var storage = CreateStorage(mode);
+        storage.TrackSessionToken(_defaultContainerName, null);
+        AssertDefaultTracked(storage, mode == SessionTokenManagementMode.SemiAutomatic ? null : "");
+    }
+
+    [ConditionalTheory]
+    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
+    [InlineData(SessionTokenManagementMode.Manual)]
+    [InlineData(SessionTokenManagementMode.EnforcedManual)]
+    public virtual void TrackSessionToken_WhenTokenIsWhitespace_DoesNotTrackSessionToken(SessionTokenManagementMode mode)
+    {
+        var storage = CreateStorage(mode);
+        storage.TrackSessionToken(_defaultContainerName, "");
+        storage.TrackSessionToken(_defaultContainerName, "        ");
+        AssertDefaultTracked(storage, mode == SessionTokenManagementMode.SemiAutomatic ? null : "");
+    }
+
     [ConditionalFact]
     public virtual void EnforcedManual_WhenGettingTokenBeforeSet_ThrowsInvalidOperationException()
     {
@@ -1044,29 +1067,6 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(mode);
         Assert.Throws<ArgumentException>(() => storage.TrackSessionToken("   ", "A"));
         Assert.Throws<ArgumentException>(() => storage.TrackSessionToken("", "A"));
-    }
-
-    [ConditionalTheory]
-    [InlineData(SessionTokenManagementMode.FullyAutomatic)]
-    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
-    [InlineData(SessionTokenManagementMode.Manual)]
-    [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void TrackSessionToken_WhenTokenIsNull_ThrowsArgumentNullException(SessionTokenManagementMode mode)
-    {
-        var storage = CreateStorage(mode);
-        Assert.Throws<ArgumentNullException>(() => storage.TrackSessionToken(_defaultContainerName, null!));
-    }
-
-    [ConditionalTheory]
-    [InlineData(SessionTokenManagementMode.FullyAutomatic)]
-    [InlineData(SessionTokenManagementMode.SemiAutomatic)]
-    [InlineData(SessionTokenManagementMode.Manual)]
-    [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void TrackSessionToken_WhenTokenIsWhitespace_ThrowsArgumentNullException(SessionTokenManagementMode mode)
-    {
-        var storage = CreateStorage(mode);
-        Assert.Throws<ArgumentException>(() => storage.TrackSessionToken(_defaultContainerName, "   "));
-        Assert.Throws<ArgumentException>(() => storage.TrackSessionToken(_defaultContainerName, ""));
     }
 
     [ConditionalTheory]

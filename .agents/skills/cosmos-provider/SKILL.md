@@ -20,3 +20,13 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - Partition key configuration required for performance
 - `ETag` for optimistic concurrency
 - No cross-container joins
+
+## Azure Cosmos DB Emulator in Docker
+
+Cosmos tests on Helix start the emulator from the work item via `PreCommands` that run a Docker container using:
+- `eng/testing/run-cosmos-container.ps1`
+- `eng/testing/run-cosmos-container.sh`
+
+These scripts can be invoked locally for testing on machines that don't have the emulator installed, but have docker available.
+
+The `Test__Cosmos__SkipConnectionCheck=true` env var is set to prevent tests from being skipped when the emulator failed to start.

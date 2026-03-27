@@ -90,12 +90,26 @@ public class CosmosTestStore : TestStore
         => new TestStoreContext(this);
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-        => TestEnvironment.UseTokenCredential
+    {
+        var result = TestEnvironment.UseTokenCredential
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
+        if (TestEnvironment.IsLinuxEmulator)
+        {
+            result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
+        }
+
+        return result;
+    }
+
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
+        if (TestEnvironment.SkipConnectionCheck)
+        {
+            return true;
+        }
+
         if (_connectionAvailable == null)
         {
             await _connectionSemaphore.WaitAsync();

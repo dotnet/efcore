@@ -1,0 +1,67 @@
+# When an external user (no write access) closes an issue as "completed",
+# change it to "not planned". This handles users closing their own issues
+# without anything actually being fixed.
+
+name: Issue closed
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  check-close:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Reclose as not planned if external user
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const closer = context.actor;
+
+            // Only act on issues closed as "completed"
+            if (issue.state_reason !== 'completed') {
+              console.log(`Issue #${issue.number} closed as '${issue.state_reason}', skipping`);
+              return;
+            }
+
+            // Check if the closing user has write access
+            let hasWriteAccess = false;
+            try {
+              const { data: permissions } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: closer
+              });
+
+              hasWriteAccess = ['admin', 'write'].includes(permissions.permission);
+              console.log(`User ${closer} has permission level: ${permissions.permission}`);
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`User ${closer} not found, treating as external`);
+              } else {
+                console.error('Error checking permissions:', error);
+                return;
+              }
+            }
+
+            if (hasWriteAccess) {
+              console.log(`User ${closer} has write access, skipping`);
+              return;
+            }
+
+            // Reclose as "not planned"
+            console.log(`External user ${closer} closed issue #${issue.number} as completed, changing to not_planned`);
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              state: 'closed',
+              state_reason: 'not_planned'
+            });
+
+            console.log(`Issue #${issue.number} updated to not_planned`);

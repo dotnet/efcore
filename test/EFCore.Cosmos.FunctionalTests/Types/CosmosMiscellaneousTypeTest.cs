@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Types.Miscellaneous;
 public class CosmosBoolTypeTest(CosmosBoolTypeTest.BoolTypeFixture fixture)
     : TypeTestBase<bool, CosmosBoolTypeTest.BoolTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class BoolTypeFixture : CosmosTypeFixtureBase<bool>
     {
         public override bool Value { get; } = true;
@@ -18,6 +22,10 @@ public class CosmosBoolTypeTest(CosmosBoolTypeTest.BoolTypeFixture fixture)
 public class CosmosStringTypeTest(CosmosStringTypeTest.StringTypeFixture fixture)
     : TypeTestBase<string, CosmosStringTypeTest.StringTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class StringTypeFixture : CosmosTypeFixtureBase<string>
     {
         public override string Value { get; } = "foo";

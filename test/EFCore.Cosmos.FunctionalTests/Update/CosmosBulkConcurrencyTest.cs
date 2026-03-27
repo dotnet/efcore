@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class CosmosBulkConcurrencyTest(CosmosBulkConcurrencyTest.ConcurrencyFixture fixture) : CosmosConcurrencyTest(fixture), IClassFixture<CosmosBulkConcurrencyTest.ConcurrencyFixture>
 {
     public class ConcurrencyFixture : CosmosConcurrencyTest.CosmosFixture
