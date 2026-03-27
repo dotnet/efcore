@@ -2953,7 +2953,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     && table[SqlServerAnnotationNames.TemporalHistoryTableName] is string modelHistoryTableName)
                 {
                     var modelHistoryTableSchema =
-                        table[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? table.Schema;
+                        table[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string;
                     historyTables.Add((modelHistoryTableName, modelHistoryTableSchema));
                 }
             }
