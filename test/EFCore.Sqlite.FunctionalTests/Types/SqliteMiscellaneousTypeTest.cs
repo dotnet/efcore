@@ -43,9 +43,7 @@ public class SqliteGuidTypeTest(SqliteGuidTypeTest.GuidTypeFixture fixture, ITes
 public class SqliteByteArrayTypeTest(SqliteByteArrayTypeTest.ByteArrayTypeFixture fixture, ITestOutputHelper testOutputHelper)
     : RelationalTypeTestBase<byte[], SqliteByteArrayTypeTest.ByteArrayTypeFixture>(fixture, testOutputHelper)
 {
-    // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
-    public override Task Query_property_within_json()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Query_property_within_json());
+    public override Task Query_property_within_json() => base.Query_property_within_json();
 
     // byte[].Equals() does reference equality, so the base test doesn't work for byte arrays
     public override Task Primitive_collection_in_query()
