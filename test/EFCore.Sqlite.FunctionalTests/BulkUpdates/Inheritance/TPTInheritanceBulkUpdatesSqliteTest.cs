@@ -106,9 +106,13 @@ WHERE "Animals"."Id" = "s"."Id"
 
 UPDATE "Animals"
 SET "Name" = @p
-FROM "Birds" AS "b"
-INNER JOIN "Kiwi" AS "k" ON "Animals"."Id" = "k"."Id"
-WHERE "Animals"."Id" = "b"."Id"
+FROM "Birds" AS "b", "Kiwi" AS "k0", (
+    SELECT "a"."Id"
+    FROM "Animals" AS "a"
+    LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
+    WHERE "k"."Id" IS NOT NULL
+) AS "s"
+WHERE "Animals"."Id" = "s"."Id" AND "Animals"."Id" = "k0"."Id" AND "Animals"."Id" = "b"."Id"
 """);
     }
 
@@ -129,9 +133,8 @@ WHERE "Animals"."Id" = "b"."Id"
 
 UPDATE "Animals"
 SET "Name" = @p
-FROM "Birds" AS "b"
-INNER JOIN "Kiwi" AS "k" ON "Animals"."Id" = "k"."Id"
-WHERE "Animals"."Id" = "b"."Id"
+FROM "Birds" AS "b", "Kiwi" AS "k"
+WHERE "Animals"."Id" = "k"."Id" AND "Animals"."Id" = "b"."Id"
 """);
     }
 

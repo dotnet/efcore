@@ -26,24 +26,145 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
     /// </summary>
     protected override Expression VisitUpdate(UpdateExpression updateExpression)
     {
-        if (updateExpression.SelectExpression.Tables.Count > 1)
+        var selectExpression = updateExpression.SelectExpression;
+
+        if (selectExpression.Tables.Count > 1
+            && selectExpression is
+            {
+                Offset: null,
+                Limit: null,
+                Having: null,
+                Orderings: [],
+                GroupBy: [],
+                Projection: [],
+            }
+            && (!ReferenceEquals(selectExpression.Tables[0], updateExpression.Table)
+                || selectExpression.Tables[1] is InnerJoinExpression
+                || selectExpression.Tables[1] is CrossJoinExpression))
         {
+            // SQLite doesn't support referencing the UPDATE target table (by alias or name) in JOIN ON clauses
+            // within the FROM clause. To work around this, we:
+            // 1. Don't alias the UPDATE target table
+            // 2. Replace column references to the target alias with the table name (via VisitColumn/VisitTable overrides)
+            // 3. Lift predicates from JOINs that reference the target table into the WHERE clause,
+            //    emitting those tables as comma-separated instead of JOINed
             _updateTargetAlias = updateExpression.Table.Alias;
             _updateTargetTableName = updateExpression.Table.Name;
             _updateTargetSchema = updateExpression.Table.Schema;
+
+            try
+            {
+                Sql.Append("UPDATE ");
+                Visit(updateExpression.Table);
+
+                Sql.AppendLine();
+                Sql.Append("SET ");
+
+                for (var i = 0; i < updateExpression.ColumnValueSetters.Count; i++)
+                {
+                    if (i == 1)
+                    {
+                        Sql.IncrementIndent();
+                    }
+
+                    if (i > 0)
+                    {
+                        Sql.AppendLine(",");
+                    }
+
+                    var (column, value) = updateExpression.ColumnValueSetters[i];
+
+                    Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name)).Append(" = ");
+                    Visit(value);
+                }
+
+                if (updateExpression.ColumnValueSetters.Count > 1)
+                {
+                    Sql.DecrementIndent();
+                }
+
+                var predicate = selectExpression.Predicate;
+                var firstTablePrinted = false;
+                Sql.AppendLine().Append("FROM ");
+                for (var i = 0; i < selectExpression.Tables.Count; i++)
+                {
+                    var table = selectExpression.Tables[i];
+                    var joinExpression = table as JoinExpressionBase;
+
+                    if (updateExpression.Table.Alias == (joinExpression?.Table.Alias ?? table.Alias))
+                    {
+                        LiftPredicate(table);
+                        continue;
+                    }
+
+                    if (firstTablePrinted)
+                    {
+                        // For joins whose ON predicate references the target table, lift the predicate to WHERE
+                        // and emit just the table (comma-separated) instead of a JOIN
+                        if (joinExpression is PredicateJoinExpressionBase predicateJoin
+                            && ReferencesTargetTable(predicateJoin.JoinPredicate))
+                        {
+                            Sql.Append(", ");
+                            LiftPredicate(table);
+                            Visit(joinExpression.Table);
+                        }
+                        else
+                        {
+                            Sql.AppendLine();
+                            Visit(table);
+                        }
+                    }
+                    else
+                    {
+                        firstTablePrinted = true;
+                        LiftPredicate(table);
+                        table = joinExpression?.Table ?? table;
+                        Visit(table);
+                    }
+                }
+
+                if (predicate != null)
+                {
+                    Sql.AppendLine().Append("WHERE ");
+                    Visit(predicate);
+                }
+
+                return updateExpression;
+
+                void LiftPredicate(TableExpressionBase joinTable)
+                {
+                    if (joinTable is PredicateJoinExpressionBase predicateJoinExpression)
+                    {
+                        predicate = predicate == null
+                            ? predicateJoinExpression.JoinPredicate
+                            : new SqlBinaryExpression(
+                                ExpressionType.AndAlso,
+                                predicateJoinExpression.JoinPredicate,
+                                predicate,
+                                typeof(bool),
+                                predicate.TypeMapping);
+                    }
+                }
+            }
+            finally
+            {
+                _updateTargetAlias = null;
+                _updateTargetTableName = null;
+                _updateTargetSchema = null;
+            }
         }
 
-        try
-        {
-            return base.VisitUpdate(updateExpression);
-        }
-        finally
-        {
-            _updateTargetAlias = null;
-            _updateTargetTableName = null;
-            _updateTargetSchema = null;
-        }
+        return base.VisitUpdate(updateExpression);
     }
+
+    private bool ReferencesTargetTable(Expression expression)
+        => expression switch
+        {
+            ColumnExpression column => column.TableAlias == _updateTargetAlias,
+            SqlBinaryExpression binary => ReferencesTargetTable(binary.Left) || ReferencesTargetTable(binary.Right),
+            SqlUnaryExpression unary => ReferencesTargetTable(unary.Operand),
+            _ => false
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
