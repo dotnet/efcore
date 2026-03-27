@@ -10452,8 +10452,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
             builder => builder.Entity(
                 "Customer", e =>
                 {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.Property<string>("Name");
+                    e.Property<int>("Id").ValueGeneratedNever();
                     e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
