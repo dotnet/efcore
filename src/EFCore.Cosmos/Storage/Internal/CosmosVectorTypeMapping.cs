@@ -38,8 +38,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
         CosmosVectorType vectorType,
         ValueComparer? comparer = null,
         ValueComparer? keyComparer = null,
-        CoreTypeMapping? elementMapping = null,
-        JsonValueReaderWriter? jsonValueReaderWriter = null)
+        CoreTypeMapping? elementMapping = null)
         : this(
             new CoreTypeMappingParameters(
                 clrType,
@@ -47,7 +46,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
                 comparer,
                 keyComparer,
                 elementMapping: elementMapping,
-                jsonValueReaderWriter: jsonValueReaderWriter),
+                jsonValueReaderWriter: CosmosJsonVectorReaderWriter.Instance),
             vectorType)
     {
     }
@@ -67,7 +66,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
                 mapping.Comparer,
                 mapping.KeyComparer,
                 elementMapping: mapping.ElementTypeMapping,
-                jsonValueReaderWriter: mapping.JsonValueReaderWriter),
+                jsonValueReaderWriter: CosmosJsonVectorReaderWriter.Instance),
             vectorType)
     {
     }

@@ -233,15 +233,19 @@ public class CosmosTestStore : TestStore
                                                 if (reader.TokenType == JsonToken.StartObject)
                                                 {
                                                     var document = serializer.Deserialize<JObject>(reader)!;
-
-                                                    document["id"] = discriminatorInId == true
+                                                    var documentId = discriminatorInId == true
                                                         ? $"{entityName}|{document["id"]}"
                                                         : $"{document["id"]}";
+
+                                                    document["id"] = documentId;
 
                                                     document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        containerName!, document, new FakeUpdateEntry(), new NullSessionTokenStorage()).ConfigureAwait(false);
+                                                        containerName!, documentId,
+                                                        new MemoryStream(Encoding.UTF8.GetBytes(document.ToString())),
+                                                        new FakeUpdateEntry(),
+                                                        new NullSessionTokenStorage()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {

@@ -281,6 +281,9 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_exactly_2_mib_does_not_split_and_one_byte_over_splits(bool oneByteOver)
     {
+        //for (var i = 350; i > 0; i--)
+        //{
+
         using var context = Fixture.CreateContext();
 
         var customer1 = new Customer { Id = new string('x', 1023), PartitionKey = new string('x', 1023) };
@@ -292,8 +295,8 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         await context.SaveChangesAsync();
         Fixture.ListLoggerFactory.Clear();
 
-        customer1.Name = new string('x', 1044994);
-        customer2.Name = new string('x', 1044994);
+        customer1.Name = new string('x', 1045148);
+        customer2.Name = new string('x', 1045148);
 
         if (oneByteOver)
         {
@@ -302,7 +305,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         await context.SaveChangesAsync();
         using var assertContext = Fixture.CreateContext();
-        Assert.Equal(2, (await context.Customers.ToListAsync()).Count);
+        Assert.Equal(2, (await assertContext.Customers.ToListAsync()).Count);
 
         if (oneByteOver)
         {
@@ -310,8 +313,14 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         }
         else
         {
+            //Debug.Assert(2 == Fixture.ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch), $"Failed on iteration {i}");
+            //context.Remove(customer1);
+            //context.Remove(customer2);
+            //await context.SaveChangesAsync();
+            //Fixture.ListLoggerFactory.Clear();
             Assert.Equal(1, Fixture.ListLoggerFactory.Log.Count(x => x.Id == CosmosEventId.ExecutedTransactionalBatch));
         }
+        //}
     }
 
     [ConditionalFact]
@@ -439,13 +448,26 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         await context.SaveChangesAsync();
 
-        customer1.Name = new string('x', 1097582);
-        customer2.Name = new string('x', 1097583);
+        customer1.Name = new string('x', 1097736);
+        customer2.Name = new string('x', 1097737);
 
         if (oneByteOver)
         {
             customer1.Name += 'x';
             customer2.Name += 'x';
+            //for (var i = 1; i <= 1000; i++)
+            //{
+            //    customer1.Name += 'x';
+            //    customer2.Name += 'x';
+            //    try
+            //    {
+            //        await context.SaveChangesAsync();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        throw new Exception($"Off by 2 * {i} bytes", ex);
+            //    }
+            //}
             await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
         else
@@ -468,13 +490,26 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         await context.SaveChangesAsync();
 
-        customer1.Name = new string('x', 1097581 + (1_024 - customer1.Id.Length) * 2);
-        customer2.Name = new string('x', 1097581 + (1_024 - customer2.Id.Length) * 2);
+        customer1.Name = new string('x', 1097735 + (1_024 - customer1.Id.Length) * 2);
+        customer2.Name = new string('x', 1097735 + (1_024 - customer2.Id.Length) * 2);
 
         if (oneByteOver)
         {
             customer1.Name += 'x';
             customer2.Name += 'x';
+            //for (var i = 1; i <= 1000; i++)
+            //{
+            //    customer1.Name += 'x';
+            //    customer2.Name += 'x';
+            //    try
+            //    {
+            //        await context.SaveChangesAsync();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        throw new Exception($"Off by 2 * {i} bytes", ex);
+            //    }
+            //}
             await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
         else

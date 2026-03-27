@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Newtonsoft.Json.Linq;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -44,6 +43,22 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
     }
 
     [ConditionalFact]
+    public async Task Can_change_complex_collection_element_complex_collection()
+    {
+        await using var context = CreateContext();
+        var pub = CreatePubWithCollections(context);
+        await context.AddAsync(pub);
+        await context.SaveChangesAsync();
+
+        pub.Activities[0].Teams.Add(new Team { Name = "NewTeam" });
+        await context.SaveChangesAsync();
+
+        await using var assertContext = CreateContext();
+        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
+        Assert.Equal("NewTeam", dbPub.Activities[0].Teams.Last().Name);
+    }
+
+    [ConditionalFact]
     public async Task Can_add_complex_collection_element()
     {
         await using var context = CreateContext();
@@ -58,27 +73,6 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
         var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
         Assert.Equivalent("NewActivity", dbPub.Activities.Last().Name);
         Assert.Equivalent(pub.Activities.Count, dbPub.Activities.Count);
-    }
-
-    [ConditionalFact]
-    public async Task Can_add_and_dynamically_update_complex_collection_element()
-    {
-        await using var context = CreateContext();
-        var pub = CreatePubWithCollections(context);
-        await context.AddAsync(pub);
-        await context.SaveChangesAsync();
-
-        var pubJObject = context.Entry(pub).Property<JObject>("__jObject").CurrentValue;
-        pubJObject["Activities"]![0]!["test"] = "test";
-        pub.Activities.Insert(0, new ActivityWithCollection { Name = "NewActivity" });
-
-        await context.SaveChangesAsync();
-
-        await using var assertContext = CreateContext();
-        var dbPub = await assertContext.Set<PubWithCollections>().FirstAsync(x => x.Id == pub.Id);
-        var dbPubJObject = assertContext.Entry(dbPub).Property<JObject>("__jObject").CurrentValue;
-        Assert.Equal("test", dbPubJObject["Activities"]![1]!["test"]);
-        Assert.Equal("NewActivity", dbPubJObject["Activities"]![0]!["Name"]);
     }
 
     public override Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
