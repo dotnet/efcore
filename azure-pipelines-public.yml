@@ -199,7 +199,6 @@ stages:
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-                  COMPlus_EnableWriteXorExecute: 0
 
           - job: Helix_macOS_ARM64
             displayName: 'Helix macOS ARM64'
