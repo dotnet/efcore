@@ -201,7 +201,7 @@ public class ChangeDetectorTest
 
         if (nullValue)
         {
-            baxter.Demands = new[] { 1, 767, 3, 4 };
+            baxter.Demands = [1, 767, 3, 4];
         }
         else
         {
@@ -221,7 +221,7 @@ public class ChangeDetectorTest
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
         var baxter = context.Attach(
-            new Baxter { Id = Guid.NewGuid(), Demands = new[] { 1, 2, 3, 4 } }).Entity;
+            new Baxter { Id = Guid.NewGuid(), Demands = [1, 2, 3, 4] }).Entity;
 
         baxter.Demands[2] = 33;
 
@@ -2114,13 +2114,8 @@ public class ChangeDetectorTest
                 .AddScoped<INavigationFixer>(p => p.GetRequiredService<TestRelationshipListener>()),
             model ?? BuildModel());
 
-    private class TestAttacher : EntityGraphAttacher
+    private class TestAttacher(IEntityEntryGraphIterator graphIterator) : EntityGraphAttacher(graphIterator)
     {
-        public TestAttacher(IEntityEntryGraphIterator graphIterator)
-            : base(graphIterator)
-        {
-        }
-
         public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
 
         public override void AttachGraph(
@@ -2135,15 +2130,10 @@ public class ChangeDetectorTest
         }
     }
 
-    private class TestRelationshipListener : NavigationFixer
+    private class TestRelationshipListener(IEntityGraphAttacher attacher) : NavigationFixer(
+        attacher, new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
     {
-        public TestRelationshipListener(IEntityGraphAttacher attacher)
-            : base(
-                attacher, new EntityMaterializerSource(
-                    new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
-        {
-        }
-
         public Tuple<InternalEntityEntry, IProperty, IEnumerable<IKey>, IEnumerable<IForeignKey>, object, object> KeyChange
         {
             get;

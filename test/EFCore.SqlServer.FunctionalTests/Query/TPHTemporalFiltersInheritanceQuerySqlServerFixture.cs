@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPHTemporalFiltersInheritanceQuerySqlServerFixture : TPHFiltersInheritanceQuerySqlServerFixture
 {
     protected override string StoreName
@@ -22,9 +24,9 @@ public class TPHTemporalFiltersInheritanceQuerySqlServerFixture : TPHFiltersInhe
         modelBuilder.Entity<Drink>().ToTable(tb => tb.IsTemporal());
     }
 
-    protected override void Seed(InheritanceContext context)
+    protected override async Task SeedAsync(InheritanceContext context)
     {
-        base.Seed(context);
+        await base.SeedAsync(context);
 
         ChangesDate = new DateTime(2010, 1, 1);
 
@@ -32,7 +34,7 @@ public class TPHTemporalFiltersInheritanceQuerySqlServerFixture : TPHFiltersInhe
         context.RemoveRange(context.ChangeTracker.Entries().Where(e => e.Entity is Plant).Select(e => e.Entity));
         context.RemoveRange(context.ChangeTracker.Entries().Where(e => e.Entity is Country).Select(e => e.Entity));
         context.RemoveRange(context.ChangeTracker.Entries().Where(e => e.Entity is Drink).Select(e => e.Entity));
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         var tableNames = new List<string>
         {
@@ -44,14 +46,14 @@ public class TPHTemporalFiltersInheritanceQuerySqlServerFixture : TPHFiltersInhe
 
         foreach (var tableName in tableNames)
         {
-            context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
-            context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
 
-            context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
-            context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
+            await context.Database.ExecuteSqlRawAsync($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
+            await context.Database.ExecuteSqlRawAsync($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
-            context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
+            await context.Database.ExecuteSqlRawAsync(
                 $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
         }
     }

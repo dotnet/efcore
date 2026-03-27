@@ -20,7 +20,7 @@ public static class ColumnAccessorsFactory
     public static ColumnAccessors Create(IColumn column)
         => (ColumnAccessors)GenericCreate
             .MakeGenericMethod(column.ProviderClrType)
-            .Invoke(null, new object[] { column })!;
+            .Invoke(null, [column])!;
 
     private static readonly MethodInfo GenericCreate
         = typeof(ColumnAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric))!;

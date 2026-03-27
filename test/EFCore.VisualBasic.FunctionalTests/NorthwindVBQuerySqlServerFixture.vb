@@ -4,7 +4,7 @@
 Imports Microsoft.EntityFrameworkCore.Infrastructure
 Imports Microsoft.EntityFrameworkCore.Query
 
-Public Class NorthwindVBQuerySqlServerFixture(Of TModelCustomizer As {IModelCustomizer, New})
+Public Class NorthwindVBQuerySqlServerFixture(Of TModelCustomizer As {ITestModelCustomizer, New})
     Inherits NorthwindQuerySqlServerFixture(Of TModelCustomizer)
 
     Protected Overrides ReadOnly Property StoreName As String

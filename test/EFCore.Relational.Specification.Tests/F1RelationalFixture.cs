@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersion>
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory
@@ -26,14 +28,32 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
         modelBuilder.Entity<Gearbox>().ToTable("Gearboxes");
         modelBuilder.Entity<Sponsor>().ToTable("Sponsors");
 
-        modelBuilder.Entity<FanTpt>().UseTptMappingStrategy();
-        modelBuilder.Entity<FanTpc>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Fan>(
+            b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+        modelBuilder.Entity<FanTpt>(
+            b =>
+            {
+                b.UseTptMappingStrategy();
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+        modelBuilder.Entity<FanTpc>(
+            b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
 
         modelBuilder.Entity<Circuit>(
             b =>
             {
                 b.ToTable("Circuits");
                 b.Property(e => e.Name).HasColumnName("Name");
+                b.Property(e => e.Id).ValueGeneratedNever();
             });
 
         modelBuilder.Entity<City>(
@@ -41,6 +61,7 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
             {
                 b.ToTable("Circuits");
                 b.Property(e => e.Name).HasColumnName("Name");
+                b.Property(e => e.Id).ValueGeneratedNever();
             });
 
         modelBuilder.Entity<CircuitTpt>(
@@ -48,6 +69,7 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
             {
                 b.UseTptMappingStrategy();
                 b.Property(e => e.Name).HasColumnName("Name");
+                b.Property(e => e.Id).ValueGeneratedNever();
             });
 
         modelBuilder.Entity<StreetCircuitTpt>(
@@ -68,6 +90,7 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
             {
                 b.UseTpcMappingStrategy();
                 b.Property(e => e.Name).HasColumnName("Name");
+                b.Property(e => e.Id).ValueGeneratedNever();
             });
 
         modelBuilder.Entity<StreetCircuitTpc>(

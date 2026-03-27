@@ -17,14 +17,14 @@ public class CollectionComparerTest
         var entity = new Voidbringer
         {
             Id = 1,
-            ArrayInt = new[] { 0, 1, 2 },
-            ArrayNullableInt = new int?[] { 0, null, 2 },
-            ArrayString = new[] { "0", "1", "2" },
-            ArrayNullableString = new[] { "0", null, "2" },
-            ArrayStruct = new MyStruct[] { new("0"), new("1"), new("2") },
-            ArrayNullableStruct = new MyStruct?[] { new("0"), null, new("2") },
-            ArrayClass = new MyClass[] { new("0"), new("1"), new("2") },
-            ArrayNullableClass = new MyClass?[] { new("0"), null, new("2") },
+            ArrayInt = [0, 1, 2],
+            ArrayNullableInt = [0, null, 2],
+            ArrayString = ["0", "1", "2"],
+            ArrayNullableString = ["0", null, "2"],
+            ArrayStruct = [new MyStruct("0"), new MyStruct("1"), new MyStruct("2")],
+            ArrayNullableStruct = [new MyStruct("0"), null, new MyStruct("2")],
+            ArrayClass = [new MyClass("0"), new MyClass("1"), new MyClass("2")],
+            ArrayNullableClass = [new MyClass("0"), null, new MyClass("2")],
             EnumerableInt = new[] { 0, 1, 2 },
             EnumerableNullableInt = new int?[] { 0, null, 2 },
             EnumerableString = new[] { "0", "1", "2" },
@@ -966,7 +966,7 @@ public class CollectionComparerTest
     [ConditionalFact]
     public void List_comparer_throws_when_used_with_non_list()
     {
-        var comparer = new ListComparer<string>(new ValueComparer<string>(favorStructuralComparisons: false));
+        var comparer = new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(favorStructuralComparisons: false));
 
         Assert.Equal(
             CoreStrings.BadListType("HashSet<string>", "IList<string>"),
@@ -984,7 +984,7 @@ public class CollectionComparerTest
     [ConditionalFact]
     public void Nullable_list_comparer_throws_when_used_with_non_list()
     {
-        var comparer = new NullableValueTypeListComparer<int>(new ValueComparer<int?>(favorStructuralComparisons: false));
+        var comparer = new ListOfNullableValueTypesComparer<List<int?>, int>(new ValueComparer<int?>(favorStructuralComparisons: false));
 
         Assert.Equal(
             CoreStrings.BadListType("HashSet<int?>", "IList<int?>"),

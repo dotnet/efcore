@@ -19,9 +19,7 @@ public class SqlServerSequenceValueGeneratorState : HiLoValueGeneratorState
     /// </summary>
     public SqlServerSequenceValueGeneratorState(ISequence sequence)
         : base(sequence.IncrementBy)
-    {
-        Sequence = sequence;
-    }
+        => Sequence = sequence;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

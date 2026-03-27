@@ -14,7 +14,7 @@ public class SqlServerCodeGenerator : ProviderCodeGenerator
     private static readonly MethodInfo UseSqlServerMethodInfo
         = typeof(SqlServerDbContextOptionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
-            new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<SqlServerDbContextOptionsBuilder>) })!;
+            [typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<SqlServerDbContextOptionsBuilder>)])!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqlServerCodeGenerator" /> class.
@@ -37,6 +37,6 @@ public class SqlServerCodeGenerator : ProviderCodeGenerator
         => new(
             UseSqlServerMethodInfo,
             providerOptions == null
-                ? new object[] { connectionString }
-                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+                ? [connectionString]
+                : [connectionString, new NestedClosureCodeFragment("x", providerOptions)]);
 }

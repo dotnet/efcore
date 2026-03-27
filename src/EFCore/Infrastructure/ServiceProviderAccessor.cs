@@ -14,9 +14,7 @@ public class ServiceProviderAccessor
     /// </summary>
     /// <param name="rootServiceProvider">The injected service provider.</param>
     public ServiceProviderAccessor(IServiceProvider rootServiceProvider)
-    {
-        RootServiceProvider = rootServiceProvider;
-    }
+        => RootServiceProvider = rootServiceProvider;
 
     /// <summary>
     ///     The injected service provider.

@@ -5,14 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : OverzealousInitializationTestBase<TFixture>.OverzealousInitializationFixtureBase, new()
 {
-    protected OverzealousInitializationTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     [ConditionalFact]
     public virtual void Fixup_ignores_eagerly_initialized_reference_navs()
     {
@@ -35,9 +32,9 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
     }
 
     private static readonly Artist[] _artists =
-    {
-        new() { Id = 1, Name = "Freddie" }, new() { Id = 2, Name = "Kendrick" }, new() { Id = 3, Name = "Jarvis" }
-    };
+    [
+        new Artist { Id = 1, Name = "Freddie" }, new Artist { Id = 2, Name = "Kendrick" }, new Artist { Id = 3, Name = "Jarvis" }
+    ];
 
     protected class Album
     {
@@ -72,13 +69,8 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         public int AlbumId { get; set; }
     }
 
-    public class AlbumViewerContext : PoolableDbContext
+    public class AlbumViewerContext(DbContextOptions<AlbumViewerContext> options) : PoolableDbContext(options)
     {
-        public AlbumViewerContext(DbContextOptions<AlbumViewerContext> options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Album>();
@@ -87,7 +79,7 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         }
     }
 
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected AlbumViewerContext CreateContext()
         => Fixture.CreateContext();
@@ -100,7 +92,7 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         protected override string StoreName
             => "OverzealousInitialization";
 
-        protected override void Seed(AlbumViewerContext context)
+        protected override Task SeedAsync(AlbumViewerContext context)
         {
             for (var i = 1; i <= 10; i++)
             {
@@ -113,7 +105,7 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
                     });
             }
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

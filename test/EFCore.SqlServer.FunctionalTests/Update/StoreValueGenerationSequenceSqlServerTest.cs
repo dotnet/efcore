@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
 public class StoreValueGenerationSequenceSqlServerTest : StoreValueGenerationTestBase<
     StoreValueGenerationSequenceSqlServerTest.StoreValueGenerationSequenceSqlServerFixture>
 {

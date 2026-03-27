@@ -19,30 +19,29 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     /// </summary>
     /// <param name="table">A table source to join with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
-    protected PredicateJoinExpressionBase(TableExpressionBase table, SqlExpression joinPredicate)
-        : this(table, joinPredicate, annotations: null)
-    {
-    }
-
-    /// <summary>
-    ///     Creates a new instance of the <see cref="PredicateJoinExpressionBase" /> class.
-    /// </summary>
-    /// <param name="table">A table source to join with.</param>
-    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="prunable">Whether this join expression may be pruned if nothing references a column on it.</param>
     /// <param name="annotations">A collection of annotations associated with this expression.</param>
     protected PredicateJoinExpressionBase(
         TableExpressionBase table,
         SqlExpression joinPredicate,
-        IEnumerable<IAnnotation>? annotations)
-        : base(table, annotations)
-    {
-        JoinPredicate = joinPredicate;
-    }
+        bool prunable,
+        IReadOnlyDictionary<string, IAnnotation>? annotations = null)
+        : base(table, prunable, annotations)
+        => JoinPredicate = joinPredicate;
 
     /// <summary>
     ///     The predicate used in join.
     /// </summary>
     public virtual SqlExpression JoinPredicate { get; }
+
+    /// <inheritdoc />
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+    {
+        var table = (TableExpressionBase)visitor.Visit(Table);
+        var joinPredicate = (SqlExpression)visitor.Visit(JoinPredicate);
+
+        return Update(table, joinPredicate);
+    }
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will

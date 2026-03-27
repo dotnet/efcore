@@ -64,9 +64,9 @@ public class ManyToManyJoinEntityTypeConventionTest
 
         RunConvention(skipNavOnFirst);
 
-        Assert.Empty(
-            manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
+        Assert.DoesNotContain(
+            manyToManyFirst.Metadata.Model.GetEntityTypes(),
+            et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
     [ConditionalFact]
@@ -93,9 +93,9 @@ public class ManyToManyJoinEntityTypeConventionTest
 
         RunConvention(skipNavOnFirst);
 
-        Assert.Empty(
-            manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
+        Assert.DoesNotContain(
+            manyToManyFirst.Metadata.Model.GetEntityTypes(),
+            et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
     [ConditionalFact]
@@ -122,9 +122,9 @@ public class ManyToManyJoinEntityTypeConventionTest
 
         RunConvention(skipNavOnFirst);
 
-        Assert.Empty(
-            manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
+        Assert.DoesNotContain(
+            manyToManyFirst.Metadata.Model.GetEntityTypes(),
+            et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
     [ConditionalFact]
@@ -158,9 +158,9 @@ public class ManyToManyJoinEntityTypeConventionTest
 
         RunConvention(skipNavOnFirst);
 
-        Assert.Empty(
-            manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
+        Assert.DoesNotContain(
+            manyToManyFirst.Metadata.Model.GetEntityTypes(),
+            et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
     [ConditionalFact]
@@ -194,9 +194,9 @@ public class ManyToManyJoinEntityTypeConventionTest
 
         RunConvention(skipNavOnFirst);
 
-        Assert.Empty(
-            manyToManyFirst.Metadata.Model.GetEntityTypes()
-                .Where(et => et.IsImplicitlyCreatedJoinEntityType));
+        Assert.DoesNotContain(
+            manyToManyFirst.Metadata.Model.GetEntityTypes(),
+            et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
     [ConditionalFact]

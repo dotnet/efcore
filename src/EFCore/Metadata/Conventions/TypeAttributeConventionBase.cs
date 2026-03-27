@@ -20,9 +20,7 @@ public abstract class TypeAttributeConventionBase<TAttribute> : IEntityTypeAdded
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     protected TypeAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

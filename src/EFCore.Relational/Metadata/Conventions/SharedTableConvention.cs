@@ -145,7 +145,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
             if (!tables.TryGetValue(table, out var entityTypes))
             {
-                entityTypes = new List<IConventionEntityType>();
+                entityTypes = [];
                 tables[table] = entityTypes;
             }
 
@@ -179,7 +179,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
                 if (!clashingSubTables.TryGetValue((originalName, table.Schema), out var subTable))
                 {
-                    subTable = new List<IConventionEntityType>();
+                    subTable = [];
                     clashingSubTables[(originalName, table.Schema)] = subTable;
                 }
 

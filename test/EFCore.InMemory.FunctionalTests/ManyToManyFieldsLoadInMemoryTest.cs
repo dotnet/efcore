@@ -3,14 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyFieldsLoadInMemoryTest : ManyToManyFieldsLoadTestBase<
-    ManyToManyFieldsLoadInMemoryTest.ManyToManyFieldsLoadInMemoryFixture>
+public class ManyToManyFieldsLoadInMemoryTest(ManyToManyFieldsLoadInMemoryTest.ManyToManyFieldsLoadInMemoryFixture fixture)
+    : ManyToManyFieldsLoadTestBase<
+        ManyToManyFieldsLoadInMemoryTest.ManyToManyFieldsLoadInMemoryFixture>(fixture)
 {
-    public ManyToManyFieldsLoadInMemoryTest(ManyToManyFieldsLoadInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class ManyToManyFieldsLoadInMemoryFixture : ManyToManyFieldsLoadFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

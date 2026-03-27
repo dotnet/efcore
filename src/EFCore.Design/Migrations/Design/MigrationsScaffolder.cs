@@ -61,12 +61,14 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     ///     the sub-namespace should not both be empty.
     /// </param>
     /// <param name="language">The project's language.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The scaffolded migration.</returns>
     public virtual ScaffoldedMigration ScaffoldMigration(
         string migrationName,
         string? rootNamespace,
         string? subNamespace = null,
-        string? language = null)
+        string? language = null,
+        bool dryRun = false)
     {
         if (string.Equals(migrationName, "migration", StringComparison.OrdinalIgnoreCase))
         {
@@ -222,9 +224,10 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="projectDir">The project's root directory.</param>
     /// <param name="rootNamespace">The project's root namespace.</param>
     /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The removed migration files.</returns>
-    public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force)
-        => RemoveMigration(projectDir, rootNamespace, force, language: null);
+    public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force, bool dryRun)
+        => RemoveMigration(projectDir, rootNamespace, force, language: null, dryRun: false);
 
     /// <summary>
     ///     Removes the previous migration.
@@ -233,13 +236,14 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="rootNamespace">The project's root namespace.</param>
     /// <param name="force">Don't check to see if the migration has been applied to the database.</param>
     /// <param name="language">The project's language.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The removed migration files.</returns>
-    // TODO: DRY (file names)
     public virtual MigrationFiles RemoveMigration(
         string projectDir,
         string? rootNamespace,
         bool force,
-        string? language)
+        string? language,
+        bool dryRun)
     {
         var files = new MigrationFiles();
 
@@ -281,7 +285,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                     if (force)
                     {
                         Dependencies.Migrator.Migrate(
-                            migrations.Count > 1
+                            targetMigration: migrations.Count > 1
                                 ? migrations[^2].GetId()
                                 : Migration.InitialDatabase);
                     }
@@ -296,7 +300,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 if (migrationFile != null)
                 {
                     Dependencies.OperationReporter.WriteInformation(DesignStrings.RemovingMigration(migration.GetId()));
-                    File.Delete(migrationFile);
+                    if (!dryRun)
+                    {
+                        File.Delete(migrationFile);
+                    }
+
                     files.MigrationFile = migrationFile;
                 }
                 else
@@ -309,7 +317,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 var migrationMetadataFile = TryGetProjectFile(projectDir, migrationMetadataFileName);
                 if (migrationMetadataFile != null)
                 {
-                    File.Delete(migrationMetadataFile);
+                    if (!dryRun)
+                    {
+                        File.Delete(migrationMetadataFile);
+                    }
+
                     files.MetadataFile = migrationMetadataFile;
                 }
                 else
@@ -319,7 +331,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 model = migrations.Count > 1
-                    ? Dependencies.SnapshotModelProcessor.Process(migrations[^2].TargetModel)
+                    ? Dependencies.SnapshotModelProcessor.Process(migrations[^2].TargetModel, resetVersion: true)
                     : null;
             }
             else
@@ -336,7 +348,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             if (modelSnapshotFile != null)
             {
                 Dependencies.OperationReporter.WriteInformation(DesignStrings.RemovingSnapshot);
-                File.Delete(modelSnapshotFile);
+                if (!dryRun)
+                {
+                    File.Delete(modelSnapshotFile);
+                }
+
                 files.SnapshotFile = modelSnapshotFile;
             }
             else
@@ -351,6 +367,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         {
             var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
             Check.DebugAssert(!string.IsNullOrEmpty(modelSnapshotNamespace), "modelSnapshotNamespace is null or empty");
+
             var modelSnapshotCode = codeGenerator.GenerateSnapshot(
                 modelSnapshotNamespace,
                 _contextType,
@@ -362,7 +379,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 modelSnapshotFileName);
 
             Dependencies.OperationReporter.WriteInformation(DesignStrings.RevertingSnapshot);
-            File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
+
+            if (!dryRun)
+            {
+                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
+            }
         }
 
         return files;
@@ -374,8 +395,9 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="projectDir">The project's root directory.</param>
     /// <param name="migration">The scaffolded migration.</param>
     /// <param name="outputDir">The directory to put files in. Paths are relative to the project directory.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <returns>The saved migrations files.</returns>
-    public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir)
+    public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir, bool dryRun)
     {
         var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
@@ -386,19 +408,24 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
         Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
-        Directory.CreateDirectory(migrationDirectory);
-        File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
-        File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
 
-        Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
-        Directory.CreateDirectory(modelSnapshotDirectory);
-        File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
+        if (!dryRun)
+        {
+            Directory.CreateDirectory(migrationDirectory);
+            File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
+            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
+
+            Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
+            Directory.CreateDirectory(modelSnapshotDirectory);
+            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
+        }
 
         return new MigrationFiles
         {
             MigrationFile = migrationFile,
             MetadataFile = migrationMetadataFile,
-            SnapshotFile = modelSnapshotFile
+            SnapshotFile = modelSnapshotFile,
+            Migration = migration
         };
     }
 
@@ -463,7 +490,9 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="fileName">The filename.</param>
     /// <returns>The file path or null if none.</returns>
     protected virtual string? TryGetProjectFile(string projectDir, string fileName)
-        => Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
+        => Directory.Exists(projectDir)
+            ? Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault()
+            : null;
 
     private bool ContainsForeignMigrations(string migrationsNamespace)
         => (from t in Dependencies.MigrationsAssembly.Assembly.GetConstructibleTypes()

@@ -17,5 +17,9 @@ public class Product : ProductBase
     [ConcurrencyCheck]
     public decimal Price { get; set; }
 
+    public bool IsPrimary { get; set; }
+
+    public bool? IsPrimaryNormalized { get => IsPrimary ? true : null; set { } }
+
     public ICollection<ProductCategory> ProductCategories { get; set; } = null!;
 }

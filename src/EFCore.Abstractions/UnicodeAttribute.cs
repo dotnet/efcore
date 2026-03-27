@@ -17,9 +17,7 @@ public sealed class UnicodeAttribute : Attribute
     /// </summary>
     /// <param name="unicode">A value indicating whether the property can contain unicode characters or not.</param>
     public UnicodeAttribute(bool unicode = true)
-    {
-        IsUnicode = unicode;
-    }
+        => IsUnicode = unicode;
 
     /// <summary>
     ///     A value indicating whether the property can contain unicode characters or not.

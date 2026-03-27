@@ -34,7 +34,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             entityType,
             jsonColumn,
             keyPropertyMap,
-            path: Array.Empty<PathSegment>(),
+            path: [],
             type,
             collection,
             jsonColumn.IsNullable)

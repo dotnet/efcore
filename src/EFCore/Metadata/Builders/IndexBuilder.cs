@@ -30,9 +30,7 @@ public class IndexBuilder : IInfrastructure<IConventionIndexBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public IndexBuilder(IMutableIndex index)
-    {
-        Builder = ((Index)index).Builder;
-    }
+        => Builder = ((Index)index).Builder;
 
     /// <summary>
     ///     The internal builder being used to configure the index.

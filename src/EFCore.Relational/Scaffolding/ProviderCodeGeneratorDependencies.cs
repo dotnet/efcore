@@ -38,9 +38,7 @@ public sealed record ProviderCodeGeneratorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public ProviderCodeGeneratorDependencies(IEnumerable<IProviderCodeGeneratorPlugin> plugins)
-    {
-        Plugins = plugins;
-    }
+        => Plugins = plugins;
 
     /// <summary>
     ///     Gets the plugins.

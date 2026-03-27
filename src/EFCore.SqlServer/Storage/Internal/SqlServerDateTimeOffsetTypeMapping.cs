@@ -17,7 +17,7 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _dateTimeOffsetFormats =
-    {
+    [
         "'{0:yyyy-MM-ddTHH:mm:sszzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.fzzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.ffzzz}'",
@@ -26,7 +26,7 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
         "'{0:yyyy-MM-ddTHH:mm:ss.fffffzzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.ffffffzzz}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.fffffffzzz}'"
-    };
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

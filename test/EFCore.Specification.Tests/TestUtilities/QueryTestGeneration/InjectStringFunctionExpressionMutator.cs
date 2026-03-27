@@ -1,16 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class InjectStringFunctionExpressionMutator : ExpressionMutator
+public class InjectStringFunctionExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private readonly ExpressionFinder _expressionFinder = new();
-
-    public InjectStringFunctionExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
 
     public override bool IsValid(Expression expression)
     {
@@ -24,7 +21,7 @@ public class InjectStringFunctionExpressionMutator : ExpressionMutator
         var i = random.Next(_expressionFinder.FoundExpressions.Count);
         var methodNames = new[] { nameof(string.ToLower), nameof(string.ToUpper), nameof(string.Trim) };
 
-        var methodInfos = methodNames.Select(n => typeof(string).GetRuntimeMethod(n, new Type[] { })).ToList();
+        var methodInfos = methodNames.Select(n => typeof(string).GetRuntimeMethod(n, [])!).ToList();
         var methodInfo = methodInfos[random.Next(methodInfos.Count)];
 
         var injector = new ExpressionInjector(_expressionFinder.FoundExpressions[i], e => Expression.Call(e, methodInfo));
@@ -37,9 +34,10 @@ public class InjectStringFunctionExpressionMutator : ExpressionMutator
         private bool _insideLambda;
         private bool _insideEFProperty;
 
-        public List<Expression> FoundExpressions { get; } = new();
+        public List<Expression> FoundExpressions { get; } = [];
 
-        public override Expression Visit(Expression node)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
             if (_insideLambda
                 && !_insideEFProperty
@@ -55,8 +53,7 @@ public class InjectStringFunctionExpressionMutator : ExpressionMutator
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node != null
-                && node.Method.IsEFPropertyMethod())
+            if (node.Method.IsEFPropertyMethod())
             {
                 var oldInsideEFProperty = _insideEFProperty;
                 _insideEFProperty = true;

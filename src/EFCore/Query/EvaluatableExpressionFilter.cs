@@ -30,10 +30,10 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
         = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Type.EmptyTypes)!;
 
     private static readonly MethodInfo RandomNextOneArg
-        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) })!;
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), [typeof(int)])!;
 
     private static readonly MethodInfo RandomNextTwoArgs
-        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) })!;
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), [typeof(int), typeof(int)])!;
 
     /// <summary>
     ///     <para>
@@ -47,9 +47,7 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
     /// <param name="dependencies">The dependencies to use.</param>
     public EvaluatableExpressionFilter(
         EvaluatableExpressionFilterDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

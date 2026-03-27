@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 public class InMemoryDatabaseCreator : IDatabaseCreator
 {
     private readonly IDatabase _database;
+    private readonly ICurrentDbContext _currentContext;
+    private readonly IDbContextOptions _contextOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,9 +21,14 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InMemoryDatabaseCreator(IDatabase database)
+    public InMemoryDatabaseCreator(
+        IDatabase database,
+        ICurrentDbContext currentContext,
+        IDbContextOptions contextOptions)
     {
         _database = database;
+        _currentContext = currentContext;
+        _contextOptions = contextOptions;
     }
 
     /// <summary>
@@ -58,7 +65,25 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool EnsureCreated()
-        => Database.EnsureDatabaseCreated();
+    {
+        var created = Database.EnsureDatabaseCreated();
+
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seed = coreOptionsExtension.Seeder;
+        if (seed != null)
+        {
+            seed(_currentContext.Context, created);
+        }
+        else if (coreOptionsExtension.AsyncSeeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
+
+        return created;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,8 +91,26 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-        => Task.FromResult(Database.EnsureDatabaseCreated());
+    public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
+    {
+        var created = Database.EnsureDatabaseCreated();
+
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seedAsync = coreOptionsExtension.AsyncSeeder;
+        if (seedAsync != null)
+        {
+            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
+        }
+        else if (coreOptionsExtension.Seeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
+
+        return created;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

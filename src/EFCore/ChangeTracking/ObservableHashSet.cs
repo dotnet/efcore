@@ -8,13 +8,15 @@ using System.ComponentModel;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
-///     A hash set that implements the interfaces required for Entity Framework to use notification based change tracking
-///     for a collection navigation property.
+///     <para>
+///         A hash set that implements the interfaces required for Entity Framework to use notification based change tracking
+///         for a collection navigation property.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more
+///         information and examples.
+///     </para>
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
-///     examples.
-/// </remarks>
 /// <typeparam name="T">The type of elements in the hash set.</typeparam>
 public class ObservableHashSet<T>
     : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
@@ -40,9 +42,7 @@ public class ObservableHashSet<T>
     ///     implementation for the set type.
     /// </param>
     public ObservableHashSet(IEqualityComparer<T> comparer)
-    {
-        _set = new HashSet<T>(comparer);
-    }
+        => _set = new HashSet<T>(comparer);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class
@@ -69,9 +69,7 @@ public class ObservableHashSet<T>
     ///     implementation for the set type.
     /// </param>
     public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
-    {
-        _set = new HashSet<T>(collection, comparer);
-    }
+        => _set = new HashSet<T>(collection, comparer);
 
     /// <summary>
     ///     Occurs when a property of this hash set (such as <see cref="Count" />) changes.
@@ -113,8 +111,7 @@ public class ObservableHashSet<T>
     }
 
     /// <summary>
-    ///     Determines whether the hash set object contains the
-    ///     specified element.
+    ///     Determines whether the hash set object contains the specified element.
     /// </summary>
     /// <param name="item">The element to locate in the hash set.</param>
     /// <returns>
@@ -362,7 +359,7 @@ public class ObservableHashSet<T>
         => _set.IsProperSupersetOf(other);
 
     /// <summary>
-    ///     Determines whether the current System.Collections.Generic.HashSet`1 object and a specified collection share common elements.
+    ///     Determines whether the current hash set object and a specified collection share common elements.
     /// </summary>
     /// <param name="other">The collection to compare to the current hash set.</param>
     /// <returns>
@@ -487,5 +484,5 @@ internal static class ObservableHashSetSingletons
     public static readonly PropertyChangedEventArgs CountPropertyChanged = new("Count");
     public static readonly PropertyChangingEventArgs CountPropertyChanging = new("Count");
 
-    public static readonly object[] NoItems = Array.Empty<object>();
+    public static readonly object[] NoItems = [];
 }

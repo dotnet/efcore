@@ -3,40 +3,22 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class FindSqliteTest : FindTestBase<FindSqliteTest.FindSqliteFixture>
+#nullable disable
+
+public abstract class FindSqliteTest(FindSqliteTest.FindSqliteFixture fixture) : FindTestBase<FindSqliteTest.FindSqliteFixture>(fixture)
 {
-    protected FindSqliteTest(FindSqliteFixture fixture)
-        : base(fixture)
+    public class FindSqliteTestSet(FindSqliteFixture fixture) : FindSqliteTest(fixture)
     {
-    }
-
-    public class FindSqliteTestSet : FindSqliteTest
-    {
-        public FindSqliteTestSet(FindSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaSetFinder();
     }
 
-    public class FindSqliteTestContext : FindSqliteTest
+    public class FindSqliteTestContext(FindSqliteFixture fixture) : FindSqliteTest(fixture)
     {
-        public FindSqliteTestContext(FindSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaContextFinder();
     }
 
-    public class FindSqliteTestNonGeneric : FindSqliteTest
+    public class FindSqliteTestNonGeneric(FindSqliteFixture fixture) : FindSqliteTest(fixture)
     {
-        public FindSqliteTestNonGeneric(FindSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaNonGenericContextFinder();
     }
 
@@ -44,5 +26,31 @@ public abstract class FindSqliteTest : FindTestBase<FindSqliteTest.FindSqliteFix
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<IntKey>(
+                b =>
+                {
+                    // This configuration for SQLite prevents attempts to use the default composite key config, which doesn't work
+                    // on SQLite. See #26708
+                    b.OwnsOne(
+                        e => e.OwnedReference, b =>
+                        {
+                            b.OwnsOne(e => e.NestedOwned);
+                            b.OwnsMany(e => e.NestedOwnedCollection).ToTable("NestedOwnedCollection").HasKey(e => e.Prop);
+                        });
+
+                    b.OwnsMany(
+                        e => e.OwnedCollection, b =>
+                        {
+                            b.ToTable("OwnedCollection").HasKey(e => e.Prop);
+                            b.OwnsOne(e => e.NestedOwned);
+                            b.OwnsMany(e => e.NestedOwnedCollection).ToTable("OwnedNestedOwnedCollection").HasKey(e => e.Prop);
+                        });
+                });
+        }
     }
 }

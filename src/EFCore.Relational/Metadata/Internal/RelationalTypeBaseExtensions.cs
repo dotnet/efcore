@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -18,8 +20,11 @@ public static class RelationalTypeBaseExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static IEnumerable<ITableMappingBase> GetViewOrTableMappings(this ITypeBase typeBase)
-        => (IEnumerable<ITableMappingBase>?)(typeBase.FindRuntimeAnnotationValue(
+    {
+        typeBase.Model.EnsureRelationalModel();
+        return (IEnumerable<ITableMappingBase>?)(typeBase.FindRuntimeAnnotationValue(
                     RelationalAnnotationNames.ViewMappings)
                 ?? typeBase.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings))
             ?? Enumerable.Empty<ITableMappingBase>();
+    }
 }

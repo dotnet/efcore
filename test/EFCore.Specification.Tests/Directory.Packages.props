@@ -1,0 +1,9 @@
+<Project>
+  <Import Project="..\Directory.Packages.props" />
+  <ItemGroup>
+    <!-- Workaround for https://github.com/dotnet/roslyn-sdk/issues/1175 -->
+    <PackageVersion Update="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" />
+    <PackageVersion Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
+    <PackageVersion Update="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(MicrosoftCodeAnalysisVersion)" />
+  </ItemGroup>
+</Project>

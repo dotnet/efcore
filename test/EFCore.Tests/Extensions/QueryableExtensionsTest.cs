@@ -126,14 +126,9 @@ public class QueryableExtensionsTest
         testExpression.Compile()(queryable);
     }
 
-    private class FakeAsyncQueryProvider : IAsyncQueryProvider
+    private class FakeAsyncQueryProvider(MethodCallExpression expectedMethodCall) : IAsyncQueryProvider
     {
-        private readonly MethodCallExpression _expectedMethodCall;
-
-        public FakeAsyncQueryProvider(MethodCallExpression expectedMethodCall)
-        {
-            _expectedMethodCall = expectedMethodCall;
-        }
+        private readonly MethodCallExpression _expectedMethodCall = expectedMethodCall;
 
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
@@ -180,19 +175,14 @@ public class QueryableExtensionsTest
             => throw new NotImplementedException();
     }
 
-    private class FakeQueryable<TElement> : IQueryable<TElement>
+    private class FakeQueryable<TElement>(IQueryProvider provider = null) : IQueryable<TElement>
     {
-        public FakeQueryable(IQueryProvider provider = null)
-        {
-            Provider = provider;
-        }
-
         public Type ElementType
             => typeof(TElement);
 
         public Expression Expression { get; set; }
 
-        public IQueryProvider Provider { get; }
+        public IQueryProvider Provider { get; } = provider;
 
         public IEnumerator<TElement> GetEnumerator()
             => throw new NotImplementedException();
@@ -308,6 +298,10 @@ public class QueryableExtensionsTest
             () => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance));
         await SourceNonAsyncEnumerableTest<int>(
             () => Source().ToDictionaryAsync(e => e, e => e, ReferenceEqualityComparer.Instance, new CancellationToken()));
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync());
+        await SourceNonAsyncEnumerableTest<int>(() => Source().ToHashSetAsync(EqualityComparer<int>.Default));
+        await SourceNonAsyncEnumerableTest<int>(
+            () => Source().ToHashSetAsync(EqualityComparer<int>.Default, new CancellationToken()));
         await SourceNonAsyncEnumerableTest<int>(() => Source().ToListAsync());
 
         Assert.Equal(

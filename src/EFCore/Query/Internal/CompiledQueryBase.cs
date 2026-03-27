@@ -18,16 +18,10 @@ public abstract class CompiledQueryBase<TContext, TResult>
 
     private ExecutorAndModel? _executor;
 
-    private sealed class ExecutorAndModel
+    private sealed class ExecutorAndModel(Func<QueryContext, TResult> executor, IModel model)
     {
-        public ExecutorAndModel(Func<QueryContext, TResult> executor, IModel model)
-        {
-            Executor = executor;
-            Model = model;
-        }
-
-        public Func<QueryContext, TResult> Executor { get; }
-        public IModel Model { get; }
+        public Func<QueryContext, TResult> Executor { get; } = executor;
+        public IModel Model { get; } = model;
     }
 
     /// <summary>
@@ -37,9 +31,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected CompiledQueryBase(LambdaExpression queryExpression)
-    {
-        _queryExpression = queryExpression;
-    }
+        => _queryExpression = queryExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,27 +101,19 @@ public abstract class CompiledQueryBase<TContext, TResult>
                 return new ExecutorAndModel(t.CreateCompiledQuery(queryCompiler, expression), c.Model);
             });
 
-    private sealed class QueryExpressionRewriter : ExpressionVisitor
+    private sealed class QueryExpressionRewriter(
+        TContext context,
+        IReadOnlyCollection<ParameterExpression> parameters)
+        : ExpressionVisitor
     {
-        private readonly TContext _context;
-        private readonly IReadOnlyCollection<ParameterExpression> _parameters;
-
-        public QueryExpressionRewriter(
-            TContext context,
-            IReadOnlyCollection<ParameterExpression> parameters)
-        {
-            _context = context;
-            _parameters = parameters;
-        }
-
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
             if (typeof(TContext).IsAssignableFrom(parameterExpression.Type))
             {
-                return Expression.Constant(_context);
+                return Expression.Constant(context);
             }
 
-            return _parameters.Contains(parameterExpression)
+            return parameters.Contains(parameterExpression)
                 ? Expression.Parameter(
                     parameterExpression.Type,
                     QueryCompilationContext.QueryParameterPrefix + parameterExpression.Name)

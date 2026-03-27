@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class EntitySplittingQuerySqlServerTest : EntitySplittingQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -54,9 +56,9 @@ INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
 
         AssertSql(
             """
-SELECT [e].[Id], [s0].[IntValue3], [s0].[StringValue3]
+SELECT [e].[Id], [s].[IntValue3], [s].[StringValue3]
 FROM [EntityOne] AS [e]
-INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
+INNER JOIN [SplitEntityOnePart2] AS [s] ON [e].[Id] = [s].[Id]
 """);
     }
 
@@ -78,14 +80,14 @@ INNER JOIN [SplitEntityOnePart3] AS [s] ON [e].[Id] = [s].[Id]
 
         AssertSql(
             """
-SELECT [e].[Id], [e].[EntityOneId], [e].[Name], [t].[Id], [t].[EntityThreeId], [t].[IntValue1], [t].[IntValue2], [t].[IntValue3], [t].[IntValue4], [t].[StringValue1], [t].[StringValue2], [t].[StringValue3], [t].[StringValue4]
+SELECT [e].[Id], [e].[EntityOneId], [e].[Name], [s1].[Id], [s1].[EntityThreeId], [s1].[IntValue1], [s1].[IntValue2], [s1].[IntValue3], [s1].[IntValue4], [s1].[StringValue1], [s1].[StringValue2], [s1].[StringValue3], [s1].[StringValue4]
 FROM [EntityTwo] AS [e]
 LEFT JOIN (
     SELECT [e0].[Id], [e0].[EntityThreeId], [e0].[IntValue1], [e0].[IntValue2], [s0].[IntValue3], [s].[IntValue4], [e0].[StringValue1], [e0].[StringValue2], [s0].[StringValue3], [s].[StringValue4]
     FROM [EntityOne] AS [e0]
     INNER JOIN [SplitEntityOnePart3] AS [s] ON [e0].[Id] = [s].[Id]
     INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e0].[Id] = [s0].[Id]
-) AS [t] ON [e].[EntityOneId] = [t].[Id]
+) AS [s1] ON [e].[EntityOneId] = [s1].[Id]
 """);
     }
 
@@ -95,14 +97,14 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [e].[Id], [e].[Name], [t].[Id], [t].[EntityThreeId], [t].[IntValue1], [t].[IntValue2], [t].[IntValue3], [t].[IntValue4], [t].[StringValue1], [t].[StringValue2], [t].[StringValue3], [t].[StringValue4]
+SELECT [e].[Id], [e].[Name], [s1].[Id], [s1].[EntityThreeId], [s1].[IntValue1], [s1].[IntValue2], [s1].[IntValue3], [s1].[IntValue4], [s1].[StringValue1], [s1].[StringValue2], [s1].[StringValue3], [s1].[StringValue4]
 FROM [EntityThree] AS [e]
 LEFT JOIN (
     SELECT [e0].[Id], [e0].[EntityThreeId], [e0].[IntValue1], [e0].[IntValue2], [s0].[IntValue3], [s].[IntValue4], [e0].[StringValue1], [e0].[StringValue2], [s0].[StringValue3], [s].[StringValue4]
     FROM [EntityOne] AS [e0]
     INNER JOIN [SplitEntityOnePart3] AS [s] ON [e0].[Id] = [s].[Id]
     INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e0].[Id] = [s0].[Id]
-) AS [t] ON [e].[Id] = [t].[EntityThreeId]
+) AS [s1] ON [e].[Id] = [s1].[EntityThreeId]
 ORDER BY [e].[Id]
 """);
     }
@@ -113,15 +115,15 @@ ORDER BY [e].[Id]
 
         AssertSql(
             """
-SELECT [e].[Id], [e].[EntityOneId], [e].[Name], [t].[Id], [t].[EntityThreeId], [t].[IntValue1], [t].[IntValue2], [t].[IntValue3], [t].[IntValue4], [t].[StringValue1], [t].[StringValue2], [t].[StringValue3], [t].[StringValue4], [e1].[Id], [e1].[Name]
+SELECT [e].[Id], [e].[EntityOneId], [e].[Name], [s1].[Id], [s1].[EntityThreeId], [s1].[IntValue1], [s1].[IntValue2], [s1].[IntValue3], [s1].[IntValue4], [s1].[StringValue1], [s1].[StringValue2], [s1].[StringValue3], [s1].[StringValue4], [e1].[Id], [e1].[Name]
 FROM [EntityTwo] AS [e]
 LEFT JOIN (
     SELECT [e0].[Id], [e0].[EntityThreeId], [e0].[IntValue1], [e0].[IntValue2], [s0].[IntValue3], [s].[IntValue4], [e0].[StringValue1], [e0].[StringValue2], [s0].[StringValue3], [s].[StringValue4]
     FROM [EntityOne] AS [e0]
     INNER JOIN [SplitEntityOnePart3] AS [s] ON [e0].[Id] = [s].[Id]
     INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e0].[Id] = [s0].[Id]
-) AS [t] ON [e].[EntityOneId] = [t].[Id]
-LEFT JOIN [EntityThree] AS [e1] ON [t].[EntityThreeId] = [e1].[Id]
+) AS [s1] ON [e].[EntityOneId] = [s1].[Id]
+LEFT JOIN [EntityThree] AS [e1] ON [s1].[EntityThreeId] = [e1].[Id]
 """);
     }
 
@@ -131,7 +133,7 @@ LEFT JOIN [EntityThree] AS [e1] ON [t].[EntityThreeId] = [e1].[Id]
 
         AssertSql(
             """
-SELECT [e].[Id], [e].[Name], [t].[Id], [t].[EntityThreeId], [t].[IntValue1], [t].[IntValue2], [t].[IntValue3], [t].[IntValue4], [t].[StringValue1], [t].[StringValue2], [t].[StringValue3], [t].[StringValue4], [t].[Id0], [t].[EntityOneId], [t].[Name]
+SELECT [e].[Id], [e].[Name], [s1].[Id], [s1].[EntityThreeId], [s1].[IntValue1], [s1].[IntValue2], [s1].[IntValue3], [s1].[IntValue4], [s1].[StringValue1], [s1].[StringValue2], [s1].[StringValue3], [s1].[StringValue4], [s1].[Id0], [s1].[EntityOneId], [s1].[Name]
 FROM [EntityThree] AS [e]
 LEFT JOIN (
     SELECT [e0].[Id], [e0].[EntityThreeId], [e0].[IntValue1], [e0].[IntValue2], [s0].[IntValue3], [s].[IntValue4], [e0].[StringValue1], [e0].[StringValue2], [s0].[StringValue3], [s].[StringValue4], [e1].[Id] AS [Id0], [e1].[EntityOneId], [e1].[Name]
@@ -139,8 +141,8 @@ LEFT JOIN (
     INNER JOIN [SplitEntityOnePart3] AS [s] ON [e0].[Id] = [s].[Id]
     INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e0].[Id] = [s0].[Id]
     LEFT JOIN [EntityTwo] AS [e1] ON [e0].[Id] = [e1].[EntityOneId]
-) AS [t] ON [e].[Id] = [t].[EntityThreeId]
-ORDER BY [e].[Id], [t].[Id]
+) AS [s1] ON [e].[Id] = [s1].[EntityThreeId]
+ORDER BY [e].[Id], [s1].[Id]
 """);
     }
 
@@ -179,9 +181,9 @@ ORDER BY [e].[Id]
 
         AssertSql(
             """
-SELECT [e].[IntValue1], [s0].[IntValue3], [e0].[Id], [e0].[Name]
+SELECT [e].[IntValue1], [s].[IntValue3], [e0].[Id], [e0].[Name]
 FROM [EntityOne] AS [e]
-INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
+INNER JOIN [SplitEntityOnePart2] AS [s] ON [e].[Id] = [s].[Id]
 LEFT JOIN [EntityThree] AS [e0] ON [e].[EntityThreeId] = [e0].[Id]
 """);
     }
@@ -446,7 +448,7 @@ LEFT JOIN [OwnedReferencePart3] AS [o0] ON [l].[Id] = [o0].[LeafEntityId]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[BaseValue], [t].[MiddleValue], [t].[SiblingValue], [t].[LeafValue], [t].[Discriminator], [l].[Id], [l].[OwnedReference_Id], [l].[OwnedReference_OwnedIntValue1], [l].[OwnedReference_OwnedIntValue2], [o0].[OwnedIntValue3], [o].[OwnedIntValue4], [l].[OwnedReference_OwnedStringValue1], [l].[OwnedReference_OwnedStringValue2], [o0].[OwnedStringValue3], [o].[OwnedStringValue4]
+SELECT [u].[Id], [u].[BaseValue], [u].[MiddleValue], [u].[SiblingValue], [u].[LeafValue], [u].[Discriminator], [l0].[Id], [l0].[OwnedReference_Id], [l0].[OwnedReference_OwnedIntValue1], [l0].[OwnedReference_OwnedIntValue2], [o0].[OwnedIntValue3], [o].[OwnedIntValue4], [l0].[OwnedReference_OwnedStringValue1], [l0].[OwnedReference_OwnedStringValue2], [o0].[OwnedStringValue3], [o].[OwnedStringValue4]
 FROM (
     SELECT [b].[Id], [b].[BaseValue], NULL AS [MiddleValue], NULL AS [SiblingValue], NULL AS [LeafValue], N'BaseEntity' AS [Discriminator]
     FROM [BaseEntity] AS [b]
@@ -457,12 +459,12 @@ FROM (
     SELECT [s].[Id], [s].[BaseValue], NULL AS [MiddleValue], [s].[SiblingValue], NULL AS [LeafValue], N'SiblingEntity' AS [Discriminator]
     FROM [SiblingEntity] AS [s]
     UNION ALL
-    SELECT [l0].[Id], [l0].[BaseValue], [l0].[MiddleValue], NULL AS [SiblingValue], [l0].[LeafValue], N'LeafEntity' AS [Discriminator]
-    FROM [LeafEntity] AS [l0]
-) AS [t]
-LEFT JOIN [LeafEntity] AS [l] ON [t].[Id] = [l].[Id]
-LEFT JOIN [OwnedReferencePart4] AS [o] ON [l].[Id] = [o].[LeafEntityId]
-LEFT JOIN [OwnedReferencePart3] AS [o0] ON [l].[Id] = [o0].[LeafEntityId]
+    SELECT [l].[Id], [l].[BaseValue], [l].[MiddleValue], NULL AS [SiblingValue], [l].[LeafValue], N'LeafEntity' AS [Discriminator]
+    FROM [LeafEntity] AS [l]
+) AS [u]
+LEFT JOIN [LeafEntity] AS [l0] ON [u].[Id] = [l0].[Id]
+LEFT JOIN [OwnedReferencePart4] AS [o] ON [l0].[Id] = [o].[LeafEntityId]
+LEFT JOIN [OwnedReferencePart3] AS [o0] ON [l0].[Id] = [o0].[LeafEntityId]
 """);
     }
 
@@ -575,7 +577,7 @@ FROM [SiblingEntity] AS [s]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[BaseValue], [t].[MiddleValue], [t].[SiblingValue], [t].[LeafValue], [t].[Discriminator], [o].[BaseEntityId], [o].[Id], [o].[OwnedIntValue1], [o].[OwnedIntValue2], [o1].[OwnedIntValue3], [o0].[OwnedIntValue4], [o].[OwnedStringValue1], [o].[OwnedStringValue2], [o1].[OwnedStringValue3], [o0].[OwnedStringValue4]
+SELECT [u].[Id], [u].[BaseValue], [u].[MiddleValue], [u].[SiblingValue], [u].[LeafValue], [u].[Discriminator], [o].[BaseEntityId], [o].[Id], [o].[OwnedIntValue1], [o].[OwnedIntValue2], [o1].[OwnedIntValue3], [o0].[OwnedIntValue4], [o].[OwnedStringValue1], [o].[OwnedStringValue2], [o1].[OwnedStringValue3], [o0].[OwnedStringValue4]
 FROM (
     SELECT [b].[Id], [b].[BaseValue], NULL AS [MiddleValue], NULL AS [SiblingValue], NULL AS [LeafValue], N'BaseEntity' AS [Discriminator]
     FROM [BaseEntity] AS [b]
@@ -588,8 +590,8 @@ FROM (
     UNION ALL
     SELECT [l].[Id], [l].[BaseValue], [l].[MiddleValue], NULL AS [SiblingValue], [l].[LeafValue], N'LeafEntity' AS [Discriminator]
     FROM [LeafEntity] AS [l]
-) AS [t]
-LEFT JOIN [OwnedReferencePart1] AS [o] ON [t].[Id] = [o].[BaseEntityId]
+) AS [u]
+LEFT JOIN [OwnedReferencePart1] AS [o] ON [u].[Id] = [o].[BaseEntityId]
 LEFT JOIN [OwnedReferencePart4] AS [o0] ON [o].[BaseEntityId] = [o0].[BaseEntityId]
 LEFT JOIN [OwnedReferencePart3] AS [o1] ON [o].[BaseEntityId] = [o1].[BaseEntityId]
 """);
@@ -617,7 +619,7 @@ LEFT JOIN [OwnedReferencePart3] AS [o1] ON [o].[BaseEntityId] = [o1].[BaseEntity
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[BaseValue], [t].[MiddleValue], [t].[SiblingValue], [t].[LeafValue], [t].[Discriminator], [o].[MiddleEntityId], [o].[Id], [o].[OwnedIntValue1], [o].[OwnedIntValue2], [o1].[OwnedIntValue3], [o0].[OwnedIntValue4], [o].[OwnedStringValue1], [o].[OwnedStringValue2], [o1].[OwnedStringValue3], [o0].[OwnedStringValue4]
+SELECT [u].[Id], [u].[BaseValue], [u].[MiddleValue], [u].[SiblingValue], [u].[LeafValue], [u].[Discriminator], [o].[MiddleEntityId], [o].[Id], [o].[OwnedIntValue1], [o].[OwnedIntValue2], [o1].[OwnedIntValue3], [o0].[OwnedIntValue4], [o].[OwnedStringValue1], [o].[OwnedStringValue2], [o1].[OwnedStringValue3], [o0].[OwnedStringValue4]
 FROM (
     SELECT [b].[Id], [b].[BaseValue], NULL AS [MiddleValue], NULL AS [SiblingValue], NULL AS [LeafValue], N'BaseEntity' AS [Discriminator]
     FROM [BaseEntity] AS [b]
@@ -630,8 +632,8 @@ FROM (
     UNION ALL
     SELECT [l].[Id], [l].[BaseValue], [l].[MiddleValue], NULL AS [SiblingValue], [l].[LeafValue], N'LeafEntity' AS [Discriminator]
     FROM [LeafEntity] AS [l]
-) AS [t]
-LEFT JOIN [OwnedReferencePart1] AS [o] ON [t].[Id] = [o].[MiddleEntityId]
+) AS [u]
+LEFT JOIN [OwnedReferencePart1] AS [o] ON [u].[Id] = [o].[MiddleEntityId]
 LEFT JOIN [OwnedReferencePart4] AS [o0] ON [o].[MiddleEntityId] = [o0].[MiddleEntityId]
 LEFT JOIN [OwnedReferencePart3] AS [o1] ON [o].[MiddleEntityId] = [o1].[MiddleEntityId]
 """);
@@ -683,7 +685,7 @@ LEFT JOIN [OwnedReferencePart3] AS [o1] ON [o].[MiddleEntityId] = [o1].[MiddleEn
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[BaseValue], [t].[MiddleValue], [t].[SiblingValue], [t].[LeafValue], [t].[Discriminator], [t0].[BaseEntityId], [t0].[Id], [t0].[OwnedIntValue1], [t0].[OwnedIntValue2], [t0].[OwnedIntValue3], [t0].[OwnedIntValue4], [t0].[OwnedStringValue1], [t0].[OwnedStringValue2], [t0].[OwnedStringValue3], [t0].[OwnedStringValue4]
+SELECT [u].[Id], [u].[BaseValue], [u].[MiddleValue], [u].[SiblingValue], [u].[LeafValue], [u].[Discriminator], [s0].[BaseEntityId], [s0].[Id], [s0].[OwnedIntValue1], [s0].[OwnedIntValue2], [s0].[OwnedIntValue3], [s0].[OwnedIntValue4], [s0].[OwnedStringValue1], [s0].[OwnedStringValue2], [s0].[OwnedStringValue3], [s0].[OwnedStringValue4]
 FROM (
     SELECT [b].[Id], [b].[BaseValue], NULL AS [MiddleValue], NULL AS [SiblingValue], NULL AS [LeafValue], N'BaseEntity' AS [Discriminator]
     FROM [BaseEntity] AS [b]
@@ -696,14 +698,14 @@ FROM (
     UNION ALL
     SELECT [l].[Id], [l].[BaseValue], [l].[MiddleValue], NULL AS [SiblingValue], [l].[LeafValue], N'LeafEntity' AS [Discriminator]
     FROM [LeafEntity] AS [l]
-) AS [t]
+) AS [u]
 LEFT JOIN (
     SELECT [o].[BaseEntityId], [o].[Id], [o].[OwnedIntValue1], [o].[OwnedIntValue2], [o1].[OwnedIntValue3], [o0].[OwnedIntValue4], [o].[OwnedStringValue1], [o].[OwnedStringValue2], [o1].[OwnedStringValue3], [o0].[OwnedStringValue4]
     FROM [OwnedReferencePart1] AS [o]
     INNER JOIN [OwnedReferencePart4] AS [o0] ON [o].[BaseEntityId] = [o0].[BaseEntityId] AND [o].[Id] = [o0].[Id]
     INNER JOIN [OwnedReferencePart3] AS [o1] ON [o].[BaseEntityId] = [o1].[BaseEntityId] AND [o].[Id] = [o1].[Id]
-) AS [t0] ON [t].[Id] = [t0].[BaseEntityId]
-ORDER BY [t].[Id], [t0].[BaseEntityId]
+) AS [s0] ON [u].[Id] = [s0].[BaseEntityId]
+ORDER BY [u].[Id], [s0].[BaseEntityId]
 """);
     }
 
@@ -729,7 +731,7 @@ ORDER BY [t].[Id], [t0].[BaseEntityId]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[BaseValue], [t].[MiddleValue], [t].[SiblingValue], [t].[LeafValue], [t].[Discriminator], [t0].[MiddleEntityId], [t0].[Id], [t0].[OwnedIntValue1], [t0].[OwnedIntValue2], [t0].[OwnedIntValue3], [t0].[OwnedIntValue4], [t0].[OwnedStringValue1], [t0].[OwnedStringValue2], [t0].[OwnedStringValue3], [t0].[OwnedStringValue4]
+SELECT [u].[Id], [u].[BaseValue], [u].[MiddleValue], [u].[SiblingValue], [u].[LeafValue], [u].[Discriminator], [s0].[MiddleEntityId], [s0].[Id], [s0].[OwnedIntValue1], [s0].[OwnedIntValue2], [s0].[OwnedIntValue3], [s0].[OwnedIntValue4], [s0].[OwnedStringValue1], [s0].[OwnedStringValue2], [s0].[OwnedStringValue3], [s0].[OwnedStringValue4]
 FROM (
     SELECT [b].[Id], [b].[BaseValue], NULL AS [MiddleValue], NULL AS [SiblingValue], NULL AS [LeafValue], N'BaseEntity' AS [Discriminator]
     FROM [BaseEntity] AS [b]
@@ -742,14 +744,14 @@ FROM (
     UNION ALL
     SELECT [l].[Id], [l].[BaseValue], [l].[MiddleValue], NULL AS [SiblingValue], [l].[LeafValue], N'LeafEntity' AS [Discriminator]
     FROM [LeafEntity] AS [l]
-) AS [t]
+) AS [u]
 LEFT JOIN (
     SELECT [o].[MiddleEntityId], [o].[Id], [o].[OwnedIntValue1], [o].[OwnedIntValue2], [o1].[OwnedIntValue3], [o0].[OwnedIntValue4], [o].[OwnedStringValue1], [o].[OwnedStringValue2], [o1].[OwnedStringValue3], [o0].[OwnedStringValue4]
     FROM [OwnedReferencePart1] AS [o]
     INNER JOIN [OwnedReferencePart4] AS [o0] ON [o].[MiddleEntityId] = [o0].[MiddleEntityId] AND [o].[Id] = [o0].[Id]
     INNER JOIN [OwnedReferencePart3] AS [o1] ON [o].[MiddleEntityId] = [o1].[MiddleEntityId] AND [o].[Id] = [o1].[Id]
-) AS [t0] ON [t].[Id] = [t0].[MiddleEntityId]
-ORDER BY [t].[Id], [t0].[MiddleEntityId]
+) AS [s0] ON [u].[Id] = [s0].[MiddleEntityId]
+ORDER BY [u].[Id], [s0].[MiddleEntityId]
 """);
     }
 

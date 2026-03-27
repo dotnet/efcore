@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class RowValueExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     The values of this row.
     /// </summary>
@@ -46,6 +48,12 @@ public class RowValueExpression : SqlExpression
         => values.Count == Values.Count && values.Zip(Values, (x, y) => (x, y)).All(tup => tup.x == tup.y)
             ? this
             : new RowValueExpression(values);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(RowValueExpression).GetConstructor([typeof(IReadOnlyList<SqlExpression>)])!,
+            NewArrayInit(typeof(SqlExpression), Values.Select(v => v.Quote())));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

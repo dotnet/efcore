@@ -24,9 +24,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     /// </summary>
     /// <param name="context">The context this database API belongs to.</param>
     public DatabaseFacade(DbContext context)
-    {
-        _context = context;
-    }
+        => _context = context;
 
     private IDatabaseFacadeDependencies Dependencies
         => _dependencies ??= _context.GetService<IDatabaseFacadeDependencies>();

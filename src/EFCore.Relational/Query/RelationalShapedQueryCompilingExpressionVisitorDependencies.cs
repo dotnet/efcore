@@ -47,10 +47,12 @@ public sealed record RelationalShapedQueryCompilingExpressionVisitorDependencies
     [EntityFrameworkInternal]
     public RelationalShapedQueryCompilingExpressionVisitorDependencies(
         IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-        IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
+        IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
+        IRelationalLiftableConstantFactory relationalLiftableConstantFactory)
     {
         QuerySqlGeneratorFactory = querySqlGeneratorFactory;
         RelationalParameterBasedSqlProcessorFactory = relationalParameterBasedSqlProcessorFactory;
+        RelationalLiftableConstantFactory = relationalLiftableConstantFactory;
     }
 
     /// <summary>
@@ -62,4 +64,9 @@ public sealed record RelationalShapedQueryCompilingExpressionVisitorDependencies
     ///     The SQL processor based on parameter values.
     /// </summary>
     public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; init; }
+
+    /// <summary>
+    ///     The liftable constant factory.
+    /// </summary>
+    public IRelationalLiftableConstantFactory RelationalLiftableConstantFactory { get; init; }
 }

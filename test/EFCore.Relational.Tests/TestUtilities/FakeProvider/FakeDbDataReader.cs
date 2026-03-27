@@ -18,14 +18,14 @@ public class FakeDbDataReader : DbDataReader
 
     public FakeDbDataReader(string[] columnNames = null, IList<object[]> results = null)
     {
-        _columnNames = columnNames ?? Array.Empty<string>();
+        _columnNames = columnNames ?? [];
         _results = results ?? new List<object[]>();
         _resultSets = new List<IList<object[]>> { _results };
     }
 
     public FakeDbDataReader(string[] columnNames, IList<IList<object[]>> resultSets)
     {
-        _columnNames = columnNames ?? Array.Empty<string>();
+        _columnNames = columnNames ?? [];
         _resultSets = resultSets ?? new List<IList<object[]>> { new List<object[]>() };
         _results = _resultSets[0];
     }

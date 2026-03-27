@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore;
 public enum DeleteBehavior
 {
     /// <summary>
-    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities and creates
     ///     a non-cascading foreign key constraint in the database. This is the default for optional relationships.
     /// </summary>
     /// <remarks>
@@ -41,7 +41,7 @@ public enum DeleteBehavior
     ClientSetNull,
 
     /// <summary>
-    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities and creates
     ///     a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
@@ -59,7 +59,7 @@ public enum DeleteBehavior
     Restrict,
 
     /// <summary>
-    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities and creates
     ///     a foreign key constraint in the database that propagates <see langword="null" /> values from principals to dependents.
     /// </summary>
     /// <remarks>
@@ -77,7 +77,7 @@ public enum DeleteBehavior
 
     /// <summary>
     ///     Automatically deletes dependent entities when the principal is deleted or the relationship to the principal is severed,
-    ///     and creates creates a foreign key constraint in the database with cascading deletes enabled. This is the default for
+    ///     and creates a foreign key constraint in the database with cascading deletes enabled. This is the default for
     ///     required relationships.
     /// </summary>
     /// <remarks>
@@ -108,7 +108,7 @@ public enum DeleteBehavior
     ClientCascade,
 
     /// <summary>
-    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities and creates
     ///     a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>

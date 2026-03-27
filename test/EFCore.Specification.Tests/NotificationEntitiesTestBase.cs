@@ -8,15 +8,12 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
 {
-    protected NotificationEntitiesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact] // Issue #4020
     public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
@@ -119,12 +116,12 @@ public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFi
             modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Add(
                 new Blog { Id = 1, Posts = new List<Post> { new() { Id = 1 }, new() { Id = 2 } } });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

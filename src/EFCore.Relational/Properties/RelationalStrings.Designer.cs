@@ -68,6 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
+        ///     Join expressions have no aliases; set the alias on the enclosed table expression.
+        /// </summary>
+        public static string CannotSetAliasOnJoin
+            => GetString("CannotSetAliasOnJoin");
+
+        /// <summary>
         ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
         /// </summary>
         public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
@@ -188,6 +194,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConflictingTypeMappingsInferredForColumn", nameof(column)),
                 column);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNestedOwnedEntityType(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNestedOwnedEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is not mapped to a container column, such as for JSON. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNonContainer(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNonContainer", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
@@ -884,6 +906,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 view, entityType, otherEntityType);
 
         /// <summary>
+        ///     '{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments. When in doubt use 'false' for nullability argument.
+        /// </summary>
+        public static string InconsistentNumberOfArguments(object? name, object? argumentCount, object? argumentNullabilityCount)
+            => string.Format(
+                GetString("InconsistentNumberOfArguments", nameof(name), nameof(argumentCount), nameof(argumentNullabilityCount)),
+                name, argumentCount, argumentNullabilityCount);
+
+        /// <summary>
         ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
         /// </summary>
         public static string IncorrectDefaultValueType(object? value, object? valueType, object? property, object? propertyType, object? entityType)
@@ -1040,6 +1070,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, parentEntity, navigation);
 
         /// <summary>
+        ///     The database returned the empty string when a JSON object was expected.
+        /// </summary>
+        public static string JsonEmptyString
+            => GetString("JsonEmptyString");
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentTableOrViewThanOwner(object? jsonType, object? tableOrViewName, object? ownerType, object? ownerTableOrViewName)
@@ -1104,12 +1140,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 keyProperty, jsonEntity);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.
+        ///     The property '{entityType}.{property}' is configured as part of the primary key. Explicitly configured primary keys are not supported on entities stored in JSON collections, and any key configuration should be removed.
         /// </summary>
-        public static string JsonEntityWithExplicitlyConfiguredOrdinalKey(object? jsonEntity)
+        public static string JsonEntityWithExplicitlyConfiguredKey(object? entityType, object? property)
             => string.Format(
-                GetString("JsonEntityWithExplicitlyConfiguredOrdinalKey", nameof(jsonEntity)),
-                jsonEntity);
+                GetString("JsonEntityWithExplicitlyConfiguredKey", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.
@@ -1164,6 +1200,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
 
         /// <summary>
+        ///     Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.
+        /// </summary>
+        public static string JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution)
+            => string.Format(
+                GetString("JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution", nameof(entityTypeName), nameof(asNoTrackingWithIdentityResolution)),
+                entityTypeName, asNoTrackingWithIdentityResolution);
+
+        /// <summary>
+        ///     When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.
+        /// </summary>
+        public static string JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(object? asNoTrackingWithIdentityResolution, object? entityTypeName)
+            => string.Format(
+                GetString("JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution", nameof(asNoTrackingWithIdentityResolution), nameof(entityTypeName)),
+                asNoTrackingWithIdentityResolution, entityTypeName);
+
+        /// <summary>
+        ///     Projecting queryable operations on JSON collection is not supported for '{asNoTrackingWithIdentityResolution}'.
+        /// </summary>
+        public static string JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(object? asNoTrackingWithIdentityResolution)
+            => string.Format(
+                GetString("JsonProjectingQueryableOperationNoTrackingWithIdentityResolution", nameof(asNoTrackingWithIdentityResolution)),
+                asNoTrackingWithIdentityResolution);
+
+        /// <summary>
         ///     The JSON property name should only be configured on nested owned navigations.
         /// </summary>
         public static string JsonPropertyNameShouldBeConfiguredOnNestedNavigation
@@ -1182,6 +1242,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("JsonRequiredEntityWithNullJson", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.
+        /// </summary>
+        public static string JsonValueReadWriterMissingOnTypeMapping(object? typeMapping, object? property, object? entityType)
+            => string.Format(
+                GetString("JsonValueReadWriterMissingOnTypeMapping", nameof(typeMapping), nameof(property), nameof(entityType)),
+                typeMapping, property, entityType);
 
         /// <summary>
         ///     The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
@@ -1334,10 +1402,26 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NestedAmbientTransactionError");
 
         /// <summary>
+        ///     The property '{propertyType} {type}.{property}' is a primitive collection of a primitive collection. Nested primitive collections are not yet supported with relational database providers.
+        /// </summary>
+        public static string NestedCollectionsNotSupported(object? propertyType, object? type, object? property)
+            => string.Format(
+                GetString("NestedCollectionsNotSupported", nameof(propertyType), nameof(type), nameof(property)),
+                propertyType, type, property);
+
+        /// <summary>
         ///     The connection does not have any active transactions.
         /// </summary>
         public static string NoActiveTransaction
             => GetString("NoActiveTransaction");
+
+        /// <summary>
+        ///     No alias is defined on table: '{table}'.
+        /// </summary>
+        public static string NoAliasOnTable(object? table)
+            => string.Format(
+                GetString("NoAliasOnTable", nameof(table)),
+                table);
 
         /// <summary>
         ///     Cannot create a DbCommand for a non-relational query.
@@ -1358,14 +1442,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string NoneRelationalTypeMappingOnARelationalTypeMappingSource
             => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
-
-        /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
-        /// </summary>
-        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
-            => string.Format(
-                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
-                expression, details);
 
         /// <summary>
         ///     Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.
@@ -1460,6 +1536,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 param1, param2, param3);
 
         /// <summary>
+        ///     Exactly one of '{param1}' or '{param2}' must be set.
+        /// </summary>
+        public static string OneOfTwoValuesMustBeSet(object? param1, object? param2)
+            => string.Format(
+                GetString("OneOfTwoValuesMustBeSet", nameof(param1), nameof(param2)),
+                param1, param2);
+
+        /// <summary>
         ///     Only constants are supported inside inline collection query roots.
         /// </summary>
         public static string OnlyConstantsSupportedInInlineCollectionQueryRoots
@@ -1538,6 +1622,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     SelectExpression.Update() is not supported while the expression is in mutable state.
+        /// </summary>
+        public static string SelectExpressionUpdateNotSupportedWhileMutable
+            => GetString("SelectExpressionUpdateNotSupportedWhileMutable");
+
+        /// <summary>
         ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
         /// </summary>
         public static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2)
@@ -1558,12 +1648,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SetOperationsRequireAtLeastOneSideWithValidTypeMapping", nameof(setOperationType)),
                 setOperationType);
-
-        /// <summary>
-        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
-        /// </summary>
-        public static string SetPropertyMethodInvoked
-            => GetString("SetPropertyMethodInvoked");
 
         /// <summary>
         ///     This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.
@@ -1868,14 +1952,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
-        ///     Expression type '{expressionType}' does not implement proper cloning logic. Every expression derived from '{tableExpressionBase}' must implement '{clonableTableExpressionBase}' interface or have it's cloning logic added to the '{cloningExpressionVisitor}' inside '{selectExpression}'.
-        /// </summary>
-        public static string TableExpressionBaseWithoutCloningLogic(object? expressionType, object? tableExpressionBase, object? clonableTableExpressionBase, object? cloningExpressionVisitor, object? selectExpression)
-            => string.Format(
-                GetString("TableExpressionBaseWithoutCloningLogic", nameof(expressionType), nameof(tableExpressionBase), nameof(clonableTableExpressionBase), nameof(cloningExpressionVisitor), nameof(selectExpression)),
-                expressionType, tableExpressionBase, clonableTableExpressionBase, cloningExpressionVisitor, selectExpression);
-
-        /// <summary>
         ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
         /// </summary>
         public static string TableNotMappedEntityType(object? entityType, object? table)
@@ -1984,7 +2060,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("TransactionAssociatedWithDifferentConnection");
 
         /// <summary>
-        ///     User transaction is not supported with a TransactionSuppressed migrations.
+        ///     User transaction is not supported with a TransactionSuppressed migrations or a retrying execution strategy.
         /// </summary>
         public static string TransactionSuppressedMigrationInUserTransaction
             => GetString("TransactionSuppressedMigrationInUserTransaction");
@@ -2054,7 +2130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2178,6 +2254,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalResources).Assembly);
+
+        /// <summary>
+        ///     Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+        /// </summary>
+        public static EventDefinition LogAcquiringMigrationLock(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAcquiringMigrationLock;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogAcquiringMigrationLock,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.AcquiringMigrationLock,
+                        LogLevel.Information,
+                        "RelationalEventId.AcquiringMigrationLock",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.AcquiringMigrationLock,
+                            _resourceManager.GetString("LogAcquiringMigrationLock")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     An ambient transaction has been detected, but the current provider does not support ambient transactions. See https://go.microsoft.com/fwlink/?LinkId=800142
@@ -3324,6 +3425,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     A transaction was started before applying migrations. This prevents a database lock to be acquired and hence the database will not be protected from concurrent migration applications. The transactions and execution strategy are already managed by EF as needed. Remove the external transaction.
+        /// </summary>
+        public static EventDefinition LogMigrationsUserTransaction(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransaction;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationsUserTransaction,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.MigrationsUserTransactionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.MigrationsUserTransactionWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.MigrationsUserTransactionWarning,
+                            _resourceManager.GetString("LogMigrationsUserTransaction")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
         /// </summary>
         public static EventDefinition LogMultipleCollectionIncludeWarning(IDiagnosticsLogger logger)
@@ -3446,7 +3572,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     No migrations were found in assembly '{migrationsAssembly}'.
+        ///     No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.
         /// </summary>
         public static EventDefinition<string> LogNoMigrationsFound(IDiagnosticsLogger logger)
         {
@@ -3459,7 +3585,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationsNotFound,
-                        LogLevel.Debug,
+                        LogLevel.Information,
                         "RelationalEventId.MigrationsNotFound",
                         level => LoggerMessage.Define<string>(
                             level,
@@ -3468,6 +3594,81 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.
+        /// </summary>
+        public static EventDefinition<string> LogNoModelSnapshotFound(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNoModelSnapshotFound;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNoModelSnapshotFound,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.ModelSnapshotNotFound,
+                        LogLevel.Information,
+                        "RelationalEventId.ModelSnapshotNotFound",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.ModelSnapshotNotFound,
+                            _resourceManager.GetString("LogNoModelSnapshotFound")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.
+        /// </summary>
+        public static EventDefinition<string> LogNonDeterministicModel(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNonDeterministicModel;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNonDeterministicModel,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.PendingModelChangesWarning,
+                        LogLevel.Error,
+                        "RelationalEventId.PendingModelChangesWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.PendingModelChangesWarning,
+                            _resourceManager.GetString("LogNonDeterministicModel")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.
+        /// </summary>
+        public static EventDefinition<string, string> LogNonTransactionalMigrationOperationWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNonTransactionalMigrationOperationWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNonTransactionalMigrationOperationWarning,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.NonTransactionalMigrationOperationWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.NonTransactionalMigrationOperationWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.NonTransactionalMigrationOperationWarning,
+                            _resourceManager.GetString("LogNonTransactionalMigrationOperationWarning")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -3590,6 +3791,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
                             _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingProperty")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.
+        /// </summary>
+        public static EventDefinition<string> LogPendingModelChanges(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogPendingModelChanges;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogPendingModelChanges,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.PendingModelChangesWarning,
+                        LogLevel.Error,
+                        "RelationalEventId.PendingModelChangesWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.PendingModelChangesWarning,
+                            _resourceManager.GetString("LogPendingModelChanges")!)));
             }
 
             return (EventDefinition<string>)definition;

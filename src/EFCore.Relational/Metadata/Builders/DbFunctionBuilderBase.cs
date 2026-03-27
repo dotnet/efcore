@@ -22,9 +22,7 @@ public abstract class DbFunctionBuilderBase : IInfrastructure<IConventionDbFunct
     /// </summary>
     [EntityFrameworkInternal]
     protected DbFunctionBuilderBase(IMutableDbFunction function)
-    {
-        Builder = ((DbFunction)function).Builder;
-    }
+        => Builder = ((DbFunction)function).Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

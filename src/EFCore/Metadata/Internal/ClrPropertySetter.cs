@@ -24,9 +24,7 @@ public sealed class ClrPropertySetter<TEntity, TValue> : IClrPropertySetter
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ClrPropertySetter(Action<TEntity, TValue> setter)
-    {
-        _setter = setter;
-    }
+        => _setter = setter;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

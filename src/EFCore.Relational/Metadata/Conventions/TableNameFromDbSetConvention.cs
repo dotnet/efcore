@@ -36,7 +36,7 @@ public class TableNameFromDbSetConvention :
             }
             else
             {
-                ambiguousTypes ??= new List<Type>();
+                ambiguousTypes ??= [];
 
                 ambiguousTypes.Add(set.Type);
             }
@@ -85,7 +85,7 @@ public class TableNameFromDbSetConvention :
                  && !entityType.HasSharedClrType
                  && _sets.TryGetValue(entityType.ClrType, out var setName))
         {
-            entityTypeBuilder.ToTable(setName);
+            entityTypeBuilder.ToTable(Uniquifier.Truncate(setName, entityType.Model.GetMaxIdentifierLength()));
         }
     }
 
@@ -101,7 +101,7 @@ public class TableNameFromDbSetConvention :
                 != RelationalAnnotationNames.TphMappingStrategy)
             && _sets.TryGetValue(entityType.ClrType, out var setName))
         {
-            entityTypeBuilder.ToTable(setName);
+            entityTypeBuilder.ToTable(Uniquifier.Truncate(setName, entityType.Model.GetMaxIdentifierLength()));
         }
     }
 
@@ -123,7 +123,7 @@ public class TableNameFromDbSetConvention :
                 if (!derivedEntityType.HasSharedClrType
                     && _sets.TryGetValue(derivedEntityType.ClrType, out var setName))
                 {
-                    derivedEntityType.Builder.ToTable(setName);
+                    derivedEntityType.Builder.ToTable(Uniquifier.Truncate(setName, derivedEntityType.Model.GetMaxIdentifierLength()));
                 }
             }
         }

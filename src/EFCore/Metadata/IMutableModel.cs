@@ -46,6 +46,12 @@ public interface IMutableModel : IReadOnlyModel, IMutableAnnotatable
     void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode);
 
     /// <summary>
+    ///     Sets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    void SetEmbeddedDiscriminatorName(string? name);
+
+    /// <summary>
     ///     Sets the default change tracking strategy to use for entities in the model. This strategy indicates how the
     ///     context detects changes to properties for an instance of an entity type.
     /// </summary>

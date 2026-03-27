@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 /// </summary>
 public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplatingEngineHost, IServiceProvider
 {
-    private static readonly List<string> _noWarn = new() { "CS1701", "CS1702" };
+    private static readonly List<string> _noWarn = ["CS1701", "CS1702"];
 
     private readonly IServiceProvider? _serviceProvider;
     private ITextTemplatingSession? _session;
@@ -34,9 +34,7 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TextTemplatingEngineHost(IServiceProvider? serviceProvider = null)
-    {
-        _serviceProvider = serviceProvider;
-    }
+        => _serviceProvider = serviceProvider;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,7 +92,7 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual CompilerErrorCollection Errors
-        => _errors ??= new CompilerErrorCollection();
+        => _errors ??= [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

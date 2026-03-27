@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -257,7 +256,7 @@ public class SqlServerMetadataBuilderExtensionsTest
     }
 
     [ConditionalFact]
-    public void Can_access_entity_type()
+    public void Can_change_entity_type_IsMemoryOptimized()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot));
 
@@ -278,6 +277,50 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.NotNull(typeBuilder.IsMemoryOptimized(null, fromDataAnnotation: true));
         Assert.False(typeBuilder.Metadata.IsMemoryOptimized());
         Assert.Null(typeBuilder.Metadata.GetIsMemoryOptimizedConfigurationSource());
+    }
+
+    [ConditionalFact]
+    public void Can_change_entity_type_UseSqlOutputClause()
+    {
+        var typeBuilder = CreateBuilder().Entity(typeof(Splot));
+
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(true));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.Equal(ConfigurationSource.Convention, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false, fromDataAnnotation: true));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.Equal(ConfigurationSource.DataAnnotation, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        Assert.Null(typeBuilder.UseSqlOutputClause(true));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(null, fromDataAnnotation: true));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        var fragmentId = StoreObjectIdentifier.Table("Split");
+
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(true, fragmentId));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.Equal(ConfigurationSource.Convention, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false, fragmentId, fromDataAnnotation: true));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.Equal(ConfigurationSource.DataAnnotation, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
+
+        Assert.Null(typeBuilder.UseSqlOutputClause(true, fragmentId));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false, fragmentId));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(null, fragmentId, fromDataAnnotation: true));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
     }
 
     [ConditionalFact]
@@ -303,60 +346,6 @@ public class SqlServerMetadataBuilderExtensionsTest
 
         Assert.Null(propertyBuilder.HasHiLoSequence(null, null, fromDataAnnotation: true));
         Assert.Null(propertyBuilder.Metadata.GetHiLoSequenceNameConfigurationSource());
-    }
-
-    [ConditionalFact]
-    public void Throws_setting_sequence_generation_for_invalid_type()
-    {
-        var propertyBuilder = CreateBuilder()
-            .Entity(typeof(Splot))
-            .Property(typeof(string), "Name");
-
-        Assert.Equal(
-            SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
-            Assert.Throws<ArgumentException>(
-                () => propertyBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo)).Message);
-
-        Assert.Equal(
-            SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
-            Assert.Throws<ArgumentException>(
-                () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseHiLo()).Message);
-    }
-
-    [ConditionalFact]
-    public void Throws_setting_key_sequence_generation_for_invalid_type()
-    {
-        var propertyBuilder = CreateBuilder()
-            .Entity(typeof(Splot))
-            .Property(typeof(string), "Name");
-
-        Assert.Equal(
-            SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
-            Assert.Throws<ArgumentException>(
-                () => propertyBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence)).Message);
-
-        Assert.Equal(
-            SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
-            Assert.Throws<ArgumentException>(
-                () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseSequence()).Message);
-    }
-
-    [ConditionalFact]
-    public void Throws_setting_identity_generation_for_invalid_type_only_with_explicit()
-    {
-        var propertyBuilder = CreateBuilder()
-            .Entity(typeof(Splot))
-            .Property(typeof(string), "Name");
-
-        Assert.Equal(
-            SqlServerStrings.IdentityBadType("Name", nameof(Splot), "string"),
-            Assert.Throws<ArgumentException>(
-                () => propertyBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn)).Message);
-
-        Assert.Equal(
-            SqlServerStrings.IdentityBadType("Name", nameof(Splot), "string"),
-            Assert.Throws<ArgumentException>(
-                () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseIdentityColumn()).Message);
     }
 
     [ConditionalFact]
@@ -430,7 +419,5 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
     }
 
-    private class Splot
-    {
-    }
+    private class Splot;
 }

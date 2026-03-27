@@ -6,6 +6,8 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
 public class SqlAzureDatabaseCreationTest
 {
@@ -22,17 +24,12 @@ public class SqlAzureDatabaseCreationTest
         await AssertOptionsAsync(context.Database.GetDbConnection(), 1000 * (1L << 28), "Standard", "ElasticPool");
     }
 
-    private class ElasticPoolContext : DbContext
+    private class ElasticPoolContext(SqlServerTestStore testStore) : DbContext
     {
-        private readonly string _connectionString;
+        private readonly string _connectionString = testStore.ConnectionString;
 
         public DbSet<FastUn> FastUns { get; set; }
         public DbSet<BigUn> BigUns { get; set; }
-
-        public ElasticPoolContext(SqlServerTestStore testStore)
-        {
-            _connectionString = testStore.ConnectionString;
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -52,17 +49,12 @@ public class SqlAzureDatabaseCreationTest
         await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 30, "Basic", "Basic");
     }
 
-    private class BasicContext : DbContext
+    private class BasicContext(SqlServerTestStore testStore) : DbContext
     {
-        private readonly string _connectionString;
+        private readonly string _connectionString = testStore.ConnectionString;
 
         public DbSet<FastUn> FastUns { get; set; }
         public DbSet<BigUn> BigUns { get; set; }
-
-        public BasicContext(SqlServerTestStore testStore)
-        {
-            _connectionString = testStore.ConnectionString;
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -85,17 +77,12 @@ public class SqlAzureDatabaseCreationTest
         await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 31, "BusinessCritical", "BC_Gen4_1");
     }
 
-    private class BusinessCriticalContext : DbContext
+    private class BusinessCriticalContext(SqlServerTestStore testStore) : DbContext
     {
-        private readonly string _connectionString;
+        private readonly string _connectionString = testStore.ConnectionString;
 
         public DbSet<FastUn> FastUns { get; set; }
         public DbSet<BigUn> BigUns { get; set; }
-
-        public BusinessCriticalContext(SqlServerTestStore testStore)
-        {
-            _connectionString = testStore.ConnectionString;
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());

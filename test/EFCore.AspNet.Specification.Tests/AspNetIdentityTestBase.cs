@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class
     AspNetIdentityTestBase<TFixture, TContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim,
-        TUserToken> : IClassFixture<TFixture>
+        TUserToken>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : AspNetIdentityTestBase<TFixture, TContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim,
         TUserToken>.AspNetIdentityFixtureBase
     where TUser : IdentityUser<TKey>, new()
@@ -22,10 +22,8 @@ public abstract class
     where TRoleClaim : IdentityRoleClaim<TKey>, new()
     where TContext : IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, TUserToken>
 {
-    protected AspNetIdentityTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected virtual bool HasForeignKeyIndexes
+        => true;
 
     [ConditionalFact]
     public void Can_build_identity_model()
@@ -447,7 +445,7 @@ public abstract class
         await context.SaveChangesAsync();
     }
 
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     public abstract class AspNetIdentityFixtureBase
         : SharedStoreFixtureBase<TContext>

@@ -34,23 +34,17 @@ public static class DbLoggerCategory
         /// <summary>
         ///     Logger category for messages related to connection operations.
         /// </summary>
-        public class Connection : LoggerCategory<Connection>
-        {
-        }
+        public class Connection : LoggerCategory<Connection>;
 
         /// <summary>
         ///     Logger category for command execution, including SQL sent to the database.
         /// </summary>
-        public class Command : LoggerCategory<Command>
-        {
-        }
+        public class Command : LoggerCategory<Command>;
 
         /// <summary>
         ///     Logger category for messages related to transaction operations.
         /// </summary>
-        public class Transaction : LoggerCategory<Transaction>
-        {
-        }
+        public class Transaction : LoggerCategory<Transaction>;
     }
 
     /// <summary>
@@ -58,9 +52,7 @@ public static class DbLoggerCategory
     ///     messages specifically relating to database interactions which are covered by
     ///     the <see cref="Database" /> categories.
     /// </summary>
-    public class Update : LoggerCategory<Update>
-    {
-    }
+    public class Update : LoggerCategory<Update>;
 
     /// <summary>
     ///     Logger categories for messages related to model building and metadata.
@@ -70,44 +62,32 @@ public static class DbLoggerCategory
         /// <summary>
         ///     Logger category for messages from model validation.
         /// </summary>
-        public class Validation : LoggerCategory<Validation>
-        {
-        }
+        public class Validation : LoggerCategory<Validation>;
     }
 
     /// <summary>
     ///     Logger category for messages related to queries, excluding
     ///     the generated SQL, which is in the <see cref="Database.Command" /> category.
     /// </summary>
-    public class Query : LoggerCategory<Query>
-    {
-    }
+    public class Query : LoggerCategory<Query>;
 
     /// <summary>
     ///     Logger category for miscellaneous messages from the Entity Framework infrastructure.
     /// </summary>
-    public class Infrastructure : LoggerCategory<Infrastructure>
-    {
-    }
+    public class Infrastructure : LoggerCategory<Infrastructure>;
 
     /// <summary>
     ///     Logger category for messages from scaffolding/reverse engineering.
     /// </summary>
-    public class Scaffolding : LoggerCategory<Scaffolding>
-    {
-    }
+    public class Scaffolding : LoggerCategory<Scaffolding>;
 
     /// <summary>
     ///     Logger category messages from Migrations.
     /// </summary>
-    public class Migrations : LoggerCategory<Migrations>
-    {
-    }
+    public class Migrations : LoggerCategory<Migrations>;
 
     /// <summary>
     ///     Logger category for messages from change detection and tracking.
     /// </summary>
-    public class ChangeTracking : LoggerCategory<ChangeTracking>
-    {
-    }
+    public class ChangeTracking : LoggerCategory<ChangeTracking>;
 }

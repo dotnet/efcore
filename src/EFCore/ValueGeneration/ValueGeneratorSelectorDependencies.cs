@@ -46,9 +46,7 @@ public sealed record ValueGeneratorSelectorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public ValueGeneratorSelectorDependencies(IValueGeneratorCache cache)
-    {
-        Cache = cache;
-    }
+        => Cache = cache;
 
     /// <summary>
     ///     The cache being used to store value generator instances.

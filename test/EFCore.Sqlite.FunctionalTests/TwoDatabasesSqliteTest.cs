@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class TwoDatabasesSqliteTest : TwoDatabasesTestBase, IClassFixture<TwoDatabasesSqliteTest.TwoDatabasesFixture>
-{
-    public TwoDatabasesSqliteTest(TwoDatabasesFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class TwoDatabasesSqliteTest(TwoDatabasesSqliteTest.TwoDatabasesFixture fixture)
+    : TwoDatabasesTestBase(fixture), IClassFixture<TwoDatabasesSqliteTest.TwoDatabasesFixture>
+{
     protected new TwoDatabasesFixture Fixture
         => (TwoDatabasesFixture)base.Fixture;
 

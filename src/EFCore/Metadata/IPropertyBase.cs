@@ -33,12 +33,6 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     IClrPropertyGetter GetGetter();
 
     /// <summary>
-    ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
-    /// </summary>
-    /// <returns>The comparer.</returns>
-    IComparer<IUpdateEntry> GetCurrentValueComparer();
-
-    /// <summary>
     ///     Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
     ///     get or set a value for the given property.
     /// </summary>
@@ -55,14 +49,9 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     /// </param>
     /// <returns>The <see cref="MemberInfo" /> to use.</returns>
     MemberInfo GetMemberInfo(bool forMaterialization, bool forSet)
-    {
-        if (this.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
-        {
-            return memberInfo!;
-        }
-
-        throw new InvalidOperationException(errorMessage);
-    }
+        => this.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage)
+            ? memberInfo!
+            : throw new InvalidOperationException(errorMessage);
 
     /// <summary>
     ///     Gets the property index for this property.
@@ -70,4 +59,10 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     /// <returns>The index of the property.</returns>
     int GetIndex()
         => this.GetPropertyIndexes().Index;
+
+    /// <summary>
+    ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    IComparer<IUpdateEntry> GetCurrentValueComparer();
 }

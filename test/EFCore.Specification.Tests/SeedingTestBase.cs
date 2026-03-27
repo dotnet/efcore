@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class SeedingTestBase
 {
     [ConditionalTheory]
@@ -13,7 +15,7 @@ public abstract class SeedingTestBase
     public virtual async Task Seeding_does_not_leave_context_contaminated(bool async)
     {
         using var context = CreateContextWithEmptyDatabase(async ? "1A" : "1S");
-        TestStore.Clean(context);
+        await TestStore.CleanAsync(context);
         var _ = async
             ? await context.Database.EnsureCreatedResilientlyAsync()
             : context.Database.EnsureCreatedResiliently();
@@ -37,7 +39,7 @@ public abstract class SeedingTestBase
             async () =>
             {
                 using var context = CreateKeylessContextWithEmptyDatabase();
-                TestStore.Clean(context);
+                await TestStore.CleanAsync(context);
                 var _ = async
                     ? await context.Database.EnsureCreatedResilientlyAsync()
                     : context.Database.EnsureCreatedResiliently();
@@ -52,14 +54,9 @@ public abstract class SeedingTestBase
     protected virtual KeylessSeedingContext CreateKeylessContextWithEmptyDatabase()
         => new(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
-    protected abstract class SeedingContext : DbContext
+    protected abstract class SeedingContext(string testId) : DbContext
     {
-        public string TestId { get; }
-
-        protected SeedingContext(string testId)
-        {
-            TestId = testId;
-        }
+        public string TestId { get; } = testId;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Seed>().HasData(
@@ -76,13 +73,8 @@ public abstract class SeedingTestBase
         public string Species { get; set; }
     }
 
-    public class KeylessSeedingContext : DbContext
+    public class KeylessSeedingContext(DbContextOptions options) : DbContext(options)
     {
-        public KeylessSeedingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<KeylessSeed>()
                 .HasNoKey()

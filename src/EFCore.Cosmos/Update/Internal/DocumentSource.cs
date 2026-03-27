@@ -35,8 +35,8 @@ public class DocumentSource
         _containerId = entityType.GetContainer()!;
         _database = database;
         _entityType = entityType;
-        _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
-        _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+        _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
+        _jObjectProperty = entityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
     }
 
     /// <summary>

@@ -15,7 +15,7 @@ public abstract class ClrAccessorFactory<TAccessor>
     where TAccessor : class
 {
     private static readonly MethodInfo GenericCreate
-        = typeof(ClrAccessorFactory<TAccessor>).GetTypeInfo().GetDeclaredMethods(nameof(CreateGeneric)).Single();
+        = typeof(ClrAccessorFactory<TAccessor>).GetMethod(nameof(CreateGeneric), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +32,7 @@ public abstract class ClrAccessorFactory<TAccessor>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual TAccessor Create(MemberInfo memberInfo)
-        => Create(memberInfo, null);
+        => CreateBase(memberInfo);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,24 +40,16 @@ public abstract class ClrAccessorFactory<TAccessor>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual TAccessor Create(MemberInfo memberInfo, IPropertyBase? propertyBase)
+    protected virtual TAccessor CreateBase(MemberInfo memberInfo)
     {
-        var boundMethod = propertyBase != null
-            ? GenericCreate.MakeGenericMethod(
-                propertyBase.DeclaringType.ContainingEntityType.ClrType,
-                propertyBase.DeclaringType.ClrType,
-                propertyBase.ClrType,
-                propertyBase.ClrType.UnwrapNullableType())
-            : GenericCreate.MakeGenericMethod(
-                memberInfo.DeclaringType!,
-                memberInfo.DeclaringType!,
-                memberInfo.GetMemberType(),
-                memberInfo.GetMemberType().UnwrapNullableType());
+        var boundMethod = GenericCreate.MakeGenericMethod(
+            memberInfo.DeclaringType!,
+            memberInfo.DeclaringType!,
+            memberInfo.GetMemberType());
 
         try
         {
-            return (TAccessor)boundMethod.Invoke(
-                this, new object?[] { memberInfo, propertyBase })!;
+            return (TAccessor)boundMethod.Invoke(this, new object?[] { memberInfo, null })!;
         }
         catch (TargetInvocationException e) when (e.InnerException != null)
         {
@@ -72,8 +64,40 @@ public abstract class ClrAccessorFactory<TAccessor>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract TAccessor CreateGeneric<TEntity, TStructuralType, TValue, TNonNullableEnumValue>(
+    protected virtual TAccessor CreateBase(IPropertyBase propertyBase)
+    {
+        var boundMethod = GenericCreate.MakeGenericMethod(
+            propertyBase.DeclaringType.ContainingEntityType.ClrType,
+            propertyBase.DeclaringType.ClrType,
+            propertyBase.ClrType);
+
+        try
+        {
+            return (TAccessor)boundMethod.Invoke(this, new object?[] { GetMemberInfo(propertyBase), propertyBase })!;
+        }
+        catch (TargetInvocationException e) when (e.InnerException != null)
+        {
+            ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+            throw;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract TAccessor CreateGeneric<TEntity, TStructuralType, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
         where TEntity : class;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract MemberInfo GetMemberInfo(IPropertyBase propertyBase);
 }

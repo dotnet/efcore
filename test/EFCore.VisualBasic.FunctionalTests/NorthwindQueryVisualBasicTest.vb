@@ -51,7 +51,7 @@ WHERE [c].[CustomerID] <= N'ALFKI'")
         AssertSql(
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[UnitsInStock] + 1 = 102")
+WHERE [p].[UnitsInStock] + CAST(1 AS smallint) = CAST(102 AS smallint)")
     End Sub
 
     <ConditionalTheory>
@@ -80,9 +80,25 @@ FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
     End Sub
 
+    <ConditionalTheory>
+    <MemberData(NameOf(IsAsyncData))>
+    Public Async Sub Parameter_name_gets_sanitized(async As Boolean)
+        Dim units = 101
+        Await AssertQuery(
+            async,
+            Function(ss) ss.Set(Of Product).Where(Function(p) p.UnitsInStock = units))
+
+        AssertSql(
+            "@__units_0='101'
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[UnitsInStock] = @__units_0")
+    End Sub
+
     Protected Overrides Function CreateQueryAsserter(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter
         Return New RelationalQueryAsserter(
-            fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression, canExecuteQueryString:=True)
+            fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression)
     End Function
 
     Private Sub AssertSql(ParamArray expected As String())

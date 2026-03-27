@@ -18,7 +18,7 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
 {
     private static readonly MethodInfo GetServiceMethod
         = typeof(InfrastructureExtensions).GetRuntimeMethod(
-            nameof(InfrastructureExtensions.GetService), new[] { typeof(IInfrastructure<IServiceProvider>) })!;
+            nameof(InfrastructureExtensions.GetService), [typeof(IInfrastructure<IServiceProvider>)])!;
 
     private static readonly MethodInfo GetServiceFromPropertyMethod
         = typeof(DependencyInjectionMethodParameterBinding).GetTypeInfo().GetDeclaredMethod(nameof(GetServiceFromProperty))!;

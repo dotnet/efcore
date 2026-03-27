@@ -21,7 +21,7 @@ public class SqliteGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMappin
     where TGeometry : Geometry
 {
     private static readonly MethodInfo _getBytes
-        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!
+        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), [typeof(int)])!
             .MakeGenericMethod(typeof(byte[]));
 
     /// <summary>

@@ -5,6 +5,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerSentinelValueGenerationScenariosTest : SqlServerValueGenerationScenariosTestBase
 {
     protected override string DatabaseName
@@ -39,10 +41,10 @@ public class SqlServerSentinelValueGenerationScenariosTest : SqlServerValueGener
 
     protected override GeometryCollection GeometryCollectionSentinel
         => GeometryFactory.CreateGeometryCollection(
-            new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(6, 7)) });
+            [GeometryFactory.CreatePoint(new Coordinate(6, 7))]);
 
     protected override byte[] TimestampSentinel
-        => new byte[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+        => [1, 1, 1, 1, 1, 1, 1, 1];
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,9 +56,16 @@ public class SqlServerSentinelValueGenerationScenariosTest : SqlServerValueGener
                 b.Property(e => e.Id).HasSentinel(IntSentinel);
                 b.Property(e => e.Name).HasSentinel(StringSentinel);
                 b.Property(e => e.CreatedOn).HasSentinel(DateTimeSentinel);
-                b.Property(e => e.GeometryCollection).HasSentinel(GeometryCollectionSentinel);
                 b.Property(e => e.OtherId).HasSentinel(NullableIntSentinel);
                 b.Property(e => e.NeedsConverter).HasSentinel(new NeedsConverter(IntSentinel));
+            });
+
+        modelBuilder.Entity<BlogWithSpatial>(
+            b =>
+            {
+                b.Property(e => e.Id).HasSentinel(IntSentinel);
+                b.Property(e => e.Name).HasSentinel(StringSentinel);
+                b.Property(e => e.GeometryCollection).HasSentinel(GeometryCollectionSentinel);
             });
     }
 }

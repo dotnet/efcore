@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
 public class MaterializeCollectionNavigationExpression : Expression, IPrintableExpression
 {
     /// <summary>
@@ -69,7 +70,7 @@ public class MaterializeCollectionNavigationExpression : Expression, IPrintableE
         using (expressionPrinter.Indent())
         {
             expressionPrinter.AppendLine($"Navigation: {Navigation.DeclaringEntityType.DisplayName()}.{Navigation.Name},");
-            expressionPrinter.Append("subquery: ");
+            expressionPrinter.Append("Subquery: ");
             expressionPrinter.Visit(Subquery);
             expressionPrinter.Append(")");
         }

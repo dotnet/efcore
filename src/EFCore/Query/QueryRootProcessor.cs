@@ -11,7 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class QueryRootProcessor : ExpressionVisitor
 {
-    private readonly IModel _model;
+    private readonly QueryCompilationContext _queryCompilationContext;
+
+    private static readonly bool UseOldBehavior35102 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35102", out var enabled35102) && enabled35102;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryRootProcessor" /> class with associated query provider.
@@ -21,9 +24,7 @@ public class QueryRootProcessor : ExpressionVisitor
     public QueryRootProcessor(
         QueryTranslationPreprocessorDependencies dependencies,
         QueryCompilationContext queryCompilationContext)
-    {
-        _model = queryCompilationContext.Model;
-    }
+        => _queryCompilationContext = queryCompilationContext;
 
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -59,7 +60,7 @@ public class QueryRootProcessor : ExpressionVisitor
                 && (parameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
                     || parameterType.GetGenericTypeDefinition() == typeof(IQueryable<>))
                 && parameterType.GetGenericArguments()[0] is var elementClrType
-                && !_model.FindEntityTypes(elementClrType).Any()
+                && !_queryCompilationContext.Model.FindEntityTypes(elementClrType).Any()
                     ? VisitQueryRootCandidate(argument, elementClrType)
                     : Visit(argument);
 
@@ -87,7 +88,21 @@ public class QueryRootProcessor : ExpressionVisitor
 
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)
     {
-        switch (expression)
+        var candidateExpression = expression;
+
+        if (!UseOldBehavior35102)
+        {
+            // In case the collection was value type, in order to call methods like AsQueryable,
+            // we need to convert it to IEnumerable<T> which requires boxing.
+            // We do that with Convert expression which we need to unwrap here.
+            if (expression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression
+                && convertExpression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                candidateExpression = convertExpression.Operand;
+            }
+        }
+
+        switch (candidateExpression)
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression
@@ -115,17 +130,22 @@ public class QueryRootProcessor : ExpressionVisitor
                 && ShouldConvertToParameterQueryRoot(parameterExpression):
                 return new ParameterQueryRootExpression(parameterExpression.Type.GetSequenceType(), parameterExpression);
 
+            case ListInitExpression listInitExpression
+                when listInitExpression.Type.TryGetElementType(typeof(IList<>)) is not null
+                && listInitExpression.Initializers.All(x => x.Arguments.Count == 1)
+                && ShouldConvertToInlineQueryRoot(listInitExpression):
+                return new InlineQueryRootExpression(listInitExpression.Initializers.Select(x => x.Arguments[0]).ToList(), elementClrType);
+
             default:
                 return Visit(expression);
         }
     }
 
     /// <summary>
-    ///     Determines whether a <see cref="ConstantExpression" /> should be converted to a <see cref="InlineQueryRootExpression" />.
-    ///     This handles cases inline expressions whose elements are all constants.
+    ///     Determines whether a <see cref="Expression" /> should be converted to a <see cref="InlineQueryRootExpression" />.
     /// </summary>
-    /// <param name="newArrayExpression">The new array expression that's a candidate for conversion to a query root.</param>
-    protected virtual bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
+    /// <param name="expression">The expression that's a candidate for conversion to a query root.</param>
+    protected virtual bool ShouldConvertToInlineQueryRoot(Expression expression)
         => false;
 
     /// <summary>
