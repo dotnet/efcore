@@ -3272,7 +3272,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     else
                     {
                         // identity columns are not allowed inside HistoryTables
-                        if (historyTables.Contains((tableName, rawSchema)))
+                        if (historyTables.Contains((tableName, schema)))
                         {
                             RemoveIdentityAnnotations(addColumnOperation);
                         }
@@ -3433,7 +3433,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     else
                     {
                         // identity columns are not allowed inside HistoryTables
-                        if (historyTables.Contains((tableName, rawSchema)))
+                        if (historyTables.Contains((tableName, schema)))
                         {
                             RemoveIdentityAnnotations(alterColumnOperation);
                             RemoveIdentityAnnotations(alterColumnOperation.OldColumn);
