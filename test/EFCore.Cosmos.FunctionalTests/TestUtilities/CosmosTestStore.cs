@@ -60,10 +60,8 @@ public class CosmosTestStore : TestStore
         _storeContext = new TestStoreContext(this);
     }
 
-    private static readonly string[] _reservedNames = ["Northwind", "Northwind2", "Northwind3"];
-
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || _reservedNames.Contains(name)
+        => TestEnvironment.IsEmulator
             ? name
             : name + _runId;
 
@@ -469,8 +467,7 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized
-            && !_reservedNames.Contains(Name))
+        if (_initialized)
         {
             if (_connectionAvailable == false)
             {
