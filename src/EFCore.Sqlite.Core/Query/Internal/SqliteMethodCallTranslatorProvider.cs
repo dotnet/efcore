@@ -35,7 +35,8 @@ public class SqliteMethodCallTranslatorProvider : RelationalMethodCallTranslator
             new SqliteRandomTranslator(sqlExpressionFactory),
             new SqliteRegexMethodTranslator(sqlExpressionFactory),
             new SqliteStringMethodTranslator(sqlExpressionFactory),
-            new SqliteSubstrMethodTranslator(sqlExpressionFactory)
+            new SqliteSubstrMethodTranslator(sqlExpressionFactory),
+            new SqliteTimeSpanMethodTranslator(sqlExpressionFactory)
         ]);
     }
 }
