@@ -14,6 +14,74 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
 {
+    private string? _updateTargetAlias;
+    private string? _updateTargetTableName;
+    private string? _updateTargetSchema;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitUpdate(UpdateExpression updateExpression)
+    {
+        if (updateExpression.SelectExpression.Tables.Count > 1)
+        {
+            _updateTargetAlias = updateExpression.Table.Alias;
+            _updateTargetTableName = updateExpression.Table.Name;
+            _updateTargetSchema = updateExpression.Table.Schema;
+        }
+
+        try
+        {
+            return base.VisitUpdate(updateExpression);
+        }
+        finally
+        {
+            _updateTargetAlias = null;
+            _updateTargetTableName = null;
+            _updateTargetSchema = null;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitTable(TableExpression tableExpression)
+    {
+        if (_updateTargetAlias is not null && tableExpression.Alias == _updateTargetAlias)
+        {
+            Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema));
+            return tableExpression;
+        }
+
+        return base.VisitTable(tableExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitColumn(ColumnExpression columnExpression)
+    {
+        if (_updateTargetAlias is not null && columnExpression.TableAlias == _updateTargetAlias)
+        {
+            Sql
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(_updateTargetTableName!, _updateTargetSchema))
+                .Append(".")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
+            return columnExpression;
+        }
+
+        return base.VisitColumn(columnExpression);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

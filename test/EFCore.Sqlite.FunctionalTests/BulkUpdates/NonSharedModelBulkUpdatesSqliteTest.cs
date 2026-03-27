@@ -67,10 +67,10 @@ DELETE FROM "Owner" AS "o"
             """
 @p='SomeValue' (Size = 9)
 
-UPDATE "OwnedCollection" AS "o0"
+UPDATE "OwnedCollection"
 SET "Value" = @p
 FROM "Owner" AS "o"
-WHERE "o"."Id" = "o0"."OwnerId"
+WHERE "o"."Id" = "OwnedCollection"."OwnerId"
 """);
     }
 
@@ -106,10 +106,10 @@ SET "Title" = COALESCE("o"."Title", '') || '_Suffix'
             """
 @p='NewValue' (Size = 8)
 
-UPDATE "Owner" AS "o"
+UPDATE "Owner"
 SET "Title" = @p
 FROM "Owner" AS "o0"
-WHERE "o"."Id" = "o0"."Id"
+WHERE "Owner"."Id" = "o0"."Id"
 """);
     }
 
@@ -142,11 +142,11 @@ SET "CreationTimestamp" = '2020-01-01 00:00:00'
 
         AssertSql(
             """
-UPDATE "BlogsPart1" AS "b0"
-SET "Title" = CAST("b0"."Rating" AS TEXT),
-    "Rating" = length("b0"."Title")
+UPDATE "BlogsPart1"
+SET "Title" = CAST("BlogsPart1"."Rating" AS TEXT),
+    "Rating" = length("BlogsPart1"."Title")
 FROM "Blogs" AS "b"
-WHERE "b"."Id" = "b0"."Id"
+WHERE "b"."Id" = "BlogsPart1"."Id"
 """);
     }
 
