@@ -4,7 +4,6 @@
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 // ReSharper disable StaticMemberInGenericType
 namespace Microsoft.EntityFrameworkCore;
