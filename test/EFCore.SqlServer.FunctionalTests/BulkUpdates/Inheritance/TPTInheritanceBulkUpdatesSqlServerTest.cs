@@ -86,6 +86,7 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
             """
 @p='Animal' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -101,6 +102,7 @@ WHERE [a].[Name] = N'Great spotted kiwi'
             """
 @p='NewBird' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -124,6 +126,7 @@ WHERE [k].[Id] IS NOT NULL
             """
 @p='SomeOtherKiwi' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -140,6 +143,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
             """
 @p='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [k]
 SET [k].[FoundOn] = @p
 FROM [Animals] AS [a]
@@ -163,6 +167,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -181,6 +186,7 @@ WHERE (
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -207,6 +213,7 @@ WHERE (
             """
 @p='0'
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[SugarGrams] = @p
 FROM [Drinks] AS [d]
@@ -222,6 +229,7 @@ INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
             """
 @p='0'
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[SugarGrams] = @p
 FROM [Drinks] AS [d]

@@ -34,6 +34,7 @@ public class TPTFiltersInheritanceBulkUpdatesSqlServerTest(
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -49,6 +50,7 @@ WHERE (
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -102,6 +104,7 @@ WHERE (
             """
 @p='Animal' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -117,6 +120,7 @@ WHERE [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
             """
 @p='NewBird' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -140,6 +144,7 @@ WHERE [a].[CountryId] = 1 AND [k].[Id] IS NOT NULL
             """
 @p='SomeOtherKiwi' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [a]
 SET [a].[Name] = @p
 FROM [Animals] AS [a]
@@ -157,6 +162,7 @@ WHERE [a].[CountryId] = 1
             """
 @p='0' (Size = 1)
 
+SET NOCOUNT OFF;
 UPDATE [k]
 SET [k].[FoundOn] = @p
 FROM [Animals] AS [a]
@@ -181,6 +187,7 @@ WHERE [a].[CountryId] = 1
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
@@ -199,6 +206,7 @@ WHERE (
             """
 @p='Monovia' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [c]
 SET [c].[Name] = @p
 FROM [Countries] AS [c]
