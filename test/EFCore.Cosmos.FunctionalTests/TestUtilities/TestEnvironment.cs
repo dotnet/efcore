@@ -59,9 +59,22 @@ public static class TestEnvironment
             }
 
             // Start a testcontainer with the Linux emulator.
-            var container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
-                .Build();
-            await container.StartAsync().ConfigureAwait(false);
+            CosmosDbContainer container;
+            try
+            {
+                container = new CosmosDbBuilder("mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview")
+                    .Build();
+                await container.StartAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    "Failed to start the Cosmos DB emulator testcontainer. "
+                    + "Ensure Docker is installed and running, or set the 'Test__Cosmos__DefaultConnection' "
+                    + "environment variable to connect to an existing emulator or Cosmos DB instance.",
+                    ex);
+            }
+
             _container = container;
 
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
