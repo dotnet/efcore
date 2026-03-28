@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Data.Sqlite;
-
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
 #nullable disable
@@ -102,20 +100,36 @@ WHERE (
             """
 @p='Animal' (Size = 6)
 
-UPDATE "Animals" AS "a0"
+UPDATE "Animals"
 SET "Name" = @p
 FROM (
     SELECT "a"."Id"
     FROM "Animals" AS "a"
     WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 ) AS "s"
-WHERE "a0"."Id" = "s"."Id"
+WHERE "Animals"."Id" = "s"."Id"
 """);
     }
 
-    // #31402
-    public override Task Update_base_type_with_OfType(bool async)
-        => Assert.ThrowsAsync<SqliteException>(() => base.Update_base_property_on_derived_type(async));
+    public override async Task Update_base_type_with_OfType(bool async)
+    {
+        await base.Update_base_type_with_OfType(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='NewBird' (Size = 7)
+
+UPDATE "Animals"
+SET "Name" = @p
+FROM "Birds" AS "b", "Kiwi" AS "k0", (
+    SELECT "a"."Id"
+    FROM "Animals" AS "a"
+    LEFT JOIN "Kiwi" AS "k" ON "a"."Id" = "k"."Id"
+    WHERE "a"."CountryId" = 1 AND "k"."Id" IS NOT NULL
+) AS "s"
+WHERE "Animals"."Id" = "s"."Id" AND "Animals"."Id" = "k0"."Id" AND "Animals"."Id" = "b"."Id"
+""");
+    }
 
     public override async Task Update_where_hierarchy_subquery(bool async)
     {
@@ -124,9 +138,20 @@ WHERE "a0"."Id" = "s"."Id"
         AssertExecuteUpdateSql();
     }
 
-    // #31402
-    public override Task Update_base_property_on_derived_type(bool async)
-        => Assert.ThrowsAsync<SqliteException>(() => base.Update_base_property_on_derived_type(async));
+    public override async Task Update_base_property_on_derived_type(bool async)
+    {
+        await base.Update_base_property_on_derived_type(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='SomeOtherKiwi' (Size = 13)
+
+UPDATE "Animals"
+SET "Name" = @p
+FROM "Birds" AS "b", "Kiwi" AS "k"
+WHERE "Animals"."Id" = "k"."Id" AND "Animals"."Id" = "b"."Id" AND "Animals"."CountryId" = 1
+""");
+    }
 
     public override async Task Update_derived_property_on_derived_type(bool async)
     {
@@ -136,11 +161,11 @@ WHERE "a0"."Id" = "s"."Id"
             """
 @p='0'
 
-UPDATE "Kiwi" AS "k"
+UPDATE "Kiwi"
 SET "FoundOn" = @p
 FROM "Animals" AS "a"
 INNER JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
-WHERE "a"."Id" = "k"."Id" AND "a"."CountryId" = 1
+WHERE "a"."Id" = "Kiwi"."Id" AND "a"."CountryId" = 1
 """);
     }
 
