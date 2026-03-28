@@ -2586,6 +2586,17 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
             == SqlServerValueGenerationStrategy.IdentityColumn;
 
+    private static void RemoveIdentityAnnotations(ColumnOperation operation)
+    {
+        operation.RemoveAnnotation(SqlServerAnnotationNames.Identity);
+
+        if (operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
+            == SqlServerValueGenerationStrategy.IdentityColumn)
+        {
+            operation.RemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+        }
+    }
+
     private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out int seed, out int increment)
     {
         if (operation[SqlServerAnnotationNames.Identity] is string seedIncrement
@@ -2929,6 +2940,25 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
+        var historyTables = new HashSet<(string Name, string? Schema)>(
+            temporalTableInformationMap.Values
+                .Where(t => t.IsTemporalTable && t.HistoryTableName != null)
+                .Select(t => (t.HistoryTableName!, t.HistoryTableSchema)));
+
+        if (model != null)
+        {
+            foreach (var table in model.GetRelationalModel().Tables)
+            {
+                if (table[SqlServerAnnotationNames.IsTemporal] as bool? == true
+                    && table[SqlServerAnnotationNames.TemporalHistoryTableName] is string modelHistoryTableName)
+                {
+                    var modelHistoryTableSchema =
+                        table[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string;
+                    historyTables.Add((modelHistoryTableName, modelHistoryTableSchema));
+                }
+            }
+        }
+
         // now we do proper processing - for table operations we look at the annotations on them
         // and continuously update the stored temporal info as the table is being modified
         // for column (and other) operations we don't have annotations on them, so we look into the
@@ -3150,6 +3180,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     temporalInformation.PeriodStartColumnName = periodStartColumnName;
                     temporalInformation.PeriodEndColumnName = periodEndColumnName;
 
+                    if (isTemporalTable && historyTableName != null)
+                    {
+                        historyTables.Add((historyTableName, historyTableSchema));
+                    }
+
                     operations.Add(operation);
                     break;
                 }
@@ -3228,11 +3263,20 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 addHistoryTableColumnOperation.ComputedColumnSql = null;
                             }
 
+                            // identity columns are not allowed inside HistoryTables
+                            RemoveIdentityAnnotations(addHistoryTableColumnOperation);
+
                             operations.Add(addHistoryTableColumnOperation);
                         }
                     }
                     else
                     {
+                        // identity columns are not allowed inside HistoryTables
+                        if (historyTables.Contains((tableName, schema)))
+                        {
+                            RemoveIdentityAnnotations(addColumnOperation);
+                        }
+
                         operations.Add(addColumnOperation);
                     }
 
@@ -3379,11 +3423,22 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             alterHistoryTableColumn.OldColumn.Table = temporalInformation.HistoryTableName!;
                             alterHistoryTableColumn.OldColumn.Schema = temporalInformation.HistoryTableSchema;
 
+                            // identity columns are not allowed inside HistoryTables
+                            RemoveIdentityAnnotations(alterHistoryTableColumn);
+                            RemoveIdentityAnnotations(alterHistoryTableColumn.OldColumn);
+
                             operations.Add(alterHistoryTableColumn);
                         }
                     }
                     else
                     {
+                        // identity columns are not allowed inside HistoryTables
+                        if (historyTables.Contains((tableName, schema)))
+                        {
+                            RemoveIdentityAnnotations(alterColumnOperation);
+                            RemoveIdentityAnnotations(alterColumnOperation.OldColumn);
+                        }
+
                         operations.Add(alterColumnOperation);
                     }
 

@@ -10444,4 +10444,91 @@ DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[CustomerHistory]))')
 """);
     }
+
+    [ConditionalFact]
+    public virtual async Task Add_identity_column_to_temporal_table_when_versioning_is_disabled()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedNever();
+                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable");
+                            ttb.HasPeriodStart("Start");
+                            ttb.HasPeriodEnd("End");
+                        }));
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<string>("Name");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Number").UseIdentityColumn();
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customers", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Number", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
+""",
+            //
+            """
+DECLARE @var2 nvarchar(max);
+SELECT @var2 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT ' + @var2 + ';');
+ALTER TABLE [Customers] DROP COLUMN [Name];
+""",
+            //
+            """
+DECLARE @var3 nvarchar(max);
+SELECT @var3 = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'Name');
+IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT ' + @var3 + ';');
+ALTER TABLE [HistoryTable] DROP COLUMN [Name];
+""",
+            //
+            """
+ALTER TABLE [Customers] ADD [Number] int NOT NULL IDENTITY;
+""",
+            //
+            """
+ALTER TABLE [HistoryTable] ADD [Number] int NOT NULL DEFAULT 0;
+""",
+            //
+            """
+DECLARE @historyTableSchema1 nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema1 + '.[HistoryTable]))')
+""");
+    }
 }
