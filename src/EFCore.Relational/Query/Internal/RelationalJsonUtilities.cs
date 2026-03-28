@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -89,8 +90,13 @@ public static class RelationalJsonUtilities
                 Check.DebugAssert(jsonPropertyName is not null);
                 writer.WritePropertyName(jsonPropertyName);
 
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+
                 var propertyValue = property.GetGetter().GetClrValue(objectValue);
-                if (propertyValue is null)
+                if (propertyValue is null
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    && jsonValueReaderWriter is not IJsonConvertedValueReaderWriter { Converter.ConvertsNulls: true })
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
                     if (!property.IsNullable)
                     {
@@ -101,9 +107,8 @@ public static class RelationalJsonUtilities
                 }
                 else
                 {
-                    var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
                     Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
-                    jsonValueReaderWriter.ToJson(writer, propertyValue);
+                    jsonValueReaderWriter.ToJson(writer, propertyValue!);
                 }
             }
 
