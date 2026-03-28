@@ -210,14 +210,14 @@ public class SqlServerAnnotationCodeGeneratorTest
             {
                 x.Property<int>("Id");
                 x.Property<string>("Title");
-                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post");
+                x.HasFullTextIndex("Title").UseKeyIndex("PK_Post");
             });
 
         var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
         var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var results = generator.GenerateFluentApiCalls(index, annotations);
 
-        var keyIndexResult = results.Single(r => r.Method == "HasFullTextKeyIndex");
+        var keyIndexResult = results.Single(r => r.Method == "UseKeyIndex");
         Assert.Equal(1, keyIndexResult.Arguments.Count);
         Assert.Equal("PK_Post", keyIndexResult.Arguments[0]);
     }
@@ -233,14 +233,14 @@ public class SqlServerAnnotationCodeGeneratorTest
             {
                 x.Property<int>("Id");
                 x.Property<string>("Title");
-                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post").OnCatalog("MyCatalog");
+                x.HasFullTextIndex("Title").UseKeyIndex("PK_Post").UseCatalog("MyCatalog");
             });
 
         var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
         var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var results = generator.GenerateFluentApiCalls(index, annotations);
 
-        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        var catalogResult = results.Single(r => r.Method == "UseCatalog");
         Assert.Equal(1, catalogResult.Arguments.Count);
         Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
     }
@@ -256,14 +256,14 @@ public class SqlServerAnnotationCodeGeneratorTest
             {
                 x.Property<int>("Id");
                 x.Property<string>("Title");
-                x.HasFullTextIndex("Title").HasKeyIndex("PK_Post").WithChangeTracking(FullTextChangeTracking.Manual);
+                x.HasFullTextIndex("Title").UseKeyIndex("PK_Post").HasChangeTracking(FullTextChangeTracking.Manual);
             });
 
         var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
         var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var results = generator.GenerateFluentApiCalls(index, annotations);
 
-        var changeTrackingResult = results.Single(r => r.Method == "HasFullTextChangeTracking");
+        var changeTrackingResult = results.Single(r => r.Method == "HasChangeTracking");
         Assert.Equal(1, changeTrackingResult.Arguments.Count);
         Assert.Equal(FullTextChangeTracking.Manual, changeTrackingResult.Arguments[0]);
     }
@@ -281,16 +281,16 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.Property<string>("Title");
                 x.Property<string>("Body");
                 x.HasFullTextIndex("Title", "Body")
-                    .HasKeyIndex("PK_Post")
-                    .HasLanguage("Title", "English")
-                    .HasLanguage("Body", "French");
+                    .UseKeyIndex("PK_Post")
+                    .UseLanguage("Title", "English")
+                    .UseLanguage("Body", "French");
             });
 
         var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
         var annotations = index.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var results = generator.GenerateFluentApiCalls(index, annotations);
 
-        var languageResults = results.Where(r => r.Method == "HasFullTextLanguage").ToList();
+        var languageResults = results.Where(r => r.Method == "UseLanguage").ToList();
         Assert.Equal(2, languageResults.Count);
         Assert.Contains(languageResults, r => r.Arguments[0] is "Body" && r.Arguments[1] is "French");
         Assert.Contains(languageResults, r => r.Arguments[0] is "Title" && r.Arguments[1] is "English");

@@ -202,8 +202,8 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 {
                     b.Property(e => e.Vector).HasColumnType("vector(3)");
                     b.HasVectorIndex(e => e.Vector)
-                        .UseMetric("cosine")
-                        .UseType("DiskANN");
+                        .HasMetric("cosine")
+                        .HasType("DiskANN");
                 });
 #pragma warning restore EF9105
             },
@@ -231,10 +231,10 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 modelBuilder.Entity<FullTextEntity>(b =>
                 {
                     b.HasFullTextIndex(e => e.Title)
-                        .HasKeyIndex("PK_FullTextEntity")
-                        .OnCatalog("MyCatalog")
-                        .WithChangeTracking(FullTextChangeTracking.Manual)
-                        .HasLanguage("Title", "English");
+                        .UseKeyIndex("PK_FullTextEntity")
+                        .UseCatalog("MyCatalog")
+                        .HasChangeTracking(FullTextChangeTracking.Manual)
+                        .UseLanguage("Title", "English");
                 });
             },
             model =>

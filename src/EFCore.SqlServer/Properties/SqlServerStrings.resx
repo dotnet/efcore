@@ -178,7 +178,7 @@
     <value>Full-text index '{index}' on entity type '{entityType}' specifies a language for property '{property}', but that property is not part of the index.</value>
   </data>
   <data name="FullTextIndexMissingKeyIndex" xml:space="preserve">
-    <value>Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.</value>
+    <value>Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'UseKeyIndex' to configure the KEY INDEX.</value>
   </data>
   <data name="FullTextIndexOnInvalidColumn" xml:space="preserve">
     <value>Full-text index '{index}' on entity type '{entityType}' includes property '{property}' which is not mapped to a text or varbinary column type supported by full-text search.</value>
@@ -403,7 +403,7 @@
     <value>Vector index '{index}' on entity type '{entityType}' is defined over property '{property}', which is not a vector property.</value>
   </data>
   <data name="VectorIndexRequiresMetric" xml:space="preserve">
-    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.</value>
+    <value>Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'HasMetric' on the vector index builder.</value>
   </data>
   <data name="VectorIndexRequiresSingleProperty" xml:space="preserve">
     <value>Vector index '{index}' on entity type '{entityType}' must have exactly one property. Vector indexes do not support multiple properties.</value>

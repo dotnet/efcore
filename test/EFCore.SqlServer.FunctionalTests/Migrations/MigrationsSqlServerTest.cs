@@ -2760,7 +2760,7 @@ EXEC sp_rename N'[People].[Foo]', N'foo', 'INDEX';
                     e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
                 }),
             builder => { },
-            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("cosine"),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").HasMetric("cosine"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2790,7 +2790,7 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
                     e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
                 }),
             builder => { },
-            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("euclidean").UseType("DiskANN"),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").HasMetric("euclidean").HasType("DiskANN"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2819,7 +2819,7 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
                     e.Property<int>("Id");
                     e.Property<SqlVector<float>>("Vector").HasColumnType("vector(3)");
                 }),
-            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").UseMetric("cosine"),
+            builder => builder.Entity("VectorEntities").HasVectorIndex("Vector").HasMetric("cosine"),
             builder => { },
             model =>
             {
@@ -2851,8 +2851,8 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
             builder => { },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2889,11 +2889,11 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
             builder => { },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title", "Body")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .WithChangeTracking(FullTextChangeTracking.Manual)
-                .HasLanguage("Title", "English")
-                .HasLanguage("Body", "French"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Manual)
+                .UseLanguage("Title", "English")
+                .UseLanguage("Body", "French"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2930,9 +2930,9 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [English], [Body] L
             builder => { },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .WithChangeTracking(FullTextChangeTracking.Off),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Off),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2966,8 +2966,8 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
             },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
             builder => { },
             model =>
             {
@@ -3070,9 +3070,9 @@ ALTER FULLTEXT CATALOG [MyCatalog] AS DEFAULT;
             builder => { },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .WithChangeTracking(FullTextChangeTracking.OffNoPopulation),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.OffNoPopulation),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3108,12 +3108,12 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
             },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title", "Body")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3152,12 +3152,12 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title], [Body]) KEY INDEX [PK_FullT
             },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title", "Body")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3195,14 +3195,14 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
             },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .WithChangeTracking(FullTextChangeTracking.Auto),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Auto),
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .WithChangeTracking(FullTextChangeTracking.Manual),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Manual),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3241,12 +3241,12 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
             },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("CatalogA"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("CatalogA"),
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("CatalogB"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("CatalogB"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3284,14 +3284,14 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
             },
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .HasLanguage("Title", "English"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .UseLanguage("Title", "English"),
             builder => builder.Entity("FullTextEntities")
                 .HasFullTextIndex("Title")
-                .HasKeyIndex("PK_FullTextEntities")
-                .OnCatalog("TestCatalog")
-                .HasLanguage("Title", "French"),
+                .UseKeyIndex("PK_FullTextEntities")
+                .UseCatalog("TestCatalog")
+                .UseLanguage("Title", "French"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3327,8 +3327,8 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [French]) KEY INDEX
                 builder.HasFullTextCatalog("MyCatalog");
                 builder.Entity("FullTextEntities")
                     .HasFullTextIndex("Title")
-                    .HasKeyIndex("PK_FullTextEntities")
-                    .OnCatalog("MyCatalog");
+                    .UseKeyIndex("PK_FullTextEntities")
+                    .UseCatalog("MyCatalog");
             },
             model =>
             {
@@ -3366,8 +3366,8 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 
                 builder.Entity("FullTextEntities")
                     .HasFullTextIndex("Title")
-                    .HasKeyIndex("PK_FullTextEntities")
-                    .OnCatalog("MyCatalog");
+                    .UseKeyIndex("PK_FullTextEntities")
+                    .UseCatalog("MyCatalog");
             },
             builder => { },
             model =>
