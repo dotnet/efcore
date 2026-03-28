@@ -270,8 +270,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
                 b.HasVectorIndex(e => e.Vector)
                     .HasDatabaseName("IX_VectorIndexEntity_Vector")
-                    .UseMetric("cosine")
-                    .UseType("DiskANN");
+                    .HasMetric("cosine")
+                    .HasType("DiskANN");
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -294,10 +294,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             {
                 b.HasFullTextIndex(e => e.Title)
                     .HasDatabaseName("FTI_FullTextEntity")
-                    .HasKeyIndex("PK_FullTextEntity")
-                    .OnCatalog("MyCatalog")
-                    .WithChangeTracking(FullTextChangeTracking.Manual)
-                    .HasLanguage("Title", "English");
+                    .UseKeyIndex("PK_FullTextEntity")
+                    .UseCatalog("MyCatalog")
+                    .HasChangeTracking(FullTextChangeTracking.Manual)
+                    .UseLanguage("Title", "English");
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -321,9 +321,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Entity<FullTextEntity>(b =>
             {
                 b.HasFullTextIndex(e => new { e.Title, e.Body })
-                    .HasKeyIndex("PK_FullTextEntity")
-                    .HasLanguage("Title", "English")
-                    .HasLanguage("Body", "French");
+                    .UseKeyIndex("PK_FullTextEntity")
+                    .UseLanguage("Title", "English")
+                    .UseLanguage("Body", "French");
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -350,8 +350,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Entity<FullTextEntity>(b =>
             {
                 b.HasFullTextIndex(e => e.Title)
-                    .HasKeyIndex("PK_FullTextEntity")
-                    .OnCatalog("MyCatalog");
+                    .UseKeyIndex("PK_FullTextEntity")
+                    .UseCatalog("MyCatalog");
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -370,8 +370,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Entity<FullTextEntity>(b =>
             {
                 b.HasFullTextIndex(e => e.Title)
-                    .HasKeyIndex("PK_FullTextEntity")
-                    .WithChangeTracking(FullTextChangeTracking.OffNoPopulation);
+                    .UseKeyIndex("PK_FullTextEntity")
+                    .HasChangeTracking(FullTextChangeTracking.OffNoPopulation);
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -2348,8 +2348,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     {
         public abstract IMutableIndex Metadata { get; }
         public abstract TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name);
-        public abstract TestVectorIndexBuilder<TEntity> UseMetric(string metric);
-        public abstract TestVectorIndexBuilder<TEntity> UseType(string? type);
+        public abstract TestVectorIndexBuilder<TEntity> HasMetric(string metric);
+        public abstract TestVectorIndexBuilder<TEntity> HasType(string? type);
     }
 
     public class GenericTestVectorIndexBuilder<TEntity>(SqlServerVectorIndexBuilder<TEntity> vectorIndexBuilder)
@@ -2371,11 +2371,11 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
             => Wrap(VectorIndexBuilder.HasDatabaseName(name));
 
-        public override TestVectorIndexBuilder<TEntity> UseMetric(string metric)
-            => Wrap(VectorIndexBuilder.UseMetric(metric));
+        public override TestVectorIndexBuilder<TEntity> HasMetric(string metric)
+            => Wrap(VectorIndexBuilder.HasMetric(metric));
 
-        public override TestVectorIndexBuilder<TEntity> UseType(string? type)
-            => Wrap(VectorIndexBuilder.UseType(type));
+        public override TestVectorIndexBuilder<TEntity> HasType(string? type)
+            => Wrap(VectorIndexBuilder.HasType(type));
     }
 
     public class NonGenericTestVectorIndexBuilder<TEntity>(SqlServerVectorIndexBuilder vectorIndexBuilder)
@@ -2397,11 +2397,11 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestVectorIndexBuilder<TEntity> HasDatabaseName(string? name)
             => Wrap(VectorIndexBuilder.HasDatabaseName(name));
 
-        public override TestVectorIndexBuilder<TEntity> UseMetric(string metric)
-            => Wrap(VectorIndexBuilder.UseMetric(metric));
+        public override TestVectorIndexBuilder<TEntity> HasMetric(string metric)
+            => Wrap(VectorIndexBuilder.HasMetric(metric));
 
-        public override TestVectorIndexBuilder<TEntity> UseType(string? type)
-            => Wrap(VectorIndexBuilder.UseType(type));
+        public override TestVectorIndexBuilder<TEntity> HasType(string? type)
+            => Wrap(VectorIndexBuilder.HasType(type));
     }
 #pragma warning restore EF9105
 
@@ -2410,10 +2410,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     {
         public abstract IMutableIndex Metadata { get; }
         public abstract TestFullTextIndexBuilder<TEntity> HasDatabaseName(string? name);
-        public abstract TestFullTextIndexBuilder<TEntity> HasKeyIndex(string keyIndexName);
-        public abstract TestFullTextIndexBuilder<TEntity> OnCatalog(string catalogName);
-        public abstract TestFullTextIndexBuilder<TEntity> WithChangeTracking(FullTextChangeTracking changeTracking);
-        public abstract TestFullTextIndexBuilder<TEntity> HasLanguage(string propertyName, string language);
+        public abstract TestFullTextIndexBuilder<TEntity> UseKeyIndex(string keyIndex);
+        public abstract TestFullTextIndexBuilder<TEntity> UseCatalog(string catalog);
+        public abstract TestFullTextIndexBuilder<TEntity> HasChangeTracking(FullTextChangeTracking changeTracking);
+        public abstract TestFullTextIndexBuilder<TEntity> UseLanguage(string propertyName, string language);
     }
 
     public class GenericTestFullTextIndexBuilder<TEntity>(SqlServerFullTextIndexBuilder<TEntity> fullTextIndexBuilder)
@@ -2435,17 +2435,17 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestFullTextIndexBuilder<TEntity> HasDatabaseName(string? name)
             => Wrap(FullTextIndexBuilder.HasDatabaseName(name));
 
-        public override TestFullTextIndexBuilder<TEntity> HasKeyIndex(string keyIndexName)
-            => Wrap(FullTextIndexBuilder.HasKeyIndex(keyIndexName));
+        public override TestFullTextIndexBuilder<TEntity> UseKeyIndex(string keyIndex)
+            => Wrap(FullTextIndexBuilder.UseKeyIndex(keyIndex));
 
-        public override TestFullTextIndexBuilder<TEntity> OnCatalog(string catalogName)
-            => Wrap(FullTextIndexBuilder.OnCatalog(catalogName));
+        public override TestFullTextIndexBuilder<TEntity> UseCatalog(string catalog)
+            => Wrap(FullTextIndexBuilder.UseCatalog(catalog));
 
-        public override TestFullTextIndexBuilder<TEntity> WithChangeTracking(FullTextChangeTracking changeTracking)
-            => Wrap(FullTextIndexBuilder.WithChangeTracking(changeTracking));
+        public override TestFullTextIndexBuilder<TEntity> HasChangeTracking(FullTextChangeTracking changeTracking)
+            => Wrap(FullTextIndexBuilder.HasChangeTracking(changeTracking));
 
-        public override TestFullTextIndexBuilder<TEntity> HasLanguage(string propertyName, string language)
-            => Wrap(FullTextIndexBuilder.HasLanguage(propertyName, language));
+        public override TestFullTextIndexBuilder<TEntity> UseLanguage(string propertyName, string language)
+            => Wrap(FullTextIndexBuilder.UseLanguage(propertyName, language));
     }
 
     public class NonGenericTestFullTextIndexBuilder<TEntity>(SqlServerFullTextIndexBuilder fullTextIndexBuilder)
@@ -2467,17 +2467,17 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestFullTextIndexBuilder<TEntity> HasDatabaseName(string? name)
             => Wrap(FullTextIndexBuilder.HasDatabaseName(name));
 
-        public override TestFullTextIndexBuilder<TEntity> HasKeyIndex(string keyIndexName)
-            => Wrap(FullTextIndexBuilder.HasKeyIndex(keyIndexName));
+        public override TestFullTextIndexBuilder<TEntity> UseKeyIndex(string keyIndex)
+            => Wrap(FullTextIndexBuilder.UseKeyIndex(keyIndex));
 
-        public override TestFullTextIndexBuilder<TEntity> OnCatalog(string catalogName)
-            => Wrap(FullTextIndexBuilder.OnCatalog(catalogName));
+        public override TestFullTextIndexBuilder<TEntity> UseCatalog(string catalog)
+            => Wrap(FullTextIndexBuilder.UseCatalog(catalog));
 
-        public override TestFullTextIndexBuilder<TEntity> WithChangeTracking(FullTextChangeTracking changeTracking)
-            => Wrap(FullTextIndexBuilder.WithChangeTracking(changeTracking));
+        public override TestFullTextIndexBuilder<TEntity> HasChangeTracking(FullTextChangeTracking changeTracking)
+            => Wrap(FullTextIndexBuilder.HasChangeTracking(changeTracking));
 
-        public override TestFullTextIndexBuilder<TEntity> HasLanguage(string propertyName, string language)
-            => Wrap(FullTextIndexBuilder.HasLanguage(propertyName, language));
+        public override TestFullTextIndexBuilder<TEntity> UseLanguage(string propertyName, string language)
+            => Wrap(FullTextIndexBuilder.UseLanguage(propertyName, language));
     }
 
     public class TestFullTextCatalogBuilder(SqlServerFullTextCatalogBuilder catalogBuilder)

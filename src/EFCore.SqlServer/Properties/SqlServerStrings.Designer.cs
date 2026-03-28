@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, property);
 
         /// <summary>
-        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'HasKeyIndex' to configure the KEY INDEX.
+        ///     Full-text index '{index}' on entity type '{entityType}' does not have a KEY INDEX configured. SQL Server requires a KEY INDEX for every full-text index. Use 'UseKeyIndex' to configure the KEY INDEX.
         /// </summary>
         public static string FullTextIndexMissingKeyIndex(object? index, object? entityType)
             => string.Format(
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, property);
 
         /// <summary>
-        ///     Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'UseMetric' on the vector index builder.
+        ///     Vector index '{index}' on entity type '{entityType}' must specify a similarity metric. Call 'HasMetric' on the vector index builder.
         /// </summary>
         public static string VectorIndexRequiresMetric(object? index, object? entityType)
             => string.Format(

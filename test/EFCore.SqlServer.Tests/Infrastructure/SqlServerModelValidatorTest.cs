@@ -1159,7 +1159,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             {
                 b.Property(e => e.Vector1).HasMaxLength(3);
                 b.Property(e => e.Vector2).HasMaxLength(3);
-                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).UseMetric("cosine");
+                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).HasMetric("cosine");
             });
 
         VerifyError(
@@ -1175,7 +1175,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty).UseMetric("cosine"));
+        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty).HasMetric("cosine"));
 
         VerifyError(
             SqlServerStrings.VectorIndexOnNonVectorProperty(
@@ -1227,8 +1227,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<FullTextEntityWithTwoIndexes>(
             b =>
             {
-                b.HasFullTextIndex(e => e.Title).HasKeyIndex("PK_FullTextEntityWithTwoIndexes");
-                b.HasFullTextIndex(e => e.Body).HasKeyIndex("PK_FullTextEntityWithTwoIndexes");
+                b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
+                b.HasFullTextIndex(e => e.Body).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
             });
 
         VerifyError(
@@ -1262,7 +1262,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<FullTextEntityWithIntColumn>(
-            b => b.HasFullTextIndex(e => e.Count).HasKeyIndex("PK_FullTextEntityWithIntColumn"));
+            b => b.HasFullTextIndex(e => e.Count).UseKeyIndex("PK_FullTextEntityWithIntColumn"));
 
         VerifyError(
             SqlServerStrings.FullTextIndexOnInvalidColumn(
@@ -1278,7 +1278,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<FullTextEntityValid>(
-            b => b.HasFullTextIndex(e => e.Title).HasKeyIndex("PK_FullTextEntityValid"));
+            b => b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityValid"));
 
         Validate(modelBuilder);
     }
@@ -1289,7 +1289,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<FullTextEntityWithBinary>(
-            b => b.HasFullTextIndex(e => e.Document).HasKeyIndex("PK_FullTextEntityWithBinary"));
+            b => b.HasFullTextIndex(e => e.Document).UseKeyIndex("PK_FullTextEntityWithBinary"));
 
         Validate(modelBuilder);
     }
@@ -1300,7 +1300,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<FullTextEntityWithMixedColumns>(
-            b => b.HasFullTextIndex(e => new { e.Title, e.Document }).HasKeyIndex("PK_FullTextEntityWithMixedColumns"));
+            b => b.HasFullTextIndex(e => new { e.Title, e.Document }).UseKeyIndex("PK_FullTextEntityWithMixedColumns"));
 
         Validate(modelBuilder);
     }
@@ -1311,7 +1311,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<FullTextEntityWithMixedValidInvalid>(
-            b => b.HasFullTextIndex(e => new { e.Title, e.Count }).HasKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
+            b => b.HasFullTextIndex(e => new { e.Title, e.Count }).UseKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
 
         VerifyError(
             SqlServerStrings.FullTextIndexOnInvalidColumn(

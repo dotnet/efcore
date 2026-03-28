@@ -46,7 +46,7 @@ FROM FREETEXTTABLE([Articles], *, @p) AS [f]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .FreeTextTable<Article, int>(a => a.Title, "database")
+            .FreeTextTable<Article, int>("database", a => a.Title)
             .ToListAsync();
 
         Assert.Single(results);
@@ -67,7 +67,7 @@ FROM FREETEXTTABLE([Articles], [Title], @p) AS [f]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .FreeTextTable<Article, int>(a => new { a.Title, a.Content }, "performance")
+            .FreeTextTable<Article, int>("performance", a => new { a.Title, a.Content })
             .ToListAsync();
 
         Assert.Equal(3, results.Count);
@@ -137,7 +137,7 @@ INNER JOIN [Articles] AS [a0] ON [f].[KEY] = [a0].[Id]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .FreeTextTable<Article, int>(a => a.Title, "querying", languageTerm: "English")
+            .FreeTextTable<Article, int>("querying", a => a.Title, languageTerm: "English")
             .ToListAsync();
 
         Assert.Single(results);
@@ -157,7 +157,7 @@ FROM FREETEXTTABLE([Articles], [Title], @p, LANGUAGE N'English') AS [f]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .FreeTextTable<Article, int>(a => a.Content, "data", topN: 2)
+            .FreeTextTable<Article, int>("data", a => a.Content, topN: 2)
             .ToListAsync();
 
         Assert.Equal(2, results.Count);
@@ -178,7 +178,7 @@ FROM FREETEXTTABLE([Articles], [Content], @p, @p1) AS [f]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .FreeTextTable<Article, int>(a => a.Content, "data", languageTerm: "English", topN: 2)
+            .FreeTextTable<Article, int>("data", a => a.Content, languageTerm: "English", topN: 2)
             .ToListAsync();
 
         Assert.Equal(2, results.Count);
@@ -199,7 +199,7 @@ FROM FREETEXTTABLE([Articles], [Content], @p, LANGUAGE N'English', @p1) AS [f]
         using var context = CreateContext();
 
         var results = await (
-            from ft in context.Articles.FreeTextTable<Article, int>(a => a.Title, "database")
+            from ft in context.Articles.FreeTextTable<Article, int>("database", a => a.Title)
             join a in context.Articles on ft.Key equals a.Id
             orderby ft.Rank descending
             select new { Article = a, ft.Rank })
@@ -225,7 +225,7 @@ ORDER BY [f].[RANK] DESC
         using var context = CreateContext();
 
         var results = await context.Articles
-            .FreeTextTable<Article, int>(a => a.Content, "data")
+            .FreeTextTable<Article, int>("data", a => a.Content)
             .OrderByDescending(r => r.Rank)
             .ToListAsync();
 
@@ -276,7 +276,7 @@ FROM CONTAINSTABLE([Articles], *, @p) AS [c]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .ContainsTable<Article, int>(a => a.Title, "database")
+            .ContainsTable<Article, int>("database", a => a.Title)
             .ToListAsync();
 
         Assert.Single(results);
@@ -297,7 +297,7 @@ FROM CONTAINSTABLE([Articles], [Title], @p) AS [c]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .ContainsTable<Article, int>(a => new { a.Title, a.Content }, "performance")
+            .ContainsTable<Article, int>("performance", a => new { a.Title, a.Content })
             .ToListAsync();
 
         Assert.Equal(3, results.Count);
@@ -317,7 +317,7 @@ FROM CONTAINSTABLE([Articles], ([Title], [Content]), @p) AS [c]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .ContainsTable<Article, int>(a => a.Title, "querying", languageTerm: "English")
+            .ContainsTable<Article, int>("querying", a => a.Title, languageTerm: "English")
             .ToListAsync();
 
         Assert.Single(results);
@@ -337,7 +337,7 @@ FROM CONTAINSTABLE([Articles], [Title], @p, LANGUAGE N'English') AS [c]
         using var context = CreateContext();
 
         var results = await context.Articles
-            .ContainsTable<Article, int>(a => a.Content, "data OR performance", topN: 2)
+            .ContainsTable<Article, int>("data OR performance", a => a.Content, topN: 2)
             .ToListAsync();
 
         Assert.Equal(2, results.Count);

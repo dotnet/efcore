@@ -160,20 +160,20 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             nameof(SqlServerFullTextCatalogBuilder.IsAccentSensitive), [typeof(bool)])!;
 
     private static readonly MethodInfo IndexHasFullTextKeyIndexMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextKeyIndex), [typeof(IndexBuilder), typeof(string)])!;
+        = typeof(SqlServerFullTextIndexBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextIndexBuilder.UseKeyIndex), [typeof(string)])!;
 
     private static readonly MethodInfo IndexHasFullTextCatalogMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextCatalog), [typeof(IndexBuilder), typeof(string)])!;
+        = typeof(SqlServerFullTextIndexBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextIndexBuilder.UseCatalog), [typeof(string)])!;
 
     private static readonly MethodInfo IndexHasFullTextChangeTrackingMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextChangeTracking), [typeof(IndexBuilder), typeof(FullTextChangeTracking)])!;
+        = typeof(SqlServerFullTextIndexBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextIndexBuilder.HasChangeTracking), [typeof(FullTextChangeTracking)])!;
 
     private static readonly MethodInfo IndexHasFullTextLanguageMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextLanguage), [typeof(IndexBuilder), typeof(string), typeof(string)])!;
+        = typeof(SqlServerFullTextIndexBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextIndexBuilder.UseLanguage), [typeof(string), typeof(string)])!;
 
     #endregion MethodInfos
 
