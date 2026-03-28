@@ -58,6 +58,15 @@ public static class TestEnvironment
                 return;
             }
 
+            // Try to connect to the default emulator endpoint (e.g. Windows emulator or
+            // a manually-started Docker container).
+            if (await TryProbeEmulatorAsync("https://localhost:8081").ConfigureAwait(false))
+            {
+                DefaultConnection = "https://localhost:8081";
+                _initialized = true;
+                return;
+            }
+
             // Start a testcontainer with the Linux emulator.
             CosmosDbContainer container;
             try
@@ -70,8 +79,10 @@ public static class TestEnvironment
             {
                 throw new InvalidOperationException(
                     "Failed to start the Cosmos DB emulator testcontainer. "
-                    + "Ensure Docker is installed and running, or set the 'Test__Cosmos__DefaultConnection' "
-                    + "environment variable to connect to an existing emulator or Cosmos DB instance.",
+                    + "Ensure that either the Cosmos DB emulator is running on localhost:8081, "
+                    + "or Docker is installed and running, "
+                    + "or set the 'Test__Cosmos__DefaultConnection' environment variable to connect to "
+                    + "an existing emulator or Cosmos DB instance.",
                     ex);
             }
 
@@ -101,6 +112,27 @@ public static class TestEnvironment
         finally
         {
             _initSemaphore.Release();
+        }
+    }
+
+    private static async Task<bool> TryProbeEmulatorAsync(string endpoint)
+    {
+        try
+        {
+            using var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+            using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(3) };
+            // Any successful response (even 401) means the emulator is up and accepting connections.
+            using var response = await client.GetAsync(endpoint).ConfigureAwait(false);
+            return true;
+        }
+        catch
+        {
+            // Expected: HttpRequestException (connection refused), TaskCanceledException (timeout),
+            // or SocketException when the emulator is not running.
+            return false;
         }
     }
 
