@@ -44,6 +44,19 @@ public class AtTimeZoneExpression : SqlExpression
     /// </summary>
     public virtual SqlExpression TimeZone { get; }
 
+    /// <summary>
+    ///     A bool value indicating if this SQL expression is nullable.
+    /// </summary>
+    public virtual bool IsNullable
+        => Operand switch
+        {
+            ColumnExpression c => c.IsNullable,
+            SqlFunctionExpression f => f.IsNullable,
+            JsonScalarExpression j => j.IsNullable,
+            AtTimeZoneExpression a => a.IsNullable,
+            _ => true
+        };
+
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
