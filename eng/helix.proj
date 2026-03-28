@@ -105,7 +105,7 @@
   <PropertyGroup>
     <XUnitPublishTargetFramework>$(NetCurrent)</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
-    <XUnitArguments></XUnitArguments>
+    <XUnitArguments>-verbose</XUnitArguments>
     <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>
 </Project>
