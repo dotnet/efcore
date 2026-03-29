@@ -88,10 +88,7 @@ internal class RootCommand : CommandBase
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
-            var skipOptimization = remainingArguments.Count > 2
-                && remainingArguments[0] == "dbcontext"
-                && remainingArguments[1] == "optimize"
-                && !remainingArguments.Any(a => a == "--no-scaffold");
+            var skipOptimization = ShouldSkipOptimization(_args!);
             startupProject.Build(skipOptimization ? ["/p:EFScaffoldModelStage=none", "/p:EFPrecompileQueriesStage=none"] : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
@@ -359,7 +356,14 @@ internal class RootCommand : CommandBase
         => args.Any(
             argument => names.Any(
                 name => string.Equals(argument, name, StringComparison.Ordinal)
-                    || argument.StartsWith(name + "=", StringComparison.Ordinal)));
+                    || argument.StartsWith(name + "=", StringComparison.Ordinal)
+                    || argument.StartsWith(name + ":", StringComparison.Ordinal)));
+
+    internal static bool ShouldSkipOptimization(IList<string> args)
+        => args.Count > 2
+            && args[0] == "dbcontext"
+            && args[1] == "optimize"
+            && !args.Any(a => a == "--no-scaffold");
 
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!

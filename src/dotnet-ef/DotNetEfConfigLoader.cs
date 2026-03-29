@@ -78,24 +78,22 @@ internal static class DotNetEfConfigLoader
 
             foreach (var property in document.RootElement.EnumerateObject())
             {
-                var value = ValidateValue(fullPath, property);
-
                 switch (property.Name)
                 {
                     case "project":
-                        project = ResolvePath(configDirectory, value);
+                        project = ResolvePath(configDirectory, ValidateValue(fullPath, property));
                         break;
                     case "startupProject":
-                        startupProject = ResolvePath(configDirectory, value);
+                        startupProject = ResolvePath(configDirectory, ValidateValue(fullPath, property));
                         break;
                     case "context":
-                        context = value;
+                        context = ValidateValue(fullPath, property);
                         break;
                     case "framework":
-                        framework = value;
+                        framework = ValidateValue(fullPath, property);
                         break;
                     case "configuration":
-                        configuration = value;
+                        configuration = ValidateValue(fullPath, property);
                         break;
                     case "connection":
                     case "connectionString":

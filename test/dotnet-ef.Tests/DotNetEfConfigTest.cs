@@ -122,7 +122,9 @@ public class DotNetEfConfigTest
     [InlineData("""{ "framework": "" }""", "must be a non-empty JSON string")]
     [InlineData("""{ "framework": "   " }""", "must be a non-empty JSON string")]
     [InlineData("""{ "extra": "value" }""", "Remove the unsupported 'extra' property")]
+    [InlineData("""{ "extra": 1 }""", "Remove the unsupported 'extra' property")]
     [InlineData("""{ "connection": "Data Source=test.db" }""", "The 'connection' property isn't supported")]
+    [InlineData("""{ "connection": 1 }""", "The 'connection' property isn't supported")]
     [InlineData("""{ "connectionString": "Data Source=test.db" }""", "The 'connectionString' property isn't supported")]
     [InlineData("""{ "provider": "SqlServer" }""", "The 'provider' property isn't supported")]
     [InlineData("""{ "runtime": "win-x64" }""", "The 'runtime' property isn't supported")]
@@ -173,6 +175,47 @@ public class DotNetEfConfigTest
 
         Assert.Null(context);
     }
+
+    [Theory]
+    [InlineData("--context=ExplicitContext")]
+    [InlineData("--context:ExplicitContext")]
+    [InlineData("-c=ExplicitContext")]
+    [InlineData("-c:ExplicitContext")]
+    public void Resolve_context_does_not_apply_when_context_is_explicit_inline(string option)
+    {
+        var context = RootCommand.ResolveContext(["migrations", "add", option], "AppDbContext");
+
+        Assert.Null(context);
+    }
+
+    [Theory]
+    [InlineData("dbcontext", "optimize", "MyContext")]
+    [InlineData("dbcontext", "optimize", "--precompile-queries")]
+    [InlineData("dbcontext", "optimize", "--context:MyContext")]
+    [InlineData("dbcontext", "optimize", "--context=MyContext")]
+    [InlineData("dbcontext", "optimize", "--context", "MyContext")]
+    public void Should_skip_optimization_for_dbcontext_optimize_with_extra_user_args(params string[] args)
+        => Assert.True(RootCommand.ShouldSkipOptimization(args));
+
+    [Fact]
+    public void Should_not_skip_optimization_for_dbcontext_optimize_without_extra_user_args()
+        => Assert.False(RootCommand.ShouldSkipOptimization(["dbcontext", "optimize"]));
+
+    [Fact]
+    public void Config_injected_context_does_not_cause_skip_optimization()
+    {
+        var args = RootCommand.CreateRemainingArguments(["dbcontext", "optimize"], "MyContext");
+
+        Assert.False(RootCommand.ShouldSkipOptimization(["dbcontext", "optimize"]));
+        Assert.Equal(["dbcontext", "optimize", "--context", "MyContext"], args);
+    }
+
+    [Theory]
+    [InlineData("dbcontext", "optimize", "--no-scaffold")]
+    [InlineData("dbcontext", "optimize", "--no-scaffold", "--context", "MyContext")]
+    [InlineData("migrations", "add", "InitialCreate")]
+    public void Should_not_skip_optimization_when_conditions_are_not_met(params string[] args)
+        => Assert.False(RootCommand.ShouldSkipOptimization(args));
 
     [Fact]
     public void Create_remaining_arguments_adds_only_missing_config_defaults()
