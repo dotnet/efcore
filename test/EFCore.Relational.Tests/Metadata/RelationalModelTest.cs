@@ -3323,6 +3323,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Complex_property_json_column_is_not_duplicated_in_TPT_child_tables()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty, b => b.ToJson());
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseEntityWithComplexProperty));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedEntityWithoutComplexProperty));
+
+            // The JSON column for the base complex property must appear only in the base table
+            Assert.Contains(baseTable.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [ConditionalFact]
         public void Can_use_relational_model_with_functions_and_json_owned_types()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3496,6 +3517,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public ComplexData ComplexProperty { get; set; }
         }
+
+        private abstract class TptBaseEntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class TptDerivedEntityWithoutComplexProperty : TptBaseEntityWithComplexProperty;
 
         [ComplexType]
         private class ComplexData
