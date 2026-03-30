@@ -712,7 +712,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     // We store the value here and inject it directly rather than reading from server.
                                     if (concreteTypes.Length == 1)
                                     {
-                                        _singleEntityTypeDiscriminatorValues[projectionBindingExpression] = concreteTypes[0].ShortName();
+                                        _singleEntityTypeDiscriminatorValues[projectionBindingExpression] = (string)concreteTypes[0].GetDiscriminatorValue()!;
                                     }
                                 }
 
@@ -751,7 +751,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         {
                             _singleEntityTypeDiscriminatorValues[
                                     (ProjectionBindingExpression)shaper.ValueBufferExpression]
-                                = concreteTypes[0].ShortName();
+                                = (string)concreteTypes[0].GetDiscriminatorValue()!;
                         }
                     }
 
