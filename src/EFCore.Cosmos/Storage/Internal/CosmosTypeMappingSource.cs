@@ -48,17 +48,39 @@ public class CosmosTypeMappingSource : TypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override CoreTypeMapping? FindMapping(IProperty property)
+    {
         // A provider should typically not override this because using the property directly causes problems with Migrations where
         // the property does not exist. However, since the Cosmos provider doesn't have Migrations, it should be okay to use the property
         // directly.
-        => base.FindMapping(property) switch
+        if (property.GetVectorDistanceFunction() is { } distanceFunction
+                && property.GetVectorDimensions() is { } dimensions)
         {
-            CosmosTypeMapping mapping
-                when property.GetVectorDistanceFunction() is { } distanceFunction
-                && property.GetVectorDimensions() is { } dimensions
-                => new CosmosVectorTypeMapping(mapping, new CosmosVectorType(distanceFunction, dimensions)),
-            var other => other
-        };
+            CoreTypeMapping? elementMapping = null;
+
+            var collectionType = property.ClrType;
+            Type? elementType = null;
+            if (collectionType.IsGenericType
+                && collectionType.GetGenericTypeDefinition() == typeof(ReadOnlyMemory<>))
+            {
+                collectionType = collectionType.GetGenericArguments()[0].MakeArrayType();
+                elementType = collectionType.GetElementType();
+            }
+
+            var collectionReaderWriter = TryFindJsonCollectionMapping(new TypeMappingInfo(collectionType), collectionType, null, ref elementMapping, out var _, out var r) ? r : null;
+            CoreTypeMapping mapping = new CosmosVectorTypeMapping(property.ClrType, new CosmosVectorType(distanceFunction, dimensions), collectionReaderWriter);
+
+            if (elementType != null)
+            {
+                mapping = mapping.WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(elementType))!,
+                    (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(elementType))!);
+            }
+
+            return mapping;
+        }
+        
+        return base.FindMapping(property);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
