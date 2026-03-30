@@ -11,10 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class RequestOptionsHelper
 {
-    private RequestOptionsHelper(string? ifMatchEtag, bool enableContentResponseOnWrite)
+    private RequestOptionsHelper(string? ifMatchEtag)
     {
         IfMatchEtag = ifMatchEtag;
-        EnableContentResponseOnWrite = enableContentResponseOnWrite;
     }
 
     /// <summary>
@@ -31,7 +30,7 @@ public class RequestOptionsHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool EnableContentResponseOnWrite { get; }
+    public virtual bool EnableContentResponseOnWrite { get; } = false;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +38,7 @@ public class RequestOptionsHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static RequestOptionsHelper? Create(IUpdateEntry entry, bool? enableContentResponseOnWrite)
+    public static RequestOptionsHelper? Create(IUpdateEntry entry)
     {
         var etagProperty = entry.EntityType.GetETagProperty();
         if (etagProperty == null)
@@ -54,33 +53,6 @@ public class RequestOptionsHelper
             etag = converter.ConvertToProvider(etag);
         }
 
-        bool enabledContentResponse;
-        if (enableContentResponseOnWrite.HasValue)
-        {
-            enabledContentResponse = enableContentResponseOnWrite.Value;
-        }
-        else
-        {
-            switch (entry.EntityState)
-            {
-                case EntityState.Modified:
-                {
-                    var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-                    enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnUpdate) == ValueGenerated.OnUpdate;
-                    break;
-                }
-                case EntityState.Added:
-                {
-                    var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-                    enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd;
-                    break;
-                }
-                default:
-                    enabledContentResponse = false;
-                    break;
-            }
-        }
-
-        return new RequestOptionsHelper((string?)etag, enabledContentResponse);
+        return new RequestOptionsHelper((string?)etag);
     }
 }

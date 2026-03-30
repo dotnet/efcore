@@ -33,7 +33,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     private int? _gatewayModeMaxConnectionLimit;
     private int? _maxTcpConnectionsPerEndpoint;
     private int? _maxRequestsPerTcpConnection;
-    private bool? _enableContentResponseOnWrite;
     private DbContextOptionsExtensionInfo? _info;
     private Func<HttpClient>? _httpClientFactory;
     private SessionTokenManagementMode _sessionTokenManagementMode = SessionTokenManagementMode.FullyAutomatic;
@@ -498,30 +497,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool? EnableContentResponseOnWrite
-        => _enableContentResponseOnWrite;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual CosmosOptionsExtension ContentResponseOnWriteEnabled(bool enabled)
-    {
-        var clone = Clone();
-
-        clone._enableContentResponseOnWrite = enabled;
-
-        return clone;
-    }
-
-    /// <summary>
     ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <see langword="null" /> if none has been
     ///     configured.
     /// </summary>
@@ -674,7 +649,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 hashCode.Add(Extension._region);
                 hashCode.Add(Extension._connectionMode);
                 hashCode.Add(Extension._limitToEndpoint);
-                hashCode.Add(Extension._enableContentResponseOnWrite);
                 hashCode.Add(Extension._webProxy);
                 hashCode.Add(Extension._requestTimeout);
                 hashCode.Add(Extension._openTcpConnectionTimeout);
@@ -701,7 +675,6 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 && Extension._region == otherInfo.Extension._region
                 && Extension._connectionMode == otherInfo.Extension._connectionMode
                 && Extension._limitToEndpoint == otherInfo.Extension._limitToEndpoint
-                && Extension._enableContentResponseOnWrite == otherInfo.Extension._enableContentResponseOnWrite
                 && Extension._webProxy == otherInfo.Extension._webProxy
                 && Extension._requestTimeout == otherInfo.Extension._requestTimeout
                 && Extension._openTcpConnectionTimeout == otherInfo.Extension._openTcpConnectionTimeout
