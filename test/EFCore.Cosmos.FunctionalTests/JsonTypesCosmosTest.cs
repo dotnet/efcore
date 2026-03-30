@@ -48,10 +48,10 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
         => base.Can_read_write_collection_of_TimeSpan_JSON_values("""{"Prop":["-10675199.02:48:05.4775808","1.02:03:04.0050000","10675199.02:48:05.4775807"]}""");
 
     public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string _)
-        => base.Can_read_write_collection_of_nullable_TimeOnly_JSON_values("""{"Prop":[null, "00:00:00","11:05:02.003004","23:59:59.9999999"]}""");
+        => base.Can_read_write_collection_of_nullable_TimeOnly_JSON_values("""{"Prop":[null,"00:00:00","11:05:02.003004","23:59:59.9999999"]}""");
 
     public override Task Can_read_write_collection_of_nullable_TimeSpan_JSON_values(string _)
-        => base.Can_read_write_collection_of_nullable_TimeSpan_JSON_values("""{"Prop":["-10675199.02:48:05.4775808","1.02:03:04.0050000","10675199.02:48:05.4775807", null]}""");
+        => base.Can_read_write_collection_of_nullable_TimeSpan_JSON_values("""{"Prop":["-10675199.02:48:05.4775808","1.02:03:04.0050000","10675199.02:48:05.4775807",null]}""");
 
     public override Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
