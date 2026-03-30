@@ -19,5 +19,6 @@
     <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="$(SQLite3MCPCLRawBundleVersion)" />
     <PackageVersion Include="SQLitePCLRaw.provider.sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="Testcontainers.MsSql" Version="4.10.0" />
   </ItemGroup>
 </Project>

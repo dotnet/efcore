@@ -1,7 +1,7 @@
 {
     "Test": {
       "SqlServer": {
-        "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0",
+        "DefaultConnection": null,
         "ElasticPoolName": "",
         "SupportsMemoryOptimized": null
       }
