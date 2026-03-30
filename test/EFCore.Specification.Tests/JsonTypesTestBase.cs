@@ -1657,8 +1657,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateOnly> DateOnly { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_TimeOnly_JSON_values()
+    [ConditionalTheory, InlineData("""{"Prop":["00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""")]
+    public virtual Task Can_read_write_collection_of_TimeOnly_JSON_values(string expected)
         => Can_read_and_write_JSON_value<TimeOnlyCollectionType, IReadOnlyCollection<TimeOnly>>(
             nameof(TimeOnlyCollectionType.TimeOnly),
             [
@@ -1666,7 +1666,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 new TimeOnly(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             ],
-            """{"Prop":["00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
+            expected,
             mappedCollection: true,
             new List<TimeOnly>());
 
@@ -1712,8 +1712,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateTimeOffset> DateTimeOffset { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_TimeSpan_JSON_values()
+    [ConditionalTheory, InlineData("""{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807"]}""")]
+    public virtual Task Can_read_write_collection_of_TimeSpan_JSON_values(string expected)
         => Can_read_and_write_JSON_value<TimeSpanCollectionType, List<TimeSpan>>(
             nameof(TimeSpanCollectionType.TimeSpan),
             [
@@ -1721,7 +1721,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 new TimeSpan(1, 2, 3, 4, 5),
                 TimeSpan.MaxValue
             ],
-            """{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807"]}""",
+            expected,
             mappedCollection: true);
 
     protected class TimeSpanCollectionType
@@ -2238,8 +2238,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DateOnly?> DateOnly { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values()
+    [ConditionalTheory, InlineData("""{"Prop":[null,"00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(
             nameof(NullableTimeOnlyCollectionType.TimeOnly),
             [
@@ -2248,7 +2248,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 new TimeOnly(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             ],
-            """{"Prop":[null,"00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableTimeOnlyCollectionType
@@ -2295,8 +2295,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyList<DateTimeOffset?> DateTimeOffset { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_TimeSpan_JSON_values()
+    [ConditionalTheory, InlineData("""{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807",null]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_TimeSpan_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableTimeSpanCollectionType, List<TimeSpan?>>(
             nameof(NullableTimeSpanCollectionType.TimeSpan),
             [
@@ -2305,7 +2305,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 TimeSpan.MaxValue,
                 null
             ],
-            """{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807",null]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableTimeSpanCollectionType
