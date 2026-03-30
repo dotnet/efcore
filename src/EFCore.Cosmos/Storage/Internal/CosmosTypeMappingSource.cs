@@ -33,8 +33,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
         => _clrTypeMappings
             = new Dictionary<Type, CosmosTypeMapping>
             {
-                { typeof(TimeOnly), new CosmosTimeOnlyTypeMapping() },
-                { typeof(TimeSpan), new CosmosTimeSpanTypeMapping() },
+                { typeof(TimeOnly), CosmosTimeOnlyTypeMapping.Default },
+                { typeof(TimeSpan), CosmosTimeSpanTypeMapping.Default },
                 {
                     typeof(JObject), new CosmosTypeMapping(
                         typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
