@@ -290,7 +290,6 @@ public class SqliteParameterTest
             2456762.3013773146,
             SqliteType.Real);
 
-#if NET6_0_OR_GREATER
     [Fact]
     public void Bind_works_when_DateOnly()
         => Bind_works(new DateOnly(2014, 4, 14), "2014-04-14");
@@ -310,7 +309,6 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_works_when_TimeOnly_with_SqliteType_Real()
         => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
-#endif
 
     [Fact]
     public void Bind_works_when_DBNull()
@@ -598,10 +596,8 @@ public class SqliteParameterTest
             new object[] { default(Guid), SqliteType.Text },
             new object[] { default(TimeSpan), SqliteType.Text },
             new object[] { default(TimeSpan), SqliteType.Text },
-#if NET6_0_OR_GREATER
             new object[] { default(DateOnly), SqliteType.Text },
             new object[] { default(TimeOnly), SqliteType.Text },
-#endif
             new object[] { 'A', SqliteType.Text },
             new object[] { "", SqliteType.Text },
             new object[] { false, SqliteType.Integer },

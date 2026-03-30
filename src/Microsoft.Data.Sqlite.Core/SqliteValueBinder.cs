@@ -119,7 +119,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
                 BindText(value);
             }
         }
-#if NET6_0_OR_GREATER
         else if (type == typeof(DateOnly))
         {
             var dateOnly = (DateOnly)value;
@@ -150,7 +149,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
                 BindText(value);
             }
         }
-#endif
         else if (type == typeof(DBNull))
         {
             BindNull();
@@ -255,10 +253,8 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             { typeof(char), SqliteType.Text },
             { typeof(DateTime), SqliteType.Text },
             { typeof(DateTimeOffset), SqliteType.Text },
-#if NET6_0_OR_GREATER
             { typeof(DateOnly), SqliteType.Text },
             { typeof(TimeOnly), SqliteType.Text },
-#endif
             { typeof(DBNull), SqliteType.Text },
             { typeof(decimal), SqliteType.Text },
             { typeof(double), SqliteType.Real },
