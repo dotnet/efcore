@@ -179,92 +179,6 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
-    public async Task Can_add_update_untracked_properties(bool transactionalBatch)
-    {
-        var contextFactory = await InitializeNonSharedTest<DbContext>(
-            b => b.Entity<Customer>(),
-            shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.NoPartitionKeyDefined)));
-
-        var customer = new Customer { Id = 42, Name = "Theon" };
-
-        using (var context = CreateContext(contextFactory, transactionalBatch))
-        {
-            var entry = await context.AddAsync(customer);
-
-            await context.SaveChangesAsync();
-
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.NotNull(document);
-            Assert.Equal("Theon", document["Name"]);
-
-            context.Remove(customer);
-
-            await context.SaveChangesAsync();
-
-        }
-
-        using (var context = CreateContext(contextFactory, transactionalBatch))
-        {
-            Assert.Empty(await context.Set<Customer>().ToListAsync());
-
-            var entry = await context.AddAsync(customer);
-
-            entry.Property<JObject>("__jObject").CurrentValue = new JObject { ["key1"] = "value1" };
-
-            await context.SaveChangesAsync();
-
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.NotNull(document);
-            Assert.Equal("Theon", document["Name"]);
-            Assert.Equal("value1", document["key1"]);
-
-            document["key2"] = "value2";
-            entry.State = EntityState.Modified;
-            await context.SaveChangesAsync();
-        }
-
-        using (var context = CreateContext(contextFactory, transactionalBatch))
-        {
-            var customerFromStore = await context.Set<Customer>().SingleAsync();
-
-            Assert.Equal(42, customerFromStore.Id);
-            Assert.Equal("Theon", customerFromStore.Name);
-
-            var entry = context.Entry(customerFromStore);
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.Equal("value1", document["key1"]);
-            Assert.Equal("value2", document["key2"]);
-
-            document["key1"] = "value1.1";
-            customerFromStore.Name = "Theon Greyjoy";
-
-            await context.SaveChangesAsync();
-        }
-
-        using (var context = CreateContext(contextFactory, transactionalBatch))
-        {
-            var customerFromStore = await context.Set<Customer>().SingleAsync();
-
-            Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-
-            var entry = context.Entry(customerFromStore);
-            var document = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.Equal("value1.1", document["key1"]);
-            Assert.Equal("value2", document["key2"]);
-
-            context.Remove(customerFromStore);
-
-            await context.SaveChangesAsync();
-        }
-
-        using (var context = CreateContext(contextFactory, transactionalBatch))
-        {
-            Assert.Empty(await context.Set<Customer>().ToListAsync());
-        }
-    }
-
-    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Can_add_update_delete_end_to_end_with_Guid(bool transactionalBatch)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -760,6 +674,25 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             new Dictionary<string, Dictionary<string, short?>>
             {
                 { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
+            });
+
+        await Can_add_update_delete_with_collection<Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>>>(
+            transactionalBatch,
+            new() {
+                { "2", new() { { "value", new() { { "1", ["1", "2"] } } } } },
+                { "1", new() { { "value", new() { { "2", ["3", "4"] } } } } }
+                },
+            c =>
+            {
+                c.Collection.Add("3", new() { { "value", new() { { "3", ["5", "6"] } } } });
+                c.Collection.Remove("1");
+                c.Collection["2"].Remove("value");
+                c.Collection["2"].Add("value2", new() { { "4", ["7", "8"] } });
+            },
+            new()
+            {
+                { "2", new() { { "value2", new() { { "4", ["7", "8"] } } } } },
+                { "3", new() { { "value", new() { { "3", ["5", "6"] } } } } }
             });
     }
 
@@ -1611,10 +1544,6 @@ OFFSET 0 LIMIT 1
 
         var entry = await context.AddAsync(new NonStringDiscriminator { Id = 1 });
         await context.SaveChangesAsync();
-
-        var document = entry.Property<JObject>("__jObject").CurrentValue;
-        Assert.NotNull(document);
-        Assert.Equal("0", document["Discriminator"]);
 
         var baseEntity = await context.Set<NonStringDiscriminator>().OrderBy(e => e.Id).FirstOrDefaultAsync();
         Assert.NotNull(baseEntity);

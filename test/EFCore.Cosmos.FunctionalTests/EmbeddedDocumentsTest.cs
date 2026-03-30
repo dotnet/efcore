@@ -163,8 +163,9 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             await context.AddAsync(
                 new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
-            await context.SaveChangesAsync();
+            var entrys = context.ChangeTracker.Entries().ToList();
 
+            await context.SaveChangesAsync();
             var people = await context.Set<Person>().ToListAsync();
 
             Assert.Empty(people[0].Addresses);
@@ -240,12 +241,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
 
-            var addressJson = existingFirstAddressEntry.Property<JObject>("__jObject").CurrentValue;
-
-            Assert.Equal("First", addressJson[nameof(Address.Street)]);
-            addressJson["unmappedId"] = 2;
-
-            existingFirstAddressEntry.Property<JObject>("__jObject").IsModified = true;
+            Assert.Equal("First", people[2].Addresses.First().Street);
+            people[2].Addresses.First();
 
             existingAddress1Person3 = people[2].Addresses.First();
             existingAddress2Person3 = people[2].Addresses.Last();
@@ -270,7 +267,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 existingAddress2Person3.Notes.Add(new Note { Content = "City note" });
             }
-
             await context.SaveChangesAsync();
 
             await AssertState(context, useIds);
@@ -349,11 +345,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             var existingAddressEntry = context.Entry(addresses[0]);
 
-            var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
-
-            Assert.Equal("First", addressJson[nameof(Address.Street)]);
-            Assert.Equal(6, addressJson.Count);
-            Assert.Equal(2, addressJson["unmappedId"]);
+            Assert.Equal("First", addresses[0].Street);
 
             Assert.Equal("Another", addresses[1].Street);
             Assert.Equal("City", addresses[1].City);

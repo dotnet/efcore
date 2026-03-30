@@ -167,7 +167,6 @@ public class CosmosTestStore : TestStore
         {
             return;
         }
-
         await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
     }
 

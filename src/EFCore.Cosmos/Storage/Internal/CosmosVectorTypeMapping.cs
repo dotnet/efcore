@@ -25,7 +25,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     // Note that this default is not valid because dimensions cannot be zero. But since there is no reasonable
     // default dimensions size for a vector type, this is intentionally not valid rather than just being wrong.
     // The fundamental problem here is that type mappings are "required" to have some default now.
-        = new(typeof(byte[]), new CosmosVectorType(DistanceFunction.Cosine, 0));
+        = new(typeof(byte[]), new CosmosVectorType(DistanceFunction.Cosine, 0), null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,23 +33,9 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosVectorTypeMapping(
-        Type clrType,
-        CosmosVectorType vectorType,
-        ValueComparer? comparer = null,
-        ValueComparer? keyComparer = null,
-        CoreTypeMapping? elementMapping = null,
-        JsonValueReaderWriter? jsonValueReaderWriter = null)
-        : this(
-            new CoreTypeMappingParameters(
-                clrType,
-                converter: null,
-                comparer,
-                keyComparer,
-                elementMapping: elementMapping,
-                jsonValueReaderWriter: jsonValueReaderWriter),
-            vectorType)
+    public CosmosVectorTypeMapping(Type clrType, CosmosVectorType vectorType, JsonValueReaderWriter? jsonValueReaderWriter) : base(clrType, jsonValueReaderWriter: jsonValueReaderWriter)
     {
+        VectorType = vectorType;
     }
 
     /// <summary>
@@ -58,27 +44,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosVectorTypeMapping(CosmosTypeMapping mapping, CosmosVectorType vectorType)
-        : this(
-            new CoreTypeMappingParameters(
-                mapping.ClrType,
-                // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
-                converter: mapping.Converter?.GetType() == typeof(BytesToStringConverter) ? null : mapping.Converter,
-                mapping.Comparer,
-                mapping.KeyComparer,
-                elementMapping: mapping.ElementTypeMapping,
-                jsonValueReaderWriter: mapping.JsonValueReaderWriter),
-            vectorType)
-    {
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected CosmosVectorTypeMapping(CoreTypeMappingParameters parameters, CosmosVectorType vectorType)
+    private CosmosVectorTypeMapping(CoreTypeMappingParameters parameters, CosmosVectorType vectorType)
         : base(parameters)
         => VectorType = vectorType;
 
