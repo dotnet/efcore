@@ -520,7 +520,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         if (!_documentCollections.TryGetValue(entityType, out var documentSource))
         {
             _documentCollections.Add(
-                entityType, documentSource = new DocumentSource(entityType)); // @TODO: Make this singleton?
+                entityType, documentSource = new DocumentSource(entityType)); // @TODO: Make this singleton #34567
         }
 
         return documentSource;
