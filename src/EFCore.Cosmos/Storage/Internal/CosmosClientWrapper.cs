@@ -676,50 +676,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             entry.SetStoreGeneratedValue(etagProperty, eTag);
         }
-
-        // @TODO: If the entry is loaded from the database, has an etag and has no triggers, we know that nothing has changed in the meantime right?
-        // Could we optimize?
-        if (content != null && content.Length > 0)
-        {
-            // @TODO: Entries without etag or with a pre- or post- trigger could have an updated document returned.
-            // We should consider processing the returned document in that case as well
-            // Invoke tracking shaper labmda?
-
-            // How did that work before? is appears to be only updaing the underlying jobject (removed now), but not the entry? Would setting the _jObject update the entry no right?
-            // But updating the underlying jobject would make it so that subsequent updates would not use old data, unless the user updated the property on the entity...
-            // Now that behaviour would be gone.
-
-            // @TODO: Ask what to do here?
-
-            // used to be this:
-            //var jObjectProperty = entry.EntityType.FindProperty(CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName);
-            //if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
-            //    && content != null)
-            //{
-            //    using var responseStream = content;
-            //    using var reader = new StreamReader(responseStream);
-            //    using var jsonReader = new JsonTextReader(reader);
-
-            //    var createdDocument = Serializer.Deserialize<JObject>(jsonReader);
-
-            //    entry.SetStoreGeneratedValue(jObjectProperty, createdDocument);
-            //}
-
-            // jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate } is always false by default..
-            // Can the user set this to true? Probably right.
-            // Interestingly, default for enableContentResponseOnRewrite is true, but jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate } is always false.
-            // So enableContentResponseOnRewrite default or true does nothing without modifying the jObjectProperty's value generated.
-            // Does this mean anyone was really using this?
-            // Implementing this to work without setting jobject property value generated (because it will be removed) would be a theoratical breaking change?
-            // Or a bug fix?
-
-            // No tests that don't use __jObject fail without this code
-            // @TODO: Add tests for this on main.
-
-            // Suggestion: Make the new default enableContentResponseOnRewrite false?
-            // People who have set jObjectProperty ValueGenerated can migrate by manually setting EnableContentResponseOnRewrite to true.
-            // Others will notice no changes this way.
-        }
     }
 
     /// <summary>
