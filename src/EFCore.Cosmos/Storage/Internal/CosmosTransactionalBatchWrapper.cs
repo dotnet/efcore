@@ -22,6 +22,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     private readonly string _collectionId;
     private readonly PartitionKey _partitionKeyValue;
     private readonly bool _checkSize;
+    private readonly bool? _enableContentResponseOnWrite;
     private readonly List<CosmosTransactionalBatchEntry> _entries = new();
 
     /// <summary>
@@ -34,12 +35,14 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
         TransactionalBatch transactionalBatch,
         string collectionId,
         PartitionKey partitionKeyValue,
-        bool checkSize)
+        bool checkSize,
+        bool? enableContentResponseOnWrite)
     {
         _transactionalBatch = transactionalBatch;
         _collectionId = collectionId;
         _partitionKeyValue = partitionKeyValue;
         _checkSize = checkSize;
+        _enableContentResponseOnWrite = enableContentResponseOnWrite;
     }
 
     /// <summary>
@@ -74,7 +77,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     /// </summary>
     public bool CreateItem(string id, Stream stream, IUpdateEntry updateEntry)
     {
-        var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
@@ -101,7 +104,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     /// </summary>
     public bool ReplaceItem(string documentId, Stream stream, IUpdateEntry updateEntry)
     {
-        var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
@@ -128,7 +131,7 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     /// </summary>
     public bool DeleteItem(string documentId, IUpdateEntry updateEntry)
     {
-        var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
+        var itemRequestOptions = CreateItemRequestOptions(updateEntry, _enableContentResponseOnWrite, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
@@ -155,9 +158,9 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     /// </summary>
     public TransactionalBatch GetTransactionalBatch() => _transactionalBatch;
 
-    private TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, out int size)
+    private TransactionalBatchItemRequestOptions? CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, out int size)
     {
-        var helper = RequestOptionsHelper.Create(entry);
+        var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
         size = 0;
 
         if (helper == null)

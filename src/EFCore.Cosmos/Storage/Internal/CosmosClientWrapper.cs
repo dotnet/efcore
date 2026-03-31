@@ -46,6 +46,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private readonly string _databaseId;
     private readonly IExecutionStrategy _executionStrategy;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+    private readonly bool? _enableContentResponseOnWrite;
 
     static CosmosClientWrapper()
     {
@@ -73,6 +74,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         _databaseId = options!.DatabaseName;
         _executionStrategy = executionStrategy;
         _commandLogger = commandLogger;
+        _enableContentResponseOnWrite = options.EnableContentResponseOnWrite;
     }
 
     /// <summary>
@@ -330,7 +332,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var wrapper = parameters.Wrapper;
         var sessionTokenStorage = parameters.SessionTokenStorage;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
-        var itemRequestOptions = CreateItemRequestOptions(entry, sessionTokenStorage.GetSessionToken(containerId));
+        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite, sessionTokenStorage.GetSessionToken(containerId));
         var partitionKeyValue = ExtractPartitionKeyValue(entry);
         var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Create);
         var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Create);
@@ -393,7 +395,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var wrapper = parameters.Wrapper;
         var sessionTokenStorage = parameters.SessionTokenStorage;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
-        var itemRequestOptions = CreateItemRequestOptions(entry, sessionTokenStorage.GetSessionToken(containerId));
+        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite, sessionTokenStorage.GetSessionToken(containerId));
         var partitionKeyValue = ExtractPartitionKeyValue(entry);
         var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Replace);
         var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Replace);
@@ -456,7 +458,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var sessionTokenStorage = parameters.SessionTokenStorage;
         var items = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
 
-        var itemRequestOptions = CreateItemRequestOptions(entry, sessionTokenStorage.GetSessionToken(containerId));
+        var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite, sessionTokenStorage.GetSessionToken(containerId));
         var partitionKeyValue = ExtractPartitionKeyValue(entry);
         var preTriggers = GetTriggers(entry, TriggerType.Pre, TriggerOperation.Delete);
         var postTriggers = GetTriggers(entry, TriggerType.Post, TriggerOperation.Delete);
@@ -514,7 +516,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         var batch = container.CreateTransactionalBatch(partitionKeyValue);
 
-        return new CosmosTransactionalBatchWrapper(batch, containerId, partitionKeyValue, checkSize);
+        return new CosmosTransactionalBatchWrapper(batch, containerId, partitionKeyValue, checkSize, _enableContentResponseOnWrite);
     }
 
     /// <summary>
@@ -553,9 +555,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return ProcessBatchResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
     }
 
-    private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, string? sessionToken)
+    private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, string? sessionToken)
     {
-        var helper = RequestOptionsHelper.Create(entry);
+        var helper = RequestOptionsHelper.Create(entry, enableContentResponseOnWrite);
 
         var itemRequestOptions = new ItemRequestOptions
         {
