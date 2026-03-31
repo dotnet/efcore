@@ -86,6 +86,8 @@ public class CosmosTestStore : TestStore
             result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
         }
 
+        builder.ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
+
         return result;
     }
 
