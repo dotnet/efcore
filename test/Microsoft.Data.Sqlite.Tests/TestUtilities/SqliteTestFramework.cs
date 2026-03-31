@@ -20,6 +20,8 @@ using static SQLitePCL.raw;
     "Microsoft.Data.Sqlite.winsqlite3.Tests")]
 #elif SQLITE3
     "Microsoft.Data.Sqlite.sqlite3.Tests")]
+#elif SQLITE3MC
+    "Microsoft.Data.Sqlite.sqlite3mc.Tests")]
 #else
 #error Unexpected native library
 #endif

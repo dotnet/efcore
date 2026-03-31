@@ -220,7 +220,8 @@ public class SqlServerStringMethodTranslator(
         SqlExpression searchExpression,
         SqlExpression? startIndex)
     {
-        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)
+            ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
         searchExpression = sqlExpressionFactory.ApplyTypeMapping(
             searchExpression, searchExpression.Type == typeof(char) ? CharTypeMapping.Default : stringTypeMapping);
 

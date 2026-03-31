@@ -2006,9 +2006,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             return evaluatableRoot;
         }
 
-        return ConvertIfNeeded(
+        var constantExpression = ConvertIfNeeded(
             Constant(value, value is null ? evaluatableRoot.Type : value.GetType()),
             evaluatableRoot.Type);
+
+        // ConvertIfNeeded calls Visit which may have modified _state; reset it since we've already evaluated this root as a constant.
+        state = State.NoEvaluatability;
+
+        return constantExpression;
 
         bool TryHandleNonEvaluatableAsRoot(Expression root, State state, bool asParameter, [NotNullWhen(true)] out Expression? result)
         {

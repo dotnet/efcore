@@ -94,6 +94,7 @@ WHERE c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntit
         AssertSql("""ReadItem(["PK1a"], PK1a)""");
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
     {
         await base.Predicate_with_partial_values_in_hierarchical_partition_key();
@@ -120,6 +121,7 @@ WHERE (c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPart
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
     {
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key();
@@ -211,6 +213,7 @@ WHERE c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartition
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key()
     {
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key();
@@ -395,6 +398,7 @@ WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitio
         AssertSql("""ReadItem(None, 1)""");
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task ReadItem_is_not_used_without_partition_key()
     {
         await base.ReadItem_is_not_used_without_partition_key();
@@ -496,6 +500,7 @@ WHERE (c["$type"] = "DerivedSinglePartitionKeyEntity")
         AssertSql("""ReadItem(["PK1c"], PK1c)""");
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Predicate_with_partial_values_in_hierarchical_partition_key_leaf()
     {
         await base.Predicate_with_partial_values_in_hierarchical_partition_key_leaf();
@@ -509,6 +514,7 @@ WHERE (c["$type"] = "DerivedHierarchicalPartitionKeyEntity")
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key_leaf()
     {
         await base.Predicate_with_partial_values_in_only_hierarchical_partition_key_leaf();
@@ -600,6 +606,7 @@ WHERE (c["$type"] = "DerivedOnlySinglePartitionKeyEntity")
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task WithPartitionKey_with_partial_value_in_hierarchical_partition_key_leaf()
     {
         await base.WithPartitionKey_with_partial_value_in_hierarchical_partition_key_leaf();
@@ -784,6 +791,7 @@ WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1
         AssertSql("""ReadItem(None, 11)""");
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task ReadItem_is_not_used_without_partition_key_leaf()
     {
         await base.ReadItem_is_not_used_without_partition_key_leaf();

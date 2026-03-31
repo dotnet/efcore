@@ -97,7 +97,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             caseWhenClauses.Add(
                                 new CaseWhenClause(
                                     _sqlExpressionFactory.IsNotNull(keyColumns[0]),
-                                    _sqlExpressionFactory.Constant(derivedType.ShortName())));
+                                    _sqlExpressionFactory.Constant((string)derivedType.GetDiscriminatorValue()!)));
                         }
 
                         var joinPredicate = joinColumns
@@ -319,9 +319,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         projections.Add(
                             new ProjectionExpression(
                                 _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                                    _sqlExpressionFactory.Constant(concreteEntityType.ShortName())),
+                                    _sqlExpressionFactory.Constant((string)concreteEntityType.GetDiscriminatorValue()!)),
                                 discriminatorColumnName));
-                        discriminatorValues.Add(concreteEntityType.ShortName());
+                        discriminatorValues.Add((string)concreteEntityType.GetDiscriminatorValue()!);
 
                         subSelectExpressions.Add(
                             SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections, _sqlAliasManager));

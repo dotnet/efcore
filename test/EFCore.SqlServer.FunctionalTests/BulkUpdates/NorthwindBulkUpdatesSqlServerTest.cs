@@ -688,6 +688,19 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
+    public override async Task Update_Where_set_nullable_int_constant_via_discard_lambda(bool async)
+    {
+        await base.Update_Where_set_nullable_int_constant_via_discard_lambda(async);
+
+        AssertExecuteUpdateSql(
+            """
+UPDATE [p]
+SET [p].[SupplierID] = 1
+FROM [Products] AS [p]
+WHERE [p].[ProductID] < 5
+""");
+    }
+
     public override async Task Update_Where_parameter_set_constant(bool async)
     {
         await base.Update_Where_parameter_set_constant(async);

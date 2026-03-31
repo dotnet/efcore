@@ -41,6 +41,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     public static readonly string DefaultPartitionKey = "__partitionKey";
 
+    private const string SubStatusCodeHeaderName = "x-ms-substatus";
+
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
     private readonly string _databaseId;
     private readonly IExecutionStrategy _executionStrategy;
@@ -383,7 +385,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerId,
             partitionKeyValue);
 
-        ProcessResponse(containerId, response, entry, sessionTokenStorage);
+        ProcessWriteResponse(containerId, response, entry, sessionTokenStorage);
 
         return response.StatusCode == HttpStatusCode.Created;
     }
@@ -449,7 +451,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerId,
             partitionKeyValue);
 
-        ProcessResponse(containerId, response, entry, sessionTokenStorage);
+        ProcessWriteResponse(containerId, response, entry, sessionTokenStorage);
 
         return response.StatusCode == HttpStatusCode.OK;
     }
@@ -511,7 +513,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerId,
             partitionKeyValue);
 
-        ProcessResponse(containerId, response, entry, sessionTokenStorage);
+        ProcessWriteResponse(containerId, response, entry, sessionTokenStorage);
 
         return response.StatusCode == HttpStatusCode.NoContent;
     }
@@ -573,22 +575,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             batch.PartitionKeyValue,
             "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
 
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorCode = response.StatusCode;
-            var errorEntries = response
-                .Select((opResult, index) => (opResult, index))
-                .Where(r => r.opResult.StatusCode == errorCode)
-                .Select(r => batch.Entries[r.index].Entry)
-                .ToList();
-
-            var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
-            return new CosmosTransactionalBatchResult(errorEntries, exception);
-        }
-
-        ProcessResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
-
-        return CosmosTransactionalBatchResult.Success;
+        return ProcessBatchResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
     }
 
     private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, bool? enableContentResponseOnWrite, string? sessionToken)
@@ -642,35 +629,65 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return builder.Build();
     }
 
-    private static void ProcessResponse(string containerId, ResponseMessage response, IUpdateEntry entry, ISessionTokenStorage sessionTokenStorage)
+    private static void ProcessWriteResponse(string containerId, ResponseMessage response, IUpdateEntry entry, ISessionTokenStorage sessionTokenStorage)
     {
-        response.EnsureSuccessStatusCode();
-
-        if (!string.IsNullOrWhiteSpace(response.Headers.Session))
+        try
         {
-            sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (CosmosException)
+        {
+            TryTrackSessionTokenFromFailure(containerId, response.StatusCode, response.Headers, sessionTokenStorage);
+            throw;
         }
 
-        ProcessResponse(entry, response.Headers.ETag, response.Content);
+        sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
+
+        ProcessWriteResponse(entry, response.Headers.ETag, response.Content);
     }
 
-    private static void ProcessResponse(string containerId, TransactionalBatchResponse batchResponse, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
+    private static void TryTrackSessionTokenFromFailure(string containerId, HttpStatusCode statusCode, Headers headers, ISessionTokenStorage sessionTokenStorage)
     {
-        if (!string.IsNullOrWhiteSpace(batchResponse.Headers.Session))
+        // Some failures indicate document changes on the server that should be reflected in the session token to avoid subsequent stale reads.
+        const string readSessionNotAvailableSubStatusCode = "1002";
+        if (statusCode == HttpStatusCode.Conflict || statusCode == HttpStatusCode.PreconditionFailed ||
+            (statusCode == HttpStatusCode.NotFound && (!headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode) || subStatusCode != readSessionNotAvailableSubStatusCode)))
         {
-            sessionTokenStorage.TrackSessionToken(containerId, batchResponse.Headers.Session);
+            sessionTokenStorage.TrackSessionToken(containerId, headers.Session);
+        }
+    }
+
+    private static CosmosTransactionalBatchResult ProcessBatchResponse(string containerId, TransactionalBatchResponse response, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
+    {
+        if (!response.IsSuccessStatusCode)
+        {
+            TryTrackSessionTokenFromFailure(containerId, response.StatusCode, response.Headers, sessionTokenStorage);
+
+            var errorCode = response.StatusCode;
+            var errorEntries = response
+                .Select((opResult, index) => (opResult, index))
+                .Where(r => r.opResult.StatusCode == errorCode)
+                .Select(r => entries[r.index].Entry)
+                .ToList();
+
+            var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
+            return new CosmosTransactionalBatchResult(errorEntries, exception);
         }
 
-        for (var i = 0; i < batchResponse.Count; i++)
+        sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
+
+        for (var i = 0; i < response.Count; i++)
         {
             var entry = entries[i];
-            var response = batchResponse[i];
+            var item = response[i];
 
-            ProcessResponse(entry.Entry, response.ETag, response.ResourceStream);
+            ProcessWriteResponse(entry.Entry, (string)item.ETag, (Stream)item.ResourceStream);
         }
+
+        return CosmosTransactionalBatchResult.Success;
     }
 
-    private static void ProcessResponse(IUpdateEntry entry, string eTag, Stream? content)
+    private static void ProcessWriteResponse(IUpdateEntry entry, string eTag, Stream? content)
     {
         var etagProperty = entry.EntityType.GetETagProperty();
         if (etagProperty != null && entry.EntityState != EntityState.Deleted)
@@ -739,7 +756,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerId,
             partitionKeyValue);
 
-        return JObjectFromReadItemResponseMessage(response);
+        return JObjectFromReadItemResponseMessage(containerId, response, sessionTokenStorage);
     }
 
     private static async Task<ResponseMessage> CreateSingleItemQueryAsync(
@@ -758,27 +775,26 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             itemRequestOptions,
             cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        if (!string.IsNullOrWhiteSpace(response.Headers.Session))
-        {
-            sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
-        }
-
         return response;
     }
 
-    private static JObject? JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
+    private static JObject? JObjectFromReadItemResponseMessage(string containerId, ResponseMessage responseMessage, ISessionTokenStorage sessionTokenStorage)
     {
         if (responseMessage.StatusCode == HttpStatusCode.NotFound)
         {
-            const string subStatusCodeHeaderName = "x-ms-substatus";
             // We get no sub-status code if document not found, other not found errors (like session or container) have a sub status code
-            if (!responseMessage.Headers.TryGetValue(subStatusCodeHeaderName, out var subStatusCode) || string.IsNullOrWhiteSpace(subStatusCode) || subStatusCode == "0")
+            if (!responseMessage.Headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode) || string.IsNullOrWhiteSpace(subStatusCode) || subStatusCode == "0")
             {
+                // Track session token to ensure subsequent requests will not read stale data where the document might still exist.
+                sessionTokenStorage.TrackSessionToken(containerId, responseMessage.Headers.Session);
+
                 return null;
             }
         }
 
         responseMessage.EnsureSuccessStatusCode();
+
+        sessionTokenStorage.TrackSessionToken(containerId, responseMessage.Headers.Session);
 
         var responseStream = responseMessage.Content;
         using var reader = new StreamReader(responseStream);
@@ -1066,10 +1082,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         public override async Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)
         {
             var response = await _inner.ReadNextAsync(cancellationToken).ConfigureAwait(false);
-            if (!string.IsNullOrWhiteSpace(response.Headers.Session))
-            {
-                _sessionTokenStorage.TrackSessionToken(_containerName, response.Headers.Session);
-            }
+            _sessionTokenStorage.TrackSessionToken(_containerName, response.Headers.Session);
             return response;
         }
     }

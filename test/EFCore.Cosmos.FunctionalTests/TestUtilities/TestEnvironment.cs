@@ -32,7 +32,7 @@ public static class TestEnvironment
 
     public static string ConnectionString { get; } = $"AccountEndpoint={DefaultConnection};AccountKey={AuthToken}";
 
-    public static bool UseTokenCredential { get; } = Config["UseTokenCredential"] == "true";
+    public static bool UseTokenCredential { get; } = string.Equals(Config["UseTokenCredential"], "true", StringComparison.OrdinalIgnoreCase);
 
     public static TokenCredential TokenCredential { get; } = new AzureCliCredential(
         new AzureCliCredentialOptions { ProcessTimeout = TimeSpan.FromMinutes(5) });
@@ -46,4 +46,11 @@ public static class TestEnvironment
         : Enum.Parse<AzureLocation>(Config["AzureLocation"]);
 
     public static bool IsEmulator { get; } = !UseTokenCredential && (AuthToken == _emulatorAuthToken);
+
+    public static bool SkipConnectionCheck { get; } = string.Equals(Config["SkipConnectionCheck"], "true", StringComparison.OrdinalIgnoreCase);
+
+    public static string EmulatorType { get; } = Config["EmulatorType"] ?? (!OperatingSystem.IsWindows() ? "linux" : "");
+
+    public static bool IsLinuxEmulator { get; } = IsEmulator
+        && EmulatorType.Equals("linux", StringComparison.OrdinalIgnoreCase);
 }

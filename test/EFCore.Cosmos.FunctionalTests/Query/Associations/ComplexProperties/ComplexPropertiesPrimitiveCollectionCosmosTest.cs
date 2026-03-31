@@ -72,6 +72,7 @@ WHERE (ARRAY_LENGTH(c["RequiredAssociate"]["RequiredNestedAssociate"]["Ints"]) =
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Select_Sum()
     {
         await base.Select_Sum();

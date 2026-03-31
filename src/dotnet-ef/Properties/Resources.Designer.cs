@@ -460,6 +460,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("PrecompileQueriesWarning");
 
         /// <summary>
+        ///     Startup project '{startupProject}' targets a platform-specific framework: '{targetFrameworkValue}'. The Entity Framework Core .NET Command-line Tools might not function correctly. Implement IDesignTimeDbContextFactory&lt;&gt; to ensure design-time tools work correctly with this project. See https://aka.ms/efcore-docs-migrations-projects for more information.
+        /// </summary>
+        public static string PlatformSpecificProject(object? startupProject, object? targetFrameworkValue)
+            => string.Format(
+                GetString("PlatformSpecificProject", nameof(startupProject), nameof(targetFrameworkValue)),
+                startupProject, targetFrameworkValue);
+
+        /// <summary>
         ///     Prefix output with level.
         /// </summary>
         public static string PrefixDescription

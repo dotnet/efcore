@@ -140,21 +140,21 @@ stages:
                   artifactType: Container
                   parallel: true
 
-          - job: Helix
+          - job: Helix_Windows
+            displayName: 'Helix Windows'
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
               demands: ImageOverride -equals 1es-windows-2022-open
             variables:
-              # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
               - Codeql.SkipTaskAutoInjection: true
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Windows.10.Amd64.Open;OSX.15.Amd64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64
+                value: Windows.10.Amd64.Open
               - name: _HelixAccessToken
-                value: '' # Needed for public queues
+                value: ''
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
@@ -165,10 +165,158 @@ stages:
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
-                displayName: Send job to helix
+                displayName: Send tests to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
-                  SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_macOS_x64
+            displayName: 'Helix macOS x64'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: OSX.15.Amd64.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_macOS_ARM64
+            displayName: 'Helix macOS ARM64'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: OSX.15.ARM64.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_Ubuntu_SqlServer
+            displayName: 'Helix Ubuntu SQL Server'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                   MSSQL_SA_PASSWORD: "PLACEHOLDERPass$$w0rd"
-                  COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
-                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+
+          - job: Helix_Ubuntu_Cosmos
+            displayName: 'Helix Ubuntu Cosmos'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Ubuntu.2204.Amd64.XL.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_Ubuntu
+            displayName: 'Helix Ubuntu'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Ubuntu.2204.Amd64.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)

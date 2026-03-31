@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Check PR target branch and author permissions
         uses: actions/github-script@v8
@@ -50,6 +50,12 @@ jobs:
             // Skip if triggered by a bot or PR is authored by a bot
             if (isBot(triggeredBy) || isBot(prAuthor)) {
               console.log('Bot detected - skipping');
+              return;
+            }
+            
+            // If the PR is from a branch (not a fork), it must be from an internal contributor
+            if (pr.head.repo && pr.head.repo.id === pr.base.repo.id) {
+              console.log('PR is from a branch in the same repo - skipping validation');
               return;
             }
             

@@ -1292,6 +1292,17 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     elseif ($targetFramework -eq '.NETCoreApp')
     {
         $targetPlatformIdentifier = GetCpsProperty $startupProject 'TargetPlatformIdentifier'
+        $targetFrameworkValue = GetCpsProperty $startupProject 'TargetFramework'
+        $dashIndex = if ($targetFrameworkValue) { $targetFrameworkValue.IndexOf('-') } else { -1 }
+        if ($targetPlatformIdentifier -or $dashIndex -gt 0)
+        {
+            Write-Warning ("Startup project '$($startupProject.ProjectName)' targets a platform-specific" +
+                " framework: '$targetFrameworkValue'. The Entity Framework Core Package Manager Console" +
+                ' Tools might not function correctly. Implement IDesignTimeDbContextFactory<> to ensure' +
+                ' design-time tools work correctly with this project.' +
+                ' See https://aka.ms/efcore-docs-migrations-projects for more information.')
+        }
+
         if ($targetPlatformIdentifier -and $targetPlatformIdentifier -ne 'Windows')
         {
             throw "Startup project '$($startupProject.ProjectName)' targets platform '$targetPlatformIdentifier'. The Entity Framework " +

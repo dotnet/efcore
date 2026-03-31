@@ -101,6 +101,86 @@ ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
 """);
     }
 
+    [ConditionalFact]
+    public virtual void AddColumnOperation_identity_not_propagated_to_history_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            new AddColumnOperation
+            {
+                Table = "CustomersHistory",
+                Name = "Number",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                DefaultValue = 0,
+                IsNullable = false,
+                [SqlServerAnnotationNames.ValueGenerationStrategy] =
+                    SqlServerValueGenerationStrategy.IdentityColumn
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void AddColumnOperation_identity_legacy_not_propagated_to_history_table()
+    {
+        var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
+
+        migrationBuilder.AddColumn<int>(
+                name: "Number",
+                table: "CustomersHistory",
+                type: "int",
+                nullable: false,
+                defaultValue: 0)
+            .Annotation("SqlServer:Identity", "1, 1")
+            .Annotation("SqlServer:IsTemporal", true)
+            .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
+            .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+            .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+            .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
+
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            migrationBuilder.Operations.ToArray());
+
+        AssertSql(
+            """
+ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
+""");
+    }
+
     public override void AddColumnOperation_without_column_type()
     {
         base.AddColumnOperation_without_column_type();

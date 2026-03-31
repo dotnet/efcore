@@ -39,6 +39,20 @@ jobs:
           --health-retries=30
           --health-timeout=5s
 
+      cosmosdb:
+        image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+        ports:
+          - 8081:8081
+        env:
+          PROTOCOL: https
+          ENABLE_EXPLORER: "false"
+        options: >-
+          --health-cmd="curl -k https://localhost:8081/ || exit 1"
+          --health-start-period=120s
+          --health-interval=5s
+          --health-retries=60
+          --health-timeout=5s
+
     steps:
       - uses: actions/checkout@v6
 
@@ -49,5 +63,6 @@ jobs:
       - name: Export environment variables for the agent's session
         run: |
           echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+          echo "Test__Cosmos__EmulatorType=linux" >> "$GITHUB_ENV"
           echo "DOTNET_ROOT=$PWD/.dotnet/" >> "$GITHUB_ENV"
           echo "$PWD/.dotnet/" >> $GITHUB_PATH

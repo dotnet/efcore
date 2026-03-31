@@ -10,6 +10,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
     protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(onConfiguring: (cfg) => cfg.UseCosmos(c => c.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)));

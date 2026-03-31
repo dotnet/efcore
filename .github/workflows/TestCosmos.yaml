@@ -34,6 +34,8 @@ jobs:
       - name: Test on Cosmos
         run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
+        env:
+           Test__Cosmos__SkipConnectionCheck: true
 
       - name: Publish Test Results
         uses: actions/upload-artifact@v7

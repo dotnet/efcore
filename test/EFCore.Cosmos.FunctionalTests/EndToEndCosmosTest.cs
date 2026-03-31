@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     [ConditionalTheory, InlineData(false), InlineData(true)]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public async Task Can_add_update_delete_end_to_end(bool transactionalBatch)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
