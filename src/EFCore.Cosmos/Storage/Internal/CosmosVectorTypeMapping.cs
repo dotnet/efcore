@@ -25,7 +25,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     // Note that this default is not valid because dimensions cannot be zero. But since there is no reasonable
     // default dimensions size for a vector type, this is intentionally not valid rather than just being wrong.
     // The fundamental problem here is that type mappings are "required" to have some default now.
-        = new(typeof(byte[]), new CosmosVectorType(DistanceFunction.Cosine, 0), null);
+        = Create(typeof(byte[]), new CosmosVectorType(DistanceFunction.Cosine, 0));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,9 +33,44 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosVectorTypeMapping(Type clrType, CosmosVectorType vectorType, JsonValueReaderWriter? jsonValueReaderWriter) : base(clrType, jsonValueReaderWriter: jsonValueReaderWriter)
+    public static CosmosVectorTypeMapping Create(Type clrType, CosmosVectorType vectorType)
     {
-        VectorType = vectorType;
+        var collectionType = clrType;
+        var isRom = clrType.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(ReadOnlyMemory<>);
+        if (isRom)
+        {
+            collectionType = clrType.GetGenericArguments()[0].MakeArrayType();
+        }
+
+        var elementType = collectionType.GetElementType()!;
+
+        JsonValueReaderWriter? jsonValueReaderWriter = collectionType switch
+        {
+            Type t when t == typeof(byte[]) => new JsonCollectionOfStructsReaderWriter<byte[], byte>(JsonByteReaderWriter.Instance),
+            Type t when t == typeof(sbyte[]) => new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(JsonSByteReaderWriter.Instance),
+            Type t when t == typeof(float[]) => new JsonCollectionOfStructsReaderWriter<float[], float>(JsonFloatReaderWriter.Instance),
+            _ => null
+        };
+
+        var parameters = new CoreTypeMappingParameters(
+            clrType,
+            null,
+            null,
+            null,
+            null,
+            jsonValueReaderWriter: jsonValueReaderWriter);
+
+        if (isRom)
+        {
+            parameters = parameters.WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(elementType))!,
+                    (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(elementType))!,
+                    null,
+                    null,
+                    null);
+        }
+
+        return new CosmosVectorTypeMapping(parameters, vectorType);
     }
 
     /// <summary>
@@ -44,7 +79,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    private CosmosVectorTypeMapping(CoreTypeMappingParameters parameters, CosmosVectorType vectorType)
+    protected CosmosVectorTypeMapping(CoreTypeMappingParameters parameters, CosmosVectorType vectorType)
         : base(parameters)
         => VectorType = vectorType;
 
