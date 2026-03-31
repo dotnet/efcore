@@ -163,8 +163,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             await context.AddAsync(
                 new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
-            var entrys = context.ChangeTracker.Entries().ToList();
-
             await context.SaveChangesAsync();
             var people = await context.Set<Person>().ToListAsync();
 
