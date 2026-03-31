@@ -28,7 +28,7 @@ public abstract class JsonValueReaderWriter
     /// <remarks>
     ///     The default is <see langword="false" />.
     /// </remarks>
-    public virtual bool HandlesNulls { get; } = false;
+    public virtual bool HandlesNullWrites { get; } = false;
 
     /// <summary>
     ///     Reads the value from a UTF8 JSON stream or buffer.

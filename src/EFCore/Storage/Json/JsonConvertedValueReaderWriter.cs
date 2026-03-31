@@ -33,7 +33,7 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
     }
 
     /// <inheritdoc />
-    public override bool HandlesNulls => _converter.ConvertsNulls;
+    public override bool HandlesNullWrites => _converter.ConvertsNulls;
 
     /// <inheritdoc />
     public override TModel FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -43,7 +43,7 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
     public override void ToJsonTyped(Utf8JsonWriter writer, TModel value)
     {
         var convertedValue = _converter.ConvertToProvider(value);
-        if (convertedValue == null && !_providerReaderWriter.HandlesNulls)
+        if (convertedValue == null && !_providerReaderWriter.HandlesNullWrites)
         {
             writer.WriteNullValue();
             return;

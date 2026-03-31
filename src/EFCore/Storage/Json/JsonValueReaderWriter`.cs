@@ -17,7 +17,7 @@ public abstract class JsonValueReaderWriter<TValue> : JsonValueReaderWriter
     /// <inheritdoc />
     public sealed override void ToJson(Utf8JsonWriter writer, object? value)
     {
-        if (value == null && !HandlesNulls)
+        if (value == null && !HandlesNullWrites)
         {
             throw new ArgumentNullException(nameof(value));
         }

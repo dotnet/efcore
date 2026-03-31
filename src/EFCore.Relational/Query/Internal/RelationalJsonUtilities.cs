@@ -92,7 +92,7 @@ public static class RelationalJsonUtilities
                 var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
 
                 var propertyValue = property.GetGetter().GetClrValue(objectValue);
-                if (propertyValue is null && jsonValueReaderWriter?.HandlesNulls != true)
+                if (propertyValue is null && jsonValueReaderWriter?.HandlesNullWrites != true)
                 {
                     if (!property.IsNullable)
                     {
