@@ -54,7 +54,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
     [ConditionalTheory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        var options = new DbContextOptionsBuilder(Fixture.CreateOptions())
+        var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
             .UseCosmos(o =>
             {
                 if (contentResponseOnWriteEnabled != null)
@@ -63,8 +63,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
-            })
-            .Options;
+            }))).Options;
 
         var customer = new Customer
         {
@@ -116,7 +115,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
     [ConditionalTheory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_derived_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        var options = new DbContextOptionsBuilder(Fixture.CreateOptions())
+        var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
             .UseCosmos(o =>
             {
                 if (contentResponseOnWriteEnabled != null)
@@ -125,8 +124,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
-            })
-            .Options;
+            }))).Options;
 
         var customer = new PremiumCustomer
         {
