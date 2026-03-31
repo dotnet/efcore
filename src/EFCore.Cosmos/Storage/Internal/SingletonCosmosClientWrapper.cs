@@ -93,6 +93,8 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
             configuration.AllowBulkExecution = options.EnableBulkExecution.Value;
         }
 
+        configuration.EnableContentResponseOnWrite = options.EnableContentResponseOnWrite == true;
+
         _client = options switch
         {
             { ConnectionString: not null and not "" } => new CosmosClient(options.ConnectionString, configuration),

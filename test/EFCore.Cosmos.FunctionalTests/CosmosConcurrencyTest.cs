@@ -59,7 +59,9 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             {
                 if (contentResponseOnWriteEnabled != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
             })
             .Options;
@@ -119,7 +121,9 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             {
                 if (contentResponseOnWriteEnabled != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
             })
             .Options;
