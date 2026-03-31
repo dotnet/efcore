@@ -971,19 +971,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             writer.WritePropertyName(jsonPropertyName);
 
             var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
-            if (propertyValue is not null)
+            if (propertyValue is not null || jsonValueReaderWriter?.HandlesNulls == true)
             {
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
                 jsonValueReaderWriter.ToJson(writer, propertyValue);
             }
             else
             {
-                if (jsonValueReaderWriter is IJsonConvertedValueReaderWriter jsonConvertedValueReaderWriter)
-                {
-                    jsonConvertedValueReaderWriter.ToJson(writer, null);
-                    continue;
-                }
-
                 writer.WriteNullValue();
             }
         }

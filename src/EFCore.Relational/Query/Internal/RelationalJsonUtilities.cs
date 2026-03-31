@@ -93,15 +93,8 @@ public static class RelationalJsonUtilities
                 var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
 
                 var propertyValue = property.GetGetter().GetClrValue(objectValue);
-                if (propertyValue is null)
+                if (propertyValue is null && jsonValueReaderWriter?.HandlesNulls != true)
                 {
-                    if (jsonValueReaderWriter is IJsonConvertedValueReaderWriter jsonConvertedValueReaderWriter)
-                    {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                        jsonConvertedValueReaderWriter.ToJson(writer, propertyValue);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                        return;
-                    }
                     if (!property.IsNullable)
                     {
                         throw new InvalidOperationException(RelationalStrings.NullValueInRequiredJsonProperty(property.Name));
