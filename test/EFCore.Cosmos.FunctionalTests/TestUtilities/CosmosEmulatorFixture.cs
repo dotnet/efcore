@@ -10,16 +10,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 /// </summary>
 public class CosmosEmulatorFixture : IAsyncLifetime
 {
+    public Exception? InitializationException { get; private set; }
+
     public async Task InitializeAsync()
     {
         try
         {
             await TestEnvironment.InitializeAsync().ConfigureAwait(false);
         }
-        catch
+        catch (Exception ex)
         {
-            // Swallow so the assembly runner doesn't abort; tests will be skipped
-            // by CosmosDbConfiguredCondition when the connection isn't reachable.
+            // Store the exception but don't rethrow — the assembly runner would abort all
+            // tests instead of letting CosmosDbConfiguredCondition skip them gracefully.
+            InitializationException = ex;
         }
     }
 
