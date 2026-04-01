@@ -6,6 +6,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -16,8 +17,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
             SelectExpression selectExpression,
-            ParameterExpression readerData,
-            bool trackQueryResults) : ExpressionVisitor
+            ParameterExpression readerData) : ExpressionVisitor
     {
         private static readonly MethodInfo QueryContextStartTrackingMethod =
             typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
@@ -112,38 +112,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         shaperExpression.ValueBufferExpression
                     ));
 
-                    // Readd the start tracking calls
-                    if (trackQueryResults && shaperExpression.StructuralType is IEntityType entityType2)
-                    {
-                        // key values are same from top down...
-
-                        // var entity = materializer(...);
-                        // var snapshot = new Snapshot(entity.id); // json document id.
-
-                        // for each pending call...
-                        // queryContext.StartTracking(entityType, entity.prop?, snapshot); // @TODO: What should entity be?
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                        var entityVariable = Parameter(entityType2.ClrType, "entity");
-                        var snapshotVariable = Parameter(typeof(ISnapshot), "snapshot");
-
-                        var shadowSnapshotValue = Constant(Snapshot.Empty); // var snapshot = new Snapshot(entity.id);
-
-                        // So yeah we need to loop over all navigations again here?
-
-                        jsonMaterializerExpression = Block(
-                            [entityVariable, snapshotVariable],
-                            Assign(entityVariable, jsonMaterializerExpression),
-                            Assign(snapshotVariable, shadowSnapshotValue),
-                            Call(QueryCompilationContext.QueryContextParameter,
-                                QueryContextStartTrackingMethod,
-                                Constant(entityType2),
-                                entityVariable,
-                                snapshotVariable),
-                            entityVariable);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                    }
-
                     var shaperLambda = Lambda(
                         jsonMaterializerExpression,
                         QueryCompilationContext.QueryContextParameter,
@@ -206,7 +174,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var innerShaper = CreateJsonShapers(
                     relatedStructuralType,
                     nullable || isStructuralPropertyNullable,
-                    keyValuesParameter, // ?
                     nestedStructuralProperty,
                     valueBufferExpression);
 
@@ -306,7 +273,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(structuralType, trackQueryResults, readerData, innerShapersMap, innerFixupMap, trackingInnerFixupMap)
+            var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
+                    structuralType,
+                    false, // We always perform fixups for cosmos, because we don't always know the shadowSnapshot values when deserializing embedded documents (depending on which property came first in the json)
+                    readerData,
+                    innerShapersMap,
+                    innerFixupMap,
+                    trackingInnerFixupMap)
                 .Rewrite(structuralTypeShaperMaterializer);
 
             var shaperLambda = Lambda(
@@ -419,28 +392,45 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     when parameterExpression.Type == typeof(InternalEntityEntry):
                 {
-                    var hasNullKeyParameter = (ParameterExpression)((MethodCallExpression)binaryExpression.Right).Arguments[3];
-                    return Block([
-                        Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
+                    if (binaryExpression.Right is MethodCallExpression methodCall
+                     && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)))
+                    {
+                        var hasNullKeyParameter = (ParameterExpression)((MethodCallExpression)binaryExpression.Right).Arguments[3];
+                        return Block([
+                            Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
                         Assign(hasNullKeyParameter, Constant(false))
-                    ]);
+                        ]);
+                    }
+
+                    // Case for (this also remves StartTracking call for embedded documents.
+                    // $entry3 = .If ($entityType3 == .Default(Microsoft.EntityFrameworkCore.Metadata.IEntityType)) {
+                    //    .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)
+                    //} .Else {
+                    //    .Call $queryContext.StartTracking(
+                    //        $entityType3,
+                    //        $instance3,
+                    //        $shadowSnapshot3)
+                    //}
+                    //;
+                return Empty();
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
-                // For embedded documents, we want to remove the shadowSnapShot assignment, and the startTracking call,
-                // and then move them to after we have deserialized the parent document fully, so we know the key values to be used in the snapshot.
+                // For embedded documents, we don't always know the shadowSnapshot values when deserializing (depending on which property came first in the json), so we remove the shadowSnapShot assignment
                 // This finds $shadowSnapshotN = new Snapshot(ValueBufferTryReadValue(materializationContext, property, int _));
                 // and removes the assignment from the expression tree
                 case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     when parameterExpression.Type == typeof(ISnapshot)
-                      && binaryExpression.Left.UnwrapTypeConversion(out _) is NewExpression newExpression:
+                      && binaryExpression.Right.UnwrapTypeConversion(out _) is NewExpression newExpression:
                 {
                     var arguments = newExpression.Arguments.Select(x => x.UnwrapTypeConversion(out _) as MethodCallExpression!).ToArray();
 
                     // Check if this is the top level document, where Key values are successfully translated by the JsonEntityMaterializerRewriter to $varN
+                    // We don't remove the top level document start tracking call.
                     if (newExpression.Arguments.Any(x => x == null))
                     {
+                        // @TODO: Or do we need to rewrite this to StartTrackingTree?
                         break;
                     }
 
@@ -498,18 +488,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     : jsonReadPropertyValueExpression;
             }
 
-            // For embedded documents, there is a possiblity we don't know the shadowSnapshot value yer
-            // So we want to remove the shadowSnapShot assignment, and the StartTracking call,
-            // and then move them to after we have deserialized the root document fully, so we know the key values to be used in the snapshot.
-
             // We can't start tracking embedded documents until we have read the key values for the root document from the JSON,
-            // so we remove the call to StartTracking here and add it back in after we have materialized the whole entity
-            if (methodCallExpression.Method == QueryContextStartTrackingMethod && !methodCallExpression.Arguments[0].GetConstantValue<IEntityType>().IsDocumentRoot())
-            {
-                _pendingStartTrackingCalls.Add(methodCallExpression);
-
-                return Empty();
-            }
+            // so we remove the call to StartTracking here and we always perform fixup.
+            // Then the root document start tracking call will track the entire tree
+            //if (methodCallExpression.Method == QueryContextStartTrackingMethod
+            // && !methodCallExpression.Arguments[0].GetConstantValue<IEntityType>().IsDocumentRoot())
+            //{
+            //    return Empty();  // Not needed anymore because VisitBinary removes it already..
+            //}
 
             return base.VisitMethodCall(methodCallExpression);
         }

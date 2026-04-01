@@ -62,7 +62,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         var readerDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
-        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter)
             .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
