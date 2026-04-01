@@ -360,6 +360,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitConditional(conditionalExpression);
         }
 
+
+        private ParameterExpression? _topEntry;
+
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             switch (binaryExpression)
@@ -384,39 +387,60 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return Assign(binaryExpression.Left, updatedExpression);
                 }
 
-                // Rewrites entityEntry = queryContext.TryGetEntry(key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
-                // to entityEntry = default.
+                // Rewrites entry = queryContext.TryGetEntry(key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+                // to entry = default.
                 // We can't try to track until we have deserialized the stream to get the key values.
                 // We readd this along with the retreiving of the entry instance after we've read the values from the json into variables. @TODO
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: MethodCallExpression methodCall}
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    when parameterExpression.Type == typeof(InternalEntityEntry):
+                    when parameterExpression.Type == typeof(InternalEntityEntry) && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)):
                 {
-                    if (binaryExpression.Right is MethodCallExpression methodCall
-                     && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)))
-                    {
-                        var hasNullKeyParameter = (ParameterExpression)((MethodCallExpression)binaryExpression.Right).Arguments[3];
-                        return Block([
-                            Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
-                        Assign(hasNullKeyParameter, Constant(false))
-                        ]);
-                    }
-
-                    // Case for (this also remves StartTracking call for embedded documents.
-                    // $entry3 = .If ($entityType3 == .Default(Microsoft.EntityFrameworkCore.Metadata.IEntityType)) {
-                    //    .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)
-                    //} .Else {
-                    //    .Call $queryContext.StartTracking(
-                    //        $entityType3,
-                    //        $instance3,
-                    //        $shadowSnapshot3)
-                    //}
-                    //;
-                return Empty();
+                    _topEntry ??= parameterExpression;
+                    var hasNullKeyParameter = (ParameterExpression)((MethodCallExpression)binaryExpression.Right).Arguments[3];
+                    return Block([
+                        Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
+                        Assign(hasNullKeyParameter, Constant(false))]);
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
+                // Case for
+                // $entry = .If ($entityType == .Default(Microsoft.EntityFrameworkCore.Metadata.IEntityType)) {
+                //    .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)
+                //} .Else {
+                //    .Call $queryContext.StartTracking(
+                //        $entityType,
+                //        $instance,
+                //        $shadowSnapshot)
+                //}
+                // We can't start tracking embedded documents until we have read the key values for the root document from the JSON,
+                // so we remove the call to StartTracking here and we always perform fixup.
+                // Keep to top leve document StartTracking call
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    when parameterExpression.Type == typeof(InternalEntityEntry)
+                         && UnwrapConditional(binaryExpression.Right) is MethodCallExpression methodCall
+                         && methodCall.Method == QueryContextStartTrackingMethod:
+                {
+                    // dirty hack top level document? 
+                    if (_topEntry == parameterExpression)
+                    {
+                        break;
+                    }
+
+                    return Empty();
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                }
+
+                static Expression UnwrapConditional(Expression expression)
+                    => expression switch
+                    {
+                        MethodCallExpression m => m,
+                        ConditionalExpression { IfFalse: MethodCallExpression m } => m,
+                        _ => expression
+                    };
+
                 // For embedded documents, we don't always know the shadowSnapshot values when deserializing (depending on which property came first in the json), so we remove the shadowSnapShot assignment
+
                 // This finds $shadowSnapshotN = new Snapshot(ValueBufferTryReadValue(materializationContext, property, int _));
                 // and removes the assignment from the expression tree
                 case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
@@ -428,7 +452,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     // Check if this is the top level document, where Key values are successfully translated by the JsonEntityMaterializerRewriter to $varN
                     // We don't remove the top level document start tracking call.
-                    if (newExpression.Arguments.Any(x => x == null))
+                    if (arguments.Any(x => x == null))
                     {
                         // @TODO: Or do we need to rewrite this to StartTrackingTree?
                         break;
@@ -487,15 +511,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     ? Convert(jsonReadPropertyValueExpression, methodCallExpression.Type)
                     : jsonReadPropertyValueExpression;
             }
-
-            // We can't start tracking embedded documents until we have read the key values for the root document from the JSON,
-            // so we remove the call to StartTracking here and we always perform fixup.
-            // Then the root document start tracking call will track the entire tree
-            //if (methodCallExpression.Method == QueryContextStartTrackingMethod
-            // && !methodCallExpression.Arguments[0].GetConstantValue<IEntityType>().IsDocumentRoot())
-            //{
-            //    return Empty();  // Not needed anymore because VisitBinary removes it already..
-            //}
 
             return base.VisitMethodCall(methodCallExpression);
         }
