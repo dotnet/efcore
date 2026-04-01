@@ -1,11 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -14,11 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private sealed class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
+    private sealed partial class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
             SelectExpression selectExpression,
             ParameterExpression readerData,
             bool trackQueryResults) : ExpressionVisitor
     {
+        private static readonly MethodInfo QueryContextStartTrackingMethod =
+            typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
+
         private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))!;
 
@@ -74,18 +77,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly PropertyInfo QueryContextQueryLoggerProperty =
             typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger))!;
 
-        private static readonly MethodInfo MaterializeJsonStructuralTypeMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonStructuralType))!;
-
-        private static readonly MethodInfo MaterializeJsonNullableValueStructuralTypeMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonNullableValueStructuralType))!;
-
-        private static readonly MethodInfo MaterializeJsonEntityCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonEntityCollection))!;
-
-        private static readonly MethodInfo InverseCollectionFixupMethod
-            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InverseCollectionFixup))!;
-
         // ValueBuffer: JsonReaderManager
         private readonly Dictionary<Expression, ParameterExpression>
             _valueBufferToJsonReaderDataMapping = new(); // @TODO: Basically only ever 1 entry...? Or will we do includes separatly? Probably not? It's not done in relational
@@ -97,6 +88,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         // JsonReaderData: JsonReaderManager
         private readonly Dictionary<ParameterExpression, ParameterExpression>
             _jsonReaderDataToJsonReaderManagerParameterMapping = new();
+
+        private readonly List<MethodCallExpression> _pendingStartTrackingCalls = new();
 
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
@@ -118,7 +111,39 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         null,
                         shaperExpression.ValueBufferExpression
                     ));
-                    
+
+                    // Readd the start tracking calls
+                    if (trackQueryResults && shaperExpression.StructuralType is IEntityType entityType2)
+                    {
+                        // key values are same from top down...
+
+                        // var entity = materializer(...);
+                        // var snapshot = new Snapshot(entity.id); // json document id.
+
+                        // for each pending call...
+                        // queryContext.StartTracking(entityType, entity.prop?, snapshot); // @TODO: What should entity be?
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        var entityVariable = Parameter(entityType2.ClrType, "entity");
+                        var snapshotVariable = Parameter(typeof(ISnapshot), "snapshot");
+
+                        var shadowSnapshotValue = Constant(Snapshot.Empty); // var snapshot = new Snapshot(entity.id);
+
+                        // So yeah we need to loop over all navigations again here?
+
+                        jsonMaterializerExpression = Block(
+                            [entityVariable, snapshotVariable],
+                            Assign(entityVariable, jsonMaterializerExpression),
+                            Assign(snapshotVariable, shadowSnapshotValue),
+                            Call(QueryCompilationContext.QueryContextParameter,
+                                QueryContextStartTrackingMethod,
+                                Constant(entityType2),
+                                entityVariable,
+                                snapshotVariable),
+                            entityVariable);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                    }
+
                     var shaperLambda = Lambda(
                         jsonMaterializerExpression,
                         QueryCompilationContext.QueryContextParameter,
@@ -181,6 +206,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var innerShaper = CreateJsonShapers(
                     relatedStructuralType,
                     nullable || isStructuralPropertyNullable,
+                    keyValuesParameter, // ?
                     nestedStructuralProperty,
                     valueBufferExpression);
 
@@ -281,7 +307,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(structuralType, trackQueryResults, readerData, innerShapersMap, innerFixupMap, trackingInnerFixupMap)
-                .Visit(structuralTypeShaperMaterializer);
+                .Rewrite(structuralTypeShaperMaterializer);
 
             var shaperLambda = Lambda(
                     jsonMaterializerExpression,
@@ -331,11 +357,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 readerData,
                 Constant(nullable),
                 shaperLambda);
-
-            if (structuralProperty is null)
-            {
-                // This means we're at the root of the query, so we need to add a startTracking call for the first...
-            }
 
             return materializedRootJsonEntity;
         }
@@ -406,6 +427,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
+                // For embedded documents, we want to remove the shadowSnapShot assignment, and the startTracking call,
+                // and then move them to after we have deserialized the parent document fully, so we know the key values to be used in the snapshot.
+                // This finds $shadowSnapshotN = new Snapshot(ValueBufferTryReadValue(materializationContext, property, int _));
+                // and removes the assignment from the expression tree
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    when parameterExpression.Type == typeof(ISnapshot)
+                      && binaryExpression.Left.UnwrapTypeConversion(out _) is NewExpression newExpression:
+                {
+                    var arguments = newExpression.Arguments.Select(x => x.UnwrapTypeConversion(out _) as MethodCallExpression!).ToArray();
+
+                    // Check if this is the top level document, where Key values are successfully translated by the JsonEntityMaterializerRewriter to $varN
+                    if (newExpression.Arguments.Any(x => x == null))
+                    {
+                        break;
+                    }
+
+                    return Empty();
+                }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
                 case
                 {
                     NodeType: ExpressionType.Assign,
@@ -438,6 +480,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition()
                 == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
@@ -453,6 +496,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return methodCallExpression.Type != jsonReadPropertyValueExpression.Type
                     ? Convert(jsonReadPropertyValueExpression, methodCallExpression.Type)
                     : jsonReadPropertyValueExpression;
+            }
+
+            // For embedded documents, there is a possiblity we don't know the shadowSnapshot value yer
+            // So we want to remove the shadowSnapShot assignment, and the StartTracking call,
+            // and then move them to after we have deserialized the root document fully, so we know the key values to be used in the snapshot.
+
+            // We can't start tracking embedded documents until we have read the key values for the root document from the JSON,
+            // so we remove the call to StartTracking here and add it back in after we have materialized the whole entity
+            if (methodCallExpression.Method == QueryContextStartTrackingMethod && !methodCallExpression.Arguments[0].GetConstantValue<IEntityType>().IsDocumentRoot())
+            {
+                _pendingStartTrackingCalls.Add(methodCallExpression);
+
+                return Empty();
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -523,7 +579,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
 
-        // This is 1-1 copy from relational, except not filtering out key properties for ValueBufferTryReadValueMethodsFinder
+        // This is 1-1 copy from relational, except filtering out "" json properties, and using cosmos GetJsonPropertyName instead of relational
         private sealed class JsonEntityMaterializerRewriter(
             ITypeBase structuralType,
             bool queryStateManager,
@@ -1044,7 +1100,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 private readonly List<MethodCallExpression> _valueBufferTryReadValueMethods = [];
 
                 public ValueBufferTryReadValueMethodsFinder(ITypeBase structuralType)
-                    => _properties = structuralType.GetProperties().ToList();
+                    => _properties = structuralType.GetProperties().Where(x => x.GetJsonPropertyName() != "").ToList(); // Only difference with relational?
 
                 public List<MethodCallExpression> FindValueBufferTryReadValueMethods(Expression expression)
                 {
@@ -1183,24 +1239,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return Lambda(Block(typeof(void), expressions), entityParameter, relatedEntityParameter);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public static void InverseCollectionFixup<TCollectionElement, TEntity>(
-            ICollection<TCollectionElement> collection,
-            TEntity entity,
-            Action<TCollectionElement, TEntity> elementFixup)
-        {
-            foreach (var collectionElement in collection)
-            {
-                elementFixup(collectionElement, entity);
-            }
-        }
-
         private static Expression AssignStructuralProperty(
             ParameterExpression structuralType,
             ParameterExpression relatedStructuralType,
@@ -1215,152 +1253,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 : (Expression)relatedStructuralType;
 
             return structuralType.MakeMemberAccess(setter).Assign(assignee);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public static bool Any(IEnumerable source)
-        {
-            foreach (var _ in source)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public static TStructural? MaterializeJsonStructuralType<TStructural>(
-            QueryContext queryContext,
-            JsonReaderData jsonReaderData,
-            bool nullable,
-            Func<QueryContext, JsonReaderData, TStructural> shaper)
-        {
-            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
-            var tokenType = manager.CurrentReader.TokenType;
-
-            switch (tokenType)
-            {
-                case JsonTokenType.Null:
-                    return nullable
-                        ? default
-                        : throw new InvalidOperationException(); // @TODO: Exception message
-
-                case not JsonTokenType.StartObject:
-                    throw new InvalidOperationException(
-                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-            }
-
-            manager.CaptureState();
-            var result = shaper(queryContext, jsonReaderData);
-
-            return result;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public static TStructural? MaterializeJsonNullableValueStructuralType<TStructural>(
-            QueryContext queryContext,
-            JsonReaderData jsonReaderData,
-            bool nullable,
-            Func<QueryContext, JsonReaderData, TStructural> shaper)
-            where TStructural : struct
-        {
-            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
-            var tokenType = manager.CurrentReader.TokenType;
-
-            switch (tokenType)
-            {
-                case JsonTokenType.Null:
-                    return nullable
-                        ? null
-                        : throw new InvalidOperationException(); // @TODO: Exception message?
-
-                case not JsonTokenType.StartObject:
-                    throw new InvalidOperationException(
-                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-            }
-
-            manager.CaptureState();
-            var result = shaper(queryContext, jsonReaderData);
-
-            return result;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
-            QueryContext queryContext,
-            JsonReaderData jsonReaderData,
-            IPropertyBase structuralProperty,
-            Func<QueryContext, JsonReaderData, TEntity> innerShaper)
-            where TEntity : class
-        {
-            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
-            var tokenType = manager.CurrentReader.TokenType;
-
-            switch (tokenType)
-            {
-                case JsonTokenType.Null:
-                    return default;
-
-                case not JsonTokenType.StartArray:
-                    throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-            }
-
-            var collectionAccessor = structuralProperty.GetCollectionAccessor();
-            var result = (TResult)collectionAccessor!.Create();
-
-            tokenType = manager.MoveNext();
-
-            while (tokenType != JsonTokenType.EndArray)
-            {
-                if (tokenType == JsonTokenType.StartObject)
-                {
-                    manager.CaptureState();
-                    var entity = innerShaper(queryContext, jsonReaderData);
-                    collectionAccessor.AddStandalone(result, entity);
-                    manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
-
-                    if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-                    }
-
-                    tokenType = manager.MoveNext();
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-                }
-            }
-
-            manager.CaptureState();
-
-            return result;
         }
     }
 }
