@@ -35,9 +35,20 @@ public class SqliteByteArrayTypeMapping : ByteArrayTypeMapping
                     typeof(byte[]),
                     jsonValueReaderWriter: SqliteJsonByteArrayReaderWriter.Instance),
                 storeType,
-                dbType: dbType))
+                dbType: dbType),
+            false)
     {
     }
+
+    private SqliteByteArrayTypeMapping(
+        RelationalTypeMappingParameters parameters,
+        bool isJsonColumn)
+        : base(parameters)
+    {
+        _isJsonColumn = isJsonColumn;
+    }
+
+    private readonly bool _isJsonColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,10 +56,7 @@ public class SqliteByteArrayTypeMapping : ByteArrayTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqliteByteArrayTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
-    {
-    }
+
 
     /// <summary>
     ///     Creates a copy of this mapping.
@@ -56,5 +64,21 @@ public class SqliteByteArrayTypeMapping : ByteArrayTypeMapping
     /// <param name="parameters">The parameters for this mapping.</param>
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqliteByteArrayTypeMapping(parameters);
+        => new SqliteByteArrayTypeMapping(parameters, _isJsonColumn);
+
+    internal SqliteByteArrayTypeMapping WithJsonColumn()
+        => new(Parameters, true);
+
+    /// <summary>
+    ///     Configures the parameter, setting the <see cref="Microsoft.Data.Sqlite.SqliteParameter.SqliteType" /> to
+    ///     <see cref="Microsoft.Data.Sqlite.SqliteType.Text" /> when the mapping is for a JSON column.
+    /// </summary>
+    /// <param name="parameter">The parameter to be configured.</param>
+    protected override void ConfigureParameter(DbParameter parameter)
+    {
+        if (_isJsonColumn && parameter is Data.Sqlite.SqliteParameter sqliteParameter)
+        {
+            sqliteParameter.SqliteType = Data.Sqlite.SqliteType.Text;
+        }
+    }
 }
