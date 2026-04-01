@@ -88,6 +88,19 @@ public static class TestEnvironment
 
             _container = container;
 
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                try
+                {
+                    _container.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    // Best-effort cleanup: container may already be stopped or Docker daemon
+                    // may have exited before the process exit handler runs.
+                }
+            };
+
             DefaultConnection = new UriBuilder(
                 Uri.UriSchemeHttp,
                 _container.Hostname,
@@ -152,13 +165,4 @@ public static class TestEnvironment
 
     public static bool IsLinuxEmulator => IsEmulator
         && EmulatorType.Equals("linux", StringComparison.OrdinalIgnoreCase);
-
-    public static async Task DisposeAsync()
-    {
-        if (_container != null)
-        {
-            await _container.DisposeAsync().ConfigureAwait(false);
-            _container = null;
-        }
-    }
 }
