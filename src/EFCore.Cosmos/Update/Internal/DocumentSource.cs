@@ -7,7 +7,6 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -104,7 +103,7 @@ public class DocumentSource
             writer.WritePropertyName(jsonPropertyName);
 
             var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
-            if (propertyValue is not null || jsonValueReaderWriter is IJsonConvertedValueReaderWriter { Converter.ConvertsNulls: true })
+            if (propertyValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
             {
                 Check.DebugAssert(jsonValueReaderWriter is not null, $"Missing JsonValueReaderWriter for property: {property}");
                 jsonValueReaderWriter.ToJson(writer, propertyValue!);
