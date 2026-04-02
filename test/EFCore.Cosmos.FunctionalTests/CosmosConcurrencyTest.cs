@@ -9,6 +9,10 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
 
+    protected IServiceProvider ServiceProvider { get; } = new ServiceCollection()
+        .AddEntityFrameworkCosmos()
+        .BuildServiceProvider();
+
     protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
@@ -63,8 +67,9 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
-            })
-            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)))).Options;
+            })))
+            .UseInternalServiceProvider(ServiceProvider)
+            .Options;
 
         var customer = new Customer
         {
@@ -125,8 +130,9 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
-            })
-            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)))).Options;
+            })))
+            .UseInternalServiceProvider(ServiceProvider)
+            .Options;
 
         var customer = new PremiumCustomer
         {
