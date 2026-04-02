@@ -5,11 +5,11 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) : IClassFixture<CosmosConcurrencyTest.CosmosFixture>
+public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) : IClassFixture<CosmosConcurrencyTest.CosmosFixture>, IAsyncLifetime
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
 
-    protected IServiceProvider ServiceProvider { get; } = new ServiceCollection()
+    protected ServiceProvider ServiceProvider { get; } = new ServiceCollection()
         .AddEntityFrameworkCosmos()
         .BuildServiceProvider();
 
@@ -247,6 +247,9 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
 
     protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
         => new ConcurrencyContext(options);
+
+    public virtual Task InitializeAsync() => Task.CompletedTask;
+    public virtual async Task DisposeAsync() => await ServiceProvider.DisposeAsync();
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {
