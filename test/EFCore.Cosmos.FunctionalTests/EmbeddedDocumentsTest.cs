@@ -709,6 +709,7 @@ OFFSET 0 LIMIT 1
     }
 
     [ConditionalFact]
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Can_use_non_persisted_properties_complex()
     {
         var options = await Fixture.CreateOptions(

@@ -35,6 +35,7 @@ jobs:
         run: dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
         env:
+           Test__Cosmos__DefaultConnection: https://localhost:8081
            Test__Cosmos__SkipConnectionCheck: true
 
       - name: Publish Test Results

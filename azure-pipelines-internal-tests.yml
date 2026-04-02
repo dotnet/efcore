@@ -161,11 +161,31 @@ extends:
               demands: ImageOverride -equals 1es-ubuntu-2204
               os: linux
             variables:
-              - _runCounter: $[counter(variables['Build.Reason'], 0)]
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
-              - ${{ if notin(variables['Build.Reason'], 'PullRequest', 'Schedule') }}:
-                - _CosmosConnectionUrl: 'true'
+            steps:
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                displayName: Build
+            templateContext:
+              sdl:
+                binskim:
+                  preReleaseVersion: ''
+          - job: Linux_Cosmos
+            displayName: 'Linux Cosmos'
+            condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
+            timeoutInMinutes: 210
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-ubuntu-2204
+              os: linux
+            variables:
+              - _runCounter: $[counter(variables['Build.Reason'], 0)]
+              - skipComponentGovernanceDetection: true
+              - _CosmosConnectionUrl: 'true'
             steps:
               - bash: |
                   echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
@@ -177,11 +197,10 @@ extends:
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/build.sh --restore --build --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 displayName: Build
               - task: AzureCLI@2
                 displayName: Run Cosmos tests
-                condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
                 inputs:
                   azureSubscription: EFCosmosTesting
                   addSpnToEnvironment: true
