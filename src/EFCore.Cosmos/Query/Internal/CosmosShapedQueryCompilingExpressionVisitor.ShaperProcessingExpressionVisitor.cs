@@ -5,8 +5,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -135,6 +133,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 structuralType,
                 valueBufferExpression,
                 nullable);
+
+            // @TODO: $type check? for root documents??
 
             var structuralTypeShaperMaterializer =
                 (BlockExpression)parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
@@ -276,6 +276,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
                     structuralType,
                     false, // We always perform fixups for cosmos, because we don't always know the shadowSnapshot values when deserializing embedded documents (depending on which property came first in the json)
+                           // @TODO: Instead, maybe we can have innerFixupMap be the call to start tracking for tracking queries, if needed...
                     readerData,
                     innerShapersMap,
                     innerFixupMap,

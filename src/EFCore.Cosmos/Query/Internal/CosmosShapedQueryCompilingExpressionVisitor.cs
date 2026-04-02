@@ -61,6 +61,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
+        // @TODO: ProjectionBindingRemoving? -> rewrite the shaper to project from the complete document for nested documents.
+
         var readerDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
         var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter)
             .ProcessShaper(shaperBody);
