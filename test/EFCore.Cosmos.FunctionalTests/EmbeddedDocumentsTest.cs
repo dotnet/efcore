@@ -240,7 +240,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
 
             Assert.Equal("First", people[2].Addresses.First().Street);
-            people[2].Addresses.First();
 
             existingAddress1Person3 = people[2].Addresses.First();
             existingAddress2Person3 = people[2].Addresses.Last();
