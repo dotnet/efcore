@@ -63,7 +63,8 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
-            }))).Options;
+            })
+            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)))).Options;
 
         var customer = new Customer
         {
@@ -124,7 +125,8 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
                 }
-            }))).Options;
+            })
+            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)))).Options;
 
         var customer = new PremiumCustomer
         {
