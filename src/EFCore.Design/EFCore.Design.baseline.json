@@ -1,0 +1,1371 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.Design",
+  "Types": [
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.CompiledModelCodeGenerationOptions();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Type Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.ContextType { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.ForNativeAot { get; set; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.ISet<string> Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.GeneratedFileNames { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.Language { get; set; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.ModelNamespace { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.ProviderName { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.Suffix { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions.UseNullableReferenceTypes { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpMigrationOperationGenerator",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.CSharpMigrationOperationGenerator(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Annotations(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.Annotation> annotations, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(string builderName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddUniqueConstraintOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterDatabaseOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterSequenceOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterTableOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.EnsureSchemaOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateSequenceOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropColumnOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropIndexOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSchemaOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSequenceOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropTableOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropUniqueConstraintOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameColumnOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameIndexOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameSequenceOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameTableOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RestartSequenceOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.SqlOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.InsertDataOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DeleteDataOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.UpdateDataOperation operation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.OldAnnotations(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.Annotation> annotations, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGenerator.Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.<Clone>$();"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.Equals(object? obj);"
+        },
+        {
+          "Member": "bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? other);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.GetHashCode();"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? right);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? right);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies.CSharpHelper { get; init; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.CSharpMigrationsGenerator(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies dependencies, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies csharpDependencies);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.GenerateMetadata(string? migrationNamespace, System.Type contextType, string migrationName, string migrationId, Microsoft.EntityFrameworkCore.Metadata.IModel targetModel);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.GenerateMigration(string? migrationNamespace, string migrationName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> upOperations, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> downOperations);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.GenerateSnapshot(string? modelSnapshotNamespace, System.Type contextType, string modelSnapshotName, Microsoft.EntityFrameworkCore.Metadata.IModel model, string? latestMigrationId = null);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.CSharpDependencies { get; }"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.FileExtension { get; }"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGenerator.Language { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.<Clone>$();"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.Equals(object? obj);"
+        },
+        {
+          "Member": "bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? other);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.GetHashCode();"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? right);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? right);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.CSharpHelper { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpMigrationOperationGenerator Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.CSharpMigrationOperationGenerator { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpSnapshotGenerator Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies.CSharpSnapshotGenerator { get; init; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpSnapshotGenerator",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.CSharpSnapshotGenerator(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.Generate(string modelBuilderName, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateBaseType(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType? baseType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateCheckConstraint(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.ICheckConstraint checkConstraint, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateCheckConstraintAnnotations(Microsoft.EntityFrameworkCore.Metadata.ICheckConstraint checkConstraint, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateCheckConstraints(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateComplexProperties(string typeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> properties, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateComplexProperty(string builderName, Microsoft.EntityFrameworkCore.Metadata.IComplexProperty complexProperty, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateComplexPropertyAnnotations(string propertyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IComplexProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateData(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty> properties, System.Collections.Generic.IEnumerable<System.Collections.Generic.IDictionary<string, object?>> data, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateEntityType(string builderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateEntityTypeAnnotations(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateEntityTypeMappingFragmentAnnotations(string tableBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityTypeMappingFragment fragment, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateEntityTypeNavigations(string modelBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateEntityTypeRelationships(string modelBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateEntityTypes(string modelBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IEntityType> entityTypes, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateForeignKey(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateForeignKeyAnnotations(string foreignKeyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateForeignKeys(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> foreignKeys, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateIndex(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateIndexAnnotations(string indexBuilderName, Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateIndexes(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IIndex> indexes, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateKey(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder, bool primary = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateKeyAnnotations(string keyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateKeys(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IKey> keys, Microsoft.EntityFrameworkCore.Metadata.IKey? primaryKey, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateNavigation(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateNavigationAnnotations(string navigationBuilderName, Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateNavigations(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigations, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateOwnedType(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IForeignKey ownership, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateOwnedTypes(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> ownerships, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateProperties(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty> properties, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateProperty(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GeneratePropertyAnnotations(string propertyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GeneratePropertyOverride(string tableBuilderName, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GeneratePropertyOverrides(string tableBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GeneratePropertyOverridesAnnotations(string propertyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateRelationships(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateSequence(string modelBuilderName, Microsoft.EntityFrameworkCore.Metadata.ISequence sequence, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateSequenceAnnotations(string sequenceBuilderName, Microsoft.EntityFrameworkCore.Metadata.ISequence sequence, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateTrigger(string tableBuilderName, Microsoft.EntityFrameworkCore.Metadata.ITrigger trigger, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateTriggerAnnotations(string triggerBuilderName, Microsoft.EntityFrameworkCore.Metadata.ITrigger trigger, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.GenerateTriggers(string tableBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, string table, string? schema, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGenerator.Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.<Clone>$();"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.Equals(object? obj);"
+        },
+        {
+          "Member": "bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? other);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.GetHashCode();"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? right);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? right);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.AnnotationCodeGenerator { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.ICSharpHelper Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.CSharpHelper { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies.RelationalTypeMappingSource { get; init; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Design.DbContextActivator",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContext Microsoft.EntityFrameworkCore.Design.DbContextActivator.CreateInstance(System.Type contextType, System.Reflection.Assembly? startupAssembly = null, Microsoft.EntityFrameworkCore.Design.IOperationReportHandler? reportHandler = null);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContext Microsoft.EntityFrameworkCore.Design.DbContextActivator.CreateInstance(System.Type contextType, System.Reflection.Assembly? startupAssembly, Microsoft.EntityFrameworkCore.Design.IOperationReportHandler? reportHandler, string[]? args);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Design.DesignTimeServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.EntityFrameworkCore.Design.DesignTimeServiceCollectionExtensions.AddDbContextDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.DbContext context);"
+        },
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.EntityFrameworkCore.Design.DesignTimeServiceCollectionExtensions.AddEntityFrameworkDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter? reporter = null, System.Func<System.IServiceProvider>? applicationServiceProviderAccessor = null);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment : Microsoft.EntityFrameworkCore.Design.IMethodCallCodeFragment",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.FluentApiCodeFragment(string method);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.Chain(Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment call);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.FilterChain(System.Func<Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment, bool> predicate);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.From(Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment? call);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<string> Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.GetRequiredUsings();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IList<object?> Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.Arguments { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.ChainedCall { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.DeclaringType { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.IsHandledByDataAnnotations { get; set; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.Method { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.Namespace { get; set; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IList<string> Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment.TypeArguments { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelCodeGenerator : Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Methods": [
+        {
+          "Member": "System.Collections.Generic.IReadOnlyCollection<Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile> Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelCodeGenerator.GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions options);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelCodeGeneratorSelector",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelCodeGenerator Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelCodeGeneratorSelector.Select(Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions options);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelScaffolder",
+      "Methods": [
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<string> Microsoft.EntityFrameworkCore.Scaffolding.ICompiledModelScaffolder.ScaffoldModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, string outputDir, Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCodeGenerationOptions options);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpMigrationOperationGenerator",
+      "Methods": [
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpMigrationOperationGenerator.Generate(string builderName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder builder);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpSnapshotGenerator",
+      "Methods": [
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Migrations.Design.ICSharpSnapshotGenerator.Generate(string builderName, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Properties": [
+        {
+          "Member": "string? Microsoft.EntityFrameworkCore.Design.ILanguageBasedService.Language { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator : Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Methods": [
+        {
+          "Member": "string Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator.GenerateMetadata(string? migrationNamespace, System.Type contextType, string migrationName, string migrationId, Microsoft.EntityFrameworkCore.Metadata.IModel targetModel);"
+        },
+        {
+          "Member": "string Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator.GenerateMigration(string? migrationNamespace, string migrationName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> upOperations, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> downOperations);"
+        },
+        {
+          "Member": "string Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator.GenerateSnapshot(string? modelSnapshotNamespace, System.Type contextType, string modelSnapshotName, Microsoft.EntityFrameworkCore.Metadata.IModel model, string? latestMigrationId = null);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "string Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator.FileExtension { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector.Select(string? language);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder.RemoveMigration(string projectDir, string? rootNamespace, bool force, string? language, bool dryRun = false, bool offline = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder.Save(string projectDir, Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration migration, string? outputDir, bool dryRun = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder.ScaffoldMigration(string migrationName, string? rootNamespace, string? subNamespace = null, string? language = null, bool dryRun = false);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator : Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator.GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGeneratorSelector",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGeneratorSelector.Select(string? language);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGeneratorSelector.Select(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Design.IOperationReportHandler",
+      "Methods": [
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Design.IOperationReportHandler.OnError(string message);"
+        },
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Design.IOperationReportHandler.OnInformation(string message);"
+        },
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Design.IOperationReportHandler.OnVerbose(string message);"
+        },
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Design.IOperationReportHandler.OnWarning(string message);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "int Microsoft.EntityFrameworkCore.Design.IOperationReportHandler.Version { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Design.IOperationResultHandler",
+      "Methods": [
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Design.IOperationResultHandler.OnError(string type, string message, string stackTrace);"
+        },
+        {
+          "Member": "void Microsoft.EntityFrameworkCore.Design.IOperationResultHandler.OnResult(object? value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "int Microsoft.EntityFrameworkCore.Design.IOperationResultHandler.Version { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Design.IPluralizer",
+      "Methods": [
+        {
+          "Member": "string Microsoft.EntityFrameworkCore.Design.IPluralizer.Pluralize(string identifier);"
+        },
+        {
+          "Member": "string Microsoft.EntityFrameworkCore.Design.IPluralizer.Singularize(string identifier);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Query.IPrecompiledQueryCodeGenerator : Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile> Microsoft.EntityFrameworkCore.Query.IPrecompiledQueryCodeGenerator.GeneratePrecompiledQueries(Microsoft.CodeAnalysis.Compilation compilation, Microsoft.CodeAnalysis.Editing.SyntaxGenerator syntaxGenerator, Microsoft.EntityFrameworkCore.DbContext dbContext, System.Collections.Generic.IReadOnlyDictionary<System.Reflection.MemberInfo, Microsoft.EntityFrameworkCore.Design.Internal.QualifiedName> memberAccessReplacements, System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Query.Internal.PrecompiledQueryCodeGenerator.QueryPrecompilationError> precompilationErrors, System.Collections.Generic.ISet<string> generatedFileNames, System.Reflection.Assembly? assembly = null, string? suffix = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Query.IPrecompiledQueryCodeGeneratorSelector",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Query.IPrecompiledQueryCodeGenerator Microsoft.EntityFrameworkCore.Query.IPrecompiledQueryCodeGeneratorSelector.Select(string? language);",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.IReverseEngineerScaffolder",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles Microsoft.EntityFrameworkCore.Scaffolding.IReverseEngineerScaffolder.Save(Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel scaffoldedModel, string outputDir, bool overwriteFiles);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel Microsoft.EntityFrameworkCore.Scaffolding.IReverseEngineerScaffolder.ScaffoldModel(string connectionString, Microsoft.EntityFrameworkCore.Scaffolding.DatabaseModelFactoryOptions databaseOptions, Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions modelOptions, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions codeOptions);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IModel Microsoft.EntityFrameworkCore.Scaffolding.IScaffoldingModelFactory.Create(Microsoft.EntityFrameworkCore.Scaffolding.Metadata.DatabaseModel databaseModel, Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions options);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragmentExtensions",
+      "Methods": [
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<string> Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragmentExtensions.GetRequiredUsings(this Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment methodCall);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles.MigrationFiles();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles.MetadataFile { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration? Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles.Migration { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles.MigrationFile { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles.SnapshotFile { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsBundle",
+      "Methods": [
+        {
+          "Member": "static int Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsBundle.Execute(string? context, System.Reflection.Assembly assembly, System.Reflection.Assembly startupAssembly, string[] args);"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator : Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGenerator, Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.MigrationsCodeGenerator(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies dependencies);"
+        },
+        {
+          "Member": "abstract string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.GenerateMetadata(string? migrationNamespace, System.Type contextType, string migrationName, string migrationId, Microsoft.EntityFrameworkCore.Metadata.IModel targetModel);"
+        },
+        {
+          "Member": "abstract string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.GenerateMigration(string? migrationNamespace, string migrationName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> upOperations, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> downOperations);"
+        },
+        {
+          "Member": "abstract string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.GenerateSnapshot(string? modelSnapshotNamespace, System.Type contextType, string modelSnapshotName, Microsoft.EntityFrameworkCore.Metadata.IModel model, string? latestMigrationId = null);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<string> Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.GetNamespaces(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<string> Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.GetNamespaces(Microsoft.EntityFrameworkCore.Metadata.IModel model);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.Dependencies { get; }"
+        },
+        {
+          "Member": "abstract string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.FileExtension { get; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGenerator.Language { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.<Clone>$();"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.Equals(object? obj);"
+        },
+        {
+          "Member": "bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.Equals(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? other);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.GetHashCode();"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? right);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? right);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.AnnotationCodeGenerator { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies.RelationalTypeMappingSource { get; init; }",
+          "Stage": "Obsolete"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder : Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsScaffolder",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.MigrationsScaffolder(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.GetDirectory(string projectDir, string? siblingFileName, string subnamespace);"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.GetNamespace(System.Type? siblingType, string defaultNamespace);"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.GetSubNamespace(string? rootNamespace, string @namespace);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.RemoveMigration(string projectDir, string rootNamespace, bool force, bool dryRun);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.RemoveMigration(string projectDir, string? rootNamespace, bool force, string? language, bool dryRun = false, bool offline = false);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.Save(string projectDir, Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration migration, string? outputDir, bool dryRun);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.ScaffoldMigration(string migrationName, string? rootNamespace, string? subNamespace);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.ScaffoldMigration(string migrationName, string? rootNamespace, string? subNamespace = null, string? language = null, bool dryRun = false);"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.TryGetProjectFile(string projectDir, string fileName);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolder.Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.<Clone>$();"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.Equals(object? obj);"
+        },
+        {
+          "Member": "bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.Equals(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? other);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.GetHashCode();"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? right);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? right);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.ICurrentDbContext Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.CurrentContext { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.DatabaseProvider { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.IHistoryRepository Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.HistoryRepository { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrationsAssembly Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.MigrationsAssembly { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.IMigrationsCodeGeneratorSelector Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.MigrationsCodeGeneratorSelector { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrationsIdGenerator Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.MigrationsIdGenerator { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.MigrationsModelDiffer { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrator Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.Migrator { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IModel Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies.Model { get; init; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ModelCodeGenerationOptions();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ConnectionString { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ContextDir { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ContextName { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ContextNamespace { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.Language { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ModelNamespace { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.ProjectDir { get; set; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.RootNamespace { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.SuppressConnectionStringWarning { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.SuppressOnConfiguring { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.UseDataAnnotations { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions.UseNullableReferenceTypes { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator : Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator, Microsoft.EntityFrameworkCore.Design.ILanguageBasedService",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator.ModelCodeGenerator(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies dependencies);"
+        },
+        {
+          "Member": "abstract Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator.GenerateModel(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator.Dependencies { get; }"
+        },
+        {
+          "Member": "abstract string? Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator.Language { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.<Clone>$();"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.Equals(object? obj);"
+        },
+        {
+          "Member": "bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.Equals(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? other);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.GetHashCode();"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.operator ==(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? right);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.operator !=(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? right);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies.ToString();"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions.ModelReverseEngineerOptions();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions.NoPluralize { get; set; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Scaffolding.ModelReverseEngineerOptions.UseDatabaseNames { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.NamespaceComparer : System.Collections.Generic.IComparer<string>",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.NamespaceComparer.NamespaceComparer();"
+        },
+        {
+          "Member": "virtual int Microsoft.EntityFrameworkCore.Design.NamespaceComparer.Compare(string? x, string? y);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationException : System.Exception",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationException.OperationException();"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationException.OperationException(string message);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationException.OperationException(string message, System.Exception? innerException);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationException.OperationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);",
+          "Stage": "Obsolete"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor : System.MarshalByRefObject",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationExecutor(Microsoft.EntityFrameworkCore.Design.IOperationReportHandler reportHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddAndApplyMigration",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddAndApplyMigration.AddAndApplyMigration(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddMigration",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddMigration.AddMigration(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.DropDatabase",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.DropDatabase.DropDatabase(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.GetContextInfo",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.GetContextInfo.GetContextInfo(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.GetContextTypes",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.GetContextTypes.GetContextTypes(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.GetMigrations",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.GetMigrations.GetMigrations(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.HasPendingModelChanges",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.HasPendingModelChanges.HasPendingModelChanges(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.OperationBase(Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.Execute(System.Action action);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.Execute<T>(System.Func<T> action);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.Execute<T>(System.Func<System.Collections.Generic.IEnumerable<T>> action);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.OptimizeContext",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.OptimizeContext.OptimizeContext(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.RemoveMigration",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.RemoveMigration.RemoveMigration(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.ScaffoldContext",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.ScaffoldContext.ScaffoldContext(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.ScriptDbContext",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.ScriptDbContext.ScriptDbContext(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.ScriptMigration",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.ScriptMigration.ScriptMigration(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationExecutor.UpdateDatabase",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationExecutor.UpdateDatabase.UpdateDatabase(Microsoft.EntityFrameworkCore.Design.OperationExecutor executor, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler resultHandler, System.Collections.IDictionary args);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationReportHandler : System.MarshalByRefObject, Microsoft.EntityFrameworkCore.Design.IOperationReportHandler",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationReportHandler.OperationReportHandler(System.Action<string>? errorHandler = null, System.Action<string>? warningHandler = null, System.Action<string>? informationHandler = null, System.Action<string>? verboseHandler = null);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationReportHandler.OnError(string message);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationReportHandler.OnInformation(string message);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationReportHandler.OnVerbose(string message);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationReportHandler.OnWarning(string message);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int Microsoft.EntityFrameworkCore.Design.OperationReportHandler.Version { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Design.OperationResultHandler : System.MarshalByRefObject, Microsoft.EntityFrameworkCore.Design.IOperationResultHandler",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Design.OperationResultHandler.OperationResultHandler();"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationResultHandler.OnError(string type, string message, string stackTrace);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Design.OperationResultHandler.OnResult(object? value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Design.OperationResultHandler.ErrorMessage { get; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Design.OperationResultHandler.ErrorStackTrace { get; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Design.OperationResultHandler.ErrorType { get; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Design.OperationResultHandler.HasResult { get; }"
+        },
+        {
+          "Member": "virtual object? Microsoft.EntityFrameworkCore.Design.OperationResultHandler.Result { get; }"
+        },
+        {
+          "Member": "virtual int Microsoft.EntityFrameworkCore.Design.OperationResultHandler.Version { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles.SavedModelFiles(string contextFile, System.Collections.Generic.IEnumerable<string> additionalFiles);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IList<string> Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles.AdditionalFiles { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Scaffolding.SavedModelFiles.ContextFile { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile(string path, string code)",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile.ScaffoldedFile(string path, string code);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile.Code { get; set; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile.Path { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.ScaffoldedMigration(string fileExtension, string? previousMigrationId, string migrationCode, string migrationId, string metadataCode, string migrationSubNamespace, string snapshotCode, string snapshotName, string snapshotSubNamespace);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.FileExtension { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.MetadataCode { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.MigrationCode { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.MigrationId { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.MigrationSubNamespace { get; }"
+        },
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.PreviousMigrationId { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.SnapshotCode { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.SnapshotName { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration.SnapshotSubnamespace { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel.ScaffoldedModel();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile> Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel.AdditionalFiles { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedFile Microsoft.EntityFrameworkCore.Scaffolding.ScaffoldedModel.ContextFile { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions",
+      "Methods": [
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Design.AttributeCodeFragment> Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetDataAnnotations(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Design.AttributeCodeFragment> Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetDataAnnotations(this Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Design.AttributeCodeFragment> Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetDataAnnotations(this Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Design.AttributeCodeFragment> Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetDataAnnotations(this Microsoft.EntityFrameworkCore.Metadata.ISkipNavigation skipNavigation, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static string Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetDbSetName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator, bool useStrings = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Design.FluentApiCodeFragment? Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.GetFluentApiCalls(this Microsoft.EntityFrameworkCore.Metadata.ISequence sequence, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.IsHandledByConvention(this Microsoft.EntityFrameworkCore.Metadata.IKey key);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.IsHandledByDataAnnotations(this Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator annotationCodeGenerator);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.IsLeftNavigation(this Microsoft.EntityFrameworkCore.Metadata.ISkipNavigation skipNavigation);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.ScaffoldingModelExtensions.IsSimpleManyToManyJoinEntityType(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Scaffolding.TemplatedModelGenerator : Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerator",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.TemplatedModelGenerator.TemplatedModelGenerator(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies dependencies);"
+        },
+        {
+          "Member": "abstract bool Microsoft.EntityFrameworkCore.Scaffolding.TemplatedModelGenerator.HasTemplates(string projectDir);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override string? Microsoft.EntityFrameworkCore.Scaffolding.TemplatedModelGenerator.Language { get; }"
+        },
+        {
+          "Member": "static string Microsoft.EntityFrameworkCore.Scaffolding.TemplatedModelGenerator.TemplatesDirectory { get; }"
+        }
+      ]
+    }
+  ]
+}

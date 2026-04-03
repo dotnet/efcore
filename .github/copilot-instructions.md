@@ -89,6 +89,7 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 
 - Follow the existing test patterns in the corresponding test projects
 - Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
+- After changing public APIs, run `build.cmd` / `build.sh` to refresh the checked-in `*.baseline.json` files
 
 #### Environment Setup
 - **ALWAYS** run `restore.cmd` (Windows) or `. ./restore.sh` (Linux/Mac) first to restore dependencies

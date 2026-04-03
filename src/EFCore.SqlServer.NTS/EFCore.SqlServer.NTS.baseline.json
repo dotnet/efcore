@@ -1,0 +1,48 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite",
+  "Types": [
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<NetTopologySuite.Geometries.Geometry>",
+      "Methods": [
+        {
+          "Member": "override NetTopologySuite.Geometries.Geometry Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter.FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter.ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, NetTopologySuite.Geometries.Geometry value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override System.Linq.Expressions.Expression Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter.ConstructorExpression { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonGeometryWktReaderWriter.Instance { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static T Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite<T>(this T optionsBuilder);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbFunctionsExtensions",
+      "Methods": [
+        {
+          "Member": "static NetTopologySuite.Geometries.Geometry Microsoft.EntityFrameworkCore.SqlServerNetTopologySuiteDbFunctionsExtensions.CurveToLine(this Microsoft.EntityFrameworkCore.DbFunctions _, NetTopologySuite.Geometries.Geometry geometry);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.SqlServerNetTopologySuiteServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.SqlServerNetTopologySuiteServiceCollectionExtensions.AddEntityFrameworkSqlServerNetTopologySuite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    }
+  ]
+}

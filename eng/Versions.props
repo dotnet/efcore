@@ -50,4 +50,9 @@
     <DotNetAnalyzersDocumentationAnalyzersVersion>1.0.0-beta.59</DotNetAnalyzersDocumentationAnalyzersVersion>
   </PropertyGroup>
 
+  <PropertyGroup Label="Tooling dependencies">
+    <ICSharpCodeDecompilerVersion>9.1.0.7988</ICSharpCodeDecompilerVersion>
+    <SystemCommandLineVersion>2.0.5</SystemCommandLineVersion>
+  </PropertyGroup>
+
 </Project>

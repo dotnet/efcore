@@ -1,0 +1,230 @@
+# This workflow labels merged PRs that modify `*.baseline.json` files with `api-review`,
+# computes ApiChief deltas between the original and merged baseline files, and posts the
+# results back to the pull request as a review comment.
+
+name: Comment API baseline deltas on merged PRs
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches:
+      - main
+      - release/**
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  api-review:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Detect changed baseline files and add label
+        id: detect
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner,
+              repo,
+              pull_number: prNumber,
+              per_page: 100
+            });
+
+            const baselineFiles = files
+              .filter(file => file.filename.endsWith('.baseline.json'))
+              .map(file => ({
+                filename: file.filename,
+                status: file.status,
+                previous_filename: file.previous_filename ?? null
+              }));
+
+            core.setOutput('has_baselines', String(baselineFiles.length > 0));
+            core.setOutput('files_json', JSON.stringify(baselineFiles));
+
+            if (baselineFiles.length === 0) {
+              console.log('No changed baseline files detected on this merged PR.');
+              return;
+            }
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: prNumber,
+              labels: ['api-review']
+            });
+
+            console.log(`Detected ${baselineFiles.length} changed baseline file(s).`);
+
+      - name: Check out merged commit
+        if: steps.detect.outputs.has_baselines == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 1
+
+      - name: Restore repo-local .NET SDK
+        if: steps.detect.outputs.has_baselines == 'true'
+        shell: bash
+        run: ./restore.sh
+
+      - name: Build ApiChief and compute baseline deltas
+        if: steps.detect.outputs.has_baselines == 'true'
+        id: delta
+        shell: bash
+        env:
+          FILES_JSON: ${{ steps.detect.outputs.files_json }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+
+          DOTNET="$PWD/.dotnet/dotnet"
+          APICHIEF_PROJECT="$PWD/eng/Tools/ApiChief/ApiChief.csproj"
+          WORKDIR="$PWD/artifacts/tmp/api-review"
+          mkdir -p "$WORKDIR"
+
+          "$DOTNET" build "$APICHIEF_PROJECT" --configuration Release --nologo --verbosity minimal
+          APICHIEF_PATH="$($DOTNET msbuild "$APICHIEF_PROJECT" --getProperty:TargetPath -p:Configuration=Release --nologo | tr -d '\r')"
+
+          export DOTNET APICHIEF_PATH WORKDIR
+
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import subprocess
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          files = json.loads(os.environ['FILES_JSON'])
+          owner = os.environ['OWNER']
+          repo = os.environ['REPO']
+          base_sha = os.environ['BASE_SHA']
+          merge_sha = os.environ['MERGE_SHA']
+          dotnet = os.environ['DOTNET']
+          apichief = os.environ['APICHIEF_PATH']
+          workdir = pathlib.Path(os.environ['WORKDIR'])
+          workdir.mkdir(parents=True, exist_ok=True)
+
+          def download_file(ref: str, path: str, destination: pathlib.Path) -> bool:
+              encoded_path = urllib.parse.quote(path, safe='/')
+              url = f'https://raw.githubusercontent.com/{owner}/{repo}/{ref}/{encoded_path}'
+              request = urllib.request.Request(url, headers={'User-Agent': 'efcore-api-review-workflow'})
+
+              try:
+                  with urllib.request.urlopen(request) as response:
+                      destination.write_bytes(response.read())
+                  return True
+              except urllib.error.HTTPError as error:
+                  if error.code == 404:
+                      return False
+                  raise
+
+          def truncate(text: str, limit: int = 20000) -> str:
+              if len(text) <= limit:
+                  return text
+              return text[:limit] + '\n... (truncated)\n'
+
+          sections: list[str] = []
+
+          for index, file in enumerate(files):
+              filename = file['filename']
+              old_path = workdir / f'{index}.old.baseline.json'
+              new_path = workdir / f'{index}.new.baseline.json'
+              delta_path = workdir / f'{index}.delta.json'
+
+              old_exists = download_file(base_sha, filename, old_path)
+              new_exists = download_file(merge_sha, filename, new_path)
+
+              if old_exists and new_exists:
+                  result = subprocess.run(
+                      [dotnet, apichief, str(new_path), 'emit', 'delta', str(old_path), '-o', str(delta_path)],
+                      capture_output=True,
+                      text=True,
+                      check=False)
+
+                  if result.returncode == 2:
+                      continue
+
+                  if result.returncode != 0:
+                      raise RuntimeError(
+                          f'ApiChief delta failed for {filename} with exit code {result.returncode}:\n'
+                          f'{result.stdout}\n{result.stderr}')
+
+                  delta_text = truncate(delta_path.read_text(encoding='utf-8'))
+                  sections.append(
+                      f"### `{filename}`\n\n"
+                      f"<details>\n<summary>Show delta</summary>\n\n```json\n{delta_text}\n```\n</details>")
+              elif new_exists:
+                  sections.append(f"### `{filename}`\n\nThis baseline file was **added** in the merged PR.")
+              elif old_exists:
+                  sections.append(f"### `{filename}`\n\nThis baseline file was **removed** in the merged PR.")
+
+          if not sections:
+              sections.append('No API deltas were produced for the modified baseline files.')
+
+          body = (
+              '<!-- api-review-delta-comment -->\n'
+              '## API review baseline changes\n\n'
+              'This merged PR modified one or more `*.baseline.json` files. '
+              'The deltas below were generated by `ApiChief` between the pre-merge and merged versions.\n\n'
+              + '\n\n'.join(sections)
+          )
+
+          comment_path = workdir / 'comment.md'
+          comment_path.write_text(body[:65000], encoding='utf-8')
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'comment_path={comment_path}\n')
+          PY
+
+      - name: Upsert PR comment with delta
+        if: steps.detect.outputs.has_baselines == 'true'
+        uses: actions/github-script@v8
+        env:
+          COMMENT_PATH: ${{ steps.delta.outputs.comment_path }}
+        with:
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.pull_request.number;
+            const marker = '<!-- api-review-delta-comment -->';
+            const body = fs.readFileSync(process.env.COMMENT_PATH, 'utf8');
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existing = comments.find(comment => comment.body?.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+              console.log(`Updated existing API review comment (${existing.id}).`);
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+              console.log('Created new API review comment.');
+            }

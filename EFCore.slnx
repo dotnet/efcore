@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/eng/" />
+  <Folder Name="/eng/Tools/">
+    <Project Path="eng/Tools/ApiChief/ApiChief.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="azure-pipelines-internal-tests.yml" />
