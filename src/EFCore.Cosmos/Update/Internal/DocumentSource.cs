@@ -65,7 +65,7 @@ public class DocumentSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Stream Serialize(IUpdateEntry entry)
+    public virtual ReadOnlyMemory<byte> Serialize(IUpdateEntry entry)
     {
         var internalEntry = (IInternalEntry)entry;
         var stream = new MemoryStream();
@@ -74,8 +74,7 @@ public class DocumentSource
             WriteJsonObject(writer, internalEntry, internalEntry.StructuralType, null);
         }
 
-        stream.Position = 0;
-        return stream;
+        return new ReadOnlyMemory<byte>(stream.GetBuffer(), 0, (int)stream.Length);
     }
 
     private void WriteJsonObject(

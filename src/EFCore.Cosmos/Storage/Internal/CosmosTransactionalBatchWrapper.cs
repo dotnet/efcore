@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -72,13 +73,13 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool CreateItem(string id, Stream stream, IUpdateEntry updateEntry)
+    public bool CreateItem(string id, ReadOnlyMemory<byte> document, IUpdateEntry updateEntry)
     {
         var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
-            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
+            var size = document.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes;
 
             if (_size + size > MaxSize && _size != 0)
             {
@@ -87,6 +88,13 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
             _size += size;
         }
 
+        if (!MemoryMarshal.TryGetArray(document, out var segment) || segment.Array == null)
+        {
+            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
+        }
+
+        // Stream is disposed by disposing the response of TransactionalBatch.ExecuteAsync in CosmosClientWrapper.
+        var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
         _transactionalBatch.CreateItemStream(stream, itemRequestOptions);
         _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Create, id));
 
@@ -99,13 +107,13 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool ReplaceItem(string documentId, Stream stream, IUpdateEntry updateEntry)
+    public bool ReplaceItem(string documentId, ReadOnlyMemory<byte> document, IUpdateEntry updateEntry)
     {
         var itemRequestOptions = CreateItemRequestOptions(updateEntry, out var itemRequestOptionsLength);
 
         if (_checkSize)
         {
-            var size = stream.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
+            var size = document.Length + itemRequestOptionsLength + OperationSerializationOverheadOverEstimateInBytes + Encoding.UTF8.GetByteCount(documentId);
 
             if (_size + size > MaxSize && _size != 0)
             {
@@ -114,6 +122,13 @@ public class CosmosTransactionalBatchWrapper : ICosmosTransactionalBatchWrapper
             _size += size;
         }
 
+        if (!MemoryMarshal.TryGetArray(document, out var segment) || segment.Array == null)
+        {
+            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
+        }
+
+        // Stream is disposed by disposing the response of TransactionalBatch.ExecuteAsync in CosmosClientWrapper.
+        var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
         _transactionalBatch.ReplaceItemStream(documentId, stream, itemRequestOptions);
         _entries.Add(new CosmosTransactionalBatchEntry(updateEntry, CosmosCudOperation.Update, documentId));
 

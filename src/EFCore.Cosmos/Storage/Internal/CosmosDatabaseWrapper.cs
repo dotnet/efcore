@@ -425,15 +425,14 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         foreach (var updateEntry in batch.UpdateEntries)
         {
-            // Stream is disposed by Transaction.ExecuteAsync
-            var stream = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.DocumentSource.Serialize(updateEntry.Entry) : null;
+            var document = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.DocumentSource.Serialize(updateEntry.Entry) : default;
 
             // With AutoTransactionBehavior.Always, AddToTransaction will always return true.
-            if (!AddToTransaction(transaction, updateEntry, stream))
+            if (!AddToTransaction(transaction, updateEntry, document))
             {
                 yield return transaction;
                 transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue, checkSize);
-                AddToTransaction(transaction, updateEntry, stream);
+                AddToTransaction(transaction, updateEntry, document);
                 continue;
             }
 
@@ -450,13 +449,13 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         }
     }
 
-    private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, Stream? stream)
+    private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, ReadOnlyMemory<byte> document)
     {
         var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
         return updateEntry.Operation switch
         {
-            CosmosCudOperation.Create => transaction.CreateItem(id, stream!, updateEntry.Entry),
-            CosmosCudOperation.Update => transaction.ReplaceItem(id, stream!, updateEntry.Entry),
+            CosmosCudOperation.Create => transaction.CreateItem(id, document, updateEntry.Entry),
+            CosmosCudOperation.Update => transaction.ReplaceItem(id, document, updateEntry.Entry),
             CosmosCudOperation.Delete => transaction.DeleteItem(id, updateEntry.Entry),
             _ => throw new UnreachableException(),
         };
@@ -467,23 +466,23 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         try
         {
             var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
-            using var stream = updateEntry.Operation != CosmosCudOperation.Delete
+            var document = updateEntry.Operation != CosmosCudOperation.Delete
                 ? updateEntry.DocumentSource.Serialize(updateEntry.Entry)
-                : null;
+                : default;
 
             return updateEntry.Operation switch
             {
                 CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
                                     updateEntry.CollectionId,
                                     id,
-                                    stream!,
+                                    document,
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
                                     id,
-                                    stream!,
+                                    document,
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),

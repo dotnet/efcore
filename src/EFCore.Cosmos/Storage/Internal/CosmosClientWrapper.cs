@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
@@ -313,7 +314,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public virtual Task<bool> CreateItemAsync(
         string containerId,
         string documentId,
-        Stream document,
+        ReadOnlyMemory<byte> document,
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default)
@@ -321,7 +322,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static async Task<bool> CreateItemOnceAsync(
         DbContext _,
-        (string ContainerId, string DocumentId, Stream Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, string DocumentId, ReadOnlyMemory<byte> Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
         var containerId = parameters.ContainerId;
@@ -347,8 +348,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             }
         }
 
+        if (!MemoryMarshal.TryGetArray(parameters.Document, out var segment) || segment.Array == null)
+        {
+            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
+        }
+
+        using var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
         using var response = await container.CreateItemStreamAsync(
-                parameters.Document,
+                stream,
                 partitionKeyValue,
                 itemRequestOptions,
                 cancellationToken)
@@ -376,7 +383,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public virtual Task<bool> ReplaceItemAsync(
         string collectionId,
         string documentId,
-        Stream document,
+        ReadOnlyMemory<byte> document,
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default)
@@ -385,7 +392,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     private static async Task<bool> ReplaceItemOnceAsync(
         DbContext _,
-        (string ContainerId, string ResourceId, Stream Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, string ResourceId, ReadOnlyMemory<byte> Document, IUpdateEntry Entry, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
         var containerId = parameters.ContainerId;
@@ -410,8 +417,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             }
         }
 
+        if (!MemoryMarshal.TryGetArray(parameters.Document, out var segment) || segment.Array == null)
+        {
+            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
+        }
+
+        using var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
         using var response = await container.ReplaceItemStreamAsync(
-                parameters.Document,
+                stream,
                 parameters.ResourceId,
                 partitionKeyValue,
                 itemRequestOptions,
