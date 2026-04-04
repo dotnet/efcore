@@ -168,9 +168,10 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture>(TFixture fixture
         {
             var entity = new ConvertingEntity();
 
+            Add(context, entity);
+
             SetPropertyValues(context, entity, valueOrder[0], -1);
 
-            context.Add(entity);
             await context.SaveChangesAsync();
 
             id = entity.Id;
@@ -178,28 +179,39 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture>(TFixture fixture
 
         using (var context = CreateContext())
         {
-            SetPropertyValues(context, await context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id), valueOrder[1], valueOrder[0]);
+            SetPropertyValues(context, await GetAsync(context, id), valueOrder[1], valueOrder[0]);
             await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            SetPropertyValues(context, await context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id), valueOrder[2], valueOrder[1]);
+            SetPropertyValues(context, await GetAsync(context, id), valueOrder[2], valueOrder[1]);
             await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            SetPropertyValues(context, await context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id), valueOrder[3], valueOrder[2]);
+            SetPropertyValues(context, await GetAsync(context, id), valueOrder[3], valueOrder[2]);
             await context.SaveChangesAsync();
         }
     }
 
-    private static void SetPropertyValues(DbContext context, ConvertingEntity entity, int valueIndex, int previousValueIndex)
+    protected virtual void Add(DbContext context, ConvertingEntity entity)
+        => context.Add(entity);
+
+    protected virtual Task<ConvertingEntity> GetAsync(DbContext context, Guid id)
+        => context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id);
+
+    protected virtual PropertyEntry Property(DbContext context, ConvertingEntity entity, IProperty property)
+        => context.Entry(entity).Property(property);
+
+    protected virtual ITypeBase FindType(DbContext context)
+        => context.Model.FindEntityType(
+                typeof(ConvertingEntity))!;
+
+    private void SetPropertyValues(DbContext context, ConvertingEntity entity, int valueIndex, int previousValueIndex)
     {
-        var entry = context.Entry(entity);
-        foreach (var property in context.Model.FindEntityType(
-                     entity.GetType())!.GetProperties().Where(p => !p.IsPrimaryKey() && !p.IsShadowProperty()))
+        foreach (var property in FindType(context).GetProperties().Where(p => !p.IsPrimaryKey() && !p.IsShadowProperty()))
         {
             var testValues = (property.ClrType == typeof(string)
                 ? StringTestValues[property.GetValueConverter()!.ProviderClrType.UnwrapNullableType()]
@@ -211,7 +223,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture>(TFixture fixture
                 testValues[3] = null;
             }
 
-            var propertyEntry = entry.Property(property);
+            var propertyEntry = Property(context, entity, property);
 
             if (previousValueIndex >= 0
                 && property.FindAnnotation("Relational:DefaultValue") == null)

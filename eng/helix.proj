@@ -64,8 +64,12 @@
       <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
     </XUnitProject>
   </ItemGroup>
-  
+
   <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11`))'">
+    <XUnitProject Remove="$(CosmosTests)"/>
+  </ItemGroup>
+
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.Server2025.Amd64`))'">
     <XUnitProject Update="$(CosmosTests)">
       <PreCommands>$(PreCommands); set Test__Cosmos__SkipConnectionCheck=true</PreCommands>
     </XUnitProject>
@@ -80,14 +84,11 @@
     </XUnitProject>
   </ItemGroup>
 
-  <!-- Start Cosmos emulator in Docker on Ubuntu and only run Cosmos tests -->
+  <!-- Run Cosmos tests on Ubuntu with Docker support (testcontainer auto-starts the emulator) -->
   <ItemGroup Condition = "'$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.XL'">
     <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
-    <XUnitProject Include="$(CosmosTests)">
-      <PreCommands>$(PreCommands); chmod +x $HELIX_CORRELATION_PAYLOAD/testing/run-cosmos-container.sh; $HELIX_CORRELATION_PAYLOAD/testing/run-cosmos-container.sh; export Test__Cosmos__DefaultConnection=https://localhost:8081; export Test__Cosmos__SkipConnectionCheck=true; export Test__Cosmos__EmulatorType=linux</PreCommands>
-      <PostCommands>$(PostCommands); docker stop cosmos-emulator || true; docker rm -f cosmos-emulator || true</PostCommands>
-    </XUnitProject>
+    <XUnitProject Include="$(CosmosTests)"/>
   </ItemGroup>
 
   <!-- Run tests that don't need SqlServer or Cosmos on bare Ubuntu -->

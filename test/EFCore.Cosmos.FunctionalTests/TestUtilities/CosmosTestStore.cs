@@ -65,10 +65,10 @@ public class CosmosTestStore : TestStore
             ? name
             : name + _runId;
 
-    public string ConnectionUri { get; }
+    public string ConnectionUri { get; private set; }
     public string AuthToken { get; }
     public TokenCredential TokenCredential { get; }
-    public string ConnectionString { get; }
+    public string ConnectionString { get; private set; }
 
     private static readonly SemaphoreSlim _connectionSemaphore = new(1, 1);
 
@@ -161,6 +161,12 @@ public class CosmosTestStore : TestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
+        await TestEnvironment.InitializeAsync().ConfigureAwait(false);
+
+        // Update connection details in case InitializeAsync changed them (e.g., testcontainer started).
+        ConnectionUri = TestEnvironment.DefaultConnection;
+        ConnectionString = TestEnvironment.ConnectionString;
+
         _initialized = true;
 
         if (_connectionAvailable == false)

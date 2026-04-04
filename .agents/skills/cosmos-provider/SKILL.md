@@ -21,12 +21,7 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - `ETag` for optimistic concurrency
 - No cross-container joins
 
-## Azure Cosmos DB Emulator in Docker
+## Azure Cosmos DB Emulator for Tests
 
-Cosmos tests on Helix start the emulator from the work item via `PreCommands` that run a Docker container using:
-- `eng/testing/run-cosmos-container.ps1`
-- `eng/testing/run-cosmos-container.sh`
-
-These scripts can be invoked locally for testing on machines that don't have the emulator installed, but have docker available.
-
-The `Test__Cosmos__SkipConnectionCheck=true` env var is set to prevent tests from being skipped when the emulator failed to start.
+- `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when `Test__Cosmos__DefaultConnection` is not set. Set the env var to use an existing emulator instead.
+- Skip tests requiring unsupported features on the Linux emulator with `[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]`.

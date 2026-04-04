@@ -969,9 +969,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 #pragma warning disable EF1001 // Internal EF Core API usage.
             writer.WritePropertyName(jsonPropertyName);
 
-            if (propertyValue is not null)
+            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            if (propertyValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
             {
-                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
                 jsonValueReaderWriter.ToJson(writer, propertyValue);
             }

@@ -63,6 +63,8 @@ jobs:
       - name: Export environment variables for the agent's session
         run: |
           echo "Test__SqlServer__DefaultConnection=Server=localhost;Database=test;User=SA;Password=PLACEHOLDERPass$$w0rd;Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true" >> "$GITHUB_ENV"
+          echo "Test__Cosmos__DefaultConnection=https://localhost:8081" >> "$GITHUB_ENV"
           echo "Test__Cosmos__EmulatorType=linux" >> "$GITHUB_ENV"
+          echo "Test__Cosmos__SkipConnectionCheck=true" >> "$GITHUB_ENV"
           echo "DOTNET_ROOT=$PWD/.dotnet/" >> "$GITHUB_ENV"
           echo "$PWD/.dotnet/" >> $GITHUB_PATH

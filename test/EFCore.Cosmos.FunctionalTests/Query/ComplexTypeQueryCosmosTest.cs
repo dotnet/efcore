@@ -94,6 +94,7 @@ WHERE (c["ShippingAddress"] = c["BillingAddress"])
 """);
     });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -107,6 +108,7 @@ WHERE (c["ShippingAddress"] = {"AddressLine1":"804 S. Lakeshore Road","AddressLi
 """);
     });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -267,6 +269,7 @@ WHERE (c["ShippingAddress"] = c["BillingAddress"])
 """);
     });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Struct_complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -280,6 +283,7 @@ WHERE (c["ShippingAddress"] = {"AddressLine1":"804 S. Lakeshore Road","AddressLi
 """);
     });
 
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Struct_complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {

@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
+[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class ComplexPropertiesStructuralEqualityCosmosTest : ComplexPropertiesStructuralEqualityTestBase<ComplexPropertiesCosmosFixture>
 {
     public ComplexPropertiesStructuralEqualityCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
