@@ -466,23 +466,19 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         try
         {
             var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
-            var document = updateEntry.Operation != CosmosCudOperation.Delete
-                ? updateEntry.DocumentSource.Serialize(updateEntry.Entry)
-                : default;
-
             return updateEntry.Operation switch
             {
                 CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
                                     updateEntry.CollectionId,
                                     id,
-                                    document,
+                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
                                     id,
-                                    document,
+                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
