@@ -235,7 +235,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
+            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -301,7 +301,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TElement?>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
+            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -367,7 +367,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TConcreteCollection>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
+            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -434,7 +434,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         public override IEnumerable<KeyValuePair<string, TConcreteCollection>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
-            => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
+            => throw new NotImplementedException("JsonValueReader infrastructure for Dictionary is not supported on Cosmos."); // @TODO: #34567
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
