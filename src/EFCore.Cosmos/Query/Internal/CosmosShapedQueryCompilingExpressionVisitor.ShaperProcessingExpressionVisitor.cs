@@ -15,7 +15,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
             SelectExpression selectExpression,
-            ParameterExpression readerData) : ExpressionVisitor
+            ParameterExpression readerData,
+            bool trackQueryResults) : ExpressionVisitor
     {
         private static readonly MethodInfo QueryContextStartTrackingMethod =
             typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
@@ -103,12 +104,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 case StructuralTypeShaperExpression shaperExpression:
                     _valueBufferToJsonReaderDataMapping[shaperExpression.ValueBufferExpression] = readerData;
 
-                    var jsonMaterializerExpression = Visit(CreateJsonShapers(
+                    var shapers = CreateJsonShapers(
                         shaperExpression.StructuralType,
                         shaperExpression.IsNullable,
                         null,
                         shaperExpression.ValueBufferExpression
-                    ));
+                    );
+
+                    var jsonMaterializerExpression = Visit(shapers);
 
                     var shaperLambda = Lambda(
                         jsonMaterializerExpression,
@@ -135,6 +138,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 nullable);
 
             // @TODO: $type check? for root documents??
+
+            // @TODO: Discriminator doesn't work. It's checked as first thing...
 
             var structuralTypeShaperMaterializer =
                 (BlockExpression)parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
@@ -262,21 +267,29 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedStructuralProperty,
                         inverseNavigation);
 
-                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
-                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
+                    // With tracking queries, the change tracker performs entity fixup
+                    // However, in cosmos we might not know the key values for embedded entity types untill we have deserialized the root entity completely
+                    // Therefor, we always need to perform some sort of fixup, either via change tracker or manually, depending on whether query tracking is enabled.
+                    // complex types always need to be fixed up in the shaper, as they can't be tracked.
                     innerFixupMap[navigationJsonPropertyName] = fixup;
 
                     if (relatedStructuralType is IComplexType)
                     {
                         trackingInnerFixupMap[navigationJsonPropertyName] = fixup;
                     }
+                    else
+                    {
+                        // Generate an expression that checks if the entity is already tracked. (shadowsnapshot?)
+                        // If not, we track it, otherwise do we have to do anything?
+                        // Yes we might need to fixup.
+                        // Is there just a better way to do this?
+                    }
                 }
             }
 
             var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
                     structuralType,
-                    false, // We always perform fixups for cosmos, because we don't always know the shadowSnapshot values when deserializing embedded documents (depending on which property came first in the json)
-                           // @TODO: Instead, maybe we can have innerFixupMap be the call to start tracking for tracking queries, if needed...
+                    trackQueryResults,
                     readerData,
                     innerShapersMap,
                     innerFixupMap,

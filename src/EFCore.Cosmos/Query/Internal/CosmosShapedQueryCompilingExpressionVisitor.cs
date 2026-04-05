@@ -64,7 +64,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         // @TODO: ProjectionBindingRemoving? -> rewrite the shaper to project from the complete document for nested documents.
 
         var readerDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
-        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter)
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
