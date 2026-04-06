@@ -70,7 +70,7 @@ public class SqliteStructuralJsonTypeMapping : StructuralJsonTypeMapping
         }
 
         var bytes = Encoding.UTF8.GetBytes(json);
-        return new MemoryStream(bytes, 0, bytes.Length, false, true);
+        return new MemoryStream(bytes, index: 0, bytes.Length, writable: false, publiclyVisible: true);
     }
 
     /// <summary>
