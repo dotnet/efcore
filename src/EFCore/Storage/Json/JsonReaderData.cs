@@ -33,33 +33,18 @@ public class JsonReaderData
     /// <param name="stream">The stream providing UTF8 JSON bytes.</param>
     public JsonReaderData(Stream stream)
     {
-        var bufferSize = 256;
-        if (stream is MemoryStream memoryStream)
+        if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment))
         {
-            const int sixtyFourKB = 64 * 1024; // Safe size to avoid LOH allocation, and likely large enough for most JSON documents
-            if (memoryStream.TryGetBuffer(out var segment))
-            {
-                _buffer = segment.AsMemory()[(int)memoryStream.Position..];
-                return;
-            }
-            else if (memoryStream.Length < sixtyFourKB)
-            {
-                _buffer = memoryStream.ToArray().AsMemory()[(int)memoryStream.Position..];
-                return;
-            }
-            else
-            {
-                // The stream is larger than safe SOH alloc and we can't get the buffer,
-                // so we'll read it in chunks as normal,
-                // starting with a larger buffer size to avoid likely needing to resize it almost immediately.
-                bufferSize = sixtyFourKB / 2 / 2; // Grows to LOH after 2 resizes
-            }
+            _buffer = segment.AsMemory()[(int)memoryStream.Position..];
+            _bytesAvailable = _buffer.Length;
         }
-
-        _stream = stream;
-        _mutableBuffer = new byte[bufferSize];
-        _buffer = _mutableBuffer;
-        ReadBytes(0, default);
+        else
+        {
+            _stream = stream;
+            _mutableBuffer = new byte[256];
+            _buffer = _mutableBuffer;
+            ReadBytes(0, default);
+        }
     }
 
     /// <summary>
