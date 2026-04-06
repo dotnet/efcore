@@ -106,5 +106,8 @@ public class JsonReaderData
     /// </summary>
     /// <returns>The new reader.</returns>
     public virtual Utf8JsonReader CreateReader()
-        => new(_buffer.Span[_positionInBuffer..], isFinalBlock: _bytesAvailable != _buffer.Length, _readerState);
+        => new(
+            _buffer.Span[_positionInBuffer..],
+            isFinalBlock: _stream is null || _bytesAvailable != _buffer.Length,
+            _readerState);
 }
