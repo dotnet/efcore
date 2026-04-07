@@ -4,9 +4,14 @@
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Azure.Core.GeoJson;
+using Microsoft.Azure.Cosmos.Core.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -137,7 +142,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 valueBufferExpression,
                 nullable);
 
-            // @TODO: $type check? for root documents??
+            // @TODO: $type check? for root documents?? Especially for ReadItem...
 
             // @TODO: Discriminator doesn't work. It's checked as first thing...
 
@@ -374,6 +379,31 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitConditional(conditionalExpression);
         }
 
+        private readonly Dictionary<ParameterExpression, (ParameterExpression EntityType, ParameterExpression JsonId)>
+            _entryEntityTypeJsonIdMapping = [];
+
+        // Rewrite the top materialization block to add jsonId variable
+        protected override Expression VisitBlock(BlockExpression blockExpression)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if (blockExpression.Variables.Any(x => x.Type == typeof(MaterializationContext)) && blockExpression.Variables.Any(x => x.Type == typeof(InternalEntityEntry)))
+            {
+                var entryVariable = blockExpression.Variables.First(x => x.Type == typeof(InternalEntityEntry));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                var entityTypeVariable = blockExpression.Variables.First(x => x.Type == typeof(IEntityType));
+
+                var idVariable = Parameter(typeof(string), "jsonId");
+
+                _entryEntityTypeJsonIdMapping[entryVariable] = (entityTypeVariable, idVariable);
+
+                return blockExpression.Update(
+                    blockExpression.Variables.Concat([idVariable]),
+                    new[] { Assign(idVariable, Default(typeof(string))) }.Concat(Visit(blockExpression.Expressions)));
+            }
+
+            return base.VisitBlock(blockExpression);
+        }
+
 
         private ParameterExpression? _topEntry;
 
@@ -401,23 +431,186 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return Assign(binaryExpression.Left, updatedExpression);
                 }
 
-                // Rewrites entry = queryContext.TryGetEntry(key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
-                // to entry = default.
+                // Rewrites .Call $queryContext.TryGetEntry(
+                //    .Constant<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey>(Key: RootEntity.Id PK),
+                //    .NewArray System.Object[] {
+                //        .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(
+                //            .Call $materializationContext1.get_ValueBuffer(),
+                //            0,
+                //            .Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.Id(int) Required PK AfterSave: Throw))
+                //    },
+                //    True,
+                //    $hasNullKey1);
+
+                // if root type has a discriminator, we start reading the document to find it
+                // if we find id in the meantime, we use that to do TryGetEntry, otherwise we set entry = default.
+
+                // If root type has no discriminator, we always rewrite this to entry = default.
+
                 // We can't try to track until we have deserialized the stream to get the key values.
                 // We readd this along with the retreiving of the entry instance after we've read the values from the json into variables. @TODO
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: MethodCallExpression methodCall}
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression entryVariable, Right: MethodCallExpression methodCall }
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    when parameterExpression.Type == typeof(InternalEntityEntry) && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)):
+                    when entryVariable.Type == typeof(InternalEntityEntry) && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)):
                 {
-                    _topEntry ??= parameterExpression;
-                    var hasNullKeyParameter = (ParameterExpression)((MethodCallExpression)binaryExpression.Right).Arguments[3];
-                    return Block([
-                        Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
+                    _topEntry ??= entryVariable;
+
+                    var primaryKey = ((ConstantExpression)methodCall.Arguments[0]).GetConstantValue<IRuntimeKey>();
+                    var rootEntityType = primaryKey.DeclaringEntityType;
+
+                    var hasNullKeyParameter = (ParameterExpression)methodCall.Arguments[3]; // @TODO: This can actually be false if id is shadow...
+                    var defaultAssignmentBlock = Block([
+                            Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
                         Assign(hasNullKeyParameter, Constant(false))]);
+
+                    var discriminatorProperty = rootEntityType.FindDiscriminatorProperty();
+                    if (discriminatorProperty != null)
+                    {
+                        // @TODO: Change serializer to put "id" and then "$type" first.
+                        // Generate a loop to get the discriminator and possibly the id
+                        // entityType = default
+                        // while (true)
+                        //  tokenType = jsonReaderManager.MoveNext();
+                        //  switch($tokenType) {
+                        //      case(JsonTokenType.PropertyName):
+                        //          if (jsonReaderManager.CurrentReader.ValueTextEquals("discriminator".Span))
+                        //              switch (reader.GetValue<string>())
+                        //                  case "Type1":
+                        //                      entityTypeVariable = Constant(Type1)
+                        //                  default:
+                        //                      throw unable to discriminate
+                        //          elseif (jsonReaderManager.CurrentReader.ValueTextEquals("id".Span))
+                        //              jsonIdVariable = reader.GetValue<string>()
+                        //          else
+                        //              if (throw) throw // @TODO?
+                        //              else jsonReaderManager.Skip();
+                        //      case (JsonTokenType.EndObject):
+                        //          goto break
+                        //      default:
+                        //          throw invalid json?
+                        // label: break
+                        // if (entityType == default) throw unable to discriminate?
+                        // if (id != default) // @TODO
+                        //  keyValues = new object[] { id }
+                        //  entry = queryContext.TryGetEntry(entityType, keyValues, throwOnNullKey: false, out hasNullKey)
+
+                        var materializationContext = (ParameterExpression)((MethodCallExpression)((MethodCallExpression)((NewArrayExpression)methodCall.Arguments[1]).Expressions[0]).Arguments[0]).Object!;
+                        var jsonReaderDataParameter = _materializationContextToJsonReaderDataMapping[materializationContext];
+                        var blockExpressions = new List<Expression>();
+
+                        var (entityTypeVariable, jsonIdVariable) = _entryEntityTypeJsonIdMapping[entryVariable];
+
+                        var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+                        var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+
+                        var discriminatorBlockExpressions = new List<Expression>
+                        {
+                            defaultAssignmentBlock,
+                            Assign(entityTypeVariable, Default(typeof(IEntityType))),
+                            // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
+                            Assign(
+                                managerVariable,
+                                New(
+                                    JsonReaderManagerConstructor,
+                                    jsonReaderDataParameter,
+                                    MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                            // tokenType = jsonReaderManager.CurrentReader.TokenType
+                            Assign(
+                                tokenTypeVariable,
+                                Property(
+                                    Field(
+                                        managerVariable,
+                                        Utf8JsonReaderManagerCurrentReaderField),
+                                    Utf8JsonReaderTokenTypeProperty)),
+                        };
+
+                        var breakLabel = Label("done");
+
+                        ReadOnlyMemory<byte> discriminatorPropertyNameBytes = Encoding.UTF8.GetBytes(discriminatorProperty.GetJsonPropertyName());
+                        ReadOnlyMemory<byte> jsonIdPropertyNameBytes = Encoding.UTF8.GetBytes("id");
+
+                        // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                        var discriminatorJsonValueReaderWriter = discriminatorProperty.GetJsonValueReaderWriter() ?? discriminatorProperty.GetTypeMapping().JsonValueReaderWriter;
+                        Debug.Assert(discriminatorJsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+                        var discriminatorJsonValueReaderWriterConstant = Constant(discriminatorJsonValueReaderWriter);
+
+                        var fromJsonMethod = discriminatorJsonValueReaderWriterConstant.Type.GetMethod(
+                            nameof(JsonValueReaderWriter<>.FromJsonTyped),
+                            [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
+
+                        var loop = Loop(Block(
+                        Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                        Switch( // switch(tokenType)
+                            tokenTypeVariable,
+                            Throw(New(typeof(Exception)), typeof(void)), // default throw @TODO: invalidjson exception
+                            SwitchCase( // case JsonTokenType.PropertyName:
+                                IfThenElse( // if (jsonReaderManager.CurrentReader.ValueTextEquals("discriminator".Span))
+                                    Call(
+                                        Field(
+                                            managerVariable,
+                                            Utf8JsonReaderManagerCurrentReaderField),
+                                        Utf8JsonReaderValueTextEqualsMethod,
+                                        Property(Constant(discriminatorPropertyNameBytes), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!)),
+                                    Block(
+                                        Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod), // jsonReaderManager.MoveNext()
+                                        Switch(
+                                            Call(discriminatorJsonValueReaderWriterConstant, fromJsonMethod, managerVariable, Default(typeof(object))),
+                                            Throw(New(typeof(Exception)), typeof(void)), // default: throw unable to discriminate @TODO
+                                            rootEntityType.GetConcreteDerivedTypesInclusive().Select(x => SwitchCase( // case "Type1":
+                                                Block(
+                                                    Assign(entityTypeVariable, Constant(x)),  // entityType = x
+                                                    Break(breakLabel, typeof(void))), // Goto break
+                                                Constant(x.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
+                                            .ToArray())
+                                    ),
+                                    IfThenElse( // else if (jsonReaderManager.CurrentReader.ValueTextEquals("id".Span))
+                                        Call(
+                                            Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
+                                            Utf8JsonReaderValueTextEqualsMethod,
+                                            Property(Constant(jsonIdPropertyNameBytes), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!)),
+                                        Block(
+                                            Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod), // jsonReaderManager.MoveNext()
+                                            Assign(jsonIdVariable, Call( // jsonId = reader.GetValue<string>()
+                                                Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
+                                                typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.GetString))!))
+                                        ),
+                                        // else jsonReaderManager.Skip();
+                                        Call(managerVariable, Utf8JsonReaderManagerSkipMethod)
+                                    )
+                                ),
+                                Constant(JsonTokenType.PropertyName)),
+                            SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)))),
+                        breakLabel);
+
+                        discriminatorBlockExpressions.Add(loop);
+
+                        discriminatorBlockExpressions.Add(
+                            IfThen(Equal(entityTypeVariable, Default(typeof(IEntityType))), Throw(New(typeof(Exception))))); // if (entityTypeVariable == default) throw missing discriminator? @TODO
+
+                        //IfThen( // if (id != default)
+                        //        NotEqual(jsonIdVariable, Default(typeof(string))),
+                        //        Empty())); // @TODO: TryGetEntry
+
+                        return Block(
+                            [managerVariable, tokenTypeVariable],
+                            discriminatorBlockExpressions);
+                    }
+                    else
+                    {
+                        return defaultAssignmentBlock;
+                    }
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
-                // Case for
+                // Case for discriminated entity type assignment.
+                // Remove it, we have handled this in the TryGetEntry rewrite
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: not ConstantExpression }
+                    when parameterExpression.Type == typeof(IEntityType):
+                {
+                    return Empty();
+                }
+
+                // Case for (happens after materialization of the entity)
                 // $entry = .If ($entityType == .Default(Microsoft.EntityFrameworkCore.Metadata.IEntityType)) {
                 //    .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)
                 //} .Else {
@@ -427,8 +620,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //        $shadowSnapshot)
                 //}
                 // We can't start tracking embedded documents until we have read the key values for the root document from the JSON,
-                // so we remove the call to StartTracking here and we always perform fixup.
-                // Keep to top leve document StartTracking call
+                // so we remove the call to StartTracking here and we add it back to the fixup expression for the root document // @TODO
                 case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     when parameterExpression.Type == typeof(InternalEntityEntry)
@@ -527,6 +719,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return base.VisitMethodCall(methodCallExpression);
+        }
+
+        private sealed class EntityTypeDiscriminatorValueBufferTryReadValueReplacer : ExpressionVisitor
+        {
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.Right is MethodCallExpression methodCallExpression
+                    && methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition()
+                    == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                    && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty property
+                    && property.DeclaringType.FindDiscriminatorProperty() == property)
+                {
+                    // new JsonReaderManager(data);
+
+                }
+
+                return base.VisitBinary(binaryExpression);
+            }
         }
 
         // Almost 1-1 copy from relational, but no liftable constants..

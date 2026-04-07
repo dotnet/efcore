@@ -905,6 +905,13 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         await using (var context = CreateContext(contextFactory, false))
         {
+            var customersFromStore = await context.Set<Customer>()
+                .ToListAsync();
+            Assert.Equal(2, customersFromStore.Count);
+        }
+
+        await using (var context = CreateContext(contextFactory, false))
+        {
             var customerFromStore = await context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
                 .SingleAsync();
