@@ -5,8 +5,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -22,6 +20,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
         private static readonly MethodInfo QueryContextStartTrackingMethod =
             typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
+
+        private static readonly MethodInfo QueryContextTryGetEntryMethod
+            = typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry))!;
 
         private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))!;
@@ -95,6 +96,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _entryEntityTypeMapping = [];
 
         private readonly HashSet<ParameterExpression> _hasNullKeys = [];
+
+        private ParameterExpression? _queryRootEntryVariable;
+        private MethodCallExpression? _queryRootTryGetEntryCall;
 
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
@@ -283,7 +287,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
                     structuralType,
-                    trackQueryResults,
+                    false, // We always perform fixup for cosmos
                     readerData,
                     innerShapersMap,
                     innerFixupMap,
@@ -352,6 +356,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var entityTypeVariable = blockExpression.Variables.First(x => x.Type == typeof(IEntityType));
 
                 _entryEntityTypeMapping[entryVariable] = entityTypeVariable;
+                _queryRootEntryVariable ??= entryVariable;
             }
 
             return base.VisitBlock(blockExpression);
@@ -435,7 +440,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 #region Tracking and discriminator
-                // If there is a discriminator, we have to read the json document to find value to know how to deserialze the document
+                // If there is a discriminator, we have to read the json document to find value to know how to deserialize the document
                 // On top of that, we can't try to get an already tracked entry until we have deserialized the stream to get the key values.
 
                 // This section removes the default generated materialize code for trying to retrieve existing entries, tracking materialized embedded entities and reading the discriminator value
@@ -457,13 +462,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //    $hasNullKey1);
                 case { NodeType: ExpressionType.Assign, Left: ParameterExpression entryVariable, Right: MethodCallExpression methodCall }
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    when entryVariable.Type == typeof(InternalEntityEntry) && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)):
+                    when entryVariable.Type == typeof(InternalEntityEntry) && methodCall.Method == QueryContextTryGetEntryMethod:
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 {
-                    var hasNullKeyParameter = (ParameterExpression)methodCall.Arguments[3]; // @TODO: This can actually be true... But we only know that after deserialization
+                    if (_queryRootTryGetEntryCall == null)
+                    {
+                        Debug.Assert(_queryRootEntryVariable == entryVariable);
+                        _queryRootTryGetEntryCall = methodCall;
+                    }
+
+                    var hasNullKeyParameter = (ParameterExpression)methodCall.Arguments[3]; // This can actually be true... But we only know that after deserialization
                     _hasNullKeys.Add(hasNullKeyParameter);
 
-                    return Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry)));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                    return Assign(binaryExpression.Left, Default(entryVariable.Type));
                 }
 
                 // Rewrites materializer produced assignment to entityType based on discriminator value (not a const)
@@ -528,9 +539,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     //          throw invalid json?
                     // label: break
                     // if (entityType == default) throw unable to discriminate?
-                    // if (id != default) // @TODO
-                    //  keyValues = new object[] { id }
-                    //  entry = queryContext.TryGetEntry(entityType, keyValues, throwOnNullKey: false, out hasNullKey)
 
                     var breakLabel = Label("done");
 
@@ -591,8 +599,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // We remove any StartTracking calls and Snapshot creations for owned types and readd them in the fixup expression of the root document @TODO
 
                 // Removes materializer produced StartTracking call for embedded documents that normally runs after materialization.
-                // We can't start tracking embedded documents until we have read the key values for the root document from the JSON,
-                // so we remove the call to StartTracking here and we add it back in the fixup expressions // @TODO
+                // We can't start tracking embedded documents until we have read the key values for the root document from the JSON
                 // Matches:
                 // $entry = .If ($entityType == .Default(Microsoft.EntityFrameworkCore.Metadata.IEntityType)) {
                 //    .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)
@@ -602,14 +609,93 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //        $instance,
                 //        $shadowSnapshot)
                 //}
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression entryVariable }
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    when parameterExpression.Type == typeof(InternalEntityEntry)
+                    when entryVariable.Type == typeof(InternalEntityEntry)
+#pragma warning restore EF1001 // Internal EF Core API usage.
                          && UnwrapConditional(binaryExpression.Right) is MethodCallExpression methodCall
                          && methodCall.Method == QueryContextStartTrackingMethod:
                 {
-                    return Empty();
+                    Debug.Assert(_queryRootEntryVariable != null);
+                    // We only track the query root
+                    if (_queryRootEntryVariable != entryVariable)
+                    {
+                        return Empty();
+                    }
+
+                    /*
+                     * .Call $queryContext.TryGetEntry(
+                            .Constant<Microsoft.EntityFrameworkCore.Metadata.RuntimeKey>(Key: RootEntity.Id PK),
+                            .NewArray System.Object[] {
+                                .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(
+                                    .Call $materializationContext1.get_ValueBuffer(),
+                                    0,
+                                    .Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.Id (int) Required PK AfterSave:Throw))
+                            },
+                            True,
+                            $hasNullKey1);
+                     * */
+
+                    // var entry = queryContext.TryGetEntry(out var hasNullKey);
+                    // if (hasNullKey)
+                    //   return null;
+                    // if (entry == default) {
+                    //   entry = queryContext.StartTracking(..., shadowSnapshot)
+                    // }
+                    // return (EntityType) entry.Entity
+
+                    var queryContext = (ParameterExpression)methodCall.Object!;
+                    var entityType = methodCall.Arguments[0];
+                    var instance = methodCall.Arguments[1];
+                    var shadowSnapshot = methodCall.Arguments[2];
+                    var hasNullKey = _queryRootTryGetEntryCall!.Arguments[3];
+
+                    var keyProperties = ((NewArrayExpression)_queryRootTryGetEntryCall!.Arguments[1]).Expressions.Select(x => ((MethodCallExpression)x).Arguments[2].GetConstantValue<IProperty>()).ToArray();
+                    var structuralType = keyProperties[0].DeclaringType;
+
+                    var shadowCounter = 0;
+                    var keyPropertyValueExpressions = keyProperties.Select(property =>
+                    {
+                        if (property.IsShadowProperty())
+                        {
+                            // shadowSnapshot[shadowCounter]
+                            return (Expression)MakeIndex(
+                                shadowSnapshot,
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                typeof(ISnapshot).GetProperty("Item")!,
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                                [Constant(shadowCounter++)]);
+                        }
+                        else
+                        {
+                            //(object) instance._field;
+                            return Convert(MakeMemberAccess(instance, property.FieldInfo ?? (MemberInfo)property.PropertyInfo!), typeof(object));
+                        }
+                    }).ToArray();
+
+                    var returnNullLabel = Label(typeof(object));
+                    var returnLabel = Label(typeof(object));
+                    var returnEntity = Return(
+                        returnNullLabel,
+                        Property(entryVariable, "Entity")
+                    );
+
+                    return Block(
+                        Assign(entryVariable, _queryRootTryGetEntryCall.Update(queryContext, [
+                            _queryRootTryGetEntryCall.Arguments[0],
+                            NewArrayInit(typeof(object), keyPropertyValueExpressions),
+                            _queryRootTryGetEntryCall.Arguments[2],
+                            hasNullKey])),
+                        IfThen(
+                            hasNullKey,
+                            Return(returnNullLabel, Constant(null, typeof(object)))),
+                        IfThen(
+                            Equal(entryVariable, Default(entryVariable.Type)),
+                            Assign(
+                                entryVariable,
+                                methodCall)),
+                        returnEntity,
+                        Label(returnNullLabel, Constant(null, typeof(object))));
                 }
 
                 static Expression UnwrapConditional(Expression expression)
@@ -633,6 +719,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     // Check if this is the top level document, where Key values are successfully translated by the JsonEntityMaterializerRewriter to $varN
                     // We don't remove the top level document start tracking call, because it only happens after the document has fully deserialized.
+                    // We use the shadowSnapshot in the final query root start tracking call
                     if (arguments.Any(x => x == null))
                     {
                         break;
