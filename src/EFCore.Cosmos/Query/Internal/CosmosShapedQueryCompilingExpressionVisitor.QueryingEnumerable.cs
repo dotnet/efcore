@@ -136,7 +136,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     : null;
             }
 
-            public T Current => _current ?? throw new InvalidOperationException();
+            public T Current => _current!;
 
             public async ValueTask<bool> MoveNextAsync()
             {
