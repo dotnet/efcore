@@ -5,11 +5,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -95,6 +92,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ParameterExpression, ParameterExpression>
             _entryEntityTypeMapping = [];
 
+        private readonly List<ParameterExpression> _hasNullKeys = [];
+
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
         {
@@ -107,13 +106,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             switch (node)
             {
                 case StructuralTypeShaperExpression shaperExpression:
-
-                    // Document root is handled differently in tracking scenarios
-                    if (trackQueryResults && shaperExpression.StructuralType is IEntityType entityType && entityType.IsDocumentRoot())
-                    {
-
-                    }
-
                     _valueBufferToJsonReaderDataMapping[shaperExpression.ValueBufferExpression] = readerData;
 
                     var shapers = CreateJsonShapers(
@@ -124,6 +116,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     );
 
                     var jsonMaterializerExpression = Visit(shapers);
+
+                    // @TODO: Start tracking...?
 
                     var shaperLambda = Lambda(
                         jsonMaterializerExpression,
@@ -138,6 +132,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitExtension(node);
         }
 
+        // Very close 1-1 with relational.
         private Expression CreateJsonShapers(
             ITypeBase structuralType,
             bool nullable,
@@ -287,6 +282,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                     else
                     {
+                        // @TODO: This is different from relational, do we need it?
                         // Generate an expression that checks if the entity is already tracked. (shadowsnapshot?)
                         // If not, we track it, otherwise do we have to do anything?
                         // Yes we might need to fixup.
@@ -417,7 +413,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         newExpression.Arguments[1]
                     ]);
 
-
                     return Assign(binaryExpression.Left, updatedExpression);
                 }
 
@@ -428,10 +423,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 // On top of that, we can't try to get an already tracked entry until we have deserialized the stream to get the key values.
 
                 // This section removes the default generated materialize code for trying to retrieve existing entries, tracking materialized embedded entities and reading the discriminator value
-                // TryGetEntry calls are replaced with code that reads the json document to find the discriminator value (if any)
                 // a TryGetEntry call is readded later after the full root entity is materialized, and we know the key values.
                 // @TODO: We might add a fast path that checks when we have found all key values, quitting deserialization early if an entry already exists.
                 // StartTracking for embedded entities calls are readded later in the root entity fixup, when we know the key values // @TODO
+                // discriminator based entity type assignment is replaced with reading the json document
 
                 // Removes materializer produced assignment to entry from TryGetEntry call
                 // Matches: .Call $queryContext.TryGetEntry(
@@ -444,25 +439,57 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 //    },
                 //    True,
                 //    $hasNullKey1);
-                // If root type has a discriminator, we start reading the document to find it here, this replaces the entityType = switch(discriminator) part we removed above.
-                // If root type has no discriminator, we don't do anything, and will readd the TryGetEntry call after we have read the full json document.
                 case { NodeType: ExpressionType.Assign, Left: ParameterExpression entryVariable, Right: MethodCallExpression methodCall }
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     when entryVariable.Type == typeof(InternalEntityEntry) && methodCall.Method == typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)):
                 {
-                    var primaryKey = ((ConstantExpression)methodCall.Arguments[0]).GetConstantValue<IRuntimeKey>();
-                    var rootEntityType = primaryKey.DeclaringEntityType;
-
                     var hasNullKeyParameter = (ParameterExpression)methodCall.Arguments[3]; // @TODO: This can actually be true... But we only know that after deserialization
-                    var defaultAssignmentBlock = Block([
+                    _hasNullKeys.Add(hasNullKeyParameter);
+                    return Block([
                             Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
                         Assign(hasNullKeyParameter, Constant(false))]);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                }
 
-                    var discriminatorProperty = rootEntityType.FindDiscriminatorProperty();
-                    if (discriminatorProperty == null)
-                    {
-                        return defaultAssignmentBlock;
-                    }
+                // Rewrites materializer produced assignment to entityType based on discriminator value (not a const)
+                // Matches: $entityType1 = .Block(System.String $discriminator) {
+                //        $discriminator = .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(.Call $materializationContext1.get_ValueBuffer(),1,.Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.$type(no field, string) Shadow Required AfterSave: Throw))
+                //        .Switch($discriminator) {
+                //        .Case("RootEntity"):
+                // ...
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression entityTypeVariable, Right: BlockExpression discriminatorBlock }
+                    when entityTypeVariable.Type == typeof(IEntityType):
+                {
+                    var discriminatorValueBufferTryReadValue = (MethodCallExpression)((BinaryExpression)discriminatorBlock.Expressions[0]).Right;
+                    var discriminatorProperty = ((ConstantExpression)discriminatorValueBufferTryReadValue.Arguments[2]).GetConstantValue<IProperty>();
+
+                    var rootEntityType = (IEntityType)discriminatorProperty.DeclaringType;
+
+                    var materializationContext = (ParameterExpression)((MethodCallExpression)discriminatorValueBufferTryReadValue.Arguments[0]).Object!;
+                    var jsonReaderDataParameter = _materializationContextToJsonReaderDataMapping[materializationContext];
+
+                    var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+                    var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+
+                    var discriminatorBlockExpressions = new List<Expression>
+                        {
+                            Assign(entityTypeVariable, Default(typeof(IEntityType))),
+                            // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
+                            Assign(
+                                managerVariable,
+                                New(
+                                    JsonReaderManagerConstructor,
+                                    jsonReaderDataParameter,
+                                    MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                            // tokenType = jsonReaderManager.CurrentReader.TokenType
+                            Assign(
+                                tokenTypeVariable,
+                                Property(
+                                    Field(
+                                        managerVariable,
+                                        Utf8JsonReaderManagerCurrentReaderField),
+                                    Utf8JsonReaderTokenTypeProperty)),
+                        };
 
                     // @TODO: Change serializer to put "$type" first.
                     // Generate a loop to get the discriminator
@@ -489,36 +516,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // if (id != default) // @TODO
                     //  keyValues = new object[] { id }
                     //  entry = queryContext.TryGetEntry(entityType, keyValues, throwOnNullKey: false, out hasNullKey)
-
-                    var materializationContext = (ParameterExpression)((MethodCallExpression)((MethodCallExpression)((NewArrayExpression)methodCall.Arguments[1]).Expressions[0]).Arguments[0]).Object!;
-                    var jsonReaderDataParameter = _materializationContextToJsonReaderDataMapping[materializationContext];
-                    var blockExpressions = new List<Expression>();
-
-                    var entityTypeVariable = _entryEntityTypeMapping[entryVariable];
-
-                    var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-                    var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
-
-                    var discriminatorBlockExpressions = new List<Expression>
-                        {
-                            defaultAssignmentBlock,
-                            Assign(entityTypeVariable, Default(typeof(IEntityType))),
-                            // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
-                            Assign(
-                                managerVariable,
-                                New(
-                                    JsonReaderManagerConstructor,
-                                    jsonReaderDataParameter,
-                                    MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                            // tokenType = jsonReaderManager.CurrentReader.TokenType
-                            Assign(
-                                tokenTypeVariable,
-                                Property(
-                                    Field(
-                                        managerVariable,
-                                        Utf8JsonReaderManagerCurrentReaderField),
-                                    Utf8JsonReaderTokenTypeProperty)),
-                        };
 
                     var breakLabel = Label("done");
 
@@ -572,19 +569,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return Block(
                         [managerVariable, tokenTypeVariable],
                         discriminatorBlockExpressions);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                }
-
-                // Removes materializer produced assignment to entityType based on discriminator value (not a const)
-                // Matches: $entityType1 = .Block(System.String $discriminator) {
-                //        $discriminator = .Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(.Call $materializationContext1.get_ValueBuffer(),1,.Constant<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase>(Property: RootEntity.$type(no field, string) Shadow Required AfterSave: Throw))
-                //        .Switch($discriminator) {
-                //        .Case("RootEntity"):
-                // ...
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: not ConstantExpression }
-                    when parameterExpression.Type == typeof(IEntityType):
-                {
-                    return Empty();
                 }
 
                 #region Tracking for nested documents
