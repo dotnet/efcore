@@ -2,12 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.Navigations;
 
 public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : NavigationsBulkUpdateRelationalTestBase<NavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     // FK constraint failures
     public override Task Delete_entity_with_associations()
         => Assert.ThrowsAsync<SqlException>(base.Delete_entity_with_associations);
@@ -28,8 +33,8 @@ public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixt
     public override Task Update_property_on_projected_associate()
         => Assert.ThrowsAsync<SqlException>(base.Update_property_on_projected_associate);
 
-    public override async Task Update_property_on_projected_associate_with_OrderBy_Skip()
-        => await Assert.ThrowsAnyAsync<Exception>(base.Update_property_on_projected_associate_with_OrderBy_Skip);
+    public override Task Update_property_on_projected_associate_with_OrderBy_Skip()
+        => Assert.ThrowsAsync<EqualException>(base.Update_property_on_projected_associate_with_OrderBy_Skip);
 
     public override Task Update_multiple_properties_inside_same_associate()
         => Assert.ThrowsAsync<SqlException>(base.Update_multiple_properties_inside_same_associate);
@@ -97,4 +102,53 @@ public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixt
 
     public override Task Update_multiple_projected_associates_via_anonymous_type()
         => Assert.ThrowsAsync<InvalidOperationException>(base.Update_multiple_projected_associates_via_anonymous_type);
+
+    public override async Task Update_property_inside_nested_associate()
+    {
+        await base.Update_property_inside_nested_associate();
+
+        AssertExecuteUpdateSql(
+            """
+@p='foo_updated' (Size = 4000)
+
+UPDATE [n]
+SET [n].[String] = @p
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+INNER JOIN [NestedAssociateType] AS [n] ON [a].[RequiredNestedAssociateId] = [n].[Id]
+""");
+    }
+
+    public override async Task Update_associate_with_null_required_property()
+    {
+        await base.Update_associate_with_null_required_property();
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_required_nested_associate_to_null()
+    {
+        await base.Update_required_nested_associate_to_null();
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_inside_primitive_collection()
+    {
+        await base.Update_inside_primitive_collection();
+
+        AssertExecuteUpdateSql(
+            """
+@p='99'
+
+UPDATE [a0]
+SET [a0].[Ints] = JSON_MODIFY([a0].[Ints], '$[1]', @p)
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+INNER JOIN [AssociateType] AS [a0] ON [r].[RequiredAssociateId] = [a0].[Id]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([a].[Ints]) AS [i]) >= 2
+""");
+    }
 }

@@ -126,22 +126,15 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             return updateExpression;
         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var newSelect = new SelectExpression(
-            selectExpression.Alias,
+        var newSelect = selectExpression.Update(
             tables,
             predicate,
             selectExpression.GroupBy,
             selectExpression.Having,
             selectExpression.Projection,
-            selectExpression.IsDistinct,
             selectExpression.Orderings,
             selectExpression.Offset,
-            selectExpression.Limit,
-            _sqlAliasManager,
-            (IReadOnlySet<string>)selectExpression.Tags,
-            selectExpression.GetAnnotations().ToDictionary(a => a.Name));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            selectExpression.Limit);
 
         return updateExpression.Update(newSelect, updateExpression.ColumnValueSetters);
 
