@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -92,7 +94,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ParameterExpression, ParameterExpression>
             _entryEntityTypeMapping = [];
 
-        private readonly List<ParameterExpression> _hasNullKeys = [];
+        private readonly HashSet<ParameterExpression> _hasNullKeys = [];
 
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
@@ -116,8 +118,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     );
 
                     var jsonMaterializerExpression = Visit(shapers);
-
-                    // @TODO: Start tracking...?
 
                     var shaperLambda = Lambda(
                         jsonMaterializerExpression,
@@ -270,23 +270,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nestedStructuralProperty,
                         inverseNavigation);
 
-                    // With tracking queries, the change tracker performs entity fixup
-                    // However, in cosmos we might not know the key values for embedded entity types untill we have deserialized the root entity completely
-                    // Therefor, we always need to perform some sort of fixup, either via change tracker or manually, depending on whether query tracking is enabled.
-                    // complex types always need to be fixed up in the shaper, as they can't be tracked.
+                    // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
+                    // non-tracking queries; however, complex types always need to be fixed up in the shaper.
                     innerFixupMap[navigationJsonPropertyName] = fixup;
 
                     if (relatedStructuralType is IComplexType)
                     {
                         trackingInnerFixupMap[navigationJsonPropertyName] = fixup;
-                    }
-                    else
-                    {
-                        // @TODO: This is different from relational, do we need it?
-                        // Generate an expression that checks if the entity is already tracked. (shadowsnapshot?)
-                        // If not, we track it, otherwise do we have to do anything?
-                        // Yes we might need to fixup.
-                        // Is there just a better way to do this?
                     }
                 }
             }
@@ -369,8 +359,36 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
+            switch (conditionalExpression)
+            {
+                // Remove hasNullKey checks, we only know that after we have deserialized the document.
+                case { Test: UnaryExpression { NodeType: ExpressionType.Not, Operand: { } hasNullKey } }
+                    when _hasNullKeys.Contains(hasNullKey):
+                {
+                    return Visit(conditionalExpression.IfTrue);
+                }
+
+                // Remove checks for entityAlreadyTracked, we can only know that after we have deserialized the document
+                // Matches:
+                // .If ($entry1 != .Default(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry)) {
+                //    .Block() {
+                //        $entityType1 = $entry1.EntityType;
+                //        $instance1 = (Microsoft.EntityFrameworkCore.Query.Associations.RootEntity)$entry1.Entity;
+                //        $entityAlreadyTracked = True;
+                //        .Default(System.Void)
+                //    }
+                // }
+                case { Test: BinaryExpression { NodeType: ExpressionType.NotEqual, Left: ParameterExpression parameterExpression, Right: DefaultExpression } }
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    when parameterExpression.Type == typeof(InternalEntityEntry):
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                    return Visit(conditionalExpression.IfFalse);
+                default:
+                    break;
+            }
+
             // Remove id = null check, an document can not be null, and we can not read the id value before we read the rest of the document
-            // @TODO: How will this work for nested stuff.
+            // @TODO: How will this work for nested stuff. How does this work for relational? Is this only added for the top entity type?
             //.If(.Call Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValue(
             //    .Call $materializationContext1.get_ValueBuffer(),
             //    0,
@@ -417,8 +435,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 #region Tracking and discriminator
-                // @TODO: Wait a minute, what about no tracking?
-
                 // If there is a discriminator, we have to read the json document to find value to know how to deserialze the document
                 // On top of that, we can't try to get an already tracked entry until we have deserialized the stream to get the key values.
 
@@ -445,9 +461,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     var hasNullKeyParameter = (ParameterExpression)methodCall.Arguments[3]; // @TODO: This can actually be true... But we only know that after deserialization
                     _hasNullKeys.Add(hasNullKeyParameter);
-                    return Block([
-                            Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry))),
-                        Assign(hasNullKeyParameter, Constant(false))]);
+
+                    return Assign(binaryExpression.Left, Default(typeof(InternalEntityEntry)));
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
@@ -652,12 +667,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitBinary(binaryExpression);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
