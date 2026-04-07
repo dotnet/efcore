@@ -126,6 +126,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     );
 
                     return Visit(shapers);
+                case ProjectionBindingExpression projectionBindingExpression:
+                    var projection = GetProjection(projectionBindingExpression);
+
+                    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
+
+                    var returnValue = Variable(typeMapping.ClrType, "returnValue");
+                    var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+
+                    return Block(
+                        [jsonReaderManager, returnValue],
+                        Assign(
+                            jsonReaderManager,
+                            New(
+                                JsonReaderManagerConstructor,
+                                readerData,
+                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                        Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                        Assign(
+                            returnValue,
+                            CreateReadJsonPropertyValueExpression(jsonReaderManager, typeMapping)),
+                        Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                        returnValue);
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
             }
@@ -791,6 +813,44 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 return base.VisitBinary(binaryExpression);
             }
+        }
+
+        private Expression CreateReadJsonPropertyValueExpression(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping)
+        {
+            var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
+            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+            var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
+
+            var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
+                nameof(JsonValueReaderWriter<>.FromJsonTyped),
+                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
+
+            Expression resultExpression = Convert(
+                Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),
+                typeMapping.ClrType);
+
+            if (typeMapping.ClrType.IsNullableType())
+            {
+                // in case of null value we can't just use the JsonReader method, but rather check the current token type
+                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
+                if (resultExpression.Type != typeMapping.ClrType)
+                {
+                    resultExpression = Convert(resultExpression, typeMapping.ClrType);
+                }
+
+                resultExpression = Condition(
+                    Equal(
+                        Property(
+                            Field(
+                                jsonReaderManagerParameter,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty),
+                        Constant(JsonTokenType.Null)),
+                    Default(typeMapping.ClrType),
+                    resultExpression);
+            }
+
+            return resultExpression;
         }
 
         // Almost 1-1 copy from relational, but no liftable constants..
