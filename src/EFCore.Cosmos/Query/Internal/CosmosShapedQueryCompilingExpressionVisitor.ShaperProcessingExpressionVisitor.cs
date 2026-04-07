@@ -103,8 +103,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
         {
-            var lambda = Visit(shaperExpression);
-            return (LambdaExpression)lambda;
+            var jsonMaterializerExpression = Visit(shaperExpression);
+            var shaperLambda = Lambda(
+                        jsonMaterializerExpression,
+                        QueryCompilationContext.QueryContextParameter,
+                        readerData);
+            return shaperLambda;
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -121,14 +125,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         shaperExpression.ValueBufferExpression
                     );
 
-                    var jsonMaterializerExpression = Visit(shapers);
-
-                    var shaperLambda = Lambda(
-                        jsonMaterializerExpression,
-                        QueryCompilationContext.QueryContextParameter,
-                        readerData);
-
-                    return shaperLambda;
+                    return Visit(shapers);
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
             }
