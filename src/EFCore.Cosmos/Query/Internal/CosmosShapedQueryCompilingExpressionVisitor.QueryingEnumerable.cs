@@ -197,7 +197,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var manager = new Utf8JsonReaderManager(_readerData, _queryLogger);
                     manager.MoveNext();
 
-                    if (manager.CurrentReader.TokenType == JsonTokenType.EndArray) // @TODO: Have a look at MaterializeJsonEntityCollection?
+                    if (manager.CurrentReader.TokenType == JsonTokenType.EndArray)
                     {
                         _stream!.Dispose();
                         _readerData = null;

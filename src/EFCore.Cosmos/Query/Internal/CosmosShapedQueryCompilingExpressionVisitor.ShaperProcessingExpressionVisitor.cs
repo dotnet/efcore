@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -122,6 +121,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var shapers = CreateJsonShapers(
                         shaperExpression.StructuralType,
+                        shaperExpression.Type,
                         shaperExpression.IsNullable,
                         null,
                         shaperExpression.ValueBufferExpression
@@ -143,7 +143,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
 
-                    var returnValue = Variable(typeMapping.ClrType, "returnValue");
+                    var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
 
                     return Block(
                         [jsonReaderManager, returnValue],
@@ -156,7 +156,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
                         Assign(
                             returnValue,
-                            CreateReadJsonPropertyValueExpression(jsonReaderManager, typeMapping)),
+                            CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
                         Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                         returnValue);
                 case IncludeExpression includeExpression:
@@ -169,6 +169,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         // Very close 1-1 with relational.
         private Expression CreateJsonShapers(
             ITypeBase structuralType,
+            Type clrType,
             bool nullable,
             IPropertyBase? structuralProperty,
             Expression valueBufferExpression)
@@ -215,6 +216,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 var innerShaper = CreateJsonShapers(
                     relatedStructuralType,
+                    nestedStructuralProperty.ClrType,
                     nullable || isStructuralPropertyNullable,
                     nestedStructuralProperty,
                     valueBufferExpression);
@@ -352,7 +354,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             MethodInfo method;
 
-            if (Nullable.GetUnderlyingType(structuralType.ClrType) is { } underlyingType) // @TODO: clr type?
+            if (Nullable.GetUnderlyingType(clrType) is { } underlyingType)
             {
                 // We need to project out a nullable value type. Note that the shaperLambda that we pass itself always returns a
                 // non-nullable value (the null checks are outside of it.))
@@ -826,7 +828,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private Expression CreateReadJsonPropertyValueExpression(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping)
+        private Expression CreateReadJsonValueExpression(ParameterExpression jsonReaderManagerParameter, Type clrType, CoreTypeMapping typeMapping)
         {
             var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
             Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
@@ -836,19 +838,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 nameof(JsonValueReaderWriter<>.FromJsonTyped),
                 [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
 
-            Expression resultExpression = Convert(
-                Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),
-                typeMapping.ClrType);
+            Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
 
-            if (typeMapping.ClrType.IsNullableType())
+            if (resultExpression.Type != typeMapping.ClrType)
+            {
+                resultExpression = Convert(resultExpression, typeMapping.ClrType);
+            }
+
+            if (clrType.IsNullableType())
             {
                 // in case of null value we can't just use the JsonReader method, but rather check the current token type
                 // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-                if (resultExpression.Type != typeMapping.ClrType)
-                {
-                    resultExpression = Convert(resultExpression, typeMapping.ClrType);
-                }
-
                 resultExpression = Condition(
                     Equal(
                         Property(
@@ -857,8 +857,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 Utf8JsonReaderManagerCurrentReaderField),
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
-                    Default(typeMapping.ClrType),
-                    resultExpression);
+                    Default(clrType),
+                    Convert(resultExpression, clrType));
             }
 
             return resultExpression;
@@ -1135,7 +1135,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             // we unwrap the lambda and integrate its body directly.
                             // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
                             // to readonly fields.
-                            if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(jsonStructuralTypeVariable.Type) is null*/)
+                            if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(fixup.Value.Parameters[1].Type) is null*/)
                             {
                                 var fixupBody = ReplacingExpressionVisitor.Replace(
                                     originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],

@@ -51,7 +51,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636;CS9113</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636;CS9113;CS8321</WarningsNotAsErrors>
   </PropertyGroup>
 
   <!-- HACK: Work around #15093 -->
