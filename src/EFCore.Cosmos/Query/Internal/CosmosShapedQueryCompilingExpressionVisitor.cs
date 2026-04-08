@@ -61,7 +61,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
+        // # 34067
         var readerDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
+        shaperBody = new CosmosEmbeddedDocumentExtractingExpressionVisitor(readerDataParameter).Visit(shaperBody);
+
         var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             .ProcessShaper(shaperBody);
 
