@@ -993,7 +993,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            manager.CaptureState();
             var result = shaper(queryContext, keyPropertyValues, jsonReaderData);
 
             return result;
@@ -1038,7 +1037,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            manager.CaptureState();
             var result = shaper(queryContext, keyPropertyValues, jsonReaderData);
 
             return result;

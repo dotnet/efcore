@@ -164,16 +164,34 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _stream = _enumerator.Current;
                         _readerData = new JsonReaderData(_stream);
 
-                        var firstManager = new Utf8JsonReaderManager(_readerData, _queryLogger);
+                        var responseBodyManager = new Utf8JsonReaderManager(_readerData, _queryLogger);
 
-                        while (firstManager.MoveNext() != JsonTokenType.PropertyName || firstManager.CurrentReader.GetString() == "Documents")
+                        var tokenType = responseBodyManager.MoveNext();
+                        Debug.Assert(tokenType == JsonTokenType.StartObject);
+                        while (tokenType != JsonTokenType.EndObject)
                         {
+                            switch (tokenType)
+                            {
+                                case JsonTokenType.StartObject:
+                                    tokenType = responseBodyManager.MoveNext();
+                                    break;
+                                case JsonTokenType.PropertyName
+                                    when responseBodyManager.CurrentReader.GetString() == "Documents":
+                                    goto Done;
+                                default:
+                                    responseBodyManager.Skip();
+                                    tokenType = responseBodyManager.MoveNext();
+                                    break;
+                            }
                         }
-                        firstManager.MoveNext();
-                        firstManager.MoveNext();
-                        var token = firstManager.MoveNext();
-                        Debug.Assert(token == JsonTokenType.StartArray);
-                        firstManager.CaptureState();
+
+                        Done:
+                        var token = responseBodyManager.MoveNext();
+                        responseBodyManager.CaptureState();
+                        if (token != JsonTokenType.StartArray)
+                        {
+                            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                        }
                     }
 
                     var manager = new Utf8JsonReaderManager(_readerData, _queryLogger);
@@ -185,8 +203,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _readerData = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }
-
-                    manager.CaptureState();
 
                     using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
                     _current = _shaper(_cosmosQueryContext, _readerData);

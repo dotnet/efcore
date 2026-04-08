@@ -72,7 +72,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            manager.CaptureState();
             var result = shaper(queryContext, jsonReaderData);
 
             return result;
@@ -107,7 +106,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
 
-            manager.CaptureState();
             var result = shaper(queryContext, jsonReaderData);
 
             return result;

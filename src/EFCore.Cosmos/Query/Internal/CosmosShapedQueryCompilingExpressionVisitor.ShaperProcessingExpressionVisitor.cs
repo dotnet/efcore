@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using static System.Linq.Expressions.Expression;
@@ -113,6 +114,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         protected override Expression VisitExtension(Expression node)
         {
+            var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
             switch (node)
             {
                 case StructuralTypeShaperExpression shaperExpression:
@@ -125,14 +127,23 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         shaperExpression.ValueBufferExpression
                     );
 
-                    return Visit(shapers);
+                    return Block(
+                        [jsonReaderManager],
+                        Assign(
+                            jsonReaderManager,
+                            New(
+                                JsonReaderManagerConstructor,
+                                readerData,
+                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                        Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                        Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                        Visit(shapers));
                 case ProjectionBindingExpression projectionBindingExpression:
                     var projection = GetProjection(projectionBindingExpression);
 
                     var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
 
                     var returnValue = Variable(typeMapping.ClrType, "returnValue");
-                    var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
 
                     return Block(
                         [jsonReaderManager, returnValue],
