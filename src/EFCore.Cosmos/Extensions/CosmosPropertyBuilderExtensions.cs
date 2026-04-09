@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -123,7 +122,6 @@ public static class CosmosPropertyBuilderExtensions
     {
         propertyBuilder.Metadata.SetVectorDistanceFunction(ValidateVectorDistanceFunction(distanceFunction));
         propertyBuilder.Metadata.SetVectorDimensions(dimensions);
-        propertyBuilder.Metadata.SetTypeMapping(CosmosVectorTypeMapping.Create(propertyBuilder.Metadata.ClrType, new CosmosVectorType(distanceFunction, dimensions)));
 
         return propertyBuilder;
     }
@@ -178,7 +176,6 @@ public static class CosmosPropertyBuilderExtensions
 
         propertyBuilder.Metadata.SetVectorDistanceFunction(ValidateVectorDistanceFunction(distanceFunction), fromDataAnnotation);
         propertyBuilder.Metadata.SetVectorDimensions(dimensions, fromDataAnnotation);
-        propertyBuilder.Metadata.SetTypeMapping(CosmosVectorTypeMapping.Create(propertyBuilder.Metadata.ClrType, new CosmosVectorType(distanceFunction, dimensions)));
 
         return propertyBuilder;
     }

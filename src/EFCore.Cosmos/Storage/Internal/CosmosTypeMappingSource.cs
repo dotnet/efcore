@@ -5,6 +5,7 @@ using System.Collections.Frozen;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json.Linq;
@@ -39,6 +40,21 @@ public class CosmosTypeMappingSource : TypeMappingSource
                         typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
                 }
             }.ToFrozenDictionary();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override CoreTypeMapping? FindMapping(IProperty property)
+        // A provider should typically not override this because using the property directly causes problems with Migrations where
+        // the property does not exist. However, since the Cosmos provider doesn't have Migrations, it should be okay to use the property
+        // directly.
+        => property.GetVectorDistanceFunction() is { } distanceFunction
+                && property.GetVectorDimensions() is { } dimensions
+            ? CosmosVectorTypeMapping.Create(property.ClrType, new CosmosVectorType(distanceFunction, dimensions))
+            : base.FindMapping(property);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
