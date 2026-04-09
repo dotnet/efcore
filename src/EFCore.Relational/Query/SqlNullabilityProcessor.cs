@@ -26,6 +26,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private static readonly bool UseOldBehavior37152 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37152", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior37537 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37537", out var enabled) && enabled;
+
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -1906,6 +1909,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             var parameters = ParametersDecorator.GetAndDisableCaching();
 
             IList values;
+            Type elementClrType;
             if (UseOldBehavior37204)
             {
                 if (parameters[collectionParameter.Name] is not IList list)
@@ -1913,6 +1917,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IList.");
                 }
                 values = list;
+                elementClrType = UseOldBehavior37537
+                    ? values.GetType().GetSequenceType()
+                    // We found the first null value - we need to start copying values to a new list which will be used for the rewritten parameter.
+                    // The type of the new list must match that of the original enumerable parameter, as there may be value converters involved which
+                    // rely on the precise element type (see #37605). We therefore get the type of the element from the original list if it implements
+                    // IEnumerable<T>, or default to object.
+                    : list.GetType().TryGetElementType(typeof(IEnumerable<>)) ?? typeof(object);
             }
             else
             {
@@ -1921,6 +1932,13 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     throw new UnreachableException($"Parameter '{collectionParameter.Name}' is not an IEnumerable.");
                 }
                 values = enumerable.Cast<object?>().ToList();
+                elementClrType = UseOldBehavior37537
+                    ? values.GetType().GetSequenceType()
+                    // We found the first null value - we need to start copying values to a new list which will be used for the rewritten parameter.
+                    // The type of the new list must match that of the original enumerable parameter, as there may be value converters involved which
+                    // rely on the precise element type (see #37605). We therefore get the type of the element from the original list if it implements
+                    // IEnumerable<T>, or default to object.
+                    : enumerable.GetType().TryGetElementType(typeof(IEnumerable<>)) ?? typeof(object);
             }
 
             IList? processedValues = null;
@@ -1933,7 +1951,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 {
                     if (processedValues is null)
                     {
-                        var elementClrType = values.GetType().GetSequenceType();
                         processedValues = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementClrType), values.Count)!;
                         for (var j = 0; j < i; j++)
                         {

@@ -623,6 +623,14 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
 """);
     }
 
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
+    {
+        // EF.Parameter() on primitive collection (OPENJSON on SQL Server) not supported on old versions of SQL Server.
+        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter);
+
+        AssertSql();
+    }
+
     public override async Task Parameter_collection_of_strings_Contains_string()
     {
         await base.Parameter_collection_of_strings_Contains_string();
