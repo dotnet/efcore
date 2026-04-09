@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 public class OwnedNavigationsProjectionCosmosTest : OwnedNavigationsProjectionTestBase<OwnedNavigationsCosmosFixture>
@@ -333,6 +335,31 @@ FROM root c
             await Assert.ThrowsAsync<Xunit.Sdk.EqualException>(
                 () => base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
         }
+    }
+
+    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    public virtual async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
+        {
+            throw SkipException.ForSkip("Tracking not supported.");
+        }
+
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => new { First = x.RequiredAssociate, Second = x.RequiredAssociate }),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            },
+            queryTrackingBehavior: queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
     }
 
     #endregion Multiple
