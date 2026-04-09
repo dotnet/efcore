@@ -371,16 +371,12 @@ public class Migrator : IMigrator
         if (_migrationsAssembly.Migrations.Count == 0)
         {
             _logger.MigrationsNotFound(this, _migrationsAssembly);
-            return;
         }
-
-        if (_migrationsAssembly.ModelSnapshot == null)
+        else if (_migrationsAssembly.ModelSnapshot == null)
         {
             _logger.ModelSnapshotNotFound(this, _migrationsAssembly);
-            return;
         }
-
-        if (targetMigration == null
+        else if (targetMigration == null
             && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
         {
@@ -395,22 +391,8 @@ public class Migrator : IMigrator
             }
             else
             {
-                // ModelSnapshot is guaranteed non-null by the early return above.
                 var snapshotVersion = _migrationsAssembly.ModelSnapshot.Model.GetProductVersion();
                 var currentVersion = ProductInfo.GetVersion();
-
-                static bool TryGetMajorVersion(string? version, out int majorVersion)
-                {
-                    majorVersion = default;
-                    if (string.IsNullOrEmpty(version))
-                    {
-                        return false;
-                    }
-
-                    var separatorIndex = version.IndexOf('.');
-                    return separatorIndex > 0
-                        && int.TryParse(version.AsSpan(0, separatorIndex), out majorVersion);
-                }
 
                 // When the snapshot was generated with an older major version, emit
                 // OldMigrationVersionWarning instead of PendingModelChangesWarning because
@@ -436,6 +418,19 @@ public class Migrator : IMigrator
         }
 
         _logger.MigrateUsingConnection(this, _connection);
+
+        static bool TryGetMajorVersion(string? version, out int majorVersion)
+        {
+            majorVersion = default;
+            if (string.IsNullOrEmpty(version))
+            {
+                return false;
+            }
+
+            var separatorIndex = version.IndexOf('.');
+            return separatorIndex > 0
+                && int.TryParse(version.AsSpan(0, separatorIndex), out majorVersion);
+        }
     }
 
     private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)
