@@ -53,8 +53,38 @@ public class CosmosTypeMappingSource : TypeMappingSource
         // directly.
         => property.GetVectorDistanceFunction() is { } distanceFunction
                 && property.GetVectorDimensions() is { } dimensions
-            ? CosmosVectorTypeMapping.Create(property.ClrType, new CosmosVectorType(distanceFunction, dimensions))
+            ? CreateVectorTypeMapping(property, new CosmosVectorType(distanceFunction, dimensions))
             : base.FindMapping(property);
+
+    private CosmosVectorTypeMapping? CreateVectorTypeMapping(IProperty property, CosmosVectorType cosmosVectorType)
+    {
+        var clrType = property.ClrType;
+        var collectionType = clrType;
+        var isRom = clrType.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(ReadOnlyMemory<>);
+        if (isRom)
+        {
+            collectionType = clrType.GetGenericArguments()[0].MakeArrayType();
+        }
+
+        var sequenceType = collectionType.GetSequenceType();
+        var elementMappingInfo = new TypeMappingInfo(sequenceType);
+
+        CoreTypeMapping? _ = null;
+        if (!TryFindJsonCollectionMapping(elementMappingInfo, collectionType, null, ref _, out var _, out var readerWriter))
+        {
+            return null;
+        }
+
+        var typeMapping = new CosmosVectorTypeMapping(clrType, cosmosVectorType, jsonValueReaderWriter: readerWriter);
+        if (isRom)
+        {
+            typeMapping = typeMapping.WithComposedConverter(
+                    (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(sequenceType))!,
+                    (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(sequenceType))!);
+        }
+
+        return typeMapping;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,8 +113,9 @@ public class CosmosTypeMappingSource : TypeMappingSource
         {
             var elementMappingInfo = new TypeMappingInfo(memoryType);
             CoreTypeMapping? typeMapping = null;
-            TryFindJsonCollectionMapping(elementMappingInfo, memoryType.MakeArrayType(), null, ref typeMapping, out var _, out var readerWriter);
-            return new CosmosTypeMapping(clrType, jsonValueReaderWriter: readerWriter)
+            return !TryFindJsonCollectionMapping(elementMappingInfo, memoryType.MakeArrayType(), null, ref typeMapping, out var _, out var readerWriter)
+                ? null
+                : new CosmosTypeMapping(clrType, jsonValueReaderWriter: readerWriter)
                 .WithComposedConverter(
                     (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(memoryType))!,
                     (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(memoryType))!);
