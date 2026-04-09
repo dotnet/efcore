@@ -10,25 +10,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
 /// </remarks>
-public class MigrationVersionEventData : MigrationTypeEventData
+public class MigrationVersionEventData : DbContextTypeEventData
 {
     /// <summary>
     ///     Constructs the event payload.
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
-    /// <param name="migrationType">The migration type.</param>
-    /// <param name="migrationVersion">The EF Core version that was used to create the migration.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type.</param>
+    /// <param name="migrationVersion">The EF Core version that was used to create the model snapshot.</param>
     public MigrationVersionEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
-        TypeInfo migrationType,
+        Type contextType,
         string? migrationVersion)
-        : base(eventDefinition, messageGenerator, migrationType)
+        : base(eventDefinition, messageGenerator, contextType)
         => MigrationVersion = migrationVersion;
 
     /// <summary>
-    ///     The EF Core version that was used to create the migration, or <see langword="null" /> if it is not known.
+    ///     The EF Core version that was used to create the model snapshot, or <see langword="null" /> if it is not known.
     /// </summary>
     public virtual string? MigrationVersion { get; }
 }

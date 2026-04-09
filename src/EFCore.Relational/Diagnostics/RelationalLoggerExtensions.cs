@@ -2418,18 +2418,18 @@ public static class RelationalLoggerExtensions
     ///     Logs for the <see cref="RelationalEventId.OldMigrationVersionWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
-    /// <param name="migrationType">Info for the last migration type.</param>
-    /// <param name="migrationVersion">The EF Core version the migration was created with.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    /// <param name="migrationVersion">The EF Core version the model snapshot was created with.</param>
     public static void OldMigrationVersionWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-        TypeInfo migrationType,
+        Type contextType,
         string? migrationVersion)
     {
         var definition = RelationalResources.LogOldMigrationVersion(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, migrationType.Name, migrationVersion ?? "(unknown)");
+            definition.Log(diagnostics, contextType.ShortDisplayName(), migrationVersion ?? "(unknown)");
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2437,7 +2437,7 @@ public static class RelationalLoggerExtensions
             var eventData = new MigrationVersionEventData(
                 definition,
                 OldMigrationVersionWarning,
-                migrationType,
+                contextType,
                 migrationVersion);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -2448,7 +2448,7 @@ public static class RelationalLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (MigrationVersionEventData)payload;
-        return d.GenerateMessage(p.MigrationType.Name, p.MigrationVersion ?? "(unknown)");
+        return d.GenerateMessage(p.ContextType.ShortDisplayName(), p.MigrationVersion ?? "(unknown)");
     }
 
     /// <summary>

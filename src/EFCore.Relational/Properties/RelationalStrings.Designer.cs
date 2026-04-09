@@ -3839,7 +3839,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The last migration '{migrationName}' was created with EF Core version '{efVersion}'. The current version is newer. Consider adding a new empty migration to take advantage of any bug fixes and improvements in the current version of EF Core.
+        ///     Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.
         /// </summary>
         public static EventDefinition<string, string> LogOldMigrationVersion(IDiagnosticsLogger logger)
         {

@@ -371,34 +371,31 @@ public class Migrator : IMigrator
         if (_migrationsAssembly.Migrations.Count == 0)
         {
             _logger.MigrationsNotFound(this, _migrationsAssembly);
+            return;
         }
-        else if (_migrationsAssembly.ModelSnapshot == null)
+
+        if (_migrationsAssembly.ModelSnapshot == null)
         {
             _logger.ModelSnapshotNotFound(this, _migrationsAssembly);
+            return;
         }
-        else
-        {
-            if (targetMigration == null
-                && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
-                && HasPendingModelChanges())
-            {
-                var modelSource = (ModelSource)_currentContext.Context.GetService<IModelSource>();
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                var newDesignTimeModel = modelSource.CreateModel(
-                    _currentContext.Context, _currentContext.Context.GetService<ModelCreationDependencies>(), designTime: true);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                if (_migrationsModelDiffer.HasDifferences(newDesignTimeModel.GetRelationalModel(), _designTimeModel.Model.GetRelationalModel()))
-                {
-                    _logger.NonDeterministicModel(_currentContext.Context.GetType());
-                }
-                else
-                {
-                    _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
-                }
-            }
 
-            if (targetMigration != null)
+        if (targetMigration == null
+            && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
+            && HasPendingModelChanges())
+        {
+            var modelSource = (ModelSource)_currentContext.Context.GetService<IModelSource>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var newDesignTimeModel = modelSource.CreateModel(
+                _currentContext.Context, _currentContext.Context.GetService<ModelCreationDependencies>(), designTime: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            if (_migrationsModelDiffer.HasDifferences(newDesignTimeModel.GetRelationalModel(), _designTimeModel.Model.GetRelationalModel()))
             {
+                _logger.NonDeterministicModel(_currentContext.Context.GetType());
+            }
+            else
+            {
+                // ModelSnapshot is guaranteed non-null by the early return above.
                 var snapshotVersion = _migrationsAssembly.ModelSnapshot.Model.GetProductVersion();
                 var currentVersion = ProductInfo.GetVersion();
 
@@ -415,17 +412,20 @@ public class Migrator : IMigrator
                         && int.TryParse(version.AsSpan(0, separatorIndex), out majorVersion);
                 }
 
+                // When the snapshot was generated with an older major version, emit
+                // OldMigrationVersionWarning instead of PendingModelChangesWarning because
+                // the detected changes may be caused by snapshot-generation improvements
+                // in the newer EF Core version rather than actual model changes.
                 if (snapshotVersion != null
                     && TryGetMajorVersion(currentVersion, out var currentMajorVersion)
                     && TryGetMajorVersion(snapshotVersion, out var snapshotMajorVersion)
                     && snapshotMajorVersion < currentMajorVersion)
                 {
-                    var resolvedMigrationId = _migrationsAssembly.FindMigrationId(targetMigration);
-                    if (resolvedMigrationId != null
-                        && _migrationsAssembly.Migrations.TryGetValue(resolvedMigrationId, out var migrationType))
-                    {
-                        _logger.OldMigrationVersionWarning(migrationType, snapshotVersion);
-                    }
+                    _logger.OldMigrationVersionWarning(_currentContext.Context.GetType(), snapshotVersion);
+                }
+                else
+                {
+                    _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
                 }
             }
         }
