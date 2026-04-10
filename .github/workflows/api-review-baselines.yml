@@ -161,20 +161,6 @@ jobs:
           comment_bodies: list[str] = []
           current_body = ''
 
-          def append_section(section: str) -> None:
-              nonlocal current_body
-
-              if not current_body:
-                  current_body = section
-                  return
-
-              candidate = current_body + '\n\n' + section
-              if len(candidate) > max_comment_length:
-                  comment_bodies.append(current_body)
-                  current_body = section
-              else:
-                  current_body = candidate
-
           for index, file in enumerate(files):
               filename = file['filename']
               old_path = workdir / f'{index}.old.baseline.json'
@@ -184,6 +170,7 @@ jobs:
               old_exists = download_file(base_sha, filename, old_path)
               new_exists = download_file(target_sha, filename, new_path)
 
+              section = ''
               if old_exists and new_exists:
                   result = subprocess.run(
                       [dotnet, apichief, str(new_path), 'emit', 'delta', str(old_path), '--diff', '-o', str(review_dir)],
@@ -211,18 +198,35 @@ jobs:
                       section += (
                           f"{review_file.read_text(encoding='utf-8').rstrip()}\n\n")
 
-                  append_section(section.rstrip())
+                  section = section.rstrip()
               elif new_exists:
-                  append_section(
+                  section = (
                       f"## API review baseline changes for `{filename}`\n\n"
                       'This baseline file was **added** in the selected PR.')
               elif old_exists:
-                  append_section(
+                  section = (
                       f"## API review baseline changes for `{filename}`\n\n"
                       'This baseline file was **removed** in the selected PR.')
 
+              if not section:
+                  continue
+
+              if len(section) > max_comment_length:
+                  section = (
+                      f"## API review baseline changes for `{filename}`\n\n"
+                      ':warning: The generated diff for this baseline file exceeds the GitHub comment size limit '
+                      'and cannot be displayed. Review the baseline changes locally.')
+
+              if not current_body:
+                  current_body = section
+              elif len(current_body) + 2 + len(section) > max_comment_length:
+                  comment_bodies.append(current_body)
+                  current_body = section
+              else:
+                  current_body += '\n\n' + section
+
           if not current_body:
-              append_section(
+              current_body = (
                   '## API review baseline changes\n\n'
                   'No API deltas were produced for the modified baseline files.')
 
