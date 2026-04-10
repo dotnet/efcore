@@ -1,8 +1,8 @@
-# This workflow labels merged PRs that modify `*.baseline.json` files with `api-review`,
-# computes ApiChief deltas between the original and merged baseline files, and posts the
-# results back to the pull request as a review comment.
+# This workflow labels PRs that modify `*.baseline.json` files with `api-review`,
+# computes ApiChief deltas between the base and selected PR baseline files, and posts the
+# results back to the pull request as a comment.
 
-name: Comment API baseline deltas on merged PRs
+name: Comment API baseline deltas on PRs
 
 on:
   pull_request_target:
@@ -10,15 +10,21 @@ on:
     branches:
       - main
       - release/**
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: Pull request number to process
+        required: true
+        type: number
 
 permissions:
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   api-review:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Detect changed baseline files and add label
@@ -28,7 +34,20 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const prNumber = context.payload.pull_request.number;
+            const prNumber = context.eventName === 'workflow_dispatch'
+              ? Number(core.getInput('pr-number'))
+              : context.payload.pull_request.number;
+
+            if (!Number.isInteger(prNumber) || prNumber <= 0) {
+              core.setFailed(`Invalid PR number: ${prNumber}`);
+              return;
+            }
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: prNumber
+            });
 
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner,
@@ -45,11 +64,18 @@ jobs:
                 previous_filename: file.previous_filename ?? null
               }));
 
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('base_sha', pullRequest.base.sha);
+            core.setOutput('target_sha', pullRequest.merge_commit_sha ?? pullRequest.head.sha);
             core.setOutput('has_baselines', String(baselineFiles.length > 0));
             core.setOutput('files_json', JSON.stringify(baselineFiles));
 
+            if (!pullRequest.merged) {
+              console.log(`PR #${prNumber} is not merged; using head SHA ${pullRequest.head.sha}.`);
+            }
+
             if (baselineFiles.length === 0) {
-              console.log('No changed baseline files detected on this merged PR.');
+              console.log(`No changed baseline files detected on PR #${prNumber}.`);
               return;
             }
 
@@ -60,13 +86,13 @@ jobs:
               labels: ['api-review']
             });
 
-            console.log(`Detected ${baselineFiles.length} changed baseline file(s).`);
+            console.log(`Detected ${baselineFiles.length} changed baseline file(s) on PR #${prNumber}.`);
 
-      - name: Check out merged commit
+      - name: Check out selected commit
         if: steps.detect.outputs.has_baselines == 'true'
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ steps.detect.outputs.target_sha }}
           fetch-depth: 1
 
       - name: Restore repo-local .NET SDK
@@ -82,8 +108,8 @@ jobs:
           FILES_JSON: ${{ steps.detect.outputs.files_json }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          BASE_SHA: ${{ steps.detect.outputs.base_sha }}
+          TARGET_SHA: ${{ steps.detect.outputs.target_sha }}
         run: |
           set -euo pipefail
 
@@ -110,7 +136,7 @@ jobs:
           owner = os.environ['OWNER']
           repo = os.environ['REPO']
           base_sha = os.environ['BASE_SHA']
-          merge_sha = os.environ['MERGE_SHA']
+          target_sha = os.environ['TARGET_SHA']
           dotnet = os.environ['DOTNET']
           apichief = os.environ['APICHIEF_PATH']
           workdir = pathlib.Path(os.environ['WORKDIR'])
@@ -144,7 +170,7 @@ jobs:
               delta_path = workdir / f'{index}.delta.json'
 
               old_exists = download_file(base_sha, filename, old_path)
-              new_exists = download_file(merge_sha, filename, new_path)
+              new_exists = download_file(target_sha, filename, new_path)
 
               if old_exists and new_exists:
                   result = subprocess.run(
@@ -166,18 +192,17 @@ jobs:
                       f"### `{filename}`\n\n"
                       f"<details>\n<summary>Show delta</summary>\n\n```json\n{delta_text}\n```\n</details>")
               elif new_exists:
-                  sections.append(f"### `{filename}`\n\nThis baseline file was **added** in the merged PR.")
+                  sections.append(f"### `{filename}`\n\nThis baseline file was **added** in the selected PR.")
               elif old_exists:
-                  sections.append(f"### `{filename}`\n\nThis baseline file was **removed** in the merged PR.")
+                  sections.append(f"### `{filename}`\n\nThis baseline file was **removed** in the selected PR.")
 
           if not sections:
               sections.append('No API deltas were produced for the modified baseline files.')
 
           body = (
-              '<!-- api-review-delta-comment -->\n'
               '## API review baseline changes\n\n'
-              'This merged PR modified one or more `*.baseline.json` files. '
-              'The deltas below were generated by `ApiChief` between the pre-merge and merged versions.\n\n'
+              'This PR modified one or more `*.baseline.json` files. '
+              'The deltas below were generated by `ApiChief` between the base and selected PR versions.\n\n'
               + '\n\n'.join(sections)
           )
 
@@ -188,43 +213,25 @@ jobs:
               output.write(f'comment_path={comment_path}\n')
           PY
 
-      - name: Upsert PR comment with delta
+      - name: Create PR comment with delta
         if: steps.detect.outputs.has_baselines == 'true'
         uses: actions/github-script@v8
         env:
           COMMENT_PATH: ${{ steps.delta.outputs.comment_path }}
+          PR_NUMBER: ${{ steps.detect.outputs.pr_number }}
         with:
           script: |
             const fs = require('fs');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issue_number = context.payload.pull_request.number;
-            const marker = '<!-- api-review-delta-comment -->';
+            const issue_number = Number(process.env.PR_NUMBER);
             const body = fs.readFileSync(process.env.COMMENT_PATH, 'utf8');
 
-            const comments = await github.paginate(github.rest.issues.listComments, {
+            await github.rest.issues.createComment({
               owner,
               repo,
               issue_number,
-              per_page: 100
+              body
             });
 
-            const existing = comments.find(comment => comment.body?.includes(marker));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner,
-                repo,
-                comment_id: existing.id,
-                body
-              });
-              console.log(`Updated existing API review comment (${existing.id}).`);
-            } else {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body
-              });
-              console.log('Created new API review comment.');
-            }
+            console.log(`Created new API review comment for PR #${issue_number}.`);
