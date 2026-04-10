@@ -155,16 +155,14 @@ public class SqlServerQuerySqlGenerator(
                     TableExpression table,
                     ColumnExpression column,
                     SqlExpression similarTo,
-                    SqlConstantExpression { Value: string } metric,
-                    SqlExpression topN
+                    SqlConstantExpression { Value: string } metric
                 ]
             }:
                 // VECTOR_SEARCH(
                 //     TABLE = [Articles] AS t,
                 //     COLUMN = [Vector],
                 //     SIMILAR_TO = @qv,
-                //     METRIC = 'Cosine',
-                //     TOP_N = 3
+                //     METRIC = 'Cosine'
                 // )
                 Sql.AppendLine("VECTOR_SEARCH(");
 
@@ -185,10 +183,6 @@ public class SqlServerQuerySqlGenerator(
 
                     Sql.Append("METRIC = ");
                     Visit(metric);
-                    Sql.AppendLine(",");
-
-                    Sql.Append("TOP_N = ");
-                    Visit(topN);
                     Sql.AppendLine();
                 }
 
@@ -558,6 +552,13 @@ public class SqlServerQuerySqlGenerator(
             Visit(selectExpression.Limit);
 
             Sql.Append(") ");
+
+            // When performing approximate vector search with VECTOR_SEARCH(), SQL Server requires adding
+            // WITH APPROXIMATE: https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql
+            if (selectExpression.Tables.Any(t => t.UnwrapJoin() is TableValuedFunctionExpression { Name: "VECTOR_SEARCH" }))
+            {
+                Sql.Append("WITH APPROXIMATE ");
+            }
         }
 
         _withinTable = parentWithinTable;

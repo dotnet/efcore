@@ -91,8 +91,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         _, // source, translated above
                         UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression vectorPropertySelector },
                         var similarTo,
-                        var metric,
-                        var topN
+                        var metric
                     ]
                     && source is
                     {
@@ -113,8 +112,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     }
 
                     if (TranslateExpression(similarTo) is not { } translatedSimilarTo
-                        || TranslateExpression(metric, applyDefaultTypeMapping: false) is not { } translatedMetric
-                        || TranslateExpression(topN) is not { } translatedTopN)
+                        || TranslateExpression(metric, applyDefaultTypeMapping: false) is not { } translatedMetric)
                     {
                         return QueryCompilationContext.NotTranslatedExpression;
                     }
@@ -135,8 +133,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                             // as required by SQL Server)
                             vectorColumn,
                             translatedSimilarTo,
-                            translatedMetric,
-                            translatedTopN
+                            translatedMetric
                         ]);
 
                     // We have the VECTOR_SEARCH() function call. Modify the SelectExpression and shaper to use it and project

@@ -28,7 +28,12 @@ public static class SqlServerQueryableExtensions
     ///     An ANN (Approximate Nearest Neighbor) index is used only if a matching ANN index, with the same metric and on the same column,
     ///     is found. If there are no compatible ANN indexes, a warning is raised and the KNN (k-Nearest Neighbor) algorithm is used.
     /// </param>
-    /// <param name="topN">The maximum number of similar vectors that must be returned. It must be a positive integer.</param>
+    /// <remarks>
+    ///     <para>
+    ///         Compose the returned query with <c>OrderBy(r => r.Distance)</c> and <c>Take(...)</c> to limit the results as required
+    ///         for approximate vector search.
+    ///     </para>
+    /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql">
     ///     SQL Server documentation for <c>VECTOR_SEARCH()</c>.
     /// </seealso>
@@ -38,8 +43,7 @@ public static class SqlServerQueryableExtensions
         this DbSet<T> source,
         Expression<Func<T, TVector>> vectorPropertySelector,
         TVector similarTo,
-        [NotParameterized] string metric,
-        int topN)
+        [NotParameterized] string metric)
         where T : class
         where TVector : unmanaged
     {
@@ -50,12 +54,11 @@ public static class SqlServerQueryableExtensions
             ? queryableSource.Provider.CreateQuery<VectorSearchResult<T>>(
                 Expression.Call(
                     // Note that the method used is the one below, accepting IQueryable<T>, not DbSet<T>
-                    method: new Func<IQueryable<T>, Expression<Func<T, TVector>>, TVector, string, int, IQueryable<VectorSearchResult<T>>>(VectorSearch).Method,
+                    method: new Func<IQueryable<T>, Expression<Func<T, TVector>>, TVector, string, IQueryable<VectorSearchResult<T>>>(VectorSearch).Method,
                     root,
                     Expression.Quote(vectorPropertySelector),
                     Expression.Constant(similarTo),
-                    Expression.Constant(metric),
-                    Expression.Constant(topN)))
+                    Expression.Constant(metric)))
             : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(VectorSearch)));
     }
 
@@ -67,8 +70,7 @@ public static class SqlServerQueryableExtensions
         this IQueryable<T> source,
         Expression<Func<T, TVector>> vectorPropertySelector,
         TVector similarTo,
-        [NotParameterized] string metric,
-        int topN)
+        [NotParameterized] string metric)
         where T : class
         where TVector : unmanaged
         => throw new UnreachableException();
