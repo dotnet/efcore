@@ -34,9 +34,10 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const prNumber = context.eventName === 'workflow_dispatch'
-              ? Number(core.getInput('pr-number'))
+            const prNumberInput = context.eventName === 'workflow_dispatch'
+              ? context.payload.inputs?.['pr-number']
               : context.payload.pull_request.number;
+            const prNumber = Number(prNumberInput);
 
             if (!Number.isInteger(prNumber) || prNumber <= 0) {
               core.setFailed(`Invalid PR number: ${prNumber}`);
