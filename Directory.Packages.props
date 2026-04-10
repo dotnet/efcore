@@ -34,7 +34,6 @@
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.58.0" />
     <!-- SQL Server dependencies -->
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.0" />
-    <PackageVersion Include="Microsoft.Data.SqlClient.Extensions.Azure" Version="1.0.0" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="170.1000.7" />
     <!-- external dependencies -->
     <PackageVersion Include="Castle.Core" Version="5.2.1" />
