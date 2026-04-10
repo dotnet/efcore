@@ -90,7 +90,7 @@ jobs:
 
       - name: Check out selected commit
         if: steps.detect.outputs.has_baselines == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ steps.detect.outputs.target_sha }}
           fetch-depth: 1
