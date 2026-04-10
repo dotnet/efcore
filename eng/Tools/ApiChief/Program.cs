@@ -14,7 +14,7 @@ internal static class Program
     {
         var assemblyPathArgument = new Argument<FileInfo>("assembly-path")
         {
-            Description = "Path to the assembly to work with."
+            Description = "Path to the assembly or baseline file to work with."
         };
 
         var rootCommand = new RootCommand("Helps with .NET API management activities")

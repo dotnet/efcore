@@ -17,7 +17,7 @@ ApiChief can run against either a compiled assembly or a previously emitted base
 | `emit baseline` | Emit a JSON API baseline | `-o <file>` |
 | `emit summary` | Emit a human-readable API summary | `-o <file>`, `-x` |
 | `emit review` | Emit API review files | `-o <dir>`, `-n` |
-| `emit delta` | Emit a delta against an existing baseline | `<baseline-path>`, `-o <file>` |
+| `emit delta` | Emit a delta against an existing baseline, or markdown diff review files | `<baseline-path>`, `-o <file-or-dir>`, `--diff` |
 | `check breaking` | Fail if breaking changes exist vs. a baseline | `<baseline-path>` |
 
 Default to `emit baseline` if the user only asks to "run ApiChief".
@@ -105,6 +105,9 @@ Before running, report the selected TFM if it matters for the task.
 
 # Emit API review artifacts
 & $dotnet $apiChief $assemblyPath emit review -o ".\\artifacts\\tmp\\API.$name"
+
+# Emit GitHub-friendly markdown diff files against a baseline
+& $dotnet $apiChief $assemblyPath emit delta ".\\src\\$name\\$name.baseline.json" --diff -o ".\\artifacts\\tmp\\API.$name.Diff"
 ```
 
 `emit delta` also supports passing a `.json` file as the current input instead of a DLL.
@@ -124,4 +127,5 @@ After `emit baseline`:
 - show the chosen TFM(s)
 - report the output path(s)
 - for `check breaking`, state pass/fail
-- for `emit delta`, mention that exit code `0` means changes, `2` means no changes, and `-1` means an error
+- for `emit delta` and `emit delta --diff`, mention that exit code `0` means changes, `2` means no changes, and `-1` means an error
+- prefer `emit delta --diff` output because it generates ready-to-post ```diff fenced markdown split across per-type `.md` files

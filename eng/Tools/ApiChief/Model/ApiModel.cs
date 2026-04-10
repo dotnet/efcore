@@ -44,8 +44,8 @@ internal sealed class ApiModel
     public static ApiModel LoadFromFile(string path)
         => JsonSerializer.Deserialize<ApiModel>(File.ReadAllText(path), _serializerOptions)!;
 
-    public void EvaluateDelta(ApiModel current)
-        => current.Types = FindChanges(this, current);
+    public void EvaluateDelta(ApiModel current, bool includeSharedMembers = false)
+        => current.Types = FindChanges(this, current, includeSharedMembers);
 
     public bool HasRemovals()
         => Types.Any(static type => type.Removals != null);
@@ -53,7 +53,7 @@ internal sealed class ApiModel
     public override string ToString()
         => JsonSerializer.Serialize(this, _serializerOptions).ReplaceLineEndings(Environment.NewLine);
 
-    private static ISet<ApiType> FindChanges(ApiModel baseline, ApiModel current)
+    private static ISet<ApiType> FindChanges(ApiModel baseline, ApiModel current, bool includeSharedMembers)
     {
         ISet<ApiType> result = new HashSet<ApiType>();
 
@@ -66,7 +66,7 @@ internal sealed class ApiModel
                 continue;
             }
 
-            var typeDelta = CreateTypeDelta(currentType, currentType, baselineType, includeSharedMembers: true);
+            var typeDelta = CreateTypeDelta(currentType, currentType, baselineType, includeSharedMembers);
             if (typeDelta != null)
             {
                 result.Add(typeDelta);
