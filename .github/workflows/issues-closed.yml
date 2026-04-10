@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - name: Reclose as not planned if external user
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const issue = context.payload.issue;

@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Detect changed baseline files and add label
         id: detect
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;
@@ -215,7 +215,7 @@ jobs:
 
       - name: Create PR comment with delta
         if: steps.detect.outputs.has_baselines == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           COMMENT_PATH: ${{ steps.delta.outputs.comment_path }}
           PR_NUMBER: ${{ steps.detect.outputs.pr_number }}
