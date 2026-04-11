@@ -808,22 +808,34 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
-        => selectExpression is
-        {
-            Tables: [SqlServerOpenJsonExpression openJsonExpression, ..],
-            Orderings:
-                [
-                {
-                    Expression: SqlUnaryExpression
+        => (selectExpression is
+            {
+                Tables: [SqlServerOpenJsonExpression openJsonExpression, ..],
+                Orderings:
+                    [
                     {
-                        OperatorType: ExpressionType.Convert,
-                        Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
-                    },
-                    IsAscending: true
-                }
-                ]
-        }
-            && orderingTableAlias == openJsonExpression.Alias;
+                        Expression: SqlUnaryExpression
+                        {
+                            OperatorType: ExpressionType.Convert,
+                            Operand: ColumnExpression { Name: "key", TableAlias: var openJsonOrderingTableAlias }
+                        },
+                        IsAscending: true
+                    }
+                    ]
+            }
+                && openJsonOrderingTableAlias == openJsonExpression.Alias)
+        || (selectExpression is
+            {
+                Tables: [TableValuedFunctionExpression { Name: "VECTOR_SEARCH" } vectorSearchFunction, ..],
+                Orderings:
+                    [
+                    {
+                        Expression: ColumnExpression { Name: "Distance", TableAlias: var vectorSearchOrderingTableAlias },
+                        IsAscending: true
+                    }
+                    ]
+            }
+                && vectorSearchOrderingTableAlias == vectorSearchFunction.Alias);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

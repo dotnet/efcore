@@ -102,7 +102,7 @@ ORDER BY [v0].[Distance]
     [ConditionalFact]
     [SqlServerCondition(SqlServerCondition.IsAzureSql)]
     [Experimental("EF9105")]
-    public async Task VectorSearch_project_entity_only_with_distance_filter_and_ordering()
+    public async Task VectorSearch_project_entity_only_with_distance_filter()
     {
         using var ctx = CreateContext();
 
