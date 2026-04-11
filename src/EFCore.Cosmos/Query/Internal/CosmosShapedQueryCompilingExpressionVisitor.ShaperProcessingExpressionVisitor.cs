@@ -134,9 +134,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var valueBufferExpression = shaperExpression.ValueBufferExpression;
                     _valueBufferToJsonReaderDataMapping[valueBufferExpression] = jsonReaderData;
 
-                    projectionExpression = valueBufferExpression switch
+                    projectionExpression = valueBufferExpression.UnwrapTypeConversion(out _) switch
                     {
                         ProjectionBindingExpression projectionBindingExpression => GetProjection(projectionBindingExpression).Expression,
+                        StructuralTypeProjectionExpression structuralTypeProjectionExpression => structuralTypeProjectionExpression,
                         _ => valueBufferExpression
                     };
 
