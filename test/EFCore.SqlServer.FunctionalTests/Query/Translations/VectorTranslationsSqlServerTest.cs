@@ -77,7 +77,6 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], CAST('[1,2,100]' AS VECTOR(3)))
 
         var results = await ctx.VectorEntities
             .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
-            .OrderBy(e => e.Distance)
             .Take(1)
             .ToListAsync();
 
@@ -112,7 +111,6 @@ ORDER BY [v0].[Distance]
         var results = await ctx.VectorEntities
             .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
             .Where(e => e.Distance < 0.01)
-            .OrderBy(e => e.Distance)
             .Select(e => e.Value)
             .Take(3)
             .ToListAsync();
@@ -151,7 +149,6 @@ ORDER BY [v0].[Distance]
 
         var results = await ctx.VectorEntities
             .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
-            .OrderBy(e => e.Distance)
             .Take(3)
             .Select(e => new { e.Value.Id, e.Distance })
             .Where(e => e.Distance < 0.01)

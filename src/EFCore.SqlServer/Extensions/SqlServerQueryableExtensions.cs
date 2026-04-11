@@ -30,8 +30,8 @@ public static class SqlServerQueryableExtensions
     /// </param>
     /// <remarks>
     ///     <para>
-    ///         Compose the returned query with <c>OrderBy(r => r.Distance)</c> and <c>Take(...)</c> to limit the results as required
-    ///         for approximate vector search.
+    ///         Results are implicitly ordered by distance ascending. Compose the returned query with <c>Take(...)</c> to limit the
+    ///         number of results as required for approximate vector search.
     ///     </para>
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql">

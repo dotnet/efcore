@@ -147,11 +147,17 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     var valueProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Value))!);
                     var distanceProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Distance))!);
 
+                    var distanceColumn = new ColumnExpression("Distance", vectorSearchFunction.Alias, typeof(double), _typeMappingSource.FindMapping(typeof(double)), nullable: false);
+
                     select.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
                     {
                         [valueProjectionMember] = entityProjection,
-                        [distanceProjectionMember] = new ColumnExpression("Distance", vectorSearchFunction.Alias, typeof(double), _typeMappingSource.FindMapping(typeof(double)), nullable: false)
+                        [distanceProjectionMember] = distanceColumn
                     });
+
+                    // VECTOR_SEARCH() results are implicitly ordered by distance ascending; add this ordering so that
+                    // users can compose with Take() without needing an explicit OrderBy(r => r.Distance).
+                    select.AppendOrdering(new OrderingExpression(distanceColumn, ascending: true));
 
                     var shaper = Expression.New(
                         resultType.GetConstructors().Single(),
