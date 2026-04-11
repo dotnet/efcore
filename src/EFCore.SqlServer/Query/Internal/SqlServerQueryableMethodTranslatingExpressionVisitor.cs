@@ -808,7 +808,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
-        => (selectExpression is
+        => selectExpression switch
+        {
+            // OPENJSON rows are naturally ordered by their "key" column (array index), ascending.
+            // EF adds this ordering implicitly when expanding JSON arrays; treat it as natural to avoid spurious
+            // "Distinct after OrderBy without row limiting operator" warnings.
             {
                 Tables: [SqlServerOpenJsonExpression openJsonExpression, ..],
                 Orderings:
@@ -822,9 +826,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         IsAscending: true
                     }
                     ]
-            }
-                && openJsonOrderingTableAlias == openJsonExpression.Alias)
-        || (selectExpression is
+            } when openJsonOrderingTableAlias == openJsonExpression.Alias => true,
+
+            // VECTOR_SEARCH() results are naturally ordered by Distance ascending.
+            // EF adds this ordering implicitly during VectorSearch translation; treat it as natural to avoid spurious
+            // "Distinct after OrderBy without row limiting operator" warnings.
             {
                 Tables: [TableValuedFunctionExpression { Name: "VECTOR_SEARCH" } vectorSearchFunction, ..],
                 Orderings:
@@ -834,8 +840,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         IsAscending: true
                     }
                     ]
-            }
-                && vectorSearchOrderingTableAlias == vectorSearchFunction.Alias);
+            } when vectorSearchOrderingTableAlias == vectorSearchFunction.Alias => true,
+
+            _ => false
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
