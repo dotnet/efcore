@@ -2030,6 +2030,18 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void SetOffset(SqlExpression? sqlExpression)
+    {
+        Offset = sqlExpression;
+    }
+
+    /// <summary>
     ///     Applies offset to the <see cref="SelectExpression" /> to skip the number of rows in the result set.
     /// </summary>
     /// <param name="sqlExpression">An expression representing offset row count.</param>

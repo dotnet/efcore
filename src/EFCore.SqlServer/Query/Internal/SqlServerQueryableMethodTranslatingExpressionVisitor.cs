@@ -807,6 +807,49 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
+        // When VECTOR_SEARCH() is present and an Offset has already been applied (i.e. Skip().Take()), we need to ensure that the
+        // generated SQL uses TOP WITH APPROXIMATE in a subquery, rather than the default OFFSET...FETCH which doesn't use the
+        // vector index. We push down a subquery with TOP(Skip + Take) WITH APPROXIMATE, and apply OFFSET...FETCH on the outer query.
+        if (selectExpression is { Offset: { } existingOffset }
+            && selectExpression.Tables.Any(t => t.UnwrapJoin() is TableValuedFunctionExpression { Name: "VECTOR_SEARCH" }))
+        {
+            var translation = TranslateExpression(count);
+            if (translation == null)
+            {
+                return null;
+            }
+
+            var combinedLimit = _sqlExpressionFactory.Add(existingOffset, translation);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            // Clear the offset so the inner subquery uses TOP(M+N) instead of OFFSET...FETCH
+            selectExpression.SetOffset(null);
+            selectExpression.SetLimit(combinedLimit);
+
+            // Push down: inner gets TOP(Skip+Take) WITH APPROXIMATE, outer is clean
+            selectExpression.PushdownIntoSubquery();
+
+            // Apply the original offset and take on the outer query as OFFSET...FETCH
+            selectExpression.ApplyOffset(existingOffset);
+            selectExpression.SetLimit(translation);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            return source;
+        }
+
+        return base.TranslateTake(source, count);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
         => selectExpression switch
         {

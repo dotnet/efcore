@@ -180,6 +180,86 @@ ORDER BY [v1].[Distance]
 """);
     }
 
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_with_Skip_and_Take()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .Skip(1)
+            .Take(2)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+
+        AssertSql(
+            """
+@p1='1'
+@p2='2'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+
+SELECT [v1].[Id], [v1].[Distance]
+FROM (
+    SELECT TOP(@p1 + @p2) WITH APPROXIMATE [v].[Id], [v0].[Distance]
+    FROM VECTOR_SEARCH(
+        TABLE = [VectorEntities] AS [v],
+        COLUMN = [Vector],
+        SIMILAR_TO = @p,
+        METRIC = 'cosine'
+    ) AS [v0]
+    ORDER BY [v0].[Distance]
+) AS [v1]
+ORDER BY [v1].[Distance]
+OFFSET @p1 ROWS FETCH NEXT @p2 ROWS ONLY
+""");
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_with_Take_and_Skip()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .Take(3)
+            .Skip(1)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+
+        AssertSql(
+            """
+@p1='3'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+@p2='1'
+
+SELECT [v1].[Id], [v1].[Distance]
+FROM (
+    SELECT TOP(@p1) WITH APPROXIMATE [v].[Id], [v0].[Distance]
+    FROM VECTOR_SEARCH(
+        TABLE = [VectorEntities] AS [v],
+        COLUMN = [Vector],
+        SIMILAR_TO = @p,
+        METRIC = 'cosine'
+    ) AS [v0]
+    ORDER BY [v0].[Distance]
+) AS [v1]
+ORDER BY [v1].[Distance]
+OFFSET @p2 ROWS
+""");
+    }
+
     [ConditionalFact]
     public async Task Length()
     {
