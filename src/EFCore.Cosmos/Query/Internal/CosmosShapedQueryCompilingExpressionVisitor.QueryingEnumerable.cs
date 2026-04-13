@@ -23,7 +23,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JsonReaderData, T> _shaper;
+        private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -37,7 +37,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JsonReaderData, T> shaper,
+            Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -103,7 +103,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JsonReaderData, T> _shaper;
+            private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
@@ -115,7 +115,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private T? _current;
             private ReadOnlyMemory<byte>? _data;
-            private JsonReaderData? _readerData;
             private IAsyncEnumerator<ReadOnlyMemory<byte>>? _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
@@ -154,7 +153,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
-                    if (_readerData == null)
+                    if (!_data.HasValue)
                     {
                         var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
                         if (!hasNext)
@@ -162,9 +161,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             return false;
                         }
                         _data = _enumerator.Current;
-                        _readerData = new JsonReaderData(_data);
+                        var responseBodyJsonReaderData = new JsonReaderData(_data.Value);
 
-                        var responseBodyManager = new Utf8JsonReaderManager(_readerData, _queryLogger);
+                        var responseBodyManager = new Utf8JsonReaderManager(responseBodyJsonReaderData, _queryLogger);
 
                         var tokenType = responseBodyManager.MoveNext();
                         Debug.Assert(tokenType == JsonTokenType.StartObject);
@@ -192,20 +191,24 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
                         }
+
+                        _data = _data.Value.Slice((int)responseBodyManager.CurrentReader.BytesConsumed);
                     }
 
-                    var manager = new Utf8JsonReaderManager(_readerData, _queryLogger);
+                    var readerData = new JsonReaderData(_data.Value);
+                    var manager = new Utf8JsonReaderManager(readerData, _queryLogger);
                     manager.MoveNext();
 
                     if (manager.CurrentReader.TokenType == JsonTokenType.EndArray)
                     {
-                        _data!.Dispose();
-                        _readerData = null;
+                        _data = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }
 
+                    _data = _data.Value.Slice((int)manager.CurrentReader.BytesConsumed);
+
                     using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
-                    _current = _shaper(_cosmosQueryContext, _readerData);
+                    _current = _shaper(_cosmosQueryContext, _data.Value);
                     return true;
                 }
                 catch (Exception exception)

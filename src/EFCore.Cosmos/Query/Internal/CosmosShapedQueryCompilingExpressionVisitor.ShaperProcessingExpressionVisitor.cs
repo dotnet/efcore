@@ -15,8 +15,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
             SelectExpression selectExpression,
-            ParameterExpression jsonReaderData,
-            bool trackQueryResults) : ExpressionVisitor
+            ParameterExpression jsonReaderData) : ExpressionVisitor
     {
         private static readonly MethodInfo QueryContextStartTrackingMethod =
             typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
