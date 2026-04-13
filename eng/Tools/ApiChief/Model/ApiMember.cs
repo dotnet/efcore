@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace ApiChief.Model;
 
-internal sealed class ApiMember : IEquatable<ApiMember>
+public sealed class ApiMember : IEquatable<ApiMember>
 {
     [JsonPropertyOrder(0)]
     public string Member { get; set; } = string.Empty;

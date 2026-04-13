@@ -8400,6 +8400,19 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.MigrationVersionEventData : Microsoft.EntityFrameworkCore.Diagnostics.DbContextTypeEventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.MigrationVersionEventData.MigrationVersionEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, System.Type contextType, string? migrationVersion);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string? Microsoft.EntityFrameworkCore.Diagnostics.MigrationVersionEventData.MigrationVersion { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.MigratorConnectionEventData : Microsoft.EntityFrameworkCore.Diagnostics.MigratorEventData",
       "Methods": [
         {
@@ -12793,6 +12806,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.NonTransactionalMigrationOperationWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.OldMigrationVersionWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.OptionalDependentWithAllNullPropertiesWarning"
         },
         {
@@ -13490,6 +13506,9 @@
         },
         {
           "Member": "static void Microsoft.EntityFrameworkCore.Diagnostics.RelationalLoggerExtensions.NonTransactionalMigrationOperationWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, Microsoft.EntityFrameworkCore.Migrations.IMigrator migrator, Microsoft.EntityFrameworkCore.Migrations.Migration migration, Microsoft.EntityFrameworkCore.Migrations.MigrationCommand command);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.Diagnostics.RelationalLoggerExtensions.OldMigrationVersionWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, System.Type contextType, string? migrationVersion);"
         },
         {
           "Member": "static void Microsoft.EntityFrameworkCore.Diagnostics.RelationalLoggerExtensions.OptionalDependentWithAllNullPropertiesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Update> diagnostics, Microsoft.EntityFrameworkCore.Update.IUpdateEntry entry);"

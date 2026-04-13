@@ -56,6 +56,7 @@
     <Project Path="test/dotnet-ef.Tests/dotnet-ef.Tests.csproj" />
     <Project Path="test/ef.Tests/ef.Tests.csproj" />
     <Project Path="test/EFCore.Analyzers.Tests/EFCore.Analyzers.Tests.csproj" />
+    <Project Path="test/EFCore.ApiBaseline.Tests/EFCore.ApiBaseline.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.InMemory.FunctionalTests/EFCore.AspNet.InMemory.FunctionalTests.csproj" />
     <Project Path="test/EFCore.AspNet.Specification.Tests/EFCore.AspNet.Specification.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.Sqlite.FunctionalTests/EFCore.AspNet.Sqlite.FunctionalTests.csproj" />

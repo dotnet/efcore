@@ -17035,7 +17035,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Storage.Json.JsonReaderData",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Storage.Json.JsonReaderData.JsonReaderData(byte[] buffer);"
+          "Member": "Microsoft.EntityFrameworkCore.Storage.Json.JsonReaderData.JsonReaderData(System.ReadOnlyMemory<byte> buffer);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.Json.JsonReaderData.JsonReaderData(System.IO.Stream stream);"
@@ -17741,10 +17741,6 @@
         },
         {
           "Member": "override System.Linq.Expressions.Expression Microsoft.EntityFrameworkCore.Query.LiftableConstantProcessor.VisitExtension(System.Linq.Expressions.Expression node);",
-          "Stage": "Experimental"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression Microsoft.EntityFrameworkCore.Query.LiftableConstantProcessor.VisitMember(System.Linq.Expressions.MemberExpression memberExpression);",
           "Stage": "Experimental"
         }
       ],

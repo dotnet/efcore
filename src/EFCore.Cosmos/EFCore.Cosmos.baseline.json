@@ -141,7 +141,8 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode connectionMode);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ContentResponseOnWriteEnabled(bool enabled = true);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ContentResponseOnWriteEnabled(bool enabled = true);",
+          "Stage": "Obsolete"
         },
         {
           "Member": "override bool Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.Equals(object? obj);"

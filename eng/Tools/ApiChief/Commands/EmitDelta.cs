@@ -161,8 +161,8 @@ internal static class EmitDelta
     {
         List<string> lines = [];
 
-        var typeAdded = type.Additions != null && type.Removals == null;
-        var typeRemoved = type.Removals != null && type.Additions == null;
+        var typeAdded = type.IsNew;
+        var typeRemoved = type.IsRemoved;
 
         if (typeRemoved)
         {
@@ -172,10 +172,14 @@ internal static class EmitDelta
         {
             lines.Add($"+ {type.Type}");
         }
+        else
+        {
+            lines.Add($"  {type.Type}");
+        }
 
         AppendStageDiffLine(lines, type.Removals, '-');
         AppendStageDiffLine(lines, type.Additions, '+');
-        AppendGroupedDiffMembers(lines, type.Removals, type.Additions);
+        AppendGroupedDiffMembers(lines, type);
 
         return $"### `{type.Type}`{Environment.NewLine}{Environment.NewLine}```diff{Environment.NewLine}{string.Join(Environment.NewLine, lines)}{Environment.NewLine}```{Environment.NewLine}";
     }
@@ -188,10 +192,11 @@ internal static class EmitDelta
         }
     }
 
-    private static void AppendGroupedDiffMembers(List<string> lines, ApiType? removals, ApiType? additions)
+    private static void AppendGroupedDiffMembers(List<string> lines, ApiType type)
     {
-        var removedEntries = GetDiffEntries(removals, '-');
-        var addedEntries = GetDiffEntries(additions, '+');
+        var removedEntries = GetDiffEntries(type.Removals, '-');
+        var addedEntries = GetDiffEntries(type.Additions, '+');
+        var unchangedEntries = GetDiffEntries(type, ' ');
 
         var sharedNames = removedEntries
             .Select(static entry => entry.Name)
@@ -217,6 +222,11 @@ internal static class EmitDelta
         }
 
         foreach (var entry in addedEntries.Where(entry => !sharedNames.Contains(entry.Name)))
+        {
+            lines.Add(entry.Line);
+        }
+
+        foreach (var entry in unchangedEntries)
         {
             lines.Add(entry.Line);
         }
