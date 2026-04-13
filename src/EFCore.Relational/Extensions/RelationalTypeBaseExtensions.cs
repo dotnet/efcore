@@ -350,7 +350,13 @@ public static class RelationalTypeBaseExtensions
     ///     Gets the mapping strategy for the derived types.
     /// </summary>
     /// <param name="typeBase">The type.</param>
-    /// <returns>The mapping strategy for the derived types.</returns>
+    /// <returns>
+    ///     The mapping strategy for the derived types, or <see langword="null" /> if no strategy is configured
+    ///     and the entity type has no derived types. The possible values are
+    ///     <see cref="RelationalAnnotationNames.TphMappingStrategy" />,
+    ///     <see cref="RelationalAnnotationNames.TptMappingStrategy" />, and
+    ///     <see cref="RelationalAnnotationNames.TpcMappingStrategy" />.
+    /// </returns>
     public static string? GetMappingStrategy(this IReadOnlyTypeBase typeBase)
         => typeBase.ContainingEntityType.GetMappingStrategy();
 
