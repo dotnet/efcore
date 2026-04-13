@@ -27,6 +27,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     private static readonly bool UseOldBehavior37336 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37336", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior37537 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37537", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -290,7 +293,9 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                                             new ColumnExpression(
                                                 columnName,
                                                 openJson.Alias,
-                                                valuesParameter.Type.GetSequenceType(),
+                                                UseOldBehavior37537
+                                                    ? valuesParameter.Type.GetSequenceType()
+                                                    : valuesParameter.Type.GetSequenceType().UnwrapNullableType(),
                                                 elementTypeMapping,
                                                 containsNulls!.Value),
                                             columnName)
