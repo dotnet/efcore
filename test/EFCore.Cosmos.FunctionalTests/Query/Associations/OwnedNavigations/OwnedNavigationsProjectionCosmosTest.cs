@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 public class OwnedNavigationsProjectionCosmosTest : OwnedNavigationsProjectionTestBase<OwnedNavigationsCosmosFixture>
@@ -349,22 +347,9 @@ FROM root c
     }
 
     [ConditionalTheory, MemberData(nameof(TrackingData))]
-    public virtual async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Tracking not supported.");
-        }
-
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => new { First = x.RequiredAssociate, Second = x.RequiredAssociate }),
-            elementSorter: e => e.First.Id,
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.First, a.First);
-                AssertEqual(e.Second, a.Second);
-            },
-            queryTrackingBehavior: queryTrackingBehavior);
+        await base.Select_required_associate_duplicated(queryTrackingBehavior);
 
         AssertSql(
             """
@@ -373,23 +358,9 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
-    public virtual async Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
+    public override async Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        if (queryTrackingBehavior is QueryTrackingBehavior.TrackAll)
-        {
-            throw SkipException.ForSkip("Tracking not supported.");
-        }
-
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => new { First = x.RequiredAssociate, Second = x.OptionalAssociate }), // @TODO: We need a different approach, create reader data in shaper and pass back the amount of bytes read?
-            elementSorter: e => e.First.Id,
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.First, a.First);
-                AssertEqual(e.Second, a.Second);
-            },
-            queryTrackingBehavior: queryTrackingBehavior);
+        await base.Select_required_associate_and_optional_associate(queryTrackingBehavior);
 
         AssertSql(
             """
