@@ -114,9 +114,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IExceptionDetector _exceptionDetector;
 
             private T? _current;
-            private Stream? _stream;
+            private ReadOnlyMemory<byte>? _data;
             private JsonReaderData? _readerData;
-            private IAsyncEnumerator<Stream>? _enumerator;
+            private IAsyncEnumerator<ReadOnlyMemory<byte>>? _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
             {
@@ -161,8 +161,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             return false;
                         }
-                        _stream = _enumerator.Current;
-                        _readerData = new JsonReaderData(_stream);
+                        _data = _enumerator.Current;
+                        _readerData = new JsonReaderData(_data);
 
                         var responseBodyManager = new Utf8JsonReaderManager(_readerData, _queryLogger);
 
@@ -199,7 +199,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (manager.CurrentReader.TokenType == JsonTokenType.EndArray)
                     {
-                        _stream!.Dispose();
+                        _data!.Dispose();
                         _readerData = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }

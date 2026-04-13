@@ -835,7 +835,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         PartitionKey partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery,
         ISessionTokenStorage sessionTokenStorage)
-        : IAsyncEnumerable<MemoryStream>
+        : IAsyncEnumerable<ReadOnlyMemory<byte>>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
         private readonly string _containerId = containerId;
@@ -843,11 +843,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
         private readonly ISessionTokenStorage _sessionTokenStorage = sessionTokenStorage;
 
-        public IAsyncEnumerator<MemoryStream> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public IAsyncEnumerator<ReadOnlyMemory<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
 
         private sealed class AsyncEnumerator(ResponseAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
-            : IAsyncEnumerator<MemoryStream>
+            : IAsyncEnumerator<ReadOnlyMemory<byte>>
         {
             private readonly CosmosClientWrapper _cosmosClientWrapper = documentEnumerable._cosmosClient;
             private readonly string _containerId = documentEnumerable._containerId;
@@ -856,9 +856,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             private readonly ISessionTokenStorage _sessionTokenStorage = documentEnumerable._sessionTokenStorage;
 
             private FeedIterator? _query;
-            private MemoryStream? _current;
+            private ReadOnlyMemory<byte>? _current;
 
-            public MemoryStream Current
+            public ReadOnlyMemory<byte> Current
                 => _current ?? throw new InvalidOperationException();
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -903,7 +903,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 responseMessage.EnsureSuccessStatusCode();
 
                 // Throw if this isn't a memory stream anymore
-                _current = (MemoryStream)responseMessage.Content;
+                _current = ((MemoryStream)responseMessage.Content).GetBuffer()
+                    .AsMemory().Slice(0, (int)responseMessage.Content.Length);
 
                 return true;
             }
