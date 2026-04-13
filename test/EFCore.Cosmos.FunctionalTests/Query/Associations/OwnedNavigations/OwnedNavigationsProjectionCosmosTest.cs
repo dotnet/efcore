@@ -346,27 +346,46 @@ FROM root c
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
     public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_required_associate_duplicated(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 """);
+        }
     }
 
     public override async Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_required_associate_and_optional_associate(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 """);
+        }
+    }
+
+    public override async Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_associate_and_ints(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE c, c["RequiredAssociate"]["Ints"]
+FROM root c
+""");
+        }
     }
 
     #endregion Multiple

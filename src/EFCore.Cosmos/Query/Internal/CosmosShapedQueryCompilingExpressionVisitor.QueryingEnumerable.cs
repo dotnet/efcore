@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -210,17 +209,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
 
                     using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
-                    _current = _shaper(_cosmosQueryContext, _data.Value.Slice((int)reader.BytesConsumed - 1));
+                    _current = _shaper(_cosmosQueryContext, _data.Value.Slice((int)reader.TokenStartIndex));
 
+                    // This could be a scalar or a structural type, if it is an object, we need to move past it.
                     // @TODO: Get BytesConsumed from shaper?
-                    reader.Read();
-                    while (reader.TokenType != JsonTokenType.EndObject)
+                    if (reader.TokenType == JsonTokenType.StartObject)
                     {
-                        reader.Skip();
                         reader.Read();
+                        while (reader.TokenType != JsonTokenType.EndObject)
+                        {
+                            reader.Skip();
+                            reader.Read();
+                        }
                     }
 
-                    _readerState = reader.CurrentState;
+                    _readerState = reader.CurrentState; // Or we could comment this and we must read 1 more and use the TokenStart again
                     _data = _data.Value.Slice((int)reader.BytesConsumed);
 
                     return true;

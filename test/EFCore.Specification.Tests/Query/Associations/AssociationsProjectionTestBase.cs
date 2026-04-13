@@ -218,10 +218,10 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             queryTrackingBehavior: queryTrackingBehavior);
 
     [ConditionalTheory, MemberData(nameof(TrackingData))]
-    public virtual Task Select_required_associate_and_optional_associate_ints(QueryTrackingBehavior queryTrackingBehavior)
+    public virtual Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => new { First = x.RequiredAssociate, x.OptionalAssociate!.Ints }),
-            elementSorter: e => e.First.Id,
+            ss => ss.Set<RootEntity>().Select(x => new { First = x.OptionalAssociate, x.RequiredAssociate.Ints }),
+            elementSorter: e => e.First?.Id ?? -1,
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.First, a.First);

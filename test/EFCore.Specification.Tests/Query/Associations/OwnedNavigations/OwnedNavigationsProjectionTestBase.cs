@@ -173,10 +173,10 @@ public abstract class OwnedNavigationsProjectionTestBase<TFixture>(TFixture fixt
             queryTrackingBehavior,
             () => base.Select_required_associate_and_optional_associate(queryTrackingBehavior));
 
-    public override Task Select_required_associate_and_optional_associate_ints(QueryTrackingBehavior queryTrackingBehavior)
+    public override Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
         => AssertOwnedTrackingQuery(
             queryTrackingBehavior,
-            () => base.Select_required_associate_and_optional_associate_ints(queryTrackingBehavior));
+            () => base.Select_optional_associate_and_ints(queryTrackingBehavior));
 
     #endregion Multiple
 
