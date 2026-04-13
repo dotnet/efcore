@@ -15,7 +15,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
             SelectExpression selectExpression,
-            ParameterExpression jsonReaderData) : ExpressionVisitor
+            ParameterExpression data) : ExpressionVisitor
     {
         private static readonly MethodInfo QueryContextStartTrackingMethod =
             typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
@@ -102,103 +102,60 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         public LambdaExpression ProcessShaper(
             Expression shaperExpression)
         {
-            var visited = Visit(shaperExpression);
-
-            var jsonMaterializerExpression =
-                Block(
-                    [.. _projectionShaperMapping.Select(x => x.Value.Result)],
-                    [.. _projectionShaperMapping.Select(x => x.Value.Expression),
-                        visited]
-            );
-
+            var jsonMaterializerExpression = Visit(shaperExpression);
             var shaperLambda = Lambda(
                         jsonMaterializerExpression,
                         QueryCompilationContext.QueryContextParameter,
-                        jsonReaderData);
+                        data);
             return shaperLambda;
         }
-
-        private readonly Dictionary<Expression, (ParameterExpression Result, Expression Expression)>
-            _projectionShaperMapping = new();
 
         protected override Expression VisitExtension(Expression node)
         {
             var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-            ParameterExpression result;
-            Expression projectionExpression;
-            (ParameterExpression Result, Expression Expression) existing;
             switch (node)
             {
                 case StructuralTypeShaperExpression shaperExpression:
-                    var valueBufferExpression = shaperExpression.ValueBufferExpression;
-                    _valueBufferToJsonReaderDataMapping[valueBufferExpression] = jsonReaderData;
-
-                    projectionExpression = valueBufferExpression.UnwrapTypeConversion(out _) switch
-                    {
-                        ProjectionBindingExpression projectionBindingExpression => GetProjection(projectionBindingExpression).Expression,
-                        StructuralTypeProjectionExpression structuralTypeProjectionExpression => structuralTypeProjectionExpression,
-                        _ => valueBufferExpression
-                    };
-
-                    if (_projectionShaperMapping.TryGetValue(projectionExpression, out existing)) // @TODO: This makes it return the same instance, which might not be intended.
-                    {
-                        return existing.Result;
-                    }
-
-                    result = Parameter(shaperExpression.Type, "result");
-
                     var shapers = CreateJsonShapers(
                         shaperExpression.StructuralType,
                         shaperExpression.Type,
                         shaperExpression.IsNullable,
                         null,
-                        valueBufferExpression
+                        shaperExpression.ValueBufferExpression
                     );
 
-                    var shapersBlock = Block(
+                    return Block(
                         [jsonReaderManager],
                         Assign(
                             jsonReaderManager,
                             New(
                                 JsonReaderManagerConstructor,
-                                jsonReaderData,
+                                data,
                                 MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
                         Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                        Assign(result, Visit(shapers)));
-
-                    _projectionShaperMapping[projectionExpression] = (result, shapersBlock);
-
-                    return result;
+                        Visit(shapers));
                 case ProjectionBindingExpression projectionBindingExpression:
                     var projection = GetProjection(projectionBindingExpression);
-                    projectionExpression = projection.Expression;
 
-                    if (_projectionShaperMapping.TryGetValue(projectionExpression, out existing))
-                    {
-                        return existing.Result;
-                    }
+                    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
 
-                    result = Variable(projectionBindingExpression.Type, "result");
+                    var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
 
-                    var typeMapping = ((SqlExpression)projectionExpression).TypeMapping!;
-                    var shaperBlock = Block(
-                        [jsonReaderManager],
+                    return Block(
+                        [jsonReaderManager, returnValue],
                         Assign(
                             jsonReaderManager,
                             New(
                                 JsonReaderManagerConstructor,
-                                jsonReaderData,
+                                data,
                                 MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
                         Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
                         Assign(
-                            result,
-                            CreateReadJsonValueExpression(jsonReaderManager, result.Type, typeMapping)),
+                            returnValue,
+                            CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
                         Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                        result);
-
-                    _projectionShaperMapping[projectionExpression] = (result, shaperBlock);
-                    return result;
+                        returnValue);
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
             }
@@ -360,7 +317,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
                     structuralType,
                     false, // We always perform fixup for cosmos
-                    jsonReaderData,
+                    data,
                     innerShapersMap,
                     innerFixupMap,
                     trackingInnerFixupMap)
@@ -369,7 +326,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var shaperLambda = Lambda(
                     jsonMaterializerExpression,
                     QueryCompilationContext.QueryContextParameter,
-                    jsonReaderData);
+                    data);
 
             if (structuralProperty is { IsCollection: true })
             {
@@ -385,7 +342,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             },
                             collectionClrType),
                         QueryCompilationContext.QueryContextParameter,
-                        jsonReaderData,
+                        data,
                         Constant(structuralProperty),
                         shaperLambda);
 
@@ -411,7 +368,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Expression materializedRootJsonEntity = Call(
                 method,
                 QueryCompilationContext.QueryContextParameter,
-                jsonReaderData,
+                data,
                 Constant(nullable),
                 shaperLambda);
 
