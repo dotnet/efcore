@@ -83,6 +83,7 @@ public static class RelationalEventId
         AcquiringMigrationLock,
         MigrationsUserTransactionWarning,
         ModelSnapshotNotFound,
+        OldMigrationVersionWarning,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -805,6 +806,19 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ModelSnapshotNotFound = MakeMigrationsId(Id.ModelSnapshotNotFound);
+
+    /// <summary>
+    ///     The last migration was created with an older version of EF Core.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="MigrationVersionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId OldMigrationVersionWarning = MakeMigrationsId(Id.OldMigrationVersionWarning);
 
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 

@@ -876,6 +876,10 @@
     <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>
     <comment>Information RelationalEventId.ModelSnapshotNotFound string</comment>
   </data>
+  <data name="LogOldMigrationVersion" xml:space="preserve">
+    <value>Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.</value>
+    <comment>Warning RelationalEventId.OldMigrationVersionWarning string string</comment>
+  </data>
   <data name="LogNonDeterministicModel" xml:space="preserve">
     <value>The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.</value>
     <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
