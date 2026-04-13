@@ -133,9 +133,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             switch (node)
             {
                 case StructuralTypeShaperExpression shaperExpression:
+                    _queryRootEntryVariable = null;
+                    _queryRootTryGetEntryCall = null;
+
                     _valueBufferToJsonReaderDataMapping[shaperExpression.ValueBufferExpression] = jsonReaderData;
 
-                    var shapers = CreateJsonShapers(
+                    var shapers = CreateJsonShapers( // @TODO: Cache for StructuralType?
                         shaperExpression.StructuralType,
                         shaperExpression.Type,
                         shaperExpression.IsNullable,
@@ -784,29 +787,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                     }).ToArray();
 
-                    var returnNullLabel = Label(typeof(object));
-                    var returnLabel = Label(typeof(object));
-                    var returnEntity = Return(
-                        returnNullLabel,
-                        Property(entryVariable, "Entity")
-                    );
-
+                    // @TODO: if null key, we should return null right?
                     return Block(
                         Assign(entryVariable, _queryRootTryGetEntryCall.Update(queryContext, [
                             _queryRootTryGetEntryCall.Arguments[0],
                             NewArrayInit(typeof(object), keyPropertyValueExpressions),
                             _queryRootTryGetEntryCall.Arguments[2],
                             hasNullKey])),
-                        IfThen(
-                            hasNullKey,
-                            Return(returnNullLabel, Constant(null, typeof(object)))),
-                        IfThen(
+                        IfThenElse(
                             Equal(entryVariable, Default(entryVariable.Type)),
+                            Assign(entryVariable, methodCall),
                             Assign(
-                                entryVariable,
-                                methodCall)),
-                        returnEntity,
-                        Label(returnNullLabel, Constant(null, typeof(object))));
+                                instance,
+                                Convert(
+                                    MakeMemberAccess(
+                                    entryVariable,
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                                    typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!),
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                                    instance.Type))));
                 }
 
                 static Expression UnwrapConditional(Expression expression)
