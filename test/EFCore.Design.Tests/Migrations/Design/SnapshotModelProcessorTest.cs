@@ -293,6 +293,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Empty(reporter.Messages);
         }
 
+        [ConditionalFact]
+        public void Updates_property_bag_complex_property_nullability_for_pre_10_snapshots()
+        {
+            var builder = new ModelBuilder();
+            var model = builder.Model;
+            ((Model)model).SetProductVersion("9.0.0");
+
+            builder.Entity(
+                "TestEntity", b =>
+                {
+                    b.Property<int>("Id");
+                    b.HasKey("Id");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Value", "TestEntity.Value#StructValue", b1 =>
+                    {
+                        b1.Property<int>("Value");
+                    });
+                });
+
+            var entityType = model.GetEntityTypes().Single();
+            var complexProperty = entityType.GetComplexProperties().Single();
+            Assert.Equal(typeof(Dictionary<string, object>), complexProperty.ClrType);
+
+            var complexPropertyInternal = (ComplexProperty)complexProperty;
+            Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.True(complexProperty.IsNullable);
+
+            var reporter = new TestOperationReporter();
+            var processor = new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance);
+            processor.Process(model);
+
+            Assert.NotNull(complexPropertyInternal.GetIsNullableConfigurationSource());
+            Assert.False(complexProperty.IsNullable);
+            Assert.Empty(reporter.Messages);
+        }
+
         private static void AssertSameSnapshot(Type snapshotType, DbContext context)
         {
             var differ = context.GetService<IMigrationsModelDiffer>();
