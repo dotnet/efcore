@@ -33,7 +33,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(object[]).GetProperty("Item")!;
 
         private static readonly ConstructorInfo JsonReaderDataConstructor
-            = typeof(JsonReaderData).GetConstructor([typeof(Stream)])!;
+            = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)])!;
 
         private static readonly ConstructorInfo JsonReaderManagerConstructor
             = typeof(Utf8JsonReaderManager).GetConstructor(
@@ -112,10 +112,29 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         protected override Expression VisitExtension(Expression node)
         {
+            var jsonReaderData = Variable(typeof(JsonReaderData), "jsonReaderData");
             var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+            var jsonReaderInitializeExpessions = new Expression[]
+            {
+                Assign(
+                    jsonReaderData,
+                    New(
+                        JsonReaderDataConstructor,
+                        data)),
+                Assign(
+                    jsonReaderManager,
+                    New(
+                        JsonReaderManagerConstructor,
+                        jsonReaderData,
+                        MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+            };
+
             switch (node)
             {
                 case StructuralTypeShaperExpression shaperExpression:
+                    _valueBufferToJsonReaderDataMapping[shaperExpression.ValueBufferExpression] = jsonReaderData;
+
                     var shapers = CreateJsonShapers(
                         shaperExpression.StructuralType,
                         shaperExpression.Type,
@@ -125,16 +144,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     );
 
                     return Block(
-                        [jsonReaderManager],
-                        Assign(
-                            jsonReaderManager,
-                            New(
-                                JsonReaderManagerConstructor,
-                                data,
-                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                        Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                        Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                        Visit(shapers));
+                        [jsonReaderData, jsonReaderManager],
+                        [ ..jsonReaderInitializeExpessions,
+                            Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                            Visit(shapers)]);
                 case ProjectionBindingExpression projectionBindingExpression:
                     var projection = GetProjection(projectionBindingExpression);
 
@@ -143,19 +156,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
 
                     return Block(
-                        [jsonReaderManager, returnValue],
-                        Assign(
-                            jsonReaderManager,
-                            New(
-                                JsonReaderManagerConstructor,
-                                data,
-                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                        Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
-                        Assign(
-                            returnValue,
-                            CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
-                        Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                        returnValue);
+                        [jsonReaderData, jsonReaderManager, returnValue],
+                        [ ..jsonReaderInitializeExpessions,
+                            Assign(
+                                returnValue,
+                                CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
+                            Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                            returnValue]);
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
             }
@@ -171,6 +178,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IPropertyBase? structuralProperty,
             Expression valueBufferExpression)
         {
+            var jsonReaderDataShaperLambdaParameter = _valueBufferToJsonReaderDataMapping[valueBufferExpression];
+
             Expression structuralTypeShaperExpression = new StructuralTypeShaperExpression(
                 structuralType,
                 valueBufferExpression,
@@ -317,7 +326,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var jsonMaterializerExpression = new JsonEntityMaterializerRewriter(
                     structuralType,
                     false, // We always perform fixup for cosmos
-                    data,
+                    jsonReaderDataShaperLambdaParameter,
                     innerShapersMap,
                     innerFixupMap,
                     trackingInnerFixupMap)
@@ -326,7 +335,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var shaperLambda = Lambda(
                     jsonMaterializerExpression,
                     QueryCompilationContext.QueryContextParameter,
-                    data);
+                    jsonReaderDataShaperLambdaParameter);
 
             if (structuralProperty is { IsCollection: true })
             {
@@ -342,7 +351,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             },
                             collectionClrType),
                         QueryCompilationContext.QueryContextParameter,
-                        data,
+                        jsonReaderDataShaperLambdaParameter,
                         Constant(structuralProperty),
                         shaperLambda);
 
@@ -368,7 +377,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Expression materializedRootJsonEntity = Call(
                 method,
                 QueryCompilationContext.QueryContextParameter,
-                data,
+                jsonReaderDataShaperLambdaParameter,
                 Constant(nullable),
                 shaperLambda);
 
@@ -770,7 +779,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         else
                         {
-                            //(object) instance._field;
+                            //(object) instance._field; // @TODO: Well actually, what if this is missing??
                             return Convert(MakeMemberAccess(instance, property.FieldInfo ?? (MemberInfo)property.PropertyInfo!), typeof(object));
                         }
                     }).ToArray();

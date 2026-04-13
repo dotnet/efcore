@@ -61,9 +61,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
-        var readerDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
+        var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
 
-        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, readerDataParameter)
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter)
             .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));

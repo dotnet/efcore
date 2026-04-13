@@ -115,6 +115,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private T? _current;
             private ReadOnlyMemory<byte>? _data;
+            private JsonReaderState? _readerState;
             private IAsyncEnumerator<ReadOnlyMemory<byte>>? _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
@@ -161,54 +162,67 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             return false;
                         }
                         _data = _enumerator.Current;
-                        var responseBodyJsonReaderData = new JsonReaderData(_data.Value);
+                        _readerState = new JsonReaderState();
 
-                        var responseBodyManager = new Utf8JsonReaderManager(responseBodyJsonReaderData, _queryLogger);
+                        var documentsReader = new Utf8JsonReader(_data.Value.Span, true, _readerState.Value);
+                        documentsReader.Read();
 
-                        var tokenType = responseBodyManager.MoveNext();
+                        var tokenType = documentsReader.TokenType;
                         Debug.Assert(tokenType == JsonTokenType.StartObject);
                         while (tokenType != JsonTokenType.EndObject)
                         {
                             switch (tokenType)
                             {
                                 case JsonTokenType.StartObject:
-                                    tokenType = responseBodyManager.MoveNext();
+                                    documentsReader.Read();
+                                    tokenType = documentsReader.TokenType;
                                     break;
                                 case JsonTokenType.PropertyName
-                                    when responseBodyManager.CurrentReader.GetString() == "Documents":
+                                    when documentsReader.ValueTextEquals("Documents"):
                                     goto Done;
                                 default:
-                                    responseBodyManager.Skip();
-                                    tokenType = responseBodyManager.MoveNext();
+                                    documentsReader.Skip();
+                                    documentsReader.Read();
+                                    tokenType = documentsReader.TokenType;
                                     break;
                             }
                         }
 
                         Done:
-                        var token = responseBodyManager.MoveNext();
-                        responseBodyManager.CaptureState();
+                        documentsReader.Read();
+                        var token = documentsReader.TokenType;
                         if (token != JsonTokenType.StartArray)
                         {
                             throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
                         }
 
-                        _data = _data.Value.Slice((int)responseBodyManager.CurrentReader.BytesConsumed);
+                        _data = _data.Value.Slice((int)documentsReader.BytesConsumed);
+                        _readerState = documentsReader.CurrentState;
                     }
 
-                    var readerData = new JsonReaderData(_data.Value);
-                    var manager = new Utf8JsonReaderManager(readerData, _queryLogger);
-                    manager.MoveNext();
-
-                    if (manager.CurrentReader.TokenType == JsonTokenType.EndArray)
+                    var reader = new Utf8JsonReader(_data.Value.Span, true, _readerState!.Value);
+                    reader.Read();
+                    if (reader.TokenType == JsonTokenType.EndArray)
                     {
                         _data = null;
+                        _readerState = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }
 
-                    _data = _data.Value.Slice((int)manager.CurrentReader.BytesConsumed);
-
                     using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
-                    _current = _shaper(_cosmosQueryContext, _data.Value);
+                    _current = _shaper(_cosmosQueryContext, _data.Value.Slice((int)reader.BytesConsumed - 1));
+
+                    // @TODO: Get BytesConsumed from shaper?
+                    reader.Read();
+                    while (reader.TokenType != JsonTokenType.EndObject)
+                    {
+                        reader.Skip();
+                        reader.Read();
+                    }
+
+                    _readerState = reader.CurrentState;
+                    _data = _data.Value.Slice((int)reader.BytesConsumed);
+
                     return true;
                 }
                 catch (Exception exception)
