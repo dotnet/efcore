@@ -81,9 +81,19 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     {
         var unwrappedType = typeof(T).UnwrapNullableType();
 
-        return (T)(!unwrappedType.IsInstanceOfType(value)
-            ? Convert.ChangeType(value, unwrappedType)
-            : value);
+        if (unwrappedType.IsInstanceOfType(value))
+        {
+            return (T)value;
+        }
+
+        // Convert.ChangeType cannot convert to enum types; use Enum.ToObject instead, which handles
+        // conversion from different enum types (with the same underlying type) or from integral types.
+        if (unwrappedType.IsEnum)
+        {
+            return (T)Enum.ToObject(unwrappedType, value);
+        }
+
+        return (T)Convert.ChangeType(value, unwrappedType);
     }
 
     /// <summary>
