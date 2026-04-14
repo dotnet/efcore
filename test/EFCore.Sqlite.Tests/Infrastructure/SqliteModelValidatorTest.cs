@@ -150,6 +150,108 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
 
+    public override void Detects_non_generated_update_stored_procedure_result_columns_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_multiple_entity_types_mapped_to_the_same_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_current_value_parameter_on_delete_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_InsertUsingStoredProcedure_without_a_name()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_key_delete_stored_procedure_params_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_stored_procedure_input_parameter_for_update_non_save_property()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_result_columns_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_rows_affected_with_result_columns()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_original_value_parameter_on_insert_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_generated_insert_stored_procedure_result_columns_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_result_columns_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_generated_properties_mapped_to_result_and_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_stored_procedure_parameters_for_abstract_properties_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_result_columns_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_delete_stored_procedure_result_columns_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_parameters_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_generated_properties_mapped_to_original_and_current_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_tableless_entity_type_mapped_to_some_stored_procedures()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_duplicate_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_generated_insert_stored_procedure_output_parameter_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_parameters_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_parameters_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_keyless_entity_type_mapped_to_a_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_generated_update_stored_procedure_input_output_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_stored_procedure_input_parameter_for_insert_non_save_property()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_rows_affected_on_insert_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_duplicate_result_column()
+        => VerifyStoredProceduresNotSupported();
+
+    private void VerifyStoredProceduresNotSupported()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>()
+            .InsertUsingStoredProcedure("Insert", s => s.HasParameter(a => a.Id));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), modelBuilder);
+    }
+
     [ConditionalFact]
     public void Detects_conflicting_autoincrement_and_default_value_sql()
     {

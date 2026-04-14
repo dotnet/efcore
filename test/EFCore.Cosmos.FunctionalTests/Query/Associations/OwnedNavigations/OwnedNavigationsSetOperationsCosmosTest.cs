@@ -31,7 +31,7 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
     }
 
     public override Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior));
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior)); // #37918
 
     public override Task Over_assocate_collection_Select_nested_with_aggregates_projected(QueryTrackingBehavior queryTrackingBehavior)
         => Assert.ThrowsAsync<InvalidOperationException>(

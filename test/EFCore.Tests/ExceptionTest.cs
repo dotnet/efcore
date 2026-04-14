@@ -115,6 +115,9 @@ public class ExceptionTest
         public bool IsModified(IProperty property)
             => throw new NotImplementedException();
 
+        public bool IsLoaded(IProperty property)
+            => throw new NotImplementedException();
+
         public bool HasTemporaryValue(IProperty property)
             => throw new NotImplementedException();
 

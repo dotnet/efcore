@@ -68,7 +68,7 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_TimeOnly()
-        => Can_map_scalar_by_clr_type<TimeOnly, JsonTimeOnlyReaderWriter>(
+        => Can_map_scalar_by_clr_type<TimeOnly, CosmosJsonTimeOnlyReaderWriter>(
             new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
 
     [ConditionalFact]
@@ -84,7 +84,7 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_TimeSpan()
-        => Can_map_scalar_by_clr_type<TimeSpan, JsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), JTokenType.TimeSpan, "\"2.03:04:05\"");
+        => Can_map_scalar_by_clr_type<TimeSpan, CosmosJsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), JTokenType.TimeSpan, "\"2.03:04:05\"");
 
     [ConditionalFact]
     public void Can_map_string()
@@ -148,7 +148,7 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_nullable_TimeOnly()
-        => Can_map_scalar_by_clr_type<TimeOnly?, JsonTimeOnlyReaderWriter>(
+        => Can_map_scalar_by_clr_type<TimeOnly?, CosmosJsonTimeOnlyReaderWriter>(
             new TimeOnly(20, 19, 12, 254), JTokenType.String, "\"20:19:12.254\"");
 
     [ConditionalFact]
@@ -164,7 +164,7 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_nullable_TimeSpan()
-        => Can_map_scalar_by_clr_type<TimeSpan?, JsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), JTokenType.TimeSpan, "\"2.03:04:05\"");
+        => Can_map_scalar_by_clr_type<TimeSpan?, CosmosJsonTimeSpanReaderWriter>(new TimeSpan(2, 3, 4, 5), JTokenType.TimeSpan, "\"2.03:04:05\"");
 
     [ConditionalFact]
     public void Can_map_nullable_string()

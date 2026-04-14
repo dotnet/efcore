@@ -102,6 +102,12 @@ FROM root c
         }
     }
 
+    [ConditionalFact]
+    public Task Select_distinct_associate()
+        => AssertTranslationFailed(() => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
+
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_optional_associate(queryTrackingBehavior);
@@ -318,6 +324,15 @@ ORDER BY c["Id"]
 SELECT VALUE c
 FROM root c
 """);
+    }
+
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            await Assert.ThrowsAsync<Xunit.Sdk.EqualException>(
+                () => base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
+        }
     }
 
     #endregion Multiple

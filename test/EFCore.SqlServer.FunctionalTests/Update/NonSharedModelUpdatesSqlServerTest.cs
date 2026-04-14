@@ -89,7 +89,7 @@ WHERE [Id] = @p5;
     [ConditionalFact] // Issue #29502
     public virtual async Task Bulk_insert_result_set_mapping()
     {
-        var contextFactory = await InitializeAsync<DbContext>(
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
                 mb.Entity<User>().ToTable("Users");
@@ -137,7 +137,7 @@ WHERE [Id] = @p5;
         // SQL Server's bulk insert support makes it impossible to populate the entry which caused the exception, since the position
         // used to find the entry is returned as an output column, but the row is never received in case of an exception.
         // Instead we make sure Entries contains all entries.
-        var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+        var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -195,6 +195,112 @@ OUTPUT INSERTED.[Id], i._Position;
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    protected override ITestStoreFactory TestStoreFactory
+    public override async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
+    {
+        await base.Update_entity_with_not_loaded_property_excludes_column_from_SQL(async);
+
+        AssertSql(
+            """
+@p1='1'
+@p0='Updated Blog' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [BlogWithDescription] SET [Name] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+""",
+            //
+            """
+SELECT TOP(2) [b].[Description]
+FROM [BlogWithDescription] AS [b]
+WHERE [b].[Description] = N'Original description'
+""");
+    }
+
+    public override async Task Save_and_query_with_partially_loaded_primitive_collection(bool async)
+    {
+        await base.Save_and_query_with_partially_loaded_primitive_collection(async);
+
+        AssertSql(
+            """
+@p1='1'
+@p0='Updated Blog' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [BlogWithTags] SET [Name] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithTags] AS [b]
+""");
+    }
+
+    public override async Task Query_with_not_auto_loaded_property_tracked(bool async)
+    {
+        await base.Query_with_not_auto_loaded_property_tracked(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Query_with_not_auto_loaded_property_no_tracking(bool async)
+    {
+        await base.Query_with_not_auto_loaded_property_no_tracking(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Explicit_select_of_not_auto_loaded_property(bool async)
+    {
+        await base.Explicit_select_of_not_auto_loaded_property(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Description]
+FROM [BlogWithDescription] AS [b]
+""");
+    }
+
+    public override async Task Where_on_not_auto_loaded_property(bool async)
+    {
+        await base.Where_on_not_auto_loaded_property(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithDescription] AS [b]
+WHERE [b].[Description] = N'Some description'
+""");
+    }
+
+    public override async Task Query_with_not_auto_loaded_primitive_collection(bool async)
+    {
+        await base.Query_with_not_auto_loaded_primitive_collection(async);
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name]
+FROM [BlogWithTags] AS [b]
+""");
+    }
+
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

@@ -5,6 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Types;
 
 public abstract class SqlServerTypeFixture<T> : RelationalTypeFixtureBase<T>
 {
+    protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 

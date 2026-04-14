@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using SQLitePCL;
 using static SQLitePCL.raw;
 
@@ -8,7 +9,7 @@ namespace Microsoft.Data.Sqlite;
 
 internal class SqliteResultBinder(sqlite3_context ctx, object? value) : SqliteValueBinder(value)
 {
-    protected override void BindBlob(byte[] value)
+    protected override void BindBlob(ReadOnlySpan<byte> value)
         => sqlite3_result_blob(ctx, value);
 
     protected override void BindDoubleCore(double value)

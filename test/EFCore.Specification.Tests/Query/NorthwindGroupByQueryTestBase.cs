@@ -67,10 +67,22 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Max(o => o.OrderID)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_MaxBy(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.MaxBy(o => o.OrderID)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Property_Select_Min(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Min(o => o.OrderID)));
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_MinBy(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.MinBy(o => o.OrderID)));
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Property_Select_Sum(bool async)
@@ -2826,7 +2838,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
 
     #endregion
 
-    # region GroupByInSubquery
+    #region GroupByInSubquery
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_query_with_groupBy_in_subquery1(bool async)

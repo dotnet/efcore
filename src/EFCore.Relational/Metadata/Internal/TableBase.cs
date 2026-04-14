@@ -89,10 +89,48 @@ public class TableBase : Annotatable, ITableBase
         => Columns.GetValueOrDefault(name);
 
     /// <inheritdoc />
-    public virtual IColumnBase? FindColumn(IProperty property)
+    public virtual IColumnBase? FindColumn(IPropertyBase propertyBase)
+        => propertyBase switch
+        {
+            IProperty property => FindColumn(property),
+            INavigation navigation => FindColumn(navigation),
+            IComplexProperty complexProperty => FindColumn(complexProperty),
+            _ => null
+        };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IColumnBase? FindColumn(IProperty property)
         => property.GetDefaultColumnMappings()
-            .FirstOrDefault(cm => cm.TableMapping.Table == this)
-            ?.Column;
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)?.Column
+            ?? property.GetJsonElementMappings()
+                .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IColumnBase? FindColumn(INavigation navigation)
+        => navigation.TargetEntityType.GetContainerColumnName() is { Length: > 0 } containerName
+            ? FindColumn(containerName)
+            : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IColumnBase? FindColumn(IComplexProperty complexProperty)
+        => complexProperty.ComplexType.GetContainerColumnName() is { Length: > 0 } containerName
+            ? FindColumn(containerName)
+            : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
@@ -144,5 +144,20 @@ FROM "TestEntities" AS "t"
 WHERE 1 = "t"."Id"
 """);
         }
+    }
+
+    public override async Task Coalesce_in_conditional_with_value_conversion(bool async)
+    {
+        await base.Coalesce_in_conditional_with_value_conversion(async);
+
+        AssertSql(
+            """
+SELECT "d"."Id", CASE
+    WHEN COALESCE("d"."Foo", 99) = 10 THEN 'A'
+    ELSE 'B'
+END AS "Foo"
+FROM "Data" AS "d"
+ORDER BY "d"."Id"
+""");
     }
 }

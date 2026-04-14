@@ -1,0 +1,1451 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.Cosmos",
+  "Types": [
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData.AutoTransactionBehaviorEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, Microsoft.EntityFrameworkCore.AutoTransactionBehavior autoTransactionBehavior);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.AutoTransactionBehavior Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.AutoTransactionBehaviorEventData.AutoTransactionBehavior { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ContextContainerConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelInitializedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.ContextContainerConvention.ContextContainerConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.ContextContainerConvention.ProcessModelInitialized(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Microsoft.EntityFrameworkCore.Metadata.Conventions.ContextContainerConvention.Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexCollectionBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder Microsoft.EntityFrameworkCore.CosmosComplexCollectionBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder complexPropertyBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> Microsoft.EntityFrameworkCore.CosmosComplexCollectionBuilderExtensions.ToJsonProperty<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TComplex> complexPropertyBuilder, string? name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexCollectionTypePropertyBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder Microsoft.EntityFrameworkCore.CosmosComplexCollectionTypePropertyBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder propertyBuilder, string name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosComplexCollectionTypePropertyBuilderExtensions.ToJsonProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder, string name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexPropertyBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder Microsoft.EntityFrameworkCore.CosmosComplexPropertyBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder complexPropertyBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> Microsoft.EntityFrameworkCore.CosmosComplexPropertyBuilderExtensions.ToJsonProperty<TComplex>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TComplex> complexPropertyBuilder, string? name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexPropertyExtensions",
+      "Methods": [
+        {
+          "Member": "static string Microsoft.EntityFrameworkCore.CosmosComplexPropertyExtensions.GetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexProperty property);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosComplexPropertyExtensions.SetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableComplexProperty property, string? name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexTypePrimitiveCollectionBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder Microsoft.EntityFrameworkCore.CosmosComplexTypePrimitiveCollectionBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder, string name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosComplexTypePrimitiveCollectionBuilderExtensions.ToJsonProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder, string name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexTypePropertyBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder Microsoft.EntityFrameworkCore.CosmosComplexTypePropertyBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder propertyBuilder, string name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosComplexTypePropertyBuilderExtensions.ToJsonProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> propertyBuilder, string name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions",
+      "Methods": [
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.AppendSessionToken(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, string sessionToken);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.AppendSessionTokens(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.Collections.Generic.IReadOnlyDictionary<string, string> sessionTokens);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.CosmosClient Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.GetCosmosClient(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade);"
+        },
+        {
+          "Member": "static string Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.GetCosmosDatabaseId(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.GetSessionToken(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyDictionary<string, string?> Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.GetSessionTokens(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.IsCosmos(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade database);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.UseSessionToken(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, string sessionToken);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosDatabaseFacadeExtensions.UseSessionTokens(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.Collections.Generic.IReadOnlyDictionary<string, string?> sessionTokens);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.ICosmosDbContextOptionsBuilderInfrastructure",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.CosmosDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.BulkExecutionEnabled(bool enabled = true);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode connectionMode);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ContentResponseOnWriteEnabled(bool enabled = true);"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.Equals(object? obj);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ExecutionStrategy(System.Func<Microsoft.EntityFrameworkCore.Storage.ExecutionStrategyDependencies, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy> getExecutionStrategy);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.GatewayModeMaxConnectionLimit(int connectionLimit);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.GetHashCode();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.HttpClientFactory(System.Func<System.Net.Http.HttpClient>? httpClientFactory);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.IdleTcpConnectionTimeout(System.TimeSpan timeout);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.LimitToEndpoint(bool enable = true);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.MaxRequestsPerTcpConnection(int requestLimit);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.MaxTcpConnectionsPerEndpoint(int connectionLimit);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.OpenTcpConnectionTimeout(System.TimeSpan timeout);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.PreferredRegions(System.Collections.Generic.IReadOnlyList<string> regions);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.Region(string region);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.RequestTimeout(System.TimeSpan timeout);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.SessionTokenManagementMode(Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode mode);"
+        },
+        {
+          "Member": "override string? Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.ToString();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.WebProxy(System.Net.IWebProxy proxy);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder.WithOption(System.Func<Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal.CosmosOptionsExtension, Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal.CosmosOptionsExtension> setAction);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder> cosmosOptionsAction);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder> cosmosOptionsAction);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string accountEndpoint, string accountKey, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string accountEndpoint, string accountKey, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string accountEndpoint, Azure.Core.TokenCredential tokenCredential, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string accountEndpoint, Azure.Core.TokenCredential tokenCredential, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string connectionString, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.CosmosDbContextOptionsExtensions.UseCosmos(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string connectionString, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions",
+      "Methods": [
+        {
+          "Member": "static T Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.CoalesceUndefined<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, T expression1, T expression2);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.FullTextContains(this Microsoft.EntityFrameworkCore.DbFunctions _, string property, string keyword);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.FullTextContainsAll(this Microsoft.EntityFrameworkCore.DbFunctions _, string property, params string[] keywords);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.FullTextContainsAny(this Microsoft.EntityFrameworkCore.DbFunctions _, string property, params string[] keywords);"
+        },
+        {
+          "Member": "static double Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.FullTextScore(this Microsoft.EntityFrameworkCore.DbFunctions _, string property, params string[] keywords);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.IsDefined(this Microsoft.EntityFrameworkCore.DbFunctions _, object? expression);"
+        },
+        {
+          "Member": "static double Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.Rrf(this Microsoft.EntityFrameworkCore.DbFunctions _, params double[] scores);"
+        },
+        {
+          "Member": "static double Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.Rrf(this Microsoft.EntityFrameworkCore.DbFunctions _, double[] scores, double[] weights);"
+        },
+        {
+          "Member": "static double Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.VectorDistance(this Microsoft.EntityFrameworkCore.DbFunctions _, System.ReadOnlyMemory<float> vector1, System.ReadOnlyMemory<float> vector2, bool? useBruteForce = null, Microsoft.EntityFrameworkCore.VectorDistanceOptions? options = null);"
+        },
+        {
+          "Member": "static double Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.VectorDistance(this Microsoft.EntityFrameworkCore.DbFunctions _, System.ReadOnlyMemory<byte> vector1, System.ReadOnlyMemory<byte> vector2, bool? useBruteForce = null, Microsoft.EntityFrameworkCore.VectorDistanceOptions? options = null);"
+        },
+        {
+          "Member": "static double Microsoft.EntityFrameworkCore.CosmosDbFunctionsExtensions.VectorDistance(this Microsoft.EntityFrameworkCore.DbFunctions _, System.ReadOnlyMemory<sbyte> vector1, System.ReadOnlyMemory<sbyte> vector2, bool? useBruteForce = null, Microsoft.EntityFrameworkCore.VectorDistanceOptions? options = null);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.DiscriminatorConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyOwnershipChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyRemovedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelEmbeddedDiscriminatorNameConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.CosmosDiscriminatorConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessDiscriminatorPropertySet(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTypeBaseBuilder structuralTypeBuilder, string? name, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessEmbeddedDiscriminatorName(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string? newName, string? oldName, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessEntityTypeRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessForeignKeyOwnershipChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.ProcessForeignKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> context);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosDiscriminatorConvention.SetDefaultDiscriminatorValues(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> entityTypes, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionDiscriminatorBuilder discriminatorBuilder);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetContainer(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetDefaultTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Collections.Generic.IReadOnlyList<string>? names, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetRootDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetShadowId(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? alwaysCreate, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.CanSetThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? throughput, bool autoscale, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, int? seconds);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasAnalyticalStoreTimeToLive<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, int? seconds);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasAutoscaleThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, int? throughput);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasAutoscaleThroughput<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, int? throughput);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasDefaultTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, int? seconds);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasDefaultTimeToLive<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, int? seconds);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasDefaultTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasDiscriminatorInJsonId<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasManualThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, int? throughput);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasManualThroughput<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, int? throughput);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string? name, params string[]? additionalPropertyNames);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasPartitionKey<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name, params string[]? additionalPropertyNames);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasPartitionKey<TEntity, TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Collections.Generic.IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasRootDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasRootDiscriminatorInJsonId<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasRootDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasShadowId(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, bool? alwaysCreate = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasShadowId<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool? alwaysCreate = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasShadowId(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? alwaysCreate, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? throughput, bool autoscale, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TriggerBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasTrigger(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string modelName, Microsoft.Azure.Cosmos.Scripts.TriggerType triggerType, Microsoft.Azure.Cosmos.Scripts.TriggerOperation triggerOperation);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TriggerBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.HasTrigger<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string modelName, Microsoft.Azure.Cosmos.Scripts.TriggerType triggerType, Microsoft.Azure.Cosmos.Scripts.TriggerOperation triggerOperation);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.ToContainer(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.ToContainer<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.ToContainer(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder entityTypeBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.ToJsonProperty<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> entityTypeBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.UseETagConcurrency(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosEntityTypeBuilderExtensions.UseETagConcurrency<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions",
+      "Methods": [
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetAnalyticalStoreTimeToLiveConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetContainer(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetContainerConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetContainingPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetContainingPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetDefaultTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetDefaultTimeToLiveConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetDiscriminatorInKey(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetDiscriminatorInKeyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetETagProperty(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IMutableProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetETagProperty(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetETagProperty(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetETagProperty(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetETagPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetETagPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetHasShadowId(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetHasShadowIdConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty?> Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperties(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty?> Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperties(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty?> Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperties(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IProperty> Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperties(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IMutableProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IProperty? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<string> Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyPropertyNames(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetPartitionKeyPropertyNamesConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.ThroughputProperties? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetThroughput(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.GetThroughputConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, int? seconds);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetContainer(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? name);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetContainer(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetContainingPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? name);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetContainingPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetDefaultTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, int? seconds);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetDefaultTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetDiscriminatorInKey(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? behavior);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetDiscriminatorInKey(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? behavior, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetETagPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? name);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetETagPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetHasShadowId(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? alwaysCreate);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetHasShadowId(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? alwaysCreate, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetPartitionKeyPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? name);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetPartitionKeyPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, string? name, bool fromDataAnnotation = false);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetPartitionKeyPropertyNames(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Collections.Generic.IReadOnlyList<string>? names);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<string>? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetPartitionKeyPropertyNames(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Collections.Generic.IReadOnlyList<string>? names, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetThroughput(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, int? throughput, bool? autoscale);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosEntityTypeExtensions.SetThroughput(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, int? throughput, bool? autoscale, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId",
+      "Fields": [
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.BulkExecutionWithTransactionalBatch"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutedCreateItem"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutedDeleteItem"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutedReadItem"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutedReadNext"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutedReplaceItem"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutedTransactionalBatch"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutingReadItem"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.ExecutingSqlQuery"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.NoPartitionKeyDefined"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.CosmosEventId.PrimaryKeyValueNotSet"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.CanSetIsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, bool? fullTextIndex, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.CanSetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.IsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder indexBuilder, bool fullTextIndex = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.IsFullTextIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> indexBuilder, bool fullTextIndex = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder? Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.IsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, bool? fullTextIndex, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.IsVectorIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool vectorIndex = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.IsVectorIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool vectorIndex = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder? Microsoft.EntityFrameworkCore.CosmosIndexBuilderExtensions.IsVectorIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosIndexExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosIndexExtensions.GetIsFullTextIndexConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex property);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.VectorIndexType? Microsoft.EntityFrameworkCore.CosmosIndexExtensions.GetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosIndexExtensions.GetVectorIndexTypeConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex property);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosIndexExtensions.IsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosIndexExtensions.SetIsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.IMutableIndex index, bool? fullTextIndex);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosIndexExtensions.SetIsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, bool? fullTextIndex, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosIndexExtensions.SetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IMutableIndex index, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool? vectorIndex);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosIndexExtensions.SetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool? vectorIndex, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosInversePropertyAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.InversePropertyAttributeConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosInversePropertyAttributeConvention.CosmosInversePropertyAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosInversePropertyAttributeConvention.TryGetTargetEntityTypeBuilder(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Type targetClrType, System.Reflection.MemberInfo navigationMemberInfo, bool shouldCreate = true);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.CosmosItemCommandExecutedEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, System.TimeSpan elapsed, double requestCharge, string activityId, string containerId, string resourceId, Microsoft.Azure.Cosmos.PartitionKey partitionKeyValue, bool logSensitiveData);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.ActivityId { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.ContainerId { get; }"
+        },
+        {
+          "Member": "virtual System.TimeSpan Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.Elapsed { get; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.LogSensitiveData { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.PartitionKeyValue { get; }"
+        },
+        {
+          "Member": "virtual double Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.RequestCharge { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosItemCommandExecutedEventData.ResourceId { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeBaseTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyOwnershipChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyRemovedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyRemovedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IDiscriminatorPropertySetConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.CosmosJsonIdConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal.IJsonIdDefinitionFactory definitionFactory);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessDiscriminatorPropertySet(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTypeBaseBuilder structuralTypeBuilder, string? name, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string?> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessForeignKeyOwnershipChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessModelAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.ProcessPropertyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTypeBaseBuilder typeBaseBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal.IJsonIdDefinitionFactory Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.DefinitionFactory { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosJsonIdConvention.Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosKeyDiscoveryConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.KeyDiscoveryConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosKeyDiscoveryConvention.CosmosKeyDiscoveryConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosKeyDiscoveryConvention.ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosKeyDiscoveryConvention.ProcessKeyProperties(System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> keyProperties, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosManyToManyJoinEntityTypeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.ManyToManyJoinEntityTypeConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosManyToManyJoinEntityTypeConvention.CosmosManyToManyJoinEntityTypeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosManyToManyJoinEntityTypeConvention.CreateJoinEntityType(string joinEntityTypeName, Microsoft.EntityFrameworkCore.Metadata.IConventionSkipNavigation skipNavigation);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosManyToManyJoinEntityTypeConvention.ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosManyToManyJoinEntityTypeConvention.ProcessSkipNavigationForeignKeyChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionSkipNavigationBuilder skipNavigationBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? foreignKey, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? oldForeignKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> context);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.CanSetDefaultContainer(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.CanSetDefaultFullTextLanguage(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string? language, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.CanSetThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, int? throughput, bool autoscale, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasAutoscaleThroughput(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, int? throughput);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasDefaultContainer(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder? Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasDefaultContainer(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasDefaultFullTextLanguage(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, string? language);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder? Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasDefaultFullTextLanguage(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, string? language, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasDiscriminatorInJsonIds(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, bool? includeDiscriminator = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasManualThroughput(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, int? throughput);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasRootDiscriminatorInJsonId(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, bool? includeDiscriminator = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasShadowIds(this Microsoft.EntityFrameworkCore.ModelBuilder modelBuilder, bool? alwaysCreate = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder? Microsoft.EntityFrameworkCore.CosmosModelBuilderExtensions.HasThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, int? throughput, bool autoscale, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosModelExtensions",
+      "Methods": [
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetDefaultContainer(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel model);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetDefaultContainerConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetDefaultFullTextSearchLanguage(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel model);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetDefaultFullTextSearchLanguageConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetDiscriminatorInKey(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel model);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetDiscriminatorInKeyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetHasShadowIds(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel model);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetHasShadowIdsConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.ThroughputProperties? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetThroughput(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel model);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosModelExtensions.GetThroughputConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetDefaultContainer(this Microsoft.EntityFrameworkCore.Metadata.IMutableModel model, string? name);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetDefaultContainer(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetDefaultFullTextSearchLanguage(this Microsoft.EntityFrameworkCore.Metadata.IMutableModel model, string? language);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetDefaultFullTextSearchLanguage(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, string? language, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetDiscriminatorInKey(this Microsoft.EntityFrameworkCore.Metadata.IMutableModel model, Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? behavior);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetDiscriminatorInKey(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode? behavior, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetHasShadowIds(this Microsoft.EntityFrameworkCore.Metadata.IMutableModel model, bool? alwaysCreate);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetHasShadowIds(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool? alwaysCreate, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetThroughput(this Microsoft.EntityFrameworkCore.Metadata.IMutableModel model, int? throughput, bool? autoscale);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosModelExtensions.SetThroughput(this Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, int? throughput, bool? autoscale, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "readonly struct Microsoft.EntityFrameworkCore.CosmosPage<T>",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.CosmosPage<T>.CosmosPage(System.Collections.Generic.IReadOnlyList<T> values, string? continuationToken);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.CosmosPage<T>.CosmosPage();",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "string? Microsoft.EntityFrameworkCore.CosmosPage<T>.ContinuationToken { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<T> Microsoft.EntityFrameworkCore.CosmosPage<T>.Values { get; }",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyOwnershipChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyRemovedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyRemovedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypePrimaryKeyChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeBaseTypeChangedConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.CosmosPartitionKeyInPrimaryKeyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessEntityTypePrimaryKeyChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey? newPrimaryKey, Microsoft.EntityFrameworkCore.Metadata.IConventionKey? previousPrimaryKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessForeignKeyOwnershipChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessForeignKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosPartitionKeyInPrimaryKeyConvention.Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosPrimitiveCollectionBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder Microsoft.EntityFrameworkCore.CosmosPrimitiveCollectionBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder primitiveCollectionBuilder, string name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosPrimitiveCollectionBuilderExtensions.ToJsonProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder, string name);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.CanSetEnableFullTextSearch(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string? language, bool enabled, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.CanSetIsVectorProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.Azure.Cosmos.DistanceFunction distanceFunction, int dimensions, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.CanSetJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.EnableFullTextSearch(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, string? language = null, bool enabled = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.EnableFullTextSearch<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder, string? language = null, bool enabled = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.EnableFullTextSearch(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string? language, bool enabled, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.IsETagConcurrency(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.IsETagConcurrency<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.IsVectorProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, Microsoft.Azure.Cosmos.DistanceFunction distanceFunction, int dimensions);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.IsVectorProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder, Microsoft.Azure.Cosmos.DistanceFunction distanceFunction, int dimensions);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.IsVectorProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.Azure.Cosmos.DistanceFunction distanceFunction, int dimensions, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, string name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.ToJsonProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder, string name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Microsoft.EntityFrameworkCore.CosmosPropertyBuilderExtensions.ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string? name, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosPropertyExtensions",
+      "Methods": [
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetFullTextSearchLanguage(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetFullTextSearchLanguageConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetIsFullTextSearchEnabled(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetIsFullTextSearchEnabledConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
+          "Member": "static string Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetJsonPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetVectorDimensions(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetVectorDimensionsConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.DistanceFunction? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetVectorDistanceFunction(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.GetVectorDistanceFunctionConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetFullTextSearchLanguage(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, string? language);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetFullTextSearchLanguage(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, string? language, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetIsFullTextSearchEnabled(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, bool? enabled);"
+        },
+        {
+          "Member": "static bool? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetIsFullTextSearchEnabled(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, bool? enabled, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, string? name);"
+        },
+        {
+          "Member": "static string? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetVectorDimensions(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, int? dimensions);"
+        },
+        {
+          "Member": "static int? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetVectorDimensions(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, int? dimensions, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetVectorDistanceFunction(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, Microsoft.Azure.Cosmos.DistanceFunction? distanceFunction);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.DistanceFunction? Microsoft.EntityFrameworkCore.CosmosPropertyExtensions.SetVectorDistanceFunction(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, Microsoft.Azure.Cosmos.DistanceFunction? distanceFunction, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosQueryableExtensions",
+      "Methods": [
+        {
+          "Member": "static System.Linq.IQueryable<TEntity> Microsoft.EntityFrameworkCore.CosmosQueryableExtensions.FromSql<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, System.FormattableString sql);"
+        },
+        {
+          "Member": "static System.Linq.IQueryable<TEntity> Microsoft.EntityFrameworkCore.CosmosQueryableExtensions.FromSqlRaw<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> source, string sql, params object?[] parameters);"
+        },
+        {
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.CosmosPage<TSource>> Microsoft.EntityFrameworkCore.CosmosQueryableExtensions.ToPageAsync<TSource>(this System.Linq.IQueryable<TSource> source, int pageSize, string? continuationToken, int? responseContinuationTokenLimitInKb = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "static System.Linq.IQueryable<TEntity> Microsoft.EntityFrameworkCore.CosmosQueryableExtensions.WithPartitionKey<TEntity>(this System.Linq.IQueryable<TEntity> source, object partitionKeyValue);"
+        },
+        {
+          "Member": "static System.Linq.IQueryable<TEntity> Microsoft.EntityFrameworkCore.CosmosQueryableExtensions.WithPartitionKey<TEntity>(this System.Linq.IQueryable<TEntity> source, object partitionKeyValue1, object partitionKeyValue2);"
+        },
+        {
+          "Member": "static System.Linq.IQueryable<TEntity> Microsoft.EntityFrameworkCore.CosmosQueryableExtensions.WithPartitionKey<TEntity>(this System.Linq.IQueryable<TEntity> source, object partitionKeyValue1, object partitionKeyValue2, object partitionKeyValue3);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData.CosmosQueryEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string containerId, Microsoft.Azure.Cosmos.PartitionKey? partitionKeyValue, System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> parameters, string querySql, bool logSensitiveData);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData.ContainerId { get; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData.LogSensitiveData { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData.Parameters { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey? Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData.PartitionKeyValue { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData.QuerySql { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.CosmosQueryExecutedEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, System.TimeSpan elapsed, double requestCharge, string activityId, string containerId, Microsoft.Azure.Cosmos.PartitionKey? partitionKeyValue, System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> parameters, string querySql, bool logSensitiveData);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.ActivityId { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.ContainerId { get; }"
+        },
+        {
+          "Member": "virtual System.TimeSpan Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.Elapsed { get; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.LogSensitiveData { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.Parameters { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey? Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.PartitionKeyValue { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.QuerySql { get; }"
+        },
+        {
+          "Member": "virtual double Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData.RequestCharge { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosReadItemEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.CosmosReadItemEventData.CosmosReadItemEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string resourceId, string containerId, Microsoft.Azure.Cosmos.PartitionKey partitionKeyValue, bool logSensitiveData);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosReadItemEventData.ContainerId { get; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Diagnostics.CosmosReadItemEventData.LogSensitiveData { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey Microsoft.EntityFrameworkCore.Diagnostics.CosmosReadItemEventData.PartitionKeyValue { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosReadItemEventData.ResourceId { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRelationshipDiscoveryConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationshipDiscoveryConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRelationshipDiscoveryConvention.CosmosRelationshipDiscoveryConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "override bool? Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRelationshipDiscoveryConvention.ShouldBeOwned(System.Type targetType, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(System.Type targetType, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRuntimeModelConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.RuntimeModelConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRuntimeModelConvention.CosmosRuntimeModelConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRuntimeModelConvention.ProcessEntityTypeAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType runtimeEntityType, bool runtime);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosRuntimeModelConvention.ProcessModelAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Metadata.RuntimeModel runtimeModel, bool runtime);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.CosmosServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.CosmosServiceCollectionExtensions.AddCosmos<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string connectionString, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
+        },
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.CosmosServiceCollectionExtensions.AddEntityFrameworkCosmos(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.CosmosTransactionalBatchExecutedEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, System.TimeSpan elapsed, double requestCharge, string activityId, string containerId, Microsoft.Azure.Cosmos.PartitionKey partitionKeyValue, string documentIds, bool logSensitiveData);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.ActivityId { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.ContainerId { get; }"
+        },
+        {
+          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.DocumentIds { get; }"
+        },
+        {
+          "Member": "virtual System.TimeSpan Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.Elapsed { get; }"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.LogSensitiveData { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.PartitionKeyValue { get; }"
+        },
+        {
+          "Member": "virtual double Microsoft.EntityFrameworkCore.Diagnostics.CosmosTransactionalBatchExecutedEventData.RequestCharge { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosTriggerBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosTriggerBuilderExtensions.CanSetTriggerOperation(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTriggerBuilder triggerBuilder, Microsoft.Azure.Cosmos.Scripts.TriggerOperation? triggerOperation, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.CosmosTriggerBuilderExtensions.CanSetTriggerType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTriggerBuilder triggerBuilder, Microsoft.Azure.Cosmos.Scripts.TriggerType? triggerType, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTriggerBuilder? Microsoft.EntityFrameworkCore.CosmosTriggerBuilderExtensions.HasTriggerOperation(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTriggerBuilder triggerBuilder, Microsoft.Azure.Cosmos.Scripts.TriggerOperation? triggerOperation, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTriggerBuilder? Microsoft.EntityFrameworkCore.CosmosTriggerBuilderExtensions.HasTriggerType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionTriggerBuilder triggerBuilder, Microsoft.Azure.Cosmos.Scripts.TriggerType? triggerType, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.CosmosTriggerExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Azure.Cosmos.Scripts.TriggerOperation? Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.GetTriggerOperation(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTrigger trigger);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.GetTriggerOperationConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionTrigger trigger);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.Scripts.TriggerType? Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.GetTriggerType(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTrigger trigger);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.GetTriggerTypeConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionTrigger trigger);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.SetTriggerOperation(this Microsoft.EntityFrameworkCore.Metadata.IMutableTrigger trigger, Microsoft.Azure.Cosmos.Scripts.TriggerOperation? triggerOperation);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.Scripts.TriggerOperation? Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.SetTriggerOperation(this Microsoft.EntityFrameworkCore.Metadata.IConventionTrigger trigger, Microsoft.Azure.Cosmos.Scripts.TriggerOperation? triggerOperation, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.SetTriggerType(this Microsoft.EntityFrameworkCore.Metadata.IMutableTrigger trigger, Microsoft.Azure.Cosmos.Scripts.TriggerType? triggerType);"
+        },
+        {
+          "Member": "static Microsoft.Azure.Cosmos.Scripts.TriggerType? Microsoft.EntityFrameworkCore.CosmosTriggerExtensions.SetTriggerType(this Microsoft.EntityFrameworkCore.Metadata.IConventionTrigger trigger, Microsoft.Azure.Cosmos.Scripts.TriggerType? triggerType, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosValueGenerationConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.ValueGenerationConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosValueGenerationConvention.CosmosValueGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ValueGenerated? Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosValueGenerationConvention.GetValueGenerated(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.CosmosValueGenerationConvention.ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ETagPropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.ETagPropertyConvention.ETagPropertyConvention();"
+        },
+        {
+          "Member": "virtual void Microsoft.EntityFrameworkCore.Metadata.Conventions.ETagPropertyConvention.ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Infrastructure.ICosmosDbContextOptionsBuilderInfrastructure",
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.ICosmosDbContextOptionsBuilderInfrastructure.OptionsBuilder { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode.IdDiscriminatorMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode.EntityType",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode.None",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode Microsoft.EntityFrameworkCore.Metadata.IdDiscriminatorMode.RootEntityType",
+          "Value": "2"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.SessionTokenManagementMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.FullyAutomatic",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.Manual",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic",
+          "Value": "1"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.VectorDistanceOptions",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.VectorDistanceOptions.VectorDistanceOptions();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "string? Microsoft.EntityFrameworkCore.VectorDistanceOptions.DataType { get; set; }"
+        },
+        {
+          "Member": "Microsoft.Azure.Cosmos.DistanceFunction? Microsoft.EntityFrameworkCore.VectorDistanceOptions.DistanceFunction { get; set; }"
+        },
+        {
+          "Member": "int? Microsoft.EntityFrameworkCore.VectorDistanceOptions.QuantizedVectorListMultiplier { get; set; }"
+        },
+        {
+          "Member": "int? Microsoft.EntityFrameworkCore.VectorDistanceOptions.SearchListSizeMultiplier { get; set; }"
+        }
+      ]
+    }
+  ]
+}

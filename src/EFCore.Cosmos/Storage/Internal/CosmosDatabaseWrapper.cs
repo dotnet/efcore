@@ -2,12 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
-using Newtonsoft.Json.Linq;
 using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -18,12 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosDatabaseWrapper : Database
+public class CosmosDatabaseWrapper : Database, IResettableService
 {
     private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
 
     private readonly ICosmosClientWrapper _cosmosClient;
     private readonly bool _sensitiveLoggingEnabled;
+    private readonly bool _bulkExecutionEnabled;
+
+    private readonly ICurrentDbContext _currentDbContext;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,11 +37,17 @@ public class CosmosDatabaseWrapper : Database
     /// </summary>
     public CosmosDatabaseWrapper(
         DatabaseDependencies dependencies,
+        ICurrentDbContext currentDbContext,
         ICosmosClientWrapper cosmosClient,
+        ICosmosSingletonOptions cosmosSingletonOptions,
+        ISessionTokenStorageFactory sessionTokenStorageFactory,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
+        _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
+        _bulkExecutionEnabled = cosmosSingletonOptions.EnableBulkExecution == true;
+        SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {
@@ -51,74 +61,7 @@ public class CosmosDatabaseWrapper : Database
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override int SaveChanges(IList<IUpdateEntry> entries)
-    {
-        var rowsAffected = 0;
-        var entriesSaved = new HashSet<IUpdateEntry>();
-        var rootEntriesToSave = new HashSet<IUpdateEntry>();
-
-        // ReSharper disable once ForCanBeConvertedToForeach
-        for (var i = 0; i < entries.Count; i++)
-        {
-            var entry = entries[i];
-            var entityType = entry.EntityType;
-
-            Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
-
-            if (!entityType.IsDocumentRoot())
-            {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                // #16707
-                var root = GetRootDocument((InternalEntityEntry)entry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                if (!entriesSaved.Contains(root)
-                    && rootEntriesToSave.Add(root)
-                    && root.EntityState == EntityState.Unchanged)
-                {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    // #16707
-                    ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-                    entries.Add(root);
-                }
-
-                continue;
-            }
-
-            entriesSaved.Add(entry);
-
-            try
-            {
-                if (Save(entry))
-                {
-                    rowsAffected++;
-                }
-            }
-            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
-            {
-                var errorEntries = new[] { entry };
-                var exception = WrapUpdateException(ex, errorEntries);
-
-                if (exception is not DbUpdateConcurrencyException
-                    || !Dependencies.Logger.OptimisticConcurrencyException(
-                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
-                {
-                    throw exception;
-                }
-            }
-        }
-
-        foreach (var rootEntry in rootEntriesToSave)
-        {
-            if (!entriesSaved.Contains(rootEntry)
-                && Save(rootEntry))
-            {
-                rowsAffected++;
-            }
-        }
-
-        return rowsAffected;
-    }
+    public virtual ISessionTokenStorage SessionTokenStorage { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -130,23 +73,113 @@ public class CosmosDatabaseWrapper : Database
         IList<IUpdateEntry> entries,
         CancellationToken cancellationToken = default)
     {
+        if (entries.Count == 0)
+        {
+            return 0;
+        }
+
         var rowsAffected = 0;
-        var entriesSaved = new HashSet<IUpdateEntry>();
+        var groups = CreateSaveGroups(entries);
+
+        if (_bulkExecutionEnabled)
+        {
+            var tasks = new List<Task<bool>>();
+            foreach (var write in groups.SingleUpdateEntries)
+            {
+                tasks.Add(SaveAsync(write, cancellationToken));
+            }
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            foreach (var result in results)
+            {
+                if (result)
+                {
+                    rowsAffected++;
+                }
+            }
+        }
+        else
+        {
+            foreach (var write in groups.SingleUpdateEntries)
+            {
+                if (await SaveAsync(write, cancellationToken).ConfigureAwait(false))
+                {
+                    rowsAffected++;
+                }
+            }
+        }
+
+        foreach (var batch in groups.BatchableUpdateEntries)
+        {
+            if (batch.UpdateEntries.Count == 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
+            {
+                if (await SaveAsync(batch.UpdateEntries[0], cancellationToken).ConfigureAwait(false))
+                {
+                    rowsAffected++;
+                }
+
+                continue;
+            }
+
+            foreach (var transaction in CreateTransactions(batch))
+            {
+                try
+                {
+                    var response = await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
+                    if (!response.IsSuccess)
+                    {
+                        var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
+                        if (exception is not DbUpdateConcurrencyException
+                            || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                                    transaction.Entries.First().Entry.Context, transaction.Entries.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                                .ConfigureAwait(false)).IsSuppressed)
+                        {
+                            throw exception;
+                        }
+                    }
+                }
+                catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
+                {
+                    var exception = WrapUpdateException(ex, transaction.Entries.Select(x => x.Entry).ToArray());
+                    throw exception;
+                }
+
+                rowsAffected += transaction.Entries.Count;
+            }
+        }
+
+        return rowsAffected;
+    }
+
+    private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
+    {
+        if (_bulkExecutionEnabled && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Never)
+        {
+            Dependencies.Logger.BulkExecutionWithTransactionalBatch(_currentDbContext.Context.Database.AutoTransactionBehavior);
+        }
+
+        var count = entries.Count;
         var rootEntriesToSave = new HashSet<IUpdateEntry>();
 
-        // ReSharper disable once ForCanBeConvertedToForeach
-        for (var i = 0; i < entries.Count; i++)
+        for (var i = 0; i < count; i++)
         {
             var entry = entries[i];
-            var entityType = entry.EntityType;
+            Check.DebugAssert(!entry.EntityType.IsAbstract(), $"{entry.EntityType} is abstract");
 
-            Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
+            if (entry.EntityState == EntityState.Modified)
+            {
+                // @TODO: Seems expensive. Can we move this to the change tracker?
+                // #14121 ?
+                if (entry.EntityType.GetFlattenedPropertiesInHierarchy().Where(entry.IsModified).All(prop => prop.GetJsonPropertyName() == "") &&
+                    !entry.EntityType.GetFlattenedComplexProperties().Any(entry.IsModified))
+                {
+                    continue;
+                }
+            }
 
-            if (!entityType.IsDocumentRoot())
+            if (!entry.EntityType.IsDocumentRoot())
             {
                 var root = GetRootDocument((InternalEntityEntry)entry);
-                if (!entriesSaved.Contains(root)
-                    && rootEntriesToSave.Add(root)
+                if (rootEntriesToSave.Add(root)
                     && root.EntityState == EntityState.Unchanged)
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -159,241 +192,319 @@ public class CosmosDatabaseWrapper : Database
                 continue;
             }
 
-            entriesSaved.Add(entry);
-            try
-            {
-                if (await SaveAsync(entry, cancellationToken).ConfigureAwait(false))
-                {
-                    rowsAffected++;
-                }
-            }
-            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
-            {
-                var errorEntries = new[] { entry };
-                var exception = WrapUpdateException(ex, errorEntries);
-
-                if (exception is not DbUpdateConcurrencyException
-                    || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                            entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                        .ConfigureAwait(false)).IsSuppressed)
-                {
-                    throw exception;
-                }
-            }
+            rootEntriesToSave.Add(entry);
         }
 
-        foreach (var rootEntry in rootEntriesToSave)
+        var cosmosUpdateEntries = rootEntriesToSave.Select(x => CreateCosmosUpdateEntry(x)!).Where(x => x != null).ToList();
+
+        if (cosmosUpdateEntries.Count == 0 ||
+            _currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never ||
+            (cosmosUpdateEntries.Count <= 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always))
         {
-            if (!entriesSaved.Contains(rootEntry)
-                && await SaveAsync(rootEntry, cancellationToken).ConfigureAwait(false))
+            return new SaveGroups
             {
-                rowsAffected++;
+                BatchableUpdateEntries = Array.Empty<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)>(),
+                SingleUpdateEntries = cosmosUpdateEntries
+            };
+        }
+
+        var singleUpdateEntries = new List<CosmosUpdateEntry>();
+        var batchableEntries = new List<CosmosUpdateEntry>();
+        foreach (var entry in cosmosUpdateEntries)
+        {
+            if (entry.Entry.EntityType.GetTriggers().Any())
+            {
+                singleUpdateEntries.Add(entry);
+            }
+            else
+            {
+                batchableEntries.Add(entry);
             }
         }
 
-        return rowsAffected;
+        if (_currentDbContext.Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Always)
+        {
+            if (singleUpdateEntries.Count >= 1)
+            {
+                if (rootEntriesToSave.Count >= 2)
+                {
+                    throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity);
+                }
+
+                // There is only 1 entry, and it has a trigger
+                return new SaveGroups
+                {
+                    BatchableUpdateEntries = [],
+                    SingleUpdateEntries = singleUpdateEntries
+                };
+            }
+
+            var firstEntry = batchableEntries[0];
+            var key = new Grouping(firstEntry.CollectionId, _cosmosClient.GetPartitionKeyValue(firstEntry.Entry));
+            if (batchableEntries.Count > 100 ||
+                !batchableEntries.All(entry =>
+                    entry.CollectionId == key.ContainerId &&
+                    _cosmosClient.GetPartitionKeyValue(entry.Entry) == key.PartitionKeyValue))
+            {
+                throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity);
+            }
+
+            return new SaveGroups
+            {
+                BatchableUpdateEntries = [(key, batchableEntries)],
+                SingleUpdateEntries = []
+            };
+        }
+
+        var batches = CreateBatches(batchableEntries);
+
+        // For bulk it is important that single writes are always classified as singleUpdateEntries so that they will be executed in parallel
+        if (_bulkExecutionEnabled && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
+        {
+            for (var i = batches.Count - 1; i >= 0; i--)
+            {
+                var batch = batches[i];
+                if (batch.UpdateEntries.Count == 1)
+                {
+                    batches.RemoveAt(i);
+                    singleUpdateEntries.Add(batch.UpdateEntries[0]);
+                }
+            }
+        }
+
+        return new SaveGroups
+        {
+            BatchableUpdateEntries = batches,
+            SingleUpdateEntries = singleUpdateEntries
+        };
     }
 
-    private bool Save(IUpdateEntry entry)
+    private List<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> CreateBatches(List<CosmosUpdateEntry> entries)
+    {
+        var results = new List<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)>();
+        var buckets = new Dictionary<Grouping, List<CosmosUpdateEntry>>();
+
+        foreach (var entry in entries)
+        {
+            var key = new Grouping(entry.CollectionId, _cosmosClient.GetPartitionKeyValue(entry.Entry));
+
+            ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(buckets, key, out var exists);
+            if (!exists || list is null)
+            {
+                list = [];
+                results.Add((key, list));
+            }
+
+            list.Add(entry);
+        }
+
+        return results;
+    }
+
+    private CosmosUpdateEntry? CreateCosmosUpdateEntry(IUpdateEntry entry)
     {
         var entityType = entry.EntityType;
         var documentSource = GetDocumentSource(entityType);
         var collectionId = documentSource.GetContainerId();
-        var state = entry.EntityState;
+        var operation = entry.EntityState switch
+        {
+            EntityState.Added => CosmosCudOperation.Create,
+            EntityState.Modified => CosmosCudOperation.Update,
+            EntityState.Deleted => CosmosCudOperation.Delete,
+            _ => (CosmosCudOperation?)null
+        };
+
+        if (operation == null)
+        {
+            return null;
+        }
 
         if (entry.SharedIdentityEntry != null)
         {
             if (entry.EntityState == EntityState.Deleted)
             {
-                return false;
+                return null;
             }
 
-            if (state == EntityState.Added)
+            if (operation == CosmosCudOperation.Create)
             {
-                state = EntityState.Modified;
+                operation = CosmosCudOperation.Update;
             }
         }
 
-        switch (state)
-        {
-            case EntityState.Added:
-                var newDocument = documentSource.GetCurrentDocument(entry);
-                if (newDocument != null)
-                {
-                    documentSource.UpdateDocument(newDocument, entry);
-                }
-                else
-                {
-                    newDocument = documentSource.CreateDocument(entry);
-                }
+        if (operation == CosmosCudOperation.Create)
+        { 
+            var primaryKey = entityType.FindPrimaryKey();
+            if (primaryKey != null)
+            {
+                // The code below checks for primary key properties that are not configured for value generation but have not
+                // had a non-sentinel (effectively, non-CLR default) value set. For composite keys, we only check if at least
+                // one property has value generation or a value set, since it is normal to have non-value generated parts of composite
+                // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
+                // check to ensure that, even if partition key properties have been set, at least one other primary key property is
+                // also set.
+                var partitionPropertyNeedsValue = true;
+                var propertyNeedsValue = true;
+                var allPkPropertiesAreFk = true;
+                IProperty? firstNonPartitionKeyProperty = null;
 
-                return _cosmosClient.CreateItem(collectionId, newDocument, entry);
-
-            case EntityState.Modified:
-                var document = documentSource.GetCurrentDocument(entry);
-                if (document != null)
+                var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+                foreach (var property in primaryKey.Properties)
                 {
-                    if (documentSource.UpdateDocument(document, entry) == null)
+                    if (property.IsForeignKey())
                     {
-                        return false;
+                        // FK properties conceptually get their value from the associated principal key, which can be handled
+                        // automatically by the update pipeline in some cases, so exclude from this check.
+                        continue;
                     }
-                }
-                else
-                {
-                    document = documentSource.CreateDocument(entry);
 
-                    var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
-                    if (propertyName != null)
+                    allPkPropertiesAreFk = false;
+
+                    var isPartitionKeyProperty = partitionKeyProperties.Contains(property);
+                    if (!isPartitionKeyProperty)
                     {
-                        document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
+                        firstNonPartitionKeyProperty = property;
                     }
-                }
 
-                return _cosmosClient.ReplaceItem(
-                    collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, entry);
-
-            case EntityState.Deleted:
-                return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), entry);
-
-            default:
-                return false;
-        }
-    }
-
-    private Task<bool> SaveAsync(IUpdateEntry entry, CancellationToken cancellationToken)
-    {
-        var entityType = entry.EntityType;
-        var documentSource = GetDocumentSource(entityType);
-        var collectionId = documentSource.GetContainerId();
-        var state = entry.EntityState;
-
-        if (entry.SharedIdentityEntry != null)
-        {
-            if (entry.EntityState == EntityState.Deleted)
-            {
-                return Task.FromResult(false);
-            }
-
-            if (state == EntityState.Added)
-            {
-                state = EntityState.Modified;
-            }
-        }
-
-        switch (state)
-        {
-            case EntityState.Added:
-                var primaryKey = entityType.FindPrimaryKey();
-                if (primaryKey != null)
-                {
-                    // The code below checks for primary key properties that are not configured for value generation but have not
-                    // had a non-sentinel (effectively, non-CLR default) value set. For composite keys, we only check if at least
-                    // one property has value generation or a value set, since it is normal to have non-value generated parts of composite
-                    // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
-                    // check to ensure that, even if partition key properties have been set, at least one other primary key property is
-                    // also set.
-                    var partitionPropertyNeedsValue = true;
-                    var propertyNeedsValue = true;
-                    var allPkPropertiesAreFk = true;
-                    IProperty? firstNonPartitionKeyProperty = null;
-
-                    var partitionKeyProperties = entityType.GetPartitionKeyProperties();
-                    foreach (var property in primaryKey.Properties)
+                    if (property.ValueGenerated != ValueGenerated.Never
+                        || entry.HasExplicitValue(property))
                     {
-                        if (property.IsForeignKey())
-                        {
-                            // FK properties conceptually get their value from the associated principal key, which can be handled
-                            // automatically by the update pipeline in some cases, so exclude from this check.
-                            continue;
-                        }
-
-                        allPkPropertiesAreFk = false;
-
-                        var isPartitionKeyProperty = partitionKeyProperties.Contains(property);
                         if (!isPartitionKeyProperty)
                         {
-                            firstNonPartitionKeyProperty = property;
+                            propertyNeedsValue = false;
+                            break;
                         }
 
-                        if (property.ValueGenerated != ValueGenerated.Never
-                            || entry.HasExplicitValue(property))
-                        {
-                            if (!isPartitionKeyProperty)
-                            {
-                                propertyNeedsValue = false;
-                                break;
-                            }
-
-                            partitionPropertyNeedsValue = false;
-                        }
+                        partitionPropertyNeedsValue = false;
                     }
+                }
 
-                    if (!allPkPropertiesAreFk)
+                if (!allPkPropertiesAreFk)
+                {
+                    try
                     {
                         if (firstNonPartitionKeyProperty != null
-                            && propertyNeedsValue)
+                        && propertyNeedsValue)
                         {
                             // There were non-partition key properties, so only throw if it is one of these that is not set,
                             // ignoring partition key properties.
                             Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
                         }
                         else if (firstNonPartitionKeyProperty == null
-                                 && partitionPropertyNeedsValue)
+                                    && partitionPropertyNeedsValue)
                         {
                             // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
                             Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
                         }
                     }
-                }
-
-                var newDocument = documentSource.GetCurrentDocument(entry);
-                if (newDocument != null)
-                {
-                    documentSource.UpdateDocument(newDocument, entry);
-                }
-                else
-                {
-                    newDocument = documentSource.CreateDocument(entry);
-                }
-
-                return _cosmosClient.CreateItemAsync(
-                    collectionId, newDocument, entry, cancellationToken);
-
-            case EntityState.Modified:
-                var document = documentSource.GetCurrentDocument(entry);
-                if (document != null)
-                {
-                    if (documentSource.UpdateDocument(document, entry) == null)
+                    catch (InvalidOperationException ex)
                     {
-                        return Task.FromResult(false);
+                        throw WrapUpdateException(ex, [entry]);
                     }
                 }
-                else
-                {
-                    document = documentSource.CreateDocument(entry);
+            }
+        }
 
-                    var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
-                    if (propertyName != null)
-                    {
-                        document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
-                    }
-                }
+        return new CosmosUpdateEntry
+        {
+            CollectionId = collectionId,
+            DocumentSource = documentSource,
+            Entry = entry,
+            Operation = operation.Value
+        };
+    }
 
-                return _cosmosClient.ReplaceItemAsync(
-                    collectionId,
-                    documentSource.GetId(entry.SharedIdentityEntry ?? entry),
-                    document,
-                    entry,
-                    cancellationToken);
+    private IEnumerable<ICosmosTransactionalBatchWrapper> CreateTransactions((Grouping Key, List<CosmosUpdateEntry> UpdateEntries) batch)
+    {
+        const int maxOperationsPerBatch = 100;
 
-            case EntityState.Deleted:
-                return _cosmosClient.DeleteItemAsync(
-                    collectionId, documentSource.GetId(entry), entry, cancellationToken);
+        // We turn off size checking in EF for AutoTransactionBehavior.Always as all entities will always go in a single transaction.
+        // Cosmos will throw if the request is too large.
+        var checkSize = _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always;
+        var transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue, checkSize);
 
-            default:
-                return Task.FromResult(false);
+        foreach (var updateEntry in batch.UpdateEntries)
+        {
+            var document = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.DocumentSource.Serialize(updateEntry.Entry) : default;
+
+            // With AutoTransactionBehavior.Always, AddToTransaction will always return true.
+            if (!AddToTransaction(transaction, updateEntry, document))
+            {
+                yield return transaction;
+                transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue, checkSize);
+                AddToTransaction(transaction, updateEntry, document);
+                continue;
+            }
+
+            if (checkSize && transaction.Entries.Count == maxOperationsPerBatch)
+            {
+                yield return transaction;
+                transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue, checkSize);
+            }
+        }
+
+        if (transaction.Entries.Count != 0)
+        {
+            yield return transaction;
+        }
+    }
+
+    private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, ReadOnlyMemory<byte> document)
+    {
+        var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
+        return updateEntry.Operation switch
+        {
+            CosmosCudOperation.Create => transaction.CreateItem(id, document, updateEntry.Entry),
+            CosmosCudOperation.Update => transaction.ReplaceItem(id, document, updateEntry.Entry),
+            CosmosCudOperation.Delete => transaction.DeleteItem(id, updateEntry.Entry),
+            _ => throw new UnreachableException(),
+        };
+    }
+
+    private async Task<bool> SaveAsync(CosmosUpdateEntry updateEntry, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
+            return updateEntry.Operation switch
+            {
+                CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
+                                    updateEntry.CollectionId,
+                                    id,
+                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
+                                    updateEntry.Entry,
+                                    SessionTokenStorage,
+                                    cancellationToken).ConfigureAwait(false),
+                CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
+                                    updateEntry.CollectionId,
+                                    id,
+                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
+                                    updateEntry.Entry,
+                                    SessionTokenStorage,
+                                    cancellationToken).ConfigureAwait(false),
+                CosmosCudOperation.Delete => await _cosmosClient.DeleteItemAsync(
+                                    updateEntry.CollectionId,
+                                    id,
+                                    updateEntry.Entry,
+                                    SessionTokenStorage,
+                                    cancellationToken).ConfigureAwait(false),
+                _ => throw new UnreachableException(),
+            };
+        }
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
+        {
+            var errorEntries = new[] { updateEntry.Entry };
+            var exception = WrapUpdateException(ex, errorEntries);
+
+            if (exception is not DbUpdateConcurrencyException
+                || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                        updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                    .ConfigureAwait(false)).IsSuppressed)
+            {
+                throw exception;
+            }
+
+            return false;
         }
     }
 
@@ -408,7 +519,7 @@ public class CosmosDatabaseWrapper : Database
         if (!_documentCollections.TryGetValue(entityType, out var documentSource))
         {
             _documentCollections.Add(
-                entityType, documentSource = new DocumentSource(entityType, this));
+                entityType, documentSource = new DocumentSource(entityType)); // @TODO: Make this singleton #34567
         }
 
         return documentSource;
@@ -442,7 +553,7 @@ public class CosmosDatabaseWrapper : Database
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-    private Exception WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
+    private DbUpdateException WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
     {
         var entry = entries[0];
         var documentSource = GetDocumentSource(entry.EntityType);
@@ -457,4 +568,41 @@ public class CosmosDatabaseWrapper : Database
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
         };
     }
+
+    void IResettableService.ResetState()
+    {
+        SessionTokenStorage.Clear();
+    }
+
+    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+    {
+        ((IResettableService)this).ResetState();
+        return Task.CompletedTask;
+    }
+
+    private sealed class SaveGroups
+    {
+        public required IEnumerable<CosmosUpdateEntry> SingleUpdateEntries { get; init; }
+
+        public required IEnumerable<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> BatchableUpdateEntries { get; init; }
+    }
+
+    private sealed class CosmosUpdateEntry
+    {
+        public required IUpdateEntry Entry { get; init; }
+        public required CosmosCudOperation Operation { get; init; }
+        public required string CollectionId { get; init; }
+        public required DocumentSource DocumentSource { get; init; }
+    }
+
+    private sealed record Grouping(string ContainerId, PartitionKey PartitionKeyValue);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override int SaveChanges(IList<IUpdateEntry> entries)
+        => throw new InvalidOperationException(CosmosStrings.SyncNotSupported);
 }

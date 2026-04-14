@@ -1636,9 +1636,9 @@ WHERE (c["Id"] = 4)
             (await Assert.ThrowsAsync<InvalidOperationException>(query))
             .Message);
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => builder.ConfigureWarnings(b => b.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 }

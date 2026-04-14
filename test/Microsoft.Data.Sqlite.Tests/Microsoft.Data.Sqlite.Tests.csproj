@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(TargetFramework)' == '$(NetFrameworkCurrent)'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
   </ItemGroup>

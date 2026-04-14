@@ -10,6 +10,7 @@
     <PackageTags>$(PackageTags);SQL Server</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
+    <NoWarn>$(NoWarn);EF9105</NoWarn> <!-- VectorSearch is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

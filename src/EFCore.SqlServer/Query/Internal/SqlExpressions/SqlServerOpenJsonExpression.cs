@@ -31,8 +31,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression JsonExpression
-        => Arguments[0];
+    public virtual SqlExpression Json { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,16 +57,17 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     /// </summary>
     public SqlServerOpenJsonExpression(
         string alias,
-        SqlExpression jsonExpression,
+        SqlExpression json,
         IReadOnlyList<PathSegment>? path = null,
         IReadOnlyList<ColumnInfo>? columnInfos = null)
-        : base(alias, "OPENJSON", schema: null, builtIn: true, [jsonExpression])
+        : base(alias, "OPENJSON", schema: null, builtIn: true, arguments: [json])
     {
         if (columnInfos?.Count == 0)
         {
             columnInfos = null;
         }
 
+        Json = json;
         Path = path;
         ColumnInfos = columnInfos;
     }
@@ -80,7 +80,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var visitedJsonExpression = (SqlExpression)visitor.Visit(JsonExpression);
+        var visitedJsonExpression = (SqlExpression)visitor.Visit(Json);
 
         PathSegment[]? visitedPath = null;
 
@@ -144,7 +144,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
             columnInfos = null;
         }
 
-        return jsonExpression == JsonExpression
+        return jsonExpression == Json
             && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
             && (ReferenceEquals(columnInfos, ColumnInfos)
                 || columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos))
@@ -169,7 +169,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     /// </summary>
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
-        var newJsonExpression = (SqlExpression)cloningExpressionVisitor.Visit(JsonExpression);
+        var newJsonExpression = (SqlExpression)cloningExpressionVisitor.Visit(Json);
         var clone = new SqlServerOpenJsonExpression(alias!, newJsonExpression, Path, ColumnInfos);
 
         foreach (var annotation in GetAnnotations())
@@ -182,7 +182,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
     /// <inheritdoc />
     public override SqlServerOpenJsonExpression WithAlias(string newAlias)
-        => new(newAlias, JsonExpression, Path, ColumnInfos);
+        => new(newAlias, Json, Path, ColumnInfos);
 
     /// <inheritdoc />
     public override Expression Quote()
@@ -195,7 +195,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
                 typeof(IReadOnlyList<ColumnInfo>)
             ])!,
             Constant(Alias, typeof(string)),
-            JsonExpression.Quote(),
+            Json.Quote(),
             Path is null
                 ? Constant(null, typeof(IReadOnlyList<PathSegment>))
                 : NewArrayInit(typeof(PathSegment), Path.Select(s => s.Quote())),
@@ -227,7 +227,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     {
         expressionPrinter.Append(Name);
         expressionPrinter.Append("(");
-        expressionPrinter.Visit(JsonExpression);
+        expressionPrinter.Visit(Json);
 
         if (Path is not null)
         {

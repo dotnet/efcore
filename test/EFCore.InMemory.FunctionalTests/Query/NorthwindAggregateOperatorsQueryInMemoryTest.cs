@@ -22,6 +22,16 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemory
             "Sequence contains no elements",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_subquery(async))).Message);
 
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Sequence contains no elements",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MaxBy_no_data_subquery_value_type(async))).Message);
+
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Sequence contains no elements",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MinBy_no_data_subquery_value_type(async))).Message);
+
     public override async Task Average_on_nav_subquery_in_projection(bool async)
         => Assert.Equal(
             "Sequence contains no elements",

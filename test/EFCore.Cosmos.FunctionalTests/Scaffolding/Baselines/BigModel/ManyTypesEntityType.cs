@@ -6949,21 +6949,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            nullableTimeOnly.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<TimeOnly>(
-                    bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
-                    int (TimeOnly v) => ((object)v).GetHashCode(),
-                    TimeOnly (TimeOnly v) => v),
-                keyComparer: new ValueComparer<TimeOnly>(
-                    bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
-                    int (TimeOnly v) => ((object)v).GetHashCode(),
-                    TimeOnly (TimeOnly v) => v),
-                providerValueComparer: new ValueComparer<TimeOnly>(
-                    bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
-                    int (TimeOnly v) => ((object)v).GetHashCode(),
-                    TimeOnly (TimeOnly v) => v),
-                clrType: typeof(TimeOnly),
-                jsonValueReaderWriter: JsonTimeOnlyReaderWriter.Instance);
+            nullableTimeOnly.TypeMapping = CosmosTimeOnlyTypeMapping.Default;
             nullableTimeOnly.SetComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.Comparer));
             nullableTimeOnly.SetKeyComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.KeyComparer));
 
@@ -6999,21 +6985,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            nullableTimeSpan.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<TimeSpan>(
-                    bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
-                    int (TimeSpan v) => ((object)v).GetHashCode(),
-                    TimeSpan (TimeSpan v) => v),
-                keyComparer: new ValueComparer<TimeSpan>(
-                    bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
-                    int (TimeSpan v) => ((object)v).GetHashCode(),
-                    TimeSpan (TimeSpan v) => v),
-                providerValueComparer: new ValueComparer<TimeSpan>(
-                    bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
-                    int (TimeSpan v) => ((object)v).GetHashCode(),
-                    TimeSpan (TimeSpan v) => v),
-                clrType: typeof(TimeSpan),
-                jsonValueReaderWriter: JsonTimeSpanReaderWriter.Instance);
+            nullableTimeSpan.TypeMapping = CosmosTimeSpanTypeMapping.Default;
             nullableTimeSpan.SetComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.Comparer));
             nullableTimeSpan.SetKeyComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.KeyComparer));
 
@@ -8595,7 +8567,7 @@ namespace TestNamespace
                     TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
                     string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o"))),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, TimeOnly>(
-                    JsonTimeOnlyReaderWriter.Instance,
+                    CosmosJsonTimeOnlyReaderWriter.Instance,
                     new ValueConverter<string, TimeOnly>(
                         TimeOnly (string v) => TimeOnly.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.None),
                         string (TimeOnly v) => (v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", ((object)v)) : v.ToString("o")))));
@@ -8649,7 +8621,7 @@ namespace TestNamespace
                     TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture),
                     string (TimeSpan v) => v.ToString("c")),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, TimeSpan>(
-                    JsonTimeSpanReaderWriter.Instance,
+                    CosmosJsonTimeSpanReaderWriter.Instance,
                     new ValueConverter<string, TimeSpan>(
                         TimeSpan (string v) => TimeSpan.Parse(v, CultureInfo.InvariantCulture),
                         string (TimeSpan v) => v.ToString("c"))));
@@ -8740,21 +8712,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            timeOnly.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<TimeOnly>(
-                    bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
-                    int (TimeOnly v) => ((object)v).GetHashCode(),
-                    TimeOnly (TimeOnly v) => v),
-                keyComparer: new ValueComparer<TimeOnly>(
-                    bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
-                    int (TimeOnly v) => ((object)v).GetHashCode(),
-                    TimeOnly (TimeOnly v) => v),
-                providerValueComparer: new ValueComparer<TimeOnly>(
-                    bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
-                    int (TimeOnly v) => ((object)v).GetHashCode(),
-                    TimeOnly (TimeOnly v) => v),
-                clrType: typeof(TimeOnly),
-                jsonValueReaderWriter: JsonTimeOnlyReaderWriter.Instance);
+            timeOnly.TypeMapping = CosmosTimeOnlyTypeMapping.Default;
 
             var timeOnlyToStringConverterProperty = runtimeEntityType.AddProperty(
                 "TimeOnlyToStringConverterProperty",
@@ -8898,21 +8856,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            timeSpan.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<TimeSpan>(
-                    bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
-                    int (TimeSpan v) => ((object)v).GetHashCode(),
-                    TimeSpan (TimeSpan v) => v),
-                keyComparer: new ValueComparer<TimeSpan>(
-                    bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
-                    int (TimeSpan v) => ((object)v).GetHashCode(),
-                    TimeSpan (TimeSpan v) => v),
-                providerValueComparer: new ValueComparer<TimeSpan>(
-                    bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
-                    int (TimeSpan v) => ((object)v).GetHashCode(),
-                    TimeSpan (TimeSpan v) => v),
-                clrType: typeof(TimeSpan),
-                jsonValueReaderWriter: JsonTimeSpanReaderWriter.Instance);
+            timeSpan.TypeMapping = CosmosTimeSpanTypeMapping.Default;
 
             var timeSpanToStringConverterProperty = runtimeEntityType.AddProperty(
                 "TimeSpanToStringConverterProperty",

@@ -10,4 +10,5 @@ public enum CosmosCondition
     DoesNotUseTokenCredential = 1 << 1,
     IsEmulator = 1 << 2,
     IsNotEmulator = 1 << 3,
+    IsNotLinuxEmulator = 1 << 4,
 }

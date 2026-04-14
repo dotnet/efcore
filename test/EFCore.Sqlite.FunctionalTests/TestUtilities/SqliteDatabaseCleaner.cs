@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 
@@ -21,6 +22,9 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
             .GetRequiredService<IDatabaseModelFactory>();
     }
 
+    protected override bool AcceptTable(DatabaseTable table)
+        => table is not DatabaseView;
+
     protected override bool AcceptForeignKey(DatabaseForeignKey foreignKey)
         => false;
 
@@ -28,12 +32,22 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
         => false;
 
     protected override string BuildCustomSql(DatabaseModel databaseModel)
-        => "PRAGMA foreign_keys=OFF;";
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("PRAGMA foreign_keys=OFF;");
+
+        foreach (var view in databaseModel.Tables.OfType<DatabaseView>())
+        {
+            sb.AppendLine($"DROP VIEW IF EXISTS \"{view.Name}\";");
+        }
+
+        return sb.ToString();
+    }
 
     protected override string BuildCustomEndingSql(DatabaseModel databaseModel)
         => "PRAGMA foreign_keys=ON;";
 
-    public override void Clean(DatabaseFacade facade)
+    public override void Clean(DatabaseFacade facade, bool createTables = true)
     {
         var connection = facade.GetDbConnection();
 
@@ -60,6 +74,6 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
             connection.Close();
         }
 
-        base.Clean(facade);
+        base.Clean(facade, createTables);
     }
 }

@@ -9,17 +9,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialContext>, IQueryFixtureBase
+public abstract class SpatialQueryFixtureBase : QueryFixtureBase<SpatialContext>
 {
     private GeometryFactory _geometryFactory;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => new SpatialData(GeometryFactory);
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(PointEntity), e => ((PointEntity)e)?.Id },
         { typeof(LineStringEntity), e => ((LineStringEntity)e)?.Id },
@@ -28,7 +25,7 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
         { typeof(GeoPointEntity), e => ((GeoPointEntity)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(PointEntity), (e, a) =>

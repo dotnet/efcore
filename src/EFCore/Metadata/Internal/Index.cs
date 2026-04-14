@@ -37,6 +37,24 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         EntityType declaringEntityType,
         ConfigurationSource configurationSource)
     {
+        for (var i = 0; i < properties.Count; i++)
+        {
+            var property = properties[i];
+            for (var j = i + 1; j < properties.Count; j++)
+            {
+                if (property == properties[j])
+                {
+                    throw new InvalidOperationException(CoreStrings.DuplicatePropertyInIndex(properties.Format(), property.Name));
+                }
+            }
+
+            if (declaringEntityType.FindProperty(property.Name) != property
+                || !property.IsInModel)
+            {
+                throw new InvalidOperationException(CoreStrings.IndexPropertiesWrongEntity(properties.Format(), declaringEntityType.DisplayName()));
+            }
+        }
+
         Properties = properties;
         DeclaringEntityType = declaringEntityType;
         _configurationSource = configurationSource;

@@ -8,6 +8,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <IsShipping>true</IsShipping>
+    <!-- This project contains base tests to be used by providers, but is not itself a test project with
+         tests to be executed. Disable test discovery. -->
+    <IsTestProject>false</IsTestProject>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <!-- HACK: Work around dotnet/arcade#13798 -->

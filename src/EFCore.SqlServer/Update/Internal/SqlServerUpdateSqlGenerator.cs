@@ -141,7 +141,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         string name,
         string? schema)
     {
-        if (columnModification.JsonPath is null or "$")
+        if (columnModification.JsonPath is null or { IsRoot: true })
         {
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
             return;
@@ -152,7 +152,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
         // using strict so that we don't remove json elements when they are assigned NULL value
         stringBuilder.Append(", 'strict ");
-        stringBuilder.Append(columnModification.JsonPath);
+        columnModification.JsonPath.AppendTo(stringBuilder);
         stringBuilder.Append("', ");
         var mapping = columnModification.Property?.GetRelationalTypeMapping();
         var propertyProviderClrType = (mapping?.Converter?.ProviderClrType ?? columnModification.Property?.ClrType)?.UnwrapNullableType();

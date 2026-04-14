@@ -95,7 +95,7 @@ public readonly record struct ColumnModificationParameters
     /// <summary>
     ///     In case of JSON column modification, the JSON path leading to the JSON element that needs to be updated.
     /// </summary>
-    public string? JsonPath { get; init; }
+    public JsonPath? JsonPath { get; init; }
 
     /// <summary>
     ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
@@ -259,7 +259,7 @@ public readonly record struct ColumnModificationParameters
         IProperty? property,
         string? columnType,
         RelationalTypeMapping? typeMapping,
-        string jsonPath,
+        JsonPath jsonPath,
         bool read,
         bool write,
         bool key,

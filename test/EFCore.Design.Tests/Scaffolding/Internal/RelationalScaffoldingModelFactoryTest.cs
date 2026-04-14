@@ -2682,6 +2682,119 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
+    public void Scaffold_skip_navigation_for_many_to_many_join_table_composite_fk()
+    {
+        var database = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Name = "AnnualValue",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
+                        new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
+                    }
+                },
+                new DatabaseTable
+                {
+                    Name = "AcademicYear_Lookup",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
+                        new DatabaseColumn { Name = "AcademicYearDesc", StoreType = "varchar(150)", IsNullable = true },
+                        new DatabaseColumn { Name = "AcademicYearDesc2", StoreType = "varchar(100)", IsNullable = true }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("AcademicYear") } }
+                },
+                new DatabaseTable
+                {
+                    Name = "AnnualValue_AcademicYear_Mapping",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
+                        new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
+                        new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns =
+                        {
+                            new DatabaseColumnRef("AcademicYear"),
+                            new DatabaseColumnRef("LearnAimRef"),
+                            new DatabaseColumnRef("EffectiveFrom")
+                        }
+                    },
+                    ForeignKeys =
+                    {
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") },
+                            PrincipalColumns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") },
+                            PrincipalTable = new DatabaseTableRef("AnnualValue"),
+                            OnDelete = ReferentialAction.Cascade
+                        },
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("AcademicYear") },
+                            PrincipalColumns = { new DatabaseColumnRef("AcademicYear") },
+                            PrincipalTable = new DatabaseTableRef("AcademicYear_Lookup"),
+                            OnDelete = ReferentialAction.Cascade
+                        }
+                    }
+                }
+            }
+        };
+
+        var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(e => e.Name),
+            t1 =>
+            {
+                // AcademicYearLookup
+                Assert.Equal("AcademicYearLookup", t1.Name);
+                Assert.Collection(
+                    t1.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("AcademicYear", p),
+                    p => Assert.Equal("AcademicYearDesc", p),
+                    p => Assert.Equal("AcademicYearDesc2", p));
+                Assert.Empty(t1.GetNavigations());
+                var skipNavigation = Assert.Single(t1.GetSkipNavigations());
+                Assert.Equal("AnnualValues", skipNavigation.Name);
+            },
+            t2 =>
+            {
+                // AnnualValue
+                Assert.Equal("AnnualValue", t2.Name);
+                Assert.Collection(
+                    t2.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("EffectiveFrom", p),
+                    p => Assert.Equal("LearnAimRef", p));
+                Assert.Empty(t2.GetNavigations());
+                var skipNavigation = Assert.Single(t2.GetSkipNavigations());
+                Assert.Equal("AcademicYears", skipNavigation.Name);
+            },
+            t3 =>
+            {
+                // AnnualValueAcademicYearMapping (join table)
+                Assert.Equal("AnnualValueAcademicYearMapping", t3.Name);
+                Assert.Collection(
+                    t3.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("AcademicYear", p),
+                    p => Assert.Equal("EffectiveFrom", p),
+                    p => Assert.Equal("LearnAimRef", p));
+                Assert.Empty(t3.GetNavigations());
+                Assert.Equal(2, t3.GetForeignKeys().Count());
+            });
+    }
+
+    [ConditionalFact]
     public void Fk_property_ending_in_guid_navigation_name()
     {
         var blogTable = new DatabaseTable
