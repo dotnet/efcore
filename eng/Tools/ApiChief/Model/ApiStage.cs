@@ -3,7 +3,7 @@
 
 namespace ApiChief.Model;
 
-internal enum ApiStage
+public enum ApiStage
 {
     Stable = 0,
     Experimental = 1,

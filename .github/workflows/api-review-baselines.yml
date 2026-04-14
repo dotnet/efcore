@@ -1,6 +1,5 @@
-# This workflow labels PRs that modify `*.baseline.json` files with `api-review`,
-# computes ApiChief deltas between the base and selected PR baseline files, and posts the
-# results back to the pull request as a comment.
+# This workflow finds changed `*.baseline.json` files in a merged PR,
+# labels the PR for API review, generates ApiChief diffs, and posts them as PR comments.
 
 name: Comment API baseline deltas on PRs
 

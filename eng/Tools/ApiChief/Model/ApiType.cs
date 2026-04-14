@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace ApiChief.Model;
 
-internal sealed class ApiType : IEquatable<ApiType>
+public sealed class ApiType : IEquatable<ApiType>
 {
     [JsonIgnore]
     public string FullTypeName { get; set; } = string.Empty;
@@ -33,6 +33,12 @@ internal sealed class ApiType : IEquatable<ApiType>
 
     [JsonPropertyOrder(6)]
     public ApiType? Removals { get; set; }
+
+    [JsonIgnore]
+    public bool IsNew { get; set; }
+
+    [JsonIgnore]
+    public bool IsRemoved { get; set; }
 
     public bool Equals(ApiType? other) => other != null && Type == other.Type;
     public override bool Equals(object? obj) => Equals(obj as ApiType);

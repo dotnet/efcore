@@ -13,7 +13,7 @@ using ApiChief.Processing;
 
 namespace ApiChief.Model;
 
-internal sealed class ApiModel
+public sealed class ApiModel
 {
     private static readonly JsonSerializerOptions _serializerOptions = new()
     {
@@ -62,7 +62,9 @@ internal sealed class ApiModel
             var baselineType = baseline.Types.FirstOrDefault(type => type.Equals(currentType));
             if (baselineType == null)
             {
-                result.Add(CreateTypeDelta(currentType, currentType, null, includeSharedMembers: false)!);
+                var delta = CreateTypeDelta(currentType, currentType, null, includeSharedMembers: false)!;
+                delta.IsNew = true;
+                result.Add(delta);
                 continue;
             }
 
@@ -80,7 +82,9 @@ internal sealed class ApiModel
                 continue;
             }
 
-            result.Add(CreateTypeDelta(baselineType, null, baselineType, includeSharedMembers: false)!);
+            var removedDelta = CreateTypeDelta(baselineType, null, baselineType, includeSharedMembers: false)!;
+            removedDelta.IsRemoved = true;
+            result.Add(removedDelta);
         }
 
         return result;
@@ -88,6 +92,12 @@ internal sealed class ApiModel
 
     private static ApiType? CreateTypeDelta(ApiType outputType, ApiType? currentType, ApiType? baselineType, bool includeSharedMembers)
     {
+        var stageChanged = currentType != null && baselineType != null && currentType.Stage != baselineType.Stage;
+        if (stageChanged)
+        {
+            includeSharedMembers = true;
+        }
+
         var (addedMethods, removedMethods, sharedMethods) = PartitionMembers(currentType?.Methods, baselineType?.Methods, includeSharedMembers);
         var (addedFields, removedFields, sharedFields) = PartitionMembers(currentType?.Fields, baselineType?.Fields, includeSharedMembers);
         var (addedProperties, removedProperties, sharedProperties) = PartitionMembers(currentType?.Properties, baselineType?.Properties, includeSharedMembers);
