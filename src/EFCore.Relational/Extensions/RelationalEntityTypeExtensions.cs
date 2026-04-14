@@ -1520,10 +1520,10 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>
     ///     The mapping strategy for the derived types, or <see langword="null" /> if no strategy is configured
-    ///     and the entity type has no derived types. The possible values are
+    ///     and the entity type has no derived types. Well-known values include
     ///     <see cref="RelationalAnnotationNames.TphMappingStrategy" />,
     ///     <see cref="RelationalAnnotationNames.TptMappingStrategy" />, and
-    ///     <see cref="RelationalAnnotationNames.TpcMappingStrategy" />.
+    ///     <see cref="RelationalAnnotationNames.TpcMappingStrategy" />, but other values may be returned if configured.
     /// </returns>
     public static string? GetMappingStrategy(this IReadOnlyEntityType entityType)
         => (string?)entityType[RelationalAnnotationNames.MappingStrategy]
