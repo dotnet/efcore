@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore;
 
+// https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/291 (Session tokens not properly tracked)
 [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixture) : IClassFixture<CosmosSessionTokensTest.CosmosFixture>
 {
@@ -599,6 +600,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/291 (Session tokens not properly tracked)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public class CosmosNonSharedSessionTokenTests(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
     {

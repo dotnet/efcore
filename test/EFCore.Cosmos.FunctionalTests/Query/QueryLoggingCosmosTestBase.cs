@@ -24,7 +24,6 @@ public abstract class QueryLoggingCosmosTestBase
         => true;
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Queryable_simple()
     {
         using var context = CreateContext();
@@ -45,10 +44,7 @@ public abstract class QueryLoggingCosmosTestBase
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "Customers", "None", "", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-"""),
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c"),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
         else
@@ -56,16 +52,12 @@ FROM root c
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "Customers", "?", "", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-"""),
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c"),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
     }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Queryable_with_parameter_outputs_parameter_value_logging_warning()
     {
         using var context = CreateContext();
@@ -90,11 +82,7 @@ FROM root c
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "Customers", "None", "@city='Redmond'", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["City"] = @city)
-"""),
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c" + Environment.NewLine + """WHERE (c["City"] = @city)"""),
                 Fixture.TestSqlLoggerFactory.Log[3].Message);
         }
         else
@@ -102,11 +90,7 @@ WHERE (c["City"] = @city)
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "Customers", "?", "@city=?", Environment.NewLine,
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["City"] = @city)
-"""),
+                    "SELECT VALUE c" + Environment.NewLine + "FROM root c" + Environment.NewLine + """WHERE (c["City"] = @city)"""),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
     }

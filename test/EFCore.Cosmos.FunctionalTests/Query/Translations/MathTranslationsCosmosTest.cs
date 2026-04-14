@@ -292,7 +292,6 @@ FROM root c
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Truncate_project_and_order_by_it_twice()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
@@ -306,7 +305,6 @@ ORDER BY TRUNC(c["Double"])
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Truncate_project_and_order_by_it_twice2()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
@@ -320,7 +318,6 @@ ORDER BY TRUNC(c["Double"]) DESC
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Truncate_project_and_order_by_it_twice3()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.

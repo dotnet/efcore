@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+// https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
 [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFixture fixture) : IClassFixture<CosmosTransactionalBatchTest.CosmosFixture>, IAsyncLifetime
 {

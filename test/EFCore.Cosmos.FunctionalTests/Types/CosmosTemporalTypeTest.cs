@@ -6,6 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 public class CosmosDateTimeTypeTest(CosmosDateTimeTypeTest.DateTimeTypeFixture fixture)
     : TypeTestBase<DateTime, CosmosDateTimeTypeTest.DateTimeTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
@@ -22,6 +23,7 @@ public class CosmosDateTimeTypeTest(CosmosDateTimeTypeTest.DateTimeTypeFixture f
 public class CosmosDateTimeOffsetTypeTest(CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
     : TypeTestBase<DateTimeOffset, CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
@@ -37,6 +39,7 @@ public class CosmosDateTimeOffsetTypeTest(CosmosDateTimeOffsetTypeTest.DateTimeO
 
 public class CosmosDateOnlyTypeTest(CosmosDateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, CosmosDateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
@@ -53,6 +56,7 @@ public class CosmosDateOnlyTypeTest(CosmosDateOnlyTypeTest.DateOnlyTypeFixture f
 public class CosmosTimeOnlyTypeTest(CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
     : TypeTestBase<TimeOnly, CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();
@@ -68,6 +72,7 @@ public class CosmosTimeOnlyTypeTest(CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture f
 
 public class CosmosTimeSpanTypeTest(CosmosTimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, CosmosTimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
 {
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Primitive_collection_in_query()
         => base.Primitive_collection_in_query();

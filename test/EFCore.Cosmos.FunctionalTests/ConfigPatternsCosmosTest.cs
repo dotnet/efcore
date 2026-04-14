@@ -89,6 +89,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     }
 
     [ConditionalFact]
+    // Linux emulator: ConnectionMode.Direct may not be supported
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     [PlatformSkipCondition(
         TestUtilities.Xunit.TestPlatform.Mac,

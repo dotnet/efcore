@@ -39,6 +39,7 @@ WHERE ((c["AssociateCollection"][0] ?? null) != null)
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Where()
     {
@@ -55,7 +56,6 @@ WHERE ((
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ElementAt()
     {
         // 'ORDER BY' is not supported in subqueries.
@@ -116,7 +116,6 @@ WHERE (c["AssociateCollection"][@i]["Int"] = 8)
 """);
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Index_column()
     {
         // The specified query includes 'member indexer' which is currently not supported
@@ -164,6 +163,7 @@ WHERE (c["RequiredAssociate"]["NestedCollection"][0]["Int"] = 8)
 
     #endregion GroupBy
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Select_within_Select_within_Select_with_aggregates()
     {
