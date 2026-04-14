@@ -21,7 +21,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalFact]
     public virtual async Task An_optional_dependent_without_any_columns_and_nested_dependent_throws()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<Context23198>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<Context23198>())).Message;
 
         Assert.Equal(
             RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(nameof(Context23198.AnOwnedTypeWithOwnedProperties)),
@@ -70,8 +70,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24777>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context24777>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Roots.Where(e => e.Id == 3).AsSplitQuery();
         var root3 = async
@@ -179,8 +179,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_collection_basic_split_query(bool async)
     {
-        var contextFactory = await InitializeAsync<Context25680>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context25680>();
+        using var context = contextFactory.CreateDbContext();
 
         var id = new Guid("6c1ae3e5-30b9-4c77-8d98-f02075974a0a");
         var query = context.Set<Location25680>().Where(e => e.Id == id).AsSplitQuery();
@@ -231,8 +231,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
     }
@@ -240,8 +240,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
     }
@@ -276,9 +276,9 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases.OrderBy(e => e.Buyer);
 
         var result = async
@@ -307,9 +307,9 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot).Where(e => e != null);
 
         var result = async
@@ -328,9 +328,9 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases
             .AsNoTracking()
             .OrderBy(e => e.Id)
@@ -358,9 +358,9 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases
             .AsNoTracking()
             .OrderBy(e => e.Id)
@@ -388,9 +388,9 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot.ApartmentNo);
 
         var result = async
@@ -477,8 +477,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(bool async)
     {
-        var contextFactory = await InitializeAsync<Context30358>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context30358>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = from monarch in context.Monarchs
                     join magus in context.Magi.Where(x => x.Name.Contains("Bayaz")) on monarch.RulerOf equals magus.Affiliation
@@ -561,8 +561,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [ConditionalFact]
     public async Task Can_have_required_owned_type_on_derived_type()
     {
-        var contextFactory = await InitializeAsync<Context31107>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context31107>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         context.Set<Context31107.BaseEntity>().ToList();
     }
 
@@ -613,8 +613,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(c => c
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
             .Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning));
 }

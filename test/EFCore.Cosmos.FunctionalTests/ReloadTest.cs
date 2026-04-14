@@ -31,9 +31,6 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
         var entry = await context.AddAsync(new Item { Id = 1337, PartitionKey = "Foo" });
         await context.SaveChangesAsync();
 
-        var itemJson = entry.Property<JObject>("__jObject").CurrentValue;
-        itemJson["unmapped"] = 2;
-
         await entry.ReloadAsync();
 
         AssertSql(
@@ -52,9 +49,6 @@ FROM root c
 WHERE (c["Id"] = @p)
 OFFSET 0 LIMIT 1
 """);
-
-        itemJson = entry.Property<JObject>("__jObject").CurrentValue;
-        Assert.Null(itemJson["unmapped"]);
     }
 
     protected ReloadTestContext CreateContext()

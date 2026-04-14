@@ -1,0 +1,70 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.Proxies",
+  "Types": [
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder.LazyLoadingProxiesOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder.IgnoreNonVirtualNavigations(bool ignoreNonVirtualNavigations = true);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder.WithOption(System.Func<Microsoft.EntityFrameworkCore.Proxies.Internal.ProxiesOptionsExtension, Microsoft.EntityFrameworkCore.Proxies.Internal.ProxiesOptionsExtension> setAction);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder.OptionsBuilder { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.ProxiesExtensions",
+      "Methods": [
+        {
+          "Member": "static object Microsoft.EntityFrameworkCore.ProxiesExtensions.CreateProxy(this Microsoft.EntityFrameworkCore.DbContext context, System.Type entityType, params object[] constructorArguments);"
+        },
+        {
+          "Member": "static TEntity Microsoft.EntityFrameworkCore.ProxiesExtensions.CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbContext context, params object[] constructorArguments);"
+        },
+        {
+          "Member": "static TEntity Microsoft.EntityFrameworkCore.ProxiesExtensions.CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbContext context, System.Action<TEntity>? configureEntity, params object[] constructorArguments);"
+        },
+        {
+          "Member": "static TEntity Microsoft.EntityFrameworkCore.ProxiesExtensions.CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> set, params object[] constructorArguments);"
+        },
+        {
+          "Member": "static TEntity Microsoft.EntityFrameworkCore.ProxiesExtensions.CreateProxy<TEntity>(this Microsoft.EntityFrameworkCore.DbSet<TEntity> set, System.Action<TEntity>? configureEntity, params object[] constructorArguments);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.ProxiesExtensions.UseChangeTrackingProxies(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, bool useChangeTrackingProxies = true, bool checkEquality = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.ProxiesExtensions.UseChangeTrackingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, bool useChangeTrackingProxies = true, bool checkEquality = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.ProxiesExtensions.UseLazyLoadingProxies(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, bool useLazyLoadingProxies = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.ProxiesExtensions.UseLazyLoadingProxies(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.ProxiesExtensions.UseLazyLoadingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, bool useLazyLoadingProxies = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.ProxiesExtensions.UseLazyLoadingProxies<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.ProxiesServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    }
+  ]
+}

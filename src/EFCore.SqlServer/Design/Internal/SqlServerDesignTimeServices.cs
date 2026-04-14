@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 
 [assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerDesignTimeServices")]
@@ -30,6 +31,7 @@ public class SqlServerDesignTimeServices : IDesignTimeServices
         new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
             .TryAdd<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>()
             .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqlServerCSharpRuntimeAnnotationCodeGenerator>()
+            .TryAdd<IScaffoldingTypeMapper, SqlServerScaffoldingTypeMapper>()
 #pragma warning restore EF1001 // Internal EF Core API usage.
             .TryAdd<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
             .TryAdd<IProviderConfigurationCodeGenerator, SqlServerCodeGenerator>()

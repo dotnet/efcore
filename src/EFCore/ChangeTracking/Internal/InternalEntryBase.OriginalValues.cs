@@ -8,9 +8,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public partial class InternalEntryBase
 {
-    private struct OriginalValues(InternalEntryBase entry)
+    private struct OriginalValues
     {
-        private ISnapshot _values = entry.StructuralType.OriginalValuesFactory(entry);
+        private ISnapshot _values;
+
+        public OriginalValues(InternalEntryBase entry)
+            => _values = entry.StructuralType.OriginalValuesFactory(entry);
 
         public object? GetValue(IInternalEntry entry, IPropertyBase property)
             => property.GetOriginalValueIndex() is var index && index == -1

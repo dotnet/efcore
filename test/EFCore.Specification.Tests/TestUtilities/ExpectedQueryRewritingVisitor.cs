@@ -69,13 +69,17 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-            && methodCallExpression.Method.IsGenericMethod
-            && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
-                || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin))
+            && methodCallExpression.Method.IsGenericMethod)
         {
-            return RewriteJoinGroupJoin(methodCallExpression);
-        }
+            var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
 
+            if (genericMethod == QueryableMethods.Join
+                || genericMethod == QueryableMethods.GroupJoin)
+            {
+                return RewriteJoinGroupJoin(methodCallExpression);
+            }
+        }
+        
         if (methodCallExpression.Method.IsEFPropertyMethod())
         {
             var rewritten = TryConvertEFPropertyToMemberAccess(methodCallExpression);

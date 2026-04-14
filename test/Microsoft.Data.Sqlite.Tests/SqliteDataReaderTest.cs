@@ -1971,6 +1971,45 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
+    public void RecordsAffected_not_affected_by_DDL_statements()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            using (var reader = connection.ExecuteReader(
+                @"CREATE TABLE foo(bar TEXT NOT NULL);
+                  CREATE TABLE xyz(aaa TEXT NOT NULL);
+                  INSERT INTO foo(bar) VALUES('baz');
+                  INSERT INTO foo(bar) VALUES('baz2');
+                  DROP TABLE xyz;"))
+            {
+                Assert.Equal(2, reader.RecordsAffected);
+            }
+        }
+    }
+
+    [Fact]
+    public void RecordsAffected_not_affected_by_DDL_statements_with_drop_and_create()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            using (var reader = connection.ExecuteReader(
+                @"CREATE TABLE foo(bar TEXT NOT NULL);
+                  CREATE TABLE xyz(aaa TEXT NOT NULL);
+                  INSERT INTO foo(bar) VALUES('baz');
+                  INSERT INTO foo(bar) VALUES('baz2');
+                  DROP TABLE xyz;
+                  CREATE TABLE xyz(aaa TEXT NOT NULL);"))
+            {
+                Assert.Equal(2, reader.RecordsAffected);
+            }
+        }
+    }
+
+    [Fact]
     public void GetSchemaTable_works()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))

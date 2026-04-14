@@ -1,0 +1,1019 @@
+{
+  "Name": "Microsoft.Data.Sqlite",
+  "Types": [
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteBlob : System.IO.Stream",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteBlob.SqliteBlob(Microsoft.Data.Sqlite.SqliteConnection connection, string tableName, string columnName, long rowid, bool readOnly = false);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteBlob.SqliteBlob(Microsoft.Data.Sqlite.SqliteConnection connection, string databaseName, string tableName, string columnName, long rowid, bool readOnly = false);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteBlob.Dispose(bool disposing);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteBlob.Flush();"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteBlob.Read(byte[] buffer, int offset, int count);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteBlob.Read(System.Span<byte> buffer);"
+        },
+        {
+          "Member": "override long Microsoft.Data.Sqlite.SqliteBlob.Seek(long offset, System.IO.SeekOrigin origin);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteBlob.SetLength(long value);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteBlob.Write(byte[] buffer, int offset, int count);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteBlob.Write(System.ReadOnlySpan<byte> buffer);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteBlob.CanRead { get; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteBlob.CanSeek { get; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteBlob.CanWrite { get; }"
+        },
+        {
+          "Member": "override long Microsoft.Data.Sqlite.SqliteBlob.Length { get; }"
+        },
+        {
+          "Member": "override long Microsoft.Data.Sqlite.SqliteBlob.Position { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteCacheMode",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteCacheMode.SqliteCacheMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteCacheMode Microsoft.Data.Sqlite.SqliteCacheMode.Default",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteCacheMode Microsoft.Data.Sqlite.SqliteCacheMode.Private",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteCacheMode Microsoft.Data.Sqlite.SqliteCacheMode.Shared",
+          "Value": "2"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteCommand : System.Data.Common.DbCommand",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteCommand.SqliteCommand();"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteCommand.SqliteCommand(string? commandText);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteCommand.SqliteCommand(string? commandText, Microsoft.Data.Sqlite.SqliteConnection? connection);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteCommand.SqliteCommand(string? commandText, Microsoft.Data.Sqlite.SqliteConnection? connection, Microsoft.Data.Sqlite.SqliteTransaction? transaction);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteCommand.Cancel();"
+        },
+        {
+          "Member": "override System.Data.Common.DbParameter Microsoft.Data.Sqlite.SqliteCommand.CreateDbParameter();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteCommand.CreateParameter();"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteCommand.Dispose(bool disposing);"
+        },
+        {
+          "Member": "override System.Data.Common.DbDataReader Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReader(System.Data.CommandBehavior behavior);"
+        },
+        {
+          "Member": "override System.Threading.Tasks.Task<System.Data.Common.DbDataReader> Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(System.Data.CommandBehavior behavior, System.Threading.CancellationToken cancellationToken);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteCommand.ExecuteNonQuery();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteDataReader Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteDataReader Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(System.Data.CommandBehavior behavior);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(System.Threading.CancellationToken cancellationToken);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(System.Data.CommandBehavior behavior);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<Microsoft.Data.Sqlite.SqliteDataReader> Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(System.Data.CommandBehavior behavior, System.Threading.CancellationToken cancellationToken);"
+        },
+        {
+          "Member": "override object? Microsoft.Data.Sqlite.SqliteCommand.ExecuteScalar();"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteCommand.Prepare();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteCommand.CommandText { get; set; }"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteCommand.CommandTimeout { get; set; }"
+        },
+        {
+          "Member": "override System.Data.CommandType Microsoft.Data.Sqlite.SqliteCommand.CommandType { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteConnection? Microsoft.Data.Sqlite.SqliteCommand.Connection { get; set; }"
+        },
+        {
+          "Member": "override System.Data.Common.DbConnection? Microsoft.Data.Sqlite.SqliteCommand.DbConnection { get; protected set; }"
+        },
+        {
+          "Member": "override System.Data.Common.DbParameterCollection Microsoft.Data.Sqlite.SqliteCommand.DbParameterCollection { get; }"
+        },
+        {
+          "Member": "override System.Data.Common.DbTransaction? Microsoft.Data.Sqlite.SqliteCommand.DbTransaction { get; protected set; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteCommand.DesignTimeVisible { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameterCollection Microsoft.Data.Sqlite.SqliteCommand.Parameters { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction? Microsoft.Data.Sqlite.SqliteCommand.Transaction { get; set; }"
+        },
+        {
+          "Member": "override System.Data.UpdateRowSource Microsoft.Data.Sqlite.SqliteCommand.UpdatedRowSource { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteConnection : System.Data.Common.DbConnection",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteConnection.SqliteConnection();"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteConnection.SqliteConnection(string? connectionString);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.BackupDatabase(Microsoft.Data.Sqlite.SqliteConnection destination);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.BackupDatabase(Microsoft.Data.Sqlite.SqliteConnection destination, string destinationName, string sourceName);"
+        },
+        {
+          "Member": "override System.Data.Common.DbTransaction Microsoft.Data.Sqlite.SqliteConnection.BeginDbTransaction(System.Data.IsolationLevel isolationLevel);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction Microsoft.Data.Sqlite.SqliteConnection.BeginTransaction();"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction Microsoft.Data.Sqlite.SqliteConnection.BeginTransaction(bool deferred);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction Microsoft.Data.Sqlite.SqliteConnection.BeginTransaction(System.Data.IsolationLevel isolationLevel);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteTransaction Microsoft.Data.Sqlite.SqliteConnection.BeginTransaction(System.Data.IsolationLevel isolationLevel, bool deferred);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteConnection.ChangeDatabase(string databaseName);"
+        },
+        {
+          "Member": "static void Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();"
+        },
+        {
+          "Member": "static void Microsoft.Data.Sqlite.SqliteConnection.ClearPool(Microsoft.Data.Sqlite.SqliteConnection connection);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteConnection.Close();"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<TAccumulate>(string name, System.Func<TAccumulate?, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, TAccumulate>(string name, System.Func<TAccumulate?, T1, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>(string name, System.Func<TAccumulate?, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<TAccumulate>(string name, System.Func<TAccumulate?, object?[], TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<TAccumulate>(string name, TAccumulate seed, System.Func<TAccumulate, object?[], TAccumulate>? func, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateAggregate<TAccumulate, TResult>(string name, TAccumulate seed, System.Func<TAccumulate, object?[], TAccumulate>? func, System.Func<TAccumulate, TResult>? resultSelector, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateCollation(string name, System.Comparison<string>? comparison);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateCollation<T>(string name, T state, System.Func<T, string, string, int>? comparison);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteCommand Microsoft.Data.Sqlite.SqliteConnection.CreateCommand();"
+        },
+        {
+          "Member": "override System.Data.Common.DbCommand Microsoft.Data.Sqlite.SqliteConnection.CreateDbCommand();"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TResult>(string name, System.Func<TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, TResult>(string name, System.Func<T1, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, TResult>(string name, System.Func<T1, T2, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, TResult>(string name, System.Func<T1, T2, T3, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, TResult>(string name, System.Func<T1, T2, T3, T4, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, TResult>(string name, System.Func<T1, T2, T3, T4, T5, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>(string name, System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TResult>(string name, System.Func<object?[], TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, TResult>(string name, TState state, System.Func<TState, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, TResult>(string name, TState state, System.Func<TState, T1, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, TResult>(string name, TState state, System.Func<TState, T1, T2, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>(string name, TState state, System.Func<TState, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.CreateFunction<TState, TResult>(string name, TState state, System.Func<TState, object?[], TResult>? function, bool isDeterministic = false);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteConnection.Dispose(bool disposing);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.EnableExtensions(bool enable = true);"
+        },
+        {
+          "Member": "override System.Data.DataTable Microsoft.Data.Sqlite.SqliteConnection.GetSchema();"
+        },
+        {
+          "Member": "override System.Data.DataTable Microsoft.Data.Sqlite.SqliteConnection.GetSchema(string collectionName);"
+        },
+        {
+          "Member": "override System.Data.DataTable Microsoft.Data.Sqlite.SqliteConnection.GetSchema(string collectionName, string?[] restrictionValues);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteConnection.LoadExtension(string file, string? proc = null);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteConnection.Open();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteConnection.ConnectionString { get; set; }"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteConnection.Database { get; }"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteConnection.DataSource { get; }"
+        },
+        {
+          "Member": "override System.Data.Common.DbProviderFactory Microsoft.Data.Sqlite.SqliteConnection.DbProviderFactory { get; }"
+        },
+        {
+          "Member": "virtual int Microsoft.Data.Sqlite.SqliteConnection.DefaultTimeout { get; set; }"
+        },
+        {
+          "Member": "virtual SQLitePCL.sqlite3? Microsoft.Data.Sqlite.SqliteConnection.Handle { get; }"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteConnection.ServerVersion { get; }"
+        },
+        {
+          "Member": "override System.Data.ConnectionState Microsoft.Data.Sqlite.SqliteConnection.State { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteConnectionStringBuilder : System.Data.Common.DbConnectionStringBuilder",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.SqliteConnectionStringBuilder();"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.SqliteConnectionStringBuilder(string? connectionString);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Clear();"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.ContainsKey(string keyword);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Remove(string keyword);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.ShouldSerialize(string keyword);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.TryGetValue(string keyword, out object? value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteCacheMode Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Cache { get; set; }"
+        },
+        {
+          "Member": "virtual string Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.DataSource { get; set; }"
+        },
+        {
+          "Member": "int Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.DefaultTimeout { get; set; }"
+        },
+        {
+          "Member": "bool? Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.ForeignKeys { get; set; }"
+        },
+        {
+          "Member": "override object? Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.this[string keyword] { get; set; }"
+        },
+        {
+          "Member": "override System.Collections.ICollection Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Keys { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteOpenMode Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Mode { get; set; }"
+        },
+        {
+          "Member": "string Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Password { get; set; }"
+        },
+        {
+          "Member": "bool Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Pooling { get; set; }"
+        },
+        {
+          "Member": "bool Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.RecursiveTriggers { get; set; }"
+        },
+        {
+          "Member": "override System.Collections.ICollection Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Values { get; }"
+        },
+        {
+          "Member": "string? Microsoft.Data.Sqlite.SqliteConnectionStringBuilder.Vfs { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteDataReader : System.Data.Common.DbDataReader",
+      "Methods": [
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteDataReader.Close();"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteDataReader.Dispose(bool disposing);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteDataReader.GetBoolean(int ordinal);"
+        },
+        {
+          "Member": "override byte Microsoft.Data.Sqlite.SqliteDataReader.GetByte(int ordinal);"
+        },
+        {
+          "Member": "override long Microsoft.Data.Sqlite.SqliteDataReader.GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length);"
+        },
+        {
+          "Member": "override char Microsoft.Data.Sqlite.SqliteDataReader.GetChar(int ordinal);"
+        },
+        {
+          "Member": "override long Microsoft.Data.Sqlite.SqliteDataReader.GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length);"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteDataReader.GetDataTypeName(int ordinal);"
+        },
+        {
+          "Member": "override System.DateTime Microsoft.Data.Sqlite.SqliteDataReader.GetDateTime(int ordinal);"
+        },
+        {
+          "Member": "virtual System.DateTimeOffset Microsoft.Data.Sqlite.SqliteDataReader.GetDateTimeOffset(int ordinal);"
+        },
+        {
+          "Member": "override decimal Microsoft.Data.Sqlite.SqliteDataReader.GetDecimal(int ordinal);"
+        },
+        {
+          "Member": "override double Microsoft.Data.Sqlite.SqliteDataReader.GetDouble(int ordinal);"
+        },
+        {
+          "Member": "override System.Collections.IEnumerator Microsoft.Data.Sqlite.SqliteDataReader.GetEnumerator();"
+        },
+        {
+          "Member": "override System.Type Microsoft.Data.Sqlite.SqliteDataReader.GetFieldType(int ordinal);"
+        },
+        {
+          "Member": "override T Microsoft.Data.Sqlite.SqliteDataReader.GetFieldValue<T>(int ordinal);"
+        },
+        {
+          "Member": "override float Microsoft.Data.Sqlite.SqliteDataReader.GetFloat(int ordinal);"
+        },
+        {
+          "Member": "override System.Guid Microsoft.Data.Sqlite.SqliteDataReader.GetGuid(int ordinal);"
+        },
+        {
+          "Member": "override short Microsoft.Data.Sqlite.SqliteDataReader.GetInt16(int ordinal);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteDataReader.GetInt32(int ordinal);"
+        },
+        {
+          "Member": "override long Microsoft.Data.Sqlite.SqliteDataReader.GetInt64(int ordinal);"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteDataReader.GetName(int ordinal);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteDataReader.GetOrdinal(string name);"
+        },
+        {
+          "Member": "override System.Data.DataTable Microsoft.Data.Sqlite.SqliteDataReader.GetSchemaTable();"
+        },
+        {
+          "Member": "override System.IO.Stream Microsoft.Data.Sqlite.SqliteDataReader.GetStream(int ordinal);"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteDataReader.GetString(int ordinal);"
+        },
+        {
+          "Member": "override System.IO.TextReader Microsoft.Data.Sqlite.SqliteDataReader.GetTextReader(int ordinal);"
+        },
+        {
+          "Member": "virtual System.TimeSpan Microsoft.Data.Sqlite.SqliteDataReader.GetTimeSpan(int ordinal);"
+        },
+        {
+          "Member": "override object Microsoft.Data.Sqlite.SqliteDataReader.GetValue(int ordinal);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteDataReader.GetValues(object?[] values);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteDataReader.IsDBNull(int ordinal);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteDataReader.NextResult();"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteDataReader.Read();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteDataReader.Depth { get; }"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteDataReader.FieldCount { get; }"
+        },
+        {
+          "Member": "virtual SQLitePCL.sqlite3_stmt? Microsoft.Data.Sqlite.SqliteDataReader.Handle { get; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteDataReader.HasRows { get; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteDataReader.IsClosed { get; }"
+        },
+        {
+          "Member": "override object Microsoft.Data.Sqlite.SqliteDataReader.this[string name] { get; }"
+        },
+        {
+          "Member": "override object Microsoft.Data.Sqlite.SqliteDataReader.this[int ordinal] { get; }"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteDataReader.RecordsAffected { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteException : System.Data.Common.DbException",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteException.SqliteException(string? message, int errorCode);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteException.SqliteException(string? message, int errorCode, int extendedErrorCode);"
+        },
+        {
+          "Member": "static void Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(int rc, SQLitePCL.sqlite3? db);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int Microsoft.Data.Sqlite.SqliteException.SqliteErrorCode { get; }"
+        },
+        {
+          "Member": "virtual int Microsoft.Data.Sqlite.SqliteException.SqliteExtendedErrorCode { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteFactory : System.Data.Common.DbProviderFactory",
+      "Methods": [
+        {
+          "Member": "override System.Data.Common.DbCommand Microsoft.Data.Sqlite.SqliteFactory.CreateCommand();"
+        },
+        {
+          "Member": "override System.Data.Common.DbConnection Microsoft.Data.Sqlite.SqliteFactory.CreateConnection();"
+        },
+        {
+          "Member": "override System.Data.Common.DbConnectionStringBuilder Microsoft.Data.Sqlite.SqliteFactory.CreateConnectionStringBuilder();"
+        },
+        {
+          "Member": "override System.Data.Common.DbParameter Microsoft.Data.Sqlite.SqliteFactory.CreateParameter();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "static readonly Microsoft.Data.Sqlite.SqliteFactory Microsoft.Data.Sqlite.SqliteFactory.Instance"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteOpenMode",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteOpenMode.SqliteOpenMode();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode Microsoft.Data.Sqlite.SqliteOpenMode.Memory",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode Microsoft.Data.Sqlite.SqliteOpenMode.ReadOnly",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode Microsoft.Data.Sqlite.SqliteOpenMode.ReadWrite",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteOpenMode Microsoft.Data.Sqlite.SqliteOpenMode.ReadWriteCreate",
+          "Value": "0"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteParameter : System.Data.Common.DbParameter",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteParameter.SqliteParameter();"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteParameter.SqliteParameter(string? name, object? value);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteParameter.SqliteParameter(string? name, Microsoft.Data.Sqlite.SqliteType type);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteParameter.SqliteParameter(string? name, Microsoft.Data.Sqlite.SqliteType type, int size);"
+        },
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteParameter.SqliteParameter(string? name, Microsoft.Data.Sqlite.SqliteType type, int size, string? sourceColumn);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameter.ResetDbType();"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteParameter.ResetSqliteType();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override System.Data.DbType Microsoft.Data.Sqlite.SqliteParameter.DbType { get; set; }"
+        },
+        {
+          "Member": "override System.Data.ParameterDirection Microsoft.Data.Sqlite.SqliteParameter.Direction { get; set; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteParameter.IsNullable { get; set; }"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteParameter.ParameterName { get; set; }"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteParameter.Size { get; set; }"
+        },
+        {
+          "Member": "override string Microsoft.Data.Sqlite.SqliteParameter.SourceColumn { get; set; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteParameter.SourceColumnNullMapping { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteType Microsoft.Data.Sqlite.SqliteParameter.SqliteType { get; set; }"
+        },
+        {
+          "Member": "override object? Microsoft.Data.Sqlite.SqliteParameter.Value { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteParameterCollection : System.Data.Common.DbParameterCollection",
+      "Methods": [
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteParameterCollection.Add(object value);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.Add(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.Add(string? parameterName, Microsoft.Data.Sqlite.SqliteType type);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.Add(string? parameterName, Microsoft.Data.Sqlite.SqliteType type, int size);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.Add(string? parameterName, Microsoft.Data.Sqlite.SqliteType type, int size, string? sourceColumn);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.AddRange(System.Array values);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteParameterCollection.AddRange(System.Collections.Generic.IEnumerable<Microsoft.Data.Sqlite.SqliteParameter> values);"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.AddWithValue(string? parameterName, object? value);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.Clear();"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteParameterCollection.Contains(object value);"
+        },
+        {
+          "Member": "virtual bool Microsoft.Data.Sqlite.SqliteParameterCollection.Contains(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteParameterCollection.Contains(string value);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.CopyTo(System.Array array, int index);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteParameterCollection.CopyTo(Microsoft.Data.Sqlite.SqliteParameter[] array, int index);"
+        },
+        {
+          "Member": "override System.Collections.IEnumerator Microsoft.Data.Sqlite.SqliteParameterCollection.GetEnumerator();"
+        },
+        {
+          "Member": "override System.Data.Common.DbParameter Microsoft.Data.Sqlite.SqliteParameterCollection.GetParameter(int index);"
+        },
+        {
+          "Member": "override System.Data.Common.DbParameter Microsoft.Data.Sqlite.SqliteParameterCollection.GetParameter(string parameterName);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteParameterCollection.IndexOf(object value);"
+        },
+        {
+          "Member": "virtual int Microsoft.Data.Sqlite.SqliteParameterCollection.IndexOf(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteParameterCollection.IndexOf(string parameterName);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.Insert(int index, object value);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteParameterCollection.Insert(int index, Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.Remove(object value);"
+        },
+        {
+          "Member": "virtual void Microsoft.Data.Sqlite.SqliteParameterCollection.Remove(Microsoft.Data.Sqlite.SqliteParameter value);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.RemoveAt(int index);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.RemoveAt(string parameterName);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.SetParameter(int index, System.Data.Common.DbParameter value);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteParameterCollection.SetParameter(string parameterName, System.Data.Common.DbParameter value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override int Microsoft.Data.Sqlite.SqliteParameterCollection.Count { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.this[int index] { get; set; }"
+        },
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteParameter Microsoft.Data.Sqlite.SqliteParameterCollection.this[string parameterName] { get; set; }"
+        },
+        {
+          "Member": "override object Microsoft.Data.Sqlite.SqliteParameterCollection.SyncRoot { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.Data.Sqlite.SqliteTransaction : System.Data.Common.DbTransaction",
+      "Methods": [
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteTransaction.Commit();"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteTransaction.Dispose(bool disposing);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteTransaction.Release(string savepointName);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteTransaction.Rollback();"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteTransaction.Rollback(string savepointName);"
+        },
+        {
+          "Member": "override void Microsoft.Data.Sqlite.SqliteTransaction.Save(string savepointName);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.Data.Sqlite.SqliteConnection? Microsoft.Data.Sqlite.SqliteTransaction.Connection { get; }"
+        },
+        {
+          "Member": "override System.Data.Common.DbConnection? Microsoft.Data.Sqlite.SqliteTransaction.DbConnection { get; }"
+        },
+        {
+          "Member": "override System.Data.IsolationLevel Microsoft.Data.Sqlite.SqliteTransaction.IsolationLevel { get; }"
+        },
+        {
+          "Member": "override bool Microsoft.Data.Sqlite.SqliteTransaction.SupportsSavepoints { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.Data.Sqlite.SqliteType",
+      "Methods": [
+        {
+          "Member": "Microsoft.Data.Sqlite.SqliteType.SqliteType();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Microsoft.Data.Sqlite.SqliteType.Blob",
+          "Value": "4"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Microsoft.Data.Sqlite.SqliteType.Integer",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Microsoft.Data.Sqlite.SqliteType.Real",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.Data.Sqlite.SqliteType Microsoft.Data.Sqlite.SqliteType.Text",
+          "Value": "3"
+        }
+      ]
+    }
+  ]
+}

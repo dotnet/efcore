@@ -3,9 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 
-public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
-    : TypeTestBase<DateTime, DateTimeTypeTest.DateTimeTypeFixture>(fixture)
+public class CosmosDateTimeTypeTest(CosmosDateTimeTypeTest.DateTimeTypeFixture fixture)
+    : TypeTestBase<DateTime, CosmosDateTimeTypeTest.DateTimeTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class DateTimeTypeFixture : CosmosTypeFixtureBase<DateTime>
     {
         public override DateTime Value { get; } = new DateTime(2020, 1, 5, 12, 30, 45, DateTimeKind.Unspecified);
@@ -15,9 +19,13 @@ public class DateTimeTypeTest(DateTimeTypeTest.DateTimeTypeFixture fixture)
     }
 }
 
-public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
-    : TypeTestBase<DateTimeOffset, DateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
+public class CosmosDateTimeOffsetTypeTest(CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
+    : TypeTestBase<DateTimeOffset, CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class DateTimeOffsetTypeFixture : CosmosTypeFixtureBase<DateTimeOffset>
     {
         public override DateTimeOffset Value { get; } = new DateTimeOffset(2020, 1, 5, 12, 30, 45, TimeSpan.FromHours(2));
@@ -27,8 +35,12 @@ public class DateTimeOffsetTypeTest(DateTimeOffsetTypeTest.DateTimeOffsetTypeFix
     }
 }
 
-public class DateOnlyTypeTest(DateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, DateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
+public class CosmosDateOnlyTypeTest(CosmosDateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, CosmosDateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class DateOnlyTypeFixture : CosmosTypeFixtureBase<DateOnly>
     {
         public override DateOnly Value { get; } = new DateOnly(2020, 1, 5);
@@ -38,9 +50,13 @@ public class DateOnlyTypeTest(DateOnlyTypeTest.DateOnlyTypeFixture fixture) : Ty
     }
 }
 
-public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
-    : TypeTestBase<TimeOnly, TimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
+public class CosmosTimeOnlyTypeTest(CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
+    : TypeTestBase<TimeOnly, CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class TimeOnlyTypeFixture : CosmosTypeFixtureBase<TimeOnly>
     {
         public override TimeOnly Value { get; } = new TimeOnly(12, 30, 45);
@@ -50,8 +66,12 @@ public class TimeOnlyTypeTest(TimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
     }
 }
 
-public class TimeSpanTypeTest(TimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, TimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
+public class CosmosTimeSpanTypeTest(CosmosTimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, CosmosTimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
 {
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public override Task Primitive_collection_in_query()
+        => base.Primitive_collection_in_query();
+
     public class TimeSpanTypeFixture : CosmosTypeFixtureBase<TimeSpan>
     {
         public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);

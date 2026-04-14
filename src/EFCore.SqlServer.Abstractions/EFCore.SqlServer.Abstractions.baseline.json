@@ -1,0 +1,82 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.SqlServer.Abstractions",
+  "Types": [
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.HierarchyId : System.IComparable<Microsoft.EntityFrameworkCore.HierarchyId>",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.HierarchyId.HierarchyId();"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.HierarchyId.HierarchyId(string value);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.HierarchyId.HierarchyId(Microsoft.SqlServer.Types.SqlHierarchyId value);"
+        },
+        {
+          "Member": "virtual int Microsoft.EntityFrameworkCore.HierarchyId.CompareTo(Microsoft.EntityFrameworkCore.HierarchyId? other);"
+        },
+        {
+          "Member": "override bool Microsoft.EntityFrameworkCore.HierarchyId.Equals(object? other);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.HierarchyId? Microsoft.EntityFrameworkCore.HierarchyId.GetAncestor(int n);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.HierarchyId Microsoft.EntityFrameworkCore.HierarchyId.GetDescendant(Microsoft.EntityFrameworkCore.HierarchyId? child);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.HierarchyId Microsoft.EntityFrameworkCore.HierarchyId.GetDescendant(Microsoft.EntityFrameworkCore.HierarchyId? child1, Microsoft.EntityFrameworkCore.HierarchyId? child2);"
+        },
+        {
+          "Member": "override int Microsoft.EntityFrameworkCore.HierarchyId.GetHashCode();"
+        },
+        {
+          "Member": "virtual short Microsoft.EntityFrameworkCore.HierarchyId.GetLevel();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.HierarchyId? Microsoft.EntityFrameworkCore.HierarchyId.GetReparentedValue(Microsoft.EntityFrameworkCore.HierarchyId? oldRoot, Microsoft.EntityFrameworkCore.HierarchyId? newRoot);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.HierarchyId Microsoft.EntityFrameworkCore.HierarchyId.GetRoot();"
+        },
+        {
+          "Member": "virtual bool Microsoft.EntityFrameworkCore.HierarchyId.IsDescendantOf(Microsoft.EntityFrameworkCore.HierarchyId? parent);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.HierarchyId.operator ==(Microsoft.EntityFrameworkCore.HierarchyId? hid1, Microsoft.EntityFrameworkCore.HierarchyId? hid2);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.HierarchyId.explicit operator Microsoft.EntityFrameworkCore.HierarchyId?(Microsoft.SqlServer.Types.SqlHierarchyId value);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.HierarchyId.operator >(Microsoft.EntityFrameworkCore.HierarchyId? hid1, Microsoft.EntityFrameworkCore.HierarchyId? hid2);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.HierarchyId.operator >=(Microsoft.EntityFrameworkCore.HierarchyId? hid1, Microsoft.EntityFrameworkCore.HierarchyId? hid2);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.HierarchyId.implicit operator Microsoft.SqlServer.Types.SqlHierarchyId(Microsoft.EntityFrameworkCore.HierarchyId? value);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.HierarchyId.operator !=(Microsoft.EntityFrameworkCore.HierarchyId? hid1, Microsoft.EntityFrameworkCore.HierarchyId? hid2);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.HierarchyId.operator <(Microsoft.EntityFrameworkCore.HierarchyId? hid1, Microsoft.EntityFrameworkCore.HierarchyId? hid2);"
+        },
+        {
+          "Member": "static bool Microsoft.EntityFrameworkCore.HierarchyId.operator <=(Microsoft.EntityFrameworkCore.HierarchyId? hid1, Microsoft.EntityFrameworkCore.HierarchyId? hid2);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.HierarchyId? Microsoft.EntityFrameworkCore.HierarchyId.Parse(string? input);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.HierarchyId Microsoft.EntityFrameworkCore.HierarchyId.Parse(Microsoft.EntityFrameworkCore.HierarchyId parentHierarchyId, params int[] parentId);"
+        },
+        {
+          "Member": "override string Microsoft.EntityFrameworkCore.HierarchyId.ToString();"
+        }
+      ]
+    }
+  ]
+}

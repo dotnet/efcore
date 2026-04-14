@@ -2497,9 +2497,9 @@ WHERE [j].[Id] = 2
 
         var parameterSize = value switch
         {
-            true => "1558",
-            false => "1555",
-            _ => "1557"
+            true => "1560",
+            false => "1557",
+            _ => "1559"
         };
 
         var updateParameter = value switch
@@ -2531,35 +2531,35 @@ WHERE [j].[Id] = 2
         AssertSql(
             @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
             + characterCollection
-            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
+            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":""Null"",""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
             + parameterSize
             + @")
 @p1='7624'
-@p2='[]' (Size = 8000)
-@p3=NULL (Size = 8000)
-@p4='[]' (Size = 8000)
-@p5='[]' (Size = 8000)
-@p6='[]' (Size = 8000)
-@p7='[]' (Size = 8000)
-@p8='[]' (Size = 8000)
-@p9='[]' (Size = 8000)
-@p10='[]' (Size = 8000)
-@p11='[]' (Size = 8000)
-@p12='[]' (Nullable = false) (Size = 8000)
-@p13='[]' (Size = 8000)
-@p14='[]' (Size = 8000)
-@p15='[]' (Size = 8000)
-@p16='[]' (Size = 8000)
-@p17='[]' (Size = 8000)
-@p18=NULL (Size = 8000)
-@p19='[]' (Size = 8000)
-@p20='[]' (Size = 8000)
-@p21='[]' (Size = 8000)
-@p22='[]' (Size = 8000)
-@p23='[]' (Size = 8000)
-@p24='[]' (Size = 8000)
-@p25='[]' (Size = 8000)
-@p26='[]' (Size = 8000)
+@p2='[]' (Size = 2)
+@p3=NULL
+@p4='[]' (Size = 2)
+@p5='[]' (Size = 2)
+@p6='[]' (Size = 2)
+@p7='[]' (Size = 2)
+@p8='[]' (Size = 2)
+@p9='[]' (Size = 2)
+@p10='[]' (Size = 2)
+@p11='[]' (Size = 2)
+@p12='[]' (Nullable = false) (Size = 2)
+@p13='[]' (Size = 2)
+@p14='[]' (Size = 2)
+@p15='[]' (Size = 2)
+@p16='[]' (Size = 2)
+@p17='[]' (Size = 2)
+@p18=NULL
+@p19='[]' (Size = 2)
+@p20='[]' (Size = 2)
+@p21='[]' (Size = 2)
+@p22='[]' (Size = 2)
+@p23='[]' (Size = 2)
+@p24='[]' (Size = 2)
+@p25='[]' (Size = 2)
+@p26='[]' (Size = 2)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2579,8 +2579,8 @@ WHERE [j].[Id] = 7624
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestCharacterCollection', "
-+ updatedP0Reference
-+ @")
+            + updatedP0Reference
+            + @")
 OUTPUT 1
 WHERE [Id] = @p1;",
             //
@@ -2663,7 +2663,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[true,true,false]' (Size = 8000)
+@p0='[true,true,false]' (Size = 17)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2686,7 +2686,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[25,26]' (Size = 8000)
+@p0='[25,26]' (Size = 7)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2717,7 +2717,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["2000-01-01T12:34:56","3000-01-01T12:34:56","3000-01-01T12:34:56"]' (Size = 8000)
+@p0='["2000-01-01T12:34:56","3000-01-01T12:34:56","3000-01-01T12:34:56"]' (Size = 67)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2740,7 +2740,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["3000-01-01T12:34:56-04:00"]' (Size = 8000)
+@p0='["3000-01-01T12:34:56-04:00"]' (Size = 29)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2763,7 +2763,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-13579.01]' (Size = 8000)
+@p0='[-13579.01]' (Size = 11)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2786,7 +2786,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-1.23456789,1.23456789,0,-1.23579]' (Size = 8000)
+@p0='[-1.23456789,1.23456789,0,-1.23579]' (Size = 35)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2809,7 +2809,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 8000)
+@p0='["12345678-1234-4321-5555-987654321000"]' (Nullable = false) (Size = 40)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2832,7 +2832,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3234]' (Size = 8000)
+@p0='[-3234]' (Size = 7)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2855,7 +2855,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3234]' (Size = 8000)
+@p0='[-3234]' (Size = 7)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2878,7 +2878,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[]' (Size = 8000)
+@p0='[]' (Size = 2)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2901,7 +2901,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-108]' (Size = 8000)
+@p0='[-108]' (Size = 6)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2924,7 +2924,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[0,-1.234]' (Size = 8000)
+@p0='[0,-1.234]' (Size = 10)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2947,7 +2947,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='["10:01:01.007","7:09:08.007"]' (Size = 8000)
+@p0='["10:01:01.007","7:09:08.007"]' (Size = 30)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2970,7 +2970,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[1534]' (Size = 8000)
+@p0='[1534]' (Size = 6)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -2993,7 +2993,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[1237775789]' (Size = 8000)
+@p0='[1237775789]' (Size = 12)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3016,7 +3016,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[1234555555123456789]' (Size = 8000)
+@p0='[1234555555123456789]' (Size = 21)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3039,7 +3039,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[null,-2147483648,0,null,2147483647,null,77,null]' (Size = 8000)
+@p0='[null,-2147483648,0,null,2147483647,null,77,null]' (Size = 49)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3062,7 +3062,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3085,7 +3085,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3]' (Size = 8000)
+@p0='[-3]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3108,7 +3108,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3]' (Size = 8000)
+@p0='[-3]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3131,7 +3131,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-3]' (Size = 8000)
+@p0='[-3]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3154,7 +3154,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3177,7 +3177,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-1,-3,-7,2]' (Size = 8000)
+@p0='[-1,-3,-7,2]' (Size = 12)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3200,7 +3200,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3223,7 +3223,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0='[-1]' (Size = 8000)
+@p0='[-1]' (Size = 4)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3246,7 +3246,7 @@ WHERE [j].[Id] = 1
         AssertSql(
             """
 @p1='1'
-@p0=NULL (Size = 8000)
+@p0=NULL
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -3274,8 +3274,56 @@ WHERE [j].[Id] = 1
 """);
     }
 
+    public override async Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+    {
+        await base.Replace_json_reference_root_preserves_nested_owned_entities_in_memory();
+
+        AssertSql(
+            """
+@p0='{"Id":0,"Name":"Modified","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2100-01-01T00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":10.0,"Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 367)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
+
+    public override async Task Replace_derived_entity_with_json_to_base_entity_with_same_key()
+    {
+        await base.Replace_derived_entity_with_json_to_base_entity_with_same_key();
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='{"Date":"2010-01-01T00:00:00","Enum":-1,"Enums":[-1],"Fraction":1.0,"Id":0,"NullableEnum":null,"NullableEnums":[null],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"leaf"}}' (Nullable = false) (Size = 194)
+@p4='2'
+@p2='JsonEntityInheritanceBase' (Nullable = false) (Size = 34)
+@p3='ReplacementBase' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesInheritance] SET [CollectionOnBase] = @p0, [ReferenceOnBase] = @p1, [Discriminator] = @p2, [Name] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived]
+FROM [JsonEntitiesInheritance] AS [j]
+WHERE [j].[Id] = 2
+""");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

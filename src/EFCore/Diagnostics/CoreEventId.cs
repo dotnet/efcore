@@ -90,6 +90,7 @@ public static class CoreEventId
         ServiceProviderDebugInfo,
         RedundantAddServicesCallWarning,
         OldModelVersionWarning,
+        CompiledModelProviderMismatchWarning,
 
         // Model and ModelValidation events
         ShadowPropertyCreated = CoreBaseId + 600,
@@ -490,6 +491,19 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId OldModelVersionWarning = MakeInfraId(Id.OldModelVersionWarning);
+
+    /// <summary>
+    ///     A compiled model was found but was built for a different database provider.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ProviderMismatchEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId CompiledModelProviderMismatchWarning = MakeInfraId(Id.CompiledModelProviderMismatchWarning);
 
     private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
 

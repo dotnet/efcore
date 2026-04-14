@@ -126,7 +126,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         ExpectedQueryRewriter = new ExpectedQueryRewritingVisitor();
     }
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "OperatorsProceduralTest";
 
     protected virtual async Task SeedAsync(OperatorsContext ctx)
@@ -147,8 +147,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
     public virtual async Task Procedural_predicate_test_six_sources_three_pairs()
     {
         var maxDepth = 7;
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: ctx => SeedAsync(ctx));
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: ctx => SeedAsync(ctx));
+        using var context = contextFactory.CreateDbContext();
         var actualSetSource = new ActualSetSource(context);
 
         while (true)
@@ -193,8 +193,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
     public virtual async Task Procedural_projection_test_six_sources_two_trios()
     {
         var maxDepth = 7;
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: ctx => SeedAsync(ctx));
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<OperatorsContext>(seed: ctx => SeedAsync(ctx));
+        using var context = contextFactory.CreateDbContext();
         var actualSetSource = new ActualSetSource(context);
 
         while (true)

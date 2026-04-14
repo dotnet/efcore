@@ -535,20 +535,10 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p1='100'
-@p='0'
-
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
-    LEFT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
-        LIMIT @p1 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
@@ -559,20 +549,10 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@p1='100'
-@p='0'
-
 DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
-    LEFT JOIN (
-        SELECT "o2"."OrderID"
-        FROM "Orders" AS "o2"
-        WHERE "o2"."OrderID" < 10300
-        ORDER BY "o2"."OrderID"
-        LIMIT @p1 OFFSET @p
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o0"."OrderID" < 10276 AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
@@ -645,6 +625,19 @@ WHERE EXISTS (
 UPDATE "Customers" AS "c"
 SET "ContactName" = @p
 WHERE "c"."CustomerID" LIKE 'F%'
+""");
+    }
+
+    public override async Task Update_set_constant_TagWith_null(bool async)
+    {
+        await base.Update_set_constant_TagWith_null(async);
+
+        AssertExecuteUpdateSql(
+            """
+-- MyUpdate
+
+UPDATE "Customers" AS "c"
+SET "ContactName" = NULL
 """);
     }
 
@@ -1079,7 +1072,7 @@ UPDATE "Order Details" AS "o"
 SET "Quantity" = CAST(@p AS INTEGER)
 FROM "Orders" AS "o0"
 LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
-WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
+WHERE "c"."City" = 'Seattle' AND "o"."OrderID" = "o0"."OrderID"
 """);
     }
 
@@ -1092,7 +1085,7 @@ WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
 FROM "Customers" AS "c"
-WHERE "c"."CustomerID" = "o"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o"."CustomerID"
 """);
     }
 
@@ -1311,7 +1304,7 @@ FROM (
     FROM "Orders" AS "o"
     WHERE "o"."OrderID" < 10300
 ) AS "o0"
-WHERE "c"."CustomerID" = "o0"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o0"."CustomerID"
 """);
     }
 

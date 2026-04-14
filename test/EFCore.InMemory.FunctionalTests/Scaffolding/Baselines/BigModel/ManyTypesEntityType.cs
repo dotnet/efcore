@@ -13007,7 +13007,8 @@ namespace TestNamespace
                 typeof(string),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
+                nullable: true,
+                autoLoaded: false);
             nullableString.SetGetter(
                 string (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableString(instance),
                 bool (CompiledModelTestBase.ManyTypes instance) => ManyTypesUnsafeAccessors.NullableString(instance) == null);

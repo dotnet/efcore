@@ -218,6 +218,28 @@ public class PropertyTest
     }
 
     [ConditionalFact]
+    public void Property_is_auto_loaded_by_default()
+    {
+        var entityType = CreateModel().AddEntityType(typeof(Entity));
+        var property = entityType.AddProperty("Name", typeof(string));
+
+        Assert.True(property.IsAutoLoaded);
+    }
+
+    [ConditionalFact]
+    public void Can_mark_property_as_not_auto_loaded()
+    {
+        var entityType = CreateModel().AddEntityType(typeof(Entity));
+        var property = entityType.AddProperty("Name", typeof(string));
+
+        property.IsAutoLoaded = false;
+        Assert.False(property.IsAutoLoaded);
+
+        property.IsAutoLoaded = true;
+        Assert.True(property.IsAutoLoaded);
+    }
+
+    [ConditionalFact]
     public void Property_is_not_concurrency_token_by_default()
     {
         var entityType = CreateModel().AddEntityType(typeof(Entity));

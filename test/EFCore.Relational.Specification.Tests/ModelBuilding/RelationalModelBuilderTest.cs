@@ -996,14 +996,92 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
-    public abstract class RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture) : OneToManyTestBase(fixture);
+    public abstract class RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture) : OneToManyTestBase(fixture)
+    {
+        [ConditionalFact]
+        public virtual void Can_exclude_foreign_key_from_migrations_for_one_to_many()
+        {
+            var modelBuilder = CreateModelBuilder();
 
-    public abstract class RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture) : ManyToOneTestBase(fixture);
+            modelBuilder
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
+                .ExcludeForeignKeyFromMigrations();
 
-    public abstract class RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture) : OneToOneTestBase(fixture);
+            var model = modelBuilder.FinalizeModel();
+
+            var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+
+            Assert.True(foreignKey.IsExcludedFromMigrations());
+        }
+    }
+
+    public abstract class RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture) : ManyToOneTestBase(fixture)
+    {
+        [ConditionalFact]
+        public virtual void Can_exclude_foreign_key_from_migrations_for_many_to_one()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
+                .ExcludeForeignKeyFromMigrations();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+
+            Assert.True(foreignKey.IsExcludedFromMigrations());
+        }
+    }
+
+    public abstract class RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture) : OneToOneTestBase(fixture)
+    {
+        [ConditionalFact]
+        public virtual void Can_exclude_foreign_key_from_migrations_for_one_to_one()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
+                .HasPrincipalKey<Order>(e => e.OrderId)
+                .ExcludeForeignKeyFromMigrations();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var foreignKey = model.FindEntityType(typeof(OrderDetails))!.GetForeignKeys().Single();
+
+            Assert.True(foreignKey.IsExcludedFromMigrations());
+        }
+    }
 
     public abstract class RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture) : ManyToManyTestBase(fixture)
     {
+        [ConditionalFact]
+        public virtual void Can_exclude_foreign_key_from_migrations_for_many_to_many()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<ProductCategory>();
+
+            modelBuilder.Entity<Product>()
+                .HasMany(e => e.Categories)
+                .WithMany(e => e.Products)
+                .UsingEntity(
+                    right => right.HasOne<Category>().WithMany().ExcludeForeignKeyFromMigrations(),
+                    left => left.HasOne<Product>().WithMany().ExcludeForeignKeyFromMigrations());
+
+            var model = modelBuilder.FinalizeModel();
+
+            var joinEntityType = model.GetEntityTypes()
+                .Single(e => e.ClrType == typeof(Dictionary<string, object>) && e.Name.Contains("Category"));
+            foreach (var foreignKey in joinEntityType.GetForeignKeys())
+            {
+                Assert.True(foreignKey.IsExcludedFromMigrations());
+            }
+        }
+
         [ConditionalFact] // Issue #27990
         public virtual void Can_use_ForeignKeyAttribute_with_InversePropertyAttribute()
         {
@@ -1142,6 +1220,33 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture) : OwnedTypesTestBase(fixture)
     {
+        [ConditionalFact]
+        public virtual void Can_exclude_foreign_key_from_migrations_for_owned_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Ignore<BookDetails>();
+
+            modelBuilder.Entity<Book>().OwnsOne(
+                b => b.Label, lb =>
+                {
+                    lb.Ignore(l => l.Book);
+                    lb.WithOwner().ExcludeForeignKeyFromMigrations();
+                });
+            modelBuilder.Entity<Book>()
+                .OwnsOne(b => b.AlternateLabel);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var ownedType = model.FindEntityType(typeof(BookLabel), nameof(Book.Label), model.FindEntityType(typeof(Book))!)!;
+            var foreignKey = ownedType.GetForeignKeys().Single();
+
+            Assert.True(foreignKey.IsOwnership);
+            Assert.True(foreignKey.IsExcludedFromMigrations());
+        }
+
         [ConditionalFact]
         public virtual void Can_use_table_splitting_with_owned_reference()
         {

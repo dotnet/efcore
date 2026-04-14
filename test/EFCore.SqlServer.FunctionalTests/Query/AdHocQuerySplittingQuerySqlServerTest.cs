@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : AdHocQuerySplittingQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
@@ -43,7 +43,7 @@ public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : A
 
     protected override TestStore CreateTestStore25225()
     {
-        var testStore = SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true);
+        var testStore = SqlServerTestStore.Create(NonSharedStoreName, multipleActiveResultSets: true);
         testStore.UseConnectionString = true;
         return testStore;
     }
@@ -273,11 +273,11 @@ ORDER BY [p1].[Id]
     [ConditionalFact]
     public virtual async Task Using_AsSplitQuery_without_multiple_active_result_sets_works()
     {
-        var contextFactory = await InitializeAsync<Context21355>(
+        var contextFactory = await InitializeNonSharedTest<Context21355>(
             seed: c => c.SeedAsync(),
-            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: false));
+            createTestStore: () => SqlServerTestStore.Create(NonSharedStoreName, multipleActiveResultSets: false));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
         AssertSql(

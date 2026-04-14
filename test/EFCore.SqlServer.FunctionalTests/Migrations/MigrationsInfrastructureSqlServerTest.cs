@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.Can_apply_range_of_migrations();
 
-            var sql = @"CREATE DATABASE TransactionSuppressed;
-";
+            var sql = @"CREATE DATABASE TransactionSuppressed;" + Environment.NewLine;
+
             Assert.Equal(
                 RelationalResources.LogNonTransactionalMigrationOperationWarning(new TestLogger<TestRelationalLoggingDefinitions>())
                     .GenerateMessage(sql, "Migration3"),
@@ -144,10 +144,10 @@ BEGIN
 END;
 
 GO
-
 SELECT GetDate();
 --GO
 SELECT GetDate()
+GO
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -320,10 +320,10 @@ BEGIN
 END;
 
 GO
-
 SELECT GetDate();
 --GO
 SELECT GetDate()
+GO
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -690,8 +690,7 @@ GO
         {
             using var context = new DbContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
-                        .ConfigureWarnings(e => e.Throw(RelationalEventId.MigrationsNotFound))).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -710,8 +709,7 @@ GO
         {
             using var context = new DbContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
-                        .ConfigureWarnings(e => e.Throw(RelationalEventId.MigrationsNotFound))).Options);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
             await context.Database.EnsureDeletedAsync();
             await GiveMeSomeTimeAsync(context);
@@ -766,6 +764,48 @@ GO
         }
 
         [ConditionalFact]
+        public void Throws_for_old_migration_version()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
+                        .ConfigureWarnings(e => e.Throw(RelationalEventId.OldMigrationVersionWarning))).Options,
+                randomData: false);
+
+            context.Database.EnsureDeleted();
+            GiveMeSomeTime(context);
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.OldMigrationVersionWarning.ToString(),
+                    RelationalResources.LogOldMigrationVersion(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(nameof(BloggingContext), "9.0.0"),
+                    "RelationalEventId.OldMigrationVersionWarning"),
+                (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
+        }
+
+        [ConditionalFact]
+        public async Task Throws_for_old_migration_version_async()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)
+                        .ConfigureWarnings(e => e.Throw(RelationalEventId.OldMigrationVersionWarning))).Options,
+                randomData: false);
+
+            await context.Database.EnsureDeletedAsync();
+            await GiveMeSomeTimeAsync(context);
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.OldMigrationVersionWarning.ToString(),
+                    RelationalResources.LogOldMigrationVersion(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(nameof(BloggingContext), "9.0.0"),
+                    "RelationalEventId.OldMigrationVersionWarning"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
+        }
+
+        [ConditionalFact]
         public void Throws_for_nondeterministic_HasData()
         {
             using var context = new BloggingContext(
@@ -800,46 +840,6 @@ GO
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.PendingModelChangesWarning.ToString(),
                     RelationalResources.LogNonDeterministicModel(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(nameof(BloggingContext)),
-                    "RelationalEventId.PendingModelChangesWarning"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
-        }
-
-        [ConditionalFact]
-        public void Throws_for_pending_model_changes()
-        {
-            using var context = new BloggingContext(
-                Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options,
-                randomData: false);
-
-            context.Database.EnsureDeleted();
-            GiveMeSomeTime(context);
-
-            Assert.Equal(
-                CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.PendingModelChangesWarning.ToString(),
-                    RelationalResources.LogPendingModelChanges(new TestLogger<TestRelationalLoggingDefinitions>())
-                        .GenerateMessage(nameof(BloggingContext)),
-                    "RelationalEventId.PendingModelChangesWarning"),
-                (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
-        }
-
-        [ConditionalFact]
-        public async Task Throws_for_pending_model_changes_async()
-        {
-            using var context = new BloggingContext(
-                Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options,
-                randomData: false);
-
-            await context.Database.EnsureDeletedAsync();
-            await GiveMeSomeTimeAsync(context);
-
-            Assert.Equal(
-                CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.PendingModelChangesWarning.ToString(),
-                    RelationalResources.LogPendingModelChanges(new TestLogger<TestRelationalLoggingDefinitions>())
                         .GenerateMessage(nameof(BloggingContext)),
                     "RelationalEventId.PendingModelChangesWarning"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);

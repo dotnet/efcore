@@ -13,97 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteMathTranslator : IMethodCallTranslator
+public class SqliteMathTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> SupportedMethods = new()
-    {
-        { typeof(Math).GetMethod(nameof(Math.Abs), [typeof(double)])!, "abs" },
-        { typeof(Math).GetMethod(nameof(Math.Abs), [typeof(float)])!, "abs" },
-        { typeof(Math).GetMethod(nameof(Math.Abs), [typeof(int)])!, "abs" },
-        { typeof(Math).GetMethod(nameof(Math.Abs), [typeof(long)])!, "abs" },
-        { typeof(Math).GetMethod(nameof(Math.Abs), [typeof(sbyte)])!, "abs" },
-        { typeof(Math).GetMethod(nameof(Math.Abs), [typeof(short)])!, "abs" },
-        { typeof(Math).GetMethod(nameof(Math.Acos), [typeof(double)])!, "acos" },
-        { typeof(Math).GetMethod(nameof(Math.Acosh), [typeof(double)])!, "acosh" },
-        { typeof(Math).GetMethod(nameof(Math.Asin), [typeof(double)])!, "asin" },
-        { typeof(Math).GetMethod(nameof(Math.Asinh), [typeof(double)])!, "asinh" },
-        { typeof(Math).GetMethod(nameof(Math.Atan), [typeof(double)])!, "atan" },
-        { typeof(Math).GetMethod(nameof(Math.Atan2), [typeof(double), typeof(double)])!, "atan2" },
-        { typeof(Math).GetMethod(nameof(Math.Atanh), [typeof(double)])!, "atanh" },
-        { typeof(Math).GetMethod(nameof(Math.Ceiling), [typeof(double)])!, "ceiling" },
-        { typeof(Math).GetMethod(nameof(Math.Cos), [typeof(double)])!, "cos" },
-        { typeof(Math).GetMethod(nameof(Math.Cosh), [typeof(double)])!, "cosh" },
-        { typeof(Math).GetMethod(nameof(Math.Exp), [typeof(double)])!, "exp" },
-        { typeof(Math).GetMethod(nameof(Math.Floor), [typeof(double)])!, "floor" },
-        { typeof(Math).GetMethod(nameof(Math.Log), [typeof(double)])!, "ln" },
-        { typeof(Math).GetMethod(nameof(Math.Log2), [typeof(double)])!, "log2" },
-        { typeof(Math).GetMethod(nameof(Math.Log10), [typeof(double)])!, "log10" },
-        { typeof(Math).GetMethod(nameof(Math.Pow), [typeof(double), typeof(double)])!, "pow" },
-        { typeof(Math).GetMethod(nameof(Math.Round), [typeof(double)])!, "round" },
-        { typeof(Math).GetMethod(nameof(Math.Sign), [typeof(double)])!, "sign" },
-        { typeof(Math).GetMethod(nameof(Math.Sign), [typeof(float)])!, "sign" },
-        { typeof(Math).GetMethod(nameof(Math.Sign), [typeof(long)])!, "sign" },
-        { typeof(Math).GetMethod(nameof(Math.Sign), [typeof(sbyte)])!, "sign" },
-        { typeof(Math).GetMethod(nameof(Math.Sign), [typeof(short)])!, "sign" },
-        { typeof(Math).GetMethod(nameof(Math.Sin), [typeof(double)])!, "sin" },
-        { typeof(Math).GetMethod(nameof(Math.Sinh), [typeof(double)])!, "sinh" },
-        { typeof(Math).GetMethod(nameof(Math.Sqrt), [typeof(double)])!, "sqrt" },
-        { typeof(Math).GetMethod(nameof(Math.Tan), [typeof(double)])!, "tan" },
-        { typeof(Math).GetMethod(nameof(Math.Tanh), [typeof(double)])!, "tanh" },
-        { typeof(Math).GetMethod(nameof(Math.Truncate), [typeof(double)])!, "trunc" },
-        { typeof(double).GetRuntimeMethod(nameof(double.DegreesToRadians), [typeof(double)])!, "radians" },
-        { typeof(double).GetRuntimeMethod(nameof(double.RadiansToDegrees), [typeof(double)])!, "degrees" },
-        { typeof(MathF).GetMethod(nameof(MathF.Acos), [typeof(float)])!, "acos" },
-        { typeof(MathF).GetMethod(nameof(MathF.Acosh), [typeof(float)])!, "acosh" },
-        { typeof(MathF).GetMethod(nameof(MathF.Asin), [typeof(float)])!, "asin" },
-        { typeof(MathF).GetMethod(nameof(MathF.Asinh), [typeof(float)])!, "asinh" },
-        { typeof(MathF).GetMethod(nameof(MathF.Atan), [typeof(float)])!, "atan" },
-        { typeof(MathF).GetMethod(nameof(MathF.Atan2), [typeof(float), typeof(float)])!, "atan2" },
-        { typeof(MathF).GetMethod(nameof(MathF.Atanh), [typeof(float)])!, "atanh" },
-        { typeof(MathF).GetMethod(nameof(MathF.Ceiling), [typeof(float)])!, "ceiling" },
-        { typeof(MathF).GetMethod(nameof(MathF.Cos), [typeof(float)])!, "cos" },
-        { typeof(MathF).GetMethod(nameof(MathF.Cosh), [typeof(float)])!, "cosh" },
-        { typeof(MathF).GetMethod(nameof(MathF.Exp), [typeof(float)])!, "exp" },
-        { typeof(MathF).GetMethod(nameof(MathF.Floor), [typeof(float)])!, "floor" },
-        { typeof(MathF).GetMethod(nameof(MathF.Log), [typeof(float)])!, "ln" },
-        { typeof(MathF).GetMethod(nameof(MathF.Log10), [typeof(float)])!, "log10" },
-        { typeof(MathF).GetMethod(nameof(MathF.Log2), [typeof(float)])!, "log2" },
-        { typeof(MathF).GetMethod(nameof(MathF.Pow), [typeof(float), typeof(float)])!, "pow" },
-        { typeof(MathF).GetMethod(nameof(MathF.Round), [typeof(float)])!, "round" },
-        { typeof(MathF).GetMethod(nameof(MathF.Sin), [typeof(float)])!, "sin" },
-        { typeof(MathF).GetMethod(nameof(MathF.Sinh), [typeof(float)])!, "sinh" },
-        { typeof(MathF).GetMethod(nameof(MathF.Sqrt), [typeof(float)])!, "sqrt" },
-        { typeof(MathF).GetMethod(nameof(MathF.Tan), [typeof(float)])!, "tan" },
-        { typeof(MathF).GetMethod(nameof(MathF.Tanh), [typeof(float)])!, "tanh" },
-        { typeof(MathF).GetMethod(nameof(MathF.Truncate), [typeof(float)])!, "trunc" },
-        { typeof(float).GetRuntimeMethod(nameof(float.DegreesToRadians), [typeof(float)])!, "radians" },
-        { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), [typeof(float)])!, "degrees" }
-    };
-
     // Note: Math.Max/Min are handled in RelationalSqlTranslatingExpressionVisitor
-
-    private static readonly List<MethodInfo> _roundWithDecimalMethods =
-    [
-        typeof(Math).GetMethod(nameof(Math.Round), [typeof(double), typeof(int)])!,
-        typeof(MathF).GetMethod(nameof(MathF.Round), [typeof(float), typeof(int)])!
-    ];
-
-    private static readonly List<MethodInfo> _logWithBaseMethods =
-    [
-        typeof(Math).GetMethod(nameof(Math.Log), [typeof(double), typeof(double)])!,
-        typeof(MathF).GetMethod(nameof(MathF.Log), [typeof(float), typeof(float)])!
-    ];
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -117,50 +29,163 @@ public class SqliteMathTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (SupportedMethods.TryGetValue(method, out var sqlFunctionName))
+        if (method.DeclaringType != typeof(Math)
+            && method.DeclaringType != typeof(MathF)
+            && method.DeclaringType != typeof(double)
+            && method.DeclaringType != typeof(float))
         {
-            var typeMapping = ExpressionExtensions.InferTypeMapping(arguments.ToArray());
-            var newArguments = arguments
-                .Select(a => _sqlExpressionFactory.ApplyTypeMapping(a, typeMapping))
-                .ToList();
-
-            return _sqlExpressionFactory.Function(
-                sqlFunctionName,
-                newArguments,
-                nullable: true,
-                argumentsPropagateNullability: newArguments.Select(_ => true).ToList(),
-                method.ReturnType,
-                typeMapping);
+            return null;
         }
 
-        if (_roundWithDecimalMethods.Contains(method))
+        return method.Name switch
         {
-            return _sqlExpressionFactory.Function(
-                "round",
-                arguments,
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType,
-                arguments[0].TypeMapping);
-        }
+            nameof(Math.Abs) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float) || t == typeof(int) || t == typeof(long) || t == typeof(sbyte) || t == typeof(short))
+                => TranslateFunction("abs", arg),
 
-        if (_logWithBaseMethods.Contains(method))
-        {
-            var a = arguments[0];
-            var newBase = arguments[1];
-            var typeMapping = ExpressionExtensions.InferTypeMapping(a, newBase);
+            nameof(Math.Acos) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("acos", arg),
+            nameof(Math.Acosh) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("acosh", arg),
+            nameof(Math.Asin) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("asin", arg),
+            nameof(Math.Asinh) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("asinh", arg),
+            nameof(Math.Atan) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("atan", arg),
+            nameof(Math.Atan2) when arguments is [var arg1, var arg2]
+                => TranslateFunction("atan2", arg1, arg2),
+            nameof(Math.Atanh) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("atanh", arg),
+            nameof(Math.Ceiling) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("ceiling", arg),
+            nameof(Math.Cos) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("cos", arg),
+            nameof(Math.Cosh) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("cosh", arg),
+            nameof(Math.Exp) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("exp", arg),
+            nameof(Math.Floor) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("floor", arg),
 
-            return _sqlExpressionFactory.Function(
-                "log",
-                [
-                    _sqlExpressionFactory.ApplyTypeMapping(newBase, typeMapping), _sqlExpressionFactory.ApplyTypeMapping(a, typeMapping)
-                ],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType,
-                typeMapping);
-        }
+            nameof(Math.Log) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("ln", arg),
+            nameof(Math.Log) when arguments is [var a, var newBase]
+                => TranslateLogWithBase(a, newBase),
 
-        return null;
+            nameof(Math.Log2) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("log2", arg),
+            nameof(Math.Log10) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("log10", arg),
+            nameof(Math.Pow) when arguments is [var arg1, var arg2]
+                => TranslateFunction("pow", arg1, arg2),
+
+            nameof(Math.Round) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("round", arg),
+            nameof(Math.Round) when arguments is [var arg, var digits]
+                && digits.Type == typeof(int)
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateRoundWithDigits(arg, digits),
+
+            nameof(Math.Sign) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float) || t == typeof(long) || t == typeof(sbyte) || t == typeof(short))
+                => TranslateFunction("sign", arg),
+
+            nameof(Math.Sin) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("sin", arg),
+            nameof(Math.Sinh) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("sinh", arg),
+            nameof(Math.Sqrt) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("sqrt", arg),
+            nameof(Math.Tan) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("tan", arg),
+            nameof(Math.Tanh) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("tanh", arg),
+            nameof(Math.Truncate) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("trunc", arg),
+            nameof(double.DegreesToRadians) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("radians", arg),
+            nameof(double.RadiansToDegrees) when arguments is [var arg]
+                && arg.Type is { } t && (t == typeof(double) || t == typeof(float))
+                => TranslateFunction("degrees", arg),
+
+            _ => null
+        };
+    }
+
+    private SqlExpression TranslateFunction(string sqlFunctionName, SqlExpression argument)
+    {
+        var typeMapping = argument.TypeMapping;
+        argument = sqlExpressionFactory.ApplyTypeMapping(argument, typeMapping);
+
+        return sqlExpressionFactory.Function(
+            sqlFunctionName,
+            [argument],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[1],
+            argument.Type,
+            typeMapping);
+    }
+
+    private SqlExpression TranslateFunction(string sqlFunctionName, SqlExpression arg1, SqlExpression arg2)
+    {
+        var typeMapping = ExpressionExtensions.InferTypeMapping(arg1, arg2);
+        arg1 = sqlExpressionFactory.ApplyTypeMapping(arg1, typeMapping);
+        arg2 = sqlExpressionFactory.ApplyTypeMapping(arg2, typeMapping);
+
+        return sqlExpressionFactory.Function(
+            sqlFunctionName,
+            [arg1, arg2],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[2],
+            arg1.Type,
+            typeMapping);
+    }
+
+    private SqlExpression TranslateRoundWithDigits(SqlExpression arg, SqlExpression digits)
+        => sqlExpressionFactory.Function(
+            "round",
+            [arg, digits],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[2],
+            arg.Type,
+            arg.TypeMapping);
+
+    private SqlExpression TranslateLogWithBase(SqlExpression a, SqlExpression newBase)
+    {
+        var typeMapping = ExpressionExtensions.InferTypeMapping(a, newBase);
+
+        return sqlExpressionFactory.Function(
+            "log",
+            [
+                sqlExpressionFactory.ApplyTypeMapping(newBase, typeMapping),
+                sqlExpressionFactory.ApplyTypeMapping(a, typeMapping)
+            ],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[2],
+            a.Type,
+            typeMapping);
     }
 }
