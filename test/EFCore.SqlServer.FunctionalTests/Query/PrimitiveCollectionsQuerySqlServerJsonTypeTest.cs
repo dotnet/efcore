@@ -1459,6 +1459,63 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 """);
     }
 
+    public override async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
+    {
+        await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);
+
+        switch (mode)
+        {
+            case ParameterTranslationMode.Constant:
+            {
+                AssertSql(
+                    """
+SELECT [t].[Id]
+FROM [TestEntity38008] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (CAST(2 AS int))) AS [f]([Value])
+    WHERE [f].[Value] = [t].[Status])
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.Parameter:
+            {
+                AssertSql(
+                    """
+@filter='[2]' (Size = 3)
+
+SELECT [t].[Id]
+FROM [TestEntity38008] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON(@filter) WITH ([value] int '$') AS [f]
+    WHERE [f].[value] = [t].[Status])
+""");
+                break;
+            }
+
+            case ParameterTranslationMode.MultipleParameters:
+            {
+                AssertSql(
+                    """
+@filter1='2'
+
+SELECT [t].[Id]
+FROM [TestEntity38008] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (@filter1)) AS [f]([Value])
+    WHERE [f].[Value] = [t].[Status])
+""");
+                break;
+            }
+
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
     public override async Task Static_readonly_collection_List_of_ints_Contains_int()
     {
         await base.Static_readonly_collection_List_of_ints_Contains_int();

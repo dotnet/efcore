@@ -274,6 +274,58 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
+    // #38008
+    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    public virtual async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38008>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, mode),
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context38008.TestEntity38008 { Id = 1, Status = Context38008.EntityEnum.Clean },
+                    new Context38008.TestEntity38008 { Id = 2, Status = Context38008.EntityEnum.Malware });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // Cast<EntityEnum>() returns a lazy IEnumerable whose boxed values retain the ViewModelEnum runtime type.
+        var filter = new[] { Context38008.ViewModelEnum.Malware }.Cast<Context38008.EntityEnum>();
+        var result = await context.Set<Context38008.TestEntity38008>()
+            .Where(a => filter.Any(f => f == a.Status))
+            .Select(a => a.Id)
+            .ToListAsync();
+
+        Assert.Equivalent(new[] { 2 }, result);
+    }
+
+    protected class Context38008(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<TestEntity38008>().Property(e => e.Id).ValueGeneratedNever();
+
+        public class TestEntity38008
+        {
+            public int Id { get; set; }
+            public EntityEnum Status { get; set; }
+        }
+
+        [Flags]
+        public enum EntityEnum
+        {
+            Clean = 1,
+            Malware = 2
+        }
+
+        [Flags]
+        public enum ViewModelEnum
+        {
+            Clean = 1,
+            Malware = 2
+        }
+    }
+
     protected class TestOwner
     {
         public int Id { get; set; }
