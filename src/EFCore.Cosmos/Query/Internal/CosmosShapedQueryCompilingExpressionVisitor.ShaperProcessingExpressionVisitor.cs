@@ -132,18 +132,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             switch (node)
             {
-                case StructuralTypeShaperExpression shaperExpression:
+                case StructuralTypeShaperExpression structuralTypeShaperExpression:
                     _queryRootEntryVariable = null;
                     _queryRootTryGetEntryCall = null;
 
-                    _valueBufferToJsonReaderDataMapping[shaperExpression.ValueBufferExpression] = jsonReaderData;
+                    _valueBufferToJsonReaderDataMapping[structuralTypeShaperExpression.ValueBufferExpression] = jsonReaderData;
 
                     var shapers = CreateJsonShapers( // @TODO: Cache for StructuralType?
-                        shaperExpression.StructuralType,
-                        shaperExpression.Type,
-                        shaperExpression.IsNullable,
+                        structuralTypeShaperExpression.StructuralType,
+                        structuralTypeShaperExpression.Type,
+                        structuralTypeShaperExpression.IsNullable,
                         null,
-                        shaperExpression.ValueBufferExpression
+                        structuralTypeShaperExpression.ValueBufferExpression
                     );
 
                     return Block(
@@ -151,11 +151,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         [ ..jsonReaderInitializeExpessions,
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Visit(shapers)]);
+                case CollectionShaperExpression collectionShaperExpression:
+                    var objectArrayAccess = collectionShaperExpression.Projection switch
+                    {
+                        ProjectionBindingExpression projectionBindingExpression
+                            => (ObjectArrayAccessExpression)GetProjection(projectionBindingExpression).Expression,
+                        ObjectArrayAccessExpression objectArrayProjectionExpression
+                            => objectArrayProjectionExpression,
+                        _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionShaperExpression.Print())),
+                    };
+                    var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
+
+
+
+                    // Create inner shaper...
+                    // @TODO: Look at relational
+                    break;
                 case ProjectionBindingExpression projectionBindingExpression:
                     var projection = GetProjection(projectionBindingExpression);
-
                     var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
-
                     var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
 
                     return Block(
@@ -430,7 +444,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // If propertyPath countis 0, the structural type is the document root, so we don't need to extract an embedded document
             if (jsonPropertyPath.Count == 0)
             {
-                return structuralTypeProjection;
+                return materializeExpression;
             }
             // Generate an expression that uses Utf8JsonReaderManager to parse the JSON document and extract the part of the document that corresponds to the structural type
 

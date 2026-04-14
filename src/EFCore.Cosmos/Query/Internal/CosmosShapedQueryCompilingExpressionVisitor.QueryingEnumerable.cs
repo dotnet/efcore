@@ -200,7 +200,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
 
                     var reader = new Utf8JsonReader(_data.Value.Span, true, _readerState!.Value);
-                    reader.Read();
+                    reader.Read();  // @TODO: This is actually really inefficient,
+                                    // Because we could be reading a giant string here...
+                                    // Instead, trim whitespaces? and check the first character for "]"?
                     if (reader.TokenType == JsonTokenType.EndArray)
                     {
                         _data = null;
@@ -213,6 +215,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     // This could be a scalar or a structural type, if it is an object, we need to move past it.
                     // @TODO: Get BytesConsumed from shaper?
+                    // @TODO: Trim the ,
                     if (reader.TokenType == JsonTokenType.StartObject)
                     {
                         reader.Read();
