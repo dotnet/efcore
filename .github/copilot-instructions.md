@@ -91,6 +91,14 @@ If you are not sure, do not guess, just tell that you don't know or ask clarifyi
 - Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
 - After changing public APIs, run `build.cmd` / `build.sh` to refresh the checked-in `*.baseline.json` files
 
+#### API baselining
+- Public API surface is tracked in checked-in `*.baseline.json` files under `src/`
+- Normal dev loop: make the API change, run EFCore.ApiBaseline.Tests, review the diff, and check in the updated baseline if the change is intentional
+- On CI these tests fail on baseline mismatches
+- API stages (`Stable`, `Experimental`, `Obsolete`) are part of the baseline
+- Pubternal APIs marked with `.Internal` / `[EntityFrameworkInternal]` are not treated as public API
+- When a PR with API changes is merged, a workflow labels the PR with `api-review`, generates ApiChief diffs between the old and new baselines, and posts them as PR comments for review
+
 #### Environment Setup
 - **ALWAYS** run `restore.cmd` (Windows) or `. ./restore.sh` (Linux/Mac) first to restore dependencies
 - **ALWAYS** run `. .\activate.ps1` (PowerShell) or `. ./activate.sh` (Bash) to set up the development environment with correct SDK versions before building or running the tests
