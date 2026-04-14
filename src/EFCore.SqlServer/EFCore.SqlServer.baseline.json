@@ -846,6 +846,30 @@
           "Member": "static System.DateTimeOffset Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts(this Microsoft.EntityFrameworkCore.DbFunctions _, int year, int month, int day, int hour, int minute, int second, int fractions, int hourOffset, int minuteOffset, int precision);"
         },
         {
+          "Member": "static System.DateTime Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.DateTime date);"
+        },
+        {
+          "Member": "static System.DateTime? Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.DateTime? date);"
+        },
+        {
+          "Member": "static System.DateTimeOffset Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.DateTimeOffset dateTimeOffset);"
+        },
+        {
+          "Member": "static System.DateTimeOffset? Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.DateTimeOffset? dateTimeOffset);"
+        },
+        {
+          "Member": "static System.DateOnly Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.DateOnly date);"
+        },
+        {
+          "Member": "static System.DateOnly? Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.DateOnly? date);"
+        },
+        {
+          "Member": "static System.TimeOnly Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.TimeOnly time);"
+        },
+        {
+          "Member": "static System.TimeOnly? Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.DateTrunc(this Microsoft.EntityFrameworkCore.DbFunctions _, string datepart, System.TimeOnly? time);"
+        },
+        {
           "Member": "static bool Microsoft.EntityFrameworkCore.SqlServerDbFunctionsExtensions.FreeText(this Microsoft.EntityFrameworkCore.DbFunctions _, object propertyReference, string freeText, int languageTerm);"
         },
         {
