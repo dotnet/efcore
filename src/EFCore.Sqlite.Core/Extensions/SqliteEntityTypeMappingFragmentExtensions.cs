@@ -27,7 +27,7 @@ public static class SqliteEntityTypeMappingFragmentExtensions
     /// <param name="fragment">The entity type mapping fragment.</param>
     /// <param name="useSqlReturningClause">The value to set.</param>
     public static void UseSqlReturningClause(this IMutableEntityTypeMappingFragment fragment, bool? useSqlReturningClause)
-        => fragment.SetAnnotation(SqliteAnnotationNames.UseSqlReturningClause, useSqlReturningClause);
+        => fragment.SetOrRemoveAnnotation(SqliteAnnotationNames.UseSqlReturningClause, useSqlReturningClause);
 
     /// <summary>
     ///     Sets a value indicating whether to use the SQL RETURNING clause when saving changes to the table.
@@ -41,7 +41,8 @@ public static class SqliteEntityTypeMappingFragmentExtensions
         this IConventionEntityTypeMappingFragment fragment,
         bool? useSqlReturningClause,
         bool fromDataAnnotation = false)
-        => (bool?)fragment.SetAnnotation(SqliteAnnotationNames.UseSqlReturningClause, useSqlReturningClause, fromDataAnnotation)?.Value;
+        => (bool?)fragment.SetOrRemoveAnnotation(SqliteAnnotationNames.UseSqlReturningClause, useSqlReturningClause, fromDataAnnotation)
+            ?.Value;
 
     /// <summary>
     ///     Gets the configuration source for whether to use the SQL RETURNING clause when saving changes to the associated table.

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -32,9 +33,7 @@ public class ModelValidator : IModelValidator
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ModelValidator(ModelValidatorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -45,6 +44,7 @@ public class ModelValidator : IModelValidator
     public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         ValidateIgnoredMembers(model, logger);
+        ValidateEntityClrTypes(model, logger);
         ValidatePropertyMapping(model, logger);
         ValidateRelationships(model, logger);
         ValidateOwnership(model, logger);
@@ -236,7 +236,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 var targetType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                    clrProperty, conventionModel, out var targetOwned);
+                    clrProperty, conventionModel, useAttributes: true, out var targetOwned);
                 if (targetType == null
                     && clrProperty.FindSetterProperty() == null)
                 {
@@ -437,7 +437,7 @@ public class ModelValidator : IModelValidator
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
-                if (key.Properties.Any(p => p.IsImplicitlyCreated())
+                if (key.Properties.Any(p => p.IsShadowProperty())
                     && ConfigurationSource.Convention.Overrides(key.GetConfigurationSource())
                     && !key.IsPrimaryKey())
                 {
@@ -1008,6 +1008,31 @@ public class ModelValidator : IModelValidator
     }
 
     /// <summary>
+    ///     Validates that common CLR types are not mapped accidentally as entity types.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateEntityClrTypes(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (entityType.ClrType.IsGenericType)
+            {
+                var genericTypeDefinition = entityType.ClrType.GetGenericTypeDefinition();
+                if (genericTypeDefinition == typeof(List<>)
+                    || genericTypeDefinition == typeof(HashSet<>)
+                    || genericTypeDefinition == typeof(Collection<>)
+                    || genericTypeDefinition == typeof(ObservableCollection<>))
+                {
+                    logger.AccidentalEntityType(entityType);
+                }
+            }
+        }
+    }
+
+    /// <summary>
     ///     Validates the mapping of primitive collection properties the model.
     /// </summary>
     /// <param name="model">The model to validate.</param>
@@ -1018,10 +1043,10 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            Validate(entityType, logger);
+            ValidateType(entityType);
         }
 
-        static void Validate(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        static void ValidateType(ITypeBase typeBase)
         {
             foreach (var property in typeBase.GetDeclaredProperties())
             {
@@ -1035,19 +1060,12 @@ public class ModelValidator : IModelValidator
                                 property.ClrType.ShortDisplayName(),
                                 typeof(IList<>).MakeGenericType(elementClrType!).ShortDisplayName()));
                     }
-
-                    if (property.ClrType.IsGenericType
-                        && (property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>)
-                            || property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)))
-                    {
-                        throw new InvalidOperationException(CoreStrings.ReadOnlyListType(property.ClrType.ShortDisplayName()));
-                    }
                 }
             }
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
-                Validate(complexProperty.ComplexType, logger);
+                ValidateType(complexProperty.ComplexType);
             }
         }
     }
@@ -1282,7 +1300,8 @@ public class ModelValidator : IModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                if (property.IsImplicitlyCreated())
+                if (property.IsShadowProperty()
+                    && property.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
                     var uniquifiedAnnotation = property.FindAnnotation(CoreAnnotationNames.PreUniquificationName);
                     if (uniquifiedAnnotation != null

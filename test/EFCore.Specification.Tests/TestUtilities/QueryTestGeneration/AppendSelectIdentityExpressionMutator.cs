@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendSelectIdentityExpressionMutator : ExpressionMutator
+public class AppendSelectIdentityExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public AppendSelectIdentityExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
     public override bool IsValid(Expression expression)
         => IsQueryableResult(expression);
 

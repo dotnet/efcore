@@ -359,7 +359,7 @@ public class RelationalCommandTest
             CreateOptions());
 
         DbDataReader CreateDbDataReader()
-            => new FakeDbDataReader(new[] { "Id", "Name" }, new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
+            => new FakeDbDataReader(["Id", "Name"], new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
 
         var fakeDbConnection = new FakeDbConnection(
             ConnectionString,
@@ -433,8 +433,8 @@ public class RelationalCommandTest
         Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
     }
 
-    public static TheoryData CommandActions
-        => new TheoryData<Delegate, DbCommandMethod, bool>
+    public static TheoryData<Delegate, DbCommandMethod, bool> CommandActions
+        => new()
         {
             {
                 new CommandAction(
@@ -484,9 +484,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_parameter_values_is_null(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -494,9 +492,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -523,9 +521,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -533,9 +529,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -564,9 +560,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_type_mapped_parameters(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -574,9 +568,9 @@ public class RelationalCommandTest
         var relationalCommand = CreateRelationalCommand(
             parameters: new[]
             {
-                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                new TypeMappedRelationalParameter("FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                 new TypeMappedRelationalParameter(
-                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                    "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                 new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
             });
 
@@ -629,9 +623,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_composite_parameters(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -644,9 +636,9 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
-                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                     })
             });
@@ -695,9 +687,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -710,9 +700,9 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false),
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false),
                         new TypeMappedRelationalParameter(
-                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long", DbType.Int64), true),
+                            "SecondInvariant", "SecondParameter", new LongTypeMapping("long"), true),
                         new TypeMappedRelationalParameter("ThirdInvariant", "ThirdParameter", RelationalTypeMapping.NullMapping, null)
                     })
             });
@@ -742,9 +732,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_not_object_array(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -757,7 +745,7 @@ public class RelationalCommandTest
                     new[]
                     {
                         new TypeMappedRelationalParameter(
-                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                            "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
                     })
             });
 
@@ -786,9 +774,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Disposes_command_on_exception(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var exception = new InvalidOperationException();
@@ -860,16 +846,11 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    private class ReaderThrowingRelationalCommand : RelationalCommand
+    private class ReaderThrowingRelationalCommand(
+        RelationalCommandBuilderDependencies dependencies,
+        string commandText,
+        IReadOnlyList<IRelationalParameter> parameters) : RelationalCommand(dependencies, commandText, parameters)
     {
-        public ReaderThrowingRelationalCommand(
-            RelationalCommandBuilderDependencies dependencies,
-            string commandText,
-            IReadOnlyList<IRelationalParameter> parameters)
-            : base(dependencies, commandText, parameters)
-        {
-        }
-
         protected override RelationalDataReader CreateRelationalDataReader()
             => new ThrowingRelationalReader();
 
@@ -881,7 +862,7 @@ public class RelationalCommandTest
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                     new ExceptionDetector()),
                 commandText,
-                Array.Empty<IRelationalParameter>());
+                []);
 
         private class ThrowingRelationalReader : RelationalDataReader
         {
@@ -899,9 +880,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Closes_managed_connections_on_exception(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var exception = new InvalidOperationException();
@@ -948,9 +927,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Does_not_close_unmanaged_connections_on_exception(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var exception = new InvalidOperationException();
@@ -997,9 +974,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Logs_commands_without_parameter_values(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string diagnosticName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var options = CreateOptions();
@@ -1021,7 +996,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1055,9 +1030,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Logs_commands_parameter_values(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string diagnosticName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var optionsExtension = new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString);
@@ -1081,7 +1054,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1140,7 +1113,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1213,7 +1186,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1292,7 +1265,7 @@ public class RelationalCommandTest
             parameters: new[]
             {
                 new TypeMappedRelationalParameter(
-                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int"), false)
             });
 
         var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
@@ -1348,14 +1321,8 @@ public class RelationalCommandTest
         return optionsBuilder.Options;
     }
 
-    private class FakeLoggingOptions : ILoggingOptions
+    private class FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false) : ILoggingOptions
     {
-        public FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false)
-        {
-            IsSensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
-            DetailedErrorsEnabled = detailedErrorsEnabled;
-        }
-
         public void Initialize(IDbContextOptions options)
         {
         }
@@ -1364,10 +1331,10 @@ public class RelationalCommandTest
         {
         }
 
-        public bool IsSensitiveDataLoggingEnabled { get; }
+        public bool IsSensitiveDataLoggingEnabled { get; } = sensitiveDataLoggingEnabled;
         public bool IsSensitiveDataLoggingWarned { get; set; }
 
-        public bool DetailedErrorsEnabled { get; }
+        public bool DetailedErrorsEnabled { get; } = detailedErrorsEnabled;
 
         public WarningsConfiguration WarningsConfiguration
             => null;
@@ -1386,7 +1353,7 @@ public class RelationalCommandTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
-            parameters ?? Array.Empty<IRelationalParameter>());
+            parameters ?? []);
 
     private Task<RelationalDataReader> ExecuteReader(
         IRelationalCommand relationalCommand,
@@ -1399,5 +1366,5 @@ public class RelationalCommandTest
     private Task<bool> Read(RelationalDataReader relationalReader, bool async)
         => async ? relationalReader.ReadAsync() : Task.FromResult(relationalReader.Read());
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 }

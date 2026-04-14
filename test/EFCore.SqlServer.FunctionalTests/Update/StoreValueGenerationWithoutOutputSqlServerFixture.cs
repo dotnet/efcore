@@ -5,16 +5,18 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public abstract class StoreValueGenerationWithoutOutputSqlServerFixture : StoreValueGenerationSqlServerFixtureBase
 {
-    protected override void Seed(StoreValueGenerationContext context)
+    protected override async Task SeedAsync(StoreValueGenerationContext context)
     {
-        base.Seed(context);
+        await base.SeedAsync(context);
 
         // Add triggers to all tables
         foreach (var table in context.Model.GetEntityTypes().Select(e => e.GetTableName()))
         {
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 $@"
 CREATE OR ALTER TRIGGER [{table}_Trigger]
 ON [{table}]

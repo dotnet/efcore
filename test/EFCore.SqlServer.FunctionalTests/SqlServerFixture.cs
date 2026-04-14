@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerFixture : ServiceProviderFixtureBase
 {
     public static IServiceProvider DefaultServiceProvider { get; }
@@ -19,6 +21,7 @@ public class SqlServerFixture : ServiceProviderFixtureBase
             w =>
             {
                 w.Log(SqlServerEventId.ByteIdentityColumnWarning);
+                w.Log(SqlServerEventId.JsonTypeExperimental);
                 w.Log(SqlServerEventId.DecimalTypeKeyWarning);
             });
 }

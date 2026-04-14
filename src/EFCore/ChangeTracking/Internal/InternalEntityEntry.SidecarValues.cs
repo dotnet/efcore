@@ -5,15 +5,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public sealed partial class InternalEntityEntry
 {
-    private readonly struct SidecarValues
+    private readonly struct SidecarValues(ISnapshot values)
     {
-        private readonly ISnapshot _values;
-
-        public SidecarValues(ISnapshot values)
-        {
-            _values = values;
-        }
-
         public bool TryGetValue(int index, out object? value)
         {
             if (IsEmpty)
@@ -22,15 +15,15 @@ public sealed partial class InternalEntityEntry
                 return false;
             }
 
-            value = _values[index];
+            value = values[index];
             return true;
         }
 
         public object? GetValue(int index)
-            => _values[index];
+            => values[index];
 
         public T GetValue<T>(int index)
-            => _values.GetValue<T>(index);
+            => values.GetValue<T>(index);
 
         public void SetValue(IProperty property, object? value, int index)
         {
@@ -44,13 +37,13 @@ public sealed partial class InternalEntityEntry
                         property.Name, property.DeclaringType.DisplayName(), property.ClrType.DisplayName()));
             }
 
-            _values[index] = SnapshotValue(property, value);
+            values[index] = SnapshotValue(property, value);
         }
 
         private static object? SnapshotValue(IProperty property, object? value)
             => property.GetValueComparer().Snapshot(value);
 
         public bool IsEmpty
-            => _values == null;
+            => values == null;
     }
 }

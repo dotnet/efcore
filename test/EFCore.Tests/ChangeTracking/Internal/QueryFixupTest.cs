@@ -1157,9 +1157,7 @@ public class QueryFixupTest
     private class QueryFixupContext : DbContext
     {
         public QueryFixupContext()
-        {
-            ChangeTracker.AutoDetectChangesEnabled = false;
-        }
+            => ChangeTracker.AutoDetectChangesEnabled = false;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

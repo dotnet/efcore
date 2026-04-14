@@ -38,9 +38,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public CSharpRuntimeAnnotationCodeGeneratorDependencies(ICSharpHelper cSharpHelper)
-    {
-        CSharpHelper = cSharpHelper;
-    }
+        => CSharpHelper = cSharpHelper;
 
     /// <summary>
     ///     The C# helper.

@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Json;
 /// </summary>
 public sealed class SqlServerJsonHierarchyIdReaderWriter : JsonValueReaderWriter<HierarchyId>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(SqlServerJsonHierarchyIdReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -27,4 +29,8 @@ public sealed class SqlServerJsonHierarchyIdReaderWriter : JsonValueReaderWriter
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, HierarchyId value)
         => writer.WriteStringValue(value.ToString());
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

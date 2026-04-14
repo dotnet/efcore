@@ -23,7 +23,7 @@ public class SqlServerDoubleTypeMapping : DoubleTypeMapping
     public static new SqlServerDoubleTypeMapping Default { get; } = new("float");
 
     private static readonly MethodInfo GetFloatMethod
-        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFloat), new[] { typeof(int) })!;
+        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFloat), [typeof(int)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

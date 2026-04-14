@@ -10,6 +10,4 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public interface IDbContextPool<TContext> : IDbContextPool
-    where TContext : DbContext
-{
-}
+    where TContext : DbContext;

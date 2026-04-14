@@ -22,9 +22,7 @@ public abstract class DbContextOptionsExtensionInfo
     /// </remarks>
     /// <param name="extension">The extension.</param>
     protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
-    {
-        Extension = extension;
-    }
+        => Extension = extension;
 
     /// <summary>
     ///     The extension for which this instance contains metadata.

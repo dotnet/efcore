@@ -19,8 +19,8 @@ public class ReverseEngineerScaffolderTest
         var scaffolder = CreateScaffolder();
         var scaffoldedModel = new ScaffoldedModel
         {
-            ContextFile = new ScaffoldedFile { Path = Path.Combine("..", "Data", "TestContext.cs"), Code = "// TestContext" },
-            AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
+            ContextFile = new ScaffoldedFile(Path.Combine("..", "Data", "TestContext.cs"), "// TestContext"),
+            AdditionalFiles = { new ScaffoldedFile("TestEntity.cs", "// TestEntity") }
         };
 
         var result = scaffolder.Save(
@@ -51,8 +51,8 @@ public class ReverseEngineerScaffolderTest
         var scaffolder = CreateScaffolder();
         var scaffoldedModel = new ScaffoldedModel
         {
-            ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
-            AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
+            ContextFile = new ScaffoldedFile("TestContext.cs", "// TestContext"),
+            AdditionalFiles = { new ScaffoldedFile("TestEntity.cs", "// TestEntity") }
         };
 
         var ex = Assert.Throws<OperationException>(
@@ -73,7 +73,7 @@ public class ReverseEngineerScaffolderTest
         File.WriteAllText(path, "// Old");
 
         var scaffolder = CreateScaffolder();
-        var scaffoldedModel = new ScaffoldedModel { ContextFile = new ScaffoldedFile { Path = "Test.cs", Code = "// Test" } };
+        var scaffoldedModel = new ScaffoldedModel { ContextFile = new ScaffoldedFile("Test.cs", "// Test") };
 
         var result = scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: true);
 
@@ -99,8 +99,8 @@ public class ReverseEngineerScaffolderTest
             var scaffolder = CreateScaffolder();
             var scaffoldedModel = new ScaffoldedModel
             {
-                ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
-                AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
+                ContextFile = new ScaffoldedFile("TestContext.cs", "// TestContext"),
+                AdditionalFiles = { new ScaffoldedFile("TestEntity.cs", "// TestEntity") }
             };
 
             var ex = Assert.Throws<OperationException>(
@@ -123,8 +123,7 @@ public class ReverseEngineerScaffolderTest
         => new DesignTimeServicesBuilder(
                 typeof(ReverseEngineerScaffolderTest).Assembly,
                 typeof(ReverseEngineerScaffolderTest).Assembly,
-                new TestOperationReporter(),
-                new string[0])
+                new TestOperationReporter(), [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .BuildServiceProvider(validateScopes: true)
             .CreateScope()
@@ -139,8 +138,7 @@ public class ReverseEngineerScaffolderTest
         var scaffolder = new DesignTimeServicesBuilder(
                 typeof(ReverseEngineerScaffolderTest).Assembly,
                 typeof(ReverseEngineerScaffolderTest).Assembly,
-                new TestOperationReporter(),
-                new string[0])
+                new TestOperationReporter(), [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .AddSingleton<IDesignTimeConnectionStringResolver>(resolver)
             .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
@@ -171,8 +169,7 @@ public class ReverseEngineerScaffolderTest
         var scaffolder = new DesignTimeServicesBuilder(
                 typeof(ReverseEngineerScaffolderTest).Assembly,
                 typeof(ReverseEngineerScaffolderTest).Assembly,
-                new TestOperationReporter(),
-                new string[0])
+                new TestOperationReporter(), [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .AddSingleton<IDesignTimeConnectionStringResolver>(resolver)
             .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
@@ -193,14 +190,9 @@ public class ReverseEngineerScaffolderTest
         Assert.DoesNotContain(ScaffoldingAnnotationNames.ConnectionString, result.ContextFile.Code);
     }
 
-    private class TestNamedConnectionStringResolver : IDesignTimeConnectionStringResolver
+    private class TestNamedConnectionStringResolver(string resolvedConnectionString) : IDesignTimeConnectionStringResolver
     {
-        private readonly string _resolvedConnectionString;
-
-        public TestNamedConnectionStringResolver(string resolvedConnectionString)
-        {
-            _resolvedConnectionString = resolvedConnectionString;
-        }
+        private readonly string _resolvedConnectionString = resolvedConnectionString;
 
         public string ResolveConnectionString(string connectionString)
             => _resolvedConnectionString;

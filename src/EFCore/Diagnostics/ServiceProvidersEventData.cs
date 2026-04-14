@@ -23,9 +23,7 @@ public class ServiceProvidersEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         ICollection<IServiceProvider> serviceProviders)
         : base(eventDefinition, messageGenerator)
-    {
-        ServiceProviders = serviceProviders;
-    }
+        => ServiceProviders = serviceProviders;
 
     /// <summary>
     ///     The <see cref="IServiceProvider" />s.

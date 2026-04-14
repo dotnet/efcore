@@ -262,7 +262,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <param name="property">The property that the key is defined on.</param>
     /// <returns>The key, or null if none is defined.</returns>
     IReadOnlyKey? FindKey(IReadOnlyProperty property)
-        => FindKey(new[] { property });
+        => FindKey([property]);
 
     /// <summary>
     ///     Gets the primary and alternate keys for this entity type.

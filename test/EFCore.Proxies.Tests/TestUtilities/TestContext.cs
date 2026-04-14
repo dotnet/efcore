@@ -3,58 +3,40 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-internal abstract class TestContext<TEntity> : DbContext
+internal abstract class TestContext<TEntity>(
+    string dbName = null,
+    bool useLazyLoading = false,
+    bool useChangeDetection = false,
+    bool checkEquality = true,
+    ChangeTrackingStrategy? changeTrackingStrategy = null,
+    bool ignoreNonVirtualNavigations = false)
+    : DbContext
     where TEntity : class
 {
     private static readonly InMemoryDatabaseRoot _dbRoot = new();
 
-    private readonly IServiceProvider _internalServiceProvider;
-    private readonly string _dbName;
-    private readonly bool _useLazyLoadingProxies;
-    private readonly bool _ignoreNonVirtualNavigations;
-    private readonly bool _useChangeDetectionProxies;
-    private readonly bool _checkEquality;
-    private readonly ChangeTrackingStrategy? _changeTrackingStrategy;
-
-    protected TestContext(
-        string dbName = null,
-        bool useLazyLoading = false,
-        bool useChangeDetection = false,
-        bool checkEquality = true,
-        ChangeTrackingStrategy? changeTrackingStrategy = null,
-        bool ignoreNonVirtualNavigations = false)
-    {
-        _internalServiceProvider
-            = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddEntityFrameworkProxies()
-                .BuildServiceProvider(validateScopes: true);
-
-        _dbName = dbName;
-        _useLazyLoadingProxies = useLazyLoading;
-        _useChangeDetectionProxies = useChangeDetection;
-        _checkEquality = checkEquality;
-        _changeTrackingStrategy = changeTrackingStrategy;
-        _ignoreNonVirtualNavigations = ignoreNonVirtualNavigations;
-    }
+    private readonly IServiceProvider _internalServiceProvider = new ServiceCollection()
+        .AddEntityFrameworkInMemoryDatabase()
+        .AddEntityFrameworkProxies()
+        .BuildServiceProvider(validateScopes: true);
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (_useLazyLoadingProxies)
+        if (useLazyLoading)
         {
             optionsBuilder.UseLazyLoadingProxies(
                 b =>
                 {
-                    if (_ignoreNonVirtualNavigations)
+                    if (ignoreNonVirtualNavigations)
                     {
                         b.IgnoreNonVirtualNavigations();
                     }
                 });
         }
 
-        if (_useChangeDetectionProxies)
+        if (useChangeDetection)
         {
-            optionsBuilder.UseChangeTrackingProxies(checkEquality: _checkEquality);
+            optionsBuilder.UseChangeTrackingProxies(checkEquality: checkEquality);
         }
 
         if (_internalServiceProvider != null)
@@ -62,14 +44,14 @@ internal abstract class TestContext<TEntity> : DbContext
             optionsBuilder.UseInternalServiceProvider(_internalServiceProvider);
         }
 
-        optionsBuilder.UseInMemoryDatabase(_dbName ?? "TestContext", _dbRoot);
+        optionsBuilder.UseInMemoryDatabase(dbName ?? "TestContext", _dbRoot);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        if (_changeTrackingStrategy.HasValue)
+        if (changeTrackingStrategy.HasValue)
         {
-            modelBuilder.HasChangeTrackingStrategy(_changeTrackingStrategy.Value);
+            modelBuilder.HasChangeTrackingStrategy(changeTrackingStrategy.Value);
         }
 
         modelBuilder.Entity<TEntity>();

@@ -6,14 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindGroupByQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -3172,14 +3169,9 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 .GroupBy(o => o.CustomerID)
                 .Select(e => new Result(e.Key)));
 
-    private class Result
+    private class Result(string customerID)
     {
-        private readonly string _customerID;
-
-        public Result(string customerID)
-        {
-            _customerID = customerID;
-        }
+        private readonly string _customerID = customerID;
     }
 
     #endregion

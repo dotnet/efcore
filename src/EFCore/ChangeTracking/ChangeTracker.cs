@@ -256,12 +256,10 @@ public class ChangeTracker : IResettableService
     ///     is usually called automatically by the context when up-to-date information is required (before
     ///     <see cref="DbContext.SaveChanges()" /> and when returning change tracking information). You typically only need to
     ///     call this method if you have disabled <see cref="AutoDetectChangesEnabled" />.
-    ///     <remarks>
-    ///         <para>
-    ///             See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
-    ///         </para>
-    ///     </remarks>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    /// </remarks>
     public virtual void DetectChanges()
     {
         if (!_model.SkipDetectChanges)

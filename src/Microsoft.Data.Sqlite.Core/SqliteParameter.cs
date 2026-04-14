@@ -203,7 +203,7 @@ namespace Microsoft.Data.Sqlite
             _sqliteType = null;
         }
 
-        internal bool Bind(sqlite3_stmt stmt)
+        internal bool Bind(sqlite3_stmt stmt, sqlite3 handle)
         {
             if (string.IsNullOrEmpty(ParameterName))
             {
@@ -222,12 +222,12 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.RequiresSet(nameof(Value)));
             }
 
-            new SqliteParameterBinder(stmt, index, _value, _size, _sqliteType).Bind();
+            new SqliteParameterBinder(stmt, handle, index, _value, _size, _sqliteType).Bind();
 
             return true;
         }
 
-        private static readonly char[] _parameterPrefixes = { '@', '$', ':' };
+        private static readonly char[] _parameterPrefixes = ['@', '$', ':'];
 
         private int FindPrefixedParameter(sqlite3_stmt stmt)
         {

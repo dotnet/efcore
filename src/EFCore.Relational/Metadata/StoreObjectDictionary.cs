@@ -14,9 +14,7 @@ public class StoreObjectDictionary<T> : IReadOnlyStoreObjectDictionary<T>
 
     /// <inheritdoc />
     public virtual T? Find(in StoreObjectIdentifier storeObject)
-        => _dictionary.TryGetValue(storeObject, out var value)
-            ? value
-            : null;
+        => _dictionary.GetValueOrDefault(storeObject);
 
     /// <inheritdoc />
     public virtual IEnumerable<T> GetValues()

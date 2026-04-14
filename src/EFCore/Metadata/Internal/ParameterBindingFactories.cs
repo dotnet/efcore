@@ -27,9 +27,7 @@ public class ParameterBindingFactories : IParameterBindingFactories
         IRegisteredServices registeredServices)
     {
         _registeredServices = registeredServices;
-
-        _parameterBindingFactories
-            = registeredFactories?.ToList() ?? new List<IParameterBindingFactory>();
+        _parameterBindingFactories = registeredFactories?.ToList() ?? [];
     }
 
     /// <summary>

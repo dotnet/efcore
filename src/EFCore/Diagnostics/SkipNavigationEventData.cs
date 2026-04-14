@@ -22,9 +22,7 @@ public class SkipNavigationEventData : EventData, INavigationBaseEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         IReadOnlySkipNavigation navigation)
         : base(eventDefinition, messageGenerator)
-    {
-        Navigation = navigation;
-    }
+        => Navigation = navigation;
 
     /// <summary>
     ///     The navigation.

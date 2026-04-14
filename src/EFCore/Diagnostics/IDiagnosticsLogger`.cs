@@ -25,6 +25,4 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 ///     </para>
 /// </remarks>
 public interface IDiagnosticsLogger<TLoggerCategory> : IDiagnosticsLogger
-    where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-{
-}
+    where TLoggerCategory : LoggerCategory<TLoggerCategory>, new();

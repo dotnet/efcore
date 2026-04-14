@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,9 +24,7 @@ public class DiscriminatorBuilder : IConventionDiscriminatorBuilder
     /// </summary>
     [EntityFrameworkInternal]
     public DiscriminatorBuilder(IMutableEntityType entityType)
-    {
-        EntityTypeBuilder = ((EntityType)entityType).Builder;
-    }
+        => EntityTypeBuilder = ((EntityType)entityType).Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -3,13 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyLoadInMemoryTest : ManyToManyLoadTestBase<ManyToManyLoadInMemoryTest.ManyToManyLoadInMemoryFixture>
+public class ManyToManyLoadInMemoryTest(ManyToManyLoadInMemoryTest.ManyToManyLoadInMemoryFixture fixture)
+    : ManyToManyLoadTestBase<ManyToManyLoadInMemoryTest.ManyToManyLoadInMemoryFixture>(fixture)
 {
-    public ManyToManyLoadInMemoryTest(ManyToManyLoadInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class ManyToManyLoadInMemoryFixture : ManyToManyLoadFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

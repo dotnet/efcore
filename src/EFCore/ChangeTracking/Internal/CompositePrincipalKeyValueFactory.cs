@@ -21,9 +21,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     /// </summary>
     public CompositePrincipalKeyValueFactory(IKey key)
         : base(key.Properties)
-    {
-        _key = key;
-    }
+        => _key = key;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +97,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlyList<object?> CreateFromOriginalValues(IUpdateEntry entry)
-        => CreateFromEntry(entry, (e, p) => e.GetOriginalValue(p));
+        => CreateFromEntry(entry, (e, p) => e.CanHaveOriginalValue(p) ? e.GetOriginalValue(p) : e.GetCurrentValue(p));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

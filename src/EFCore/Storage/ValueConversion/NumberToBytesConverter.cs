@@ -100,7 +100,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
                         Expression.Call(
                             typeof(BitConverter).GetMethod(
                                 nameof(BitConverter.GetBytes),
-                                new[] { type })!,
+                                [type])!,
                             input));
 
         if (typeof(TNumber).IsNullableType())
@@ -143,7 +143,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
                     : (Expression)Expression.Call(
                         typeof(BitConverter).GetMethod(
                             "To" + type.Name,
-                            new[] { typeof(byte[]), typeof(int) })!,
+                            [typeof(byte[]), typeof(int)])!,
                         EnsureEndian(HandleEmptyArray(param)),
                         Expression.Constant(0));
 
@@ -212,7 +212,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     /// </summary>
     [EntityFrameworkInternal]
     public static byte[] ReverseLong(byte[] bytes)
-        => new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
+        => [bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -222,7 +222,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     /// </summary>
     [EntityFrameworkInternal]
     public static byte[] ReverseInt(byte[] bytes)
-        => new[] { bytes[3], bytes[2], bytes[1], bytes[0] };
+        => [bytes[3], bytes[2], bytes[1], bytes[0]];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -232,7 +232,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     /// </summary>
     [EntityFrameworkInternal]
     public static byte[] ReverseShort(byte[] bytes)
-        => new[] { bytes[1], bytes[0] };
+        => [bytes[1], bytes[0]];
 
     private static int GetByteCount()
     {
@@ -299,23 +299,22 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     [EntityFrameworkInternal]
     public static decimal BytesToDecimal(byte[] bytes)
     {
-        var gotBytes = bytes;
+        var gotBytes = BitConverter.IsLittleEndian ? stackalloc byte[16] : bytes;
         if (BitConverter.IsLittleEndian)
         {
-            gotBytes = new byte[16];
-            Array.Copy(bytes, gotBytes, 16);
-            Array.Reverse(gotBytes, 0, 4);
-            Array.Reverse(gotBytes, 4, 4);
-            Array.Reverse(gotBytes, 8, 4);
-            Array.Reverse(gotBytes, 12, 4);
+            bytes.CopyTo(gotBytes);
+            gotBytes.Slice(0, 4).Reverse();
+            gotBytes.Slice(4, 4).Reverse();
+            gotBytes.Slice(8, 4).Reverse();
+            gotBytes.Slice(12, 4).Reverse();
         }
 
-        var specialBits = BitConverter.ToUInt32(gotBytes, 0);
+        var specialBits = BitConverter.ToUInt32(gotBytes);
 
         return new decimal(
-            BitConverter.ToInt32(gotBytes, 12),
-            BitConverter.ToInt32(gotBytes, 8),
-            BitConverter.ToInt32(gotBytes, 4),
+            BitConverter.ToInt32(gotBytes.Slice(12)),
+            BitConverter.ToInt32(gotBytes.Slice(8)),
+            BitConverter.ToInt32(gotBytes.Slice(4)),
             (specialBits & 0x80000000) != 0,
             (byte)((specialBits & 0x00FF0000) >> 16));
     }

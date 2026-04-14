@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerComplianceTest : RelationalComplianceTestBase
 {
     protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;

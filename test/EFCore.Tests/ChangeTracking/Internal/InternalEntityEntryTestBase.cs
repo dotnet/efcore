@@ -474,7 +474,7 @@ public abstract class InternalEntityEntryTestBase<
         entry[nonKeyProperty] = "Magic Tree House";
 
         Assert.Equal(
-            new object[] { 77, "SomeEntity", 1, "Magic Tree House" },
+            [77, "SomeEntity", 1, "Magic Tree House"],
             CreateValueBuffer(entry));
     }
 

@@ -5,12 +5,15 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
+#nullable disable
+
 public class MonsterContext<
     TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,
     TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
     TOrderLine, TProduct, TProductDetail, TProductReview, TProductPhoto, TProductWebFeature, TSupplier, TSupplierLogo,
     TSupplierInfo, TCustomerInfo, TComputer, TComputerDetail, TDriver, TLicense, TConcurrencyInfo, TAuditInfo,
-    TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView> : MonsterContext
+    TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView>(DbContextOptions options)
+    : MonsterContext(options)
     where TCustomer : class, ICustomer, new()
     where TBarcode : class, IBarcode, new()
     where TIncorrectScan : class, IIncorrectScan, new()
@@ -51,11 +54,6 @@ public class MonsterContext<
     where TDiscontinuedProduct : class, TProduct, IDiscontinuedProduct, new()
     where TProductPageView : class, TPageView, IProductPageView, new()
 {
-    public MonsterContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public override IQueryable<ICustomer> Customers
         => Set<TCustomer>();
 
@@ -391,7 +389,7 @@ public class MonsterContext<
                 .HasForeignKey(e => e.ProductId));
     }
 
-    public override void SeedUsingFKs()
+    public override Task SeedUsingFKs()
     {
         var customer0 = Add(
             new TCustomer { Name = "Eeky Bear" }).Entity;
@@ -432,21 +430,21 @@ public class MonsterContext<
         var barcode1 = Add(
             new TBarcode
             {
-                Code = new byte[] { 1, 2, 3, 4 },
+                Code = [1, 2, 3, 4],
                 ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
                 Text = "Barcode 1 2 3 4"
             }).Entity;
         var barcode2 = Add(
             new TBarcode
             {
-                Code = new byte[] { 2, 2, 3, 4 },
+                Code = [2, 2, 3, 4],
                 ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
                 Text = "Barcode 2 2 3 4"
             }).Entity;
         var barcode3 = Add(
             new TBarcode
             {
-                Code = new byte[] { 3, 2, 3, 4 },
+                Code = [3, 2, 3, 4],
                 ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue,
                 Text = "Barcode 3 2 3 4"
             }).Entity;
@@ -769,13 +767,13 @@ public class MonsterContext<
             .Entity;
 
         var productPhoto1 = Add(
-                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 101, 102 } })
+                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = [101, 102] })
             .Entity;
         var productPhoto2 = Add(
-                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 103, 104 } })
+                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = [103, 104] })
             .Entity;
         var productPhoto3 = Add(
-                new TProductPhoto { ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 105, 106 } })
+                new TProductPhoto { ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = [105, 106] })
             .Entity;
 
         var productWebFeature1 = Add(
@@ -801,10 +799,7 @@ public class MonsterContext<
             new TSupplier { Name = "Ants By Boris" }).Entity;
 
         var supplierLogo1 = Add(
-                new TSupplierLogo
-                {
-                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = new byte[] { 201, 202 }
-                })
+                new TSupplierLogo { SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = [201, 202] })
             .Entity;
 
         var supplierInfo1 = Add(
@@ -887,10 +882,10 @@ public class MonsterContext<
                 ExpirationDate = new DateTime(2018, 9, 19)
             }).Entity;
 
-        SaveChanges();
+        return SaveChangesAsync();
     }
 
-    public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs)
+    public override Task SeedUsingNavigations(bool dependentNavs, bool principalNavs)
     {
         var customer0 = Add(
             new TCustomer { Name = "Eeky Bear" }).Entity;
@@ -935,7 +930,7 @@ public class MonsterContext<
         var barcode1 = Add(
                 new TBarcode
                 {
-                    Code = new byte[] { 1, 2, 3, 4 },
+                    Code = [1, 2, 3, 4],
                     Product = dependentNavs ? product1 : null,
                     Text = "Barcode 1 2 3 4"
                 })
@@ -943,7 +938,7 @@ public class MonsterContext<
         var barcode2 = Add(
                 new TBarcode
                 {
-                    Code = new byte[] { 2, 2, 3, 4 },
+                    Code = [2, 2, 3, 4],
                     Product = dependentNavs ? product2 : null,
                     Text = "Barcode 2 2 3 4"
                 })
@@ -951,7 +946,7 @@ public class MonsterContext<
         var barcode3 = Add(
                 new TBarcode
                 {
-                    Code = new byte[] { 3, 2, 3, 4 },
+                    Code = [3, 2, 3, 4],
                     Product = dependentNavs ? product3 : null,
                     Text = "Barcode 3 2 3 4"
                 })
@@ -1367,13 +1362,13 @@ public class MonsterContext<
         }
 
         var productPhoto1 = Add(
-                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 101, 102 } })
+                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = [101, 102] })
             .Entity;
         var productPhoto2 = Add(
-                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 103, 104 } })
+                new TProductPhoto { ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Photo = [103, 104] })
             .Entity;
         var productPhoto3 = Add(
-                new TProductPhoto { ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = new byte[] { 105, 106 } })
+                new TProductPhoto { ProductId = Entry(product3).Property(e => e.ProductId).CurrentValue, Photo = [105, 106] })
             .Entity;
         if (principalNavs)
         {
@@ -1419,8 +1414,7 @@ public class MonsterContext<
         var supplierLogo1 = Add(
             new TSupplierLogo
             {
-                SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0,
-                Logo = new byte[] { 201, 202 }
+                SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0, Logo = [201, 202]
             }).Entity;
         if (principalNavs)
         {
@@ -1520,16 +1514,16 @@ public class MonsterContext<
             driver2.License = license2;
         }
 
-        SaveChanges();
+        return SaveChangesAsync();
     }
 
-    public override void SeedUsingNavigationsWithDeferredAdd()
+    public override Task SeedUsingNavigationsWithDeferredAdd()
     {
         var toAdd = new List<object>[4];
 
         for (var i = 0; i < toAdd.Length; i++)
         {
-            toAdd[i] = new List<object>();
+            toAdd[i] = [];
         }
 
         var customer0 = toAdd[0].AddEx(
@@ -1568,11 +1562,11 @@ public class MonsterContext<
         };
 
         var barcode1 = toAdd[1].AddEx(
-            new TBarcode { Code = new byte[] { 1, 2, 3, 4 }, Text = "Barcode 1 2 3 4" });
+            new TBarcode { Code = [1, 2, 3, 4], Text = "Barcode 1 2 3 4" });
         var barcode2 = toAdd[1].AddEx(
-            new TBarcode { Code = new byte[] { 2, 2, 3, 4 }, Text = "Barcode 2 2 3 4" });
+            new TBarcode { Code = [2, 2, 3, 4], Text = "Barcode 2 2 3 4" });
         var barcode3 = toAdd[1].AddEx(
-            new TBarcode { Code = new byte[] { 3, 2, 3, 4 }, Text = "Barcode 3 2 3 4" });
+            new TBarcode { Code = [3, 2, 3, 4], Text = "Barcode 3 2 3 4" });
 
         product1.InitializeCollections();
         product1.Barcodes.Add(barcode1);
@@ -1876,11 +1870,11 @@ public class MonsterContext<
         product2.Reviews.Add(productReview3);
 
         var productPhoto1 = toAdd[0].AddEx(
-            new TProductPhoto { Photo = new byte[] { 101, 102 } });
+            new TProductPhoto { Photo = [101, 102] });
         var productPhoto2 = toAdd[0].AddEx(
-            new TProductPhoto { Photo = new byte[] { 103, 104 } });
+            new TProductPhoto { Photo = [103, 104] });
         var productPhoto3 = toAdd[0].AddEx(
-            new TProductPhoto { Photo = new byte[] { 105, 106 } });
+            new TProductPhoto { Photo = [105, 106] });
 
         product1.Photos.Add(productPhoto1);
         product1.Photos.Add(productPhoto2);
@@ -1906,7 +1900,7 @@ public class MonsterContext<
             new TSupplier { Name = "Ants By Boris" });
 
         var supplierLogo1 = toAdd[0].AddEx(
-            new TSupplierLogo { Logo = new byte[] { 201, 202 } });
+            new TSupplierLogo { Logo = [201, 202] });
 
         supplier1.Logo = supplierLogo1;
 
@@ -1987,7 +1981,7 @@ public class MonsterContext<
             Add(entity);
         }
 
-        SaveChanges();
+        return SaveChangesAsync();
     }
 }
 

@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
@@ -15,16 +13,16 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
     public virtual async Task Entity_type_with_navigation_mapped_to_SqlQuery(bool async)
     {
         var contextFactory = await InitializeAsync<Context27629>(
-            seed: c =>
+            seed: async c =>
             {
                 var author = new Author { Name = "Toast", Posts = { new Post { Title = "Sausages of the world!" } } };
                 c.Add(author);
-                c.SaveChanges();
+                await c.SaveChangesAsync();
 
                 var postStat = new PostStat { Count = 10, Author = author };
                 author.PostStat = postStat;
                 c.Add(postStat);
-                c.SaveChanges();
+                await c.SaveChangesAsync();
             });
 
         using var context = contextFactory.CreateContext();
@@ -38,13 +36,8 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
         Assert.Equal(10, authors[0].PostCount);
     }
 
-    protected class Context27629 : DbContext
+    protected class Context27629(DbContextOptions options) : DbContext(options)
     {
-        public Context27629(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Author> Authors
             => Set<Author>();
 
@@ -96,7 +89,7 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
     {
         public long Id { get; set; }
         public string Name { get; set; } = null!;
-        public List<Post> Posts { get; } = new();
+        public List<Post> Posts { get; } = [];
         public PostStat? PostStat { get; set; }
     }
 

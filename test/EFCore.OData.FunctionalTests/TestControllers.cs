@@ -62,122 +62,55 @@ public class TestODataController : ODataController
         => TryValidateModel(model);
 }
 
-public interface ITestActionResult : IActionResult
-{
-}
+public interface ITestActionResult : IActionResult;
 
-public class TestActionResult : ITestActionResult
+public class TestActionResult(IActionResult innerResult) : ITestActionResult
 {
-    private readonly IActionResult _innerResult;
-
-    public TestActionResult(IActionResult innerResult)
-    {
-        _innerResult = innerResult;
-    }
+    private readonly IActionResult _innerResult = innerResult;
 
     public Task ExecuteResultAsync(ActionContext context)
         => _innerResult.ExecuteResultAsync(context);
 }
 
-public class TestObjectResult : ObjectResult, ITestActionResult
+public class TestObjectResult(object innerResult) : ObjectResult(innerResult), ITestActionResult;
+
+public class TestStatusCodeResult(StatusCodeResult innerResult) : StatusCodeResult(innerResult.StatusCode), ITestActionResult
 {
-    public TestObjectResult(object innerResult)
-        : base(innerResult)
-    {
-    }
+    private readonly StatusCodeResult _innerResult = innerResult;
 }
 
-public class TestStatusCodeResult : StatusCodeResult, ITestActionResult
-{
-    private readonly StatusCodeResult _innerResult;
+public class TestNotFoundResult(NotFoundResult innerResult) : TestStatusCodeResult(innerResult);
 
-    public TestStatusCodeResult(StatusCodeResult innerResult)
-        : base(innerResult.StatusCode)
-    {
-        _innerResult = innerResult;
-    }
-}
+public class TestNotFoundObjectResult(NotFoundObjectResult innerResult) : TestObjectResult(innerResult);
 
-public class TestNotFoundResult : TestStatusCodeResult
-{
-    public TestNotFoundResult(NotFoundResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
+public class TestBadRequestResult(BadRequestResult innerResult) : TestStatusCodeResult(innerResult);
 
-public class TestNotFoundObjectResult : TestObjectResult
-{
-    public TestNotFoundObjectResult(NotFoundObjectResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
+public class TestBadRequestObjectResult(BadRequestObjectResult innerResult) : TestActionResult(innerResult);
 
-public class TestBadRequestResult : TestStatusCodeResult
-{
-    public TestBadRequestResult(BadRequestResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
-
-public class TestBadRequestObjectResult : TestActionResult
-{
-    public TestBadRequestObjectResult(BadRequestObjectResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
-
-public class TestOkResult : TestStatusCodeResult
-{
-    public TestOkResult(OkResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
+public class TestOkResult(OkResult innerResult) : TestStatusCodeResult(innerResult);
 
 public class TestOkObjectResult : TestObjectResult
 {
     public TestOkObjectResult(object innerResult)
         : base(innerResult)
-    {
-        StatusCode = 200;
-    }
+        => StatusCode = 200;
 }
 
 public class TestOkObjectResult<T> : TestObjectResult
 {
     public TestOkObjectResult(object innerResult)
         : base(innerResult)
-    {
-        StatusCode = 200;
-    }
+        => StatusCode = 200;
 
     public TestOkObjectResult(T content, TestODataController controller)
         : base(content)
-    {
-        // Controller is unused.
-        StatusCode = 200;
-    }
+    // Controller is unused.
+        => StatusCode = 200;
 }
 
-public class TestStatusCodeObjectResult : TestObjectResult
-{
-    public TestStatusCodeObjectResult(ObjectResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
+public class TestStatusCodeObjectResult(ObjectResult innerResult) : TestObjectResult(innerResult);
 
-public class TestCreatedResult : TestActionResult
-{
-    public TestCreatedResult(CreatedResult innerResult)
-        : base(innerResult)
-    {
-    }
-}
+public class TestCreatedResult(CreatedResult innerResult) : TestActionResult(innerResult);
 
 public class TestUpdatedODataResult<T> : UpdatedODataResult<T>, ITestActionResult
 {

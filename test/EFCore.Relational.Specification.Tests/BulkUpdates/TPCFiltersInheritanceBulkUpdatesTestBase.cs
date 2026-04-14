@@ -3,16 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public abstract class TPCFiltersInheritanceBulkUpdatesTestBase<TFixture> : FiltersInheritanceBulkUpdatesTestBase<TFixture>
+#nullable disable
+
+public abstract class TPCFiltersInheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture, ITestOutputHelper testOutputHelper)
+    : FiltersInheritanceBulkUpdatesRelationalTestBase<TFixture>(fixture, testOutputHelper)
     where TFixture : TPCInheritanceBulkUpdatesFixture, new()
 {
-    protected TPCFiltersInheritanceBulkUpdatesTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
     // Keyless entities are mapped as TPH only
     public override Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
         => Task.CompletedTask;

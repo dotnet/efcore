@@ -26,9 +26,7 @@ public class InlineQueryRootExpression : QueryRootExpression
     /// <param name="elementType">The element type this query root represents.</param>
     public InlineQueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IReadOnlyList<Expression> values, Type elementType)
         : base(asyncQueryProvider, elementType)
-    {
-        Values = values;
-    }
+        => Values = values;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="InlineQueryRootExpression" /> class.
@@ -37,9 +35,7 @@ public class InlineQueryRootExpression : QueryRootExpression
     /// <param name="elementType">The element type this query root represents.</param>
     public InlineQueryRootExpression(IReadOnlyList<Expression> values, Type elementType)
         : base(elementType)
-    {
-        Values = values;
-    }
+        => Values = values;
 
     /// <inheritdoc />
     public override Expression DetachQueryProvider()

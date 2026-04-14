@@ -5,7 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
-public class SnapshotMonsterContext : MonsterContext<
+#nullable disable
+
+public class SnapshotMonsterContext(DbContextOptions options) : MonsterContext<
     SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan,
     SnapshotMonsterContext.BarcodeDetail, SnapshotMonsterContext.Complaint, SnapshotMonsterContext.Resolution,
     SnapshotMonsterContext.Login, SnapshotMonsterContext.SuspiciousActivity, SnapshotMonsterContext.SmartCard,
@@ -18,25 +20,13 @@ public class SnapshotMonsterContext : MonsterContext<
     SnapshotMonsterContext.Computer, SnapshotMonsterContext.ComputerDetail, SnapshotMonsterContext.Driver,
     SnapshotMonsterContext.License, SnapshotMonsterContext.ConcurrencyInfo, SnapshotMonsterContext.AuditInfo,
     SnapshotMonsterContext.ContactDetails, SnapshotMonsterContext.Dimensions, SnapshotMonsterContext.Phone,
-    SnapshotMonsterContext.BackOrderLine, SnapshotMonsterContext.DiscontinuedProduct, SnapshotMonsterContext.ProductPageView>
+    SnapshotMonsterContext.BackOrderLine, SnapshotMonsterContext.DiscontinuedProduct, SnapshotMonsterContext.ProductPageView>(options)
 {
-    public SnapshotMonsterContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
-    public class BackOrderLine2 : BackOrderLine
-    {
-    }
+    public class BackOrderLine2 : BackOrderLine;
 
     public class BackOrderLine : OrderLine, IBackOrderLine
     {
-        public BackOrderLine()
-        {
-            ETA = DateTime.Now;
-        }
-
-        public DateTime ETA { get; set; }
+        public DateTime ETA { get; set; } = DateTime.Now;
 
         public int SupplierId { get; set; }
         public virtual ISupplier Supplier { get; set; }
@@ -76,11 +66,6 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class ComputerDetail : IComputerDetail
     {
-        public ComputerDetail()
-        {
-            Dimensions = new Dimensions();
-        }
-
         public int ComputerDetailId { get; set; }
         public string Manufacturer { get; set; }
         public string Model { get; set; }
@@ -88,7 +73,7 @@ public class SnapshotMonsterContext : MonsterContext<
         public string Specifications { get; set; }
         public DateTime PurchaseDate { get; set; }
 
-        public IDimensions Dimensions { get; set; }
+        public IDimensions Dimensions { get; set; } = new Dimensions();
 
         public virtual IComputer Computer { get; set; }
     }
@@ -110,19 +95,12 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class ContactDetails : IContactDetails
     {
-        public ContactDetails()
-        {
-            HomePhone = new Phone();
-            WorkPhone = new Phone();
-            MobilePhone = new Phone();
-        }
-
         public bool Active { get; set; }
         public string Email { get; set; }
 
-        public IPhone HomePhone { get; set; }
-        public IPhone WorkPhone { get; set; }
-        public IPhone MobilePhone { get; set; }
+        public IPhone HomePhone { get; set; } = new Phone();
+        public IPhone WorkPhone { get; set; } = new Phone();
+        public IPhone MobilePhone { get; set; } = new Phone();
     }
 
     public class CustomerInfo : ICustomerInfo
@@ -179,14 +157,9 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class License : ILicense
     {
-        public License()
-        {
-            LicenseClass = "C";
-        }
-
         public string Name { get; set; }
         public string LicenseNumber { get; set; }
-        public string LicenseClass { get; set; }
+        public string LicenseClass { get; set; } = "C";
         public string Restrictions { get; set; }
         public DateTime ExpirationDate { get; set; }
         public LicenseState? State { get; set; }
@@ -210,14 +183,9 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class OrderLine : IOrderLine
     {
-        public OrderLine()
-        {
-            Quantity = 1;
-        }
-
         public int OrderId { get; set; }
         public int ProductId { get; set; }
-        public int Quantity { get; set; }
+        public int Quantity { get; set; } = 1;
         public string ConcurrencyToken { get; set; }
 
         public virtual IAnOrder Order { get; set; }
@@ -226,11 +194,6 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class AnOrder : IAnOrder
     {
-        public AnOrder()
-        {
-            Concurrency = new ConcurrencyInfo();
-        }
-
         public void InitializeCollections()
         {
             OrderLines ??= new HashSet<IOrderLine>();
@@ -241,7 +204,7 @@ public class SnapshotMonsterContext : MonsterContext<
         public int AlternateId { get; set; }
         public int? CustomerId { get; set; }
 
-        public IConcurrencyInfo Concurrency { get; set; }
+        public IConcurrencyInfo Concurrency { get; set; } = new ConcurrencyInfo();
 
         public virtual ICustomer Customer { get; set; }
         public virtual ICollection<IOrderLine> OrderLines { get; set; }
@@ -299,12 +262,6 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class Product : IProduct
     {
-        public Product()
-        {
-            ComplexConcurrency = new ConcurrencyInfo();
-            NestedComplexConcurrency = new AuditInfo();
-        }
-
         public void InitializeCollections()
         {
             Suppliers ??= new HashSet<ISupplier>();
@@ -319,8 +276,8 @@ public class SnapshotMonsterContext : MonsterContext<
         public string BaseConcurrency { get; set; }
 
         public IDimensions Dimensions { get; set; }
-        public IConcurrencyInfo ComplexConcurrency { get; set; }
-        public IAuditInfo NestedComplexConcurrency { get; set; }
+        public IConcurrencyInfo ComplexConcurrency { get; set; } = new ConcurrencyInfo();
+        public IAuditInfo NestedComplexConcurrency { get; set; } = new AuditInfo();
 
         public virtual ICollection<ISupplier> Suppliers { get; set; }
         public virtual ICollection<IDiscontinuedProduct> Replaces { get; set; }
@@ -442,26 +399,14 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class AuditInfo : IAuditInfo
     {
-        public AuditInfo()
-        {
-            Concurrency = new ConcurrencyInfo();
-            ModifiedDate = DateTime.Now;
-        }
-
-        public DateTime ModifiedDate { get; set; }
+        public DateTime ModifiedDate { get; set; } = DateTime.Now;
         public string ModifiedBy { get; set; }
 
-        public IConcurrencyInfo Concurrency { get; set; }
+        public IConcurrencyInfo Concurrency { get; set; } = new ConcurrencyInfo();
     }
 
     public class Customer : ICustomer
     {
-        public Customer()
-        {
-            ContactInfo = new ContactDetails();
-            Auditing = new AuditInfo();
-        }
-
         public void InitializeCollections()
         {
             Orders ??= new HashSet<IAnOrder>();
@@ -472,8 +417,8 @@ public class SnapshotMonsterContext : MonsterContext<
         public int? HusbandId { get; set; }
         public string Name { get; set; }
 
-        public IContactDetails ContactInfo { get; set; }
-        public IAuditInfo Auditing { get; set; }
+        public IContactDetails ContactInfo { get; set; } = new ContactDetails();
+        public IAuditInfo Auditing { get; set; } = new AuditInfo();
 
         public virtual ICollection<IAnOrder> Orders { get; set; }
         public virtual ICollection<ILogin> Logins { get; set; }
@@ -504,13 +449,8 @@ public class SnapshotMonsterContext : MonsterContext<
 
     public class Phone : IPhone
     {
-        public Phone()
-        {
-            Extension = "None";
-        }
-
         public string PhoneNumber { get; set; }
-        public string Extension { get; set; }
+        public string Extension { get; set; } = "None";
         public PhoneType PhoneType { get; set; }
     }
 }

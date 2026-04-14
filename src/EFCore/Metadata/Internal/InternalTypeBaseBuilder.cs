@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -15,12 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, InternalModelBuilder>,
     IConventionTypeBaseBuilder
 {
-    private static readonly bool UseOldBehavior34201 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue34201", out var enabled34201) && enabled34201;
-
-    internal static readonly bool UseOldBehavior29997 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29997", out var enabled29997) && enabled29997;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -210,7 +205,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
             {
                 if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
-                    && (typeConfigurationSource != null || UseOldBehavior34201)
+                    && typeConfigurationSource != null
                     && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
                 {
                     return null;
@@ -225,13 +220,15 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
 
             propertyType ??= existingProperty.ClrType;
 
-            propertiesToDetach = new List<Property> { existingProperty };
+            propertiesToDetach = [existingProperty];
         }
         else
         {
             if (configurationSource != ConfigurationSource.Explicit
-                && (!configurationSource.HasValue || !CanAddProperty(propertyType ?? memberInfo?.GetMemberType(),
-                    propertyName, configurationSource.Value, skipTypeCheck: skipTypeCheck)))
+                && (!configurationSource.HasValue
+                    || !CanAddProperty(
+                        propertyType ?? memberInfo?.GetMemberType(),
+                        propertyName, configurationSource.Value, skipTypeCheck: skipTypeCheck)))
             {
                 return null;
             }
@@ -256,7 +253,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 var derivedProperty = derivedType.FindDeclaredProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    propertiesToDetach ??= new List<Property>();
+                    propertiesToDetach ??= [];
 
                     propertiesToDetach.Add(derivedProperty);
                 }
@@ -649,19 +646,39 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             return null;
         }
 
+        if (properties.Count == 0)
+        {
+            return properties;
+        }
+
+        for (var i = 0;; i++)
+        {
+            var property = properties[i];
+            if (!property.IsInModel || !property.DeclaringType.IsAssignableFrom(Metadata))
+            {
+                break;
+            }
+
+            if (i == properties.Count - 1)
+            {
+                return properties;
+            }
+        }
+
         var actualProperties = new Property[properties.Count];
         for (var i = 0; i < actualProperties.Length; i++)
         {
             var property = properties[i];
             var typeConfigurationSource = property.GetTypeConfigurationSource();
-            var builder = property.IsInModel && property.DeclaringType.IsAssignableFrom(Metadata)
-                ? property.Builder
-                : Property(
-                    typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? property.ClrType : null,
-                    property.Name,
-                    property.GetIdentifyingMemberInfo(),
-                    typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
-                    configurationSource);
+            var builder = Property(
+                typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
+                || (property.IsInModel && Metadata.IsAssignableFrom(property.DeclaringType))
+                    ? property.ClrType
+                    : null,
+                property.Name,
+                property.GetIdentifyingMemberInfo(),
+                typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
+                configurationSource);
 
             if (builder == null)
             {
@@ -692,7 +709,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             foreach (var relationship in propertyToDetach.GetContainingForeignKeys().ToList())
             {
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= [];
 
                 detachedRelationships.Add(InternalEntityTypeBuilder.DetachRelationship(relationship));
             }
@@ -706,7 +723,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
             {
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= [];
 
                 detachedRelationships.Add(InternalEntityTypeBuilder.DetachRelationship(referencingForeignKey));
             }
@@ -757,14 +774,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         {
             if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
             {
-                if (UseOldBehavior29997)
-                {
-                    conflictingProperty.DeclaringType.RemoveProperty(conflictingProperty);
-                }
-                else
-                {
-                    conflictingProperty.DeclaringType.Builder.RemoveProperty(conflictingProperty, configurationSource);
-                }
+                conflictingProperty.DeclaringType.Builder.RemoveProperty(conflictingProperty, configurationSource);
             }
         }
 
@@ -801,7 +811,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
             || configurationSource.Overrides(existingProperty.GetConfigurationSource())
             : configurationSource.HasValue
-            && CanAddProperty(propertyType ?? memberInfo?.GetMemberType(),
+            && CanAddProperty(
+                propertyType ?? memberInfo?.GetMemberType(),
                 propertyName, configurationSource.Value, checkClrProperty: checkClrProperty);
     }
 
@@ -1043,7 +1054,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             collection ??= existingComplexProperty.IsCollection;
             complexType ??= existingComplexType.ClrType;
 
-            propertiesToDetach = new List<ComplexProperty> { existingComplexProperty };
+            propertiesToDetach = [existingComplexProperty];
         }
         else
         {
@@ -1087,7 +1098,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 var derivedProperty = derivedType.FindDeclaredComplexProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    propertiesToDetach ??= new List<ComplexProperty>();
+                    propertiesToDetach ??= [];
 
                     propertiesToDetach.Add(derivedProperty);
                 }
