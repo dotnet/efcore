@@ -22,7 +22,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <param name="alias">An alias for the table.</param>
     /// <param name="storeFunction">The <see cref="IStoreFunction" /> associated this function.</param>
     /// <param name="arguments">The arguments of the function.</param>
-    public TableValuedFunctionExpression(string alias, IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
+    public TableValuedFunctionExpression(string alias, IStoreFunction storeFunction, IReadOnlyList<Expression> arguments)
         : this(
             alias,
             storeFunction.Name,
@@ -41,7 +41,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     public TableValuedFunctionExpression(
         string alias,
         string name,
-        IReadOnlyList<SqlExpression> arguments)
+        IReadOnlyList<Expression> arguments)
         : this(alias, name, schema: null, builtIn: true, arguments)
     {
     }
@@ -60,7 +60,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
         string name,
         string? schema,
         bool builtIn,
-        IReadOnlyList<SqlExpression> arguments,
+        IReadOnlyList<Expression> arguments,
         IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(alias, annotations)
     {
@@ -103,7 +103,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <summary>
     ///     The list of arguments of this function.
     /// </summary>
-    public virtual IReadOnlyList<SqlExpression> Arguments { get; }
+    public virtual IReadOnlyList<Expression> Arguments { get; }
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -117,7 +117,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// </summary>
     /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
+    public virtual TableValuedFunctionExpression Update(IReadOnlyList<Expression> arguments)
         => !arguments.SequenceEqual(Arguments, ReferenceEqualityComparer.Instance)
             ? new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, arguments, Annotations)
             : this;
@@ -125,10 +125,10 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
-        var newArguments = new SqlExpression[Arguments.Count];
+        var newArguments = new Expression[Arguments.Count];
         for (var i = 0; i < newArguments.Length; i++)
         {
-            newArguments[i] = (SqlExpression)cloningExpressionVisitor.Visit(Arguments[i]);
+            newArguments[i] = cloningExpressionVisitor.Visit(Arguments[i]);
         }
 
         var newTableValuedFunctionExpression = StoreFunction is null
@@ -153,19 +153,25 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
 
     /// <inheritdoc />
     public override Expression Quote()
-        => StoreFunction is null
+    {
+        var arguments = NewArrayInit(
+            typeof(Expression),
+            Arguments.Select(a => ((IRelationalQuotableExpression)a).Quote()));
+
+        return StoreFunction is null
             ? New(
                 _quotingConstructor1 ??= typeof(TableValuedFunctionExpression).GetConstructor(
-                    [typeof(string), typeof(string), typeof(IReadOnlyList<SqlExpression>)])!,
+                    [typeof(string), typeof(string), typeof(IReadOnlyList<Expression>)])!,
                 Constant(Alias, typeof(string)),
                 Constant(Name, typeof(string)),
-                NewArrayInit(typeof(SqlExpression), Arguments.Select(v => v.Quote())))
+                arguments)
             : New(
                 _quotingConstructor2 ??= typeof(TableValuedFunctionExpression).GetConstructor(
-                    [typeof(string), typeof(IStoreFunction), typeof(IReadOnlyList<SqlExpression>)])!,
+                    [typeof(string), typeof(IStoreFunction), typeof(IReadOnlyList<Expression>)])!,
                 Constant(Alias, typeof(string)),
                 RelationalExpressionQuotingUtilities.QuoteTableBase(StoreFunction),
-                NewArrayInit(typeof(SqlExpression), Arguments.Select(v => v.Quote())));
+                arguments);
+    }
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

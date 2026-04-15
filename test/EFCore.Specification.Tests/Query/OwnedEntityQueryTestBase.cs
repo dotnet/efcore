@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "OwnedEntityQueryTests";
 
     #region 9202
@@ -17,9 +17,9 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Include_collection_for_entity_with_owned_type_works()
     {
-        var contextFactory = await InitializeAsync<Context9202>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context9202>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Movies.Include(m => m.Cast);
             var result = query.ToList();
@@ -30,7 +30,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             Assert.True(result[0].Cast.All(a => a.Details != null));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Movies.Include("Cast");
             var result = query.ToList();
@@ -108,8 +108,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Multilevel_owned_entities_determine_correct_nullability()
     {
-        var contextFactory = await InitializeAsync<Context13079>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context13079>();
+        using var context = contextFactory.CreateDbContext();
         await context.AddAsync(new Context13079.BaseEntity());
         await context.SaveChangesAsync();
     }
@@ -152,9 +152,9 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
     {
-        var contextFactory = await InitializeAsync<Context13157>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context13157>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var partners = context.Partners
                 .Select(x => new
@@ -230,8 +230,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Owned_entity_multiple_level_in_aggregate()
     {
-        var contextFactory = await InitializeAsync<Context14911>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context14911>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var aggregate = context.Set<Context14911.Aggregate>().OrderByDescending(e => e.Id).FirstOrDefault();
         Assert.Equal(10, aggregate.FirstValueObject.SecondValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
         Assert.Equal(
@@ -362,9 +362,9 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context18582>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context18582>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Warehouses.Select(x => new Context18582.WarehouseModel
         {
             WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
@@ -436,8 +436,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Accessing_scalar_property_in_derived_type_projection_does_not_load_owned_navigations()
     {
-        var contextFactory = await InitializeAsync<Context19138>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context19138>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var result = context.BaseEntities
             .Select(b => context.OtherEntities.Where(o => o.OtherEntityData == ((Context19138.SubEntity)b).Data).FirstOrDefault())
             .ToList();
@@ -497,8 +497,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
     {
-        var contextFactory = await InitializeAsync<Context20277>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context20277>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Entities.AsNoTracking().Select(e => new
         {
             e.Id,
@@ -573,9 +573,9 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Can_auto_include_navigation_from_model()
     {
-        var contextFactory = await InitializeAsync<Context21540>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context21540>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents.AsNoTracking().ToList();
             var result = Assert.Single(query);
@@ -587,7 +587,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             Assert.Single(result.SkipOtherSide);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents.AsNoTracking().IgnoreAutoIncludes().ToList();
             var result = Assert.Single(query);
@@ -688,8 +688,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalFact]
     public virtual async Task Nested_owned_required_dependents_are_materialized()
     {
-        var contextFactory = await InitializeAsync<Context21807>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21807>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context21807.Entity>().ToList();
         var result = Assert.Single(query);
         Assert.NotNull(result.Contact);
@@ -749,8 +749,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task OwnsMany_correlated_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context22089>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22089>();
+        using var context = contextFactory.CreateDbContext();
         var results = await context.Contacts.Select(contact
                 => new Context22089.ContactDto
                 {
@@ -802,8 +802,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_owned_collection_and_aggregate(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24133>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context24133>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context24133.Blog>()
             .Select(b => new Context24133.BlogDto
             {

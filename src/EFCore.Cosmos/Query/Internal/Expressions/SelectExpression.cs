@@ -38,14 +38,15 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(
+    private SelectExpression(
         List<SourceExpression> sources,
         SqlExpression? predicate,
         List<ProjectionExpression> projections,
         bool distinct,
         List<OrderingExpression> orderings,
         SqlExpression? offset,
-        SqlExpression? limit)
+        SqlExpression? limit,
+        bool usesClientProjection)
     {
         _sources = sources;
         Predicate = predicate is SqlConstantExpression { Value: true } ? null : predicate;
@@ -54,6 +55,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         _orderings = orderings;
         Offset = offset;
         Limit = limit;
+        UsesClientProjection = usesClientProjection;
     }
 
     /// <summary>
@@ -100,7 +102,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                 distinct: false,
                 orderings: [],
                 offset: null,
-                limit: null);
+                limit: null,
+                usesClientProjection: false);
         }
 
         var source = new SourceExpression(sourceExpression, sourceAlias, withIn: true);
@@ -166,6 +169,18 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public bool IsDistinct { get; private set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     This property indicates whether the query uses client-side projection. We have to keep track of this
+    ///     because of #34067. We can't apply distinct to queries with client-side projection.
+    /// </remarks>
+    public bool UsesClientProjection { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -280,8 +295,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public int AddToProjection(EntityProjectionExpression entityProjection)
-        => AddToProjection(entityProjection, null);
+    public int AddToProjection(StructuralTypeProjectionExpression structuralTypeProjection)
+        => AddToProjection(structuralTypeProjection, null);
 
     private int AddToProjection(Expression expression, string? alias)
     {
@@ -322,6 +337,15 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public void ApplyDistinct()
         => IsDistinct = true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void IndicateClientProjection()
+        => UsesClientProjection = true;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -504,7 +528,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                 projectionToAdd = expression switch
                 {
                     SqlExpression e => new ScalarReferenceExpression(joinSource.Alias, e.Type, e.TypeMapping),
-                    EntityProjectionExpression e => e.Update(new ObjectReferenceExpression(e.EntityType, joinSource.Alias)),
+                    StructuralTypeProjectionExpression e => e.Update(new ObjectReferenceExpression(e.StructuralType, joinSource.Alias)),
 
                     _ => throw new UnreachableException(
                         $"Unexpected expression type in projection when adding join: {expression.GetType().Name}")
@@ -618,7 +642,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         if (changed)
         {
-            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
+            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit, UsesClientProjection)
             {
                 _projectionMapping = projectionMapping
             };
@@ -649,7 +673,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
+        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit, UsesClientProjection)
         {
             _projectionMapping = projectionMapping, ReadItemInfo = ReadItemInfo
         };
@@ -662,7 +686,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpression WithReadItemInfo(ReadItemInfo readItemInfo)
-        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
+        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit, UsesClientProjection)
         {
             _projectionMapping = _projectionMapping, ReadItemInfo = readItemInfo
         };
@@ -681,7 +705,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
+        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit, UsesClientProjection)
         {
             _projectionMapping = projectionMapping
         };

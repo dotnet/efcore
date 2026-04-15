@@ -24,8 +24,4 @@ public abstract class NorthwindSetOperationsQueryRelationalTestBase<TFixture>(TF
 
         Assert.Equal(RelationalStrings.SetOperationsNotAllowedAfterClientEvaluation, message);
     }
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

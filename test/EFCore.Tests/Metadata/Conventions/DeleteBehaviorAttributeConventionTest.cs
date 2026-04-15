@@ -45,6 +45,36 @@ public class DeleteBehaviorAttributeConventionTest
     }
 
     [ConditionalFact]
+    public void Correctly_set_set_default_delete_behavior_on_foreign_key()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_SetDefault>()
+            .Property(e => e.BlogId);
+
+        var fk = modelBuilder.Entity<Blog_SetDefault>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_SetDefault).Metadata;
+
+        Assert.Equal(DeleteBehavior.SetDefault, fk.DeleteBehavior);
+    }
+
+    [ConditionalFact]
+    public void Correctly_set_client_set_default_delete_behavior_on_foreign_key()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_ClientSetDefault>()
+            .Property(e => e.BlogId);
+
+        var fk = modelBuilder.Entity<Blog_ClientSetDefault>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_ClientSetDefault).Metadata;
+
+        Assert.Equal(DeleteBehavior.ClientSetDefault, fk.DeleteBehavior);
+    }
+
+    [ConditionalFact]
     public void Correctly_set_delete_behavior_on_compound_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -177,6 +207,48 @@ public class DeleteBehaviorAttributeConventionTest
 
         [DeleteBehavior(DeleteBehavior.Restrict)]
         public Blog_Restrict Blog_Restrict { get; set; }
+
+        public int? BlogId { get; set; }
+    }
+
+    #endregion
+
+    #region DeleteBehaviourAttribute set to SetDefault
+
+    private class Blog_SetDefault
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_SetDefault> Posts { get; set; }
+    }
+
+    private class Post_SetDefault
+    {
+        public int Id { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.SetDefault)]
+        public Blog_SetDefault Blog_SetDefault { get; set; }
+
+        public int? BlogId { get; set; }
+    }
+
+    #endregion
+
+    #region DeleteBehaviourAttribute set to ClientSetDefault
+
+    private class Blog_ClientSetDefault
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_ClientSetDefault> Posts { get; set; }
+    }
+
+    private class Post_ClientSetDefault
+    {
+        public int Id { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.ClientSetDefault)]
+        public Blog_ClientSetDefault Blog_ClientSetDefault { get; set; }
 
         public int? BlogId { get; set; }
     }

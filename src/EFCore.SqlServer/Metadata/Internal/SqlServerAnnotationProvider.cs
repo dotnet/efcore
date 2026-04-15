@@ -13,17 +13,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerAnnotationProvider : RelationalAnnotationProvider
+public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+    : RelationalAnnotationProvider(dependencies)
 {
-    /// <summary>
-    ///     Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    public SqlServerAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -75,6 +67,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         if (model.Tables.Any(t => !t.IsExcludedFromMigrations && (t[SqlServerAnnotationNames.MemoryOptimized] as bool? == true)))
         {
             yield return new Annotation(SqlServerAnnotationNames.MemoryOptimized, true);
+        }
+
+        if (model.Model.FindAnnotation(SqlServerAnnotationNames.FullTextCatalogs) is IAnnotation annotation)
+        {
+            yield return annotation;
         }
     }
 
@@ -181,6 +178,54 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         // Model validation ensures that these facets are the same on all mapped indexes
         var modelIndex = index.MappedIndexes.First();
         var table = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
+
+#pragma warning disable EF9105 // Vector indexes are experimental
+        if (modelIndex.GetVectorMetric(table) is { } vectorMetric)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.VectorIndexMetric, vectorMetric);
+
+            if (modelIndex.GetVectorIndexType(table) is { } vectorType)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.VectorIndexType, vectorType);
+            }
+        }
+#pragma warning restore EF9105
+
+        if (modelIndex.GetFullTextKeyIndex(table) is { } keyIndex)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.FullTextIndex, keyIndex);
+
+            if (modelIndex.GetFullTextCatalog(table) is { } catalog)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextCatalog, catalog);
+            }
+
+            if (modelIndex.GetFullTextChangeTracking(table) is { } changeTracking)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextChangeTracking, changeTracking);
+            }
+
+            if (modelIndex.GetFullTextLanguages() is { } languages)
+            {
+                // Resolve property names to column names for SQL generation
+                var resolvedLanguages = new Dictionary<string, string>();
+                foreach (var (propertyName, language) in languages)
+                {
+                    var columnName = modelIndex.DeclaringEntityType.FindProperty(propertyName)!
+                        .GetColumnName(table);
+                    if (columnName != null)
+                    {
+                        resolvedLanguages[columnName] = language;
+                    }
+                }
+
+                if (resolvedLanguages.Count > 0)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.FullTextLanguages, resolvedLanguages);
+                }
+            }
+        }
+
         if (modelIndex.IsClustered(table) is { } isClustered)
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);

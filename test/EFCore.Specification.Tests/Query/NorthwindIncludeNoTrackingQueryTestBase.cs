@@ -184,9 +184,6 @@ public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture>(TFixture
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => base.Include_multi_level_reference_then_include_collection_predicate(async))).Message);
 
-    protected override bool IgnoreEntryCount
-        => true;
-
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);

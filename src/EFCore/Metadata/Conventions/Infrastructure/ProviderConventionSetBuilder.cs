@@ -97,6 +97,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new NonNullableNavigationConvention(Dependencies));
         conventionSet.Add(new BackingFieldConvention(Dependencies));
         conventionSet.Add(new QueryFilterRewritingConvention(Dependencies));
+        conventionSet.Add(new AutoLoadConvention(Dependencies));
         conventionSet.Add(new RuntimeModelConvention(Dependencies));
         conventionSet.Add(new ElementMappingConvention(Dependencies));
         conventionSet.Add(new ElementTypeChangedConvention(Dependencies));

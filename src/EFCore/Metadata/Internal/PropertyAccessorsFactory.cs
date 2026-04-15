@@ -274,7 +274,8 @@ public class PropertyAccessorsFactory
         MemberInfo memberInfo,
         bool fromDeclaringType,
         bool fromEntity,
-        bool addNullCheck = true)
+        bool addNullCheck = true,
+        bool shouldThrowIfMissing = true)
     {
         Check.DebugAssert(!fromEntity || !fromDeclaringType, "fromEntity and fromDeclaringType can't both be true");
 
@@ -285,7 +286,17 @@ public class PropertyAccessorsFactory
             {
                 case { IsCollection: true } complexProperty when fromEntity:
                     instanceExpression = CreateComplexCollectionElementAccess(
-                        complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity);
+                        complexProperty, instanceExpression, indicesExpression, fromDeclaringType, fromEntity,
+                        shouldThrowIfMissing, out var isMissingExpression);
+
+                    if (isMissingExpression != null)
+                    {
+                        instanceExpression = Expression.Condition(
+                            isMissingExpression,
+                            Expression.Default(instanceExpression.Type),
+                            instanceExpression);
+                    }
+
                     break;
                 case { IsCollection: false } complexProperty:
                     instanceExpression = CreateMemberAccess(
@@ -340,6 +351,22 @@ public class PropertyAccessorsFactory
     private static readonly MethodInfo ComplexCollectionNotInitializedMethod
         = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionNotInitialized), BindingFlags.Static | BindingFlags.Public)!;
 
+    private static readonly MethodInfo ComplexCollectionOrdinalOutOfRangeMethod
+        = typeof(CoreStrings).GetMethod(nameof(CoreStrings.ComplexCollectionOrdinalOutOfRange), BindingFlags.Static | BindingFlags.Public)!;
+
+    private static readonly PropertyInfo ReadOnlyListIndexer
+        = typeof(IReadOnlyList<int>).GetProperty("Item")!;
+
+    private static PropertyInfo GetCollectionCountProperty(Type collectionType)
+        => collectionType.GetGenericTypeImplementations(typeof(ICollection<>))
+            .First()
+            .GetProperty(nameof(ICollection<object>.Count))!;
+
+    private static PropertyInfo GetListItemProperty(Type collectionType)
+        => collectionType.GetGenericTypeImplementations(typeof(IList<>))
+            .First()
+            .GetProperty("Item")!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -360,7 +387,9 @@ public class PropertyAccessorsFactory
         Expression instanceExpression,
         Expression indicesExpression,
         bool fromDeclaringType,
-        bool fromEntity)
+        bool fromEntity,
+        bool shouldThrowIfMissing,
+        out Expression? isMissingExpression)
     {
         instanceExpression = CreateMemberAccess(
             complexProperty,
@@ -368,33 +397,58 @@ public class PropertyAccessorsFactory
             indicesExpression,
             complexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
             fromDeclaringType,
-            fromEntity);
-
-        var throwExceptionExpression = Expression.Throw(
-            Expression.New(
-                InvalidOperationConstructor,
-                Expression.Call(
-                    ComplexCollectionNotInitializedMethod,
-                    Expression.Constant(complexProperty.DeclaringType.ShortNameChain()),
-                    Expression.Constant(complexProperty.Name))),
-            instanceExpression.Type);
-
-        instanceExpression = Expression.Condition(
-            Expression.Equal(instanceExpression, Expression.Constant(null, instanceExpression.Type)),
-            throwExceptionExpression,
-            instanceExpression);
+            fromEntity,
+            shouldThrowIfMissing: shouldThrowIfMissing);
 
         var collectionDepth = ((IRuntimeComplexType)complexProperty.ComplexType).CollectionDepth - 1;
         var indexExpression = Expression.MakeIndex(
             indicesExpression,
-            indicesExpression.Type.GetProperty("Item"),
+            ReadOnlyListIndexer,
             [Expression.Constant(collectionDepth)]);
 
-        instanceExpression = Expression.MakeIndex(
-            instanceExpression,
-            instanceExpression.Type.GetProperty("Item"),
-            [indexExpression]);
+        var listCountProperty = GetCollectionCountProperty(instanceExpression.Type);
+        var isNull = Expression.Equal(instanceExpression, Expression.Constant(null, instanceExpression.Type));
+        var isOutOfRange = Expression.OrElse(
+            Expression.LessThan(indexExpression, Expression.Constant(0)),
+            Expression.GreaterThanOrEqual(
+                indexExpression, Expression.Property(instanceExpression, listCountProperty)));
 
-        return instanceExpression;
+        isMissingExpression = shouldThrowIfMissing ? null : Expression.OrElse(isNull, isOutOfRange);
+
+        if (shouldThrowIfMissing
+            && complexProperty.DeclaringType.Model
+                .FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled) is true)
+        {
+            instanceExpression = Expression.Condition(
+                isNull,
+                Expression.Throw(
+                    Expression.New(
+                        InvalidOperationConstructor,
+                            Expression.Call(
+                                ComplexCollectionNotInitializedMethod,
+                                Expression.Constant(complexProperty.DeclaringType.ShortNameChain()),
+                                Expression.Constant(complexProperty.Name))),
+                    instanceExpression.Type),
+                Expression.Condition(
+                    isOutOfRange,
+                    Expression.Throw(
+                        Expression.New(
+                            InvalidOperationConstructor,
+                            Expression.Call(
+                                ComplexCollectionOrdinalOutOfRangeMethod,
+                                Expression.Convert(indexExpression, typeof(object)),
+                                Expression.Constant(complexProperty.DeclaringType.ShortNameChain()),
+                                Expression.Constant(complexProperty.Name),
+                                Expression.Convert(
+                                    Expression.Property(instanceExpression, listCountProperty),
+                                    typeof(object)))),
+                        instanceExpression.Type),
+                instanceExpression));
+        }
+
+        return Expression.MakeIndex(
+            instanceExpression,
+            GetListItemProperty(instanceExpression.Type),
+            [indexExpression]);
     }
 }

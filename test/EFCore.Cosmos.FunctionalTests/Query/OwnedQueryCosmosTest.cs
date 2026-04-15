@@ -424,17 +424,25 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
     public override async Task Client_method_skip_loads_owned_navigations(bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
 
-        Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
+            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
+        }
     }
 
     public override async Task Client_method_skip_loads_owned_navigations_variation_2(bool async)
     {
-        var exception =
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations_variation_2(async));
+        // Always throws for sync.
+        if (async)
+        {
+            var exception =
+                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations_variation_2(async));
 
-        Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
+            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
+        }
     }
 
     public override Task Where_owned_collection_navigation_ToList_Count(bool async)
@@ -660,6 +668,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_indexer_properties(bool async)
     {
         // Always throws for sync.
@@ -681,6 +691,8 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_indexer_properties_converted(bool async)
     {
         // Always throws for sync.
@@ -702,6 +714,8 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_owned_indexer_properties(bool async)
     {
         // Always throws for sync.
@@ -723,6 +737,8 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
         // Always throws for sync.
@@ -797,6 +813,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             () => base.Indexer_property_is_pushdown_into_subquery(async),
             CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Can_query_indexer_property_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -836,6 +854,8 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Ordering_by_identifying_projection(bool async)
     {
         // Always throws for sync.

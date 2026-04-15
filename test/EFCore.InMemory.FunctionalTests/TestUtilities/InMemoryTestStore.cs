@@ -39,9 +39,9 @@ public class InMemoryTestStore(string name = null, bool shared = true) : TestSto
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => builder.UseInMemoryDatabase(Name);
 
-    public override Task CleanAsync(DbContext context)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
     {
         context.GetService<IInMemoryStoreProvider>().Store.Clear();
-        return context.Database.EnsureCreatedAsync();
+        return createTables ? context.Database.EnsureCreatedAsync() : Task.CompletedTask;
     }
 }

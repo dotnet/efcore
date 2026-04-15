@@ -5949,7 +5949,7 @@ OUTER APPLY (
     LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [s]
-ORDER BY [c].[CustomerID], [s].[First], [s].[Second]
+ORDER BY [c].[CustomerID]
 """);
     }
 

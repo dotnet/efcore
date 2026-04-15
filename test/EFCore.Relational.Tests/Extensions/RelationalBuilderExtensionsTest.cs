@@ -1434,6 +1434,24 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
     }
 
+    [ConditionalFact]
+    public void Can_access_relationship_ExcludeForeignKeyFromMigrations()
+    {
+        var modelBuilder = CreateBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+        entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+        var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", ["Id"], ConfigurationSource.Convention);
+
+        Assert.NotNull(relationshipBuilder.ExcludeForeignKeyFromMigrations(true));
+        Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
+
+        Assert.NotNull(relationshipBuilder.ExcludeForeignKeyFromMigrations(true, fromDataAnnotation: true));
+        Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
+
+        Assert.Null(relationshipBuilder.ExcludeForeignKeyFromMigrations(false));
+        Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
+    }
+
     private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
     {
     }

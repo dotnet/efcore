@@ -219,6 +219,10 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         public Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
             => throw new NotImplementedException();
+
+        public void AddMigrations(Assembly additionalMigrationsAssembly)
+        {
+        }
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]

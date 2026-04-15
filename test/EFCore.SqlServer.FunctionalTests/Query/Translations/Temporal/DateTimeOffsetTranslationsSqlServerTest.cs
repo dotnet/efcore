@@ -183,6 +183,43 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
+    public override async Task DateTime()
+    {
+        await base.DateTime();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CONVERT(datetime2, [b].[DateTimeOffset]) = '1998-05-04T15:30:10.0000000'
+""");
+    }
+
+    public override async Task UtcDateTime()
+    {
+        await base.UtcDateTime();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CONVERT(datetime2, [b].[DateTimeOffset] AT TIME ZONE 'UTC') = '1998-05-04T15:30:10.0000000'
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task LocalDateTime()
+    {
+        await base.LocalDateTime();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CONVERT(datetime2, [b].[DateTimeOffset] AT TIME ZONE CURRENT_TIMEZONE_ID()) > '1999-01-01T00:00:00.0000000'
+""");
+    }
+
     public override async Task AddYears()
     {
         await base.AddYears();
@@ -288,6 +325,19 @@ WHERE DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [b].[DateTimeOff
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Offset_TotalMinutes()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateTimeOffset.Offset.TotalMinutes == 90));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATEPART(tz, [b].[DateTimeOffset]) AS float) = 90.0E0
+""");
+    }
+
     public override async Task Milliseconds_parameter_and_constant()
     {
         await base.Milliseconds_parameter_and_constant();
@@ -297,6 +347,78 @@ WHERE DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [b].[DateTimeOff
 SELECT COUNT(*)
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[DateTimeOffset] = '1902-01-02T10:00:00.1234567+01:30'
+""");
+    }
+
+    public override async Task ToOffset()
+    {
+        await base.ToOffset();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE SWITCHOFFSET([b].[DateTimeOffset], '+02:00') = '1998-05-04T17:30:10.0000000+02:00'
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task ToOffset_parameter()
+    {
+        var offset = new TimeSpan(2, 0, 0);
+
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.ToOffset(offset)));
+
+        AssertSql(
+            """
+@offset_offset='+02:00' (Size = 8000) (DbType = AnsiString)
+
+SELECT SWITCHOFFSET([b].[DateTimeOffset], @offset_offset)
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task Ctor_DateTime()
+    {
+        await base.Ctor_DateTime();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE TODATETIMEOFFSET([b].[DateTime], '+00:00') = '1998-05-04T15:30:10.0000000+00:00'
+""");
+    }
+
+    public override async Task Ctor_DateTime_TimeSpan()
+    {
+        await base.Ctor_DateTime_TimeSpan();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], '+02:00') = '1998-05-04T15:30:10.0000000+02:00'
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Ctor_DateTime_TimeSpan_parameter()
+    {
+        var offset = new TimeSpan(2, 0, 0);
+
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(b => b.DateTime.Year > 1)
+                .Where(b => new DateTimeOffset(b.DateTime, offset) == new DateTimeOffset(1998, 5, 4, 15, 30, 10, new TimeSpan(2, 0, 0))));
+
+        AssertSql(
+            """
+@offset_offset='+02:00' (Size = 8000) (DbType = AnsiString)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], @offset_offset) = '1998-05-04T15:30:10.0000000+02:00'
 """);
     }
 
@@ -325,6 +447,36 @@ WHERE SYSDATETIMEOFFSET() > '2025-01-01T00:00:00.0000000+00:00'
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) > '2025-01-01T00:00:00.0000000+00:00'
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public virtual async Task DateTrunc_day()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("day", b.DateTimeOffset)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new DateTimeOffset(b.DateTimeOffset.Date, b.DateTimeOffset.Offset)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(day, [b].[DateTimeOffset])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public virtual async Task DateTrunc_hour()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("hour", b.DateTimeOffset)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(
+                b => new DateTimeOffset(b.DateTimeOffset.Year, b.DateTimeOffset.Month, b.DateTimeOffset.Day,
+                    b.DateTimeOffset.Hour, 0, 0, b.DateTimeOffset.Offset)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(hour, [b].[DateTimeOffset])
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 

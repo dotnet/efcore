@@ -271,6 +271,35 @@ WHERE GETUTCDATE() > '2025-01-01T00:00:00.000'
 """);
     }
 
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public virtual async Task DateTrunc_day()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("day", b.DateTime)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTime.Date));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(day, [b].[DateTime])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public virtual async Task DateTrunc_hour()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("hour", b.DateTime)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(
+                b => new DateTime(b.DateTime.Year, b.DateTime.Month, b.DateTime.Day, b.DateTime.Hour, 0, 0)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(hour, [b].[DateTime])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

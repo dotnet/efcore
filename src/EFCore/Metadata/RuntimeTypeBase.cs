@@ -197,6 +197,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
     /// <param name="sentinel">The property value to use to consider the property not set.</param>
+    /// <param name="autoLoaded">A value indicating whether this property is automatically loaded from the database.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeProperty AddProperty(
         string name,
@@ -221,7 +222,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         ValueComparer? providerValueComparer = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null,
         CoreTypeMapping? typeMapping = null,
-        object? sentinel = null)
+        object? sentinel = null,
+        bool autoLoaded = true)
     {
         var property = new RuntimeProperty(
             name,
@@ -247,7 +249,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
             providerValueComparer,
             jsonValueReaderWriter,
             typeMapping,
-            sentinel);
+            sentinel,
+            autoLoaded);
 
         _properties.Add(property.Name, property);
 

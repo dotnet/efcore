@@ -13,22 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteRegexMethodTranslator : IMethodCallTranslator
+public class SqliteRegexMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo RegexIsMatchMethodInfo
-        = typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), [typeof(string), typeof(string)])!;
-
-    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteRegexMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -41,12 +27,11 @@ public class SqliteRegexMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.Equals(RegexIsMatchMethodInfo))
+        if (method.DeclaringType == typeof(Regex)
+            && method.Name == nameof(Regex.IsMatch)
+            && arguments is [var input, var pattern])
         {
-            var input = arguments[0];
-            var pattern = arguments[1];
-
-            return _sqlExpressionFactory.Regexp(input, pattern);
+            return sqlExpressionFactory.Regexp(input, pattern);
         }
 
         return null;

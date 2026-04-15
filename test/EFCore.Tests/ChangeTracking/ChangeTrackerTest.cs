@@ -3487,6 +3487,80 @@ public class ChangeTrackerTest
     [ConditionalTheory,
      InlineData(false),
      InlineData(true)]
+    public void GetEntriesForState_does_not_call_DetectChanges(bool useGenericOverload)
+    {
+        using var context = new EarlyLearningCenter();
+        var entry = context.Attach(
+            new Product { Id = 1, CategoryId = 66 });
+
+        entry.Entity.CategoryId = 77;
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+
+        if (useGenericOverload)
+        {
+            _ = context.ChangeTracker.GetEntriesForState<Product>(unchanged: true).ToList();
+        }
+        else
+        {
+            _ = context.ChangeTracker.GetEntriesForState(unchanged: true).ToList();
+        }
+
+        Assert.Equal(EntityState.Unchanged, entry.State);
+    }
+
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
+    public void GetEntriesForState_returns_only_entries_with_matching_state(bool useGenericOverload)
+    {
+        using var context = new EarlyLearningCenter();
+
+        context.Add(new Product { Id = 1, CategoryId = 1 });
+        context.Attach(new Product { Id = 2, CategoryId = 2 });
+        var modifiedEntry = context.Attach(new Product { Id = 3, CategoryId = 3 });
+        modifiedEntry.State = EntityState.Modified;
+        var deletedEntry = context.Attach(new Product { Id = 4, CategoryId = 4 });
+        deletedEntry.State = EntityState.Deleted;
+
+        if (useGenericOverload)
+        {
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(added: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(unchanged: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(modified: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(deleted: true));
+            Assert.Equal(2, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true).Count());
+            Assert.Equal(4, context.ChangeTracker.GetEntriesForState<Product>(added: true, modified: true, deleted: true, unchanged: true).Count());
+            Assert.Empty(context.ChangeTracker.GetEntriesForState<Product>());
+        }
+        else
+        {
+            Assert.Single(context.ChangeTracker.GetEntriesForState(added: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState(unchanged: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState(modified: true));
+            Assert.Single(context.ChangeTracker.GetEntriesForState(deleted: true));
+            Assert.Equal(2, context.ChangeTracker.GetEntriesForState(added: true, modified: true).Count());
+            Assert.Equal(4, context.ChangeTracker.GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true).Count());
+            Assert.Empty(context.ChangeTracker.GetEntriesForState());
+        }
+    }
+
+    [ConditionalFact]
+    public void GetEntriesForState_generic_filters_by_type()
+    {
+        using var context = new EarlyLearningCenter();
+
+        context.Add(new Product { Id = 1, CategoryId = 1 });
+        context.Add(new Category { Id = 1 });
+
+        Assert.Single(context.ChangeTracker.GetEntriesForState<Product>(added: true));
+        Assert.Single(context.ChangeTracker.GetEntriesForState<Category>(added: true));
+        Assert.Equal(2, context.ChangeTracker.GetEntriesForState(added: true).Count());
+    }
+
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Explicitly_calling_DetectChanges_works_even_if_auto_DetectChanges_is_switched_off(bool callDetectChangesTwice)
     {
         using var context = new EarlyLearningCenter();

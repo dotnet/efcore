@@ -114,6 +114,27 @@ FROM "BasicTypesEntities" AS "b"
 """);
     }
 
+    public override async Task DateTime()
+    {
+        await AssertTranslationFailed(() => base.DateTime());
+
+        AssertSql();
+    }
+
+    public override async Task UtcDateTime()
+    {
+        await AssertTranslationFailed(() => base.UtcDateTime());
+
+        AssertSql();
+    }
+
+    public override async Task LocalDateTime()
+    {
+        await AssertTranslationFailed(() => base.LocalDateTime());
+
+        AssertSql();
+    }
+
     public override async Task AddYears()
     {
         await base.AddYears();
@@ -196,6 +217,15 @@ FROM "BasicTypesEntities" AS "b"
 
     public override Task ToUnixTimeSecond()
         => AssertTranslationFailed(() => base.ToUnixTimeSecond());
+
+    public override Task ToOffset()
+        => AssertTranslationFailed(() => base.ToOffset());
+
+    public override Task Ctor_DateTime()
+        => AssertTranslationFailed(() => base.Ctor_DateTime());
+
+    public override Task Ctor_DateTime_TimeSpan()
+        => AssertTranslationFailed(() => base.Ctor_DateTime_TimeSpan());
 
     public override async Task Milliseconds_parameter_and_constant()
     {

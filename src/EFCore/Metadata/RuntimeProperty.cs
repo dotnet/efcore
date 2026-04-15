@@ -20,6 +20,7 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
     private readonly bool _isNullable;
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
+    private readonly bool _isAutoLoaded;
     private object? _sentinel;
     private volatile object? _sentinelFromProviderValue;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
@@ -64,7 +65,8 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
         ValueComparer? providerValueComparer,
         JsonValueReaderWriter? jsonValueReaderWriter,
         CoreTypeMapping? typeMapping,
-        object? sentinel)
+        object? sentinel,
+        bool autoLoaded)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
         DeclaringType = declaringType;
@@ -72,6 +74,7 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
         _sentinel = sentinel;
         _isNullable = nullable;
         _isConcurrencyToken = concurrencyToken;
+        _isAutoLoaded = autoLoaded;
         _valueGenerated = valueGenerated;
         _beforeSaveBehavior = beforeSaveBehavior;
         _afterSaveBehavior = afterSaveBehavior;
@@ -412,6 +415,13 @@ public class RuntimeProperty : RuntimePropertyBase, IRuntimeProperty
     {
         [DebuggerStepThrough]
         get => _isConcurrencyToken;
+    }
+
+    /// <inheritdoc />
+    bool IReadOnlyProperty.IsAutoLoaded
+    {
+        [DebuggerStepThrough]
+        get => _isAutoLoaded;
     }
 
     /// <inheritdoc />

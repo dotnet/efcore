@@ -3574,6 +3574,126 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void Add_foreign_key_excluded_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            _ => { },
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
+            ),
+            operations =>
+            {
+                var createIndexOperation = Assert.IsType<CreateIndexOperation>(Assert.Single(operations));
+                Assert.Equal("dbo", createIndexOperation.Schema);
+                Assert.Equal("Amoeba", createIndexOperation.Table);
+                Assert.Equal("IX_Amoeba_ParentId", createIndexOperation.Name);
+                Assert.Equal(new[] { "ParentId" }, createIndexOperation.Columns);
+            });
+
+    [ConditionalFact]
+    public void Remove_foreign_key_excluded_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
+            ),
+            _ => { },
+            operations =>
+            {
+                var dropIndexOperation = Assert.IsType<DropIndexOperation>(Assert.Single(operations));
+                Assert.Equal("dbo", dropIndexOperation.Schema);
+                Assert.Equal("Amoeba", dropIndexOperation.Table);
+                Assert.Equal("IX_Amoeba_ParentId", dropIndexOperation.Name);
+            });
+
+    [ConditionalFact]
+    public void Exclude_existing_foreign_key_from_migrations()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+            ),
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").ExcludeForeignKeyFromMigrations()
+            ),
+            upOps =>
+            {
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(upOps));
+                Assert.Equal("dbo", dropFkOperation.Schema);
+                Assert.Equal("Amoeba", dropFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+            },
+            downOps =>
+            {
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(Assert.Single(downOps));
+                Assert.Equal("dbo", addFkOperation.Schema);
+                Assert.Equal("Amoeba", addFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+            });
+
+    [ConditionalFact]
+    public void Exclude_existing_foreign_key_from_migrations_and_change_delete_behavior()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict)
+            ),
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .ExcludeForeignKeyFromMigrations()
+            ),
+            upOps =>
+            {
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(Assert.Single(upOps));
+                Assert.Equal("dbo", dropFkOperation.Schema);
+                Assert.Equal("Amoeba", dropFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+            },
+            downOps =>
+            {
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(Assert.Single(downOps));
+                Assert.Equal("dbo", addFkOperation.Schema);
+                Assert.Equal("Amoeba", addFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
+            });
+
+    [ConditionalFact]
     public void Add_optional_foreign_key()
         => Execute(
             source => source.Entity(
@@ -9783,6 +9903,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Convert_table_from_owned_to_complex_properties_mapped_to_json()
         => Execute(
@@ -9884,6 +10005,203 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     });
             },
             Assert.Empty);
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
+
+    [ConditionalFact]
+    public virtual void Add_complex_collection_mapped_to_json_uses_empty_array_as_default_value()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.ComplexCollection<List<MyJsonComplex>, MyJsonComplex>(
+                            "ComplexCollection", cp =>
+                            {
+                                cp.IsRequired();
+                                cp.ToJson("json_collection");
+                                cp.Property(x => x.Value);
+                                cp.Property(x => x.Date);
+                            });
+                    });
+            },
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("json_collection", operation.Name);
+                Assert.Equal("[]", operation.DefaultValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+                Assert.IsType<DropColumnOperation>(downOps[0]);
+            });
+
+    [ConditionalFact]
+    public virtual void Add_complex_reference_with_nested_collection_mapped_to_json_uses_empty_object_as_default_value()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.ComplexProperty<MyJsonComplex>(
+                            "ComplexReference", cp =>
+                            {
+                                cp.IsRequired();
+                                cp.ToJson("json_reference");
+                                cp.Property(x => x.Value);
+                                cp.Property(x => x.Date);
+                                cp.ComplexCollection(
+                                    x => x.NestedCollection, nc => { });
+                            });
+                    });
+            },
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("json_reference", operation.Name);
+                Assert.Equal("{}", operation.DefaultValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+                Assert.IsType<DropColumnOperation>(downOps[0]);
+            });
+
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+    [ConditionalFact]
+    public virtual void Add_owned_collection_mapped_to_json_has_nullable_column()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.OwnsMany(
+                            "Owned", "json_collection", o =>
+                            {
+                                o.ToJson();
+                                o.Property<string>("Value");
+                                o.Property<DateTime>("Date");
+                            });
+                    });
+            },
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("json_collection", operation.Name);
+                // Owned collections are always nullable (IsUnique is false), so no default value
+                Assert.True(operation.IsNullable);
+                Assert.Null(operation.DefaultValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+                Assert.IsType<DropColumnOperation>(downOps[0]);
+            });
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
+
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+    [ConditionalFact]
+    public virtual void Add_owned_reference_with_nested_collection_mapped_to_json_uses_empty_object_as_default_value()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.OwnsOne(
+                            "Owned", "json_reference", o =>
+                            {
+                                o.ToJson();
+                                o.Property<string>("Value");
+                                o.OwnsMany(
+                                    "Nested", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                            });
+
+                        e.Navigation("json_reference").IsRequired();
+                    });
+            },
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AddColumnOperation>(upOps[0]);
+                Assert.Equal("Entity", operation.Table);
+                Assert.Equal("json_reference", operation.Name);
+                Assert.Equal("{}", operation.DefaultValue);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+                Assert.IsType<DropColumnOperation>(downOps[0]);
+            });
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     [ConditionalFact]
     public virtual void Noop_on_complex_properties()

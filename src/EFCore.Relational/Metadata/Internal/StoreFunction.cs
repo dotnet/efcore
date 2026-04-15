@@ -82,10 +82,11 @@ public class StoreFunction : TableBase, IStoreFunction
         => Parameters.FirstOrDefault(p => p.Name == propertyName);
 
     /// <inheritdoc />
-    public override IColumnBase? FindColumn(IProperty property)
+    protected override IColumnBase? FindColumn(IProperty property)
         => property.GetFunctionColumnMappings()
-            .FirstOrDefault(cm => cm.TableMapping.Table == this)
-            ?.Column;
+                .FirstOrDefault(cm => cm.TableMapping.Table == this)?.Column
+            ?? property.GetJsonElementMappings()
+                .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,6 +141,6 @@ public class StoreFunction : TableBase, IStoreFunction
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IFunctionColumn? IStoreFunction.FindColumn(IProperty property)
-        => (IFunctionColumn?)FindColumn(property);
+    IFunctionColumn? IStoreFunction.FindColumn(IPropertyBase propertyBase)
+        => (IFunctionColumn?)FindColumn(propertyBase);
 }
