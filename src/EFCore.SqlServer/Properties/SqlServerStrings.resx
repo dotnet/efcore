@@ -381,9 +381,6 @@
   <data name="TemporalPeriodPropertyCantHaveDefaultValue" xml:space="preserve">
     <value>Period property '{entityType}.{propertyName}' can't have a default value specified.</value>
   </data>
-  <data name="TemporalPeriodPropertyMustBeInShadowState" xml:space="preserve">
-    <value>Period property '{entityType}.{propertyName}' must be a shadow property.</value>
-  </data>
   <data name="TemporalPeriodPropertyMustBeMappedToDatetime2" xml:space="preserve">
     <value>Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.</value>
   </data>

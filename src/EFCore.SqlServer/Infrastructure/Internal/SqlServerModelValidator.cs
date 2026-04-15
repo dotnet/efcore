@@ -449,13 +449,6 @@ public class SqlServerModelValidator(
                     temporalEntityType.DisplayName(), annotationPropertyName));
         }
 
-        if (!periodProperty.IsShadowProperty() && !temporalEntityType.IsPropertyBag)
-        {
-            throw new InvalidOperationException(
-                SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(
-                    temporalEntityType.DisplayName(), periodProperty.Name));
-        }
-
         if (periodProperty.IsNullable
             || periodProperty.ClrType != typeof(DateTime))
         {

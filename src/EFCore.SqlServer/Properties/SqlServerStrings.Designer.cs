@@ -446,14 +446,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, propertyName);
 
         /// <summary>
-        ///     Period property '{entityType}.{propertyName}' must be a shadow property.
-        /// </summary>
-        public static string TemporalPeriodPropertyMustBeInShadowState(object? entityType, object? propertyName)
-            => string.Format(
-                GetString("TemporalPeriodPropertyMustBeInShadowState", nameof(entityType), nameof(propertyName)),
-                entityType, propertyName);
-
-        /// <summary>
         ///     Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.
         /// </summary>
         public static string TemporalPeriodPropertyMustBeMappedToDatetime2(object? entityType, object? propertyName, object? columnType)
