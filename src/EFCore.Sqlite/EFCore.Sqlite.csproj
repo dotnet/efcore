@@ -62,4 +62,14 @@
   <Target Name="Compile" />
   <Target Name="CopyFilesToOutputDirectory" />
 
+  <Target Name="_SetProjectReferenceDependencyVersionRange"
+          AfterTargets="_GetProjectReferenceVersions"
+          BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Update="@(_ProjectReferencesWithVersions)">
+        <ProjectVersion>[%(ProjectVersion), $(EFCorePackageDependencyUpperBound))</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
 </Project>
