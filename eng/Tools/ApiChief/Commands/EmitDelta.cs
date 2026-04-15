@@ -181,7 +181,7 @@ internal static class EmitDelta
         AppendStageDiffLine(lines, type.Additions, '+');
         AppendGroupedDiffMembers(lines, type);
 
-        return $"### `{type.Type}`{Environment.NewLine}{Environment.NewLine}```diff{Environment.NewLine}{string.Join(Environment.NewLine, lines)}{Environment.NewLine}```{Environment.NewLine}";
+        return $"```diff{Environment.NewLine}{string.Join(Environment.NewLine, lines)}{Environment.NewLine}```{Environment.NewLine}";
     }
 
     private static void AppendStageDiffLine(List<string> lines, ApiType? changeSet, char prefix)
