@@ -36,4 +36,23 @@
       </AssemblyAttribute>
     </ItemGroup>
   </Target>
+
+  <!--
+    Add upper bounds to NuGet package dependencies generated from ProjectReference items.
+    This ensures packages built from this repo require their sibling dependencies to be
+    within the same major version. For example, version 11.0.1 will depend on [11.0.1, 12.0.0).
+  -->
+  <Target Name="_AddUpperBoundToProjectReferences"
+          AfterTargets="_GetProjectReferenceVersions"
+          BeforeTargets="GenerateNuspec"
+          Condition="'$(IsPackable)' == 'true' AND '@(_ProjectReferencesWithVersions)' != ''">
+    <PropertyGroup>
+      <_EFCoreNextMajorVersion>$([MSBuild]::Add($([System.Version]::Parse('$(VersionPrefix)').Major), 1))</_EFCoreNextMajorVersion>
+    </PropertyGroup>
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Update="@(_ProjectReferencesWithVersions)">
+        <ProjectVersion>[%(ProjectVersion), $(_EFCoreNextMajorVersion).0.0)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
 </Project>
