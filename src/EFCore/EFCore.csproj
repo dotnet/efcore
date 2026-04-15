@@ -52,8 +52,8 @@ Microsoft.EntityFrameworkCore.DbSet
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.Abstractions\EFCore.Abstractions.csproj" Version="[$(ProjectVersion), $(NextMajorVersion))" />
-    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" Version="[$(ProjectVersion), $(NextMajorVersion))" />
+    <ProjectReference Include="..\EFCore.Abstractions\EFCore.Abstractions.csproj" PackageVersion="[$(Version), $(NextMajorVersion))" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" PackageVersion="[$(Version), $(NextMajorVersion))" />
   </ItemGroup>
 
   <ItemGroup>
