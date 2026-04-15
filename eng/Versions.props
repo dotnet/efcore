@@ -18,10 +18,12 @@
 
     <!--
       Upper bound for NuGet dependency version ranges on packages built from this repo.
-      Using 12.0.0-0 as the upper bound ensures pre-release versions of the next major
-      (like 12.0.0-preview1) are not accepted, since 12.0.0-preview1 > 12.0.0-0 in SemVer.
+      Calculated as (major+1).0.0-0, where the -0 pre-release suffix ensures that pre-release
+      versions of the next major (like 12.0.0-preview1) are excluded, since in NuGet SemVer 2.0
+      ordering 12.0.0-preview1 > 12.0.0-0.
     -->
-    <EFCorePackageDependencyUpperBound>12.0.0-0</EFCorePackageDependencyUpperBound>
+    <EFCoreNextMajorVersion>$([MSBuild]::Add($([System.Version]::Parse('$(VersionPrefix)').Major), 1))</EFCoreNextMajorVersion>
+    <EFCorePackageDependencyUpperBound>$(EFCoreNextMajorVersion).0.0-0</EFCorePackageDependencyUpperBound>
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
