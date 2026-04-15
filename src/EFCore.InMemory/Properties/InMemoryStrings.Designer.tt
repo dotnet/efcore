@@ -1,7 +1,7 @@
 <#
     Session = new System.Collections.Generic.Dictionary<string, object>();
     Session["ResourceFile"] = "InMemoryStrings.resx";
-    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.InMemory.Properties";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.InMemoryLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

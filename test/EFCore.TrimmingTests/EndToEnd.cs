@@ -26,9 +26,7 @@ return 100;
 public class BlogContext : DbContext
 {
     public BlogContext()
-    {
-        Blogs = Set<Blog>();
-    }
+        => Blogs = Set<Blog>();
 
     private static readonly string ConnectionString;
 

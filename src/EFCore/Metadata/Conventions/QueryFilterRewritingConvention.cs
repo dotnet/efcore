@@ -43,10 +43,23 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            var queryFilter = entityType.GetQueryFilter();
-            if (queryFilter != null)
+            var queryFilters = entityType.GetDeclaredQueryFilters();
+            foreach (var queryFilter in queryFilters)
             {
-                entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
+                if (queryFilter.Expression == null)
+                {
+                    continue;
+                }
+
+                var expression = (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter.Expression);
+                if (queryFilter.IsAnonymous)
+                {
+                    entityType.SetQueryFilter(expression);
+                }
+                else
+                {
+                    entityType.SetQueryFilter(queryFilter.Key, expression);
+                }
             }
         }
     }
@@ -81,7 +94,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(memberExpression);
 
             if (memberExpression.Expression != null
                 && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
@@ -100,7 +113,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(methodCallExpression);
 
             if (methodCallExpression.Method.Name == nameof(DbContext.Set)
                 && methodCallExpression.Object != null

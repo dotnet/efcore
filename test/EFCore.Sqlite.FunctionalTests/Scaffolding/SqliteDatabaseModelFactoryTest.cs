@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -77,8 +78,8 @@ public class SqliteDatabaseModelFactoryTest : IClassFixture<SqliteDatabaseModelF
             @"
 CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
-            new[] { "Everest" },
-            Enumerable.Empty<string>(),
+            ["Everest"],
+            [],
             dbModel =>
             {
                 var table = Assert.Single(dbModel.Tables);
@@ -96,8 +97,8 @@ DROP TABLE Denali;");
             @"
 CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
-            new[] { "eVeReSt" },
-            Enumerable.Empty<string>(),
+            ["eVeReSt"],
+            [],
             dbModel =>
             {
                 var table = Assert.Single(dbModel.Tables);
@@ -119,8 +120,8 @@ DROP TABLE Denali;");
             @"
 CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 Assert.Collection(
@@ -140,8 +141,8 @@ CREATE TABLE MountainsColumns (
     Id integer primary key,
     Name text NOT NULL
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var table = dbModel.Tables.Single();
@@ -150,8 +151,8 @@ CREATE TABLE MountainsColumns (
                 Assert.All(
                     table.Columns, c => Assert.Equal("MountainsColumns", c.Table.Name));
 
-                Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.Single(table.Columns, c => c.Name == "Name");
             },
             "DROP TABLE MountainsColumns;");
 
@@ -164,8 +165,8 @@ CREATE VIEW MountainsColumnsView
 SELECT
  CAST(100 AS integer) AS Id,
  CAST('' AS text) AS Name;",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
@@ -175,8 +176,8 @@ SELECT
                 Assert.All(
                     table.Columns, c => Assert.Equal("MountainsColumnsView", c.Table.Name));
 
-                Assert.Single(table.Columns.Where(c => c.Name == "Id"));
-                Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+                Assert.Single(table.Columns, c => c.Name == "Id");
+                Assert.Single(table.Columns, c => c.Name == "Name");
             },
             "DROP VIEW MountainsColumnsView;");
 
@@ -184,8 +185,8 @@ SELECT
     public void Create_primary_key()
         => Test(
             "CREATE TABLE Place ( Id int PRIMARY KEY );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
@@ -207,8 +208,8 @@ CREATE TABLE Place (
 );
 
 CREATE INDEX IX_Location_Name ON Place (Location, Name);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
@@ -232,8 +233,8 @@ CREATE TABLE IndexTable (
 
 CREATE INDEX IX_NAME on IndexTable ( Name );
 CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var table = dbModel.Tables.Single();
@@ -242,8 +243,8 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                 Assert.All(
                     table.Indexes, c => Assert.Equal("IndexTable", c.Table.Name));
 
-                Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
-                Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
+                Assert.Single(table.Indexes, c => c.Name == "IX_NAME");
+                Assert.Single(table.Indexes, c => c.Name == "IX_INDEX");
             },
             "DROP TABLE IndexTable;");
 
@@ -265,8 +266,8 @@ CREATE TABLE SecondDependent (
     Id int PRIMARY KEY,
     FOREIGN KEY (Id) REFERENCES PrincipalTable(Id) ON DELETE NO ACTION
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var firstFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "FirstDependent").ForeignKeys);
@@ -314,8 +315,8 @@ DROP TABLE PrincipalTable;");
                         FOREIGN KEY (Id3, Id1, Id2) REFERENCES MinimalFKTest1
                     )
                 ",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 Assert.Equal(2, dbModel.Tables.Count);
@@ -323,9 +324,9 @@ DROP TABLE PrincipalTable;");
                 var table = dbModel.Tables.Single(t => t.Name == "MinimalFKTest2");
 
                 var foreignKey = Assert.Single(table.ForeignKeys);
-                Assert.Equal(new[] { "Id3", "Id1", "Id2" }, foreignKey.Columns.Select(c => c.Name));
+                Assert.Equal(["Id3", "Id1", "Id2"], foreignKey.Columns.Select(c => c.Name));
                 Assert.Equal("MinimalFKTest1", foreignKey.PrincipalTable.Name);
-                Assert.Equal(new[] { "Id2", "Id3", "Id1" }, foreignKey.PrincipalColumns.Select(c => c.Name));
+                Assert.Equal(["Id2", "Id3", "Id1"], foreignKey.PrincipalColumns.Select(c => c.Name));
             },
             @"
                     DROP TABLE MinimalFKTest2;
@@ -347,8 +348,8 @@ CREATE TABLE StoreType (
     BlobProperty blob,
     RandomProperty randomType
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -361,126 +362,49 @@ CREATE TABLE StoreType (
             },
             "DROP TABLE StoreType;");
 
-    [ConditionalTheory]
-    [InlineData("BIT", typeof(bool))]
-    [InlineData("BIT(1)", typeof(bool))]
-    [InlineData("BOOL", typeof(bool))]
-    [InlineData("BOOLEAN", typeof(bool))]
-    [InlineData("LOGICAL", typeof(bool))]
-    [InlineData("YESNO", typeof(bool))]
-    [InlineData("TINYINT", typeof(byte))]
-    [InlineData("UINT8", typeof(byte))]
-    [InlineData("UNSIGNEDINTEGER8", typeof(byte))]
-    [InlineData("BYTE", typeof(byte))]
-    [InlineData("SMALLINT", typeof(short))]
-    [InlineData("INT16", typeof(short))]
-    [InlineData("INTEGER16", typeof(short))]
-    [InlineData("SHORT", typeof(short))]
-    [InlineData("MEDIUMINT", typeof(int))]
-    [InlineData("INT", typeof(int))]
-    [InlineData("INT32", typeof(int))]
-    [InlineData("INTEGER", typeof(int))]
-    [InlineData("INTEGER32", typeof(int))]
-    [InlineData("BIGINT", null)]
-    [InlineData("INT64", null)]
-    [InlineData("INTEGER64", null)]
-    [InlineData("LONG", null)]
-    [InlineData("TINYSINT", typeof(sbyte))]
-    [InlineData("INT8", typeof(sbyte))]
-    [InlineData("INTEGER8", typeof(sbyte))]
-    [InlineData("SBYTE", typeof(sbyte))]
-    [InlineData("SMALLUINT", typeof(ushort))]
-    [InlineData("UINT16", typeof(ushort))]
-    [InlineData("UNSIGNEDINTEGER16", typeof(ushort))]
-    [InlineData("USHORT", typeof(ushort))]
-    [InlineData("MEDIUMUINT", typeof(uint))]
-    [InlineData("UINT", typeof(uint))]
-    [InlineData("UINT32", typeof(uint))]
-    [InlineData("UNSIGNEDINTEGER32", typeof(uint))]
-    [InlineData("BIGUINT", typeof(ulong))]
-    [InlineData("UINT64", typeof(ulong))]
-    [InlineData("UNSIGNEDINTEGER", typeof(ulong))]
-    [InlineData("UNSIGNEDINTEGER64", typeof(ulong))]
-    [InlineData("ULONG", typeof(ulong))]
-    [InlineData("REAL", null)]
-    [InlineData("DOUBLE", null)]
-    [InlineData("FLOAT", null)]
-    [InlineData("SINGLE", typeof(float))]
-    [InlineData("TEXT", null)]
-    [InlineData("NTEXT", null)]
-    [InlineData("CHAR(1)", null)]
-    [InlineData("NCHAR(1)", null)]
-    [InlineData("VARCHAR(1)", null)]
-    [InlineData("VARCHAR2(1)", null)]
-    [InlineData("NVARCHAR(1)", null)]
-    [InlineData("CLOB", null)]
-    [InlineData("STRING", typeof(string))]
-    [InlineData("JSON", typeof(string))]
-    [InlineData("XML", typeof(string))]
-    [InlineData("DATEONLY", typeof(DateOnly))]
-    [InlineData("DATE", typeof(DateTime))]
-    [InlineData("DATETIME", typeof(DateTime))]
-    [InlineData("DATETIME2", typeof(DateTime))]
-    [InlineData("SMALLDATE", typeof(DateTime))]
-    [InlineData("TIMESTAMP(7)", typeof(DateTime))]
-    [InlineData("DATETIMEOFFSET", typeof(DateTimeOffset))]
-    [InlineData("CURRENCY", typeof(decimal))]
-    [InlineData("DECIMAL(18, 0)", typeof(decimal))]
-    [InlineData("MONEY", typeof(decimal))]
-    [InlineData("SMALLMONEY", typeof(decimal))]
-    [InlineData("NUMBER(18, 0)", typeof(decimal))]
-    [InlineData("NUMERIC(18, 0)", typeof(decimal))]
-    [InlineData("GUID", typeof(Guid))]
-    [InlineData("UNIQUEIDENTIFIER", typeof(Guid))]
-    [InlineData("UUID", typeof(Guid))]
-    [InlineData("TIMEONLY", typeof(TimeOnly))]
-    [InlineData("TIME(7)", typeof(TimeSpan))]
-    [InlineData("TIMESPAN", typeof(TimeSpan))]
-    [InlineData("BLOB", null)]
-    [InlineData("BINARY(10)", null)]
-    [InlineData("VARBINARY(10)", null)]
-    [InlineData("IMAGE", null)]
-    [InlineData("RAW(10)", null)]
-    [InlineData("GEOMETRY", null)]
-    [InlineData("GEOMETRYZ", null)]
-    [InlineData("GEOMETRYM", null)]
-    [InlineData("GEOMETRYZM", null)]
-    [InlineData("GEOMETRYCOLLECTION", null)]
-    [InlineData("GEOMETRYCOLLECTIONZ", null)]
-    [InlineData("GEOMETRYCOLLECTIONM", null)]
-    [InlineData("GEOMETRYCOLLECTIONZM", null)]
-    [InlineData("LINESTRING", null)]
-    [InlineData("LINESTRINGZ", null)]
-    [InlineData("LINESTRINGM", null)]
-    [InlineData("LINESTRINGZM", null)]
-    [InlineData("MULTILINESTRING", null)]
-    [InlineData("MULTILINESTRINGZ", null)]
-    [InlineData("MULTILINESTRINGM", null)]
-    [InlineData("MULTILINESTRINGZM", null)]
-    [InlineData("MULTIPOINT", null)]
-    [InlineData("MULTIPOINTZ", null)]
-    [InlineData("MULTIPOINTM", null)]
-    [InlineData("MULTIPOINTZM", null)]
-    [InlineData("MULTIPOLYGON", null)]
-    [InlineData("MULTIPOLYGONZ", null)]
-    [InlineData("MULTIPOLYGONM", null)]
-    [InlineData("MULTIPOLYGONZM", null)]
-    [InlineData("POINT", null)]
-    [InlineData("POINTZ", null)]
-    [InlineData("POINTM", null)]
-    [InlineData("POINTZM", null)]
-    [InlineData("POLYGON", null)]
-    [InlineData("POLYGONZ", null)]
-    [InlineData("POLYGONM", null)]
-    [InlineData("POLYGONZM", null)]
+    [ConditionalTheory, InlineData("BIT", typeof(bool)), InlineData("BIT(1)", typeof(bool)), InlineData("BOOL", typeof(bool)),
+     InlineData("BOOLEAN", typeof(bool)), InlineData("LOGICAL", typeof(bool)), InlineData("YESNO", typeof(bool)),
+     InlineData("TINYINT", typeof(byte)), InlineData("UINT8", typeof(byte)), InlineData("UNSIGNEDINTEGER8", typeof(byte)),
+     InlineData("BYTE", typeof(byte)), InlineData("SMALLINT", typeof(short)), InlineData("INT16", typeof(short)),
+     InlineData("INTEGER16", typeof(short)), InlineData("SHORT", typeof(short)), InlineData("MEDIUMINT", typeof(int)),
+     InlineData("INT", typeof(int)), InlineData("INT32", typeof(int)), InlineData("INTEGER", typeof(int)),
+     InlineData("INTEGER32", typeof(int)), InlineData("BIGINT", null), InlineData("INT64", null), InlineData("INTEGER64", null),
+     InlineData("LONG", null), InlineData("TINYSINT", typeof(sbyte)), InlineData("INT8", typeof(sbyte)),
+     InlineData("INTEGER8", typeof(sbyte)), InlineData("SBYTE", typeof(sbyte)), InlineData("SMALLUINT", typeof(ushort)),
+     InlineData("UINT16", typeof(ushort)), InlineData("UNSIGNEDINTEGER16", typeof(ushort)), InlineData("USHORT", typeof(ushort)),
+     InlineData("MEDIUMUINT", typeof(uint)), InlineData("UINT", typeof(uint)), InlineData("UINT32", typeof(uint)),
+     InlineData("UNSIGNEDINTEGER32", typeof(uint)), InlineData("BIGUINT", typeof(ulong)), InlineData("UINT64", typeof(ulong)),
+     InlineData("UNSIGNEDINTEGER", typeof(ulong)), InlineData("UNSIGNEDINTEGER64", typeof(ulong)), InlineData("ULONG", typeof(ulong)),
+     InlineData("REAL", null), InlineData("DOUBLE", null), InlineData("FLOAT", null), InlineData("SINGLE", typeof(float)),
+     InlineData("TEXT", null), InlineData("NTEXT", null), InlineData("CHAR(1)", null), InlineData("NCHAR(1)", null),
+     InlineData("VARCHAR(1)", null), InlineData("VARCHAR2(1)", null), InlineData("NVARCHAR(1)", null), InlineData("CLOB", null),
+     InlineData("STRING", typeof(string)), InlineData("JSON", typeof(string)), InlineData("XML", typeof(string)),
+     InlineData("DATEONLY", typeof(DateOnly)), InlineData("DATE", typeof(DateTime)), InlineData("DATETIME", typeof(DateTime)),
+     InlineData("DATETIME2", typeof(DateTime)), InlineData("SMALLDATE", typeof(DateTime)), InlineData("TIMESTAMP(7)", typeof(DateTime)),
+     InlineData("DATETIMEOFFSET", typeof(DateTimeOffset)), InlineData("CURRENCY", typeof(decimal)),
+     InlineData("DECIMAL(18, 0)", typeof(decimal)), InlineData("MONEY", typeof(decimal)), InlineData("SMALLMONEY", typeof(decimal)),
+     InlineData("NUMBER(18, 0)", typeof(decimal)), InlineData("NUMERIC(18, 0)", typeof(decimal)), InlineData("GUID", typeof(Guid)),
+     InlineData("UNIQUEIDENTIFIER", typeof(Guid)), InlineData("UUID", typeof(Guid)), InlineData("TIMEONLY", typeof(TimeOnly)),
+     InlineData("TIME(7)", typeof(TimeSpan)), InlineData("TIMESPAN", typeof(TimeSpan)), InlineData("BLOB", null),
+     InlineData("BINARY(10)", null), InlineData("VARBINARY(10)", null), InlineData("IMAGE", null), InlineData("RAW(10)", null),
+     InlineData("GEOMETRY", null), InlineData("GEOMETRYZ", null), InlineData("GEOMETRYM", null), InlineData("GEOMETRYZM", null),
+     InlineData("GEOMETRYCOLLECTION", null), InlineData("GEOMETRYCOLLECTIONZ", null), InlineData("GEOMETRYCOLLECTIONM", null),
+     InlineData("GEOMETRYCOLLECTIONZM", null), InlineData("LINESTRING", null), InlineData("LINESTRINGZ", null),
+     InlineData("LINESTRINGM", null), InlineData("LINESTRINGZM", null), InlineData("MULTILINESTRING", null),
+     InlineData("MULTILINESTRINGZ", null), InlineData("MULTILINESTRINGM", null), InlineData("MULTILINESTRINGZM", null),
+     InlineData("MULTIPOINT", null), InlineData("MULTIPOINTZ", null), InlineData("MULTIPOINTM", null), InlineData("MULTIPOINTZM", null),
+     InlineData("MULTIPOLYGON", null), InlineData("MULTIPOLYGONZ", null), InlineData("MULTIPOLYGONM", null),
+     InlineData("MULTIPOLYGONZM", null), InlineData("POINT", null), InlineData("POINTZ", null), InlineData("POINTM", null),
+     InlineData("POINTZM", null), InlineData("POLYGON", null), InlineData("POLYGONZ", null), InlineData("POLYGONM", null),
+     InlineData("POLYGONZM", null)]
     public void Column_ClrType_is_set_when_no_data(string storeType, Type expected)
         => Test(
             $@"
 CREATE TABLE ClrType (
     EmptyColumn {storeType}
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -489,38 +413,22 @@ CREATE TABLE ClrType (
             },
             "DROP TABLE ClrType");
 
-    [ConditionalTheory]
-    [InlineData("INTEGER", "1", typeof(int))]
-    [InlineData("INTEGER", "2147483648", null)]
-    [InlineData("BIT", "1", typeof(bool))]
-    [InlineData("TINYINT", "1", typeof(byte))]
-    [InlineData("SMALLINT", "1", typeof(short))]
-    [InlineData("BIGINT", "1", null)]
-    [InlineData("INT8", "1", typeof(sbyte))]
-    [InlineData("UINT16", "1", typeof(ushort))]
-    [InlineData("UINT", "1", typeof(uint))]
-    [InlineData("UINT64", "1", typeof(ulong))]
-    [InlineData("UINT64", "-1", typeof(ulong))]
-    [InlineData("REAL", "0.1", null)]
-    [InlineData("SINGLE", "0.1", typeof(float))]
-    [InlineData("TEXT", "'A'", null)]
-    [InlineData("TEXT", "'2023-01-20'", typeof(DateOnly))]
-    [InlineData("TEXT", "'2023-01-20 13:37:00'", typeof(DateTime))]
-    [InlineData("TEXT", "'2023-01-20 13:42:00-08:00'", typeof(DateTimeOffset))]
-    [InlineData("TEXT", "'0.1'", typeof(decimal))]
-    [InlineData("DECIMAL", "'0.1'", typeof(decimal))]
-    [InlineData("TEXT", "'00000000-0000-0000-0000-000000000000'", typeof(Guid))]
-    [InlineData("TEXT", "'13:44:00'", typeof(TimeSpan))]
-    [InlineData("TIMEONLY", "'14:34:00'", typeof(TimeOnly))]
-    [InlineData("BLOB", "x'01'", null)]
-    [InlineData(
-        "GEOMETRY",
-        "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
-        null)]
-    [InlineData(
-        "POINT",
-        "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
-        null)]
+    [ConditionalTheory, InlineData("INTEGER", "1", typeof(int)), InlineData("INTEGER", "2147483648", null),
+     InlineData("BIT", "1", typeof(bool)), InlineData("TINYINT", "1", typeof(byte)), InlineData("SMALLINT", "1", typeof(short)),
+     InlineData("BIGINT", "1", null), InlineData("INT8", "1", typeof(sbyte)), InlineData("UINT16", "1", typeof(ushort)),
+     InlineData("UINT", "1", typeof(uint)), InlineData("UINT64", "1", typeof(ulong)), InlineData("UINT64", "-1", typeof(ulong)),
+     InlineData("REAL", "0.1", null), InlineData("SINGLE", "0.1", typeof(float)), InlineData("TEXT", "'A'", null),
+     InlineData("TEXT", "'2023-01-20'", typeof(DateOnly)), InlineData("TEXT", "'2023-01-20 13:37:00'", typeof(DateTime)),
+     InlineData("TEXT", "'2023-01-20 13:42:00-08:00'", typeof(DateTimeOffset)), InlineData("TEXT", "'0.1'", typeof(decimal)),
+     InlineData("DECIMAL", "'0.1'", typeof(decimal)), InlineData("TEXT", "'00000000-0000-0000-0000-000000000000'", typeof(Guid)),
+     InlineData("TEXT", "'13:44:00'", typeof(TimeSpan)), InlineData("TIMEONLY", "'14:34:00'", typeof(TimeOnly)),
+     InlineData("BLOB", "x'01'", null), InlineData(
+         "GEOMETRY",
+         "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
+         null), InlineData(
+         "POINT",
+         "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
+         null)]
     public void Column_ClrType_is_set_when_data(string storeType, string value, Type expected)
         => Test(
             $@"
@@ -529,8 +437,8 @@ CREATE TABLE IF NOT EXISTS ClrTypeWithData (
 );
 
 INSERT INTO ClrTypeWithData VALUES ({value});",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -539,33 +447,17 @@ INSERT INTO ClrTypeWithData VALUES ({value});",
             },
             "DROP TABLE ClrTypeWithData");
 
-    [ConditionalTheory]
-    [InlineData("INTEGER", "0.1", typeof(double))]
-    [InlineData("BIT", "2", typeof(int))]
-    [InlineData("TINYINT", "-1", typeof(int))]
-    [InlineData("TINYINT", "256", typeof(int))]
-    [InlineData("SMALLINT", "32768", typeof(int))]
-    [InlineData("MEDIUMINT", "2147483648", null)]
-    [InlineData("INT8", "128", typeof(int))]
-    [InlineData("UINT16", "-1", typeof(int))]
-    [InlineData("UINT16", "65536", typeof(int))]
-    [InlineData("UINT", "4294967296", null)]
-    [InlineData("REAL", "'A'", null)]
-    [InlineData("SINGLE", "3.402824E+38", typeof(double))]
-    [InlineData("TEXT", "x'00'", typeof(byte[]))]
-    [InlineData("DATE", "'A'", typeof(string))]
-    [InlineData("DATEONLY", "'A'", typeof(string))]
-    [InlineData("DATETIME", "'A'", typeof(string))]
-    [InlineData("DATETIMEOFFSET", "'A'", typeof(string))]
-    [InlineData("DECIMAL", "'A'", typeof(string))]
-    [InlineData("DECIMAL", "0.1", typeof(decimal))]
-    [InlineData("GUID", "'A'", typeof(string))]
-    [InlineData("TIME", "'A'", typeof(string))]
-    [InlineData("TIMEONLY", "'A'", typeof(string))]
-    [InlineData("TIMEONLY", "'24:00:00'", typeof(TimeSpan))]
-    [InlineData("BLOB", "1", null)]
-    [InlineData("GEOMETRY", "1", null)]
-    [InlineData("POINT", "1", null)]
+    [ConditionalTheory, InlineData("INTEGER", "0.1", typeof(double)), InlineData("BIT", "2", typeof(int)),
+     InlineData("TINYINT", "-1", typeof(int)), InlineData("TINYINT", "256", typeof(int)), InlineData("SMALLINT", "32768", typeof(int)),
+     InlineData("MEDIUMINT", "2147483648", null), InlineData("INT8", "128", typeof(int)), InlineData("UINT16", "-1", typeof(int)),
+     InlineData("UINT16", "65536", typeof(int)), InlineData("UINT", "4294967296", null), InlineData("REAL", "'A'", null),
+     InlineData("SINGLE", "3.402824E+38", typeof(double)), InlineData("TEXT", "x'00'", typeof(byte[])),
+     InlineData("DATE", "'A'", typeof(string)), InlineData("DATEONLY", "'A'", typeof(string)),
+     InlineData("DATETIME", "'A'", typeof(string)), InlineData("DATETIMEOFFSET", "'A'", typeof(string)),
+     InlineData("DECIMAL", "'A'", typeof(string)), InlineData("DECIMAL", "0.1", typeof(decimal)), InlineData("GUID", "'A'", typeof(string)),
+     InlineData("TIME", "'A'", typeof(string)), InlineData("TIMEONLY", "'A'", typeof(string)),
+     InlineData("TIMEONLY", "'24:00:00'", typeof(TimeSpan)), InlineData("BLOB", "1", null), InlineData("GEOMETRY", "1", null),
+     InlineData("POINT", "1", null)]
     public void Column_ClrType_is_set_when_insane(string storeType, string value, Type expected)
         => Test(
             $@"
@@ -574,8 +466,8 @@ CREATE TABLE IF NOT EXISTS ClrTypeWithData (
 );
 
 INSERT INTO ClrTypeWithData VALUES ({value});",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -593,8 +485,8 @@ CREATE TABLE Nullable (
     NullableInt int NULL,
     NonNullString text NOT NULL
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -614,8 +506,8 @@ CREATE TABLE DefaultValue (
     RealColumn real DEFAULT 3.14,
     Created datetime DEFAULT('October 20, 2015 11am')
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -635,8 +527,8 @@ CREATE TABLE ComputedColumnSql (
     GeneratedColumn AS (1 + 2),
     GeneratedColumnStored AS (1 + 2) STORED
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -666,8 +558,8 @@ CREATE TABLE MyTable (
     G int DEFAULT ((4)));
 
 INSERT INTO MyTable VALUES (1, 1, 1, 1, 1, 1, 1, 1);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -712,8 +604,8 @@ CREATE TABLE MyTable (
     B smallint DEFAULT (0));
 
 INSERT INTO MyTable VALUES (1, 1, 1);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -738,8 +630,8 @@ CREATE TABLE MyTable (
     B bigint DEFAULT (0));
 
 INSERT INTO MyTable VALUES (1, {long.MaxValue}, {long.MaxValue});",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -764,8 +656,8 @@ CREATE TABLE MyTable (
     B tinyint DEFAULT (0));
 
 INSERT INTO MyTable VALUES (1, 1, 1);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -791,8 +683,8 @@ CREATE TABLE MyTable (
     C float DEFAULT (1.1000000000000001e+000));
 
 INSERT INTO MyTable VALUES (1, 1.1, 1.2, 1.3);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -822,8 +714,8 @@ CREATE TABLE MyTable (
     C single DEFAULT (1.1000000000000001e+000));
 
 INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -850,11 +742,12 @@ CREATE TABLE MyTable (
     Id int,
     A decimal DEFAULT '-1.1111',
     B decimal DEFAULT ('0.0'),
-    C decimal DEFAULT ('0'));
+    C decimal DEFAULT ('0'),
+    D decimal DEFAULT ('10.0'));
 
-INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -870,8 +763,61 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("'0'", column.DefaultValueSql);
                 Assert.Equal((decimal)0, column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("'10.0'", column.DefaultValueSql);
+                Assert.Equal((decimal)10, column.DefaultValue);
             },
             "DROP TABLE MyTable;");
+
+    [ConditionalFact]
+    public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
+    {
+        var culture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("da-DK");
+
+            Test(
+                @"
+CREATE TABLE MyTable (
+    Id int,
+    A decimal DEFAULT '-1.1111',
+    B decimal DEFAULT ('0.0'),
+    C decimal DEFAULT ('0'),
+    D decimal DEFAULT ('10.0'));
+
+INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
+                [],
+                [],
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var column = columns.Single(c => c.Name == "A");
+                    Assert.Equal("'-1.1111'", column.DefaultValueSql);
+                    Assert.Equal((decimal)-1.1111, column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "B");
+                    Assert.Equal("'0.0'", column.DefaultValueSql);
+                    Assert.Equal((decimal)0, column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "C");
+                    Assert.Equal("'0'", column.DefaultValueSql);
+                    Assert.Equal((decimal)0, column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "D");
+                    Assert.Equal("'10.0'", column.DefaultValueSql);
+                    Assert.Equal((decimal)10, column.DefaultValue);
+                },
+                "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
 
     [ConditionalFact]
     public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
@@ -885,8 +831,8 @@ CREATE TABLE MyTable (
     D bit DEFAULT (1));
 
 INSERT INTO MyTable VALUES (1, 1, 1, 1, 1);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -919,8 +865,8 @@ CREATE TABLE MyTable (
     B datetime2 DEFAULT ('1968-10-23'));
 
 INSERT INTO MyTable VALUES (1, '2023-01-20 13:37:00', '2023-01-20 13:37:00');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -945,8 +891,8 @@ CREATE TABLE MyTable (
     B datetime DEFAULT CURRENT_DATE);
 
 INSERT INTO MyTable VALUES (1, '2023-01-20 13:37:00', '2023-01-20 13:37:00');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -971,8 +917,8 @@ CREATE TABLE MyTable (
     B date DEFAULT (('1973-09-03T01:02:03')));
 
 INSERT INTO MyTable VALUES (1, '2023-01-20', '2023-01-20');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -996,8 +942,8 @@ CREATE TABLE MyTable (
     A timeonly DEFAULT ('12:00:01.0020000'));
 
 INSERT INTO MyTable VALUES (1, '13:37:00.0000000');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -1017,8 +963,8 @@ CREATE TABLE MyTable (
     A datetimeoffset DEFAULT ('1973-09-03T12:00:01.0000000+10:00'));
 
 INSERT INTO MyTable VALUES (1, '1973-09-03 12:00:01.0000000+10:00');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -1040,8 +986,8 @@ CREATE TABLE MyTable (
     A uniqueidentifier DEFAULT ('0E984725-C51C-4BF4-9960-E1C80E27ABA0'));
 
 INSERT INTO MyTable VALUES (1, '993CDD7A-F4DF-4C5E-A810-8F51A11E9B6D');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -1065,8 +1011,8 @@ CREATE TABLE MyTable (
     E nvarchar(100) DEFAULT  ( ' Toast! '));
 
 INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -1093,9 +1039,7 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Column_ValueGenerated_is_set(bool autoIncrement)
         => Test(
             $@"
@@ -1103,8 +1047,8 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
                         Id INTEGER PRIMARY KEY {(autoIncrement ? "AUTOINCREMENT" : null)}
                     )
                 ",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var table = Assert.Single(dbModel.Tables);
@@ -1129,8 +1073,8 @@ CREATE TABLE ColumnsWithCollation (
     DefaultCollation text,
     NonDefaultCollation text COLLATE NOCASE
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var columns = dbModel.Tables.Single().Columns;
@@ -1153,8 +1097,8 @@ CREATE TABLE CompositePrimaryKey (
     Id2 text,
     PRIMARY KEY ( Id2, Id1 )
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
@@ -1172,8 +1116,8 @@ CREATE TABLE CompositePrimaryKey (
 CREATE TABLE RowidPrimaryKey (
     Id integer PRIMARY KEY
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
@@ -1192,8 +1136,8 @@ CREATE TABLE PrimaryKeyName (
     Id int,
     CONSTRAINT PK PRIMARY KEY (Id)
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
@@ -1218,8 +1162,8 @@ CREATE TABLE CompositeUniqueConstraint (
     Id2 text,
     UNIQUE ( Id2, Id1 )
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var constraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
@@ -1239,8 +1183,8 @@ CREATE TABLE UniqueConstraintName (
     Id int,
     CONSTRAINT UK UNIQUE (Id)
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var constraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
@@ -1267,8 +1211,8 @@ CREATE TABLE CompositeIndex (
 );
 
 CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
@@ -1291,8 +1235,8 @@ CREATE TABLE UniqueIndex (
 );
 
 CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
@@ -1326,8 +1270,8 @@ CREATE TABLE DependentTable (
     ForeignKeyId2 int,
     FOREIGN KEY (ForeignKeyId1, ForeignKeyId2) REFERENCES PrincipalTable(Id1, Id2) ON DELETE CASCADE
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
@@ -1364,15 +1308,15 @@ CREATE TABLE DependentTable (
     FOREIGN KEY (ForeignKeyId1) REFERENCES PrincipalTable(Id) ON DELETE CASCADE,
     FOREIGN KEY (ForeignKeyId2) REFERENCES AnotherPrincipalTable(Id) ON DELETE CASCADE
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var foreignKeys = dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys;
 
                 Assert.Equal(2, foreignKeys.Count);
 
-                var principalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "PrincipalTable"));
+                var principalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "PrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("DependentTable", principalFk.Table.Name);
@@ -1383,7 +1327,7 @@ CREATE TABLE DependentTable (
                     ["Id"], principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
 
-                var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
+                var anotherPrincipalFk = Assert.Single(foreignKeys, f => f.PrincipalTable.Name == "AnotherPrincipalTable");
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("DependentTable", anotherPrincipalFk.Table.Name);
@@ -1413,8 +1357,8 @@ CREATE TABLE DependentTable (
     ForeignKeyId int,
     FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id2) ON DELETE CASCADE
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
@@ -1445,8 +1389,8 @@ CREATE TABLE DependentTable (
     ForeignKeyId int,
     CONSTRAINT MYFK FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id) ON DELETE CASCADE
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
@@ -1478,8 +1422,8 @@ CREATE TABLE DependentTable (
     ForeignKeyId int,
     FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id) ON DELETE SET NULL
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
@@ -1505,11 +1449,11 @@ DROP TABLE PrincipalTable;");
     public void Warn_for_schema_filtering()
         => Test(
             "CREATE TABLE Everest ( id int );",
-            Enumerable.Empty<string>(),
-            new[] { "dbo" },
+            [],
+            ["dbo"],
             dbModel =>
             {
-                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(SqliteResources.LogUsingSchemaSelectionsWarning(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                 Assert.Equal(
@@ -1522,13 +1466,13 @@ DROP TABLE PrincipalTable;");
     public void Warn_missing_table()
         => Test(
             "CREATE TABLE Blank ( Id int );",
-            new[] { "MyTable" },
-            Enumerable.Empty<string>(),
+            ["MyTable"],
+            [],
             dbModel =>
             {
                 Assert.Empty(dbModel.Tables);
 
-                var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (Level, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(SqliteResources.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                 Assert.Equal(
@@ -1549,11 +1493,11 @@ CREATE TABLE DependentTable (
     ForeignKeyId int,
     CONSTRAINT MYFK FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id) ON DELETE CASCADE
 );",
-            new[] { "DependentTable" },
-            Enumerable.Empty<string>(),
+            ["DependentTable"],
+            [],
             dbModel =>
             {
-                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(
                     SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>())
@@ -1579,11 +1523,11 @@ CREATE TABLE DependentTable (
     ForeignKeyId int,
     CONSTRAINT MYFK FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(ImaginaryId) ON DELETE CASCADE
 );",
-            Enumerable.Empty<string>(),
-            Enumerable.Empty<string>(),
+            [],
+            [],
             dbModel =>
             {
-                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log.Where(t => t.Level == LogLevel.Warning));
+                var (_, Id, Message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
 
                 Assert.Equal(SqliteResources.LogPrincipalColumnNotFound(new TestLogger<SqliteLoggingDefinitions>()).EventId, Id);
                 Assert.Equal(

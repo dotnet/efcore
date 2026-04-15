@@ -66,6 +66,7 @@ public interface IHistoryRepository
             Create();
             return true;
         }
+
         return false;
     }
 
@@ -85,6 +86,7 @@ public interface IHistoryRepository
             await CreateAsync(cancellationToken).ConfigureAwait(false);
             return true;
         }
+
         return false;
     }
 

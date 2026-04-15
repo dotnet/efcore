@@ -10,14 +10,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsAzureSql)]
 #pragma warning disable CS9113 // Parameter is unread.
 public class SqlAzureConnectionTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
 #pragma warning restore CS9113 // Parameter is unread.
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Connect_with_encryption(bool encryptionEnabled)
     {
         var connectionStringBuilder =

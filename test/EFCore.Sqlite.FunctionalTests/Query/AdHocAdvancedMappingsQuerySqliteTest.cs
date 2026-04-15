@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocAdvancedMappingsQuerySqliteTest : AdHocAdvancedMappingsQueryRelationalTestBase
+public class AdHocAdvancedMappingsQuerySqliteTest(NonSharedFixture fixture) : AdHocAdvancedMappingsQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

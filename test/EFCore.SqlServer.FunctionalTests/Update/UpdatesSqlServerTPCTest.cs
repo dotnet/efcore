@@ -49,11 +49,11 @@ FROM (
 """,
             //
             """
-@__category_PrincipalId_0='778' (Nullable = true)
+@category_PrincipalId='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @category_PrincipalId
 """,
             //
             """
@@ -79,11 +79,11 @@ FROM (
 """,
             //
             """
-@__category_PrincipalId_0='778' (Nullable = true)
+@category_PrincipalId='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[IsPrimary], [p].[IsPrimaryNormalized], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @category_PrincipalId
 """);
     }
 
@@ -93,11 +93,10 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
             => "UpdateTestTPC";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(
-                w =>
-                {
-                    w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
-                });
+            => base.AddOptions(builder).ConfigureWarnings(w =>
+            {
+                w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
+            });
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

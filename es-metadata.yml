@@ -1,0 +1,8 @@
+schemaVersion: 0.0.1
+isProduction: true
+accountableOwners:
+  service: ba6482c0-a714-4764-bf92-f4e4475a34e1
+routing:
+  defaultAreaPath:
+    org: devdiv
+    path: DevDiv\Entity Framework

@@ -31,7 +31,7 @@ public static class CosmosPrimitiveCollectionBuilderExtensions
         this PrimitiveCollectionBuilder primitiveCollectionBuilder,
         string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         primitiveCollectionBuilder.Metadata.SetJsonPropertyName(name);
 

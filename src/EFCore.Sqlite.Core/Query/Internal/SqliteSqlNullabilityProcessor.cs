@@ -74,7 +74,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        Check.NotNull(regexpExpression, nameof(regexpExpression));
+        Check.NotNull(regexpExpression);
 
         var match = Visit(regexpExpression.Match, out var matchNullable);
         var pattern = Visit(regexpExpression.Pattern, out var patternNullable);
@@ -136,7 +136,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         TableExpressionBase table,
         SqlParameterExpression newCollectionParameter)
         => table is TableValuedFunctionExpression { Arguments: [SqlParameterExpression] } jsonEachExpression
-            ? jsonEachExpression.Update(new[] { newCollectionParameter })
+            ? jsonEachExpression.Update([newCollectionParameter])
             : base.UpdateParameterCollection(table, newCollectionParameter);
 #pragma warning restore EF1001
 }

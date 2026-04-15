@@ -21,6 +21,13 @@ public class SqliteModelBuilderGenericTest : SqliteModelBuilderTestBase
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
+    public class SqliteGenericComplexCollection(SqliteModelBuilderFixture fixture) : SqliteComplexCollection(fixture)
+    {
+        protected override TestModelBuilder CreateModelBuilder(
+            Action<ModelConfigurationBuilder>? configure)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
     public class SqliteGenericInheritance(SqliteModelBuilderFixture fixture) : SqliteInheritance(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(

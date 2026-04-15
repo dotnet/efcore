@@ -241,11 +241,10 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(
-                w =>
-                {
-                    w.Log(SqlServerEventId.DecimalTypeKeyWarning);
-                });
+            => base.AddOptions(builder).ConfigureWarnings(w =>
+            {
+                w.Log(SqlServerEventId.DecimalTypeKeyWarning);
+            });
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
             => configurationBuilder.Properties<decimal>().HaveColumnType("decimal(18, 2)");
@@ -266,7 +265,7 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
 
             modelBuilder.Entity<Product>()
                 .Property(e => e.IsPrimaryNormalized)
-                .HasComputedColumnSql($"IIF(IsPrimary = 1, CONVERT(bit, 1), NULL)", stored: true);
+                .HasComputedColumnSql("IIF(IsPrimary = 1, CONVERT(bit, 1), NULL)", stored: true);
         }
 
         public virtual async Task ResetIdentity()

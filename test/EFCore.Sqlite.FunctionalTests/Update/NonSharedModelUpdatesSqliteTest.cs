@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public class NonSharedModelUpdatesSqliteTest : NonSharedModelUpdatesTestBase
+public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {

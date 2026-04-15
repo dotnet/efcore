@@ -41,7 +41,7 @@ public static class DbContextActivator
         IOperationReportHandler? reportHandler,
         string[]? args)
     {
-        Check.NotNull(contextType, nameof(contextType));
+        Check.NotNull(contextType);
 
         return new DbContextOperations(
                 new OperationReporter(reportHandler),

@@ -28,12 +28,11 @@ public class EndToEndInMemoryTest(InMemoryFixture fixture) : IClassFixture<InMem
         where T : class, new()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<T>(
-            eb =>
-            {
-                eb.Property<int>("Id");
-                eb.Property<string>("Name");
-            });
+        modelBuilder.Entity<T>(eb =>
+        {
+            eb.Property<int>("Id");
+            eb.Property<string>("Name");
+        });
 
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseModel(modelBuilder.FinalizeModel())

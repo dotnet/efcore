@@ -5,10 +5,98 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocQueryFiltersQuerySqlServerTest : AdHocQueryFiltersQueryRelationalTestBase
+public class AdHocQueryFiltersQuerySqlServerTest(NonSharedFixture fixture) : AdHocQueryFiltersQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    #region 8576
+
+    public override async Task Named_query_filters()
+    {
+        await base.Named_query_filters();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Name] LIKE N'Name%' AND [e].[IsDeleted] = CAST(0 AS bit) AND [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_anonymous()
+    {
+        await base.Named_query_filters_anonymous();
+
+        AssertSql(
+            """
+@ef_filter___ids1='1'
+@ef_filter___ids2='7'
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Id] NOT IN (@ef_filter___ids1, @ef_filter___ids2)
+""");
+    }
+
+    public override async Task Named_query_filters_ignore_some()
+    {
+        await base.Named_query_filters_ignore_some();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_ignore_all()
+    {
+        await base.Named_query_filters_ignore_all();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Named_query_filters_anonymous_ignore()
+    {
+        await base.Named_query_filters_anonymous_ignore();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Named_query_filters_overwriting()
+    {
+        await base.Named_query_filters_overwriting();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDeleted] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_removing()
+    {
+        await base.Named_query_filters_removing();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    #endregion
 
     #region 11803
 
@@ -127,14 +215,12 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 
         AssertSql(
             """
-@__ef_filter___ids_0='[1,7]' (Size = 4000)
+@ef_filter___ids1='1'
+@ef_filter___ids2='7'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE [e].[Id] NOT IN (
-    SELECT [e0].[value]
-    FROM OPENJSON(@__ef_filter___ids_0) WITH ([value] int '$') AS [e0]
-)
+WHERE [e].[Id] NOT IN (@ef_filter___ids1, @ef_filter___ids2)
 """);
     }
 
@@ -144,27 +230,27 @@ WHERE [e].[Id] NOT IN (
 
         AssertSql(
             """
-@__ef_filter__Tenant_0='0'
+@ef_filter__Tenant='0'
 
 SELECT [b].[Id], [b].[SomeValue]
 FROM [Blogs] AS [b]
-WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
+WHERE [b].[SomeValue] = @ef_filter__Tenant
 """,
             //
             """
-@__ef_filter__Tenant_0='1'
+@ef_filter__Tenant='1'
 
 SELECT [b].[Id], [b].[SomeValue]
 FROM [Blogs] AS [b]
-WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
+WHERE [b].[SomeValue] = @ef_filter__Tenant
 """,
             //
             """
-@__ef_filter__Tenant_0='2'
+@ef_filter__Tenant='2'
 
 SELECT COUNT(*)
 FROM [Blogs] AS [b]
-WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
+WHERE [b].[SomeValue] = @ef_filter__Tenant
 """);
     }
 
@@ -235,19 +321,19 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__ef_filter__p_0='1'
+@ef_filter__p='1'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0
+WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @ef_filter__p
 """,
             //
             """
-@__ef_filter__p_0='2'
+@ef_filter__p='2'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0
+WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @ef_filter__p
 """);
     }
 
@@ -261,31 +347,6 @@ SELECT [p].[Id], [p].[UserDeleteId]
 FROM [People] AS [p]
 LEFT JOIN [User18759] AS [u] ON [p].[UserDeleteId] = [u].[Id]
 WHERE [u].[Id] IS NOT NULL
-""");
-    }
-
-    public override async Task GroupJoin_SelectMany_gets_flattened()
-    {
-        await base.GroupJoin_SelectMany_gets_flattened();
-
-        AssertSql(
-            """
-SELECT [c].[CustomerId], [c].[CustomerMembershipId]
-FROM [CustomerFilters] AS [c]
-WHERE (
-    SELECT COUNT(*)
-    FROM [Customers] AS [c0]
-    LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
-    WHERE [c1].[Id] IS NOT NULL AND [c0].[Id] = [c].[CustomerId]) > 0
-""",
-            //
-            """
-SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
-    WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
-    ELSE N''
-END AS [CustomerMembershipName]
-FROM [Customers] AS [c]
-LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]
 """);
     }
 

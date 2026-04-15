@@ -78,17 +78,16 @@ public static class MigrationsBundle
 
         app.HandleResponseFiles = true;
 
-        app.OnExecute(
-            args =>
-            {
-                Reporter.IsVerbose = verbose.HasValue();
-                Reporter.NoColor = noColor.HasValue();
-                Reporter.PrefixOutput = prefixOutput.HasValue();
+        app.OnExecute(args =>
+        {
+            Reporter.IsVerbose = verbose.HasValue();
+            Reporter.NoColor = noColor.HasValue();
+            Reporter.PrefixOutput = prefixOutput.HasValue();
 
-                ExecuteInternal(args);
+            ExecuteInternal(args);
 
-                return 0;
-            });
+            return 0;
+        });
     }
 
     private static void ExecuteInternal(string[] args)

@@ -19,9 +19,9 @@ public class InitializationSqlServerTests : InitializationTests
     protected override IServiceCollection AddContext(IServiceCollection services)
     {
         services.AddDbContext<AdventureWorksContextBase, AdventureWorksSqlServerContext>()
-                .AddDbContextFactory<AdventureWorksSqlServerContext>()
-                .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
-                    AdventureWorksSqlServerContextFactory<AdventureWorksSqlServerContext>>();
+            .AddDbContextFactory<AdventureWorksSqlServerContext>()
+            .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
+                AdventureWorksSqlServerContextFactory<AdventureWorksSqlServerContext>>();
 
         return services;
     }
@@ -29,10 +29,10 @@ public class InitializationSqlServerTests : InitializationTests
     protected override IServiceCollection AddContextPool(IServiceCollection services)
     {
         services.AddDbContextPool<AdventureWorksContextBase, AdventureWorksPoolableSqlServerContext>(
-            AdventureWorksSqlServerFixture.ConfigureOptions)
-                .AddPooledDbContextFactory<AdventureWorksPoolableSqlServerContext>(AdventureWorksSqlServerFixture.ConfigureOptions)
-                .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
-                    AdventureWorksSqlServerContextFactory<AdventureWorksPoolableSqlServerContext>>();
+                AdventureWorksSqlServerFixture.ConfigureOptions)
+            .AddPooledDbContextFactory<AdventureWorksPoolableSqlServerContext>(AdventureWorksSqlServerFixture.ConfigureOptions)
+            .TryAddSingleton<IDbContextFactory<AdventureWorksContextBase>,
+                AdventureWorksSqlServerContextFactory<AdventureWorksPoolableSqlServerContext>>();
 
         return services;
     }

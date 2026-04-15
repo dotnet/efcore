@@ -20,14 +20,14 @@ public class SqlServerNetTopologySuiteMethodCallTranslatorPlugin : IMethodCallTr
     public SqlServerNetTopologySuiteMethodCallTranslatorPlugin(
         IRelationalTypeMappingSource typeMappingSource,
         ISqlExpressionFactory sqlExpressionFactory)
-        => Translators = new IMethodCallTranslator[]
-        {
+        => Translators =
+        [
             new SqlServerGeometryMethodTranslator(typeMappingSource, sqlExpressionFactory),
             new SqlServerGeometryCollectionMethodTranslator(typeMappingSource, sqlExpressionFactory),
             new SqlServerLineStringMethodTranslator(typeMappingSource, sqlExpressionFactory),
             new SqlServerNetTopologySuiteDbFunctionsMethodCallTranslator(typeMappingSource, sqlExpressionFactory),
             new SqlServerPolygonMethodTranslator(typeMappingSource, sqlExpressionFactory)
-        };
+        ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

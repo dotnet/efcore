@@ -1,0 +1,9 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
+
+public class OwnedJsonBulkUpdateSqlServerTest(
+    OwnedJsonSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : OwnedJsonBulkUpdateRelationalTestBase<OwnedJsonSqlServerFixture>(fixture, testOutputHelper);

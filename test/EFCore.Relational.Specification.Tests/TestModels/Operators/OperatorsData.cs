@@ -168,7 +168,7 @@ public class OperatorsData : ISetSource
             .Select((x, i) => new OperatorEntityDateTimeOffset { Id = i + 1, Value = _dateTimeOffsetValues[i].Compile()() }).ToList();
 
     public IReadOnlyList<OperatorEntityNullableDateTimeOffset> CreateNullableDateTimeOffsets()
-        => _nullableDateTimeOffsetValues.Select(
-                (x, i) => new OperatorEntityNullableDateTimeOffset { Id = i + 1, Value = _nullableDateTimeOffsetValues[i].Compile()() })
+        => _nullableDateTimeOffsetValues.Select((x, i)
+                => new OperatorEntityNullableDateTimeOffset { Id = i + 1, Value = _nullableDateTimeOffsetValues[i].Compile()() })
             .ToList();
 }

@@ -24,6 +24,11 @@ public interface IRelationalCommandTemplate
     string CommandText { get; }
 
     /// <summary>
+    ///     Gets the command text to be logged.
+    /// </summary>
+    string LogCommandText { get; }
+
+    /// <summary>
     ///     Gets the parameters to be copied to the destination command.
     /// </summary>
     IReadOnlyList<IRelationalParameter> Parameters { get; }

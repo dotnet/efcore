@@ -101,9 +101,8 @@ public sealed class TpcTablesExpression : TableExpressionBase
     {
         var subSelectExpressions = discriminatorValues.Count == 0
             ? [SelectExpressions[0]]
-            : SelectExpressions.Where(
-                se =>
-                    discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();
+            : SelectExpressions.Where(se =>
+                discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();
 
         Check.DebugAssert(subSelectExpressions.Count > 0, "TPC must have at least 1 table selected.");
 

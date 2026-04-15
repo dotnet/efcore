@@ -16,22 +16,21 @@ public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixtur
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<Login16>(
-            entity =>
-            {
-                entity.HasMany(d => d.Profile16s)
-                    .WithMany(p => p.Login16s)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "Login16Profile16",
-                        l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
-                        r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
-                        j =>
-                        {
-                            j.HasKey("Login16Id", "Profile16Id");
+        modelBuilder.Entity<Login16>(entity =>
+        {
+            entity.HasMany(d => d.Profile16s)
+                .WithMany(p => p.Login16s)
+                .UsingEntity<Dictionary<string, object>>(
+                    "Login16Profile16",
+                    l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
+                    r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
+                    j =>
+                    {
+                        j.HasKey("Login16Id", "Profile16Id");
 
-                            j.ToTable("Login16Profile16");
-                        });
-            });
+                        j.ToTable("Login16Profile16");
+                    });
+        });
 
         var model = Validate(modelBuilder);
 
@@ -135,8 +134,7 @@ public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixtur
     {
         public string Name { get; set; }
 
-        [Column("FavoritePetFood_Id")]
-        [ForeignKey(nameof(FavoritePetFood))]
+        [Column("FavoritePetFood_Id"), ForeignKey(nameof(FavoritePetFood))]
         public int? FavoritePetFoodId { get; set; }
 
         public PetFood FavoritePetFood { get; set; }
@@ -167,8 +165,7 @@ public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixtur
     [Table("PetFoods")]
     public sealed class PetFood
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("PetFoods_Id")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity), Column("PetFoods_Id")]
         public int PetFoodId { get; set; }
 
         public string FoodName { get; set; }
