@@ -272,7 +272,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
             _stateData.FlagAllProperties(StructuralType.PropertyCount, PropertyFlag.Modified, flagged: true);
 
             // Hot path; do not use LINQ
-            var hasThrowProperties = false;
+            var hasAfterSaveThrowProperties = false;
             foreach (var property in structuralType.GetFlattenedProperties())
             {
                 if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
@@ -282,7 +282,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
                     if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
                         && property.GetOriginalValueIndex() >= 0)
                     {
-                        hasThrowProperties = true;
+                        hasAfterSaveThrowProperties = true;
                     }
                 }
 
@@ -307,7 +307,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
             // shadow properties on complex types whose snapshot stores default values).
             // Set the original values of Throw properties to match current values so that
             // DetectChanges won't find a false mismatch and re-mark them as modified.
-            if (hasThrowProperties)
+            if (hasAfterSaveThrowProperties)
             {
                 foreach (var property in structuralType.GetFlattenedProperties())
                 {
