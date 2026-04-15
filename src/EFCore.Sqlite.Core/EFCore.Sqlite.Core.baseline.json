@@ -5,18 +5,18 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.ConflictingValueGenerationStrategiesEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.ConflictingValueGenerationStrategiesEventData.ConflictingValueGenerationStrategiesEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy sqliteValueGenerationStrategy, string otherValueGenerationStrategy, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "ConflictingValueGenerationStrategiesEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy sqliteValueGenerationStrategy, string otherValueGenerationStrategy, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
         }
       ],
       "Properties": [
         {
-          "Member": "virtual string Microsoft.EntityFrameworkCore.Diagnostics.ConflictingValueGenerationStrategiesEventData.OtherValueGenerationStrategy { get; }"
+          "Member": "virtual string OtherValueGenerationStrategy { get; }"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty Microsoft.EntityFrameworkCore.Diagnostics.ConflictingValueGenerationStrategiesEventData.Property { get; }"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty Property { get; }"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Microsoft.EntityFrameworkCore.Diagnostics.ConflictingValueGenerationStrategiesEventData.SqliteValueGenerationStrategy { get; }"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy SqliteValueGenerationStrategy { get; }"
         }
       ]
     },
@@ -24,10 +24,10 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Infrastructure.SpatialiteLoader",
       "Methods": [
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.Infrastructure.SpatialiteLoader.Load(System.Data.Common.DbConnection connection);"
+          "Member": "static void Load(System.Data.Common.DbConnection connection);"
         },
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.Infrastructure.SpatialiteLoader.TryLoad(System.Data.Common.DbConnection connection);"
+          "Member": "static bool TryLoad(System.Data.Common.DbConnection connection);"
         }
       ]
     },
@@ -35,16 +35,16 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteComplexTypePropertyBuilderExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder Microsoft.EntityFrameworkCore.SqliteComplexTypePropertyBuilderExtensions.HasSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder propertyBuilder, int srid);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder HasSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder propertyBuilder, int srid);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.SqliteComplexTypePropertyBuilderExtensions.HasSrid<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> propertyBuilder, int srid);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> HasSrid<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> propertyBuilder, int srid);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder Microsoft.EntityFrameworkCore.SqliteComplexTypePropertyBuilderExtensions.UseAutoincrement(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder propertyBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder UseAutoincrement(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder propertyBuilder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.SqliteComplexTypePropertyBuilderExtensions.UseAutoincrement<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> propertyBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> UseAutoincrement<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> propertyBuilder);"
         }
       ]
     },
@@ -52,16 +52,16 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilder",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder.SqliteConventionSetBuilder(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+          "Member": "SqliteConventionSetBuilder(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder.Build();"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Build();"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder.CreateConventionSet();"
+          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet CreateConventionSet();"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder.CreateModelBuilder();"
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder CreateModelBuilder();"
         }
       ]
     },
@@ -69,7 +69,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteDatabaseFacadeExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteDatabaseFacadeExtensions.IsSqlite(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade database);"
+          "Member": "static bool IsSqlite(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade database);"
         }
       ]
     },
@@ -77,7 +77,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.RelationalDbContextOptionsBuilder<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder, Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal.SqliteOptionsExtension>",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder.SqliteDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
+          "Member": "SqliteDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
         }
       ]
     },
@@ -85,28 +85,28 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseSqlite(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseSqlite<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, System.Data.Common.DbConnection connection, bool contextOwnsConnection, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null);"
         }
       ]
     },
@@ -114,22 +114,22 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions.Glob(this Microsoft.EntityFrameworkCore.DbFunctions _, string matchExpression, string pattern);"
+          "Member": "static bool Glob(this Microsoft.EntityFrameworkCore.DbFunctions _, string matchExpression, string pattern);"
         },
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions.Hex(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes);"
+          "Member": "static string Hex(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes);"
         },
         {
-          "Member": "static byte[] Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions.Substr(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes, int startIndex);"
+          "Member": "static byte[] Substr(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes, int startIndex);"
         },
         {
-          "Member": "static byte[] Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions.Substr(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes, int startIndex, int length);"
+          "Member": "static byte[] Substr(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes, int startIndex, int length);"
         },
         {
-          "Member": "static byte[]? Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions.Unhex(this Microsoft.EntityFrameworkCore.DbFunctions _, string value);"
+          "Member": "static byte[]? Unhex(this Microsoft.EntityFrameworkCore.DbFunctions _, string value);"
         },
         {
-          "Member": "static byte[]? Microsoft.EntityFrameworkCore.SqliteDbFunctionsExtensions.Unhex(this Microsoft.EntityFrameworkCore.DbFunctions _, string value, string ignoreChars);"
+          "Member": "static byte[]? Unhex(this Microsoft.EntityFrameworkCore.DbFunctions _, string value, string ignoreChars);"
         }
       ]
     },
@@ -137,16 +137,16 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteEntityTypeBuilderExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteEntityTypeBuilderExtensions.CanUseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
+          "Member": "static bool CanUseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteEntityTypeBuilderExtensions.CanUseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
+          "Member": "static bool CanUseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.SqliteEntityTypeBuilderExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.SqliteEntityTypeBuilderExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -154,28 +154,28 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.GetUseSqlReturningClauseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetUseSqlReturningClauseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.GetUseSqlReturningClauseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetUseSqlReturningClauseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+          "Member": "static bool IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static bool IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? useSqlReturningClause);"
+          "Member": "static void UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? useSqlReturningClause);"
         },
         {
-          "Member": "static bool? Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
+          "Member": "static bool? UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static void UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static bool? Microsoft.EntityFrameworkCore.SqliteEntityTypeExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
+          "Member": "static bool? UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? useSqlReturningClause, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -183,16 +183,16 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteEntityTypeMappingFragmentExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqliteEntityTypeMappingFragmentExtensions.GetUseSqlReturningClauseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityTypeMappingFragment fragment);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetUseSqlReturningClauseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityTypeMappingFragment fragment);"
         },
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteEntityTypeMappingFragmentExtensions.IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityTypeMappingFragment fragment);"
+          "Member": "static bool IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityTypeMappingFragment fragment);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqliteEntityTypeMappingFragmentExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityTypeMappingFragment fragment, bool? useSqlReturningClause);"
+          "Member": "static void UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityTypeMappingFragment fragment, bool? useSqlReturningClause);"
         },
         {
-          "Member": "static bool? Microsoft.EntityFrameworkCore.SqliteEntityTypeMappingFragmentExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityTypeMappingFragment fragment, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
+          "Member": "static bool? UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityTypeMappingFragment fragment, bool? useSqlReturningClause, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -200,61 +200,61 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId",
       "Fields": [
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.ColumnFound"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ColumnFound"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.CompositeKeyWithValueGeneration"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId CompositeKeyWithValueGeneration"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.ConflictingValueGenerationStrategiesWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ConflictingValueGenerationStrategiesWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.ForeignKeyFound"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ForeignKeyFound"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.ForeignKeyPrincipalColumnMissingWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ForeignKeyPrincipalColumnMissingWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.ForeignKeyReferencesMissingTableWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ForeignKeyReferencesMissingTableWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.FormatWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId FormatWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.IndexFound"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId IndexFound"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.InferringTypes"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId InferringTypes"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.MissingTableWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId MissingTableWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.OutOfRangeWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId OutOfRangeWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.PrimaryKeyFound"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId PrimaryKeyFound"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.SchemaConfiguredWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId SchemaConfiguredWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.SchemasNotSupportedWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId SchemasNotSupportedWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.SequenceConfiguredWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId SequenceConfiguredWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.TableFound"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId TableFound"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.TableRebuildPendingWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId TableRebuildPendingWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.UnexpectedConnectionTypeWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId UnexpectedConnectionTypeWarning"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.SqliteEventId.UniqueConstraintFound"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId UniqueConstraintFound"
         }
       ]
     },
@@ -262,7 +262,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationBuilderExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationBuilderExtensions.IsSqlite(this Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder migrationBuilder);"
+          "Member": "static bool IsSqlite(this Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder migrationBuilder);"
         }
       ]
     },
@@ -270,91 +270,91 @@
       "Type": "class Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator : Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerator",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.SqliteMigrationsSqlGenerator(Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGeneratorDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider migrationsAnnotations);"
+          "Member": "SqliteMigrationsSqlGenerator(Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGeneratorDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.IRelationalAnnotationProvider migrationsAnnotations);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.ColumnDefinition(string? schema, string table, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void ColumnDefinition(string? schema, string table, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.ComputedColumnDefinition(string? schema, string table, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void ComputedColumnDefinition(string? schema, string table, string name, Microsoft.EntityFrameworkCore.Migrations.Operations.ColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.CreateTableColumns(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void CreateTableColumns(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.MigrationCommand> Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations, Microsoft.EntityFrameworkCore.Metadata.IModel? model = null, Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerationOptions options = Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerationOptions.Default);"
+          "Member": "override System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.MigrationCommand> Generate(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> operations, Microsoft.EntityFrameworkCore.Metadata.IModel? model = null, Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerationOptions options = Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGenerationOptions.Default);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterDatabaseOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterDatabaseOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameIndexOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddUniqueConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddUniqueConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AddCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropForeignKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropPrimaryKeyOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool terminate = true);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropUniqueConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropUniqueConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropCheckConstraintOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.EnsureSchemaOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.EnsureSchemaOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSchemaOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSchemaOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RestartSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RestartSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.CreateSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.RenameSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.AlterSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Migrations.SqliteMigrationsSqlGenerator.Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+          "Member": "override void Generate(Microsoft.EntityFrameworkCore.Migrations.Operations.DropSequenceOperation operation, Microsoft.EntityFrameworkCore.Metadata.IModel? model, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         }
       ]
     },
@@ -362,31 +362,31 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.CanSetSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, int? srid, bool fromDataAnnotation = false);"
+          "Member": "static bool CanSetSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, int? srid, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.CanSetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? strategy, bool fromDataAnnotation = false);"
+          "Member": "static bool CanSetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? strategy, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.HasSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, int srid);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, int srid);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.HasSrid<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder, int srid);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> HasSrid<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder, int srid);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.HasSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, int? srid, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? HasSrid(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, int? srid, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.HasValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? strategy, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? HasValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? strategy, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.UseAutoincrement(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder UseAutoincrement(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.UseAutoincrement<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> UseAutoincrement<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> propertyBuilder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions.UseAutoincrement(this Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder columnBuilder);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder UseAutoincrement(this Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder columnBuilder);"
         }
       ]
     },
@@ -394,58 +394,58 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlitePropertyExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetDefaultValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
         },
         {
-          "Member": "static int? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetSrid(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "static int? GetSrid(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
         },
         {
-          "Member": "static int? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetSrid(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static int? GetSrid(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetSridConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetSridConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy GetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalPropertyOverrides overrides);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? GetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalPropertyOverrides overrides);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy GetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.GetValueGenerationStrategyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalPropertyOverrides overrides);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalPropertyOverrides overrides);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetSrid(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, int? value);"
+          "Member": "static void SetSrid(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, int? value);"
         },
         {
-          "Member": "static int? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetSrid(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, int? value, bool fromDataAnnotation = false);"
+          "Member": "static int? SetSrid(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, int? value, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value);"
+          "Member": "static void SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "static void SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value);"
+          "Member": "static void SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? Microsoft.EntityFrameworkCore.SqlitePropertyExtensions.SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? SetValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy? value, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -453,10 +453,10 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteRuntimeModelConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalRuntimeModelConvention",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteRuntimeModelConvention.SqliteRuntimeModelConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+          "Member": "SqliteRuntimeModelConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteRuntimeModelConvention.ProcessPropertyAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty runtimeProperty, bool runtime);"
+          "Member": "override void ProcessPropertyAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty runtimeProperty, bool runtime);"
         }
       ]
     },
@@ -464,10 +464,10 @@
       "Type": "static class Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions.AddEntityFrameworkSqlite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
         },
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions.AddSqlite<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSqlite<TContext>(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection, string? connectionString, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null, System.Action<Microsoft.EntityFrameworkCore.DbContextOptionsBuilder>? optionsAction = null);"
         }
       ]
     },
@@ -475,12 +475,12 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteSharedTableConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.SharedTableConvention",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteSharedTableConvention.SqliteSharedTableConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+          "Member": "SqliteSharedTableConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         }
       ],
       "Properties": [
         {
-          "Member": "override bool Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteSharedTableConvention.CheckConstraintsUniqueAcrossTables { get; }"
+          "Member": "override bool CheckConstraintsUniqueAcrossTables { get; }"
         }
       ]
     },
@@ -488,13 +488,13 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteStoreGenerationConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.StoreGenerationConvention",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteStoreGenerationConvention.SqliteStoreGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+          "Member": "SqliteStoreGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteStoreGenerationConvention.ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+          "Member": "override void ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteStoreGenerationConvention.Validate(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+          "Member": "override void Validate(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         }
       ]
     },
@@ -502,22 +502,22 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions.UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.TableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions.UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> UseSqlReturningClause<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions.UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder UseSqlReturningClause(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder tableBuilder, bool useSqlReturningClause = true);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> Microsoft.EntityFrameworkCore.SqliteTableBuilderExtensions.UseSqlReturningClause<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool useSqlReturningClause = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> UseSqlReturningClause<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder, bool useSqlReturningClause = true);"
         }
       ]
     },
@@ -525,7 +525,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqliteTableExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.SqliteTableExtensions.IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.ITable table);"
+          "Member": "static bool IsSqlReturningClauseUsed(this Microsoft.EntityFrameworkCore.Metadata.ITable table);"
         }
       ]
     },
@@ -533,13 +533,13 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteValueGenerationConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalValueGenerationConvention",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteValueGenerationConvention.SqliteValueGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+          "Member": "SqliteValueGenerationConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ValueGenerated? Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteValueGenerationConvention.GetValueGenerated(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+          "Member": "override Microsoft.EntityFrameworkCore.Metadata.ValueGenerated? GetValueGenerated(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteValueGenerationConvention.ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+          "Member": "override void ProcessPropertyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
         }
       ]
     },
@@ -547,16 +547,16 @@
       "Type": "enum Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy.SqliteValueGenerationStrategy();"
+          "Member": "SqliteValueGenerationStrategy();"
         }
       ],
       "Fields": [
         {
-          "Member": "const Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy.Autoincrement",
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Autoincrement",
           "Value": "1"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy.None",
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.SqliteValueGenerationStrategy None",
           "Value": "0"
         }
       ]
