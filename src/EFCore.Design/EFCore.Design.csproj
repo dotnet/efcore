@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" PackageVersion="[$(ProjectVersion), $(NextMajorVersion))" />
   </ItemGroup>
 
   <ItemGroup>
@@ -101,15 +101,5 @@
       <DependentUpon>CSharpEntityTypeGenerator.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
-  <Target Name="_SetProjectReferenceDependencyVersionRange"
-          AfterTargets="_GetProjectReferenceVersions"
-          BeforeTargets="GenerateNuspec">
-    <ItemGroup>
-      <_ProjectReferencesWithVersions Update="@(_ProjectReferencesWithVersions)">
-        <ProjectVersion>[%(ProjectVersion), $(EFCorePackageDependencyUpperBound))</ProjectVersion>
-      </_ProjectReferencesWithVersions>
-    </ItemGroup>
-  </Target>
 
 </Project>

@@ -37,4 +37,15 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Condition="'%(FullPath)' != ''">
+        <PackageVersion>@(ProjectReference->'%(PackageVersion)')</PackageVersion>
+      </_ProjectReferencesWithVersions>
+      <_ProjectReferencesWithVersions Condition="'%(Identity)' != '' And '%(PackageVersion)' != ''">
+        <ProjectVersion>%(PackageVersion)</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+
 </Project>

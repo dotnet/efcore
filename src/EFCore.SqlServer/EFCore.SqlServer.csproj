@@ -45,8 +45,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore.Relational\EFCore.Relational.csproj" PrivateAssets="contentfiles;build" PackageVersion="[$(ProjectVersion), $(NextMajorVersion))" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" PackageVersion="[$(ProjectVersion), $(NextMajorVersion))" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,15 +72,5 @@
       <DependentUpon>SqlServerStrings.Designer.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-
-  <Target Name="_SetProjectReferenceDependencyVersionRange"
-          AfterTargets="_GetProjectReferenceVersions"
-          BeforeTargets="GenerateNuspec">
-    <ItemGroup>
-      <_ProjectReferencesWithVersions Update="@(_ProjectReferencesWithVersions)">
-        <ProjectVersion>[%(ProjectVersion), $(EFCorePackageDependencyUpperBound))</ProjectVersion>
-      </_ProjectReferencesWithVersions>
-    </ItemGroup>
-  </Target>
 
 </Project>
