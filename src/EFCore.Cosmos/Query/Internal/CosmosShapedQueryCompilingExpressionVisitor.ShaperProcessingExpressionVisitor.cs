@@ -160,12 +160,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             => objectArrayProjectionExpression,
                         _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionShaperExpression.Print())),
                     };
+
                     var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
 
 
 
-                    // Create inner shaper...
-                    // @TODO: Look at relational
                     break;
                 case ProjectionBindingExpression projectionBindingExpression:
                     var projection = GetProjection(projectionBindingExpression);

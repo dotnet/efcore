@@ -199,35 +199,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _readerState = documentsReader.CurrentState;
                     }
 
-                    var reader = new Utf8JsonReader(_data.Value.Span, true, _readerState!.Value);
-                    reader.Read();  // @TODO: This is actually really inefficient,
-                                    // Because we could be reading a giant string here...
-                                    // Instead, trim whitespaces? and check the first character for "]"?
-                    if (reader.TokenType == JsonTokenType.EndArray)
+                    using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
+
+                    if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
+                            _cosmosQueryContext, _data.Value,
+                            _readerState!.Value, _shaper,
+                            out var bytesConsumed, out _current))
                     {
                         _data = null;
                         _readerState = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }
 
-                    using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
-                    _current = _shaper(_cosmosQueryContext, _data.Value.Slice((int)reader.TokenStartIndex));
-
-                    // This could be a scalar or a structural type, if it is an object, we need to move past it.
-                    // @TODO: Get BytesConsumed from shaper?
-                    // @TODO: Trim the ,
-                    if (reader.TokenType == JsonTokenType.StartObject)
-                    {
-                        reader.Read();
-                        while (reader.TokenType != JsonTokenType.EndObject)
-                        {
-                            reader.Skip();
-                            reader.Read();
-                        }
-                    }
-
-                    _readerState = reader.CurrentState; // Or we could comment this and we must read 1 more and use the TokenStart again
-                    _data = _data.Value.Slice((int)reader.BytesConsumed);
+                    _data = _data.Value.Slice(bytesConsumed);
 
                     return true;
                 }
