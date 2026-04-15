@@ -946,12 +946,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Temporal_period_property_must_be_in_shadow_state()
+    public void Temporal_period_property_mapped_to_CLR_property_is_allowed()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("DateOfBirth")));
 
-        VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(nameof(Human), "DateOfBirth"), modelBuilder);
+        Validate(modelBuilder);
     }
 
     [ConditionalFact]

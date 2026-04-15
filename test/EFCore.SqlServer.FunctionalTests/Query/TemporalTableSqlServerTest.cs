@@ -433,6 +433,110 @@ ORDER BY [u].[Id], [o].[MainEntityManyId]
         }
     }
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Temporal_with_CLR_period_properties(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodProperties>(
+            seed: async c =>
+            {
+                c.Customers.Add(new TemporalCustomerWithClrPeriods { Name = "Customer1" });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.OrderBy(c => c.Id);
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Single(result);
+        Assert.Equal("Customer1", result[0].Name);
+        // Period properties should be populated with non-default values by SQL Server
+        Assert.NotEqual(default, result[0].PeriodStart);
+        Assert.NotEqual(default, result[0].PeriodEnd);
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Temporal_with_CLR_period_properties_and_TemporalAll(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodProperties>(
+            seed: async c =>
+            {
+                c.Customers.Add(new TemporalCustomerWithClrPeriods { Name = "Customer1" });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.TemporalAll().OrderBy(c => c.Id);
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Single(result);
+        Assert.Equal("Customer1", result[0].Name);
+        Assert.NotEqual(default, result[0].PeriodStart);
+        Assert.NotEqual(default, result[0].PeriodEnd);
+    }
+
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Temporal_with_CLR_period_properties_configured_via_lambda(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodPropertiesLambda>(
+            seed: async c =>
+            {
+                c.Customers.Add(new TemporalCustomerWithClrPeriods { Name = "Customer1" });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.OrderBy(c => c.Id);
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Single(result);
+        Assert.Equal("Customer1", result[0].Name);
+        Assert.NotEqual(default, result[0].PeriodStart);
+        Assert.NotEqual(default, result[0].PeriodEnd);
+    }
+
+    public class TemporalCustomerWithClrPeriods
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime PeriodStart { get; set; }
+        public DateTime PeriodEnd { get; set; }
+    }
+
+    public class ContextWithClrPeriodProperties(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<TemporalCustomerWithClrPeriods> Customers { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TemporalCustomerWithClrPeriods>().ToTable(
+                "TemporalCustomerWithClrPeriods", tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.HasPeriodStart("PeriodStart");
+                    ttb.HasPeriodEnd("PeriodEnd");
+                }));
+            modelBuilder.Entity<TemporalCustomerWithClrPeriods>().Property(me => me.Id).UseIdentityColumn();
+        }
+    }
+
+    public class ContextWithClrPeriodPropertiesLambda(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<TemporalCustomerWithClrPeriods> Customers { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TemporalCustomerWithClrPeriods>().ToTable(
+                "TemporalCustomerWithClrPeriods", tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.HasPeriodStart(e => e.PeriodStart);
+                    ttb.HasPeriodEnd(e => e.PeriodEnd);
+                }));
+            modelBuilder.Entity<TemporalCustomerWithClrPeriods>().Property(me => me.Id).UseIdentityColumn();
+        }
+    }
+
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task Temporal_can_query_shared_derived_hierarchy(bool async)
     {
