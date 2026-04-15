@@ -250,6 +250,12 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> : Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder where TOwnerEntity : class where TDependentEntity : class",
       "Methods": [
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>.HasPeriodEnd(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.DateTime>> propertyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>.HasPeriodStart(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.DateTime>> propertyExpression);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>.UseHistoryTable(string name);"
         },
         {
@@ -2630,7 +2636,7 @@
           "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.Query.FullTextSearchResult<TKey>> Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions.FreeTextTable<T, TKey>(this Microsoft.EntityFrameworkCore.DbSet<T> source, string freeText, System.Linq.Expressions.Expression<System.Func<T, object>>? columnSelector = null, string? languageTerm = null, int? topN = null);"
         },
         {
-          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.VectorSearchResult<T>> Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions.VectorSearch<T, TVector>(this Microsoft.EntityFrameworkCore.DbSet<T> source, System.Linq.Expressions.Expression<System.Func<T, TVector>> vectorPropertySelector, TVector similarTo, string metric, int topN);",
+          "Member": "static System.Linq.IQueryable<Microsoft.EntityFrameworkCore.VectorSearchResult<T>> Microsoft.EntityFrameworkCore.SqlServerQueryableExtensions.VectorSearch<T, TVector>(this Microsoft.EntityFrameworkCore.DbSet<T> source, System.Linq.Expressions.Expression<System.Func<T, TVector>> vectorPropertySelector, TVector similarTo, string metric);",
           "Stage": "Experimental"
         }
       ]
@@ -3030,6 +3036,12 @@
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> : Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder where TEntity : class",
       "Methods": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity>.HasPeriodEnd(System.Linq.Expressions.Expression<System.Func<TEntity, System.DateTime>> propertyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity>.HasPeriodStart(System.Linq.Expressions.Expression<System.Func<TEntity, System.DateTime>> propertyExpression);"
+        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity>.UseHistoryTable(string name);"
         },
