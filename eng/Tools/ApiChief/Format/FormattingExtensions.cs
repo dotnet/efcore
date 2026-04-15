@@ -246,9 +246,9 @@ internal static class FormattingExtensions
     private static string SimplifyMemberIdentifier(string memberIdentifier)
     {
         var segments = SplitQualifiedSegments(memberIdentifier);
-        return segments.Count <= 2
-            ? string.Join('.', segments)
-            : string.Join('.', segments.GetRange(segments.Count - 2, 2));
+        return segments.Count == 0
+            ? memberIdentifier
+            : segments[^1];
     }
 
     private static List<string> SplitQualifiedSegments(string value)
