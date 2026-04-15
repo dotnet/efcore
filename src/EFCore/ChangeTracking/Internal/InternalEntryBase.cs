@@ -294,6 +294,20 @@ public abstract partial class InternalEntryBase : IInternalEntry
                     SetPropertyModified(complexCollection, isModified: true, recurse: true);
                 }
             }
+
+            // Properties with AfterSaveBehavior.Throw were unflagged above, but DetectChanges could
+            // re-mark them if the original values snapshot doesn't match the current values (e.g. for
+            // shadow properties on complex types whose snapshot stores default values).
+            // Set the original values of Throw properties to match current values so that
+            // DetectChanges won't find a false mismatch and re-mark them as modified.
+            foreach (var property in structuralType.GetFlattenedProperties())
+            {
+                if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
+                    && property.GetOriginalValueIndex() >= 0)
+                {
+                    SetOriginalValue(property, this[property], skipChangeDetection: true);
+                }
+            }
         }
 
         if (oldState == newState)
