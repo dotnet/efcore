@@ -250,8 +250,7 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Select_nested_collection_on_required_associate(queryTrackingBehavior));
+            await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
             AssertSql(
                 """
@@ -264,11 +263,9 @@ ORDER BY c["Id"]
 
     public override async Task Select_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        Environment.SetEnvironmentVariable("EF_TEST_REWRITE_BASELINES", "1");
-
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.Select_nested_collection_on_optional_associate(queryTrackingBehavior);
+            await Assert.ThrowsAsync<NullReferenceException>(() => base.Select_nested_collection_on_optional_associate(queryTrackingBehavior));
 
             AssertSql(
                 """

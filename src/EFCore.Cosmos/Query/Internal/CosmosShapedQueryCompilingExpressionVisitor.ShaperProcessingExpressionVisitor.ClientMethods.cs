@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -27,16 +28,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo InverseCollectionFixupMethod
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InverseCollectionFixup))!;
 
-        private static readonly MethodInfo TryMaterializeNextJsonCollectionItemMethod
+        private static readonly MethodInfo ReadShapedCollectionMethod
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializedShapedCollection))!;
+
+        private static readonly MethodInfo TryMaterializeNextJsonCollectionItemMethod // @TODO: Unused?
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(TryMaterializeNextJsonCollectionItem))!;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
+        private static readonly MethodInfo ReadPathMethod
+           = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ReadPath))!;
+
         public static bool Any(IEnumerable source)
         {
             foreach (var _ in source)
@@ -48,13 +48,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         // Almost 1-1 copy from relational, but no key values
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
         public static TStructural? MaterializeJsonStructuralType<TStructural>(
             QueryContext queryContext,
             JsonReaderData jsonReaderData,
@@ -81,13 +74,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return result;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
         public static TStructural? MaterializeJsonNullableValueStructuralType<TStructural>(
             QueryContext queryContext,
             JsonReaderData jsonReaderData,
@@ -115,13 +101,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return result;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
         public static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
             QueryContext queryContext,
             JsonReaderData jsonReaderData,
@@ -175,13 +154,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return result;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
         public static void InverseCollectionFixup<TCollectionElement, TEntity>(
             ICollection<TCollectionElement> collection,
             TEntity entity,
@@ -193,27 +165,50 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
+        public static TCollection MaterializedShapedCollection<TElement, TCollection>(
+            QueryContext queryContext,
+            ReadOnlyMemory<byte> data,
+            IClrCollectionAccessor accessor,
+            Func<QueryContext, ReadOnlyMemory<byte>, TElement> shaper)
+        {
+            // TODO: throw a better exception for non ICollection navigations
+            var collection = (ICollection<TElement>)accessor.Create();
+
+            var reader = new Utf8JsonReader(data.Span);
+            reader.Read();
+            data = data.Slice((int)reader.BytesConsumed);
+
+            if (reader.TokenType == JsonTokenType.Null)
+            {
+                // #35916
+                return (TCollection)collection;
+            }
+
+            Debug.Assert(reader.TokenType == JsonTokenType.StartArray);
+
+            while (TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, out var bytesConsumed, out var item))
+            {
+                collection.Add(item);
+                data = data.Slice(bytesConsumed);
+            }
+
+            return (TCollection)collection;
+        }
+
         private static readonly byte[] WhiteSpaceBytes = Encoding.UTF8.GetBytes(" \t");
         private static readonly byte EndArrayByte = Encoding.UTF8.GetBytes("]")[0];
         private static readonly byte NextArrayItemByte = Encoding.UTF8.GetBytes(",")[0];
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
         public static bool TryMaterializeNextJsonCollectionItem<T>(
-            CosmosQueryContext queryContext,
+            QueryContext queryContext,
             ReadOnlyMemory<byte> data,
-            JsonReaderState jsonReaderState,
-            Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> shaper,
+            Func<QueryContext, ReadOnlyMemory<byte>, T> shaper,
             out int bytesConsumed,
-            out T? result)
+            [NotNullWhen(true)] out T? result)
         {
             var startLength = data.Length;
 
+            // Don't use Utf8JsonReader, because it will read the whole next token, which could be a big string.
             data = data.TrimStart(WhiteSpaceBytes);
             if (data.Span[0] == EndArrayByte)
             {
@@ -224,10 +219,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             bytesConsumed = startLength - data.Length;
 
-            result = shaper(queryContext, data);
+            result = shaper(queryContext, data)!;
 
             // @TODO: Get BytesConsumed from shaper?
-            var reader = new Utf8JsonReader(data.Span, true, jsonReaderState);
+            var reader = new Utf8JsonReader(data.Span, true, new JsonReaderState());
             reader.Read();
             // This could be a scalar or a structural type, if it is an object, we need to move past it.
             if (reader.TokenType == JsonTokenType.StartObject)
@@ -250,6 +245,46 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return true;
+        }
+
+        public static ReadOnlyMemory<byte> ReadPath(ReadOnlyMemory<byte> data, LinkedList<byte[]> jsonPropertyPath)
+        {
+            var jsonReader = new Utf8JsonReader(data.Span, true, new JsonReaderState());
+            jsonReader.Read();
+
+            var prop = jsonPropertyPath.First;
+            if (jsonReader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.JsonReaderInvalidTokenType(jsonReader.TokenType));
+            }
+
+            while (prop != null)
+            {
+                jsonReader.Read();
+                switch (jsonReader.TokenType)
+                {
+                    case JsonTokenType.StartObject:
+                        break;
+                    case JsonTokenType.PropertyName:
+                        if (jsonReader.ValueTextEquals(prop.Value))
+                        {
+                            prop = prop.Next;
+                        }
+                        else
+                        {
+                            jsonReader.Skip();
+                        }
+                        break;
+                    case JsonTokenType.EndObject:
+                    case JsonTokenType.Null:
+                        throw new NullReferenceException(); // This is what 10.0 threw
+                    default:
+                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(jsonReader.TokenType));
+                }
+            }
+
+            return data.Slice((int)jsonReader.BytesConsumed);
         }
     }
 }

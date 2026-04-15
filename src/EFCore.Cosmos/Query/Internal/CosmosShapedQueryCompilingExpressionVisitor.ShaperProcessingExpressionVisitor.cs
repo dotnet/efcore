@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -104,9 +105,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             var jsonMaterializerExpression = Visit(shaperExpression);
             var shaperLambda = Lambda(
-                        jsonMaterializerExpression,
-                        QueryCompilationContext.QueryContextParameter,
-                        data);
+                jsonMaterializerExpression,
+                QueryCompilationContext.QueryContextParameter,
+                data);
             return shaperLambda;
         }
 
@@ -146,12 +147,35 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         structuralTypeShaperExpression.ValueBufferExpression
                     );
 
-                    return Block(
+                    Expression jsonMaterializeExpression = Block(
                         [jsonReaderData, jsonReaderManager],
                         [ ..jsonReaderInitializeExpessions,
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Visit(shapers)]);
+
+                    // # 34067
+                    if (structuralTypeShaperExpression.ValueBufferExpression.UnwrapTypeConversion(out _) is StructuralTypeProjectionExpression structuralTypeProjection)
+                    {
+                        jsonMaterializeExpression = CheckGenerateExtractPath(jsonMaterializeExpression, structuralTypeProjection.Object, data);
+                    }
+
+                    return jsonMaterializeExpression;
                 case CollectionShaperExpression collectionShaperExpression:
+                    var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
+
+                    var navigation = collectionShaperExpression.Navigation;
+                    var collectionAccessor = navigation?.GetCollectionAccessor();
+                    var collectionType = collectionAccessor?.CollectionType ?? collectionShaperExpression.Type;
+                    var elementType = collectionShaperExpression.ElementType;
+
+                    var materializeExpression = Call(
+                        ReadShapedCollectionMethod.MakeGenericMethod(elementType, collectionType),
+                        CosmosQueryCompilationContext.QueryContextParameter,
+                        data,
+                        Constant(collectionAccessor),
+                        innerShaper);
+
+                    // # 34067
                     var objectArrayAccess = collectionShaperExpression.Projection switch
                     {
                         ProjectionBindingExpression projectionBindingExpression
@@ -160,12 +184,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             => objectArrayProjectionExpression,
                         _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionShaperExpression.Print())),
                     };
+                    return CheckGenerateExtractPath(materializeExpression, objectArrayAccess, data);
 
-                    var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
-
-
-
-                    break;
                 case ProjectionBindingExpression projectionBindingExpression:
                     var projection = GetProjection(projectionBindingExpression);
                     var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
@@ -397,33 +417,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Constant(nullable),
                 shaperLambda);
 
-            // # 34067
-            if (structuralProperty == null && valueBufferExpression.UnwrapTypeConversion(out _) is StructuralTypeProjectionExpression structuralTypeProjection)
-            {
-                materializedRootJsonEntity = TryWrapNestedDocumentExtraction(materializedRootJsonEntity, structuralTypeProjection, _valueBufferToJsonReaderDataMapping[valueBufferExpression]);
-            }
-
             return materializedRootJsonEntity;
         }
 
-        private Expression TryWrapNestedDocumentExtraction(Expression materializeExpression,
-            StructuralTypeProjectionExpression structuralTypeProjection,
-            Expression jsonReaderData) // @TODO: Optimize signature?
+        private Expression CheckGenerateExtractPath(Expression materializeExpression,
+            Expression projectionExpressionObject,
+            Expression data) // @TODO: Optimize signature?
         {
             var jsonPropertyPath = new List<string>();
 
-            var obj = structuralTypeProjection.Object;
-            while (obj is not ObjectReferenceExpression)
+            while (projectionExpressionObject is not ObjectReferenceExpression)
             {
-                switch (obj)
+                switch (projectionExpressionObject)
                 {
                     case ObjectAccessExpression accessExpression:
                         jsonPropertyPath.Add(accessExpression.PropertyName);
-                        obj = accessExpression.Object;
+                        projectionExpressionObject = accessExpression.Object;
                         break;
                     case ObjectArrayAccessExpression arrayAccessExpression:
                         jsonPropertyPath.Add(arrayAccessExpression.PropertyName);
-                        obj = arrayAccessExpression.Object;
+                        projectionExpressionObject = arrayAccessExpression.Object;
                         break;
                     //case ObjectArrayIndexExpression objectArrayIndexExpression:
                     //    if (objectArrayIndexExpression.Index is ConstantExpression constantIndex)
@@ -436,41 +449,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     //        CoreStrings.TranslationFailed(objectArrayIndexExpression.Index.Print()));
                     default:
                         throw new InvalidOperationException(
-                            CoreStrings.TranslationFailed(obj.Print()));
+                            CoreStrings.TranslationFailed(projectionExpressionObject.Print()));
                 }
             }
 
-            // If propertyPath countis 0, the structural type is the document root, so we don't need to extract an embedded document
+            // If propertyPath countis 0, which means the path being read is the query root, so we don't need to extract an embedded document path
             if (jsonPropertyPath.Count == 0)
             {
                 return materializeExpression;
             }
-            // Generate an expression that uses Utf8JsonReaderManager to parse the JSON document and extract the part of the document that corresponds to the structural type
 
-            //var jsonReaderManager = new Utf8JsonReaderManager(readerData, QueryCompilationContext.QueryContextParameter.QueryLogger)
-            //ReadPath(jsonReaderManager)
-            //var result = StructuralTypeShaperExpression
-            //jsonReaderManager = new Utf8JsonReaderManager(readerData, QueryCompilationContext.QueryContextParameter.QueryLogger)
-            //FinishObject(jsonReaderManager)
-            //return result
+            // var dataSubset = ReadPath(data, jsonPropertyPath);
+            // materializeExpression(data -> dataSubset)
 
-            var jsonPropertyPathBytes = new LinkedList<byte[]>(jsonPropertyPath.Select(x => Encoding.UTF8.GetBytes(x)).Reverse());
-
-            var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-            var result = Variable(materializeExpression.Type, "result");
+            var dataSubset = Parameter(data.Type, "dataSubset");
+            var jsonPropertyPathBytes = new LinkedList<byte[]>(jsonPropertyPath.Select(Encoding.UTF8.GetBytes).Reverse());
 
             return Block(
-                [jsonReaderManager, result],
-                Assign(
-                    jsonReaderManager,
-                    New(JsonReaderManagerConstructor, jsonReaderData, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                Call(ReadPathMethod, jsonReaderManager, Constant(jsonPropertyPathBytes)),
-                Assign(result, materializeExpression),
-                Assign(
-                    jsonReaderManager,
-                    New(JsonReaderManagerConstructor, jsonReaderData, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                Call(FinishObjectMethod, jsonReaderManager, Constant(jsonPropertyPathBytes)),
-                result);
+                [dataSubset],
+                Assign(dataSubset, Call(ReadPathMethod, data, Constant(jsonPropertyPathBytes))),
+                ReplacingExpressionVisitor.Replace(data, dataSubset, materializeExpression));
         }
 
         protected override Expression VisitBlock(BlockExpression blockExpression)
@@ -1019,63 +1017,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 ? selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
-
-        private static readonly MethodInfo ReadPathMethod
-            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ReadPath))!;
-
-        private static readonly MethodInfo FinishObjectMethod
-            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(FinishObject))!;
-
-        public static void ReadPath(Utf8JsonReaderManager jsonReaderManager, LinkedList<byte[]> jsonPropertyPath)
-        {
-            var prop = jsonPropertyPath.First;
-            var tokenType = jsonReaderManager.CurrentReader.TokenType;
-            if (tokenType != JsonTokenType.StartObject)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.JsonReaderInvalidTokenType(tokenType));
-            }
-
-            while (prop != null)
-            {
-                tokenType = jsonReaderManager.MoveNext();
-                switch (tokenType)
-                {
-                    case JsonTokenType.StartObject:
-                        break;
-                    case JsonTokenType.PropertyName:
-                        if (jsonReaderManager.CurrentReader.ValueTextEquals(prop.Value))
-                        {
-                            prop = prop.Next;
-                        }
-                        else
-                        {
-                            jsonReaderManager.Skip();
-                        }
-                        break;
-                    case JsonTokenType.EndObject:
-                    case JsonTokenType.Null:
-                        throw new NullReferenceException(); // This is what 10.0 threw
-                    default:
-                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType));
-                }
-            }
-            jsonReaderManager.MoveNext();
-            jsonReaderManager.CaptureState();
-        }
-
-        public static void FinishObject(Utf8JsonReaderManager jsonReaderManager, LinkedList<byte[]> jsonPropertyPath) // @TODO: Improve?
-        {
-            var count = jsonPropertyPath.Count;
-            for (var i = 0; i < count; i++)
-            {
-                while (jsonReaderManager.MoveNext() is not JsonTokenType.EndObject)
-                {
-                    jsonReaderManager.Skip();
-                }
-            }
-            jsonReaderManager.CaptureState();
-        }
 
         // This is 1-1 copy from relational, except filtering out "" json properties, and using cosmos GetJsonPropertyName instead of relational
         private sealed class JsonEntityMaterializerRewriter(

@@ -114,7 +114,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private T? _current;
             private ReadOnlyMemory<byte>? _data;
-            private JsonReaderState? _readerState;
             private IAsyncEnumerator<ReadOnlyMemory<byte>>? _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
@@ -161,9 +160,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             return false;
                         }
                         _data = _enumerator.Current;
-                        _readerState = new JsonReaderState();
 
-                        var documentsReader = new Utf8JsonReader(_data.Value.Span, true, _readerState.Value);
+                        var documentsReader = new Utf8JsonReader(_data.Value.Span, true, new JsonReaderState());
                         documentsReader.Read();
 
                         var tokenType = documentsReader.TokenType;
@@ -196,18 +194,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
 
                         _data = _data.Value.Slice((int)documentsReader.BytesConsumed);
-                        _readerState = documentsReader.CurrentState;
                     }
 
                     using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
 
                     if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
                             _cosmosQueryContext, _data.Value,
-                            _readerState!.Value, _shaper,
+                            (Func<QueryContext, ReadOnlyMemory<byte>, T>)_shaper,
                             out var bytesConsumed, out _current))
                     {
                         _data = null;
-                        _readerState = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }
 
