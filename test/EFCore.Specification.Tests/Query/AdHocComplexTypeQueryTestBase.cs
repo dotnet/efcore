@@ -401,6 +401,62 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion Issue37337
 
+    #region Issue37914
+
+    [ConditionalFact]
+    public virtual async Task Update_entity_with_nullable_complex_type_and_discriminator()
+    {
+        var contextFactory = await InitializeAsync<Context37914>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context37914.EntityType
+                    {
+                        Prop = new Context37914.OptionalComplexProperty
+                        {
+                            OptionalValue = true
+                        }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity = await context.Set<Context37914.EntityType>().SingleAsync();
+        Assert.NotNull(entity.Prop);
+        Assert.True(entity.Prop.OptionalValue);
+
+        context.Update(entity);
+        await context.SaveChangesAsync();
+    }
+
+    private class Context37914(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var entity = modelBuilder.Entity<EntityType>();
+            entity.Property(p => p.Id);
+            entity.HasKey(p => p.Id);
+
+            var compl = entity.ComplexProperty(p => p.Prop);
+            compl.Property(p => p.OptionalValue);
+            compl.HasDiscriminator();
+        }
+
+        public class EntityType
+        {
+            public Guid Id { get; set; }
+            public OptionalComplexProperty? Prop { get; set; }
+        }
+
+        public class OptionalComplexProperty
+        {
+            public bool? OptionalValue { get; set; }
+        }
+    }
+
+    #endregion Issue37914
+
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";
 }
