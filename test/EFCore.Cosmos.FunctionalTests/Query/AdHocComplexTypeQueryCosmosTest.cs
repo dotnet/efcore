@@ -89,7 +89,18 @@ FROM root c
     {
         await base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
     }
 
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
