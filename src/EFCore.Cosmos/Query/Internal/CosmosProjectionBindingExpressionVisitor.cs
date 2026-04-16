@@ -610,15 +610,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                             return QueryCompilationContext.NotTranslatedExpression;
                         }
 
-                        var lambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-
-                        _collectionShaperMapping.Add(lambda.Parameters.Single(), shaper);
-
-                        lambda = Expression.Lambda(Visit(lambda.Body), lambda.Parameters);
-                        return Expression.Call(
-                            EnumerableMethods.Select.MakeGenericMethod(method.GetGenericArguments()),
-                            shaper,
-                            lambda);
+                        return shaper; // @TODO: Does this destroy projections over the collection? Don't think so right?
                 }
             }
             else if (method is { Name: nameof(Enumerable.ToList), IsGenericMethod: true }
