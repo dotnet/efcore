@@ -85,6 +85,24 @@ FROM root c
 """);
     }
 
+    public override async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
+    {
+        await base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
        => base.AddNonSharedOptions(builder)
                .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
