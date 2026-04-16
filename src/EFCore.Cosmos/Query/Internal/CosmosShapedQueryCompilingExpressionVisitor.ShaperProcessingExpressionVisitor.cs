@@ -4,6 +4,7 @@
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -205,7 +206,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitExtension(node);
         }
 
-        // Very close 1-1 with relational.
+        // Very close 1-1 with relational, but changes for inheritance hierarchies
         private Expression CreateJsonShapers(
             ITypeBase structuralType,
             Type clrType,
@@ -223,22 +224,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var structuralTypeShaperMaterializer =
                 (BlockExpression)parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
 
-            var innerShapersMap = new Dictionary<string, Expression>();
-            var innerFixupMap = new Dictionary<string, LambdaExpression>();
-            var trackingInnerFixupMap = new Dictionary<string, LambdaExpression>();
+            var innerShapersMap = new Dictionary<IPropertyBase, Expression>();
+            var innerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
+            var trackingInnerFixupMap = new Dictionary<IPropertyBase, LambdaExpression>();
 
             // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
             // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
             // Note that we need to build entity shapers and fixup separately; we don't know the order in which data comes, so
             // we need to read through everything before we can do fixup safely
-            IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
+            IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredComplexProperties());
 
             if (structuralType is IEntityType entityType)
             {
                 nestedStructuralProperties = nestedStructuralProperties.Concat(
-                    entityType.GetNavigations()
+                    entityType.GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredNavigations()
                         .Where(n => n.ForeignKey.IsOwnership
-                            && n == n.ForeignKey.PrincipalToDependent));
+                            && n == n.ForeignKey.PrincipalToDependent)));
             }
 
             foreach (var nestedStructuralProperty in nestedStructuralProperties)
@@ -262,14 +263,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     nestedStructuralProperty,
                     valueBufferExpression);
 
-                var navigationJsonPropertyName = nestedStructuralProperty switch
-                {
-                    INavigation n => n.TargetEntityType.GetContainingPropertyName()!,
-                    IComplexProperty cp => cp.GetJsonPropertyName(),
-                    _ => throw new UnreachableException()
-                };
-
-                innerShapersMap[navigationJsonPropertyName] = innerShaper;
+                innerShapersMap[nestedStructuralProperty] = innerShaper;
 
                 if (nestedStructuralProperty.IsCollection)
                 {
@@ -328,7 +322,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         shaperEntityParameter,
                         shaperCollectionParameter);
 
-                    innerFixupMap[navigationJsonPropertyName] = fixup;
+                    innerFixupMap[nestedStructuralProperty] = fixup;
 
                     var trackedFixup = Lambda(
                         Block(typeof(void), expressionsForTracking),
@@ -337,7 +331,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
                     // non-tracking queries; however, complex types always need to be fixed up in the shaper.
-                    trackingInnerFixupMap[navigationJsonPropertyName] = relatedStructuralType is IComplexType ? fixup : trackedFixup;
+                    trackingInnerFixupMap[nestedStructuralProperty] = relatedStructuralType is IComplexType ? fixup : trackedFixup;
                 }
                 else
                 {
@@ -349,11 +343,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     // With tracking queries, the change tracker performs entity fixup, so we only need to handle fixup in the shaper for
                     // non-tracking queries; however, complex types always need to be fixed up in the shaper.
-                    innerFixupMap[navigationJsonPropertyName] = fixup;
+                    innerFixupMap[nestedStructuralProperty] = fixup;
 
                     if (relatedStructuralType is IComplexType)
                     {
-                        trackingInnerFixupMap[navigationJsonPropertyName] = fixup;
+                        trackingInnerFixupMap[nestedStructuralProperty] = fixup;
                     }
                 }
             }
@@ -1017,14 +1011,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
 
-        // This is 1-1 copy from relational, except filtering out "" json properties, and using cosmos GetJsonPropertyName instead of relational
+        // This is 1-1 copy from relational, except filtering out "" json properties, and using cosmos GetJsonPropertyName instead of relational.
+        // And also: Allow inheritance @TODO: Improve
         private sealed class JsonEntityMaterializerRewriter(
-            ITypeBase structuralType,
+            ITypeBase structuralBaseType,
             bool queryStateManager,
             ParameterExpression jsonReaderDataParameter,
-            IDictionary<string, Expression> innerShapersMap,
-            IDictionary<string, LambdaExpression> innerFixupMap,
-            IDictionary<string, LambdaExpression> trackingInnerFixupMap)
+            IDictionary<IPropertyBase, Expression> innerShapersMap,
+            IDictionary<IPropertyBase, LambdaExpression> innerFixupMap,
+            IDictionary<IPropertyBase, LambdaExpression> trackingInnerFixupMap)
             : ExpressionVisitor
         {
             private static readonly PropertyInfo JsonEncodedTextEncodedUtf8BytesProperty
@@ -1033,224 +1028,222 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private static readonly MethodInfo JsonEncodedTextEncodeMethod
                 = typeof(JsonEncodedText).GetMethod(nameof(JsonEncodedText.Encode), [typeof(string), typeof(JavaScriptEncoder)])!;
 
-            // keep track which variable corresponds to which navigation - we need that info for fixup
-            // which happens at the end (after we read everything to guarantee that we can instantiate the entity
-            private readonly Dictionary<string, ParameterExpression> _navigationVariableMap = new();
-
             public BlockExpression Rewrite(BlockExpression jsonEntityShaperMaterializer)
                 => (BlockExpression)VisitBlock(jsonEntityShaperMaterializer);
 
-            protected override Expression VisitSwitch(SwitchExpression switchExpression)
-            {
-                if (switchExpression.SwitchValue.Type.IsAssignableTo(typeof(ITypeBase))
-                    && switchExpression is
-                    {
-                        Cases:
-                        [
-                        {
-                            Body: BlockExpression { Expressions.Count: > 0 } body,
-                            TestValues: [{ } onlyValueExpression]
-                        }
-                        ]
-                    }
-                    && onlyValueExpression.GetConstantValue<object>() == structuralType)
+            protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
+                => switchCase switch
                 {
-                    var valueBufferTryReadValueMethodsToProcess =
-                        new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
-
-                    BlockExpression jsonEntityTypeInitializerBlock;
-                    //sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
-                    switch (body.Expressions[^1])
                     {
-                        case UnaryExpression
-                        {
-                            Operand: BlockExpression innerBlock,
-                            NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
-                        } jsonEntityTypeInitializerUnary:
-                        {
-                            // in case of proxies, the entity initializer block is wrapped around Convert node
-                            // that converts from the proxy type to the actual entity type.
-                            // We normalize that into a block by pushing the convert inside the inner block. Rather than:
-                            //
-                            // return (MyEntity)
-                            // {
-                            //     ProxyEntity instance;
-                            //     (...)
-                            //     return instance;
-                            // }
-                            //
-                            // we produce:
-                            // return
-                            // {
-                            //     ProxyEntity instance;
-                            //     MyEntity actualInstance;
-                            //     (...)
-                            //     actualInstance = (MyEntity)instance;
-                            //     return actualInstance;
-                            // }
-                            var newVariables = innerBlock.Variables.ToList();
-                            var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
-                            newVariables.Add(proxyConversionVariable);
-                            var newExpressions = innerBlock.Expressions.ToList()[..^1];
-                            newExpressions.Add(
-                                Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
-                            newExpressions.Add(proxyConversionVariable);
-                            jsonEntityTypeInitializerBlock = Block(newVariables, newExpressions);
-                            break;
-                        }
+                        Body: BlockExpression { Expressions.Count: > 0 } body,
+                        TestValues: [ConstantExpression { Value: ITypeBase structuralType } ]
+                    } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
+                    _ => base.VisitSwitchCase(switchCase)
+                };
 
-                        case BlockExpression b:
-                            jsonEntityTypeInitializerBlock = b;
-                            break;
-                        // case where we don't use block but rather return construction directly, as in:
-                        // return new MyEntity(...)
+            private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
+            {
+                // keep track which variable corresponds to which navigation - we need that info for fixup
+                // which happens at the end (after we read everything to guarantee that we can instantiate the entity
+                var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
+
+                var valueBufferTryReadValueMethodsToProcess =
+                    new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
+
+                BlockExpression jsonEntityTypeInitializerBlock;
+                //sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
+                switch (body.Expressions[^1])
+                {
+                    case UnaryExpression
+                    {
+                        Operand: BlockExpression innerBlock,
+                        NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+                    } jsonEntityTypeInitializerUnary:
+                    {
+                        // in case of proxies, the entity initializer block is wrapped around Convert node
+                        // that converts from the proxy type to the actual entity type.
+                        // We normalize that into a block by pushing the convert inside the inner block. Rather than:
                         //
-                        // rather than:
+                        // return (MyEntity)
+                        // {
+                        //     ProxyEntity instance;
+                        //     (...)
+                        //     return instance;
+                        // }
+                        //
+                        // we produce:
                         // return
                         // {
-                        //    MyEntity instance;
-                        //    instance = new MyEntity(...)
-                        //    (...)
+                        //     ProxyEntity instance;
+                        //     MyEntity actualInstance;
+                        //     (...)
+                        //     actualInstance = (MyEntity)instance;
+                        //     return actualInstance;
                         // }
-                        // we normalize this into block, since we are going to be adding extra statements (i.e. loop extracting JSON
-                        // property values) there anyway
-                        case NewExpression jsonEntityTypeInitializerCtor:
-                            var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
-                            jsonEntityTypeInitializerBlock = Block(
-                                [newInstanceVariable],
-                                Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
-                                newInstanceVariable);
-                            break;
-                        default:
-                            throw new UnreachableException();
+                        var newVariables = innerBlock.Variables.ToList();
+                        var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
+                        newVariables.Add(proxyConversionVariable);
+                        var newExpressions = innerBlock.Expressions.ToList()[..^1];
+                        newExpressions.Add(
+                            Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
+                        newExpressions.Add(proxyConversionVariable);
+                        jsonEntityTypeInitializerBlock = Block(newVariables, newExpressions);
+                        break;
                     }
 
-                    var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
-                    var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
-                    var jsonStructuralTypeVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
+                    case BlockExpression b:
+                        jsonEntityTypeInitializerBlock = b;
+                        break;
+                    // case where we don't use block but rather return construction directly, as in:
+                    // return new MyEntity(...)
+                    //
+                    // rather than:
+                    // return
+                    // {
+                    //    MyEntity instance;
+                    //    instance = new MyEntity(...)
+                    //    (...)
+                    // }
+                    // we normalize this into block, since we are going to be adding extra statements (i.e. loop extracting JSON
+                    // property values) there anyway
+                    case NewExpression jsonEntityTypeInitializerCtor:
+                        var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
+                        jsonEntityTypeInitializerBlock = Block(
+                            [newInstanceVariable],
+                            Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
+                            newInstanceVariable);
+                        break;
+                    default:
+                        throw new UnreachableException();
+                }
 
-                    Debug.Assert(jsonStructuralTypeVariable.Type == structuralType.ClrType);
+                var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+                var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+                var jsonStructuralTypeVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
 
-                    var finalBlockVariables = new List<ParameterExpression>
-                    {
-                        managerVariable, tokenTypeVariable,
-                    };
+                Debug.Assert(jsonStructuralTypeVariable.Type.IsAssignableFrom(structuralType.ClrType));
 
-                    finalBlockVariables.AddRange(jsonEntityTypeInitializerBlock.Variables);
+                var finalBlockVariables = new List<ParameterExpression>
+                {
+                    managerVariable, tokenTypeVariable,
+                };
 
-                    var finalBlockExpressions = new List<Expression>
-                    {
-                        // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
-                        Assign(
-                            managerVariable,
-                            New(
-                                JsonReaderManagerConstructor,
-                                jsonReaderDataParameter,
-                                MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
-                        // tokenType = jsonReaderManager.CurrentReader.TokenType
-                        Assign(
-                            tokenTypeVariable,
-                            Property(
-                                Field(
-                                    managerVariable,
-                                    Utf8JsonReaderManagerCurrentReaderField),
-                                Utf8JsonReaderTokenTypeProperty)),
-                    };
+                finalBlockVariables.AddRange(jsonEntityTypeInitializerBlock.Variables);
 
-                    var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
+                var finalBlockExpressions = new List<Expression>
+                {
+                    // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
+                    Assign(
                         managerVariable,
+                        New(
+                            JsonReaderManagerConstructor,
+                            jsonReaderDataParameter,
+                            MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty))),
+                    // tokenType = jsonReaderManager.CurrentReader.TokenType
+                    Assign(
                         tokenTypeVariable,
-                        finalBlockVariables,
-                        valueBufferTryReadValueMethodsToProcess);
+                        Property(
+                            Field(
+                                managerVariable,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty)),
+                };
 
-                    finalBlockExpressions.Add(loop);
+                var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
+                    managerVariable,
+                    tokenTypeVariable,
+                    finalBlockVariables,
+                    valueBufferTryReadValueMethodsToProcess);
 
-                    var finalCaptureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
-                    finalBlockExpressions.Add(finalCaptureState);
+                finalBlockExpressions.Add(loop);
 
-                    // we have the loop, now we can add code that generate the entity instance
-                    // will have to replace ValueBufferTryReadValue method calls with the parameters that store the value
-                    // we can't use simple ExpressionReplacingVisitor, because there could be multiple instances of MethodCallExpression for given property
-                    // using dedicated mini-visitor that looks for MCEs with a given shape and compare the IProperty inside
-                    // order is:
-                    // - shadow snapshot (if there was one)
-                    // - entity construction / property assignments
-                    // - navigation fixups
-                    // - entity instance variable that is returned as end result
-                    var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
-                        jsonStructuralTypeVariable, propertyAssignmentMap);
+                var finalCaptureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
+                finalBlockExpressions.Add(finalCaptureState);
 
-                    if (body.Expressions[0] is BinaryExpression
+                // we have the loop, now we can add code that generate the entity instance
+                // will have to replace ValueBufferTryReadValue method calls with the parameters that store the value
+                // we can't use simple ExpressionReplacingVisitor, because there could be multiple instances of MethodCallExpression for given property
+                // using dedicated mini-visitor that looks for MCEs with a given shape and compare the IProperty inside
+                // order is:
+                // - shadow snapshot (if there was one)
+                // - entity construction / property assignments
+                // - navigation fixups
+                // - entity instance variable that is returned as end result
+                var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
+                    jsonStructuralTypeVariable, propertyAssignmentMap);
+
+                if (body.Expressions[0] is BinaryExpression
+                    {
+                        NodeType: ExpressionType.Assign,
+                        Right: UnaryExpression
                         {
-                            NodeType: ExpressionType.Assign,
-                            Right: UnaryExpression
-                            {
-                                NodeType: ExpressionType.Convert,
-                                Operand: NewExpression
-                            }
-                        } shadowSnapshotAssignment
+                            NodeType: ExpressionType.Convert,
+                            Operand: NewExpression
+                        }
+                    } shadowSnapshotAssignment
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                        && shadowSnapshotAssignment.Type == typeof(ISnapshot))
+                    && shadowSnapshotAssignment.Type == typeof(ISnapshot))
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                {
+                    finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(shadowSnapshotAssignment));
+                }
+
+                foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
+                {
+                    finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
+                }
+
+                // Fixup is only needed for non-tracking queries, in case of tracking (or NoTrackingWithIdentityResolution) - ChangeTracker does the job
+                // or for empty/null collections of a tracking queries.
+                ProcessFixup(queryStateManager ? trackingInnerFixupMap : innerFixupMap);
+
+                finalBlockExpressions.Add(jsonStructuralTypeVariable);
+
+                return Block(
+                    finalBlockVariables,
+                    finalBlockExpressions);
+
+                void ProcessFixup(IDictionary<IPropertyBase, LambdaExpression> fixupMap)
+                {
+                    foreach (var fixup in fixupMap)
                     {
-                        finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(shadowSnapshotAssignment));
-                    }
-
-                    foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
-                    {
-                        finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
-                    }
-
-                    // Fixup is only needed for non-tracking queries, in case of tracking (or NoTrackingWithIdentityResolution) - ChangeTracker does the job
-                    // or for empty/null collections of a tracking queries.
-                    ProcessFixup(queryStateManager ? trackingInnerFixupMap : innerFixupMap);
-
-                    finalBlockExpressions.Add(jsonStructuralTypeVariable);
-
-                    return Block(
-                        finalBlockVariables,
-                        finalBlockExpressions);
-
-                    void ProcessFixup(IDictionary<string, LambdaExpression> fixupMap)
-                    {
-                        foreach (var fixup in fixupMap)
+                        if (!navigationVariableMap.TryGetValue(fixup.Key, out var navigationEntityParameter))
                         {
-                            var navigationEntityParameter = _navigationVariableMap[fixup.Key];
+                            // The navigation was not used in this materializer, it might be used by another type.
+                            continue;
+                        }
 
-                            // Inject the fixup code for each property; we have this as a set of lambdas in the fixup map.
-                            // In the normal case, simply Invoke the lambda, passing it the structural type to be fixed up as a parameter.
-                            // This unfortunately doesn't work on value types (where a copy would be mutated), so for them,
-                            // we unwrap the lambda and integrate its body directly.
-                            // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
-                            // to readonly fields.
-                            if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(fixup.Value.Parameters[1].Type) is null*/)
-                            {
-                                var fixupBody = ReplacingExpressionVisitor.Replace(
-                                    originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
-                                    replacements: [jsonStructuralTypeVariable, _navigationVariableMap[fixup.Key]],
-                                    fixup.Value.Body);
+                        // Inject the fixup code for each property; we have this as a set of lambdas in the fixup map.
+                        // In the normal case, simply Invoke the lambda, passing it the structural type to be fixed up as a parameter.
+                        // This unfortunately doesn't work on value types (where a copy would be mutated), so for them,
+                        // we unwrap the lambda and integrate its body directly.
+                        // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
+                        // to readonly fields.
+                        if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(fixup.Value.Parameters[1].Type) is null*/)
+                        {
+                            var fixupBody = ReplacingExpressionVisitor.Replace(
+                                originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
+                                replacements: [jsonStructuralTypeVariable, navigationEntityParameter],
+                                fixup.Value.Body);
 
-                                finalBlockExpressions.Add(fixupBody);
-                            }
-                            else
-                            {
-                                // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
-                                // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
-                                // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
-                                // But in this case fixups are standalone, so the null safety must be added here.
-                                finalBlockExpressions.Add(
-                                    IfThen(
-                                        NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
-                                        Invoke(
-                                            fixup.Value,
-                                            jsonStructuralTypeVariable,
-                                            _navigationVariableMap[fixup.Key])));
-                            }
+                            finalBlockExpressions.Add(fixupBody);
+                        }
+                        else
+                        {
+                            // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
+                            // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
+                            // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
+                            // But in this case fixups are standalone, so the null safety must be added here.
+                            finalBlockExpressions.Add(
+                                IfThen(
+                                    NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
+                                    Invoke(
+                                        fixup.Value,
+                                        jsonStructuralTypeVariable,
+                                        navigationEntityParameter)));
                         }
                     }
                 }
-
-                return base.VisitSwitch(switchExpression);
 
                 // builds a loop that extracts values of JSON properties and assigns them into variables
                 // also injects entity shapers (generated earlier) for child navigations
@@ -1308,7 +1301,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     foreach (var innerShaperMapElement in innerShapersMap)
                     {
-                        var innerShaperMapElementKey = innerShaperMapElement.Key;
+                        if (!innerShaperMapElement.Key.DeclaringType.IsAssignableFrom(structuralType))
+                        {
+                            continue;
+                        }
+
+                        var propertyName = innerShaperMapElement.Key switch
+                        {
+                            IComplexProperty complexProperty => complexProperty.GetJsonPropertyName(),
+                            INavigation navigation => navigation.TargetEntityType.GetContainingPropertyName(),
+                            _ => throw new UnreachableException()
+                        };
                         testExpressions.Add(
                             Call(
                                 Field(
@@ -1321,13 +1324,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         Call(
                                             Property(null, EncodingUtf8Property),
                                             Utf8GetBytesMethod,
-                                            Constant(innerShaperMapElementKey))),
+                                            Constant(propertyName))), // @TODO: Why not constant?
                                     typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(innerShaperMapElement.Value.Type);
                         finalBlockVariables.Add(propertyVariable);
 
-                        _navigationVariableMap[innerShaperMapElement.Key] = propertyVariable;
+                        navigationVariableMap[innerShaperMapElement.Key] = propertyVariable;
 
                         var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
                         var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
@@ -1443,7 +1446,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var instanceAssignment = ifFalseBlock.Expressions.OfType<BinaryExpression>().Single(e
                         => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: BlockExpression }
-                        && instance.Type == structuralType.ClrType);
+                        && structuralBaseType.ClrType.IsAssignableFrom(instance.Type));
                     var instanceAssignmentBody = (BlockExpression)instanceAssignment.Right;
 
                     var newInstanceAssignmentVariables = instanceAssignmentBody.Variables.ToList();
