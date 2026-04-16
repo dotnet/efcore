@@ -465,7 +465,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT VALUE o["Details"]
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -546,7 +546,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o["Details"]
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
