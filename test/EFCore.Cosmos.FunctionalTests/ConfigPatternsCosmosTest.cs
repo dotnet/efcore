@@ -16,13 +16,15 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
 
+    private IServiceProvider _serviceProvider;
+
     protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public async Task Cosmos_client_instance_is_shared_between_contexts()
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);
-        var options = CreateOptions(testDatabase);
+        var options = CreateOptions(testDatabase, useExternalServiceProvider: false);
 
         CosmosClient client;
         using (var context = new CustomerContext(options))
@@ -39,7 +41,8 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         }
 
         await using var testDatabase2 = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.Region(Regions.AustraliaCentral));
-        options = CreateOptions(testDatabase2);
+
+        options = CreateOptions(testDatabase2, useExternalServiceProvider: false);
 
         using (var context = new CustomerContext(options))
         {
@@ -164,11 +167,20 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         Assert.Single(uniqueClients); // Should only have one unique client instance
     }
 
-    private DbContextOptions CreateOptions(CosmosTestStore testDatabase, Action<DbContextOptionsBuilder> configure = null)
+    private DbContextOptions CreateOptions(
+        CosmosTestStore testDatabase,
+        Action<DbContextOptionsBuilder> configure = null,
+        bool useExternalServiceProvider = true)
     {
         var builder = Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
-            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .EnableDetailedErrors();
+
+        if (useExternalServiceProvider)
+        {
+            _serviceProvider ??= Fixture.CreateServiceProvider();
+            builder.UseInternalServiceProvider(_serviceProvider);
+        }
+
         configure?.Invoke(builder);
         return builder.Options;
     }
@@ -190,6 +202,10 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(w =>
                 w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
+        public IServiceProvider CreateServiceProvider()
+            => AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
+                .BuildServiceProvider(validateScopes: true);
 
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
