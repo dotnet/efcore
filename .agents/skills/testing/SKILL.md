@@ -6,8 +6,6 @@ user-invocable: false
 
 # Testing
 
-EF Core test infrastructure, patterns, and workflows for unit, specification, and functional tests.
-
 ## Test Categories
 
 ### Unit Tests (`test/EFCore.Tests/`, `test/EFCore.Relational.Tests/`, `test/EFCore.{Provider}.Tests/`)
@@ -67,10 +65,11 @@ Each test gets a fresh model/store. Call `InitializeAsync<TContext>(onModelCreat
 ## Workflow: Adding New Tests
 
 1. **Specification test**: Add to `EFCore.Specification.Tests` (core) or `EFCore.Relational.Specification.Tests` (relational)
-2. **Provider overrides**: Override in **every** provider functional test class (`EFCore.{Provider}.FunctionalTests`) that inherits the base with a `AssertSql()` call to assert SQL baseline.
+2. **Provider overrides**: Override in **every** provider functional test class (`EFCore.{Provider}.FunctionalTests`) that inherits the base with provider-appropriate assertions.
 3. **Unit test**: Add to `EFCore.{Provider}.Tests`
 4. Run with `EF_TEST_REWRITE_BASELINES=1` to capture initial baselines
-5. When testing cross-platform code (e.g., file paths, path separators), verify the fix works on both Windows and Linux/macOS
+5. Run tests with project rebuilding enabled (don't use `--no-build`) to ensure code changes are picked up
+6. When testing cross-platform code (e.g., file paths, path separators), verify the fix works on both Windows and Linux/macOS
 
 ## Common Pitfalls
 

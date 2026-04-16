@@ -1,20 +1,18 @@
 ---
 name: query-pipeline
-description: 'Implementation details for EF Core LINQ query translation and SQL generation. Use when changing expression visitors, SqlExpressions, QuerySqlGenerator, ShaperProcessingExpressionVisitor, or related classes.'
+description: 'Implementation details for EF Core LINQ query translation, SQL generation, and bulk operations (ExecuteUpdate/ExecuteDelete). Use when changing expression visitors, SqlExpressions, QuerySqlGenerator, ShaperProcessingExpressionVisitor, UpdateExpression, DeleteExpression, or related classes.'
 user-invocable: false
 ---
 
 # Query Pipeline
 
-Translates LINQ expressions into database queries and materializes results.
-
 ## Stages
 
-1. **Preprocessing** — `QueryTranslationPreprocessor`: `NavigationExpandingExpressionVisitor` (Include, navigations, auto-includes), `QueryOptimizingExpressionVisitor`
-2. **Translation** — `QueryableMethodTranslatingExpressionVisitor`: LINQ methods → `ShapedQueryExpression` (= `QueryExpression` + `ShaperExpression`). Relational: `RelationalSqlTranslatingExpressionVisitor`, `SelectExpression`
-3. **Postprocessing** — `QueryTranslationPostprocessor`: `SqlNullabilityProcessor`, `SqlTreePruner`, `SqlAliasManager`, `RelationalParameterBasedSqlProcessor`, `SelectExpressionProjectionApplyingExpressionVisitor`, `SqlExpressionSimplifyingExpressionVisitor`, `RelationalValueConverterCompensatingExpressionVisitor`
-4. **Compilation** — `ShapedQueryCompilingExpressionVisitor` → executable delegate. Relational: `ShaperProcessingExpressionVisitor` builds shaper and materialization code
-5. **SQL Generation** — `QuerySqlGenerator`
+1. **Preprocessing**
+2. **Translation**
+3. **Postprocessing**
+4. **Compilation**
+5. **SQL Generation**
 
 ## Validation
 
