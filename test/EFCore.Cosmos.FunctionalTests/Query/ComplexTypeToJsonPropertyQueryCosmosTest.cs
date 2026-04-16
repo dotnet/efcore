@@ -94,6 +94,8 @@ WHERE (c["ShippingAddressRenamed"] = c["BillingAddressRenamed"])
 """);
     });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -107,6 +109,8 @@ WHERE (c["ShippingAddressRenamed"] = {"AddressLine1Renamed":"804 S. Lakeshore Ro
 """);
     });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -267,6 +271,8 @@ WHERE (c["ShippingAddressRenamed"] = c["BillingAddressRenamed"])
 """);
     });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Struct_complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
@@ -280,6 +286,8 @@ WHERE (c["ShippingAddressRenamed"] = {"AddressLine1Renamed":"804 S. Lakeshore Ro
 """);
     });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Struct_complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {

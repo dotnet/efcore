@@ -64,7 +64,9 @@ public class CosmosDbContextOptionsExtensionsTests
         Test(o => o.MaxRequestsPerTcpConnection(3), o => Assert.Equal(3, o.MaxRequestsPerTcpConnection));
         Test(o => o.MaxTcpConnectionsPerEndpoint(3), o => Assert.Equal(3, o.MaxTcpConnectionsPerEndpoint));
         Test(o => o.LimitToEndpoint(), o => Assert.True(o.LimitToEndpoint));
+#pragma warning disable CS0618 // Type or member is obsolete
         Test(o => o.ContentResponseOnWriteEnabled(), o => Assert.True(o.EnableContentResponseOnWrite));
+#pragma warning restore CS0618 // Type or member is obsolete
         Test(o => o.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual), o => Assert.Equal(Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual, o.SessionTokenManagementMode));
         Test(o => o.BulkExecutionEnabled(), o => Assert.True(o.EnableBulkExecution));
 

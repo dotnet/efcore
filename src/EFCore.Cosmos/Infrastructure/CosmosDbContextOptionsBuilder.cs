@@ -205,13 +205,14 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     ///     This reduces networking and CPU load by not sending the resource back over the network and serializing it on the client.
     /// </summary>
     /// <remarks>
+    ///     The EntityFrameworkCore default is <see langword="false" /> since 11.0.
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="enabled"><see langword="false" /> to have null resource</param>
+    [Obsolete("Enabling ContentResponseOnWrite currently has no benefit for EF Core.")]
     public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)
-        => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled)));
-
+        => WithOption(e => e.ContentResponseOnWriteEnabled(enabled));
 
     /// <summary>
     ///     Sets the <see cref="Cosmos.Infrastructure.SessionTokenManagementMode"/> to use.

@@ -74,6 +74,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
         _gatewayModeMaxConnectionLimit = copyFrom._gatewayModeMaxConnectionLimit;
         _maxTcpConnectionsPerEndpoint = copyFrom._maxTcpConnectionsPerEndpoint;
         _maxRequestsPerTcpConnection = copyFrom._maxRequestsPerTcpConnection;
+        _enableContentResponseOnWrite = copyFrom._enableContentResponseOnWrite;
         _httpClientFactory = copyFrom._httpClientFactory;
         _sessionTokenManagementMode = copyFrom._sessionTokenManagementMode;
         _enableBulkExecution = copyFrom._enableBulkExecution;

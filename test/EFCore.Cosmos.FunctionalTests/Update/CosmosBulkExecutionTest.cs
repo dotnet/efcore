@@ -10,6 +10,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
     protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
 
     [ConditionalFact]
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
     {

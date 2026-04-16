@@ -45,7 +45,8 @@ public interface ICosmosClientWrapper
     /// </summary>
     Task<bool> CreateItemAsync(
         string containerId,
-        JToken document,
+        string documentId,
+        ReadOnlyMemory<byte> document,
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);
@@ -59,7 +60,7 @@ public interface ICosmosClientWrapper
     Task<bool> ReplaceItemAsync(
         string collectionId,
         string documentId,
-        JObject document,
+        ReadOnlyMemory<byte> document,
         IUpdateEntry updateEntry,
         ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default);

@@ -351,6 +351,109 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 [dependentBaseForeignKey, tptForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey],
                 principalBase.GetReferencingForeignKeys());
         }
+
+        if (jsonColumns)
+        {
+            var relationalModel = model.GetRelationalModel();
+            var manyTypesTable = relationalModel.FindTable("ManyTypes", null)!;
+            var principalBaseTable = relationalModel.FindTable("PrincipalBase", null)!;
+
+            AssertPrimitiveCollectionJsonMapping(
+                manyTypesType.FindProperty(nameof(ManyTypes.BoolArray))!,
+                manyTypesTable);
+            AssertPrimitiveCollectionJsonMapping(
+                manyTypesType.FindProperty(nameof(ManyTypes.StringReadOnlyCollection))!,
+                manyTypesTable);
+            AssertPrimitiveCollectionJsonMapping(
+                manyTypesType.FindProperty(nameof(ManyTypes.Enum32Collection))!,
+                manyTypesTable);
+
+            static void AssertPrimitiveCollectionJsonMapping(IProperty property, ITable table)
+            {
+                var column = table.FindColumn(property);
+                Assert.NotNull(column);
+                Assert.NotNull(column.JsonElement);
+
+                var jsonArray = Assert.IsAssignableFrom<IRelationalJsonArray>(column.JsonElement);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping(), jsonArray.StoreTypeMapping);
+                Assert.NotEmpty(jsonArray.PropertyMappings);
+                Assert.All(jsonArray.PropertyMappings, m =>
+                {
+                    Assert.Same(property, m.Property);
+                    Assert.Same(jsonArray, m.Element);
+                });
+
+                Assert.Empty(jsonArray.ElementType.PropertyMappings);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping().ElementTypeMapping!, jsonArray.ElementType.StoreTypeMapping);
+            }
+
+            // Verify JSON element is on the Owned column
+            var ownedColumn = principalBaseTable.FindColumn("Owned")!;
+            Assert.NotNull(ownedColumn.JsonElement);
+
+            var ownedJsonRoot = ownedColumn.JsonElement!;
+            Assert.IsAssignableFrom<IRelationalJsonObject>(ownedJsonRoot);
+            Assert.Null(ownedJsonRoot.PropertyName);
+            Assert.Null(ownedJsonRoot.StoreTypeMapping);
+
+            var ownedJsonObject = (IRelationalJsonObject)ownedJsonRoot;
+            Assert.NotEmpty(ownedJsonObject.Properties);
+
+            Assert.NotEmpty(ownedJsonRoot.PropertyMappings);
+            Assert.All(ownedJsonRoot.PropertyMappings, m =>
+            {
+                Assert.Same(referenceOwnedNavigation, m.Property);
+                Assert.Same(ownedJsonRoot, m.Element);
+            });
+
+            // Verify GetJsonElementMappings for the owned navigation
+            var ownedMappings = referenceOwnedNavigation.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(ownedMappings);
+            Assert.All(ownedMappings, m =>
+            {
+                Assert.Same(referenceOwnedNavigation, m.Property);
+                Assert.IsAssignableFrom<IRelationalJsonObject>(m.Element);
+                Assert.Same(referenceOwnedNavigation.TargetEntityType, m.TableMapping.TypeBase);
+            });
+
+            // Verify scalar properties inside the owned entity have JSON element mappings
+            var ownedDetailsProperty = referenceOwnedType.FindProperty(nameof(OwnedType.Details))!;
+            var detailsMappings = ownedDetailsProperty.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(detailsMappings);
+            Assert.All(detailsMappings, m =>
+            {
+                Assert.Same(ownedDetailsProperty, m.Property);
+                Assert.Equal("Details", m.Element.PropertyName);
+                Assert.Same((RelationalTypeMapping)ownedDetailsProperty.GetTypeMapping(), m.Element.StoreTypeMapping);
+                Assert.NotNull(m.TableMapping);
+            });
+
+            // Verify ManyOwned collection navigation has mappings
+            var manyOwnedMappings = ownedCollectionNavigation.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(manyOwnedMappings);
+            Assert.All(manyOwnedMappings, m =>
+            {
+                Assert.Same(ownedCollectionNavigation, m.Property);
+                Assert.NotNull(m.TableMapping);
+            });
+
+            // Verify FindColumn works for navigation
+            var foundColumn = principalBaseTable.FindColumn(referenceOwnedNavigation);
+            Assert.NotNull(foundColumn);
+            Assert.Equal("Owned", foundColumn.Name);
+
+            // Verify ManyOwned collection column has JSON element
+            var manyOwnedColumn = principalBaseTable.FindColumn("ManyOwned");
+            if (manyOwnedColumn != null)
+            {
+                Assert.NotNull(manyOwnedColumn.JsonElement);
+                Assert.IsAssignableFrom<IRelationalJsonArray>(manyOwnedColumn.JsonElement);
+
+                var manyOwnedArray = (IRelationalJsonArray)manyOwnedColumn.JsonElement!;
+                Assert.NotNull(manyOwnedArray.ElementType);
+                Assert.IsAssignableFrom<IRelationalJsonObject>(manyOwnedArray.ElementType);
+            }
+        }
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
@@ -513,6 +616,54 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         Assert.Null(principalBaseFunctionMapping.IsSharedTablePrincipal);
         Assert.Null(principalBaseFunctionMapping.IsSplitEntityTypePrincipal);
         Assert.Same(dbFunction, principalBaseFunctionMapping.DbFunction);
+
+        // Assert complex collection JSON mapping
+        var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
+        var manyOwnedComplexProperty = principalDerived.FindComplexProperty("ManyOwned");
+        if (manyOwnedComplexProperty != null)
+        {
+            Assert.True(manyOwnedComplexProperty.IsCollection);
+            Assert.True(manyOwnedComplexProperty.ComplexType.IsMappedToJson());
+
+            var relationalModel = model.GetRelationalModel();
+            var principalDerivedTable = relationalModel.FindTable("PrincipalBase", null)!;
+            var ownedCollectionColumn = principalDerivedTable.FindColumn("OwnedCollection");
+            if (ownedCollectionColumn != null)
+            {
+                // Verify JSON element is set on the column
+                Assert.NotNull(ownedCollectionColumn.JsonElement);
+                var rootElement = ownedCollectionColumn.JsonElement!;
+                Assert.IsAssignableFrom<IRelationalJsonArray>(rootElement);
+                Assert.Null(rootElement.PropertyName);
+                Assert.Null(rootElement.StoreTypeMapping);
+
+                var jsonArray = (IRelationalJsonArray)rootElement;
+                Assert.NotNull(jsonArray.ElementType);
+                Assert.IsAssignableFrom<IRelationalJsonObject>(jsonArray.ElementType);
+
+                // Verify element type has properties
+                var elementObject = (IRelationalJsonObject)jsonArray.ElementType;
+                Assert.NotEmpty(elementObject.Properties);
+
+                // Verify GetJsonElementMappings works for the complex property
+                var mappings = manyOwnedComplexProperty.GetJsonElementMappings().ToList();
+                Assert.NotEmpty(mappings);
+                Assert.All(mappings, m =>
+                {
+                    Assert.Same(manyOwnedComplexProperty, m.Property);
+                    Assert.Same(rootElement, m.Element);
+                });
+
+                // Verify scalar properties inside the collection element have mappings
+                var detailsProp = manyOwnedComplexProperty.ComplexType.FindProperty(nameof(OwnedType.Details));
+                if (detailsProp != null)
+                {
+                    var detailsMappings = detailsProp.GetJsonElementMappings().ToList();
+                    Assert.NotEmpty(detailsMappings);
+                    Assert.All(detailsMappings, m => Assert.Same(detailsProp, m.Property));
+                }
+            }
+        }
     }
 
     [ConditionalFact]

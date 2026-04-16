@@ -53,7 +53,7 @@ public class SqlServerVectorIndexBuilder<TEntity>(IndexBuilder<TEntity> indexBui
     /// </remarks>
     /// <param name="metric">The similarity metric for the vector index (e.g. "cosine", "euclidean", "dot").</param>
     /// <returns>A builder to further configure the vector index.</returns>
-    public virtual SqlServerVectorIndexBuilder<TEntity> UseMetric(string metric)
+    public virtual SqlServerVectorIndexBuilder<TEntity> HasMetric(string metric)
     {
         Check.NotEmpty(metric);
 
@@ -72,7 +72,7 @@ public class SqlServerVectorIndexBuilder<TEntity>(IndexBuilder<TEntity> indexBui
     /// </remarks>
     /// <param name="type">The type of the vector index (e.g. "DiskANN").</param>
     /// <returns>A builder to further configure the vector index.</returns>
-    public virtual SqlServerVectorIndexBuilder<TEntity> UseType(string? type)
+    public virtual SqlServerVectorIndexBuilder<TEntity> HasType(string? type)
     {
         Metadata.SetVectorIndexType(type);
 

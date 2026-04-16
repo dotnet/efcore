@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
-using Newtonsoft.Json.Linq;
 using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -166,6 +165,17 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             var entry = entries[i];
             Check.DebugAssert(!entry.EntityType.IsAbstract(), $"{entry.EntityType} is abstract");
 
+            if (entry.EntityState == EntityState.Modified)
+            {
+                // @TODO: Seems expensive. Can we move this to the change tracker?
+                // #14121 ?
+                if (entry.EntityType.GetFlattenedPropertiesInHierarchy().Where(entry.IsModified).All(prop => prop.GetJsonPropertyName() == "") &&
+                    !entry.EntityType.GetFlattenedComplexProperties().Any(entry.IsModified))
+                {
+                    continue;
+                }
+            }
+
             if (!entry.EntityType.IsDocumentRoot())
             {
                 var root = GetRootDocument((InternalEntityEntry)entry);
@@ -309,8 +319,6 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             return null;
         }
 
-        JObject? document = null;
-
         if (entry.SharedIdentityEntry != null)
         {
             if (entry.EntityState == EntityState.Deleted)
@@ -324,123 +332,82 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             }
         }
 
-        switch (operation)
-        {
-            case CosmosCudOperation.Create:
-                var primaryKey = entityType.FindPrimaryKey();
-                if (primaryKey != null)
+        if (operation == CosmosCudOperation.Create)
+        { 
+            var primaryKey = entityType.FindPrimaryKey();
+            if (primaryKey != null)
+            {
+                // The code below checks for primary key properties that are not configured for value generation but have not
+                // had a non-sentinel (effectively, non-CLR default) value set. For composite keys, we only check if at least
+                // one property has value generation or a value set, since it is normal to have non-value generated parts of composite
+                // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
+                // check to ensure that, even if partition key properties have been set, at least one other primary key property is
+                // also set.
+                var partitionPropertyNeedsValue = true;
+                var propertyNeedsValue = true;
+                var allPkPropertiesAreFk = true;
+                IProperty? firstNonPartitionKeyProperty = null;
+
+                var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+                foreach (var property in primaryKey.Properties)
                 {
-                    // The code below checks for primary key properties that are not configured for value generation but have not
-                    // had a non-sentinel (effectively, non-CLR default) value set. For composite keys, we only check if at least
-                    // one property has value generation or a value set, since it is normal to have non-value generated parts of composite
-                    // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
-                    // check to ensure that, even if partition key properties have been set, at least one other primary key property is
-                    // also set.
-                    var partitionPropertyNeedsValue = true;
-                    var propertyNeedsValue = true;
-                    var allPkPropertiesAreFk = true;
-                    IProperty? firstNonPartitionKeyProperty = null;
-
-                    var partitionKeyProperties = entityType.GetPartitionKeyProperties();
-                    foreach (var property in primaryKey.Properties)
+                    if (property.IsForeignKey())
                     {
-                        if (property.IsForeignKey())
-                        {
-                            // FK properties conceptually get their value from the associated principal key, which can be handled
-                            // automatically by the update pipeline in some cases, so exclude from this check.
-                            continue;
-                        }
+                        // FK properties conceptually get their value from the associated principal key, which can be handled
+                        // automatically by the update pipeline in some cases, so exclude from this check.
+                        continue;
+                    }
 
-                        allPkPropertiesAreFk = false;
+                    allPkPropertiesAreFk = false;
 
-                        var isPartitionKeyProperty = partitionKeyProperties.Contains(property);
+                    var isPartitionKeyProperty = partitionKeyProperties.Contains(property);
+                    if (!isPartitionKeyProperty)
+                    {
+                        firstNonPartitionKeyProperty = property;
+                    }
+
+                    if (property.ValueGenerated != ValueGenerated.Never
+                        || entry.HasExplicitValue(property))
+                    {
                         if (!isPartitionKeyProperty)
                         {
-                            firstNonPartitionKeyProperty = property;
+                            propertyNeedsValue = false;
+                            break;
                         }
 
-                        if (property.ValueGenerated != ValueGenerated.Never
-                            || entry.HasExplicitValue(property))
-                        {
-                            if (!isPartitionKeyProperty)
-                            {
-                                propertyNeedsValue = false;
-                                break;
-                            }
-
-                            partitionPropertyNeedsValue = false;
-                        }
+                        partitionPropertyNeedsValue = false;
                     }
+                }
 
-                    if (!allPkPropertiesAreFk)
+                if (!allPkPropertiesAreFk)
+                {
+                    try
                     {
-                        try
+                        if (firstNonPartitionKeyProperty != null
+                        && propertyNeedsValue)
                         {
-                            if (firstNonPartitionKeyProperty != null
-                            && propertyNeedsValue)
-                            {
-                                // There were non-partition key properties, so only throw if it is one of these that is not set,
-                                // ignoring partition key properties.
-                                Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
-                            }
-                            else if (firstNonPartitionKeyProperty == null
-                                     && partitionPropertyNeedsValue)
-                            {
-                                // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
-                                Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
-                            }
+                            // There were non-partition key properties, so only throw if it is one of these that is not set,
+                            // ignoring partition key properties.
+                            Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
                         }
-                        catch (InvalidOperationException ex)
+                        else if (firstNonPartitionKeyProperty == null
+                                    && partitionPropertyNeedsValue)
                         {
-                            throw WrapUpdateException(ex, [entry]);
+                            // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
+                            Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
                         }
                     }
-                }
-
-                document = documentSource.GetCurrentDocument(entry);
-                if (document != null)
-                {
-                    documentSource.UpdateDocument(document, entry);
-                }
-                else
-                {
-                    document = documentSource.CreateDocument(entry);
-                }
-                break;
-
-            case CosmosCudOperation.Update:
-                document = documentSource.GetCurrentDocument(entry);
-                if (document != null)
-                {
-                    if (documentSource.UpdateDocument(document, entry) == null)
+                    catch (InvalidOperationException ex)
                     {
-                        return null;
+                        throw WrapUpdateException(ex, [entry]);
                     }
                 }
-                else
-                {
-                    document = documentSource.CreateDocument(entry);
-
-                    var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
-                    if (propertyName != null)
-                    {
-                        document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
-                    }
-                }
-                break;
-
-            case CosmosCudOperation.Delete:
-                break;
-
-            default:
-                throw new UnreachableException();
+            }
         }
 
         return new CosmosUpdateEntry
         {
             CollectionId = collectionId,
-            Document = document,
             DocumentSource = documentSource,
             Entry = entry,
             Operation = operation.Value
@@ -458,15 +425,14 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         foreach (var updateEntry in batch.UpdateEntries)
         {
-            // Stream is disposed by Transaction.ExecuteAsync
-            var stream = updateEntry.Document != null ? CosmosClientWrapper.Serialize(updateEntry.Document) : null;
+            var document = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.DocumentSource.Serialize(updateEntry.Entry) : default;
 
             // With AutoTransactionBehavior.Always, AddToTransaction will always return true.
-            if (!AddToTransaction(transaction, updateEntry, stream))
+            if (!AddToTransaction(transaction, updateEntry, document))
             {
                 yield return transaction;
                 transaction = _cosmosClient.CreateTransactionalBatch(batch.Key.ContainerId, batch.Key.PartitionKeyValue, checkSize);
-                AddToTransaction(transaction, updateEntry, stream);
+                AddToTransaction(transaction, updateEntry, document);
                 continue;
             }
 
@@ -483,13 +449,13 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         }
     }
 
-    private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, Stream? stream)
+    private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, ReadOnlyMemory<byte> document)
     {
         var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
         return updateEntry.Operation switch
         {
-            CosmosCudOperation.Create => transaction.CreateItem(id, stream!, updateEntry.Entry),
-            CosmosCudOperation.Update => transaction.ReplaceItem(id, stream!, updateEntry.Entry),
+            CosmosCudOperation.Create => transaction.CreateItem(id, document, updateEntry.Entry),
+            CosmosCudOperation.Update => transaction.ReplaceItem(id, document, updateEntry.Entry),
             CosmosCudOperation.Delete => transaction.DeleteItem(id, updateEntry.Entry),
             _ => throw new UnreachableException(),
         };
@@ -499,24 +465,26 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     {
         try
         {
+            var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
             return updateEntry.Operation switch
             {
                 CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
                                     updateEntry.CollectionId,
-                                    updateEntry.Document!,
+                                    id,
+                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
-                                    updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry),
-                                    updateEntry.Document!,
+                                    id,
+                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Delete => await _cosmosClient.DeleteItemAsync(
                                     updateEntry.CollectionId,
-                                    updateEntry.DocumentSource.GetId(updateEntry.Entry),
+                                    id,
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
@@ -551,7 +519,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         if (!_documentCollections.TryGetValue(entityType, out var documentSource))
         {
             _documentCollections.Add(
-                entityType, documentSource = new DocumentSource(entityType, this));
+                entityType, documentSource = new DocumentSource(entityType)); // @TODO: Make this singleton #34567
         }
 
         return documentSource;
@@ -625,7 +593,6 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         public required CosmosCudOperation Operation { get; init; }
         public required string CollectionId { get; init; }
         public required DocumentSource DocumentSource { get; init; }
-        public required JObject? Document { get; init; }
     }
 
     private sealed record Grouping(string ContainerId, PartitionKey PartitionKeyValue);

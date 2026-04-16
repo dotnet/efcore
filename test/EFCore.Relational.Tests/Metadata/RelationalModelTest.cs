@@ -3323,6 +3323,287 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Json_element_tree_is_built_for_owned_entity_json_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.ComplexProperty);
+                cb.Ignore(c => c.Details);
+
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+                cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
+                cb.OwnsMany(c => c.Addresses, o => o.ToJson("addresses"));
+#pragma warning restore EF8001
+            });
+
+            var model = Finalize(modelBuilder);
+            var table = model.Tables.Single();
+
+            // Validate JSON columns have JsonElement set
+            var dateDetailsColumn = table.FindColumn("date_details")!;
+            Assert.NotNull(dateDetailsColumn.JsonElement);
+            var addressesColumnObj = table.FindColumn("addresses")!;
+            Assert.NotNull(addressesColumnObj.JsonElement);
+
+            // Validate date_details is a JSON object (reference navigation)
+            var dateDetailsRoot = dateDetailsColumn.JsonElement!;
+            Assert.IsType<RelationalJsonObject>(dateDetailsRoot);
+            var dateDetailsObject = (IRelationalJsonObject)dateDetailsRoot;
+            Assert.Null(dateDetailsRoot.PropertyName);
+            Assert.True(dateDetailsRoot.IsNullable);
+            Assert.Null(dateDetailsRoot.ParentElement);
+            Assert.NotNull(dateDetailsRoot.ContainingColumn);
+            Assert.Null(dateDetailsRoot.StoreTypeMapping);
+            Assert.Equal("date_details", dateDetailsRoot.ContainingColumn.Name);
+            Assert.Empty(dateDetailsRoot.Path);
+
+            // Validate date_details has a Date property
+            var dateProperty = dateDetailsObject.FindProperty("Date");
+            Assert.NotNull(dateProperty);
+            Assert.IsType<RelationalJsonScalar>(dateProperty);
+            Assert.Equal("Date", dateProperty.PropertyName);
+            Assert.False(dateProperty.IsNullable);
+            Assert.Single(dateProperty.Path);
+            Assert.Equal("Date", dateProperty.Path[0].PropertyName);
+            Assert.Same(dateDetailsRoot, dateProperty.ParentElement);
+
+            // Validate addresses is a JSON array (collection navigation)
+            var addressesRoot = addressesColumnObj.JsonElement!;
+            Assert.IsType<RelationalJsonArray>(addressesRoot);
+            var addressesArray = (IRelationalJsonArray)addressesRoot;
+            Assert.Null(addressesRoot.PropertyName);
+            Assert.True(addressesRoot.IsNullable);
+            Assert.Null(addressesRoot.ParentElement);
+            Assert.Empty(addressesRoot.Path);
+
+            // Validate element type is an object with Street and City properties (plus shadow key/FK properties)
+            var addressElement = addressesArray.ElementType;
+            Assert.IsType<RelationalJsonObject>(addressElement);
+            var addressObject = (IRelationalJsonObject)addressElement;
+            Assert.True(addressObject.Properties.Count >= 2);
+
+            var streetProperty = addressObject.FindProperty("Street");
+            Assert.NotNull(streetProperty);
+            Assert.IsType<RelationalJsonScalar>(streetProperty);
+
+            var cityProperty = addressObject.FindProperty("City");
+            Assert.NotNull(cityProperty);
+            Assert.IsType<RelationalJsonScalar>(cityProperty);
+
+            // Path through array should have 2 segments: ArrayIndex, PropertyName
+            Assert.Equal(2, streetProperty.Path.Count);
+            Assert.True(streetProperty.Path[0].IsArray);
+            Assert.Equal("Street", streetProperty.Path[1].PropertyName);
+
+            // Validate FindColumn with IPropertyBase
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var dateDetailsNavigation = orderType.FindNavigation(nameof(Order.DateDetails))!;
+            var dateDetailsCol = table.FindColumn(dateDetailsNavigation);
+            Assert.NotNull(dateDetailsCol);
+            Assert.Equal("date_details", dateDetailsCol.Name);
+
+            var addressesNavigation = orderType.FindNavigation(nameof(Order.Addresses))!;
+            var addressesCol = table.FindColumn(addressesNavigation);
+            Assert.NotNull(addressesCol);
+            Assert.Equal("addresses", addressesCol.Name);
+
+            // Validate GetJsonElementMappings
+            var dateDetailsMappings = dateDetailsNavigation.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(dateDetailsMappings);
+            Assert.Contains(dateDetailsMappings, m => m.Element == dateDetailsRoot);
+            Assert.All(dateDetailsMappings, m =>
+            {
+                Assert.Same(dateDetailsNavigation, m.Property);
+                Assert.NotNull(m.TableMapping);
+                Assert.Same(dateDetailsNavigation.TargetEntityType, m.TableMapping.TypeBase);
+            });
+
+            // Validate scalar property has JSON element mappings
+            var dateDetailsEntityType = dateDetailsNavigation.TargetEntityType;
+            var datePropertyModel = dateDetailsEntityType.FindProperty("Date")!;
+            Assert.Same((RelationalTypeMapping)datePropertyModel.GetTypeMapping(), dateProperty.StoreTypeMapping);
+            var datePropertyMappings = datePropertyModel.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(datePropertyMappings);
+            Assert.All(datePropertyMappings, m => Assert.Equal("Date", m.Element.PropertyName));
+        }
+
+        [ConditionalFact]
+        public void Json_element_tree_is_merged_for_existing_json_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithNestedComplexProperty>()
+                .ComplexProperty(
+                    e => e.ComplexProperty,
+                    b => b.ToJson("complex_data"));
+
+            var model = Finalize(modelBuilder);
+            var table = model.Tables.Single();
+            var jsonColumn = table.FindColumn("complex_data")!;
+
+            var jsonObject = Assert.IsAssignableFrom<IRelationalJsonObject>(jsonColumn.JsonElement);
+            var nestedObject = Assert.IsAssignableFrom<IRelationalJsonObject>(jsonObject.FindProperty("Nested"));
+            Assert.NotNull(nestedObject.FindProperty("Number"));
+
+            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithNestedComplexProperty.ComplexProperty))!;
+            var nestedComplexProperty = complexProperty.ComplexType.FindComplexProperty(nameof(OuterComplexData.Nested))!;
+
+            Assert.Same(jsonColumn, table.FindColumn(complexProperty));
+            Assert.Same(jsonColumn, table.FindColumn(nestedComplexProperty));
+
+            var numberProperty = nestedComplexProperty.ComplexType.FindProperty(nameof(NestedComplexData.Number))!;
+            var numberMappings = numberProperty.GetJsonElementMappings().ToList();
+            Assert.NotEmpty(numberMappings);
+            Assert.All(numberMappings, m => Assert.Equal("Number", m.Element.PropertyName));
+        }
+
+        [ConditionalFact]
+        public void Json_element_tree_is_built_for_complex_property_json_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithComplexProperty>()
+                .ComplexProperty(
+                    e => e.ComplexProperty, b =>
+                    {
+                        b.ToJson("complex_data");
+                    });
+
+            var model = Finalize(modelBuilder);
+            var table = model.Tables.Single();
+
+            // Validate JsonElement on column
+            var jsonColumn = table.FindColumn("complex_data")!;
+            Assert.NotNull(jsonColumn.JsonElement);
+            var root = jsonColumn.JsonElement!;
+            Assert.IsType<RelationalJsonObject>(root);
+            var jsonObject = (IRelationalJsonObject)root;
+            Assert.Null(root.PropertyName);
+            Assert.True(root.IsNullable);
+            Assert.Null(root.StoreTypeMapping);
+
+            // Validate complex type properties are represented as JSON properties
+            Assert.Equal(2, jsonObject.Properties.Count);
+
+            // Check order preservation
+            var firstProp = jsonObject.Properties[0];
+            Assert.IsType<RelationalJsonScalar>(firstProp);
+            var secondProp = jsonObject.Properties[1];
+            Assert.IsType<RelationalJsonScalar>(secondProp);
+
+            // Check value types
+            var valueProp = jsonObject.FindProperty("Value");
+            Assert.NotNull(valueProp);
+            Assert.True(valueProp.IsNullable);
+
+            var numberProp = jsonObject.FindProperty("Number");
+            Assert.NotNull(numberProp);
+            Assert.False(numberProp.IsNullable);
+
+            // Validate FindColumn(IPropertyBase) with complex property
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty))!;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithComplexProperty.ComplexProperty))!;
+            var column = table.FindColumn(complexProperty);
+            Assert.NotNull(column);
+            Assert.Equal("complex_data", column.Name);
+            Assert.Same(root, column.JsonElement);
+
+            // Validate GetJsonElementMappings for complex property
+            var complexMappings = complexProperty.GetJsonElementMappings().ToList();
+            Assert.Single(complexMappings);
+            Assert.Same(root, complexMappings[0].Element);
+
+            // Validate scalar properties have mappings
+            var valueProperty = complexProperty.ComplexType.FindProperty("Value")!;
+            var valueMappings = valueProperty.GetJsonElementMappings().ToList();
+            Assert.Single(valueMappings);
+            Assert.Equal("Value", valueMappings[0].Element.PropertyName);
+            Assert.Same((RelationalTypeMapping)valueProperty.GetTypeMapping(), valueMappings[0].Element.StoreTypeMapping);
+        }
+
+        [ConditionalFact]
+        public void Json_element_tree_is_built_for_primitive_collection_columns()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<EntityWithJsonOwnedWithCollection>(eb =>
+            {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+                eb.OwnsOne(
+                    e => e.OwnedWithTags,
+                    b =>
+                    {
+                        b.ToJson("owned_with_tags");
+
+                        var tags = b.PrimitiveCollection(e => e.Tags);
+                        tags.Metadata.SetTypeMapping(
+                            (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
+                                clrType: typeof(List<string>),
+                                elementMapping: new StringTypeMapping("nvarchar(max)", null)));
+
+                        var enumValues = b.PrimitiveCollection(e => e.EnumValues);
+                        enumValues.Metadata.SetTypeMapping(
+                            (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
+                                clrType: typeof(List<PrimitiveCollectionEnum>),
+                                elementMapping: new IntTypeMapping("int")));
+                        enumValues.ElementType(b => b.HasConversion<int>());
+                    });
+#pragma warning restore EF8001
+            });
+
+            var model = Finalize(modelBuilder);
+            var entityType = model.Model.FindEntityType(typeof(EntityWithJsonOwnedWithCollection))!;
+            var ownedNavigation = entityType.FindNavigation(nameof(EntityWithJsonOwnedWithCollection.OwnedWithTags))!;
+            var ownedType = ownedNavigation.TargetEntityType;
+            var table = model.Tables.Single();
+            var column = table.FindColumn("owned_with_tags")!;
+
+            AssertPrimitiveCollectionJsonMapping(
+                ownedType.FindProperty(nameof(JsonOwnedWithTags.Tags))!,
+                table,
+                column);
+
+            AssertPrimitiveCollectionJsonMapping(
+                ownedType.FindProperty(nameof(JsonOwnedWithTags.EnumValues))!,
+                table,
+                column);
+
+            static void AssertPrimitiveCollectionJsonMapping(
+                IProperty property,
+                ITable table,
+                IColumnBase containingColumn)
+            {
+                var column = table.FindColumn(property);
+                Assert.NotNull(column);
+                Assert.Same(containingColumn, column);
+
+                var mappings = property.GetJsonElementMappings().ToList();
+                Assert.NotEmpty(mappings);
+                Assert.All(mappings, m =>
+                {
+                    Assert.Same(property, m.Property);
+                    Assert.IsAssignableFrom<IRelationalJsonArray>(m.Element);
+                });
+
+                var mapping = Assert.Single(mappings, m => ReferenceEquals(m.TableMapping.Table, table));
+                var jsonArray = Assert.IsAssignableFrom<IRelationalJsonArray>(mapping.Element);
+                var jsonElement = Assert.IsAssignableFrom<RelationalJsonScalar>(jsonArray.ElementType);
+
+                Assert.Equal(property.Name, jsonArray.PropertyName);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping(), jsonArray.StoreTypeMapping);
+                Assert.Same((RelationalTypeMapping)property.GetTypeMapping().ElementTypeMapping!, jsonElement.StoreTypeMapping);
+                Assert.NotEmpty(jsonArray.Path);
+                Assert.Equal(property.Name, jsonArray.Path[^1].PropertyName);
+                Assert.NotEmpty(jsonElement.Path);
+                Assert.True(jsonElement.Path[^1].IsArray);
+            }
+        }
+
+        [ConditionalFact]
         public void Can_use_relational_model_with_functions_and_json_owned_types()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3485,6 +3766,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public List<ComplexData> ComplexCollection { get; set; }
         }
 
+        private class EntityWithNestedComplexProperty
+        {
+            public int Id { get; set; }
+            public OuterComplexData ComplexProperty { get; set; }
+        }
+
         private abstract class TphBaseEntity
         {
             public int Id { get; set; }
@@ -3497,10 +3784,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public ComplexData ComplexProperty { get; set; }
         }
 
+        private class EntityWithJsonOwnedWithCollection
+        {
+            public int Id { get; set; }
+            public JsonOwnedWithTags OwnedWithTags { get; set; }
+        }
+
+        private enum PrimitiveCollectionEnum
+        {
+            One,
+            Two
+        }
+
+        private class JsonOwnedWithTags
+        {
+            public string Label { get; set; }
+            public List<string> Tags { get; set; }
+            public List<PrimitiveCollectionEnum> EnumValues { get; set; }
+        }
+
         [ComplexType]
         private class ComplexData
         {
             public string Value { get; set; }
+            public int Number { get; set; }
+        }
+
+        [ComplexType]
+        private class OuterComplexData
+        {
+            public string Value { get; set; }
+            public NestedComplexData Nested { get; set; }
+        }
+
+        [ComplexType]
+        private class NestedComplexData
+        {
             public int Number { get; set; }
         }
     }

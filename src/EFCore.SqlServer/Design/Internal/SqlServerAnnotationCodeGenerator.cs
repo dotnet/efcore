@@ -159,22 +159,6 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
             nameof(SqlServerFullTextCatalogBuilder.IsAccentSensitive), [typeof(bool)])!;
 
-    private static readonly MethodInfo IndexHasFullTextKeyIndexMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextKeyIndex), [typeof(IndexBuilder), typeof(string)])!;
-
-    private static readonly MethodInfo IndexHasFullTextCatalogMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextCatalog), [typeof(IndexBuilder), typeof(string)])!;
-
-    private static readonly MethodInfo IndexHasFullTextChangeTrackingMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextChangeTracking), [typeof(IndexBuilder), typeof(FullTextChangeTracking)])!;
-
-    private static readonly MethodInfo IndexHasFullTextLanguageMethodInfo
-        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerIndexBuilderExtensions.HasFullTextLanguage), [typeof(IndexBuilder), typeof(string), typeof(string)])!;
-
     #endregion MethodInfos
 
     /// <summary>
@@ -354,7 +338,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 : null;
 
             // for the RevEng path, we avoid adding period properties to the entity
-            // because we don't want code for them to be generated - they need to be in shadow state
+            // because we don't want code for them to be generated - they are created as shadow properties
             // so if we don't find property on the entity, we know it's this scenario
             // and in that case period column name is actually the same as the period property name annotation
             // since in RevEng scenario there can't be custom column mapping
@@ -475,30 +459,6 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-        IIndex index,
-        IDictionary<string, IAnnotation> annotations)
-    {
-        var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(index, annotations));
-
-        if (annotations.Remove(SqlServerAnnotationNames.FullTextLanguages, out var languagesAnnotation)
-            && languagesAnnotation.Value is Dictionary<string, string> languages)
-        {
-            foreach (var (propertyName, language) in languages.OrderBy(l => l.Key))
-            {
-                fragments.Add(new MethodCallCodeFragment(IndexHasFullTextLanguageMethodInfo, propertyName, language));
-            }
-        }
-
-        return fragments;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected override MethodCallCodeFragment? GenerateFluentApi(IIndex index, IAnnotation annotation)
         => annotation.Name switch
         {
@@ -514,13 +474,6 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
             SqlServerAnnotationNames.DataCompression
                 => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
-
-            SqlServerAnnotationNames.FullTextIndex
-                => new MethodCallCodeFragment(IndexHasFullTextKeyIndexMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.FullTextCatalog
-                => new MethodCallCodeFragment(IndexHasFullTextCatalogMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.FullTextChangeTracking
-                => new MethodCallCodeFragment(IndexHasFullTextChangeTrackingMethodInfo, annotation.Value),
 
             _ => null
         };

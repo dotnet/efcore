@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// <remarks>
 ///     Inspired by RelationalJsonUtilities.
 /// </remarks>
-public static class CosmosSerializationUtilities
+public static class CosmosSerializationUtilities // @TODO: Can this be removed? Use document source instead? #34567
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

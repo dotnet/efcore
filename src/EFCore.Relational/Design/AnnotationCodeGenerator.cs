@@ -35,6 +35,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides,
+        RelationalAnnotationNames.JsonElementMappings,
 #pragma warning disable CS0618
         RelationalAnnotationNames.ContainerColumnTypeMapping
 #pragma warning restore CS0618

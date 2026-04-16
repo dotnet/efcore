@@ -379,6 +379,59 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
 
     #endregion Issue37337
 
+    #region Issue38105
+
+    [ConditionalFact]
+    public virtual async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37337>(
+            seed: context =>
+            {
+                var entity = new Context37337.EntityType
+                {
+                    Id = Guid.NewGuid(),
+                    Prop = new Context37337.OptionalComplexProperty
+                    {
+                        OptionalValue = true
+                    }
+                };
+                context.Add(entity);
+                context.Entry(entity).Property(Issue37337CreatedByShadowPropertyName).CurrentValue = "Seeder";
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var entity = await context.Set<Context37337.EntityType>().SingleAsync();
+        var id = entity.Id;
+        context.ChangeTracker.Clear();
+
+        // Create a new disconnected instance with the same key and Update it.
+        // The complex type discriminator (shadow property with AfterSaveBehavior.Throw) should not
+        // be marked as modified by Update(), and SaveChanges should succeed without throwing.
+        var updatedEntity = new Context37337.EntityType
+        {
+            Id = id,
+            Prop = new Context37337.OptionalComplexProperty
+            {
+                OptionalValue = false
+            }
+        };
+
+        context.Update(updatedEntity);
+
+        await context.SaveChangesAsync();
+
+        context.ChangeTracker.Clear();
+
+        var reloaded = await context.Set<Context37337.EntityType>().SingleAsync();
+        Assert.Equal(id, reloaded.Id);
+        Assert.NotNull(reloaded.Prop);
+        Assert.False(reloaded.Prop.OptionalValue);
+    }
+
+    #endregion Issue38105
+
     protected override string NonSharedStoreName
         => "AdHocComplexTypeQueryTest";
 }

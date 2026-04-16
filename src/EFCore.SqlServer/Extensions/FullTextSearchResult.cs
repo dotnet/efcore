@@ -1,12 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     Represents the results from a call to
-///     <see cref="SqlServerQueryableExtensions.FreeTextTable{T, TKey}(DbSet{T}, Expression{Func{T, object}}, string, string?, int?)" /> or
-///     <see cref="SqlServerQueryableExtensions.ContainsTable{T, TKey}(DbSet{T}, Expression{Func{T, object}}, string, string?, int?)" />.
+///     <see cref="SqlServerQueryableExtensions.FreeTextTable{T, TKey}(DbSet{T}, string, Expression{Func{T, object}}?, string?, int?)" /> or
+///     <see cref="SqlServerQueryableExtensions.ContainsTable{T, TKey}(DbSet{T}, string, Expression{Func{T, object}}?, string?, int?)" />.
 /// </summary>
 /// <typeparam name="TKey">The type of the full-text key column for the table being searched.</typeparam>
 public readonly struct FullTextSearchResult<TKey>(TKey key, int rank)

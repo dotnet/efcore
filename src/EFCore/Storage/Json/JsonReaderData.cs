@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 public class JsonReaderData
 {
     private readonly Stream? _stream;
-    private byte[] _buffer;
+    private ReadOnlyMemory<byte> _buffer;
+    private byte[]? _mutableBuffer;
     private int _positionInBuffer;
     private int _bytesAvailable;
     private JsonReaderState _readerState;
@@ -20,7 +21,7 @@ public class JsonReaderData
     ///     Creates a new <see cref="JsonReaderData" /> object to read JSON from the given buffer.
     /// </summary>
     /// <param name="buffer">The buffer containing UTF8 JSON bytes.</param>
-    public JsonReaderData(byte[] buffer)
+    public JsonReaderData(ReadOnlyMemory<byte> buffer)
     {
         _buffer = buffer;
         _bytesAvailable = buffer.Length;
@@ -32,9 +33,18 @@ public class JsonReaderData
     /// <param name="stream">The stream providing UTF8 JSON bytes.</param>
     public JsonReaderData(Stream stream)
     {
-        _stream = stream;
-        _buffer = new byte[256];
-        ReadBytes(0, default);
+        if (stream is MemoryStream memoryStream && memoryStream.TryGetBuffer(out var segment))
+        {
+            _buffer = segment.AsMemory()[(int)memoryStream.Position..];
+            _bytesAvailable = _buffer.Length;
+        }
+        else
+        {
+            _stream = stream;
+            _mutableBuffer = new byte[256];
+            _buffer = _mutableBuffer;
+            ReadBytes(0, default);
+        }
     }
 
     /// <summary>
@@ -62,7 +72,7 @@ public class JsonReaderData
         }
         else
         {
-            var buffer = _buffer;
+            var buffer = _mutableBuffer!;
             var totalConsumed = bytesConsumed + _positionInBuffer;
             if (_bytesAvailable != 0 && totalConsumed < buffer.Length)
             {
@@ -81,6 +91,7 @@ public class JsonReaderData
                 _bytesAvailable = _stream.Read(buffer);
             }
 
+            _mutableBuffer = buffer;
             _buffer = buffer;
         }
 
@@ -95,5 +106,8 @@ public class JsonReaderData
     /// </summary>
     /// <returns>The new reader.</returns>
     public virtual Utf8JsonReader CreateReader()
-        => new(_buffer.AsSpan(_positionInBuffer), isFinalBlock: _bytesAvailable != _buffer.Length, _readerState);
+        => new(
+            _buffer.Span[_positionInBuffer..],
+            isFinalBlock: _stream is null || _bytesAvailable != _buffer.Length,
+            _readerState);
 }

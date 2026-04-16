@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -92,6 +91,8 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
         {
             configuration.AllowBulkExecution = options.EnableBulkExecution.Value;
         }
+
+        configuration.EnableContentResponseOnWrite = options.EnableContentResponseOnWrite == true;
 
         _client = options switch
         {

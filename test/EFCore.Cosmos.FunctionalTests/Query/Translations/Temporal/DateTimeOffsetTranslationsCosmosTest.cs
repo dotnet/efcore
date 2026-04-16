@@ -181,6 +181,30 @@ FROM root c
 """);
     }
 
+    public override async Task DateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.DateTime());
+
+        AssertSql();
+    }
+
+    public override async Task UtcDateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.UtcDateTime());
+
+        AssertSql();
+    }
+
+    public override async Task LocalDateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.LocalDateTime());
+
+        AssertSql();
+    }
+
     public override async Task AddYears()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -270,6 +294,15 @@ FROM root c
 
     public override Task ToUnixTimeSecond()
         => AssertTranslationFailed(() => base.ToUnixTimeSecond());
+
+    public override Task ToOffset()
+        => AssertTranslationFailed(() => base.ToOffset());
+
+    public override Task Ctor_DateTime()
+        => AssertTranslationFailed(() => base.Ctor_DateTime());
+
+    public override Task Ctor_DateTime_TimeSpan()
+        => AssertTranslationFailed(() => base.Ctor_DateTime_TimeSpan());
 
     public override async Task Milliseconds_parameter_and_constant()
     {

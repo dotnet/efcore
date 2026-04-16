@@ -551,12 +551,12 @@ public static class RelationalPropertyExtensions
     /// <summary>
     ///     Returns the default columns to which the property would be mapped.
     /// </summary>
-    /// <param name="property">The property.</param>
+    /// <param name="propertyBase">The property.</param>
     /// <returns>The default columns to which the property would be mapped.</returns>
-    public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings(this IProperty property)
+    public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings(this IPropertyBase propertyBase)
     {
-        property.DeclaringType.Model.EnsureRelationalModel();
-        return (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IColumnMappingBase>?)propertyBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultColumnMappings)
             ?? [];
     }
@@ -564,12 +564,12 @@ public static class RelationalPropertyExtensions
     /// <summary>
     ///     Returns the table columns to which the property is mapped.
     /// </summary>
-    /// <param name="property">The property.</param>
+    /// <param name="propertyBase">The property.</param>
     /// <returns>The table columns to which the property is mapped.</returns>
-    public static IEnumerable<IColumnMapping> GetTableColumnMappings(this IProperty property)
+    public static IEnumerable<IColumnMapping> GetTableColumnMappings(this IPropertyBase propertyBase)
     {
-        property.DeclaringType.Model.EnsureRelationalModel();
-        return (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IColumnMapping>?)propertyBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableColumnMappings)
             ?? [];
     }
@@ -577,13 +577,26 @@ public static class RelationalPropertyExtensions
     /// <summary>
     ///     Returns the view columns to which the property is mapped.
     /// </summary>
-    /// <param name="property">The property.</param>
+    /// <param name="propertyBase">The property.</param>
     /// <returns>The view columns to which the property is mapped.</returns>
-    public static IEnumerable<IViewColumnMapping> GetViewColumnMappings(this IProperty property)
+    public static IEnumerable<IViewColumnMapping> GetViewColumnMappings(this IPropertyBase propertyBase)
     {
-        property.DeclaringType.Model.EnsureRelationalModel();
-        return (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IViewColumnMapping>?)propertyBase.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewColumnMappings)
+            ?? [];
+    }
+
+    /// <summary>
+    ///     Returns the JSON element mappings for this property.
+    /// </summary>
+    /// <param name="propertyBase">The property.</param>
+    /// <returns>The JSON element mappings for this property.</returns>
+    public static IEnumerable<IJsonElementMapping> GetJsonElementMappings(this IPropertyBase propertyBase)
+    {
+        propertyBase.DeclaringType.Model.EnsureRelationalModel();
+        return (IEnumerable<IJsonElementMapping>?)propertyBase.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.JsonElementMappings)
             ?? [];
     }
 

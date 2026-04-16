@@ -133,6 +133,8 @@ SET "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), ''),
             """
 UPDATE "Blogs" AS "b"
 SET "CreationTimestamp" = '2020-01-01 00:00:00'
+FROM "BlogsPart1" AS "b0"
+WHERE "b"."Id" = "b0"."Id"
 """);
     }
 

@@ -19,10 +19,10 @@ permissions:
 jobs:
   label:
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Label issues and update milestones
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;

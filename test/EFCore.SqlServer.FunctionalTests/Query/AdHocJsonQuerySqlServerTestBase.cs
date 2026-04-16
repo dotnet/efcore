@@ -682,4 +682,18 @@ FROM [MyEntity] AS [m]
 INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
 """);
     }
+
+    public override async Task Value_converter_equality_null_scalar()
+    {
+        await base.Value_converter_equality_null_scalar();
+
+        AssertSql(
+            """
+@entity_equality_complexType='{"IntToString":"\u003Cnull\u003E"}' (Size = 34)
+
+SELECT COUNT(*)
+FROM [Entities] AS [e]
+WHERE [e].[Json] = @entity_equality_complexType
+""");
+    }
 }

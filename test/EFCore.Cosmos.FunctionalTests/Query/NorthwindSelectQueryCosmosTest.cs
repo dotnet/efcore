@@ -192,7 +192,6 @@ WHERE (c["EmployeeID"] = 1)
         AssertSql();
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool async)
     {
         // Always throws for sync.
@@ -1685,6 +1684,7 @@ ORDER BY c["OrderID"]
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Reverse_after_orderby_thenby(bool async)
     {

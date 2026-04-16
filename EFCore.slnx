@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/eng/" />
+  <Folder Name="/eng/Tools/">
+    <Project Path="eng/Tools/ApiChief/ApiChief.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="azure-pipelines-internal-tests.yml" />
@@ -52,6 +56,7 @@
     <Project Path="test/dotnet-ef.Tests/dotnet-ef.Tests.csproj" />
     <Project Path="test/ef.Tests/ef.Tests.csproj" />
     <Project Path="test/EFCore.Analyzers.Tests/EFCore.Analyzers.Tests.csproj" />
+    <Project Path="test/EFCore.ApiBaseline.Tests/EFCore.ApiBaseline.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.InMemory.FunctionalTests/EFCore.AspNet.InMemory.FunctionalTests.csproj" />
     <Project Path="test/EFCore.AspNet.Specification.Tests/EFCore.AspNet.Specification.Tests.csproj" />
     <Project Path="test/EFCore.AspNet.Sqlite.FunctionalTests/EFCore.AspNet.Sqlite.FunctionalTests.csproj" />
@@ -76,6 +81,7 @@
     <Project Path="test/EFCore.Tests/EFCore.Tests.csproj" />
     <Project Path="test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.sqlite3.Tests.csproj" />
+    <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.sqlite3mc.Tests.csproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.Tests.csproj" />
     <Project Path="test/Microsoft.Data.Sqlite.Tests/Microsoft.Data.Sqlite.winsqlite3.Tests.csproj" />
     <Project Path="test/EFCore.NativeAotTests/EFCore.NativeAotTests.csproj">

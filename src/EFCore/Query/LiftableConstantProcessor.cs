@@ -250,6 +250,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 #if DEBUG
     // TODO: issue #33482 - we should properly deal with NTS types rather than disabling them here
     // especially using such a crude method
+    [EntityFrameworkInternal]
     protected override Expression VisitMember(MemberExpression memberExpression)
         => memberExpression is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" }
             ? memberExpression

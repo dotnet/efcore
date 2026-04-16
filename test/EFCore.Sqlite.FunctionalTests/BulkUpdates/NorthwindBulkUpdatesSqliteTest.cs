@@ -1072,7 +1072,7 @@ UPDATE "Order Details" AS "o"
 SET "Quantity" = CAST(@p AS INTEGER)
 FROM "Orders" AS "o0"
 LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
-WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
+WHERE "c"."City" = 'Seattle' AND "o"."OrderID" = "o0"."OrderID"
 """);
     }
 
@@ -1085,7 +1085,7 @@ WHERE "o"."OrderID" = "o0"."OrderID" AND "c"."City" = 'Seattle'
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
 FROM "Customers" AS "c"
-WHERE "c"."CustomerID" = "o"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o"."CustomerID"
 """);
     }
 
@@ -1304,7 +1304,7 @@ FROM (
     FROM "Orders" AS "o"
     WHERE "o"."OrderID" < 10300
 ) AS "o0"
-WHERE "c"."CustomerID" = "o0"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
+WHERE "c"."CustomerID" LIKE 'F%' AND "c"."CustomerID" = "o0"."CustomerID"
 """);
     }
 

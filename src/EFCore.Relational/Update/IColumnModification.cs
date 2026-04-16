@@ -128,7 +128,7 @@ public interface IColumnModification
     /// <summary>
     ///     In case of JSON column modification, the JSON path leading to the JSON element that needs to be updated.
     /// </summary>
-    public string? JsonPath { get; }
+    public JsonPath? JsonPath { get; }
 
     /// <summary>
     ///     Adds a modification affecting the same database value.
