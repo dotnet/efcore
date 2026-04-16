@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
 public class ComplexPropertiesProjectionCosmosTest : ComplexPropertiesProjectionTestBase<ComplexPropertiesCosmosFixture>
@@ -290,7 +288,29 @@ FROM root c
 """);
     }
 
-    [ConditionalTheory(Skip = "")]
+    public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_associate_duplicated(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
+
+    public override async Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_associate_and_optional_associate(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
+
+    [ConditionalTheory(Skip = "#34067")]
     public override Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
         => base.Select_optional_associate_and_ints(queryTrackingBehavior);
 
