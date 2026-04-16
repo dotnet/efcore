@@ -111,7 +111,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return shaperLambda;
         }
 
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
             var jsonReaderData = Variable(typeof(JsonReaderData), "jsonReaderData");
             var jsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
@@ -131,35 +131,68 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Call(jsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
             };
 
-            switch (node)
+            Expression jsonMaterializeExpression;
+            switch (extensionExpression)
             {
-                case StructuralTypeShaperExpression structuralTypeShaperExpression:
+                case StructuralTypeShaperExpression shaper:
+                {
                     _queryRootEntryVariable = null;
                     _queryRootTryGetEntryCall = null;
 
-                    _valueBufferToJsonReaderDataMapping[structuralTypeShaperExpression.ValueBufferExpression] = jsonReaderData;
+                    _valueBufferToJsonReaderDataMapping[shaper.ValueBufferExpression] = jsonReaderData;
 
                     var shapers = CreateJsonShapers( // @TODO: Cache for StructuralType?
-                        structuralTypeShaperExpression.StructuralType,
-                        structuralTypeShaperExpression.Type,
-                        structuralTypeShaperExpression.IsNullable,
+                        shaper.StructuralType,
+                        shaper.Type,
+                        shaper.IsNullable,
                         null,
-                        structuralTypeShaperExpression.ValueBufferExpression
+                        shaper.ValueBufferExpression
                     );
 
-                    Expression jsonMaterializeExpression = Block(
+                    jsonMaterializeExpression = Block(
                         [jsonReaderData, jsonReaderManager],
                         [ ..jsonReaderInitializeExpessions,
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Visit(shapers)]);
 
-                    // # 34067
-                    if (structuralTypeShaperExpression.ValueBufferExpression.UnwrapTypeConversion(out _) is StructuralTypeProjectionExpression structuralTypeProjection)
+                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Always true after #34067 ?
+                    {
+                        var projection1 = GetProjection(projectionBindingExpression);
+                        if (!projection1.IsValueProjection && projection1.Alias != null)
+                        {
+                            jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection1.Alias]);
+                        }
+                    }
+                    // #34067
+                    else if (shaper.ValueBufferExpression.UnwrapTypeConversion(out _) is StructuralTypeProjectionExpression structuralTypeProjection)
                     {
                         jsonMaterializeExpression = CheckGenerateExtractPath(jsonMaterializeExpression, structuralTypeProjection.Object, data);
                     }
 
                     return jsonMaterializeExpression;
+                }
+
+                case ProjectionBindingExpression projectionBindingExpression:
+                    var projection = GetProjection(projectionBindingExpression);
+                    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
+                    var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
+
+                    jsonMaterializeExpression = Block(
+                        [jsonReaderData, jsonReaderManager, returnValue],
+                        [ ..jsonReaderInitializeExpessions,
+                            Assign(
+                                returnValue,
+                                CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
+                            Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                            returnValue]);
+
+                    if (!projection.IsValueProjection && projection.Alias != null) // @TODO: We could do this in a switch read loop aswell..
+                    {
+                        jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection.Alias]);
+                    }
+
+                    return jsonMaterializeExpression;
+
                 case CollectionShaperExpression collectionShaperExpression:
                     var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
 
@@ -186,24 +219,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     };
                     return CheckGenerateExtractPath(materializeExpression, objectArrayAccess, data);
 
-                case ProjectionBindingExpression projectionBindingExpression:
-                    var projection = GetProjection(projectionBindingExpression);
-                    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
-                    var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
-
-                    return Block(
-                        [jsonReaderData, jsonReaderManager, returnValue],
-                        [ ..jsonReaderInitializeExpessions,
-                            Assign(
-                                returnValue,
-                                CreateReadJsonValueExpression(jsonReaderManager, returnValue.Type, typeMapping)),
-                            Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
-                            returnValue]);
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);
             }
 
-            return base.VisitExtension(node);
+            return base.VisitExtension(extensionExpression);
         }
 
         // Very close 1-1 with relational, but changes for inheritance hierarchies
@@ -452,6 +472,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return materializeExpression;
             }
 
+            return GenerateExtractPath(materializeExpression, data, jsonPropertyPath);
+        }
+
+        private Expression GenerateExtractPath(Expression materializeExpression, Expression data, IEnumerable<string> jsonPropertyPath)
+        {
             // var dataSubset = ReadPath(data, jsonPropertyPath);
             // materializeExpression(data -> dataSubset)
 
