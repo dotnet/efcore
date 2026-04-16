@@ -192,8 +192,10 @@ public class ServicePropertyDiscoveryConventionTest
 
     private class ServicePropertiesContext : DbContext
     {
+        private static readonly InMemoryDatabaseRoot _databaseRoot = new();
+
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(GetType().Name);
+            => optionsBuilder.UseInMemoryDatabase(GetType().Name, _databaseRoot);
 
         public DbSet<PrivateUnmappedBaseSuper> PrivateUnmappedBaseSupers
             => Set<PrivateUnmappedBaseSuper>();
