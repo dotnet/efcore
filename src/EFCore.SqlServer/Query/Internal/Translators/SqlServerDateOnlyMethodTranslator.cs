@@ -12,29 +12,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
+public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new()
-    {
-        { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddYears), [typeof(int)])!, "year" },
-        { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddMonths), [typeof(int)])!, "month" },
-        { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddDays), [typeof(int)])!, "day" }
-    };
-
-    private static readonly MethodInfo ToDateTimeMethodInfo
-        = typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.ToDateTime), [typeof(TimeOnly)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -47,12 +26,15 @@ public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (instance != null)
+        if (method.DeclaringType != typeof(DateOnly))
         {
-            if (method == ToDateTimeMethodInfo)
-            {
-                var timeOnly = arguments[0];
+            return null;
+        }
 
+        if (instance is not null)
+        {
+            if (method.Name == nameof(DateOnly.ToDateTime) && arguments is [var timeOnly])
+            {
                 // We need to refrain from doing the translation when either the DateOnly or the TimeOnly
                 // are a complex SQL expression (anything other than a column/constant/parameter), to avoid evaluating them multiple
                 // potentially expensive arbitrary expressions multiple times.
@@ -62,7 +44,7 @@ public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
                     return null;
                 }
 
-                return _sqlExpressionFactory.Function(
+                return sqlExpressionFactory.Function(
                     "DATETIME2FROMPARTS",
                     [
                         MapDatePartExpression("year", instance),
@@ -72,20 +54,28 @@ public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
                         MapDatePartExpression("minute", timeOnly),
                         MapDatePartExpression("second", timeOnly),
                         MapDatePartExpression("fraction", timeOnly),
-                        _sqlExpressionFactory.Constant(7, typeof(int)),
+                        sqlExpressionFactory.Constant(7, typeof(int)),
                     ],
                     nullable: true,
                     argumentsPropagateNullability: [true, true, true, true, true, true, true, false],
                     typeof(DateTime));
             }
 
-            if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
+            var datePart = method.Name switch
             {
-                instance = _sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+                nameof(DateOnly.AddYears) => "year",
+                nameof(DateOnly.AddMonths) => "month",
+                nameof(DateOnly.AddDays) => "day",
+                _ => (string?)null
+            };
 
-                return _sqlExpressionFactory.Function(
+            if (datePart is not null)
+            {
+                instance = sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+
+                return sqlExpressionFactory.Function(
                     "DATEADD",
-                    [_sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance],
+                    [sqlExpressionFactory.Fragment(datePart), sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance],
                     nullable: true,
                     argumentsPropagateNullability: [false, true, true],
                     instance.Type,
@@ -93,11 +83,9 @@ public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
             }
         }
 
-        if (method.DeclaringType == typeof(DateOnly)
-            && method.Name == nameof(DateOnly.FromDateTime)
-            && arguments.Count == 1)
+        if (method.Name == nameof(DateOnly.FromDateTime) && arguments is [_])
         {
-            return _sqlExpressionFactory.Convert(arguments[0], typeof(DateOnly));
+            return sqlExpressionFactory.Convert(arguments[0], typeof(DateOnly));
         }
 
         return null;
@@ -120,26 +108,26 @@ public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
                 _ => throw new UnreachableException()
             };
 
-            return _sqlExpressionFactory.Constant(constant, typeof(int));
+            return sqlExpressionFactory.Constant(constant, typeof(int));
         }
 
         if (datepart == "fraction")
         {
-            return _sqlExpressionFactory.Divide(
-                _sqlExpressionFactory.Function(
+            return sqlExpressionFactory.Divide(
+                sqlExpressionFactory.Function(
                     "DATEPART",
-                    [_sqlExpressionFactory.Fragment("nanosecond"), argument],
+                    [sqlExpressionFactory.Fragment("nanosecond"), argument],
                     nullable: true,
                     argumentsPropagateNullability: [true, true],
                     typeof(int)
                 ),
-                _sqlExpressionFactory.Constant(100, typeof(int))
+                sqlExpressionFactory.Constant(100, typeof(int))
             );
         }
 
-        return _sqlExpressionFactory.Function(
+        return sqlExpressionFactory.Function(
             "DATEPART",
-            [_sqlExpressionFactory.Fragment(datepart), argument],
+            [sqlExpressionFactory.Fragment(datepart), argument],
             nullable: true,
             argumentsPropagateNullability: [true, true],
             typeof(int));

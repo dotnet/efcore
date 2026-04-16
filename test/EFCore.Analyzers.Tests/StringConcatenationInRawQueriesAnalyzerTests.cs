@@ -7,8 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 using Verify = CSharpAnalyzerVerifier<StringsUsageInRawQueriesDiagnosticAnalyzer>;
 
-//Issue #37106
-internal class StringConcatenationInRawQueriesAnalyzerTests
+public class StringConcatenationInRawQueriesAnalyzerTests
 {
     public static readonly TheoryData<string> DoNotReportData =
     [

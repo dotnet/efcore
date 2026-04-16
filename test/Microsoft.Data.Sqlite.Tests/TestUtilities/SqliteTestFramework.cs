@@ -16,19 +16,37 @@ using static SQLitePCL.raw;
     "Microsoft.Data.Sqlite.Tests.TestUtilities.SqliteTestFramework",
 #if E_SQLITE3
     "Microsoft.Data.Sqlite.Tests")]
-#elif E_SQLCIPHER
-    "Microsoft.Data.Sqlite.e_sqlcipher.Tests")]
-#elif E_SQLITE3MC
-    "Microsoft.Data.Sqlite.e_sqlite3mc.Tests")]
 #elif WINSQLITE3
     "Microsoft.Data.Sqlite.winsqlite3.Tests")]
 #elif SQLITE3
     "Microsoft.Data.Sqlite.sqlite3.Tests")]
+#elif SQLITE3MC
+    "Microsoft.Data.Sqlite.sqlite3mc.Tests")]
 #else
 #error Unexpected native library
 #endif
 
 namespace Microsoft.Data.Sqlite.Tests.TestUtilities;
+
+#if WINSQLITE3
+public static class Batteries_V2
+{
+    public static void Init()
+    {
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
+    }
+}
+#endif
+
+#if SQLITE3
+public static class Batteries_V2
+{
+    public static void Init()
+    {
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+    }
+}
+#endif
 
 internal class SqliteTestFramework : XunitTestFramework
 {

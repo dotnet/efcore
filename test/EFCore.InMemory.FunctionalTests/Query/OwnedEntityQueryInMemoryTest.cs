@@ -5,15 +5,15 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntityQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Expand_owned_navigation_as_optional_always(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<MyContext>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Foo>().Include(c => c.Bar);
         var foo = async
             ? await query.FirstOrDefaultAsync()
@@ -63,8 +63,8 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
     }
@@ -72,8 +72,8 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
     }

@@ -314,7 +314,7 @@ public class DbContextOperationsTest
 
         Assert.Equal(DesignStrings.NoRelationalConnection, info.DatabaseName);
         Assert.Equal(DesignStrings.NoRelationalConnection, info.DataSource);
-        Assert.Equal("StoreName=In-memory test database", info.Options);
+        Assert.Equal("StoreName=In-memory test database NullabilityChecksEnabled", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.InMemory", info.ProviderName);
     }
 

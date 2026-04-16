@@ -68,6 +68,7 @@ public class QueryTest
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
     }
 
+#pragma warning disable CS0618 // FromSqlInterpolated is obsolete
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task FromSqlInterpolated_throws_for_InMemory(bool async)
     {
@@ -80,6 +81,7 @@ public class QueryTest
 
         Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
     }
+#pragma warning restore CS0618
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task FromSql_throws_for_InMemory(bool async)

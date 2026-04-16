@@ -175,6 +175,11 @@ public static class RelationalAnnotationNames
     public const string IsTableExcludedFromMigrations = Prefix + "IsTableExcludedFromMigrations";
 
     /// <summary>
+    ///     The name for the annotation determining whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    public const string IsForeignKeyExcludedFromMigrations = Prefix + "IsForeignKeyExcludedFromMigrations";
+
+    /// <summary>
     ///     The name for the annotation determining the mapping strategy for inherited properties.
     /// </summary>
     public const string MappingStrategy = Prefix + "MappingStrategy";
@@ -356,6 +361,11 @@ public static class RelationalAnnotationNames
     public const string StoreType = Prefix + "StoreType";
 
     /// <summary>
+    ///     The name for JSON element mappings annotations.
+    /// </summary>
+    public const string JsonElementMappings = Prefix + "JsonElementMappings";
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -396,6 +406,7 @@ public static class RelationalAnnotationNames
         IsFixedLength,
         ViewDefinitionSql,
         IsTableExcludedFromMigrations,
+        IsForeignKeyExcludedFromMigrations,
         MappingStrategy,
         RelationalModel,
         RelationalModelFactory,
@@ -430,6 +441,7 @@ public static class RelationalAnnotationNames
         ContainerColumnTypeMapping,
 #pragma warning restore CS0618 // Type or member is obsolete
         JsonPropertyName,
-        StoreType
+        StoreType,
+        JsonElementMappings
     };
 }

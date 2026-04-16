@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest

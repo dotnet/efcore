@@ -15,14 +15,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public partial class InternalEntryBase
 {
-    internal static readonly bool UseOldBehavior37724 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37724", out var enabled) && enabled;
-
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
-        private static readonly bool UseOldBehavior37585 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37585", out var enabled) && enabled;
-
         private List<InternalComplexEntry?>? _entries;
         private List<InternalComplexEntry?>? _originalEntries;
         private bool _isModified;
@@ -147,8 +141,7 @@ public partial class InternalEntryBase
 
         private IList? GetCollection(bool original)
         {
-            if (!UseOldBehavior37585
-                && _containingEntry is InternalComplexEntry complexEntry)
+            if (_containingEntry is InternalComplexEntry complexEntry)
             {
                 var ordinal = original ? complexEntry.OriginalOrdinal : complexEntry.Ordinal;
                 if (ordinal < 0)
@@ -295,7 +288,7 @@ public partial class InternalEntryBase
                 return complexEntry;
             }
 
-            // The currentEntry is created in Detached state, so it's not added to the entries list yet.
+            // The entry is created in Detached state, so it's not added to the entries list yet.
             // HandleStateChange will add it when the state changes.
             return new InternalComplexEntry((IRuntimeComplexType)_complexCollection.ComplexType, _containingEntry, ordinal);
         }
@@ -382,6 +375,8 @@ public partial class InternalEntryBase
                 setOriginalState = true;
             }
 
+            _containingEntry.EnsureOriginalValues();
+
             EnsureCapacity(GetCollection(original: true)?.Count ?? 0, original: true, trim: false);
             EnsureCapacity(GetCollection(original: false)?.Count ?? 0, original: false, trim: false);
 
@@ -463,12 +458,6 @@ public partial class InternalEntryBase
                 if (newState is not EntityState.Detached)
                 {
                     InsertEntry(entry, original: false);
-                }
-
-                // When going from Deleted to Unchanged, restore the currentEntry to the original collection
-                if (UseOldBehavior37724 && newState == EntityState.Unchanged)
-                {
-                    InsertEntry(entry, original: true);
                 }
             }
             else if (oldState == EntityState.Added

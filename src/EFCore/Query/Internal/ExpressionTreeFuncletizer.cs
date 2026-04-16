@@ -22,15 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </remarks>
 public class ExpressionTreeFuncletizer : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37152 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37152", out var enabled) && enabled;
-
-    private static readonly bool UseOldBehavior37465 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37465", out var enabled37465) && enabled37465;
-
-    private static readonly bool UseOldBehavior37974 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37974", out var enabled37974) && enabled37974;
-
     // The general algorithm here is the following.
     // 1. First, for each node type, visit that node's children and get their states (evaluatable, contains evaluatable, no evaluatable).
     // 2. Calculate the parent node's aggregate state from its children; a container node whose children are all evaluatable is itself
@@ -885,11 +876,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (_state.IsEvaluatable)
         {
             // If the query contains a captured variable that's a nested IQueryable, inline it into the main query.
-            // Otherwise, evaluation of a terminating operator up the call chain will cause us to execute the query and do another
-            // roundtrip.
+            // Note that we do this only for IQueryable; evaluation of a terminating operator up the call chain would cause us to execute
+            // the query and do another roundtrip.
             // Note that we only do this when the MemberExpression is typed as IQueryable/IOrderedQueryable; this notably excludes
             // DbSet captured variables integrated directly into the query, as that also evaluates e.g. context.Order in
-            // context.Order.FromSqlInterpolated(), which fails.
+            // context.Order.FromSql(), which fails.
             if (member.Type.IsConstructedGenericType
                 && member.Type.GetGenericTypeDefinition() is var genericTypeDefinition
                 && (genericTypeDefinition == typeof(IQueryable<>) || genericTypeDefinition == typeof(IOrderedQueryable<>))
@@ -2020,10 +2011,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             evaluatableRoot.Type);
 
         // ConvertIfNeeded calls Visit which may have modified _state; reset it since we've already evaluated this root as a constant.
-        if (!UseOldBehavior37974)
-        {
-            state = State.NoEvaluatability;
-        }
+        state = State.NoEvaluatability;
 
         return constantExpression;
 
@@ -2095,60 +2083,48 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         var value = EvaluateCore(expression, ref evaluateAsParameter, out var tempParameterName, out isContextAccessor);
 
-        if (evaluateAsParameter)
+        if (!evaluateAsParameter)
         {
-            if (UseOldBehavior37465)
-            {
-                parameterName = tempParameterName ?? "p";
+            parameterName = string.Empty;
+            return value;
+        }
 
-                var compilerPrefixIndex = parameterName.LastIndexOf('>');
-                if (compilerPrefixIndex != -1)
-                {
-                    parameterName = parameterName[(compilerPrefixIndex + 1)..];
-                }
-            }
-            else
-            {
-                parameterName = string.IsNullOrWhiteSpace(tempParameterName) ? "p" : tempParameterName;
-            }
+        if (tempParameterName is null)
+        {
+            parameterName = "p";
+        }
+        else
+        {
+            parameterName = tempParameterName;
 
             // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
             if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
             {
-                parameterName = parameterName.Substring("$VB$Local_".Length);
+                parameterName = parameterName["$VB$Local_".Length..];
             }
 
-            if (!UseOldBehavior37465)
+            // In many databases, parameter names must start with a letter or underscore.
+            // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
+            // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
+            if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
             {
-                // In many databases, parameter names must start with a letter or underscore.
-                // The same is true for C# variable names, from which we derive the parameter name, so in principle we shouldn't see an issue;
-                // but just in case, prepend an underscore if the parameter name doesn't start with a letter or underscore.
-                if (parameterName.Length > 0 && !char.IsLetter(parameterName[0]) && parameterName[0] != '_')
+                parameterName = "_" + parameterName;
+            }
+
+            // Just as a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
+            foreach (var c in parameterName)
+            {
+                if (!char.IsLetterOrDigit(c) && c != '_')
                 {
-                    parameterName = "_" + parameterName;
+                    parameterName = "p";
+                    break;
                 }
             }
-
-            if (UseOldBehavior37152)
-            {
-                // Uniquify the parameter name
-                var originalParameterName = parameterName;
-                for (var i = 0; _parameterNames.Contains(parameterName); i++)
-                {
-                    parameterName = originalParameterName + i;
-                }
-            }
-            else
-            {
-                parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
-            }
-
-            _parameterNames.Add(parameterName);
         }
-        else
-        {
-            parameterName = string.Empty;
-        }
+
+        parameterName = Uniquifier.Uniquify(parameterName, _parameterNames, maxLength: int.MaxValue, uniquifier: _parameterNames.Count);
+
+        _parameterNames.Add(parameterName);
 
         return value;
 
@@ -2194,18 +2170,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                            {
-                                var name = UseOldBehavior37465 ? fieldInfo.Name : SanitizeCompilerGeneratedName(fieldInfo.Name);
+                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
                                 parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
-                            }
 
                             case PropertyInfo propertyInfo:
-                            {
-                                var name = UseOldBehavior37465 ? propertyInfo.Name : SanitizeCompilerGeneratedName(propertyInfo.Name);
+                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
                                 parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
-                            }
                         }
                     }
                     catch
@@ -2219,9 +2191,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return constantExpression.Value;
 
                 case MethodCallExpression methodCallExpression:
-                    parameterName = UseOldBehavior37465
-                        ? methodCallExpression.Method.Name
-                        : SanitizeCompilerGeneratedName(methodCallExpression.Method.Name);
+                    parameterName = SanitizeCompilerGeneratedName(methodCallExpression.Method.Name);
                     break;
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression

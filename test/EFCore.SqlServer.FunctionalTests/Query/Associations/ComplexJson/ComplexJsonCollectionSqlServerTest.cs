@@ -200,7 +200,7 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[0].Int') AS int) = 8
         {
             AssertSql(
                 """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -211,7 +211,7 @@ WHERE JSON_VALUE([r].[AssociateCollection], '$[' + CAST(@i AS nvarchar(max)) + '
         {
             AssertSql(
                 """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -350,6 +350,23 @@ SELECT (
 FROM [RootEntity] AS [r]
 """);
         }
+    }
+
+    public override async Task Project_struct_complex_type_with_entity_collection_navigation()
+    {
+        await base.Project_struct_complex_type_with_entity_collection_navigation();
+
+        AssertSql(
+            """
+SELECT [p0].[Coords_X], [p0].[Coords_Y], [p0].[Id], [c].[Id], [c].[Name], [c].[ParentId]
+FROM (
+    SELECT TOP(1) [p].[Coords_X], [p].[Coords_Y], [p].[Id]
+    FROM [Parent] AS [p]
+    ORDER BY [p].[Id]
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
+""");
     }
 
     [ConditionalFact]

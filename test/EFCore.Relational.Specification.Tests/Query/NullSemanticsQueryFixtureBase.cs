@@ -8,21 +8,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<NullSemanticsContext>, IQueryFixtureBase, ITestSqlLoggerFactory
+public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSemanticsContext>, ITestSqlLoggerFactory
 {
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => NullSemanticsData.Instance;
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(NullSemanticsEntity1), e => ((NullSemanticsEntity1)e)?.Id },
         { typeof(NullSemanticsEntity2), e => ((NullSemanticsEntity2)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(NullSemanticsEntity1), (e, a) =>

@@ -57,6 +57,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {
@@ -71,6 +72,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 "CoreEventId.AccidentalEntityType"),
             modelBuilder);
     }
+#pragma warning restore EF8001
 
     protected class MyEntity<T>
     {
@@ -1006,6 +1008,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityF = modelBuilder.Entity<F>();
         entityF.HasBaseType<A>();
 
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("Disc", typeof(string)));
+        entityA.SetDiscriminatorValue("A");
+        entityD.Metadata.SetDiscriminatorValue("D");
+        entityF.Metadata.SetDiscriminatorValue("F");
+
         VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(A), nameof(D)), modelBuilder);
     }
 
@@ -1022,6 +1029,9 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         var entityAbstract = model.AddEntityType(typeof(Abstract));
         SetBaseType(entityAbstract, entityA);
 
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("Disc", typeof(string)));
+        entityA.SetDiscriminatorValue("A");
+
         VerifyError(CoreStrings.AbstractLeafEntityType(entityAbstract.DisplayName()), modelBuilder);
     }
 
@@ -1037,6 +1047,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var entityGeneric = model.AddEntityType(typeof(Generic<>));
         SetBaseType(entityGeneric, entityAbstract);
+
+        entityAbstract.SetDiscriminatorProperty(entityAbstract.AddProperty("Disc", typeof(string)));
 
         VerifyError(CoreStrings.AbstractLeafEntityType(entityGeneric.DisplayName()), modelBuilder);
     }
@@ -1447,6 +1459,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P3), ConfigurationSource.Explicit);
 
         Assert.NotNull(ownedTypeBuilder.HasBaseType(typeof(A), ConfigurationSource.DataAnnotation));
+
+        var entityA = (IMutableEntityType)anotherEntityTypeBuilder.Metadata;
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("Disc", typeof(string)));
+        entityA.SetDiscriminatorValue("A");
+        ((IMutableEntityType)ownedTypeBuilder.Metadata).SetDiscriminatorValue("D");
 
         VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), builder);
     }
@@ -2041,6 +2058,20 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Does_not_detect_missing_discriminator_values_when_using_default_discriminator_name_with_non_string_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<C>();
+        modelBuilder.Entity<A>().HasDiscriminator<byte>("Discriminator")
+            .HasValue<A>(0)
+            .HasValue<C>(1)
+            .HasValue<D>(2);
+        modelBuilder.Entity<D>();
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_complex_type_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2212,5 +2243,216 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     protected class NonSignedIntegerKeyEntity
     {
         public uint Id { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Id))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedKeyProperty(nameof(AutoLoadEntity.Id), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_alternate_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+                eb.HasAlternateKey(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedKeyProperty(nameof(AutoLoadEntity.Name), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_foreign_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadPrincipal>(
+            eb =>
+            {
+                eb.HasKey(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+        modelBuilder.Entity<AutoLoadDependent>(
+            eb =>
+            {
+                eb.HasKey(e => e.Id);
+                eb.Property(e => e.PrincipalId);
+                eb.HasOne<AutoLoadPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadDependent))!.FindProperty(nameof(AutoLoadDependent.PrincipalId))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedForeignKeyProperty(nameof(AutoLoadDependent.PrincipalId), nameof(AutoLoadDependent)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_concurrency_token_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name).IsConcurrencyToken();
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedConcurrencyTokenProperty(nameof(AutoLoadEntity.Name), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_discriminator_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+                eb.HasDiscriminator(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedDiscriminatorProperty(nameof(AutoLoadEntity.Name), nameof(AutoLoadEntity)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Allows_non_key_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_constructor_bound_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadEntityWithConstructor>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadEntityWithConstructor))!.FindProperty(nameof(AutoLoadEntityWithConstructor.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedConstructorProperty(nameof(AutoLoadEntityWithConstructor.Name), nameof(AutoLoadEntityWithConstructor)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_derived_constructor_bound_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<AutoLoadBaseEntity>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.Property(e => e.Name);
+            });
+        modelBuilder.Entity<AutoLoadDerivedEntityWithConstructor>();
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(AutoLoadBaseEntity))!.FindProperty(nameof(AutoLoadBaseEntity.Name))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            CoreStrings.AutoLoadedConstructorProperty(nameof(AutoLoadBaseEntity.Name), nameof(AutoLoadDerivedEntityWithConstructor)),
+            modelBuilder);
+    }
+
+    protected class AutoLoadEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class AutoLoadEntityWithConstructor
+    {
+        public AutoLoadEntityWithConstructor(string name)
+        {
+            Name = name;
+        }
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    protected class AutoLoadPrincipal
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class AutoLoadDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
+    }
+
+    protected class AutoLoadBaseEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class AutoLoadDerivedEntityWithConstructor : AutoLoadBaseEntity
+    {
+        public AutoLoadDerivedEntityWithConstructor(string name)
+        {
+            Name = name;
+        }
     }
 }

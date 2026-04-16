@@ -1,0 +1,40 @@
+{
+  "Name": "Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite",
+  "Types": [
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<NetTopologySuite.Geometries.Geometry>",
+      "Methods": [
+        {
+          "Member": "override NetTopologySuite.Geometries.Geometry Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter.FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
+        },
+        {
+          "Member": "override void Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter.ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, NetTopologySuite.Geometries.Geometry value);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override System.Linq.Expressions.Expression Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter.ConstructorExpression { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.SqliteJsonGeometryWktReaderWriter.Instance { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.SqliteNetTopologySuiteDbContextOptionsBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder Microsoft.EntityFrameworkCore.SqliteNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite(this Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder optionsBuilder);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.Extensions.DependencyInjection.SqliteNetTopologySuiteServiceCollectionExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.SqliteNetTopologySuiteServiceCollectionExtensions.AddEntityFrameworkSqliteNetTopologySuite(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+        }
+      ]
+    }
+  ]
+}

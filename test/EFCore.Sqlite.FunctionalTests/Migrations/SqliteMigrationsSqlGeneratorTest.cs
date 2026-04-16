@@ -823,16 +823,13 @@ SELECT "Title"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -874,16 +871,13 @@ SELECT "Title"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -928,16 +922,13 @@ SELECT "Title"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -977,16 +968,13 @@ SELECT "Id"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1029,16 +1017,13 @@ SELECT "Id"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 GO
 
 CREATE INDEX "IX_Blog_Name" ON "Blog" ("Name");
@@ -1078,16 +1063,13 @@ SELECT "Id", "Name", "Position"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1121,16 +1103,13 @@ SELECT "Id"
 FROM "Blog";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Blog";
 GO
 
 ALTER TABLE "ef_temp_Blog" RENAME TO "Blog";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 
@@ -1160,16 +1139,13 @@ SELECT "A", "B"
 FROM "Ordinal";
 GO
 
-PRAGMA foreign_keys = 0;
+PRAGMA defer_foreign_keys = 1;
 GO
 
 DROP TABLE "Ordinal";
 GO
 
 ALTER TABLE "ef_temp_Ordinal" RENAME TO "Ordinal";
-GO
-
-PRAGMA foreign_keys = 1;
 """);
     }
 }

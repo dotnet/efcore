@@ -7,19 +7,15 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixtureBase<InheritanceRelationshipsContext>,
-    IQueryFixtureBase
+public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBase<InheritanceRelationshipsContext>
 {
     protected override string StoreName
         => "InheritanceRelationships";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => InheritanceRelationshipsData.Instance;
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(BaseCollectionOnBase), e => ((BaseCollectionOnBase)e)?.Id },
         { typeof(DerivedCollectionOnBase), e => ((DerivedCollectionOnBase)e)?.Id },
@@ -44,7 +40,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixt
         { typeof(ReferenceOnDerived), e => ((ReferenceOnDerived)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(BaseCollectionOnBase), (e, a) =>

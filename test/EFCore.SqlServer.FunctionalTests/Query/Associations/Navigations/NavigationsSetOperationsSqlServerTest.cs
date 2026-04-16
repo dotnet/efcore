@@ -14,7 +14,7 @@ public class NavigationsSetOperationsSqlServerTest(
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalAssociateId], [r].[RequiredAssociateId], [a1].[Id], [n].[Id], [n0].[Id], [a2].[Id], [n1].[Id], [n2].[Id], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[Id1], [s].[Id2], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [a1].[CollectionRootId], [a1].[Int], [a1].[Ints], [a1].[Name], [a1].[OptionalNestedAssociateId], [a1].[RequiredNestedAssociateId], [a1].[String], [n6].[Id], [n6].[CollectionAssociateId], [n6].[Int], [n6].[Ints], [n6].[Name], [n6].[String], [n].[CollectionAssociateId], [n].[Int], [n].[Ints], [n].[Name], [n].[String], [n0].[CollectionAssociateId], [n0].[Int], [n0].[Ints], [n0].[Name], [n0].[String], [a2].[CollectionRootId], [a2].[Int], [a2].[Ints], [a2].[Name], [a2].[OptionalNestedAssociateId], [a2].[RequiredNestedAssociateId], [a2].[String], [n7].[Id], [n7].[CollectionAssociateId], [n7].[Int], [n7].[Ints], [n7].[Name], [n7].[String], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n2].[CollectionAssociateId], [n2].[Int], [n2].[Ints], [n2].[Name], [n2].[String]
+SELECT [r].[Id], [r].[Name], [r].[OptionalAssociateId], [r].[RequiredAssociateId], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[Id1], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[Id2], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [a1].[Id], [a1].[CollectionRootId], [a1].[Int], [a1].[Ints], [a1].[Name], [a1].[OptionalNestedAssociateId], [a1].[RequiredNestedAssociateId], [a1].[String], [n6].[Id], [n6].[CollectionAssociateId], [n6].[Int], [n6].[Ints], [n6].[Name], [n6].[String], [n].[Id], [n].[CollectionAssociateId], [n].[Int], [n].[Ints], [n].[Name], [n].[String], [n0].[Id], [n0].[CollectionAssociateId], [n0].[Int], [n0].[Ints], [n0].[Name], [n0].[String], [a2].[Id], [a2].[CollectionRootId], [a2].[Int], [a2].[Ints], [a2].[Name], [a2].[OptionalNestedAssociateId], [a2].[RequiredNestedAssociateId], [a2].[String], [n7].[Id], [n7].[CollectionAssociateId], [n7].[Int], [n7].[Ints], [n7].[Name], [n7].[String], [n1].[Id], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n2].[Id], [n2].[CollectionAssociateId], [n2].[Int], [n2].[Ints], [n2].[Name], [n2].[String]
 FROM [RootEntity] AS [r]
 LEFT JOIN [AssociateType] AS [a1] ON [r].[OptionalAssociateId] = [a1].[Id]
 LEFT JOIN [NestedAssociateType] AS [n] ON [a1].[OptionalNestedAssociateId] = [n].[Id]
@@ -23,7 +23,7 @@ INNER JOIN [AssociateType] AS [a2] ON [r].[RequiredAssociateId] = [a2].[Id]
 LEFT JOIN [NestedAssociateType] AS [n1] ON [a2].[OptionalNestedAssociateId] = [n1].[Id]
 INNER JOIN [NestedAssociateType] AS [n2] ON [a2].[RequiredNestedAssociateId] = [n2].[Id]
 LEFT JOIN (
-    SELECT [a3].[Id], [a3].[CollectionRootId], [a3].[Int], [a3].[Ints], [a3].[Name], [a3].[OptionalNestedAssociateId], [a3].[RequiredNestedAssociateId], [a3].[String], [n3].[Id] AS [Id0], [n4].[Id] AS [Id1], [n5].[Id] AS [Id2], [n5].[CollectionAssociateId], [n5].[Int] AS [Int0], [n5].[Ints] AS [Ints0], [n5].[Name] AS [Name0], [n5].[String] AS [String0], [n3].[CollectionAssociateId] AS [CollectionAssociateId0], [n3].[Int] AS [Int1], [n3].[Ints] AS [Ints1], [n3].[Name] AS [Name1], [n3].[String] AS [String1], [n4].[CollectionAssociateId] AS [CollectionAssociateId1], [n4].[Int] AS [Int2], [n4].[Ints] AS [Ints2], [n4].[Name] AS [Name2], [n4].[String] AS [String2]
+    SELECT [a3].[Id], [a3].[CollectionRootId], [a3].[Int], [a3].[Ints], [a3].[Name], [a3].[OptionalNestedAssociateId], [a3].[RequiredNestedAssociateId], [a3].[String], [n5].[Id] AS [Id0], [n5].[CollectionAssociateId], [n5].[Int] AS [Int0], [n5].[Ints] AS [Ints0], [n5].[Name] AS [Name0], [n5].[String] AS [String0], [n3].[Id] AS [Id1], [n3].[CollectionAssociateId] AS [CollectionAssociateId0], [n3].[Int] AS [Int1], [n3].[Ints] AS [Ints1], [n3].[Name] AS [Name1], [n3].[String] AS [String1], [n4].[Id] AS [Id2], [n4].[CollectionAssociateId] AS [CollectionAssociateId1], [n4].[Int] AS [Int2], [n4].[Ints] AS [Ints2], [n4].[Name] AS [Name2], [n4].[String] AS [String2]
     FROM [AssociateType] AS [a3]
     LEFT JOIN [NestedAssociateType] AS [n3] ON [a3].[OptionalNestedAssociateId] = [n3].[Id]
     INNER JOIN [NestedAssociateType] AS [n4] ON [a3].[RequiredNestedAssociateId] = [n4].[Id]
@@ -42,7 +42,7 @@ WHERE (
         FROM [AssociateType] AS [a0]
         WHERE [r].[Id] = [a0].[CollectionRootId] AND [a0].[String] = N'foo'
     ) AS [u]) = 4
-ORDER BY [r].[Id], [a1].[Id], [n].[Id], [n0].[Id], [a2].[Id], [n1].[Id], [n2].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [n6].[Id]
+ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n6].[Id]
 """);
     }
 
@@ -85,7 +85,7 @@ FROM [RootEntity] AS [r]
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalAssociateId], [r].[RequiredAssociateId], [a].[Id], [a0].[Id], [n1].[Id], [n2].[Id], [n3].[Id], [n4].[Id], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[Id1], [s].[Id2], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [a0].[CollectionRootId], [a0].[Int], [a0].[Ints], [a0].[Name], [a0].[OptionalNestedAssociateId], [a0].[RequiredNestedAssociateId], [a0].[String], [n8].[Id], [n8].[CollectionAssociateId], [n8].[Int], [n8].[Ints], [n8].[Name], [n8].[String], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n2].[CollectionAssociateId], [n2].[Int], [n2].[Ints], [n2].[Name], [n2].[String], [a].[CollectionRootId], [a].[Int], [a].[Ints], [a].[Name], [a].[OptionalNestedAssociateId], [a].[RequiredNestedAssociateId], [a].[String], [n9].[Id], [n9].[CollectionAssociateId], [n9].[Int], [n9].[Ints], [n9].[Name], [n9].[String], [n3].[CollectionAssociateId], [n3].[Int], [n3].[Ints], [n3].[Name], [n3].[String], [n4].[CollectionAssociateId], [n4].[Int], [n4].[Ints], [n4].[Name], [n4].[String]
+SELECT [r].[Id], [r].[Name], [r].[OptionalAssociateId], [r].[RequiredAssociateId], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[Id1], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[Id2], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [a0].[Id], [a0].[CollectionRootId], [a0].[Int], [a0].[Ints], [a0].[Name], [a0].[OptionalNestedAssociateId], [a0].[RequiredNestedAssociateId], [a0].[String], [n8].[Id], [n8].[CollectionAssociateId], [n8].[Int], [n8].[Ints], [n8].[Name], [n8].[String], [n1].[Id], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n2].[Id], [n2].[CollectionAssociateId], [n2].[Int], [n2].[Ints], [n2].[Name], [n2].[String], [a].[Id], [a].[CollectionRootId], [a].[Int], [a].[Ints], [a].[Name], [a].[OptionalNestedAssociateId], [a].[RequiredNestedAssociateId], [a].[String], [n9].[Id], [n9].[CollectionAssociateId], [n9].[Int], [n9].[Ints], [n9].[Name], [n9].[String], [n3].[Id], [n3].[CollectionAssociateId], [n3].[Int], [n3].[Ints], [n3].[Name], [n3].[String], [n4].[Id], [n4].[CollectionAssociateId], [n4].[Int], [n4].[Ints], [n4].[Name], [n4].[String]
 FROM [RootEntity] AS [r]
 INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
 LEFT JOIN [AssociateType] AS [a0] ON [r].[OptionalAssociateId] = [a0].[Id]
@@ -94,7 +94,7 @@ LEFT JOIN [NestedAssociateType] AS [n2] ON [a0].[RequiredNestedAssociateId] = [n
 LEFT JOIN [NestedAssociateType] AS [n3] ON [a].[OptionalNestedAssociateId] = [n3].[Id]
 INNER JOIN [NestedAssociateType] AS [n4] ON [a].[RequiredNestedAssociateId] = [n4].[Id]
 LEFT JOIN (
-    SELECT [a1].[Id], [a1].[CollectionRootId], [a1].[Int], [a1].[Ints], [a1].[Name], [a1].[OptionalNestedAssociateId], [a1].[RequiredNestedAssociateId], [a1].[String], [n5].[Id] AS [Id0], [n6].[Id] AS [Id1], [n7].[Id] AS [Id2], [n7].[CollectionAssociateId], [n7].[Int] AS [Int0], [n7].[Ints] AS [Ints0], [n7].[Name] AS [Name0], [n7].[String] AS [String0], [n5].[CollectionAssociateId] AS [CollectionAssociateId0], [n5].[Int] AS [Int1], [n5].[Ints] AS [Ints1], [n5].[Name] AS [Name1], [n5].[String] AS [String1], [n6].[CollectionAssociateId] AS [CollectionAssociateId1], [n6].[Int] AS [Int2], [n6].[Ints] AS [Ints2], [n6].[Name] AS [Name2], [n6].[String] AS [String2]
+    SELECT [a1].[Id], [a1].[CollectionRootId], [a1].[Int], [a1].[Ints], [a1].[Name], [a1].[OptionalNestedAssociateId], [a1].[RequiredNestedAssociateId], [a1].[String], [n7].[Id] AS [Id0], [n7].[CollectionAssociateId], [n7].[Int] AS [Int0], [n7].[Ints] AS [Ints0], [n7].[Name] AS [Name0], [n7].[String] AS [String0], [n5].[Id] AS [Id1], [n5].[CollectionAssociateId] AS [CollectionAssociateId0], [n5].[Int] AS [Int1], [n5].[Ints] AS [Ints1], [n5].[Name] AS [Name1], [n5].[String] AS [String1], [n6].[Id] AS [Id2], [n6].[CollectionAssociateId] AS [CollectionAssociateId1], [n6].[Int] AS [Int2], [n6].[Ints] AS [Ints2], [n6].[Name] AS [Name2], [n6].[String] AS [String2]
     FROM [AssociateType] AS [a1]
     LEFT JOIN [NestedAssociateType] AS [n5] ON [a1].[OptionalNestedAssociateId] = [n5].[Id]
     INNER JOIN [NestedAssociateType] AS [n6] ON [a1].[RequiredNestedAssociateId] = [n6].[Id]
@@ -113,7 +113,7 @@ WHERE (
         FROM [NestedAssociateType] AS [n0]
         WHERE [a].[Id] = [n0].[CollectionAssociateId] AND [n0].[String] = N'foo'
     ) AS [u]) = 4
-ORDER BY [r].[Id], [a].[Id], [a0].[Id], [n1].[Id], [n2].[Id], [n3].[Id], [n4].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [n8].[Id]
+ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n8].[Id]
 """);
     }
 
@@ -123,7 +123,7 @@ ORDER BY [r].[Id], [a].[Id], [a0].[Id], [n1].[Id], [n2].[Id], [n3].[Id], [n4].[I
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[OptionalAssociateId], [r].[RequiredAssociateId], [a].[Id], [a0].[Id], [n1].[Id], [n2].[Id], [n3].[Id], [n4].[Id], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[Id1], [s].[Id2], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [a0].[CollectionRootId], [a0].[Int], [a0].[Ints], [a0].[Name], [a0].[OptionalNestedAssociateId], [a0].[RequiredNestedAssociateId], [a0].[String], [n8].[Id], [n8].[CollectionAssociateId], [n8].[Int], [n8].[Ints], [n8].[Name], [n8].[String], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n2].[CollectionAssociateId], [n2].[Int], [n2].[Ints], [n2].[Name], [n2].[String], [a].[CollectionRootId], [a].[Int], [a].[Ints], [a].[Name], [a].[OptionalNestedAssociateId], [a].[RequiredNestedAssociateId], [a].[String], [n9].[Id], [n9].[CollectionAssociateId], [n9].[Int], [n9].[Ints], [n9].[Name], [n9].[String], [n3].[CollectionAssociateId], [n3].[Int], [n3].[Ints], [n3].[Name], [n3].[String], [n4].[CollectionAssociateId], [n4].[Int], [n4].[Ints], [n4].[Name], [n4].[String]
+SELECT [r].[Id], [r].[Name], [r].[OptionalAssociateId], [r].[RequiredAssociateId], [s].[Id], [s].[CollectionRootId], [s].[Int], [s].[Ints], [s].[Name], [s].[OptionalNestedAssociateId], [s].[RequiredNestedAssociateId], [s].[String], [s].[Id0], [s].[CollectionAssociateId], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[Id1], [s].[CollectionAssociateId0], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[Id2], [s].[CollectionAssociateId1], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [a0].[Id], [a0].[CollectionRootId], [a0].[Int], [a0].[Ints], [a0].[Name], [a0].[OptionalNestedAssociateId], [a0].[RequiredNestedAssociateId], [a0].[String], [n8].[Id], [n8].[CollectionAssociateId], [n8].[Int], [n8].[Ints], [n8].[Name], [n8].[String], [n1].[Id], [n1].[CollectionAssociateId], [n1].[Int], [n1].[Ints], [n1].[Name], [n1].[String], [n2].[Id], [n2].[CollectionAssociateId], [n2].[Int], [n2].[Ints], [n2].[Name], [n2].[String], [a].[Id], [a].[CollectionRootId], [a].[Int], [a].[Ints], [a].[Name], [a].[OptionalNestedAssociateId], [a].[RequiredNestedAssociateId], [a].[String], [n9].[Id], [n9].[CollectionAssociateId], [n9].[Int], [n9].[Ints], [n9].[Name], [n9].[String], [n3].[Id], [n3].[CollectionAssociateId], [n3].[Int], [n3].[Ints], [n3].[Name], [n3].[String], [n4].[Id], [n4].[CollectionAssociateId], [n4].[Int], [n4].[Ints], [n4].[Name], [n4].[String]
 FROM [RootEntity] AS [r]
 INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
 LEFT JOIN [AssociateType] AS [a0] ON [r].[OptionalAssociateId] = [a0].[Id]
@@ -132,7 +132,7 @@ LEFT JOIN [NestedAssociateType] AS [n2] ON [a0].[RequiredNestedAssociateId] = [n
 LEFT JOIN [NestedAssociateType] AS [n3] ON [a].[OptionalNestedAssociateId] = [n3].[Id]
 INNER JOIN [NestedAssociateType] AS [n4] ON [a].[RequiredNestedAssociateId] = [n4].[Id]
 LEFT JOIN (
-    SELECT [a1].[Id], [a1].[CollectionRootId], [a1].[Int], [a1].[Ints], [a1].[Name], [a1].[OptionalNestedAssociateId], [a1].[RequiredNestedAssociateId], [a1].[String], [n5].[Id] AS [Id0], [n6].[Id] AS [Id1], [n7].[Id] AS [Id2], [n7].[CollectionAssociateId], [n7].[Int] AS [Int0], [n7].[Ints] AS [Ints0], [n7].[Name] AS [Name0], [n7].[String] AS [String0], [n5].[CollectionAssociateId] AS [CollectionAssociateId0], [n5].[Int] AS [Int1], [n5].[Ints] AS [Ints1], [n5].[Name] AS [Name1], [n5].[String] AS [String1], [n6].[CollectionAssociateId] AS [CollectionAssociateId1], [n6].[Int] AS [Int2], [n6].[Ints] AS [Ints2], [n6].[Name] AS [Name2], [n6].[String] AS [String2]
+    SELECT [a1].[Id], [a1].[CollectionRootId], [a1].[Int], [a1].[Ints], [a1].[Name], [a1].[OptionalNestedAssociateId], [a1].[RequiredNestedAssociateId], [a1].[String], [n7].[Id] AS [Id0], [n7].[CollectionAssociateId], [n7].[Int] AS [Int0], [n7].[Ints] AS [Ints0], [n7].[Name] AS [Name0], [n7].[String] AS [String0], [n5].[Id] AS [Id1], [n5].[CollectionAssociateId] AS [CollectionAssociateId0], [n5].[Int] AS [Int1], [n5].[Ints] AS [Ints1], [n5].[Name] AS [Name1], [n5].[String] AS [String1], [n6].[Id] AS [Id2], [n6].[CollectionAssociateId] AS [CollectionAssociateId1], [n6].[Int] AS [Int2], [n6].[Ints] AS [Ints2], [n6].[Name] AS [Name2], [n6].[String] AS [String2]
     FROM [AssociateType] AS [a1]
     LEFT JOIN [NestedAssociateType] AS [n5] ON [a1].[OptionalNestedAssociateId] = [n5].[Id]
     INNER JOIN [NestedAssociateType] AS [n6] ON [a1].[RequiredNestedAssociateId] = [n6].[Id]
@@ -151,7 +151,7 @@ WHERE (
         FROM [NestedAssociateType] AS [n0]
         WHERE [a0].[Id] IS NOT NULL AND [a0].[Id] = [n0].[CollectionAssociateId]
     ) AS [u]) = 4
-ORDER BY [r].[Id], [a].[Id], [a0].[Id], [n1].[Id], [n2].[Id], [n3].[Id], [n4].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Id2], [n8].[Id]
+ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n8].[Id]
 """);
     }
 

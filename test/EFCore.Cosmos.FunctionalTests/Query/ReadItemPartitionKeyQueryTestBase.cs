@@ -364,6 +364,12 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             ss => ss.Set<SharedContainerEntity2>().Where(e => e.Id == 4 && e.PartitionKey == "PK2"));
 
     [ConditionalFact]
+    public virtual Task ReadItem_for_abstract_base_type_with_shared_container()
+        => AssertQuery(
+            async: true,
+            ss => ss.Set<SharedContainerEntity3>().Where(e => e.Id == 6 && e.PartitionKey == "PK2"));
+
+    [ConditionalFact]
     public virtual Task ReadItem_for_child_type_with_shared_container()
         => AssertQuery(
             async: true,

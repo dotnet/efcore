@@ -32,12 +32,6 @@ public class CosmosTestHelpers : TestHelpers
                 TestEnvironment.AuthToken,
                 "UnitTests");
 
-    private static readonly string SyncMessage
-        = CoreStrings.WarningAsErrorTemplate(
-            CosmosEventId.SyncNotSupported.ToString(),
-            CosmosResources.LogSyncNotSupported(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
-            "CosmosEventId.SyncNotSupported");
-
     public override LoggingDefinitions LoggingDefinitions { get; } = new CosmosLoggingDefinitions();
 
     public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
@@ -49,7 +43,7 @@ public class CosmosTestHelpers : TestHelpers
         }
         catch (InvalidOperationException e)
         {
-            if (e.Message != SyncMessage)
+            if (e.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }
@@ -58,7 +52,7 @@ public class CosmosTestHelpers : TestHelpers
         }
         catch (DbUpdateException e)
         {
-            if (e.InnerException?.Message != SyncMessage)
+            if (e.InnerException?.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }
@@ -76,14 +70,14 @@ public class CosmosTestHelpers : TestHelpers
         }
         catch (InvalidOperationException e)
         {
-            if (e.Message != SyncMessage)
+            if (e.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }
         }
         catch (DbUpdateException e)
         {
-            if (e.InnerException?.Message != SyncMessage)
+            if (e.InnerException?.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }

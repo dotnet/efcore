@@ -200,6 +200,50 @@ public class SqlServerAnnotationCodeGeneratorTest
     }
 
     [ConditionalFact]
+    public void GenerateFluentApi_IModel_works_with_full_text_catalog()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.HasFullTextCatalog("MyCatalog").IsDefault().IsAccentSensitive(false);
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+
+        var isDefaultChain = catalogResult.ChainedCall;
+        Assert.NotNull(isDefaultChain);
+        Assert.Equal("IsDefault", isDefaultChain.Method);
+        Assert.Equal(0, isDefaultChain.Arguments.Count);
+
+        var accentChain = isDefaultChain.ChainedCall;
+        Assert.NotNull(accentChain);
+        Assert.Equal("IsAccentSensitive", accentChain.Method);
+        Assert.Equal(1, accentChain.Arguments.Count);
+        Assert.Equal(false, accentChain.Arguments[0]);
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IModel_works_with_full_text_catalog_defaults()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.HasFullTextCatalog("MyCatalog");
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var results = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations);
+
+        var catalogResult = results.Single(r => r.Method == "HasFullTextCatalog");
+        Assert.Equal(1, catalogResult.Arguments.Count);
+        Assert.Equal("MyCatalog", catalogResult.Arguments[0]);
+
+        // No chained calls when using defaults
+        Assert.Null(catalogResult.ChainedCall);
+    }
+
+    [ConditionalFact]
     public void GenerateFluentApi_IModel_works_with_identity()
     {
         var generator = CreateGenerator();

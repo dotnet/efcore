@@ -863,7 +863,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().ToTable("Animal");
-        modelBuilder.Entity<Cat>().ToTable("Cat").SplitToTable("CatDetails", s => s.Property(a => a.Name));
+        modelBuilder.Entity<Cat>().ToTable("Cat").SplitToTable("CatDetails", s => s.Property(c => c.Breed));
 
         VerifyError(
             RelationalStrings.EntitySplittingHierarchy(nameof(Cat), "CatDetails"),
@@ -874,7 +874,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_entity_splitting_with_unmapped_main()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Animal>().SplitToView("AnimalDetails", s => s.Property(a => a.Name));
+        modelBuilder.Entity<Animal>().SplitToView("AnimalDetails", s => s.Property(a => a.Id).HasColumnName("AnimalId"));
 
         VerifyError(
             RelationalStrings.EntitySplittingUnmappedMainFragment(nameof(Animal), "AnimalDetails", "View"),
@@ -1590,6 +1590,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
                 nameof(Animal), "FK_Animal_Person_Name",
                 DeleteBehavior.SetNull, DeleteBehavior.Cascade),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_excluded_from_migrations()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").ExcludeForeignKeyFromMigrations();
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            RelationalStrings.DuplicateForeignKeyExcludedFromMigrationsMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "FK_Animal_Person_Name"),
             modelBuilder);
     }
 
@@ -2880,7 +2898,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Detects_multiple_entity_types_mapped_to_the_same_stored_procedure()
+    public virtual void Detects_multiple_entity_types_mapped_to_the_same_stored_procedure()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -3515,7 +3533,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>().HasIndex(nameof(Animal.Id), nameof(Animal.Name));
 
         var definition = RelationalResources
-            .LogUnnamedIndexAllPropertiesNotToMappedToAnyTable(
+            .LogUnnamedIndexAllPropertiesNotMappedToAnyTable(
                 new TestLogger<TestRelationalLoggingDefinitions>());
         VerifyWarning(
             definition.GenerateMessage(
@@ -3536,7 +3554,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 "IX_AllPropertiesNotMapped");
 
         var definition = RelationalResources
-            .LogNamedIndexAllPropertiesNotToMappedToAnyTable(
+            .LogNamedIndexAllPropertiesNotMappedToAnyTable(
                 new TestLogger<TestRelationalLoggingDefinitions>());
         VerifyWarning(
             definition.GenerateMessage(
@@ -3866,6 +3884,43 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         public static IQueryable<C> MethodF()
             => throw new NotImplementedException();
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_json_mapped_property_not_auto_loaded()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<AutoLoadJsonPrincipal>(
+            eb =>
+            {
+                eb.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Property(e => e.Details);
+                    });
+            });
+
+        var model = modelBuilder.Model;
+        var ownedType = model.FindEntityType(typeof(AutoLoadJsonOwned))!;
+        ownedType.SetContainerColumnName("Owned");
+        var property = ownedType.FindProperty(nameof(AutoLoadJsonOwned.Details))!;
+        property.IsAutoLoaded = false;
+
+        VerifyError(
+            RelationalStrings.AutoLoadedJsonProperty(nameof(AutoLoadJsonOwned.Details), ownedType.DisplayName()),
+            modelBuilder);
+    }
+
+    protected class AutoLoadJsonPrincipal
+    {
+        public int Id { get; set; }
+        public AutoLoadJsonOwned Owned { get; set; } = null!;
+    }
+
+    protected class AutoLoadJsonOwned
+    {
+        public string Details { get; set; } = null!;
     }
 
     protected virtual TestHelpers.TestModelBuilder CreateModelBuilderWithoutConvention<T>(bool sensitiveDataLoggingEnabled = false)

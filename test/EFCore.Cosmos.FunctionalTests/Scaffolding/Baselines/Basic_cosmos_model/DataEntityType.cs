@@ -193,7 +193,13 @@ namespace TestNamespace
                     byte[] (byte[] source) => source.ToArray()),
                 converter: new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
                     byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),
-                    ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v)));
+                    ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<ReadOnlyMemory<byte>, IEnumerable<byte>>(
+                    new JsonCollectionOfStructsReaderWriter<byte[], byte>(
+                        JsonByteReaderWriter.Instance),
+                    new ValueConverter<ReadOnlyMemory<byte>, byte[]>(
+                        byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v),
+                        ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v))));
             bytes.SetSentinelFromProviderValue(new byte[0]);
 
             var list = runtimeEntityType.AddProperty(
@@ -226,7 +232,7 @@ namespace TestNamespace
                     List<Dictionary<string, int>> (List<Dictionary<string, int>> v) => v),
                 clrType: typeof(List<Dictionary<string, int>>),
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<Dictionary<string, int>>, Dictionary<string, int>>(
-                    new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<int>(
+                    new CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReaderWriter<int>(
                         JsonInt32ReaderWriter.Instance)),
                 elementMapping: CosmosTypeMapping.Default.Clone(
                     comparer: new StringDictionaryComparer<Dictionary<string, int>, int>(new ValueComparer<int>(
@@ -242,7 +248,7 @@ namespace TestNamespace
                         int (Dictionary<string, int> v) => ((object)v).GetHashCode(),
                         Dictionary<string, int> (Dictionary<string, int> v) => v),
                     clrType: typeof(Dictionary<string, int>),
-                    jsonValueReaderWriter: new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<int>(
+                    jsonValueReaderWriter: new CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReaderWriter<int>(
                         JsonInt32ReaderWriter.Instance)));
             var listElementType = list.SetElementType(typeof(Dictionary<string, int>),
                 nullable: true);
@@ -277,7 +283,7 @@ namespace TestNamespace
                     int (Dictionary<string, string[]> v) => ((object)v).GetHashCode(),
                     Dictionary<string, string[]> (Dictionary<string, string[]> v) => v),
                 clrType: typeof(Dictionary<string, string[]>),
-                jsonValueReaderWriter: new CosmosTypeMappingSource.PlaceholderJsonStringKeyedDictionaryReaderWriter<object>(
+                jsonValueReaderWriter: new CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<string[], string>(
                     new JsonCollectionOfReferencesReaderWriter<string[], string>(
                         JsonStringReaderWriter.Instance)));
 

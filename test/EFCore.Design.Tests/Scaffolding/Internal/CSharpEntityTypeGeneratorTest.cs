@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -2304,6 +2305,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsId");
+                        j.IndexerProperty<int>("PostsId");
                     });
         });
 
@@ -2429,6 +2432,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsId");
+                        j.IndexerProperty<string>("PostsId");
                     });
         });
 
@@ -2554,6 +2559,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsId");
+                        j.IndexerProperty<int>("PostsId");
                     });
         });
 
@@ -2697,6 +2704,8 @@ public partial class TestDbContext : DbContext
                     {
                         j.HasKey("BlogsKey", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
+                        j.IndexerProperty<int>("BlogsKey");
+                        j.IndexerProperty<int>("PostsId");
                     });
         });
 
@@ -2780,6 +2789,186 @@ public partial class Post
                 var fk = Assert.Single(joinEntityType.FindDeclaredForeignKeys([joinEntityType.GetProperty("BlogsKey")]));
                 Assert.False(fk.PrincipalKey.IsPrimaryKey());
             });
+
+    [ConditionalFact]
+    public Task Scaffold_skip_navigations_composite_fk()
+    {
+        var database = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Name = "AnnualValue",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
+                        new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
+                    }
+                },
+                new DatabaseTable
+                {
+                    Name = "AcademicYear_Lookup",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
+                        new DatabaseColumn { Name = "AcademicYearDesc", StoreType = "varchar(150)", IsNullable = true },
+                        new DatabaseColumn { Name = "AcademicYearDesc2", StoreType = "varchar(100)", IsNullable = true }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("AcademicYear") } }
+                },
+                new DatabaseTable
+                {
+                    Name = "AnnualValue_AcademicYear_Mapping",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
+                        new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
+                        new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns =
+                        {
+                            new DatabaseColumnRef("AcademicYear"),
+                            new DatabaseColumnRef("LearnAimRef"),
+                            new DatabaseColumnRef("EffectiveFrom")
+                        }
+                    },
+                    ForeignKeys =
+                    {
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") },
+                            PrincipalColumns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") },
+                            PrincipalTable = new DatabaseTableRef("AnnualValue"),
+                            OnDelete = ReferentialAction.Cascade
+                        },
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("AcademicYear") },
+                            PrincipalColumns = { new DatabaseColumnRef("AcademicYear") },
+                            PrincipalTable = new DatabaseTableRef("AcademicYear_Lookup"),
+                            OnDelete = ReferentialAction.Cascade
+                        }
+                    }
+                }
+            }
+        };
+
+        return TestAsync(
+            serviceProvider =>
+            {
+                foreach (var table in database.Tables)
+                {
+                    table.Database = database;
+                    foreach (var column in table.Columns)
+                    {
+                        column.Table = table;
+                    }
+
+                    if (table.PrimaryKey != null)
+                    {
+                        table.PrimaryKey.Table = table;
+                        FixupColumns(table, table.PrimaryKey.Columns);
+                    }
+
+                    foreach (var fk in table.ForeignKeys)
+                    {
+                        fk.Table = table;
+                        FixupColumns(table, fk.Columns);
+
+                        if (fk.PrincipalTable is DatabaseTableRef tableRef)
+                        {
+                            fk.PrincipalTable = database.Tables
+                                .First(t => t.Name == tableRef.Name && t.Schema == tableRef.Schema);
+                        }
+
+                        FixupColumns(fk.PrincipalTable, fk.PrincipalColumns);
+                    }
+                }
+
+                return serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
+                    database, new ModelReverseEngineerOptions());
+
+                static void FixupColumns(DatabaseTable table, IList<DatabaseColumn> columns)
+                {
+                    for (var i = 0; i < columns.Count; i++)
+                    {
+                        if (columns[i] is DatabaseColumnRef columnRef)
+                        {
+                            columns[i] = table.Columns.First(c => c.Name == columnRef.Name);
+                        }
+                    }
+                }
+            },
+            new ModelCodeGenerationOptions { UseDataAnnotations = false, UseNullableReferenceTypes = true },
+            code =>
+            {
+                // Context has DbSets for the two principal entities (join table is hidden)
+                Assert.Contains("DbSet<AcademicYearLookup>", code.ContextFile.Code);
+                Assert.Contains("DbSet<AnnualValue>", code.ContextFile.Code);
+
+                // Context wires up the many-to-many via UsingEntity
+                Assert.Contains("UsingEntity", code.ContextFile.Code);
+                Assert.Contains("AnnualValueAcademicYearMapping", code.ContextFile.Code);
+                Assert.Contains("IndexerProperty<DateOnly>(\"EffectiveFrom\")", code.ContextFile.Code);
+
+                // Two entity files generated (join table is Dictionary<string,object>, no class file)
+                Assert.Equal(2, code.AdditionalFiles.Count);
+
+                var lookupFile = code.AdditionalFiles.Single(f => f.Path == "AcademicYearLookup.cs");
+                Assert.Contains("string AcademicYear", lookupFile.Code);
+                Assert.Contains("string? AcademicYearDesc", lookupFile.Code);
+                Assert.Contains("string? AcademicYearDesc2", lookupFile.Code);
+                Assert.Contains("ICollection<AnnualValue> AnnualValues", lookupFile.Code);
+
+                var annualValueFile = code.AdditionalFiles.Single(f => f.Path == "AnnualValue.cs");
+                Assert.Contains("string LearnAimRef", annualValueFile.Code);
+                Assert.Contains("DateOnly EffectiveFrom", annualValueFile.Code);
+                Assert.Contains("ICollection<AcademicYearLookup> AcademicYears", annualValueFile.Code);
+            },
+            model =>
+            {
+                var lookupType = model.FindEntityType("TestNamespace.AcademicYearLookup");
+                Assert.NotNull(lookupType);
+                Assert.Collection(
+                    lookupType.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("AcademicYear", p),
+                    p => Assert.Equal("AcademicYearDesc", p),
+                    p => Assert.Equal("AcademicYearDesc2", p));
+                Assert.Empty(lookupType.GetNavigations());
+                var lookupSkipNav = Assert.Single(lookupType.GetSkipNavigations());
+                Assert.Equal("AnnualValues", lookupSkipNav.Name);
+
+                var annualValueType = model.FindEntityType("TestNamespace.AnnualValue");
+                Assert.NotNull(annualValueType);
+                Assert.Collection(
+                    annualValueType.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("EffectiveFrom", p),
+                    p => Assert.Equal("LearnAimRef", p));
+                Assert.Empty(annualValueType.GetNavigations());
+                var annualValueSkipNav = Assert.Single(annualValueType.GetSkipNavigations());
+                Assert.Equal("AcademicYears", annualValueSkipNav.Name);
+
+                Assert.Equal(lookupSkipNav, annualValueSkipNav.Inverse);
+                Assert.Equal(annualValueSkipNav, lookupSkipNav.Inverse);
+
+                var joinEntityType = lookupSkipNav.ForeignKey.DeclaringEntityType;
+                Assert.Equal("AnnualValueAcademicYearMapping", joinEntityType.Name);
+                Assert.Equal(typeof(Dictionary<string, object>), joinEntityType.ClrType);
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                Assert.Collection(
+                    joinEntityType.GetProperties().Select(p => p.Name).OrderBy(n => n),
+                    p => Assert.Equal("AcademicYear", p),
+                    p => Assert.Equal("EffectiveFrom", p),
+                    p => Assert.Equal("LearnAimRef", p));
+            });
+    }
 
     [ConditionalFact]
     public Task Many_to_many_ef6()

@@ -364,7 +364,7 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         {
             return Exists();
         }
-        catch
+        catch (Exception ex) when (!ex.IsCritical())
         {
             return false;
         }

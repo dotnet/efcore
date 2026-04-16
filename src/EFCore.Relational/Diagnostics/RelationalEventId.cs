@@ -83,6 +83,7 @@ public static class RelationalEventId
         AcquiringMigrationLock,
         MigrationsUserTransactionWarning,
         ModelSnapshotNotFound,
+        OldMigrationVersionWarning,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -99,7 +100,7 @@ public static class RelationalEventId
         // Model validation events
         ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
         BoolWithDefaultWarning,
-        AllIndexPropertiesNotToMappedToAnyTable,
+        AllIndexPropertiesNotMappedToAnyTable,
         IndexPropertiesBothMappedAndNotMappedToTable,
         IndexPropertiesMappedToNonOverlappingTables,
         ForeignKeyPropertiesMappedToUnrelatedTables,
@@ -806,6 +807,19 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId ModelSnapshotNotFound = MakeMigrationsId(Id.ModelSnapshotNotFound);
 
+    /// <summary>
+    ///     The last migration was created with an older version of EF Core.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="MigrationVersionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId OldMigrationVersionWarning = MakeMigrationsId(Id.OldMigrationVersionWarning);
+
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
     private static EventId MakeQueryId(Id id)
@@ -914,8 +928,8 @@ public static class RelationalEventId
     ///         This event uses the <see cref="IndexEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable =
-        MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
+    public static readonly EventId AllIndexPropertiesNotMappedToAnyTable =
+        MakeValidationId(Id.AllIndexPropertiesNotMappedToAnyTable);
 
     /// <summary>
     ///     An index specifies properties some of which are mapped and some of which are not mapped to a column in a table.

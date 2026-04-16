@@ -99,6 +99,63 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateWithSentinelId);
             });
 
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task ClientSetDefault_with_sentinel_value_sets_FK_to_sentinel_on_delete(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                // Create a "default" parent that orphaned children will reference
+                var defaultParent = new ParentWithClientSetDefault { Id = 667 };
+                // Create the actual parent with a different Id
+                var parent = new ParentWithClientSetDefault { Id = 1 };
+                var child = new ChildWithClientSetDefault { ParentId = 1, Parent = parent };
+                parent.Children.Add(child);
+
+                if (async)
+                {
+                    await context.AddRangeAsync(defaultParent, parent);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.AddRange(defaultParent, parent);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var parent = async
+                    ? await context.Set<ParentWithClientSetDefault>().Include(e => e.Children).SingleAsync(e => e.Id == 1)
+                    : context.Set<ParentWithClientSetDefault>().Include(e => e.Children).Single(e => e.Id == 1);
+
+                var child = parent.Children.Single();
+                Assert.Equal(1, child.ParentId);
+
+                context.Remove(parent);
+
+                Assert.Equal(EntityState.Deleted, context.Entry(parent).State);
+                Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                Assert.Equal(667, child.ParentId); // FK should be set to sentinel value (the default parent)
+                Assert.Null(child.Parent);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var child = async
+                    ? await context.Set<ChildWithClientSetDefault>().SingleAsync()
+                    : context.Set<ChildWithClientSetDefault>().Single();
+
+                Assert.Equal(667, child.ParentId); // Verify FK was persisted with sentinel value
+            });
+
     [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
         => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
@@ -2258,4 +2315,122 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             });
     }
+
+    #region Issue37310
+    [ConditionalTheory, InlineData(false), InlineData(true)]
+    public virtual async Task Can_update_many_to_many_and_reference_with_composite_key(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var group = new Group37310 { Id = 1 };
+                var user = new User37310 { Id = 1 };
+                var member = new GroupMember37310 { UserId = 1, GroupId = 1 };
+
+                context.Set<Group37310>().Add(group);
+                context.Set<User37310>().Add(user);
+                context.Set<GroupMember37310>().Add(member);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+            },
+            async context =>
+            {
+                var group = async
+                    ? await context.Set<Group37310>().Include(x => x.Members).SingleAsync()
+                    : context.Set<Group37310>().Include(x => x.Members).Single();
+
+                group.Members = new ObservableHashSet<GroupMember37310>(ReferenceEqualityComparer.Instance)
+                {
+                    new GroupMember37310 { UserId = 1, GroupId = 1 }
+                };
+                group.GroupOwnerId = 1;
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+            });
+
+    protected class User37310 : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<GroupMember37310> _groups = new ObservableHashSet<GroupMember37310>(ReferenceEqualityComparer.Instance);
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public ICollection<GroupMember37310> Groups
+        {
+            get => _groups;
+            set => SetWithNotify(value, ref _groups);
+        }
+    }
+
+    protected class Group37310 : NotifyingEntity
+    {
+        private int _id;
+        private int? _groupOwnerId;
+        private GroupMember37310 _groupOwner;
+        private ICollection<GroupMember37310> _members = new ObservableHashSet<GroupMember37310>(ReferenceEqualityComparer.Instance);
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int? GroupOwnerId
+        {
+            get => _groupOwnerId;
+            set => SetWithNotify(value, ref _groupOwnerId);
+        }
+
+        public GroupMember37310 GroupOwner
+        {
+            get => _groupOwner;
+            set => SetWithNotify(value, ref _groupOwner);
+        }
+
+        public ICollection<GroupMember37310> Members
+        {
+            get => _members;
+            set => SetWithNotify(value, ref _members);
+        }
+    }
+
+    protected class GroupMember37310 : NotifyingEntity
+    {
+        private int _groupId;
+        private Group37310 _group;
+        private int _userId;
+        private User37310 _user;
+
+        public int GroupId
+        {
+            get => _groupId;
+            set => SetWithNotify(value, ref _groupId);
+        }
+
+        public Group37310 Group
+        {
+            get => _group;
+            set => SetWithNotify(value, ref _group);
+        }
+
+        public int UserId
+        {
+            get => _userId;
+            set => SetWithNotify(value, ref _userId);
+        }
+
+        public User37310 User
+        {
+            get => _user;
+            set => SetWithNotify(value, ref _user);
+        }
+    }
+    #endregion
 }

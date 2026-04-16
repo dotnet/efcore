@@ -147,6 +147,18 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
             nameof(TemporalPeriodPropertyBuilder.HasColumnName), [typeof(string)])!;
 
+    private static readonly MethodInfo ModelHasFullTextCatalogMethodInfo
+        = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerModelBuilderExtensions.HasFullTextCatalog), [typeof(ModelBuilder), typeof(string)])!;
+
+    private static readonly MethodInfo FullTextCatalogIsDefaultMethodInfo
+        = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextCatalogBuilder.IsDefault), [typeof(bool)])!;
+
+    private static readonly MethodInfo FullTextCatalogIsAccentSensitiveMethodInfo
+        = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextCatalogBuilder.IsAccentSensitive), [typeof(bool)])!;
+
     #endregion MethodInfos
 
     /// <summary>
@@ -191,6 +203,28 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             annotations,
             SqlServerAnnotationNames.PerformanceLevelSql, ModelHasPerformanceLevelSqlMethodInfo,
             fragments);
+
+        if (annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs, out var catalogsAnnotation)
+            && catalogsAnnotation.Value is Dictionary<string, SqlServerFullTextCatalog> catalogs)
+        {
+            foreach (var catalog in catalogs.Values.OrderBy(c => c.Name))
+            {
+                var catalogCall = new MethodCallCodeFragment(ModelHasFullTextCatalogMethodInfo, catalog.Name);
+
+                if (catalog.IsDefault)
+                {
+                    catalogCall = catalogCall.Chain(new MethodCallCodeFragment(FullTextCatalogIsDefaultMethodInfo));
+                }
+
+                if (!catalog.IsAccentSensitive)
+                {
+                    catalogCall = catalogCall.Chain(
+                        new MethodCallCodeFragment(FullTextCatalogIsAccentSensitiveMethodInfo, false));
+                }
+
+                fragments.Add(catalogCall);
+            }
+        }
 
         return fragments;
     }
@@ -304,7 +338,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 : null;
 
             // for the RevEng path, we avoid adding period properties to the entity
-            // because we don't want code for them to be generated - they need to be in shadow state
+            // because we don't want code for them to be generated - they are created as shadow properties
             // so if we don't find property on the entity, we know it's this scenario
             // and in that case period column name is actually the same as the period property name annotation
             // since in RevEng scenario there can't be custom column mapping
@@ -432,10 +466,14 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 ? new MethodCallCodeFragment(IndexIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(IndexIsClusteredMethodInfo),
 
-            SqlServerAnnotationNames.Include => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.SortInTempDb => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.DataCompression => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.Include
+                => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.FillFactor
+                => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.SortInTempDb
+                => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.DataCompression
+                => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
 
             _ => null
         };

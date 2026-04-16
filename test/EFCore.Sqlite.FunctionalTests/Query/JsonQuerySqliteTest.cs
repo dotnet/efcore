@@ -99,7 +99,7 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE (
     SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething'
     FROM (
-        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'Id' AS "Id", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
+        SELECT "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
     ) AS "o0"
     WHERE "o0"."Enum" = -3
@@ -143,15 +143,15 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE (
     SELECT "o1"."c"
     FROM (
-        SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "o0"."Date" AS "c0"
+        SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "o0"."Date"
         FROM (
-            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'Id' AS "Id", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf"
+            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf"
             FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
         ) AS "o0"
         ORDER BY "o0"."Date" DESC
         LIMIT -1 OFFSET 1
     ) AS "o1"
-    ORDER BY "o1"."c0" DESC
+    ORDER BY "o1"."Date" DESC
     LIMIT 1 OFFSET 0) = 'e1_r_c1_r'
 """);
     }
