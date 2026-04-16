@@ -115,16 +115,13 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             _propertyExpressionsMap[property] = expression;
         }
 
-        //if (!clientEval
-        //    // TODO: Remove once __jObject is translated to the access root in a better fashion and
-        //    // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
-        //    // TODO: We shouldn't be returning null from here
-        //    && property.Name != CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName
-        //    && expression.PropertyName?.Length is null or 0)
-        //{
-        //    // Non-persisted property can't be translated
-        //    return null!;
-        //}
+        if (!clientEval
+            // TODO: We shouldn't be returning null from here. See issues #17670 and #14121.
+            && expression.PropertyName?.Length is null or 0)
+        {
+            // Non-persisted property can't be translated
+            return null!;
+        }
 
         return (Expression)expression;
     }
