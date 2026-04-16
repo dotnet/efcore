@@ -222,7 +222,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             result = shaper(queryContext, data)!;
 
             // @TODO: Get BytesConsumed from shaper?
-            var reader = new Utf8JsonReader(data.Span, true, new JsonReaderState());
+            var reader = new Utf8JsonReader(data.Span);
             reader.Read();
             // This could be a scalar or a structural type, if it is an object, we need to move past it.
             if (reader.TokenType == JsonTokenType.StartObject)
@@ -249,7 +249,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         public static ReadOnlyMemory<byte> ReadPath(ReadOnlyMemory<byte> data, LinkedList<byte[]> jsonPropertyPath)
         {
-            var jsonReader = new Utf8JsonReader(data.Span, true, new JsonReaderState());
+            var jsonReader = new Utf8JsonReader(data.Span);
             jsonReader.Read();
 
             var prop = jsonPropertyPath.First;

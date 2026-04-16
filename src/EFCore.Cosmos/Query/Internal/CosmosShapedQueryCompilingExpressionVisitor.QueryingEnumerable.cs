@@ -161,7 +161,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         _data = _enumerator.Current;
 
-                        var documentsReader = new Utf8JsonReader(_data.Value.Span, true, new JsonReaderState());
+                        var documentsReader = new Utf8JsonReader(_data.Value.Span);
                         documentsReader.Read();
 
                         var tokenType = documentsReader.TokenType;

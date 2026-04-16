@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -711,7 +710,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual async Task<JObject?> ExecuteReadItemAsync(
+    public virtual async Task<ReadOnlyMemory<byte>?> ExecuteReadItemAsync(
         string containerId,
         PartitionKey partitionKeyValue,
         string resourceId,
@@ -735,7 +734,23 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerId,
             partitionKeyValue);
 
-        return JObjectFromReadItemResponseMessage(containerId, response, sessionTokenStorage);
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            // We get no sub-status code if document not found, other not found errors (like session or container) have a sub status code
+            if (!response.Headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode) || string.IsNullOrWhiteSpace(subStatusCode) || subStatusCode == "0")
+            {
+                // Track session token to ensure subsequent requests will not read stale data where the document might still exist.
+                sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
+
+                return null;
+            }
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
+
+        return ((MemoryStream)response.Content).GetBuffer().AsMemory().Slice(0, (int)response.Content.Length);
     }
 
     private static async Task<ResponseMessage> CreateSingleItemQueryAsync(
@@ -755,31 +770,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return response;
-    }
-
-    private static JObject? JObjectFromReadItemResponseMessage(string containerId, ResponseMessage responseMessage, ISessionTokenStorage sessionTokenStorage)
-    {
-        if (responseMessage.StatusCode == HttpStatusCode.NotFound)
-        {
-            // We get no sub-status code if document not found, other not found errors (like session or container) have a sub status code
-            if (!responseMessage.Headers.TryGetValue(SubStatusCodeHeaderName, out var subStatusCode) || string.IsNullOrWhiteSpace(subStatusCode) || subStatusCode == "0")
-            {
-                // Track session token to ensure subsequent requests will not read stale data where the document might still exist.
-                sessionTokenStorage.TrackSessionToken(containerId, responseMessage.Headers.Session);
-
-                return null;
-            }
-        }
-
-        responseMessage.EnsureSuccessStatusCode();
-
-        sessionTokenStorage.TrackSessionToken(containerId, responseMessage.Headers.Session);
-
-        var responseStream = responseMessage.Content;
-        using var reader = new StreamReader(responseStream);
-        using var jsonReader = new JsonTextReader(reader);
-
-        return Serializer.Deserialize<JObject>(jsonReader);
     }
 
     /// <summary>

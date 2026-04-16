@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -23,7 +24,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JsonReaderData, T> _shaper;
+        private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -41,7 +42,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JsonReaderData, T> shaper,
+            Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -86,7 +87,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly PagingQueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JsonReaderData, T> _shaper;
+            private readonly Func<CosmosQueryContext, ReadOnlyMemory<byte>, T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
@@ -182,12 +183,49 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         responseMessage.EnsureSuccessStatusCode();
 
-                        var readerData = new JsonReaderData((MemoryStream)responseMessage.Content);
-                        var manager = new Utf8JsonReaderManager(readerData, _queryLogger);
+                        var data = ((MemoryStream)responseMessage.Content).GetBuffer().AsMemory().Slice(0, (int)responseMessage.Content.Length);
 
-                        while (manager.CurrentReader.TokenType != JsonTokenType.EndArray)
+                        var documentsReader = new Utf8JsonReader(data.Span);
+                        documentsReader.Read();
+
+                        var tokenType = documentsReader.TokenType;
+                        Debug.Assert(tokenType == JsonTokenType.StartObject);
+                        while (tokenType != JsonTokenType.EndObject)
                         {
-                            results.Add(_shaper(_cosmosQueryContext, readerData));
+                            switch (tokenType)
+                            {
+                                case JsonTokenType.StartObject:
+                                    documentsReader.Read();
+                                    tokenType = documentsReader.TokenType;
+                                    break;
+                                case JsonTokenType.PropertyName
+                                    when documentsReader.ValueTextEquals("Documents"):
+                                    goto Done;
+                                default:
+                                    documentsReader.Skip();
+                                    documentsReader.Read();
+                                    tokenType = documentsReader.TokenType;
+                                    break;
+                            }
+                        }
+
+                        Done:
+                        documentsReader.Read();
+                        var token = documentsReader.TokenType;
+                        if (token != JsonTokenType.StartArray)
+                        {
+                            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                        }
+
+                        data = data.Slice((int)documentsReader.BytesConsumed);
+
+                        while (ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
+                            _cosmosQueryContext, data,
+                            (Func<QueryContext, ReadOnlyMemory<byte>, T>)_shaper,
+                            out var bytesConsumed, out var result))
+                        {
+                            results.Add(_shaper(_cosmosQueryContext, data));
+                            data = data.Slice(bytesConsumed);
                             maxItemCount--;
                         }
 
