@@ -30,7 +30,6 @@ internal static class Formatter
                     ConversionFlags.SupportRecordClasses |
                     ConversionFlags.UseFullyQualifiedEntityNames |
                     ConversionFlags.UseNullableSpecifierForValueTypes |
-                    ConversionFlags.ShowDeclaringType |
                     ConversionFlags.UseFullyQualifiedTypeNames
     };
 
@@ -40,6 +39,7 @@ internal static class Formatter
             ConversionFlags.All
                 & ~(ConversionFlags.PlaceReturnTypeAfterParameterList
                 | ConversionFlags.ShowAccessibility
+                | ConversionFlags.ShowDeclaringType
                 | ConversionFlags.ShowTypeParameterVarianceModifier),
     };
 
@@ -49,6 +49,7 @@ internal static class Formatter
             ConversionFlags.All
                 & ~(ConversionFlags.PlaceReturnTypeAfterParameterList
                 | ConversionFlags.ShowAccessibility
+                | ConversionFlags.ShowDeclaringType
                 | ConversionFlags.ShowTypeParameterVarianceModifier),
     };
 
@@ -58,6 +59,7 @@ internal static class Formatter
             ConversionFlags.All
                     & ~(ConversionFlags.PlaceReturnTypeAfterParameterList
                     | ConversionFlags.ShowAccessibility
+                    | ConversionFlags.ShowDeclaringType
                     | ConversionFlags.ShowReturnType
                     | ConversionFlags.ShowTypeParameterVarianceModifier),
     };
