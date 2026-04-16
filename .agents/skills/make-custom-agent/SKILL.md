@@ -75,7 +75,7 @@ Supported frontmatter fields:
 | `target` | No | Target environment: `vscode` or `github-copilot` (defaults to both) |
 | `tools` | No | List of allowed tools/tool sets |
 | `model` | No | LLM name or prioritized array of models |
-| `user-invokable` | No | Show in agents dropdown (default: true) |
+| `user-invocable` | No | Show in agents dropdown (default: true) |
 | `disable-model-invocation` | No | Prevent subagent invocation (default: false) |
 | `mcp-servers` | No | MCP server configs for GitHub Copilot target |
 | `metadata` | No | Key-value mapping for additional arbitrary metadata. |
