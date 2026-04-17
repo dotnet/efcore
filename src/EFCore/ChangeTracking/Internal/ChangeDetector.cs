@@ -353,9 +353,14 @@ public class ChangeDetector : IChangeDetector
                     var discriminatorProperty = complexProperty.ComplexType.FindDiscriminatorProperty();
                     if (discriminatorProperty != null)
                     {
-                        entry[discriminatorProperty] = currentValue is not null
-                            ? complexProperty.ComplexType.GetDiscriminatorValue()
-                            : discriminatorProperty.ClrType.GetDefaultValue();
+                        if (currentValue is not null)
+                        {
+                            entry[discriminatorProperty] = complexProperty.ComplexType.GetDiscriminatorValue();
+                        }
+                        else if (discriminatorProperty.IsShadowProperty())
+                        {
+                            entry[discriminatorProperty] = discriminatorProperty.ClrType.GetDefaultValue();
+                        }
                     }
                 }
 

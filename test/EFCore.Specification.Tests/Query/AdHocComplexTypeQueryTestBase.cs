@@ -472,6 +472,102 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     }
 
     [ConditionalFact]
+    public virtual async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
+    {
+        var contextFactory = await InitializeAsync<Context38119>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context38119.EntityType
+                    {
+                        Id = Guid.NewGuid(),
+                        Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+
+            context.Update(entity);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Nullable_complex_type_with_discriminator_set_to_different_value()
+    {
+        var contextFactory = await InitializeAsync<Context38119>();
+
+        Guid entityId;
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = new Context38119.EntityType
+            {
+                Id = Guid.NewGuid(),
+                Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+            };
+            context.Add(entity);
+            entityId = entity.Id;
+
+            // Override the discriminator value before saving
+            var discriminatorEntry = context.Entry(entity).ComplexProperty(e => e.Prop).Property("Discriminator");
+            Assert.Equal("OptionalComplexProperty", discriminatorEntry.CurrentValue);
+            discriminatorEntry.CurrentValue = "SomeOtherValue";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            // The discriminator is non-null so the complex property is still materialized
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync(e => e.Id == entityId);
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Nullable_complex_type_with_discriminator_set_to_null()
+    {
+        var contextFactory = await InitializeAsync<Context38119>();
+
+        Guid entityId;
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = new Context38119.EntityType
+            {
+                Id = Guid.NewGuid(),
+                Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+            };
+            context.Add(entity);
+            entityId = entity.Id;
+
+            // Set discriminator to null before saving, which should cause the complex property to be null on reload
+            var discriminatorEntry = context.Entry(entity).ComplexProperty(e => e.Prop).Property("Discriminator");
+            Assert.Equal("OptionalComplexProperty", discriminatorEntry.CurrentValue);
+            discriminatorEntry.CurrentValue = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            // With null discriminator, the complex property should be materialized as null
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync(e => e.Id == entityId);
+            Assert.Null(entity.Prop);
+        }
+    }
+
+    [ConditionalFact]
     public virtual async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
     {
         var contextFactory = await InitializeAsync<Context38119Nested>(
