@@ -500,6 +500,9 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         => configurationSource.Overrides(Metadata.GetServiceOnlyConstructorBindingConfigurationSource())
             || Metadata.ServiceOnlyConstructorBinding == constructorBinding;
 
+    private static readonly bool UseOldBehavior38119 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38119", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -520,9 +523,6 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
 
         return builder;
     }
-
-    private static readonly bool UseOldBehavior38119 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38119", out var enabled) && enabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
