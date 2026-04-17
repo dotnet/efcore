@@ -681,7 +681,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         if (!CanCreateDependency(foreignKey, command, principal: true)
                             || !IsModified(foreignKey.PrincipalKey.Properties, entry)
                             || (command.Table != null
-                                && !IsStoreGenerated(entry, foreignKey.PrincipalKey)))
+                                && !IsStoreGenerated(entry, foreignKey.PrincipalKey)
+                                && foreignKey.GetMappedConstraints().Any()))
                         {
                             continue;
                         }
@@ -723,6 +724,34 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             }
 
                             predecessorCommands.Add(command);
+                        }
+                    }
+
+                    // Also handle FKs with no mapped constraints (e.g. TPC with abstract principal mapped to no table)
+                    foreach (var entry in command.Entries)
+                    {
+                        foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+                        {
+                            if (!CanCreateDependency(foreignKey, command, principal: false)
+                                || !IsModified(foreignKey.Properties, entry)
+                                || foreignKey.GetMappedConstraints().Any())
+                            {
+                                continue;
+                            }
+
+                            var dependentKeyValue = foreignKey.GetDependentKeyValueFactory()
+                                ?.CreateDependentEquatableKey(entry, fromOriginalValues: true);
+
+                            if (dependentKeyValue != null)
+                            {
+                                if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
+                                {
+                                    predecessorCommands = [];
+                                    originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
+                                }
+
+                                predecessorCommands.Add(command);
+                            }
                         }
                     }
                 }
@@ -824,6 +853,27 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         AddMatchingPredecessorEdge(
                             originalPredecessorsMap, principalKeyValue, command, foreignKey);
                     }
+
+                    // Also handle FKs with no mapped constraints (e.g. TPC with abstract principal mapped to no table)
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
+                    {
+                        var entry = command.Entries[entryIndex];
+                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
+                        {
+                            if (!CanCreateDependency(foreignKey, command, principal: true)
+                                || foreignKey.GetMappedConstraints().Any())
+                            {
+                                continue;
+                            }
+
+                            var principalKeyValue = foreignKey.GetDependentKeyValueFactory()
+                                .CreatePrincipalEquatableKey(entry, fromOriginalValues: true);
+                            Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
+                            AddMatchingPredecessorEdge(
+                                originalPredecessorsMap, principalKeyValue, command, foreignKey);
+                        }
+                    }
                 }
                 else
                 {
@@ -873,6 +923,14 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         if (command.Table != null)
         {
+            // JSON-owned entities are stored inline in their owner's column and never have separate
+            // modification commands, so they cannot participate in inter-command dependency ordering.
+            var otherEntityType = principal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType;
+            if (otherEntityType.IsMappedToJson())
+            {
+                return false;
+            }
+
             if (foreignKey.IsRowInternal(StoreObjectIdentifier.Table(command.TableName, command.Schema))
                 || (foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                     && foreignKey.PrincipalKey.Properties.SequenceEqual(foreignKey.Properties)))
