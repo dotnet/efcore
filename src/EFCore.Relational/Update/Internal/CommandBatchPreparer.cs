@@ -726,15 +726,14 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    private static List<(IForeignKeyConstraint Constraint, object KeyValue)> GetForeignKeyConstraintValues(
+    private static IEnumerable<(IForeignKeyConstraint Constraint, object KeyValue)> GetForeignKeyConstraintValues(
         IReadOnlyModificationCommand command,
         bool principal,
         bool fromOriginalValues)
     {
-        var result = new List<(IForeignKeyConstraint, object)>();
         if (command.Table == null)
         {
-            return result;
+            yield break;
         }
 
         var constraints = principal ? command.Table.ReferencingForeignKeyConstraints : command.Table.ForeignKeyConstraints;
@@ -757,19 +756,16 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
-            result.Add((constraint, keyValue));
+            yield return (constraint, keyValue);
         }
-
-        return result;
     }
 
-    private static List<(IForeignKey ForeignKey, object KeyValue)> GetForeignKeyValues(
+    private static IEnumerable<(IForeignKey ForeignKey, object KeyValue)> GetForeignKeyValues(
         IReadOnlyModificationCommand command,
         bool principal,
         bool fromOriginalValues,
         bool checkStoreGenerated)
     {
-        var result = new List<(IForeignKey, object)>();
         // ReSharper disable once ForCanBeConvertedToForeach
         for (var i = 0; i < command.Entries.Count; i++)
         {
@@ -796,12 +792,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                 if (keyValue != null)
                 {
-                    result.Add((foreignKey, keyValue));
+                    yield return (foreignKey, keyValue);
                 }
             }
         }
-
-        return result;
     }
 
     private static void AddPredecessor(
