@@ -474,31 +474,31 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
     {
-        var contextFactory = await InitializeAsync<Context38119_Nested>(
+        var contextFactory = await InitializeAsync<Context38119Nested>(
             seed: context =>
             {
                 context.Add(
-                    new Context38119_Nested.EntityType
+                    new Context38119Nested.EntityType
                     {
                         Id = Guid.NewGuid(),
-                        Outer = new Context38119_Nested.OuterComplexProperty { Name = "outer" }
+                        Outer = new Context38119Nested.OuterComplexProperty { Name = "outer" }
                     });
                 return context.SaveChangesAsync();
             });
 
         await using (var context = contextFactory.CreateContext())
         {
-            var entity = await context.Set<Context38119_Nested.EntityType>().SingleAsync();
+            var entity = await context.Set<Context38119Nested.EntityType>().SingleAsync();
             Assert.NotNull(entity.Outer);
             Assert.Null(entity.Outer.Inner);
 
-            entity.Outer.Inner = new Context38119_Nested.InnerComplexProperty { Value = 42 };
+            entity.Outer.Inner = new Context38119Nested.InnerComplexProperty { Value = 42 };
             await context.SaveChangesAsync();
         }
 
         await using (var context = contextFactory.CreateContext())
         {
-            var entity = await context.Set<Context38119_Nested.EntityType>().SingleAsync();
+            var entity = await context.Set<Context38119Nested.EntityType>().SingleAsync();
             Assert.NotNull(entity.Outer);
             Assert.NotNull(entity.Outer.Inner);
             Assert.Equal(42, entity.Outer.Inner.Value);
@@ -529,7 +529,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    private class Context38119_Nested(DbContextOptions options) : DbContext(options)
+    private class Context38119Nested(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

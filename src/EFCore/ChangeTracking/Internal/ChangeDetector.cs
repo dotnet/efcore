@@ -348,7 +348,7 @@ public class ChangeDetector : IChangeDetector
             {
                 if (!InternalComplexTypeBuilder.UseOldBehavior38119)
                 {
-                    // Set the discriminator value for the complex type when transitioning from null to non-null or viceversa.
+                    // Set the discriminator value for the complex type when transitioning from null to non-null or vice versa.
                     // The discriminator is a shadow property whose value needs to be updated to reflect the new state.
                     var discriminatorProperty = complexProperty.ComplexType.FindDiscriminatorProperty();
                     if (discriminatorProperty != null)
