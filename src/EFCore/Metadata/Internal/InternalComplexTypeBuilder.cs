@@ -500,7 +500,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
         => configurationSource.Overrides(Metadata.GetServiceOnlyConstructorBindingConfigurationSource())
             || Metadata.ServiceOnlyConstructorBinding == constructorBinding;
 
-    private static readonly bool UseOldBehavior38119 =
+    internal static readonly bool UseOldBehavior38119 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38119", out var enabled) && enabled;
 
     /// <summary>
