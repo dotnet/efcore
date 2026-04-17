@@ -148,13 +148,23 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using (var context = contextFactory.CreateContext())
+        {
+            var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>()
+                .SingleAsync(b => b.AllOptionalsComplexType == null);
+            Assert.Null(complexTypeNull.AllOptionalsComplexType);
 
-        var complexTypeNull = await context.Set<ContextShadowDiscriminator.EntityType>().SingleAsync(b => b.AllOptionalsComplexType == null);
-        Assert.Null(complexTypeNull.AllOptionalsComplexType);
+            complexTypeNull.AllOptionalsComplexType =
+                new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "New thing" };
+            await context.SaveChangesAsync();
+        }
 
-        complexTypeNull.AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "New thing" };
-        await context.SaveChangesAsync();
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entities = await context.Set<ContextShadowDiscriminator.EntityType>().ToListAsync();
+            Assert.Equal(3, entities.Count);
+            Assert.All(entities, e => Assert.NotNull(e.AllOptionalsComplexType));
+        }
     }
 
     private class ContextShadowDiscriminator(DbContextOptions options) : DbContext(options)
@@ -400,6 +410,160 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion Issue37337
+
+    #region Issue38119
+
+    [ConditionalFact]
+    public virtual async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        var contextFactory = await InitializeAsync<Context38119>(
+            seed: context =>
+            {
+                context.Add(new Context38119.EntityType { Id = Guid.NewGuid() });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.Null(entity.Prop);
+
+            entity.Prop = new Context38119.OptionalComplexProperty { OptionalValue = true };
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
+    {
+        var contextFactory = await InitializeAsync<Context38119>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context38119.EntityType
+                    {
+                        Id = Guid.NewGuid(),
+                        Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Prop);
+
+            entity.Prop = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync();
+            Assert.Null(entity.Prop);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        var contextFactory = await InitializeAsync<Context38119_Nested>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context38119_Nested.EntityType
+                    {
+                        Id = Guid.NewGuid(),
+                        Outer = new Context38119_Nested.OuterComplexProperty { Name = "outer" }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119_Nested.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Outer);
+            Assert.Null(entity.Outer.Inner);
+
+            entity.Outer.Inner = new Context38119_Nested.InnerComplexProperty { Value = 42 };
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateContext())
+        {
+            var entity = await context.Set<Context38119_Nested.EntityType>().SingleAsync();
+            Assert.NotNull(entity.Outer);
+            Assert.NotNull(entity.Outer.Inner);
+            Assert.Equal(42, entity.Outer.Inner.Value);
+        }
+    }
+
+    private class Context38119(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var entity = modelBuilder.Entity<EntityType>();
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id).ValueGeneratedNever();
+
+            var compl = entity.ComplexProperty(p => p.Prop);
+            compl.HasDiscriminator();
+        }
+
+        public class EntityType
+        {
+            public Guid Id { get; set; }
+            public OptionalComplexProperty? Prop { get; set; }
+        }
+
+        public class OptionalComplexProperty
+        {
+            public bool? OptionalValue { get; set; }
+        }
+    }
+
+    private class Context38119_Nested(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            var entity = modelBuilder.Entity<EntityType>();
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.Id).ValueGeneratedNever();
+
+            entity.ComplexProperty(
+                p => p.Outer, outer =>
+                {
+                    outer.ComplexProperty(
+                        p => p.Inner, inner => inner.HasDiscriminator());
+                });
+        }
+
+        public class EntityType
+        {
+            public Guid Id { get; set; }
+            public OuterComplexProperty Outer { get; set; } = null!;
+        }
+
+        public class OuterComplexProperty
+        {
+            public string? Name { get; set; }
+            public InnerComplexProperty? Inner { get; set; }
+        }
+
+        public class InnerComplexProperty
+        {
+            public int? Value { get; set; }
+        }
+    }
+
+    #endregion Issue38119
 
     protected override string StoreName
         => "AdHocComplexTypeQueryTest";

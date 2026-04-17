@@ -24,6 +24,9 @@ public class ChangeDetector : IChangeDetector
     private static readonly bool UseOldBehavior37890 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37890", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior38119 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38119", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -346,6 +349,19 @@ public class ChangeDetector : IChangeDetector
             // to ensure the entity is detected as modified and the complex type properties are persisted
             if (!UseOldBehavior37890 || currentValue is not null)
             {
+                if (!UseOldBehavior38119)
+                {
+                    // Set the discriminator value for the complex type when transitioning from null to non-null.
+                    // The discriminator is a shadow property whose value needs to be updated to reflect the new state.
+                    var discriminatorProperty = complexProperty.ComplexType.FindDiscriminatorProperty();
+                    if (discriminatorProperty != null)
+                    {
+                        entry[discriminatorProperty] = currentValue is not null
+                            ? complexProperty.ComplexType.GetDiscriminatorValue()
+                            : discriminatorProperty.ClrType.GetDefaultValue();
+                    }
+                }
+
                 foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())
                 {
                     // Only mark properties that are tracked and can be modified
