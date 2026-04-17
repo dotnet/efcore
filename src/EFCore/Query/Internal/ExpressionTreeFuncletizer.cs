@@ -31,6 +31,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly bool UseOldBehavior37974 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37974", out var enabled37974) && enabled37974;
 
+    private static readonly bool UseOldBehavior38132 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38132", out var enabled38132) && enabled38132;
+
     // The general algorithm here is the following.
     // 1. First, for each node type, visit that node's children and get their states (evaluatable, contains evaluatable, no evaluatable).
     // 2. Calculate the parent node's aggregate state from its children; a container node whose children are all evaluatable is itself
@@ -2129,6 +2132,19 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 }
             }
 
+            if (!UseOldBehavior38132)
+            {
+                // As a safety guard, if there's any problematic character in the name for any reason, fall back to "p".
+                foreach (var c in parameterName)
+                {
+                    if (!char.IsLetterOrDigit(c) && c != '_')
+                    {
+                        parameterName = "p";
+                        break;
+                    }
+                }
+            }
+
             if (UseOldBehavior37152)
             {
                 // Uniquify the parameter name
@@ -2169,7 +2185,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 if (visited != expression)
                 {
                     parameterName = QueryFilterPrefix
-                        + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName } ? ("__" + memberName) : "__p");
+                        + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName }
+                            ? "__" + (UseOldBehavior38132 ? memberName : SanitizeCompilerGeneratedName(memberName))
+                            : "__p");
                     isContextAccessor = true;
 
                     // Context accessors (query filters accessing the context) never get constantized
