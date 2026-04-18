@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -130,7 +131,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     return base.Visit(expression);
             }
 
-            var translation = _sqlTranslator.Translate(expression);
+            var translation = _sqlTranslator.Translate(expression, isProjection: true);
             if (translation == null)
             {
                 _selectExpression.IndicateClientProjection();
@@ -142,7 +143,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         }
         else
         {
-            var translation = _sqlTranslator.Translate(expression);
+            var translation = _sqlTranslator.Translate(expression, isProjection: true);
             if (translation == null)
             {
                 return QueryCompilationContext.NotTranslatedExpression;

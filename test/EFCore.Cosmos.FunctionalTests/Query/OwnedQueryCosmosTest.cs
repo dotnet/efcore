@@ -1304,7 +1304,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateT
     }
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    public override Task Union_over_owned_collection(bool async)
+    public override Task Union_over_owned_collection(bool async) // #34011
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {

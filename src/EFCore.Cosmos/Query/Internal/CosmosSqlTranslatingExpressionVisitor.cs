@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
@@ -70,14 +71,14 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
+    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true, bool isProjection = false)
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression, applyDefaultTypeMapping);
+        return TranslateInternal(expression, applyDefaultTypeMapping, isProjection);
     }
 
-    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
+    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping, bool isProjection)
     {
         var result = Visit(expression);
 
@@ -85,7 +86,15 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         {
             if (applyDefaultTypeMapping)
             {
-                translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
+                // If this is a projection of a non-constant non-direct member access -number, cosmos could return it as a double,
+                // so we need to apply a special projection type mapping to ensure it gets read back as a double and converted to the correct type.
+                // Nullable operatoins on a number will never return a nullable number, so we don't check for null here. 
+                // @TODO: Add tests
+                translation = isProjection && translation is not SqlConstantExpression && translation is not ScalarAccessExpression
+                 && (translation.Type == typeof(int) || translation.Type == typeof(long) || translation.Type == typeof(short) || translation.Type == typeof(float)
+                  || translation.Type == typeof(uint) || translation.Type == typeof(ulong) || translation.Type == typeof(ushort))
+                    ? sqlExpressionFactory.ApplyTypeMapping(translation, new CosmosNumberProjectionTypeMapping(translation.Type))
+                    : sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
                 if (translation.TypeMapping == null)
                 {
