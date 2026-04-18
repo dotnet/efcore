@@ -192,6 +192,24 @@
   <data name="DotnetEfFullName" xml:space="preserve">
     <value>Entity Framework Core .NET Command-line Tools</value>
   </data>
+  <data name="DotNetEfConfigInvalidJson" xml:space="preserve">
+    <value>Unable to read '{configFile}'. Fix the JSON and try again. {details}</value>
+  </data>
+  <data name="DotNetEfConfigInvalidRoot" xml:space="preserve">
+    <value>Unable to read '{configFile}'. The file must contain a JSON object.</value>
+  </data>
+  <data name="DotNetEfConfigInvalidValue" xml:space="preserve">
+    <value>Unable to read '{configFile}'. The '{propertyName}' property must be a non-empty JSON string.</value>
+  </data>
+  <data name="DotNetEfConfigInvalidBoolValue" xml:space="preserve">
+    <value>Unable to read '{configFile}'. The '{propertyName}' property must be a boolean.</value>
+  </data>
+  <data name="DotNetEfConfigReadFailed" xml:space="preserve">
+    <value>Unable to read '{configFile}'. Ensure the file is accessible and try again. {details}</value>
+  </data>
+  <data name="DotNetEfConfigUnknownProperty" xml:space="preserve">
+    <value>Unable to read '{configFile}'. Remove the unsupported '{propertyName}' property.</value>
+  </data>
   <data name="EFFullName" xml:space="preserve">
     <value>Entity Framework Core Command-line Tools</value>
   </data>
