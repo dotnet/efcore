@@ -819,7 +819,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     #region 38132
 
     [ConditionalFact]
-    public virtual async Task Query_filter_with_pk_ctor_parameter()
+    public virtual async Task Query_filter_with_primary_constructor_parameter()
     {
         var contextFactory = await InitializeAsync<Context38132>(
             addServices: s =>

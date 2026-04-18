@@ -446,9 +446,9 @@ ORDER BY [s].[Name]
 """);
     }
 
-    public override async Task Query_filter_with_pk_ctor_parameter()
+    public override async Task Query_filter_with_primary_constructor_parameter()
     {
-        await base.Query_filter_with_pk_ctor_parameter();
+        await base.Query_filter_with_primary_constructor_parameter();
 
         AssertSql(
             """
