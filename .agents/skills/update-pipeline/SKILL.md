@@ -13,15 +13,13 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
 `SaveChanges()` → `DetectChanges()` → `IDatabase.SaveChanges()`
   → `UpdateAdapter` creates `IUpdateEntry` list
   → `CommandBatchPreparer.BatchCommands()`
-    → `ModificationCommand` per entity (maps to table row), composed of `ColumnModification` (maps to column value)
+    → `ModificationCommand` per table row, composed of `ColumnModification` per column
+      → `SharedTableEntryMap` is used to track entries mapped to the same row
     → Topological sort via Multigraph (FK dependency ordering)
     → Groups into `ModificationCommandBatch` (respects max batch size)
   → `UpdateSqlGenerator` generates SQL per batch
   → `BatchExecutor` executes all batches in a transaction
   → `StateManager.AcceptAllChanges()`
-
-Other Key Files:
-- `src/EFCore.Relational/Update/Internal/SharedTableEntryMap.cs` — manages entries mapped to the same row
 
 ## Concurrency
 
