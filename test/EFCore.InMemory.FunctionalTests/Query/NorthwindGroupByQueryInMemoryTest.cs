@@ -72,4 +72,12 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
         => AssertTranslationFailedWithDetails(
             () => base.Final_GroupBy_TagWith(async),
             InMemoryStrings.NonComposedGroupByNotSupported);
+
+    [ConditionalTheory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_Order(bool async)
+        => base.GroupBy_Select_Entire_Entity_Order(async);
+
+    [ConditionalTheory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_Where(bool async)
+        => base.GroupBy_Select_Entire_Entity_Where(async);
 }
