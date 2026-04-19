@@ -89,7 +89,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 // If this is a projection of a non-constant non-direct member access -number, cosmos could return it as a double,
                 // so we need to apply a special projection type mapping to ensure it gets read back as a double and converted to the correct type.
                 // Nullable operatoins on a number will never return a nullable number, so we don't check for null here. 
-                // @TODO: Add tests
                 translation = isProjection && translation is not SqlConstantExpression && translation is not ScalarAccessExpression
                  && (translation.Type == typeof(int) || translation.Type == typeof(long) || translation.Type == typeof(short) || translation.Type == typeof(float)
                   || translation.Type == typeof(uint) || translation.Type == typeof(ulong) || translation.Type == typeof(ushort))

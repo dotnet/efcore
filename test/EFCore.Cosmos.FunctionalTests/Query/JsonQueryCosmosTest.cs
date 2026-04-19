@@ -39,9 +39,14 @@ WHERE (c["Discriminator"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async));
+            await base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async);
+
+            AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE (c["Discriminator"] = "Basic")
+""");
         }
     }
 
@@ -51,7 +56,14 @@ WHERE (c["Discriminator"] = "Basic")
         if (async)
         {
             //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Basic_json_projection_owned_collection_leaf(async));
+            await base.Basic_json_projection_owned_collection_leaf(async);
+
+            AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+WHERE (c["Discriminator"] = "Basic")
+""");
         }
     }
 

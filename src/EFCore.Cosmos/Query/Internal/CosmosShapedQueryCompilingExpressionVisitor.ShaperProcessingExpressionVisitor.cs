@@ -252,12 +252,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
             // Note that we need to build entity shapers and fixup separately; we don't know the order in which data comes, so
             // we need to read through everything before we can do fixup safely
-            IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredComplexProperties());
+            IEnumerable<IPropertyBase> nestedStructuralProperties = ((ITypeBase)structuralType.GetRootType()).GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredComplexProperties());
 
             if (structuralType is IEntityType entityType)
             {
                 nestedStructuralProperties = nestedStructuralProperties.Concat(
-                    entityType.GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredNavigations()
+                    entityType.GetRootType().GetDerivedTypesInclusive().SelectMany(x => x.GetDeclaredNavigations()
                         .Where(n => n.ForeignKey.IsOwnership
                             && n == n.ForeignKey.PrincipalToDependent)));
             }
