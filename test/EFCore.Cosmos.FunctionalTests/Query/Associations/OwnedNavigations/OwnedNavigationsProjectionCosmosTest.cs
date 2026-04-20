@@ -130,7 +130,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
 FROM root c
 """);
         }
@@ -144,7 +144,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]["OptionalNestedAssociate"]
 FROM root c
 """);
         }

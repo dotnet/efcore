@@ -70,70 +70,54 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         // Values injected by JObjectInjectingExpressionVisitor
                         var projectionExpression = binaryExpression.Right.UnwrapTypeConversion(out _);
 
+                        Expression jTokenExpression;
                         switch (projectionExpression)
                         {
                             // ProjectionBindingExpression may represent a named token to be obtained from a containing JObject, or
                             // it may be that the token is not nested in a JObject if the query was generated using the SQL VALUE clause.
                             case ProjectionBindingExpression projectionBindingExpression:
                             {
+                                jTokenExpression = jTokenParameter;
+
                                 var projection = GetProjection(projectionBindingExpression);
-                                projectionExpression = projection.Expression;
                                 if (!projection.IsValueProjection)
                                 {
                                     storeName = projection.Alias;
                                 }
 
+                                if (projection.Expression is StructuralTypeProjectionExpression structuralTypeProjection)
+                                {
+                                    _projectionBindings[structuralTypeProjection.Object] = parameterExpression;
+                                }
+
                                 break;
                             }
 
-                            case ObjectArrayAccessExpression e:
-                                storeName = e.PropertyName;
-                                break;
-
-                            case StructuralTypeProjectionExpression e:
-                                storeName = e.PropertyName;
-                                break;
-                        }
-
-                        Expression valueExpression;
-                        switch (projectionExpression)
-                        {
                             case ObjectArrayAccessExpression objectArrayProjectionExpression:
                                 _projectionBindings[objectArrayProjectionExpression] = parameterExpression;
-                                valueExpression = CreateGetValueExpression(
-                                    objectArrayProjectionExpression.Object, storeName, parameterExpression.Type);
+                                jTokenExpression = objectArrayProjectionExpression.Object;
+                                storeName = objectArrayProjectionExpression.PropertyName;
+
                                 break;
 
                             case StructuralTypeProjectionExpression structuralTypeProjectionExpression:
+                                storeName = structuralTypeProjectionExpression.PropertyName;
                                 var accessExpression = structuralTypeProjectionExpression.Object;
                                 _projectionBindings[accessExpression] = parameterExpression;
-
                                 switch (accessExpression)
                                 {
                                     case ObjectReferenceExpression:
-                                        valueExpression = CreateGetValueExpression(jTokenParameter, storeName, parameterExpression.Type);
+                                        jTokenExpression = jTokenParameter;
                                         break;
 
-                                    case ObjectAccessExpression:
-                                        // Access to an owned type may be nested inside another owned type, so collect the store names
-                                        // and add owner mappings for each.
-                                        var storeNames = new List<string>();
-                                        while (accessExpression is ObjectAccessExpression objectAccessExpression)
-                                        {
-                                            accessExpression = objectAccessExpression.Object;
-                                            storeNames.Add(objectAccessExpression.PropertyName);
-                                            // The ShapedQueryCompilingExpressionVisitor will not generate StructuralTypeProjections for complex properties, so
-                                            // an ObjectAccessExpression in a StructuralTypeProjectionExpression can only be generated for owned navigations
-                                            // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
-                                            _ownerMappings[objectAccessExpression]
-                                                = ((IEntityType)objectAccessExpression.StructuralProperty.DeclaringType, accessExpression);
-                                        }
+                                    case ObjectAccessExpression objectAccessExpression:
+                                        // The ShapedQueryCompilingExpressionVisitor will not generate StructuralTypeProjections for complex properties, so
+                                        // an ObjectAccessExpression in a StructuralTypeProjectionExpression can only be generated for owned navigations
+                                        // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
+                                        _ownerMappings[objectAccessExpression]
+                                            = ((IEntityType)objectAccessExpression.StructuralProperty.DeclaringType, objectAccessExpression.Object);
 
-                                        valueExpression = CreateGetValueExpression(accessExpression, (string)null, typeof(JObject));
-                                        for (var i = storeNames.Count - 1; i >= 0; i--)
-                                        {
-                                            valueExpression = CreateGetValueExpression(valueExpression, storeNames[i], typeof(JObject));
-                                        }
+                                        jTokenExpression = CreateGetValueExpression(objectAccessExpression.Object, (string)null, typeof(JObject));
 
                                         break;
                                     default:
@@ -150,6 +134,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 throw new UnreachableException();
                         }
 
+                        var valueExpression = CreateGetValueExpression(jTokenExpression, storeName, parameterExpression.Type);
                         return MakeBinary(ExpressionType.Assign, binaryExpression.Left, valueExpression);
                     }
 
@@ -352,6 +337,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return base.VisitExtension(extensionExpression);
         }
+
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression) => conditionalExpression.Test switch
+        {
+            // Removes null checks on non-persisted properties
+            BinaryExpression { NodeType: ExpressionType.NotEqual, Left: MethodCallExpression { Method.IsGenericMethod: true } methodCall }
+                when methodCall.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                  && methodCall.Arguments[2].GetConstantValue<IProperty>().GetJsonPropertyName() == ""
+              => Visit(conditionalExpression.IfTrue),
+            _ => base.VisitConditional(conditionalExpression),
+        };
 
         private BlockExpression AddIncludes(BlockExpression shaperBlock)
         {
