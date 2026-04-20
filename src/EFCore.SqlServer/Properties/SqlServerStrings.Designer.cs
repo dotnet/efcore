@@ -557,6 +557,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string VectorSearchRequiresColumn
             => GetString("VectorSearchRequiresColumn");
 
+        /// <summary>
+        ///     WithApproximate() must be called after Take() to specify the number of results.
+        /// </summary>
+        public static string WithApproximateRequiresTake
+            => GetString("WithApproximateRequiresTake");
+
+        /// <summary>
+        ///     WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().
+        /// </summary>
+        public static string WithApproximateNotSupportedWithSkipAndTake
+            => GetString("WithApproximateNotSupportedWithSkipAndTake");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

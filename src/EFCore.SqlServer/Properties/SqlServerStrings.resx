@@ -426,4 +426,10 @@
   <data name="VectorSearchRequiresColumn" xml:space="preserve">
     <value>VectorSearch() requires a valid vector column.</value>
   </data>
+  <data name="WithApproximateRequiresTake" xml:space="preserve">
+    <value>WithApproximate() must be called after Take() to specify the number of results.</value>
+  </data>
+  <data name="WithApproximateNotSupportedWithSkipAndTake" xml:space="preserve">
+    <value>WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().</value>
+  </data>
 </root>

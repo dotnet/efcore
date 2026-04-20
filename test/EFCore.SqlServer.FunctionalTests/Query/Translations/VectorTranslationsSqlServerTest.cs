@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
@@ -77,8 +78,9 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], CAST('[1,2,100]' AS VECTOR(3)))
 
         var results = await ctx.VectorEntities
             .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
-            .OrderBy(e => e.Distance)
+            .OrderBy(r => r.Distance)
             .Take(1)
+            .WithApproximate()
             .ToListAsync();
 
         Assert.Equal(2, results.Single().Value.Id);
@@ -103,7 +105,41 @@ ORDER BY [v0].[Distance]
     [ConditionalFact]
     [SqlServerCondition(SqlServerCondition.IsAzureSql)]
     [Experimental("EF9105")]
-    public async Task VectorSearch_project_entity_only_with_distance_filter_and_ordering()
+    public async Task VectorSearch_exact_knn()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .OrderBy(r => r.Distance)
+            .Take(1)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Single().Value.Id);
+
+        AssertSql(
+            """
+@p1='1'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+
+SELECT TOP(@p1) [v].[Id], [v0].[Distance]
+FROM VECTOR_SEARCH(
+    TABLE = [VectorEntities] AS [v],
+    COLUMN = [Vector],
+    SIMILAR_TO = @p,
+    METRIC = 'cosine'
+) AS [v0]
+ORDER BY [v0].[Distance]
+""");
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_project_entity_only_with_distance_filter()
     {
         using var ctx = CreateContext();
 
@@ -115,6 +151,7 @@ ORDER BY [v0].[Distance]
             .OrderBy(e => e.Distance)
             .Select(e => e.Value)
             .Take(3)
+            .WithApproximate()
             .ToListAsync();
 
         Assert.Collection(
@@ -153,6 +190,7 @@ ORDER BY [v0].[Distance]
             .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
             .OrderBy(e => e.Distance)
             .Take(3)
+            .WithApproximate()
             .Select(e => new { e.Value.Id, e.Distance })
             .Where(e => e.Distance < 0.01)
             .ToListAsync();
@@ -181,6 +219,192 @@ FROM (
 WHERE [v1].[Distance] < 0.01E0
 ORDER BY [v1].[Distance]
 """);
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_with_Where_before_Take()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .Where(e => e.Value.Id > 5)
+            .OrderBy(e => e.Distance)
+            .Take(3)
+            .WithApproximate()
+            .ToListAsync();
+
+        Assert.Equal(3, results.Count);
+        Assert.All(results, r => Assert.True(r.Value.Id > 5));
+
+        AssertSql(
+            """
+@p1='3'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+
+SELECT TOP(@p1) WITH APPROXIMATE [v].[Id], [v0].[Distance]
+FROM VECTOR_SEARCH(
+    TABLE = [VectorEntities] AS [v],
+    COLUMN = [Vector],
+    SIMILAR_TO = @p,
+    METRIC = 'cosine'
+) AS [v0]
+WHERE [v].[Id] > 5
+ORDER BY [v0].[Distance]
+""");
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_with_Join_before_Take()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .Join(
+                ctx.VectorEntities,
+                r => r.Value.Id,
+                e => e.Id,
+                (r, e) => new { e.Id, r.Distance })
+            .OrderBy(r => r.Distance)
+            .Take(3)
+            .WithApproximate()
+            .ToListAsync();
+
+        Assert.Equal(3, results.Count);
+
+        AssertSql(
+            """
+@p1='3'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+
+SELECT TOP(@p1) WITH APPROXIMATE [v1].[Id], [v0].[Distance]
+FROM VECTOR_SEARCH(
+    TABLE = [VectorEntities] AS [v],
+    COLUMN = [Vector],
+    SIMILAR_TO = @p,
+    METRIC = 'cosine'
+) AS [v0]
+INNER JOIN [VectorEntities] AS [v1] ON [v].[Id] = [v1].[Id]
+ORDER BY [v0].[Distance]
+""");
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_with_Take_and_Skip()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var results = await ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .OrderBy(r => r.Distance)
+            .Take(3)
+            .WithApproximate()
+            .Skip(1)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+
+        AssertSql(
+            """
+@p1='3'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+@p2='1'
+
+SELECT [v1].[Id], [v1].[Distance]
+FROM (
+    SELECT TOP(@p1) WITH APPROXIMATE [v].[Id], [v0].[Distance]
+    FROM VECTOR_SEARCH(
+        TABLE = [VectorEntities] AS [v],
+        COLUMN = [Vector],
+        SIMILAR_TO = @p,
+        METRIC = 'cosine'
+    ) AS [v0]
+    ORDER BY [v0].[Distance]
+) AS [v1]
+ORDER BY [v1].[Distance]
+OFFSET @p2 ROWS
+""");
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task VectorSearch_reranking()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        // Inner: approximate broad retrieval
+        var candidates = ctx.VectorEntities
+            .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+            .OrderBy(r => r.Distance)
+            .Take(10)
+            .WithApproximate();
+
+        // Outer: exact re-ranking by a different criterion (no WithApproximate — exact top 3)
+        var results = await candidates
+            .OrderBy(r => r.Value.Id)
+            .Take(3)
+            .ToListAsync();
+
+        Assert.Equal(3, results.Count);
+
+        AssertSql(
+            """
+@p2='3'
+@p1='10'
+@p='Microsoft.Data.SqlTypes.SqlVector`1[System.Single]' (Size = 20) (DbType = Binary)
+
+SELECT TOP(@p2) [v1].[Id], [v1].[Distance]
+FROM (
+    SELECT TOP(@p1) WITH APPROXIMATE [v].[Id], [v0].[Distance]
+    FROM VECTOR_SEARCH(
+        TABLE = [VectorEntities] AS [v],
+        COLUMN = [Vector],
+        SIMILAR_TO = @p,
+        METRIC = 'cosine'
+    ) AS [v0]
+    ORDER BY [v0].[Distance]
+) AS [v1]
+ORDER BY [v1].[Id]
+""");
+    }
+
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task WithApproximate_without_Take_throws()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => ctx.VectorEntities
+                .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+                .WithApproximate()
+                .ToListAsync());
+
+        Assert.Equal(SqlServerStrings.WithApproximateRequiresTake, exception.Message);
     }
 
     [ConditionalFact]
