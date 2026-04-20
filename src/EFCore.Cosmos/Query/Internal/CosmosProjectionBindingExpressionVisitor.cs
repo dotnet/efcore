@@ -230,13 +230,9 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
                 }
 
-                var newEntityExpression = Visit(includeExpression.EntityExpression);
-
-                _includedNavigations.Push(includableNavigation);
-                var newNavigationExpression = Visit(includeExpression.NavigationExpression);
-                _includedNavigations.Pop();
-
-                return includeExpression.Update(newEntityExpression, newNavigationExpression);
+                // we prune includes, we only need the root of the include which is the the projected StructuralType
+                // the rest will be added in the shaper phase
+                return Visit(includeExpression.EntityExpression);
 
             default:
                 throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
