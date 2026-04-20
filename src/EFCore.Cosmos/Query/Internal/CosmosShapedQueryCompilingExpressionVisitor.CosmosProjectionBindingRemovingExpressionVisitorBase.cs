@@ -124,17 +124,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var jObject = Variable(typeof(JObject), "jObject");
 
-                    var shaper = (BlockExpression)shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
-                    var instance = shaper.Variables.Single(v => v.Type == structuralTypeShaperExpression.Type);
-                    var expressions = shaper.Expressions.ToList();
+                    _projectionBindings[binding] = jObject;
 
-                    shaper = ProcessStructuralProperties(structuralTypeShaperExpression.StructuralType, jObject, instance, expressions);
+                    var shaperBlock = (BlockExpression)Visit(shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression));
 
-                    return shaper.Update(
-                        [..shaper.Variables, jObject],
+                    shaperBlock = ProcessStructuralProperties(structuralTypeShaperExpression.StructuralType, jObject, shaperBlock);
+
+                    return Block(
+                        [..shaperBlock.Variables, jObject],
                         [
                             Assign(jObject, CreateGetValueExpression(jTokenParameter, projection.IsValueProjection ? projection.Alias : null, typeof(JObject))),
-                            ..expressions 
+                            ..shaperBlock.Expressions 
                         ]);
                 }
                 
@@ -570,12 +570,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
 
-        private void ProcessStructuralProperties(
+        private BlockExpression ProcessStructuralProperties(
             ITypeBase structuralType,
             ParameterExpression jObject,
-            ParameterExpression instance,
-            List<Expression> expressions)
+            BlockExpression shaperBlock)
         {
+            var instance = shaperBlock.Variables.Single(v => v.Type == structuralType.ClrType);
+            var expressions = new List<Expression>(shaperBlock.Expressions);
+
             foreach (var complexProperty in structuralType.GetComplexProperties())
             {
                 var member = MakeMemberAccess(instance, complexProperty.GetMemberInfo(true, true));
@@ -588,14 +590,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 foreach (var navigation in entityType.GetNavigations())
                 {
-                    if (navigation.IsCollection)
-                    {
-                        
-                    }
-                    var shaperBlock = (BlockExpression)((ConditionalExpression)CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObject)).IfFalse;
-                    AddInclude(expressions, navigation, shaperBlock, shaperBlock, instance);
+                    var materializeExpression = /*navigation.IsCollection
+                        ? Visit(new CollectionShaperExpression(jObject, new StructuralTypeShaperExpression()))
+                        :*/ CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObject);
+                    AddInclude(expressions, navigation, materializeExpression, shaperBlock, instance);
                 }
             }
+
+            return Block(shaperBlock.Variables, expressions);
         }
 
         private BlockExpression CreateComplexPropertyAssignmentBlock(
