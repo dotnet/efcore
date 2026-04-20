@@ -9,6 +9,8 @@
 
   <PropertyGroup>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">true</SkipTests>
+    <!-- Workaround for https://github.com/dotnet/fsharp/issues/17451 -->
+    <SignAssembly Condition="'$(OS)' != 'Windows_NT'">false</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
