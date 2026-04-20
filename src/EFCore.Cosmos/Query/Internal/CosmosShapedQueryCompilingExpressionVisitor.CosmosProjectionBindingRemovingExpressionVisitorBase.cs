@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -42,79 +41,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
-        private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
+        // MaterializationContext: ValueBuffer
+        private readonly Dictionary<ParameterExpression, Expression> _materializationContextBindings
             = new Dictionary<ParameterExpression, Expression>();
 
-        private readonly IDictionary<Expression, ParameterExpression> _projectionBindings
+        // ValueBuffer: jObject
+        private readonly Dictionary<Expression, ParameterExpression> _projectionBindings
             = new Dictionary<Expression, ParameterExpression>();
 
-        private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
-            = new Dictionary<Expression, (IEntityType, Expression)>();
-
-        private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
+        private readonly Dictionary<Expression, Expression> _ordinalParameterBindings
             = new Dictionary<Expression, Expression>();
-
-        private List<IncludeExpression> _pendingIncludes
-            = [];
-
-        private readonly ParameterExpression _jTokenParameter = jTokenParameter;
-        private ParameterExpression _parentJObject = jTokenParameter;
-        private int _currentStructuralIndex;
-
-        public Expression Translate(Expression expression) => Visit(shapedQueryCompiler.InjectStructuralTypeMaterializers(expression));
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             switch (binaryExpression)
             {
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: MethodCallExpression { Method.IsGenericMethod: true } jObjectMethodCallExpression } 
-                     when jObjectMethodCallExpression.Method.GetGenericMethodDefinition() == ToObjectWithSerializerMethodInfo
-                        && (parameterExpression.Type == typeof(JObject) || parameterExpression.Type == typeof(JArray)):
-                    // JObject assignment already uses ToObjectWithSerializerMethodInfo. This can happen because code was generated for nested structural properties that already leverage JObject correctly.
-                    return binaryExpression;
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
-                    when parameterExpression.Type == typeof(JObject) || parameterExpression.Type == typeof(JArray):
-                    
-                        // Values injected by JObjectInjectingExpressionVisitor
-                        var projectionExpression = (ProjectionBindingExpression)binaryExpression.Right.UnwrapTypeConversion(out _);
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: NewExpression newExpression }
+                when parameterExpression.Type == typeof(MaterializationContext):
 
-                        var projection = GetProjection(projectionExpression);
-                        if (projection.Expression is StructuralTypeProjectionExpression stp)
-                        {
-                            _projectionBindings[stp.Object] = parameterExpression;
-                        }
-
-                        var storeName = projection.IsValueProjection ? null : projection.Alias;
-
-                        var valueExpression = CreateGetValueExpression(
-                            _jTokenParameter, storeName, parameterExpression.Type);
-
-                        return MakeBinary(ExpressionType.Assign, binaryExpression.Left, valueExpression);
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
-                    when parameterExpression.Type == typeof(MaterializationContext):
-                    var newExpression = (NewExpression)binaryExpression.Right;
-
-                    if (newExpression.Arguments[0] is StructuralPropertyBindingExpression structuralPropertyBindingExpression)
-                    {
-                        _materializationContextBindings[parameterExpression] = structuralPropertyBindingExpression;
-                        _projectionBindings[structuralPropertyBindingExpression] = structuralPropertyBindingExpression.JObjectParameter;
-                    }
-                    else
-                    {
-                        StructuralTypeProjectionExpression structuralTypeProjectionExpression;
-                        if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
-                        {
-                            structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)
-                                GetProjection(projectionBindingExpression).Expression;
-                        }
-                        else
-                        {
-                            structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)
-                                ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
-                        }
-
-                        _materializationContextBindings[parameterExpression] = structuralTypeProjectionExpression.Object;
-                    }
+                    _materializationContextBindings[parameterExpression] = newExpression.Arguments[0];
 
                     var updatedExpression = New(
                         newExpression.Constructor,
@@ -136,46 +81,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
-                Expression innerExpression;
+                Expression valueBuffer;
                 if (methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
                 {
                     var projection = GetProjection(projectionBindingExpression);
 
-                    innerExpression = Convert(
-                        CreateReadJTokenExpression(_jTokenParameter, projection.Alias),
+                    valueBuffer = Convert(
+                        CreateReadJTokenExpression(jTokenParameter, projection.Alias),
                         typeof(JObject));
                 }
                 else
                 {
-                    innerExpression = _materializationContextBindings[
+                    valueBuffer = _materializationContextBindings[
                         (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
                 }
 
-                return CreateGetValueExpression(innerExpression, property, methodCallExpression.Type);
-            }
-
-            if (method.DeclaringType == typeof(Enumerable)
-                && method.Name == nameof(Enumerable.Select)
-                && genericMethod == EnumerableMethods.Select)
-            {
-                var lambda = (LambdaExpression)methodCallExpression.Arguments[1];
-                if (lambda.Body is IncludeExpression includeExpression)
-                {
-                    if (includeExpression.Navigation is not INavigation navigation
-                        || navigation.IsOnDependent
-                        || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
-                    }
-
-                    _pendingIncludes.Add(includeExpression);
-
-                    Visit(includeExpression.EntityExpression);
-
-                    // Includes on collections are processed when visiting CollectionShaperExpression
-                    return Visit(methodCallExpression.Arguments[0]);
-                }
+                return CreateGetValueExpression(valueBuffer, property, methodCallExpression.Type);
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -190,12 +111,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var projection = GetProjection(projectionBindingExpression);
 
                     return CreateGetValueExpression(
-                        _jTokenParameter,
+                        jTokenParameter,
                         projection.IsValueProjection ? null : projection.Alias,
                         projectionBindingExpression.Type,
                         (projection.Expression as SqlExpression)?.TypeMapping);
                 }
 
+                case StructuralTypeShaperExpression structuralTypeShaperExpression:
+                {
+                    var binding = (ProjectionBindingExpression)structuralTypeShaperExpression.ValueBufferExpression;
+                    var projection = GetProjection(binding);
+
+                    var jObject = Variable(typeof(JObject), "jObject");
+
+                    var shaper = (BlockExpression)shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
+                    var instance = shaper.Variables.Single(v => v.Type == structuralTypeShaperExpression.Type);
+                    var expressions = shaper.Expressions.ToList();
+
+                    ProcessStructuralProperties(structuralTypeShaperExpression.StructuralType, jObject, instance, expressions);
+
+                    return shaper.Update(
+                        [..shaper.Variables, jObject],
+                        [
+                            Assign(jObject, CreateGetValueExpression(jTokenParameter, projection.IsValueProjection ? projection.Alias : null, typeof(JObject))),
+                            ..expressions 
+                        ]);
+                }
+                
                 case CollectionShaperExpression collectionShaperExpression:
                 {
                     ObjectArrayAccessExpression objectArrayAccess;
@@ -218,17 +160,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var accessExpression = objectArrayAccess.InnerProjection.Object;
                     _projectionBindings[accessExpression] = jObjectParameter;
-                    // The ShapedQueryCompilingExpressionVisitor will not generate CollectionShaperExpression for complex collection properties, so
-                    // an ObjectArrayAccessExpression in a CollectionShaperExpression can only be generated for owned collections
-                    // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
-                    _ownerMappings[accessExpression] =
-                        ((IEntityType)objectArrayAccess.StructuralProperty.DeclaringType, objectArrayAccess.Object);
                     _ordinalParameterBindings[accessExpression] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
-
+                    
                     var innerShaper = (BlockExpression)Visit(collectionShaperExpression.InnerShaper);
-
-                    innerShaper = AddIncludes(innerShaper);
 
                     var entities = Call(
                         EnumerableMethods.SelectWithOrdinal.MakeGenericMethod(typeof(JObject), innerShaper.Type),
@@ -248,38 +183,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return base.VisitExtension(extensionExpression);
         }
 
-        private BlockExpression AddIncludes(BlockExpression shaperBlock)
-        {
-            if (_pendingIncludes.Count == 0)
-            {
-                return shaperBlock;
-            }
-
-            var shaperExpressions = new List<Expression>(shaperBlock.Expressions);
-            var instanceVariable = shaperExpressions[^1];
-            shaperExpressions.RemoveAt(shaperExpressions.Count - 1);
-
-            var includesToProcess = _pendingIncludes;
-            _pendingIncludes = [];
-
-            foreach (var include in includesToProcess)
-            {
-                AddInclude(shaperExpressions, include, shaperBlock, instanceVariable);
-            }
-
-            shaperExpressions.Add(instanceVariable);
-            shaperBlock = shaperBlock.Update(shaperBlock.Variables, shaperExpressions);
-            return shaperBlock;
-        }
-
         private void AddInclude(
             List<Expression> shaperExpressions,
-            IncludeExpression includeExpression,
+            INavigation navigation,
             BlockExpression shaperBlock,
             Expression instanceVariable)
         {
             // Cosmos does not support Includes for ISkipNavigation
-            var navigation = (INavigation)includeExpression.Navigation;
             var includeMethod = navigation.IsCollection ? IncludeCollectionMethodInfo : IncludeReferenceMethodInfo;
             var includingClrType = navigation.DeclaringEntityType.ClrType;
             var relatedEntityClrType = navigation.TargetEntityType.ClrType;
@@ -293,8 +203,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var inverseNavigation = navigation.Inverse;
             var fixup = GenerateFixup(
                 includingClrType, relatedEntityClrType, navigation, inverseNavigation);
-
-            var navigationExpression = Visit(includeExpression.NavigationExpression);
 
             shaperExpressions.Add(
                 IfThen(
@@ -311,9 +219,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Constant(navigation),
                         Constant(inverseNavigation, typeof(INavigation)),
                         Constant(fixup),
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                        Constant(includeExpression.SetLoaded))));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                        Constant(true))));
         }
 
         private static readonly MethodInfo IncludeReferenceMethodInfo
@@ -489,64 +395,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             => Call(jObjectExpression, GetItemMethodInfo, Constant(propertyName));
 
         private Expression CreateGetValueExpression(
-            Expression jTokenExpression,
+            Expression valueBuffer,
             IProperty property,
             Type type)
         {
             if (property.Name == CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName)
             {
-                return _projectionBindings[jTokenExpression];
+                return _projectionBindings[valueBuffer];
             }
 
             var entityType = property.DeclaringType as IEntityType;
             var ownership = entityType?.FindOwnership();
             var storeName = property.GetJsonPropertyName();
-            if (storeName.Length == 0)
-            {
-                if (entityType == null
-                    || !entityType.IsDocumentRoot())
-                {
-                    if (ownership is { IsUnique: false } && property.IsOrdinalKeyProperty())
-                    {
-                        var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
-                        if (ordinalExpression.Type != type)
-                        {
-                            ordinalExpression = Convert(ordinalExpression, type);
-                        }
-
-                        return ordinalExpression;
-                    }
-
-                    var principalProperty = property.FindFirstPrincipal();
-                    if (principalProperty != null)
-                    {
-                        Expression ownerJObjectExpression = null;
-                        if (_ownerMappings.TryGetValue(jTokenExpression, out var ownerInfo))
-                        {
-                            Check.DebugAssert(
-                                principalProperty.DeclaringType.IsAssignableFrom(ownerInfo.EntityType),
-                                $"{principalProperty.DeclaringType} is not assignable from {ownerInfo.EntityType}");
-
-                            ownerJObjectExpression = ownerInfo.JObjectExpression;
-                        }
-                        else if (jTokenExpression is ObjectReferenceExpression objectReferenceExpression)
-                        {
-                            ownerJObjectExpression = objectReferenceExpression;
-                        }
-                        else if (jTokenExpression is ObjectAccessExpression objectAccessExpression)
-                        {
-                            ownerJObjectExpression = objectAccessExpression.Object;
-                        }
-
-                        if (ownerJObjectExpression != null)
-                        {
-                            return CreateGetValueExpression(ownerJObjectExpression, principalProperty, type);
-                        }
-                    }
-                }
-
-                return Default(type);
-            }
 
             // Workaround for old databases that didn't store the key property
             if (ownership is { IsUnique: false }
@@ -558,7 +418,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 && !property.IsShadowProperty())
             {
                 var readExpression = CreateGetValueExpression(
-                    jTokenExpression,
+                    valueBuffer,
                     storeName,
                     type.MakeNullable(),
                     property.GetTypeMapping(),
@@ -570,7 +430,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     nonNullReadExpression = Convert(nonNullReadExpression, type);
                 }
 
-                var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
+                var ordinalExpression = _ordinalParameterBindings[valueBuffer];
                 if (ordinalExpression.Type != type)
                 {
                     ordinalExpression = Convert(ordinalExpression, type);
@@ -584,7 +444,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return Convert(
                 CreateGetValueExpression(
-                    jTokenExpression,
+                    valueBuffer,
                     storeName,
                     type.MakeNullable(),
                     property.GetTypeMapping(),
@@ -595,7 +455,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         private Expression CreateGetValueExpression(
-            Expression jTokenExpression,
+            Expression valueBuffer,
             string storeName,
             Type type,
             CoreTypeMapping typeMapping = null,
@@ -603,13 +463,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             Check.DebugAssert(type.IsNullableType(), "Must read nullable type from JObject.");
 
-            var innerExpression = jTokenExpression switch
+            var innerExpression = valueBuffer switch
             {
-                _ when _projectionBindings.TryGetValue(jTokenExpression, out var innerVariable)
+                _ when _projectionBindings.TryGetValue(valueBuffer, out var innerVariable)
                     => innerVariable,
 
                 ObjectReferenceExpression
-                    => _jTokenParameter,
+                    => jTokenParameter,
 
                 ObjectAccessExpression objectAccessExpression
                     => CreateGetValueExpression(
@@ -617,10 +477,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         ((IAccessExpression)objectAccessExpression.Object).PropertyName,
                         typeof(JObject)),
 
-                _ => jTokenExpression
+                _ => valueBuffer
             };
 
-            jTokenExpression = storeName == null
+            valueBuffer = storeName == null
                 ? innerExpression
                 : CreateReadJTokenExpression(
                     innerExpression.Type == typeof(JObject)
@@ -679,12 +539,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     replaceExpression,
                     body);
 
-                valueExpression = Invoke(Lambda(body, jTokenParameter), jTokenExpression);
+                valueExpression = Invoke(Lambda(body, jTokenParameter), valueBuffer);
             }
             else
             {
                 valueExpression = ConvertJTokenToType(
-                    jTokenExpression,
+                    valueBuffer,
                     (isNonNullableScalar
                         ? typeMapping?.ClrType
                         : typeMapping?.ClrType.MakeNullable())
@@ -709,42 +569,44 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
 
-        public void ProcessStructuralProperties(
-            StructuralTypeShaperExpression shaper,
-            ParameterExpression instanceVariable,
+        private void ProcessStructuralProperties(
+            ITypeBase structuralType,
+            Expression jObject,
+            ParameterExpression instance,
             List<Expression> expressions)
         {
-            if (shaper.StructuralType is IEntityType entityType)
+            if (structuralType is IEntityType entityType)
             {
                 foreach (var navigation in entityType.GetNavigations())
                 {
-                    var member = MakeMemberAccess(instanceVariable, navigation.GetMemberInfo(true, true));
+                    var member = MakeMemberAccess(instance, navigation.GetMemberInfo(true, true));
                     expressions.Add(navigation.IsCollection
-                        ? CreateStructuralCollectionAssignmentBlock(member, navigation, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName()!, isNullable: false)
-                        : CreateStructuralPropertyAssignmentBlock(member, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName()!, false));
+                        ? CreateStructuralCollectionAssignmentBlock(jObject, member, navigation, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName()!, isNullable: false)
+                        : CreateStructuralPropertyAssignmentBlock(jObject, member, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName()!, false));
                 }
             }
 
-            foreach (var complexProperty in shaper.StructuralType.GetComplexProperties())
+            foreach (var complexProperty in structuralType.GetComplexProperties())
             {
-                var member = MakeMemberAccess(instanceVariable, complexProperty.GetMemberInfo(true, true));
+                var member = MakeMemberAccess(instance, complexProperty.GetMemberInfo(true, true));
                 expressions.Add(complexProperty.IsCollection
-                    ? CreateStructuralCollectionAssignmentBlock(member, complexProperty, complexProperty.ComplexType, complexProperty.GetJsonPropertyName()!, complexProperty.IsNullable)
-                    : CreateStructuralPropertyAssignmentBlock(member, complexProperty.ComplexType, complexProperty.GetJsonPropertyName(), complexProperty.IsNullable));
+                    ? CreateStructuralCollectionAssignmentBlock(jObject, member, complexProperty, complexProperty.ComplexType, complexProperty.GetJsonPropertyName()!, complexProperty.IsNullable)
+                    : CreateStructuralPropertyAssignmentBlock(jObject, member, complexProperty.ComplexType, complexProperty.GetJsonPropertyName(), complexProperty.IsNullable));
             }
         }
 
         private BlockExpression CreateStructuralPropertyAssignmentBlock(
+            Expression parentJObject,
             MemberExpression memberExpression,
             ITypeBase structuralType,
             string jsonPropertyName,
             bool isNullable)
         {
-            var jObjectVariable = Parameter(typeof(JObject), "structuralJObject" + ++_currentStructuralIndex);
+            var jObjectVariable = Parameter(typeof(JObject), "structuralJObject");
             var assignJObjectVariable = Assign(jObjectVariable,
                 Call(
                     ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
-                    Call(_parentJObject, GetItemMethodInfo, Constant(jsonPropertyName))));
+                    Call(parentJObject, GetItemMethodInfo, Constant(jsonPropertyName))));
 
             var materializeExpression = CreateStructuralTypeMaterializeExpression(structuralType, jObjectVariable);
             if (isNullable)
@@ -764,6 +626,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         private BlockExpression CreateStructuralCollectionAssignmentBlock(
+            Expression parentJObject,
             MemberExpression memberExpression,
             IPropertyBase structuralProperty,
             ITypeBase structuralType,
@@ -772,15 +635,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             var structuralJArrayVariable = Variable(
                 typeof(JArray),
-                "structuralJArray" + ++_currentStructuralIndex);
+                "structuralJArray");
 
             var assignJArrayVariable = Assign(structuralJArrayVariable,
                 Call(
                     ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
-                    Call(_parentJObject, GetItemMethodInfo, Constant(jsonPropertyName))));
+                    Call(parentJObject, GetItemMethodInfo, Constant(jsonPropertyName))));
 
-            var jObjectParameter = Parameter(typeof(JObject), "structuralJObject" + _currentStructuralIndex);
-            var ordinalParameter = Parameter(typeof(int), "ordinal" + _currentStructuralIndex);
+            var jObjectParameter = Parameter(typeof(JObject), "structuralJObject");
+            var ordinalParameter = Parameter(typeof(int), "ordinal");
             var materializeExpression = CreateStructuralTypeMaterializeExpression(structuralType, jObjectParameter, ordinalParameter);
 
             var select = Call(
@@ -823,25 +686,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 tempValueBuffer,
                 false);
 
-            var oldParentJObject = _parentJObject;
-            _parentJObject = jObjectParameter;
-
             // For owned collections, register ordinal parameter bindings
-            if (ordinalParameter != null && structuralType is IEntityType entityType)
+            if (structuralType is IEntityType entityType)
             {
-                var ordinalExpression = Add(ordinalParameter, Constant(1, typeof(int)));
-                _ordinalParameterBindings[tempValueBuffer] = ordinalExpression;
-
-                var ownership = entityType.FindOwnership();
-                if (ownership != null)
+                _ownerMappings[tempValueBuffer] = jObjectParameter;
+                if (ordinalParameter != null)
                 {
-                    _ownerMappings[tempValueBuffer] =
-                        ((IEntityType)ownership.PrincipalEntityType, oldParentJObject);
+                    _ordinalParameterBindings[tempValueBuffer] = ordinalParameter;
                 }
             }
 
             var materializeExpression = shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
-            _parentJObject = oldParentJObject;
 
             if (structuralType.ClrType.IsNullableType())
             {
