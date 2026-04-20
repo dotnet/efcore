@@ -72,16 +72,6 @@ public class IndexAttributeConventionTest
             prop1 => Assert.Equal("B", prop1.Name));
     }
 
-    [ConditionalFact]
-    public void IndexAttribute_with_no_property_names_throws()
-    {
-        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-
-        Assert.Equal(
-            $"{AbstractionsStrings.CollectionArgumentIsEmpty} (Parameter 'propertyNames')",
-            Assert.Throws<ArgumentException>(() => modelBuilder.Entity<EntityWithInvalidEmptyIndex>()).Message);
-    }
-
     [InlineData(typeof(EntityWithInvalidNullIndexProperty)), InlineData(typeof(EntityWithInvalidEmptyIndexProperty)),
      InlineData(typeof(EntityWithInvalidWhiteSpaceIndexProperty)), ConditionalTheory]
     public void IndexAttribute_properties_cannot_include_whitespace(Type entityTypeWithInvalidIndex)
@@ -356,16 +346,6 @@ public class IndexAttributeConventionTest
     {
         public int C { get; set; }
         public int D { get; set; }
-    }
-
-#pragma warning disable CS0618
-    [Index]
-#pragma warning restore CS0618
-    private class EntityWithInvalidEmptyIndex
-    {
-        public int Id { get; set; }
-        public int A { get; set; }
-        public int B { get; set; }
     }
 
     [Index(nameof(A), (string)null, Name = "IndexOnAAndNull")]

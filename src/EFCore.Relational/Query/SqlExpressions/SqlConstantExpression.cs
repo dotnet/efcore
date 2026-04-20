@@ -65,17 +65,6 @@ public class SqlConstantExpression : SqlExpression
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
-    /// </summary>
-    /// <param name="constantExpression">A <see cref="ConstantExpression" />.</param>
-    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    [Obsolete("Call the constructor accepting a value (and possibly a Type) instead")]
-    public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-        : this(constantExpression.Value, constantExpression.Type, sensitive: false, typeMapping)
-    {
-    }
-
-    /// <summary>
     ///     The constant value.
     /// </summary>
     public virtual object? Value { get; }

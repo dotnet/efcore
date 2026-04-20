@@ -435,10 +435,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel);"
         }
       ]
@@ -1068,22 +1064,6 @@
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.SqlServerVectorIndexBuilder HasVectorIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, string propertyName, string? name = null);",
           "Stage": "Experimental"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, bool memoryOptimized = true);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder collectionOwnershipBuilder, bool memoryOptimized = true);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder, bool memoryOptimized = true);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? memoryOptimized, bool fromDataAnnotation = false);"

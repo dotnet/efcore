@@ -345,12 +345,6 @@ public static class RelationalAnnotationNames
     public const string ContainerColumnType = Prefix + nameof(ContainerColumnType);
 
     /// <summary>
-    ///     The name for the annotation specifying container column type mapping.
-    /// </summary>
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
-
-    /// <summary>
     ///     The JSON property name for the element that the property/navigation maps to.
     /// </summary>
     public const string JsonPropertyName = Prefix + "JsonPropertyName";
@@ -437,9 +431,6 @@ public static class RelationalAnnotationNames
         FieldValueGetter,
         ContainerColumnName,
         ContainerColumnType,
-#pragma warning disable CS0618 // Type or member is obsolete
-        ContainerColumnTypeMapping,
-#pragma warning restore CS0618 // Type or member is obsolete
         JsonPropertyName,
         StoreType,
         JsonElementMappings

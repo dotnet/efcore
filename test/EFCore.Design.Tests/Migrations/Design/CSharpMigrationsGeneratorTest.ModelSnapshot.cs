@@ -9110,7 +9110,6 @@ namespace RootNamespace
 
         var generator = new CSharpMigrationsGenerator(
             new MigrationsCodeGeneratorDependencies(
-                sqlServerTypeMappingSource,
                 sqlServerAnnotationCodeGenerator),
             new CSharpMigrationsGeneratorDependencies(
                 codeHelper,

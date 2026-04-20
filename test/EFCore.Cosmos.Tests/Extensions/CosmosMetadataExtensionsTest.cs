@@ -66,23 +66,21 @@ public class CosmosMetadataExtensionsTest
         var entityType = modelBuilder
             .Entity<Customer>().Metadata;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.Null(entityType.GetPartitionKeyPropertyName());
+        Assert.Empty(entityType.GetPartitionKeyPropertyNames());
 
-        ((IConventionEntityType)entityType).SetPartitionKeyPropertyName("pk");
-        Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+        ((IConventionEntityType)entityType).SetPartitionKeyPropertyNames(["pk"]);
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
         Assert.Equal(
-            ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+            ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
-        entityType.SetPartitionKeyPropertyName("pk");
-        Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+        entityType.SetPartitionKeyPropertyNames(["pk"]);
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
         Assert.Equal(
-            ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+            ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
-        entityType.SetPartitionKeyPropertyName(null);
-        Assert.Null(entityType.GetPartitionKeyPropertyName());
-        Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
-#pragma warning restore CS0618 // Type or member is obsolete
+        entityType.SetPartitionKeyPropertyNames(null);
+        Assert.Empty(entityType.GetPartitionKeyPropertyNames());
+        Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
     [ConditionalFact]

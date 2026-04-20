@@ -102,7 +102,6 @@ public static class CoreEventId
         MultiplePrimaryKeyCandidates,
         MultipleNavigationProperties,
         MultipleInversePropertiesSameTargetWarning,
-        Obsolete_NonDefiningInverseNavigationWarning,
         NonOwnershipInverseNavigationWarning,
         ForeignKeyAttributesOnBothPropertiesWarning,
         ForeignKeyAttributesOnBothNavigationsWarning,
@@ -817,21 +816,6 @@ public static class CoreEventId
     /// </remarks>
     public static readonly EventId MultipleInversePropertiesSameTargetWarning =
         MakeModelId(Id.MultipleInversePropertiesSameTargetWarning);
-
-    /// <summary>
-    ///     The navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-    ///     </para>
-    ///     <para>
-    ///         This event uses the <see cref="TwoUnmappedPropertyCollectionsEventData" /> payload when used with a
-    ///         <see cref="DiagnosticSource" />.
-    ///     </para>
-    /// </remarks>
-    [Obsolete("Log message with this event Id has been removed.")]
-    public static readonly EventId NonDefiningInverseNavigationWarning = MakeModelId(Id.Obsolete_NonDefiningInverseNavigationWarning);
 
     /// <summary>
     ///     The navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.

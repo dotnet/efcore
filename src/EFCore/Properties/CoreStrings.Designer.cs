@@ -1617,15 +1617,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
-        ///     The 'Include' operation with argument '{expression}' is not supported on entity type '{entityType}' because it has a defining query.
-        /// </summary>
-        [Obsolete]
-        public static string IncludeOnEntityWithDefiningQueryNotSupported(object? expression, object? entityType)
-            => string.Format(
-                GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(expression), nameof(entityType)),
-                expression, entityType);
-
-        /// <summary>
         ///     Cannot apply the 'Include' operation with argument '{expression}'. Either the source is not a queryable of a known entity type or 'Include' has been applied after 'Select' method which projects a different entity type through navigation. Consider applying 'Include' before 'Select' method call.
         /// </summary>
         public static string IncludeOnNonEntity(object? expression)

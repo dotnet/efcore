@@ -43,9 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type);
 
         /// <summary>
-        ///     Unable to deserialize a sequence from model metadata. See inner exception for details.
+        ///     Invalid type for sequence. Valid types are 'long' (the default), 'int', 'short', 'byte' and 'decimal'.
         /// </summary>
-        [Obsolete]
         public static string BadSequenceString
             => GetString("BadSequenceString");
 

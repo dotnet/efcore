@@ -429,19 +429,19 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .EnableServiceProviderCaching(false)
-                    .UseSqlServer(
-                        @"Server=test.database.windows.net:4040;Database=Test;ConnectRetryCount=0",
-                        a =>
-                        {
-                            if (_useAzure)
-                            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                                a.UseAzureSqlDefaults(false);
-#pragma warning restore CS0618 // Type or member is obsolete
-                            }
-                        });
+            {
+                optionsBuilder.EnableServiceProviderCaching(false);
+                if (_useAzure)
+                {
+                    optionsBuilder.UseAzureSql(
+                        @"Server=test.database.windows.net:4040;Database=Test;ConnectRetryCount=0");
+                }
+                else
+                {
+                    optionsBuilder.UseSqlServer(
+                        @"Server=test.database.windows.net:4040;Database=Test;ConnectRetryCount=0");
+                }
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);

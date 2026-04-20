@@ -108,7 +108,6 @@ public class MigrationsScaffolderTest
                 [
                     new CSharpMigrationsGenerator(
                         new MigrationsCodeGeneratorDependencies(
-                            sqlServerTypeMappingSource,
                             sqlServerAnnotationCodeGenerator),
                         new CSharpMigrationsGeneratorDependencies(
                             code,

@@ -160,7 +160,6 @@ namespace RootNamespace
 
         var generator = new CSharpMigrationsGenerator(
             new MigrationsCodeGeneratorDependencies(
-                sqliteTypeMappingSource,
                 sqliteAnnotationCodeGenerator),
             new CSharpMigrationsGeneratorDependencies(
                 codeHelper,

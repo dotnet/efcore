@@ -52,43 +52,6 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
         }
     }
 
-#pragma warning disable CS0618 // AutoTransactionsEnabled is obsolete
-    [ConditionalTheory, InlineData(true), InlineData(false)]
-    public virtual async Task SaveChanges_can_be_used_with_AutoTransactionsEnabled_false(bool async)
-    {
-        using (var context = CreateContext())
-        {
-            context.Database.AutoTransactionsEnabled = false;
-
-            await context.AddAsync(
-                new TransactionCustomer { Id = -77, Name = "Bobble" });
-
-            context.Entry(context.Set<TransactionOrder>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-            if (async)
-            {
-                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-            }
-            else
-            {
-                Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-            }
-
-            context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
-        }
-
-        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == RelationalEventId.TransactionStarted);
-        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == RelationalEventId.TransactionCommitted);
-
-        using (var context = CreateContext())
-        {
-            Assert.Equal(
-                [-77, 1, 2],
-                context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
-        }
-    }
-#pragma warning restore CS0618
-
     [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task SaveChanges_can_be_used_with_AutoTransactionBehavior_Always(bool async)
     {

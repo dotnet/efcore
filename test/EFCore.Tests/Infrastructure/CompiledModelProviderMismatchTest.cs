@@ -89,9 +89,7 @@ public class CompiledModelProviderMismatchTest
 
         private static RuntimeModel CreateModel()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var model = new RuntimeModel();
-#pragma warning restore CS0618
+            var model = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 0);
             model.AddAnnotation(CoreAnnotationNames.ProductVersion, ProductInfo.GetVersion());
             return model;
         }
@@ -106,9 +104,7 @@ public class CompiledModelProviderMismatchTest
 
         private static RuntimeModel CreateModel()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var model = new RuntimeModel();
-#pragma warning restore CS0618
+            var model = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 0);
             model.AddAnnotation(CoreAnnotationNames.ProductVersion, ProductInfo.GetVersion());
             return model;
         }
@@ -123,9 +119,7 @@ public class CompiledModelProviderMismatchTest
 
         private static RuntimeModel CreateModel()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var model = new RuntimeModel();
-#pragma warning restore CS0618
+            var model = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 0);
             model.AddAnnotation(CoreAnnotationNames.ProductVersion, ProductInfo.GetVersion());
             return model;
         }

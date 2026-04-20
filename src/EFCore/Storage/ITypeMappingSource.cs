@@ -52,19 +52,6 @@ public interface ITypeMappingSource
     ///     call <see cref="FindMapping(IProperty)" />
     /// </remarks>
     /// <param name="member">The field or property.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    [Obsolete("Use overload with IModel")]
-    CoreTypeMapping? FindMapping(MemberInfo member);
-
-    /// <summary>
-    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-    ///     a field or a property of a CLR type.
-    /// </summary>
-    /// <remarks>
-    ///     Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-    ///     call <see cref="FindMapping(IProperty)" />
-    /// </remarks>
-    /// <param name="member">The field or property.</param>
     /// <param name="model">The model.</param>
     /// <param name="useAttributes">Whether the attributes found on the member can influence the type mapping.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>

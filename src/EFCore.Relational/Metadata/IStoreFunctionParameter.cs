@@ -34,13 +34,6 @@ public interface IStoreFunctionParameter : IAnnotatable
     string StoreType { get; }
 
     /// <summary>
-    ///     Gets the store type of this parameter.
-    /// </summary>
-    [Obsolete("Use " + nameof(StoreType) + " instead.")]
-    string Type
-        => StoreType;
-
-    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
