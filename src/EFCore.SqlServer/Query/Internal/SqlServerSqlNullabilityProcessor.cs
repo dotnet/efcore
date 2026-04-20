@@ -5,7 +5,6 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 

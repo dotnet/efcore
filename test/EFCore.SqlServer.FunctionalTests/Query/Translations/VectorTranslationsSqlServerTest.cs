@@ -407,6 +407,28 @@ ORDER BY [v1].[Id]
         Assert.Equal(SqlServerStrings.WithApproximateRequiresTake, exception.Message);
     }
 
+    // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [Experimental("EF9105")]
+    public async Task WithApproximate_with_Skip_and_Take_throws()
+    {
+        using var ctx = CreateContext();
+
+        var vector = new SqlVector<float>(new float[] { 1, 2, 100 });
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => ctx.VectorEntities
+                .VectorSearch(e => e.Vector, similarTo: vector, "cosine")
+                .OrderBy(r => r.Distance)
+                .Skip(1)
+                .Take(3)
+                .WithApproximate()
+                .ToListAsync());
+
+        Assert.Equal(SqlServerStrings.WithApproximateNotSupportedWithSkipAndTake, exception.Message);
+    }
+
     [ConditionalFact]
     public async Task Length()
     {
