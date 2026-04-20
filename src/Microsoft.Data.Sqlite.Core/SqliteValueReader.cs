@@ -94,7 +94,6 @@ internal abstract class SqliteValueReader
         }
     }
 
-#if NET6_0_OR_GREATER
     public virtual DateOnly GetDateOnly(int ordinal)
     {
         var sqliteType = GetSqliteType(ordinal);
@@ -111,7 +110,6 @@ internal abstract class SqliteValueReader
 
     public virtual TimeOnly GetTimeOnly(int ordinal)
         => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
-#endif
 
     public virtual decimal GetDecimal(int ordinal)
         => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
@@ -203,7 +201,6 @@ internal abstract class SqliteValueReader
             return (T)(object)GetDateTimeOffset(ordinal);
         }
 
-#if NET6_0_OR_GREATER
         if (typeof(T) == typeof(DateOnly))
         {
             return (T)(object)GetDateOnly(ordinal);
@@ -213,7 +210,6 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetTimeOnly(ordinal);
         }
-#endif
 
         if (typeof(T) == typeof(decimal))
         {
@@ -320,7 +316,6 @@ internal abstract class SqliteValueReader
             return (T)(object)GetDateTimeOffset(ordinal);
         }
 
-#if NET6_0_OR_GREATER
         if (type == typeof(DateOnly))
         {
             return (T)(object)GetDateOnly(ordinal);
@@ -330,7 +325,6 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetTimeOnly(ordinal);
         }
-#endif
 
         if (type == typeof(decimal))
         {
