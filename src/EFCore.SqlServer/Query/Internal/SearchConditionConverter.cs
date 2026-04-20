@@ -76,15 +76,17 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                 : sqlExpressionFactory.Equal(sqlExpression, sqlExpressionFactory.Constant(true)),
 
             // A search condition expression in non-search condition context - wrap in CASE/WHEN to convert to bit:
-            // e.g. SELECT a LIKE b => SELECT CASE WHEN a LIKE b THEN 1 ELSE 0 END
-            // TODO: NULL is not handled properly here, see #34001
+            // e.g. SELECT a LIKE b => SELECT CASE WHEN a LIKE b THEN 1 WHEN NOT (a LIKE b) THEN 0 ELSE NULL END
             (false, true) => sqlExpressionFactory.Case(
                 [
                     new CaseWhenClause(
                         SimplifyNegatedBinary(sqlExpression),
-                        sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(true)))
+                        sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(true))),
+                    new CaseWhenClause(
+                        SimplifyNegatedBinary(sqlExpressionFactory.Not(sqlExpression)),
+                        sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(false)))
                 ],
-                sqlExpressionFactory.Constant(false)),
+                sqlExpressionFactory.Constant(null, sqlExpression.Type, sqlExpression.TypeMapping)),
 
             // All other cases (e.g. WHERE a LIKE b, SELECT b.SomebitColumn) - no need to do anything.
             _ => sqlExpression
