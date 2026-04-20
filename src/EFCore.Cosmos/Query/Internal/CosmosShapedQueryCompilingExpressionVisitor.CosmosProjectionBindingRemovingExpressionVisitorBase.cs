@@ -128,7 +128,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var instance = shaper.Variables.Single(v => v.Type == structuralTypeShaperExpression.Type);
                     var expressions = shaper.Expressions.ToList();
 
-                    ProcessStructuralProperties(structuralTypeShaperExpression.StructuralType, jObject, instance, expressions);
+                    shaper = ProcessStructuralProperties(structuralTypeShaperExpression.StructuralType, jObject, instance, expressions);
 
                     return shaper.Update(
                         [..shaper.Variables, jObject],
@@ -186,6 +186,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private void AddInclude(
             List<Expression> shaperExpressions,
             INavigation navigation,
+            Expression materializeExpression,
             BlockExpression shaperBlock,
             Expression instanceVariable)
         {
@@ -215,7 +216,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         entityEntryVariable,
                         instanceVariable,
                         concreteEntityTypeVariable,
-                        navigationExpression,
+                        materializeExpression,
                         Constant(navigation),
                         Constant(inverseNavigation, typeof(INavigation)),
                         Constant(fixup),
@@ -571,31 +572,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private void ProcessStructuralProperties(
             ITypeBase structuralType,
-            Expression jObject,
+            ParameterExpression jObject,
             ParameterExpression instance,
             List<Expression> expressions)
         {
-            if (structuralType is IEntityType entityType)
-            {
-                foreach (var navigation in entityType.GetNavigations())
-                {
-                    var member = MakeMemberAccess(instance, navigation.GetMemberInfo(true, true));
-                    expressions.Add(navigation.IsCollection
-                        ? CreateStructuralCollectionAssignmentBlock(jObject, member, navigation, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName()!, isNullable: false)
-                        : CreateStructuralPropertyAssignmentBlock(jObject, member, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName()!, false));
-                }
-            }
-
             foreach (var complexProperty in structuralType.GetComplexProperties())
             {
                 var member = MakeMemberAccess(instance, complexProperty.GetMemberInfo(true, true));
                 expressions.Add(complexProperty.IsCollection
-                    ? CreateStructuralCollectionAssignmentBlock(jObject, member, complexProperty, complexProperty.ComplexType, complexProperty.GetJsonPropertyName()!, complexProperty.IsNullable)
-                    : CreateStructuralPropertyAssignmentBlock(jObject, member, complexProperty.ComplexType, complexProperty.GetJsonPropertyName(), complexProperty.IsNullable));
+                    ? CreateComplexCollectionAssignmentBlock(jObject, member, complexProperty, complexProperty.ComplexType, complexProperty.GetJsonPropertyName()!, complexProperty.IsNullable)
+                    : CreateComplexPropertyAssignmentBlock(jObject, member, complexProperty.ComplexType, complexProperty.GetJsonPropertyName(), complexProperty.IsNullable));
+            }
+
+            if (structuralType is IEntityType entityType)
+            {
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    if (navigation.IsCollection)
+                    {
+                        
+                    }
+                    var shaperBlock = (BlockExpression)((ConditionalExpression)CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObject)).IfFalse;
+                    AddInclude(expressions, navigation, shaperBlock, shaperBlock, instance);
+                }
             }
         }
 
-        private BlockExpression CreateStructuralPropertyAssignmentBlock(
+        private BlockExpression CreateComplexPropertyAssignmentBlock(
             Expression parentJObject,
             MemberExpression memberExpression,
             ITypeBase structuralType,
@@ -625,7 +628,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             );
         }
 
-        private BlockExpression CreateStructuralCollectionAssignmentBlock(
+        private BlockExpression CreateComplexCollectionAssignmentBlock(
             Expression parentJObject,
             MemberExpression memberExpression,
             IPropertyBase structuralProperty,
@@ -687,13 +690,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 false);
 
             // For owned collections, register ordinal parameter bindings
-            if (structuralType is IEntityType entityType)
+            if (structuralType is IEntityType entityType && ordinalParameter != null)
             {
-                _ownerMappings[tempValueBuffer] = jObjectParameter;
-                if (ordinalParameter != null)
-                {
-                    _ordinalParameterBindings[tempValueBuffer] = ordinalParameter;
-                }
+                _ordinalParameterBindings[tempValueBuffer] = ordinalParameter;
             }
 
             var materializeExpression = shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
