@@ -20,7 +20,6 @@ updates:
       - dependency-name: "Microsoft.DotNet.Helix.Sdk"
       - dependency-name: "Microsoft.Extensions.Caching.Memory"
       - dependency-name: "Microsoft.Extensions.Configuration"
-      - dependency-name: "Microsoft.Extensions.Configuration.Abstractions"
       - dependency-name: "Microsoft.Extensions.Configuration.EnvironmentVariables"
       - dependency-name: "Microsoft.Extensions.Configuration.Json"
       - dependency-name: "Microsoft.Extensions.DependencyInjection"
