@@ -56,10 +56,32 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             switch (binaryExpression)
             {
-                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression, Right: NewExpression newExpression }
-                when parameterExpression.Type == typeof(MaterializationContext):
+                case { NodeType: ExpressionType.Assign, Left: ParameterExpression parameter, Right: NewExpression newExpression }
+                when parameter.Type == typeof(MaterializationContext):
 
-                    _materializationContextBindings[parameterExpression] = newExpression.Arguments[0];
+                    if (newExpression.Arguments[0] is StructuralPropertyBindingExpression structuralPropertyBinding)
+                    {
+                        _materializationContextBindings[parameter] = structuralPropertyBinding;
+                        _projectionBindings[structuralPropertyBinding] = structuralPropertyBinding.JObjectParameter;
+                    }
+                    else
+                    {
+                        StructuralTypeProjectionExpression structuralTypeProjectionExpression;
+                        if (newExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
+                        {
+                            var projection = GetProjection(projectionBindingExpression);
+                            structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)projection.Expression;
+                            // Use the ProjectionExpression as the key so that the lookup in _projectionBindings succeeds,
+                            // since _projectionBindings is keyed by ProjectionExpression (not the inner ObjectAccessExpression).
+                            _materializationContextBindings[parameter] = projection;
+                        }
+                        else
+                        {
+                            var projection = ((UnaryExpression)((UnaryExpression)newExpression.Arguments[0]).Operand).Operand;
+                            structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)projection;
+                            _materializationContextBindings[parameter] = structuralTypeProjectionExpression.Object;
+                        }
+                    }
 
                     var updatedExpression = New(
                         newExpression.Constructor,
@@ -124,7 +146,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var jObject = Variable(typeof(JObject), "jObject");
 
-                    _projectionBindings[binding] = jObject;
+                    _projectionBindings[projection] = jObject;
 
                     var shaperBlock = (BlockExpression)Visit(shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression));
 
@@ -182,6 +204,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return base.VisitExtension(extensionExpression);
         }
+
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression) => conditionalExpression.Test switch
+        {
+            // Removes null checks on non-persisted properties
+            BinaryExpression { NodeType: ExpressionType.NotEqual, Left: MethodCallExpression { Method.IsGenericMethod: true } methodCall }
+                when methodCall.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                  && methodCall.Arguments[2].GetConstantValue<IProperty>().GetJsonPropertyName() == ""
+              => Visit(conditionalExpression.IfTrue),
+            _ => base.VisitConditional(conditionalExpression),
+        };
 
         private void AddInclude(
             List<Expression> shaperExpressions,
@@ -405,6 +437,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return _projectionBindings[valueBuffer];
             }
 
+
             var entityType = property.DeclaringType as IEntityType;
             var ownership = entityType?.FindOwnership();
             var storeName = property.GetJsonPropertyName();
@@ -431,7 +464,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     nonNullReadExpression = Convert(nonNullReadExpression, type);
                 }
 
-                var ordinalExpression = _ordinalParameterBindings[valueBuffer];
+                var ordinalExpression = _ordinalParameterBindings[_projectionBindings.TryGetValue(valueBuffer, out var innerVariable) ? innerVariable : valueBuffer];
                 if (ordinalExpression.Type != type)
                 {
                     ordinalExpression = Convert(ordinalExpression, type);
@@ -582,7 +615,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 var member = MakeMemberAccess(instance, complexProperty.GetMemberInfo(true, true));
                 expressions.Add(complexProperty.IsCollection
-                    ? CreateComplexCollectionAssignmentBlock(jObject, member, complexProperty, complexProperty.ComplexType, complexProperty.GetJsonPropertyName()!, complexProperty.IsNullable)
+                    ? CreateComplexCollectionAssignmentExpression(jObject, member, complexProperty)
                     : CreateComplexPropertyAssignmentBlock(jObject, member, complexProperty.ComplexType, complexProperty.GetJsonPropertyName(), complexProperty.IsNullable));
             }
 
@@ -590,12 +623,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 foreach (var navigation in entityType.GetNavigations())
                 {
-                    var materializeExpression = /*navigation.IsCollection
-                        ? Visit(new CollectionShaperExpression(jObject, new StructuralTypeShaperExpression()))
-                        :*/ CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObject);
+                    var jsonPropertyName = navigation.TargetEntityType.GetContainingPropertyName();
+                    if (jsonPropertyName == null)
+                    {
+                        continue;
+                    }
+
+                    Expression materializeExpression;
+                    if (navigation.IsCollection)
+                    {
+                        materializeExpression = CreateStructuralCollectionMaterializeExpression(jObject, navigation, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName());
+                    }
+                    else
+                    {
+                        materializeExpression = CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObject);
+                    }
+
                     AddInclude(expressions, navigation, materializeExpression, shaperBlock, instance);
                 }
             }
+
+            expressions.Add(instance);
 
             return Block(shaperBlock.Variables, expressions);
         }
@@ -630,13 +678,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             );
         }
 
-        private BlockExpression CreateComplexCollectionAssignmentBlock(
+        private Expression CreateComplexCollectionAssignmentExpression(
             Expression parentJObject,
             MemberExpression memberExpression,
+            IComplexProperty property)
+        {
+            var populateExpression = CreateStructuralCollectionMaterializeExpression(parentJObject, property, property.ComplexType, property.GetJsonPropertyName());
+            return memberExpression.Assign(populateExpression);
+        }
+
+        private Expression CreateStructuralCollectionMaterializeExpression(
+            Expression parentJObject,
             IPropertyBase structuralProperty,
             ITypeBase structuralType,
-            string jsonPropertyName,
-            bool isNullable)
+            string jsonPropertyName)
         {
             var structuralJArrayVariable = Variable(
                 typeof(JArray),
@@ -649,7 +704,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var jObjectParameter = Parameter(typeof(JObject), "structuralJObject");
             var ordinalParameter = Parameter(typeof(int), "ordinal");
-            var materializeExpression = CreateStructuralTypeMaterializeExpression(structuralType, jObjectParameter, ordinalParameter);
+            _ordinalParameterBindings[jObjectParameter] = ordinalParameter;
+
+            var materializeExpression = CreateStructuralTypeMaterializeExpression(structuralType, jObjectParameter);
 
             var select = Call(
                 EnumerableMethods.SelectWithOrdinal.MakeGenericMethod(typeof(JObject), structuralType.ClrType),
@@ -664,26 +721,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Constant(structuralProperty.GetCollectionAccessor()),
                     select);
 
-            if (isNullable)
-            {
-                populateExpression = Condition(Equal(structuralJArrayVariable, Constant(null)),
-                    Default(structuralProperty.ClrType.MakeNullable()),
-                    ConvertChecked(populateExpression, structuralProperty.ClrType.MakeNullable()));
-            }
-
             return Block(
                 [structuralJArrayVariable],
                 [
                     assignJArrayVariable,
-                    memberExpression.Assign(populateExpression)
-                ]
-            );
+                    populateExpression
+                ]);
         }
 
         private Expression CreateStructuralTypeMaterializeExpression(
             ITypeBase structuralType,
-            ParameterExpression jObjectParameter,
-            ParameterExpression ordinalParameter = null)
+            ParameterExpression jObjectParameter)
         {
             var tempValueBuffer = new StructuralPropertyBindingExpression(jObjectParameter);
             var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
@@ -691,13 +739,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 tempValueBuffer,
                 false);
 
-            // For owned collections, register ordinal parameter bindings
-            if (structuralType is IEntityType entityType && ordinalParameter != null)
-            {
-                _ordinalParameterBindings[tempValueBuffer] = ordinalParameter;
-            }
-
-            var materializeExpression = shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
+            var materializeExpression = Visit(shapedQueryCompiler.InjectStructuralTypeMaterializers(structuralTypeShaperExpression));
 
             if (structuralType.ClrType.IsNullableType())
             {
