@@ -3788,6 +3788,18 @@
           "Member": "static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType);"
         },
         {
+          "Member": "static string ComplexPropertyChainIntermediateNotFound(object? member, object? type);"
+        },
+        {
+          "Member": "static string ComplexPropertyChainInvalidMember(object? member, object? type);"
+        },
+        {
+          "Member": "static string ComplexPropertyChainInvalidSegment(object? dottedName);"
+        },
+        {
+          "Member": "static string ComplexPropertyChainOnCollection(object? member, object? type);"
+        },
+        {
           "Member": "static string ComplexPropertyIndexer(object? type, object? property);"
         },
         {
@@ -4153,6 +4165,9 @@
         },
         {
           "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
+        },
+        {
+          "Member": "static string InvalidMemberAccessChainExpression(object? expression);"
         },
         {
           "Member": "static string InvalidMemberExpression(object? expression);"
