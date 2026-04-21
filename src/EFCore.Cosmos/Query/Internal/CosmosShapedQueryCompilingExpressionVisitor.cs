@@ -4,6 +4,7 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
@@ -24,6 +25,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 {
     private int _currentComplexIndex;
     private ParameterExpression _parentJObject;
+    private CosmosProjectionBindingRemovingExpressionVisitor _projectionBindingRemovingExpressionVisitor;
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
@@ -61,18 +63,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             shaperBody = pagingExpression.Expression;
         }
 
-        shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
-        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
-
         if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
-        shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
+        _projectionBindingRemovingExpressionVisitor = new CosmosProjectionBindingRemovingExpressionVisitor(
                 selectExpression, jTokenParameter,
-                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-            .Visit(shaperBody);
+                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll);
+
+        shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
+        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
+        shaperBody = _projectionBindingRemovingExpressionVisitor.Visit(shaperBody);
 
         var shaperLambda = Lambda(
             shaperBody,
@@ -189,6 +191,48 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 ? CreateComplexCollectionAssignmentBlock(member, complexProperty)
                 : CreateComplexPropertyAssignmentBlock(member, complexProperty));
         }
+
+        if (shaper.StructuralType is IEntityType entityType)
+        {
+            foreach (var navigation in entityType.GetNavigations())
+            {
+                var jObjectVariable = Parameter(typeof(JObject), "ownedJObject" + ++_currentComplexIndex);
+                var tempValueBuffer = new StructuralPropertyBindingExpression(jObjectVariable);
+
+                if (navigation.IsCollection)
+                {
+                    var innerShaper = new StructuralTypeShaperExpression(
+                        navigation.TargetEntityType,
+                        tempValueBuffer,
+                        false);
+                }
+                else
+                {
+                    
+                    variables.Add(jObjectVariable);
+
+                    var assignJObjectVariable = Assign(jObjectVariable,
+                        Call(
+                            CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
+                            Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
+                                Constant(navigation.TargetEntityType.GetContainingPropertyName()))));
+
+                    expressions.Add(assignJObjectVariable);
+
+                    var innerShaper = new StructuralTypeShaperExpression(
+                        navigation.TargetEntityType,
+                        tempValueBuffer,
+                        false);
+
+                    var oldParentJObject = _parentJObject;
+                    _parentJObject = jObjectVariable;
+                    var materializeExpression = InjectStructuralTypeMaterializers(innerShaper);
+                    _parentJObject = oldParentJObject;
+
+                    _projectionBindingRemovingExpressionVisitor.AddInclude(jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable);
+                }
+            }
+        }
     }
 
     private BlockExpression CreateComplexPropertyAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
@@ -263,7 +307,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
     private Expression CreateComplexTypeMaterializeExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
     {
-        var tempValueBuffer = new ComplexPropertyBindingExpression(complexProperty, jObjectParameter);
+        var tempValueBuffer = new StructuralPropertyBindingExpression(jObjectParameter);
         var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
             complexProperty.ComplexType,
             tempValueBuffer,
@@ -284,13 +328,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         return materializeExpression;
     }
 
-    private sealed class ComplexPropertyBindingExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter) : Expression
+    private sealed class StructuralPropertyBindingExpression(ParameterExpression jObjectParameter) : Expression
     {
         public override Type Type => typeof(ValueBuffer);
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public IComplexProperty ComplexProperty { get; } = complexProperty;
+        public ParameterExpression JObjectParameter { get; } = jObjectParameter;
+    }
+
+    private sealed class NavigationBindingExpression(ParameterExpression jObjectParameter) : Expression
+    {
+        public override Type Type => typeof(ValueBuffer);
+        public override ExpressionType NodeType => ExpressionType.Extension;
         public ParameterExpression JObjectParameter { get; } = jObjectParameter;
     }
 }
