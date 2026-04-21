@@ -46,6 +46,14 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     bool IsConcurrencyToken { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this property is automatically loaded when the entity is queried from the database.
+    ///     When set to <see langword="false" />, the property value will not be read from the database and the property will be
+    ///     excluded from <c>UPDATE</c> statements unless explicitly loaded or modified.
+    /// </summary>
+    virtual bool IsAutoLoaded
+        => true;
+
+    /// <summary>
     ///     Returns the <see cref="CoreTypeMapping" /> for the given property from a finalized model.
     /// </summary>
     /// <returns>The type mapping.</returns>
@@ -389,6 +397,11 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
             if (IsConcurrencyToken)
             {
                 builder.Append(" Concurrency");
+            }
+
+            if (!IsAutoLoaded)
+            {
+                builder.Append(" NoAutoLoad");
             }
 
             if (Sentinel != null && !Equals(Sentinel, ClrType.GetDefaultValue()))

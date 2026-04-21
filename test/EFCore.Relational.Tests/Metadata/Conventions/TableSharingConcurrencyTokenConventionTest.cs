@@ -202,6 +202,7 @@ public class TableSharingConcurrencyTokenConventionTest
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
     }
 
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
     [ConditionalFact]
     public virtual void Missing_concurrency_token_property_is_not_created_for_json_mapped_entity()
     {
@@ -233,6 +234,7 @@ public class TableSharingConcurrencyTokenConventionTest
             ownedEntity.GetProperties(),
             p => p.Name.StartsWith("_TableSharingConcurrencyTokenConvention"));
     }
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     protected abstract class BaseEntity
     {

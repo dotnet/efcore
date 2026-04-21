@@ -42,6 +42,7 @@ WHERE (c["DateTimeOffset"] != GetCurrentDateTime())
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Year()
     {
         await base.Year();
@@ -54,6 +55,7 @@ WHERE (DateTimePart("yyyy", c["DateTimeOffset"]) = 1998)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Month()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -75,6 +77,7 @@ WHERE (DateTimePart("mm", c["DateTimeOffset"]) = 5)
         AssertSql();
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Day()
     {
         await base.Day();
@@ -87,6 +90,7 @@ WHERE (DateTimePart("dd", c["DateTimeOffset"]) = 4)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Hour()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -100,6 +104,7 @@ WHERE (DateTimePart("hh", c["DateTimeOffset"]) = 15)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Minute()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
@@ -113,6 +118,7 @@ WHERE (DateTimePart("mi", c["DateTimeOffset"]) = 30)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Second()
     {
         await base.Second();
@@ -125,6 +131,7 @@ WHERE (DateTimePart("ss", c["DateTimeOffset"]) = 10)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Millisecond()
     {
         await base.Millisecond();
@@ -137,6 +144,7 @@ WHERE (DateTimePart("ms", c["DateTimeOffset"]) = 123)
 """);
     }
 
+    [CosmosCondition(CosmosCondition.IsEmulator)]
     public override async Task Microsecond()
     {
         await base.Microsecond();
@@ -171,6 +179,30 @@ WHERE ((DateTimePart("ns", c["DateTimeOffset"]) % 1000) = 400)
 SELECT VALUE c["DateTimeOffset"]
 FROM root c
 """);
+    }
+
+    public override async Task DateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.DateTime());
+
+        AssertSql();
+    }
+
+    public override async Task UtcDateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.UtcDateTime());
+
+        AssertSql();
+    }
+
+    public override async Task LocalDateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.LocalDateTime());
+
+        AssertSql();
     }
 
     public override async Task AddYears()
@@ -262,6 +294,15 @@ FROM root c
 
     public override Task ToUnixTimeSecond()
         => AssertTranslationFailed(() => base.ToUnixTimeSecond());
+
+    public override Task ToOffset()
+        => AssertTranslationFailed(() => base.ToOffset());
+
+    public override Task Ctor_DateTime()
+        => AssertTranslationFailed(() => base.Ctor_DateTime());
+
+    public override Task Ctor_DateTime_TimeSpan()
+        => AssertTranslationFailed(() => base.Ctor_DateTime_TimeSpan());
 
     public override async Task Milliseconds_parameter_and_constant()
     {

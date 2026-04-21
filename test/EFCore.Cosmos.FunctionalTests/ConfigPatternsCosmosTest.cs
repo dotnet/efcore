@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
@@ -15,13 +16,15 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
 
+    private IServiceProvider _serviceProvider;
+
     protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public async Task Cosmos_client_instance_is_shared_between_contexts()
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);
-        var options = CreateOptions(testDatabase);
+        var options = CreateOptions(testDatabase, useExternalServiceProvider: false);
 
         CosmosClient client;
         using (var context = new CustomerContext(options))
@@ -38,7 +41,8 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         }
 
         await using var testDatabase2 = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.Region(Regions.AustraliaCentral));
-        options = CreateOptions(testDatabase2);
+
+        options = CreateOptions(testDatabase2, useExternalServiceProvider: false);
 
         using (var context = new CustomerContext(options))
         {
@@ -88,11 +92,14 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     }
 
     [ConditionalFact]
+    // Linux emulator: ConnectionMode.Direct may not be supported
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Test is very environment-dependent; when running the Cosmos emulator in a VM on Mac, ConnectionMode.Direct causes severe issues")]
     public async Task Should_not_throw_if_specified_connection_mode_is_right()
     {
-        var connectionMode = ConnectionMode.Direct;
-
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ConnectionMode(connectionMode));
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ConnectionMode(ConnectionMode.Direct));
         var options = CreateOptions(testDatabase);
 
         var customer = new Customer { Id = 42, Name = "Theon" };
@@ -155,16 +162,25 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         // All retrieved clients should be the same instance
         var clientsArray = clients.ToArray();
         Assert.Equal(threadCount * iterationsPerThread, clientsArray.Length);
-        
+
         var uniqueClients = clientsArray.Distinct().ToArray();
         Assert.Single(uniqueClients); // Should only have one unique client instance
     }
 
-    private DbContextOptions CreateOptions(CosmosTestStore testDatabase, Action<DbContextOptionsBuilder> configure = null)
+    private DbContextOptions CreateOptions(
+        CosmosTestStore testDatabase,
+        Action<DbContextOptionsBuilder> configure = null,
+        bool useExternalServiceProvider = true)
     {
         var builder = Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
-            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .EnableDetailedErrors();
+
+        if (useExternalServiceProvider)
+        {
+            _serviceProvider ??= Fixture.CreateServiceProvider();
+            builder.UseInternalServiceProvider(_serviceProvider);
+        }
+
         configure?.Invoke(builder);
         return builder.Options;
     }
@@ -184,7 +200,12 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
     public class CosmosFixture : ServiceProviderFixtureBase
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+            => base.AddOptions(builder).ConfigureWarnings(w =>
+                w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
+        public IServiceProvider CreateServiceProvider()
+            => AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
+                .BuildServiceProvider(validateScopes: true);
 
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;

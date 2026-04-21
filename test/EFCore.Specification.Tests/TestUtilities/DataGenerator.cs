@@ -36,7 +36,13 @@ public static class DataGenerator
             var type = types[i];
             if (!Values.TryGetValue(type, out var values))
             {
-                if (!type.IsDefined(typeof(FlagsAttribute), false))
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                if (underlyingType != null && underlyingType.IsEnum)
+                {
+                    values = [null, .. Enum.GetValues(underlyingType).Cast<object>()];
+                    Values[type] = values;
+                }
+                else if (!type.IsDefined(typeof(FlagsAttribute), false))
                 {
                     values = Enum.GetValues(type).Cast<object>().ToArray();
                     Values[type] = values;

@@ -41,8 +41,4 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture>(TF
         => AssertTranslationFailedWithDetails(
             () => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
             CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

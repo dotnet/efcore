@@ -195,7 +195,7 @@ LEFT JOIN [RootEntity] AS [r0] ON [r].[RootEntityId] = [r0].[Id]
 
         AssertSql(
             """
-SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
+SELECT [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }
@@ -387,6 +387,17 @@ CROSS APPLY OPENJSON([r].[OptionalAssociate], '$.NestedCollection') WITH (
         AssertSql(
             """
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 """);
     }

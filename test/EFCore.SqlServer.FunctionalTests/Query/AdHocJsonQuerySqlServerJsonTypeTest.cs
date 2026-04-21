@@ -60,7 +60,7 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
     public override Task Read_enum_property_with_legacy_values(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Read_enum_property_with_legacy_values_core(async));
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocJsonQueryJsonTypeTest";
 
     protected override string JsonColumnType

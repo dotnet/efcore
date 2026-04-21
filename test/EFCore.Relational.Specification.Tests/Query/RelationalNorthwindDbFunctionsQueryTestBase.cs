@@ -11,10 +11,6 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
     : NorthwindDbFunctionsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
-
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_case_insensitive(bool async)
         => AssertCount(

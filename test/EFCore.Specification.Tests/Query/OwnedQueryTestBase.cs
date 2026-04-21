@@ -901,7 +901,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();
 
-    public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
+    public abstract class OwnedQueryFixtureBase : QueryFixtureBase<PoolableDbContext>
     {
         private OwnedQueryData _expectedData;
 
@@ -940,13 +940,10 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             }
         }
 
-        public Func<DbContext> GetContextCreator()
-            => () => CreateContext();
-
-        public virtual ISetSource GetExpectedData()
+        public override ISetSource GetExpectedData()
             => _expectedData ??= new OwnedQueryData();
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {
             { typeof(OwnedPerson), e => ((OwnedPerson)e)?.Id },
             { typeof(Branch), e => ((Branch)e)?.Id },
@@ -967,7 +964,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             { typeof(Throned), e => ((Throned)e)?.Property }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
         {
             {
                 typeof(OwnedPerson), (e, a) =>

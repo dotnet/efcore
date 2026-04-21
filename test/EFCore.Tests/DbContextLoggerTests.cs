@@ -7,7 +7,7 @@ public class DbContextLoggerTests
 {
     private const string ContextInitialized =
         @"info: <Local Date> HH:mm:ss.fff CoreEventId.ContextInitialized[10403] (Microsoft.EntityFrameworkCore.Infrastructure) "
-        + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ";
+        + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ";
 
     private const string SaveChangesStarting =
         @"dbug: <Local Date> HH:mm:ss.fff CoreEventId.SaveChangesStarting[10004] (Microsoft.EntityFrameworkCore.Update) "
@@ -201,7 +201,7 @@ public class DbContextLoggerTests
 
         AssertLog(
             actual,
-            @"Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            @"Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -213,7 +213,7 @@ public class DbContextLoggerTests
 
         AssertLog(
             actual,
-            @"Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            @"Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -228,7 +228,7 @@ public class DbContextLoggerTests
 
         AssertLog(
             actual,
-            @"info: <Local Date> HH:mm:ss.fff CoreEventId.ContextInitialized[10403] (Microsoft.EntityFrameworkCore.Infrastructure) -> Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            @"info: <Local Date> HH:mm:ss.fff CoreEventId.ContextInitialized[10403] (Microsoft.EntityFrameworkCore.Infrastructure) -> Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -241,7 +241,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"info:
-      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -254,7 +254,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"<Local Date> HH:mm:ss.fff
-      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -267,7 +267,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"YYYY-MM-DDTHH:MM:SS.MMMMMMTZ
-      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -280,7 +280,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"CoreEventId.ContextInitialized[10403]
-      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -293,7 +293,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"(Microsoft.EntityFrameworkCore.Infrastructure) "
-            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -307,7 +307,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"info: CoreEventId.ContextInitialized[10403] "
-            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -324,7 +324,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"info: YYYY-MM-DDTHH:MM:SS.MMMMMMTZ "
-            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     [ConditionalTheory, InlineData(true), InlineData(false)]
@@ -338,7 +338,7 @@ public class DbContextLoggerTests
         AssertLog(
             actual,
             @"info: YYYY-MM-DDTHH:MM:SS.MMMMMMTZ CoreEventId.ContextInitialized[10403] (Microsoft.EntityFrameworkCore.Infrastructure) "
-            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests ");
+            + @"      Entity Framework Core X.X.X-any initialized 'LoggingContext' using provider 'Microsoft.EntityFrameworkCore.InMemory:X.X.X-any' with options: StoreName=DbContextLoggerTests NullabilityChecksEnabled ");
     }
 
     private static void AssertLog(string actual, params string[] lines)

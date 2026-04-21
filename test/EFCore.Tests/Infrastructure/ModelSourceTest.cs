@@ -241,6 +241,16 @@ public class ModelSourceTest
         }
 
         Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+        Assert.Null(model.FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled));
+    }
+
+    [ConditionalFact]
+    public void Detailed_errors_annotation_is_set_from_options()
+    {
+        using var context = new DetailedErrorsContext(_serviceProvider);
+        var model = context.Model;
+
+        Assert.True(model.FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled) is true);
     }
 
     private class Context1(DbContextOptions options) : DbContext(options)
@@ -255,4 +265,46 @@ public class ModelSourceTest
     }
 
     private class Context2(DbContextOptions options) : DbContext(options);
+
+    [ConditionalFact]
+    public void Compiled_model_provider_mismatch_warning_has_correct_message()
+    {
+        var definition = CoreResources.LogCompiledModelProviderMismatch(
+            new TestLogger<TestLoggingDefinitions>());
+
+        var message = definition.GenerateMessage("Microsoft.EntityFrameworkCore.SqlServer", "Microsoft.EntityFrameworkCore.InMemory");
+
+        Assert.Contains("Microsoft.EntityFrameworkCore.SqlServer", message);
+        Assert.Contains("Microsoft.EntityFrameworkCore.InMemory", message);
+    }
+
+    [ConditionalFact]
+    public void DbContextModelAttribute_stores_provider_name()
+    {
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object))
+        {
+            ProviderName = "TestProvider"
+        };
+
+        Assert.Equal("TestProvider", attr.ProviderName);
+    }
+
+    [ConditionalFact]
+    public void DbContextModelAttribute_provider_name_defaults_to_null()
+    {
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object));
+
+        Assert.Null(attr.ProviderName);
+    }
+
+    private class DetailedErrorsContext(IServiceProvider serviceProvider) : DbContext
+    {
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseInMemoryDatabase(nameof(DetailedErrorsContext))
+                .EnableDetailedErrors();
+    }
 }

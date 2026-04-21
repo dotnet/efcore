@@ -2415,6 +2415,43 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.OldMigrationVersionWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    /// <param name="migrationVersion">The EF Core version the model snapshot was created with.</param>
+    public static void OldMigrationVersionWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+        Type contextType,
+        string? migrationVersion)
+    {
+        var definition = RelationalResources.LogOldMigrationVersion(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, contextType.ShortDisplayName(), migrationVersion ?? "(unknown)");
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new MigrationVersionEventData(
+                definition,
+                OldMigrationVersionWarning,
+                contextType,
+                migrationVersion);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string OldMigrationVersionWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (MigrationVersionEventData)payload;
+        return d.GenerateMessage(p.ContextType.ShortDisplayName(), p.MigrationVersion ?? "(unknown)");
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.NonTransactionalMigrationOperationWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -2868,19 +2905,19 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs the <see cref="RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable" /> event.
+    ///     Logs the <see cref="RelationalEventId.AllIndexPropertiesNotMappedToAnyTable" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="entityType">The entity type on which the index is defined.</param>
     /// <param name="index">The index on the entity type.</param>
-    public static void AllIndexPropertiesNotToMappedToAnyTable(
+    public static void AllIndexPropertiesNotMappedToAnyTable(
         this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
         IEntityType entityType,
         IIndex index)
     {
         if (index.Name == null)
         {
-            var definition = RelationalResources.LogUnnamedIndexAllPropertiesNotToMappedToAnyTable(diagnostics);
+            var definition = RelationalResources.LogUnnamedIndexAllPropertiesNotMappedToAnyTable(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
@@ -2904,7 +2941,7 @@ public static class RelationalLoggerExtensions
         }
         else
         {
-            var definition = RelationalResources.LogNamedIndexAllPropertiesNotToMappedToAnyTable(diagnostics);
+            var definition = RelationalResources.LogNamedIndexAllPropertiesNotMappedToAnyTable(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {

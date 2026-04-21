@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class TimeOnlyTranslationsSqlServerTest : TimeOnlyTranslationsTestBase<BasicTypesQuerySqlServerFixture>
@@ -213,6 +215,34 @@ WHERE CAST([b].[TimeSpan] AS time) = @time
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 ORDER BY CAST([b].[TimeSpan] AS time)
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public virtual async Task DateTrunc_hour()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("hour", b.TimeOnly)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new TimeOnly(b.TimeOnly.Hour, 0)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(hour, [b].[TimeOnly])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public virtual async Task DateTrunc_minute()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("minute", b.TimeOnly)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new TimeOnly(b.TimeOnly.Hour, b.TimeOnly.Minute)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(minute, [b].[TimeOnly])
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 

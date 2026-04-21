@@ -72,4 +72,27 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
             ss => ss.Set<BasicTypesEntity>().Where(o => o.Int.ToString().Contains("5")));
 
     #endregion Like
+
+    #region IndexOf
+
+    [ConditionalFact]
+    public virtual Task IndexOf_with_non_string_column_using_double_cast()
+    {
+        var pattern = "5";
+        return AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(b => ((string)(object)b.Int).IndexOf(pattern) != -1),
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int.ToString().Contains(pattern)));
+    }
+
+    #endregion IndexOf
+
+    #region Replace
+
+    [ConditionalFact]
+    public virtual Task Replace_with_non_string_column_using_double_cast()
+        => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(b => ((string)(object)b.Int).Replace("8", "3") == "3"),
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.Int.ToString().Replace("8", "3") == "3"));
+
+    #endregion Replace
 }

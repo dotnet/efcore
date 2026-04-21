@@ -48,14 +48,32 @@ WHERE false
 """);
     }
 
-    public override Task Associate_with_inline_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_inline_null());
+    public override async Task Associate_with_inline_null()
+    {
+        await base.Associate_with_inline_null();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["OptionalAssociate"] = null)
+""");
+    }
 
     public override Task Associate_with_parameter_null()
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Associate_with_parameter_null());
 
-    public override Task Nested_associate_with_inline_null()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Nested_associate_with_inline_null());
+    public override async Task Nested_associate_with_inline_null()
+    {
+        await base.Nested_associate_with_inline_null();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = null)
+""");
+    }
 
     public override async Task Nested_associate_with_inline()
     {
@@ -98,6 +116,23 @@ WHERE false
     }
 
     #region Contains
+
+    [ConditionalFact]
+    public async Task Contains_with_inline_null()
+    {
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
+            e.RequiredAssociate.NestedCollection.Contains(null!)), assertEmpty: true);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM n IN c["RequiredAssociate"]["NestedCollection"]
+    WHERE false)
+""");
+    }
 
     public override async Task Contains_with_inline()
     {

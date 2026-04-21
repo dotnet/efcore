@@ -433,6 +433,20 @@ FROM [RootEntity] AS [r]
 """);
     }
 
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id], [r].[RequiredAssociate]
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
     #endregion Multiple
 
     #region Subquery

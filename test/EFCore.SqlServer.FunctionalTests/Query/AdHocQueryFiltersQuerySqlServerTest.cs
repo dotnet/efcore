@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocQueryFiltersQuerySqlServerTest(NonSharedFixture fixture) : AdHocQueryFiltersQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 8576
@@ -103,8 +103,8 @@ FROM [Entities] AS [e]
     [ConditionalFact]
     public virtual async Task Query_filter_with_db_set_should_not_block_other_filters()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Factions.ToList();
 
         Assert.Empty(query);
@@ -123,8 +123,8 @@ WHERE EXISTS (
     [ConditionalFact]
     public virtual async Task Keyless_type_used_inside_defining_query()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.LeadersQuery.ToList();
 
         Assert.Single(query);

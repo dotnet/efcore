@@ -700,6 +700,6 @@ EXEC [EntityWithAdditionalProperty_Insert] @p4, @p5 OUTPUT, @p6;
     protected override void ConfigureStoreGeneratedConcurrencyToken(EntityTypeBuilder entityTypeBuilder, string propertyName)
         => entityTypeBuilder.Property<byte[]>(propertyName).IsRowVersion();
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

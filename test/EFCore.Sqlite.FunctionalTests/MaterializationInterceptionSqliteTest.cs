@@ -17,14 +17,16 @@ public class MaterializationInterceptionSqliteTest(NonSharedFixture fixture) :
 
     public class SqliteLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<TestEntity30244>().OwnsMany(e => e.Settings, b => b.ToJson());
         }
+#pragma warning restore EF8001
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

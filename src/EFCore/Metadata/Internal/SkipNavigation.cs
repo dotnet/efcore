@@ -271,6 +271,12 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
                 : inverse;
         }
 
+        if (inverse == this)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.SkipNavigationSelfInverse(Name, DeclaringEntityType.DisplayName()));
+        }
+
         if (inverse.DeclaringEntityType != TargetEntityType)
         {
             throw new InvalidOperationException(

@@ -10,16 +10,16 @@ namespace Microsoft.Data.Sqlite;
 internal class SqliteParameterBinder(sqlite3_stmt stmt, sqlite3 handle, int index, object value, int? size, SqliteType? sqliteType)
     : SqliteValueBinder(value, sqliteType)
 {
-    protected override void BindBlob(byte[] value)
+    protected override void BindBlob(ReadOnlySpan<byte> value)
     {
         var blob = value;
         if (ShouldTruncate(value.Length))
         {
-            blob = new byte[size!.Value];
-            Array.Copy(value, blob, size.Value);
+            blob = value.Slice(0, size!.Value);
         }
 
         var rc = sqlite3_bind_blob(stmt, index, blob);
+
         SqliteException.ThrowExceptionForRC(rc, handle);
     }
 
