@@ -91,6 +91,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
                 case { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression }:
                     return memberExpression.Assign(Visit(binaryExpression.Right));
+                case { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Left: MethodCallExpression methodCall }
+                    when methodCall.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                      && methodCall.Arguments[2].GetConstantValue<IProperty>().GetJsonPropertyName() == "":
+                    return MakeBinary(binaryExpression.NodeType, _projectionBindings[_materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCall.Arguments[0]).Object]], binaryExpression.Right);
                 default:
                     return base.VisitBinary(binaryExpression);
             }
@@ -103,6 +107,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty>();
+
+                if (property.GetJsonPropertyName() == "")
+                {
+                    return Default(methodCallExpression.Type);
+                }
+
                 Expression valueBuffer;
                 if (methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression)
                 {
@@ -153,13 +163,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     shaperBlock = ProcessStructuralProperties(structuralTypeShaperExpression.StructuralType, jObject, shaperBlock);
 
                     return Block(
-                        [..shaperBlock.Variables, jObject],
+                        [.. shaperBlock.Variables, jObject],
                         [
-                            Assign(jObject, CreateGetValueExpression(jTokenParameter, projection.IsValueProjection ? projection.Alias : null, typeof(JObject))),
-                            ..shaperBlock.Expressions 
+                            Assign(jObject, CreateGetValueExpression(jTokenParameter, projection.IsValueProjection ? null : projection.Alias, typeof(JObject))),
+                            ..shaperBlock.Expressions
                         ]);
                 }
-                
+
                 case CollectionShaperExpression collectionShaperExpression:
                 {
                     ObjectArrayAccessExpression objectArrayAccess;
@@ -184,7 +194,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     _projectionBindings[accessExpression] = jObjectParameter;
                     _ordinalParameterBindings[accessExpression] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
-                    
+
                     var innerShaper = (BlockExpression)Visit(collectionShaperExpression.InnerShaper);
 
                     var entities = Call(
@@ -204,16 +214,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return base.VisitExtension(extensionExpression);
         }
-
-        protected override Expression VisitConditional(ConditionalExpression conditionalExpression) => conditionalExpression.Test switch
-        {
-            // Removes null checks on non-persisted properties
-            BinaryExpression { NodeType: ExpressionType.NotEqual, Left: MethodCallExpression { Method.IsGenericMethod: true } methodCall }
-                when methodCall.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                  && methodCall.Arguments[2].GetConstantValue<IProperty>().GetJsonPropertyName() == ""
-              => Visit(conditionalExpression.IfTrue),
-            _ => base.VisitConditional(conditionalExpression),
-        };
 
         private void AddInclude(
             List<Expression> shaperExpressions,
@@ -603,7 +603,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
 
-        private BlockExpression ProcessStructuralProperties(
+        public BlockExpression ProcessStructuralProperties(
             ITypeBase structuralType,
             ParameterExpression jObject,
             BlockExpression shaperBlock)
