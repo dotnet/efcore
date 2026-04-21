@@ -301,10 +301,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             List<Expression> shaperExpressions,
             INavigation navigation,
             Expression navigationExpression,
-            Expression instanceVariable)
+            Expression instanceVariable,
+            ParameterExpression ordinalParameter = null)
         {
             _ownerMappings[tempValueBuffer] = jObjectVariable;
             _projectionBindings[tempValueBuffer] = jObjectVariable;
+            if (ordinalParameter != null)
+            {
+                _ordinalParameterBindings[tempValueBuffer] = ordinalParameter;
+            }
 
             // Cosmos does not support Includes for ISkipNavigation
             var includeMethod = navigation.IsCollection ? IncludeCollectionMethodInfo : IncludeReferenceMethodInfo;
@@ -320,8 +325,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var inverseNavigation = navigation.Inverse;
             var fixup = GenerateFixup(
                 includingClrType, relatedEntityClrType, navigation, inverseNavigation);
-
-            // navigationExpression = Visit(navigationExpression);
 
             shaperExpressions.Add(
                 IfThen(

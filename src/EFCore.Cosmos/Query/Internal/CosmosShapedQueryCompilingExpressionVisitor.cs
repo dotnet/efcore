@@ -23,7 +23,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
-    private int _currentComplexIndex;
+    private int _currentStructuralIndex;
     private ParameterExpression _parentJObject;
     private CosmosProjectionBindingRemovingExpressionVisitor _projectionBindingRemovingExpressionVisitor;
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
@@ -196,19 +196,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         {
             foreach (var navigation in entityType.GetNavigations())
             {
-                var jObjectVariable = Parameter(typeof(JObject), "ownedJObject" + ++_currentComplexIndex);
+                var jObjectVariable = Parameter(typeof(JObject), "ownedJObject" + ++_currentStructuralIndex);
                 var tempValueBuffer = new StructuralPropertyBindingExpression(jObjectVariable);
 
                 if (navigation.IsCollection)
                 {
-                    var innerShaper = new StructuralTypeShaperExpression(
-                        navigation.TargetEntityType,
-                        tempValueBuffer,
-                        false);
+                    var ordinalParameter = Parameter(typeof(int), "ordinal");
+                    var materializeExpression = CreateStructuralCollectionPopulateExpression(jObjectVariable, navigation, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName(), ordinalParameter, tempValueBuffer);
+                    _projectionBindingRemovingExpressionVisitor.AddInclude(jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable, ordinalParameter);
                 }
                 else
                 {
-                    
                     variables.Add(jObjectVariable);
 
                     var assignJObjectVariable = Assign(jObjectVariable,
@@ -219,15 +217,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
                     expressions.Add(assignJObjectVariable);
 
-                    var innerShaper = new StructuralTypeShaperExpression(
-                        navigation.TargetEntityType,
-                        tempValueBuffer,
-                        false);
-
-                    var oldParentJObject = _parentJObject;
-                    _parentJObject = jObjectVariable;
-                    var materializeExpression = InjectStructuralTypeMaterializers(innerShaper);
-                    _parentJObject = oldParentJObject;
+                    var materializeExpression = CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObjectVariable, tempValueBuffer);
 
                     _projectionBindingRemovingExpressionVisitor.AddInclude(jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable);
                 }
@@ -237,14 +227,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
     private BlockExpression CreateComplexPropertyAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
     {
-        var jObjectVariable = Parameter(typeof(JObject), "complexJObject" + ++_currentComplexIndex);
+        var jObjectVariable = Parameter(typeof(JObject), "complexJObject" + ++_currentStructuralIndex);
         var assignJObjectVariable = Assign(jObjectVariable,
             Call(
                 CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
                 Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
                     Constant(complexProperty.GetJsonPropertyName()))));
 
-        var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectVariable);
+        var materializeExpression = CreateStructuralTypeMaterializeExpression(complexProperty.ComplexType, jObjectVariable);
         if (complexProperty.IsNullable)
         {
             materializeExpression = Condition(Equal(jObjectVariable, Constant(null)),
@@ -261,55 +251,57 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         );
     }
 
-    private BlockExpression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
+    private Expression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
     {
-        var complexJArrayVariable = Variable(
-            typeof(JArray),
-            "complexJArray" + ++_currentComplexIndex);
+        var jObjectParameter = Parameter(typeof(JObject), "strucutralJObject" + _currentStructuralIndex);
+        var populateExpression = CreateStructuralCollectionPopulateExpression(jObjectParameter, complexProperty, complexProperty.ComplexType, complexProperty.GetJsonPropertyName());
 
-        var assignJArrayVariable = Assign(complexJArrayVariable,
+        return memberExpression.Assign(populateExpression);
+    }
+
+    private BlockExpression CreateStructuralCollectionPopulateExpression(ParameterExpression jObjectParameter, IPropertyBase structuralProperty, ITypeBase structuralType, string jsonPropertyName, ParameterExpression ordinalParameter = null, StructuralPropertyBindingExpression tempValueBuffer = null)
+    {
+        var structuralJArrayVariable = Variable(
+            typeof(JArray),
+            "structuralJArray" + ++_currentStructuralIndex);
+
+        var assignJArrayVariable = Assign(structuralJArrayVariable,
             Call(
                 CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
                 Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
-                    Constant(complexProperty.GetJsonPropertyName()))));
+                    Constant(jsonPropertyName))));
 
-        var jObjectParameter = Parameter(typeof(JObject), "complexJObject" + _currentComplexIndex);
-        var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectParameter);
+        var materializeExpression = CreateStructuralTypeMaterializeExpression(structuralType, jObjectParameter, tempValueBuffer);
 
         var select = Call(
-                    EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
+                    EnumerableMethods.SelectWithOrdinal.MakeGenericMethod(typeof(JObject), structuralType.ClrType),
                     Call(
                         EnumerableMethods.Cast.MakeGenericMethod(typeof(JObject)),
-                        complexJArrayVariable),
-                    Lambda(materializeExpression, jObjectParameter));
+                        structuralJArrayVariable),
+                    Lambda(materializeExpression, jObjectParameter, ordinalParameter ?? Parameter(typeof(int))));
 
-        Expression populateExpression =
+        var populateExpression =
             Call(
-                CosmosProjectionBindingRemovingExpressionVisitorBase.PopulateCollectionMethodInfo.MakeGenericMethod(complexProperty.ComplexType.ClrType, complexProperty.ClrType),
-                Constant(complexProperty.GetCollectionAccessor()),
+                CosmosProjectionBindingRemovingExpressionVisitorBase.PopulateCollectionMethodInfo.MakeGenericMethod(structuralType.ClrType, structuralProperty.ClrType),
+                Constant(structuralProperty.GetCollectionAccessor()),
                 select);
 
-        if (complexProperty.IsNullable)
-        {
-            populateExpression = Condition(Equal(complexJArrayVariable, Constant(null)),
-                Default(complexProperty.ClrType.MakeNullable()),
-                ConvertChecked(populateExpression, complexProperty.ClrType.MakeNullable()));
-        }
+        //if (complexProperty.IsNullable)
+        //{
+        //    populateExpression = Condition(Equal(complexJArrayVariable, Constant(null)),
+        //        Default(complexProperty.ClrType.MakeNullable()),
+        //        ConvertChecked(populateExpression, complexProperty.ClrType.MakeNullable()));
+        //}
 
-        return Block(
-            [complexJArrayVariable],
-            [
-                assignJArrayVariable,
-                memberExpression.Assign(populateExpression)
-            ]
-        );
+        return Block([structuralJArrayVariable],
+              [assignJArrayVariable, populateExpression]);
     }
 
-    private Expression CreateComplexTypeMaterializeExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
+    private Expression CreateStructuralTypeMaterializeExpression(ITypeBase structuralType, ParameterExpression jObjectParameter, StructuralPropertyBindingExpression tempValueBuffer = null)
     {
-        var tempValueBuffer = new StructuralPropertyBindingExpression(jObjectParameter);
+        tempValueBuffer ??= new StructuralPropertyBindingExpression(jObjectParameter);
         var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
-            complexProperty.ComplexType,
+            structuralType,
             tempValueBuffer,
             false);
 
@@ -318,10 +310,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var materializeExpression = InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
         _parentJObject = oldParentJObject;
 
-        if (complexProperty.ComplexType.ClrType.IsNullableType())
+        if (structuralType.ClrType.IsNullableType())
         {
             materializeExpression = Condition(Equal(jObjectParameter, Constant(null)),
-                Default(complexProperty.ComplexType.ClrType),
+                Default(structuralType.ClrType),
                 materializeExpression);
         }
 
@@ -334,13 +326,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public ParameterExpression JObjectParameter { get; } = jObjectParameter;
-    }
-
-    private sealed class NavigationBindingExpression(ParameterExpression jObjectParameter) : Expression
-    {
-        public override Type Type => typeof(ValueBuffer);
-        public override ExpressionType NodeType => ExpressionType.Extension;
         public ParameterExpression JObjectParameter { get; } = jObjectParameter;
     }
 }
