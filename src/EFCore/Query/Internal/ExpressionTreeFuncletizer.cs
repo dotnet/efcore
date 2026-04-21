@@ -2145,7 +2145,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 if (visited != expression)
                 {
                     parameterName = QueryFilterPrefix
-                        + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName } ? ("__" + memberName) : "__p");
+                        + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName }
+                            ? "__" + SanitizeCompilerGeneratedName(memberName)
+                            : "__p");
                     isContextAccessor = true;
 
                     // Context accessors (query filters accessing the context) never get constantized

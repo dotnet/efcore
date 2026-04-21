@@ -815,4 +815,39 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 38132
+
+    [ConditionalFact]
+    public virtual async Task Query_filter_with_primary_constructor_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38132>(
+            addServices: s =>
+            {
+                s.AddSingleton(typeof(Guid),
+                    new Guid("00000001-0000-0000-0000-000000000001"));
+                return s;
+            },
+            usePooling: false);
+        using var context = contextFactory.CreateDbContext();
+
+        var result = context.Set<Entity38132>().ToList();
+        Assert.Empty(result);
+    }
+
+    protected class Context38132(DbContextOptions options, Guid tenantId) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity38132>()
+                .HasQueryFilter(e => e.TenantId == tenantId);
+    }
+
+    public class Entity38132
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Guid TenantId { get; set; }
+    }
+
+    #endregion
 }

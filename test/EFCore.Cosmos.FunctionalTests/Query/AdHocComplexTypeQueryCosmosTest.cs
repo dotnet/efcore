@@ -49,6 +49,11 @@ SELECT VALUE c
 FROM root c
 WHERE (c["AllOptionalsComplexType"] = null)
 OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
 """);
     }
 
@@ -88,6 +93,115 @@ FROM root c
     public override async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
     {
         await base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_set_to_different_value()
+    {
+        await base.Nullable_complex_type_with_discriminator_set_to_different_value();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_set_to_null()
+    {
+        // On Cosmos, setting the discriminator shadow property to null doesn't affect materialization
+        // because the complex property's data is still present in the JSON document.
+        var contextFactory = await InitializeNonSharedTest<Context38119>();
+
+        Guid entityId;
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = new Context38119.EntityType
+            {
+                Id = Guid.NewGuid(),
+                Prop = new Context38119.OptionalComplexProperty { OptionalValue = true }
+            };
+            context.Add(entity);
+            entityId = entity.Id;
+
+            var discriminatorEntry = context.Entry(entity).ComplexProperty(e => e.Prop).Property("Discriminator");
+            Assert.Equal("OptionalComplexProperty", discriminatorEntry.CurrentValue);
+            discriminatorEntry.CurrentValue = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = await context.Set<Context38119.EntityType>().SingleAsync(e => e.Id == entityId);
+            Assert.NotNull(entity.Prop);
+            Assert.True(entity.Prop.OptionalValue);
+        }
+
+    }
+
+    public override async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
 
         AssertSql(
             """

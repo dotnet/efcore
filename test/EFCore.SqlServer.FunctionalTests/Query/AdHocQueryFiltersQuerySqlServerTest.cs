@@ -445,4 +445,18 @@ WHERE [s].[IsDeleted] = 0
 ORDER BY [s].[Name]
 """);
     }
+
+    public override async Task Query_filter_with_primary_constructor_parameter()
+    {
+        await base.Query_filter_with_primary_constructor_parameter();
+
+        AssertSql(
+            """
+@ef_filter__tenantId='00000001-0000-0000-0000-000000000001'
+
+SELECT [e].[Id], [e].[Name], [e].[TenantId]
+FROM [Entity38132] AS [e]
+WHERE [e].[TenantId] = @ef_filter__tenantId
+""");
+    }
 }
