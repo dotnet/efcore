@@ -821,7 +821,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Query_filter_with_primary_constructor_parameter()
     {
-        var contextFactory = await InitializeAsync<Context38132>(
+        var contextFactory = await InitializeNonSharedTest<Context38132>(
             addServices: s =>
             {
                 s.AddSingleton(typeof(Guid),
@@ -829,7 +829,7 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
                 return s;
             },
             usePooling: false);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var result = context.Set<Entity38132>().ToList();
         Assert.Empty(result);

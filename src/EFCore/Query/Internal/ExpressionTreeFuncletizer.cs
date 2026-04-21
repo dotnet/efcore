@@ -2146,7 +2146,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     parameterName = QueryFilterPrefix
                         + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName }
-                            ? "__" + (UseOldBehavior38132 ? memberName : SanitizeCompilerGeneratedName(memberName))
+                            ? "__" + SanitizeCompilerGeneratedName(memberName)
                             : "__p");
                     isContextAccessor = true;
 

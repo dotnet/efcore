@@ -394,7 +394,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
     {
-        var contextFactory = await InitializeAsync<Context38119>(
+        var contextFactory = await InitializeNonSharedTest<Context38119>(
             seed: context =>
             {
                 context.Add(new Context38119.EntityType { Id = Guid.NewGuid() });
@@ -421,7 +421,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
     {
-        var contextFactory = await InitializeAsync<Context38119>(
+        var contextFactory = await InitializeNonSharedTest<Context38119>(
             seed: context =>
             {
                 context.Add(
@@ -452,7 +452,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
     {
-        var contextFactory = await InitializeAsync<Context38119>(
+        var contextFactory = await InitializeNonSharedTest<Context38119>(
             seed: context =>
             {
                 context.Add(
@@ -485,7 +485,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_set_to_different_value()
     {
-        var contextFactory = await InitializeAsync<Context38119>();
+        var contextFactory = await InitializeNonSharedTest<Context38119>();
 
         Guid entityId;
         await using (var context = contextFactory.CreateDbContext())
@@ -517,7 +517,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nullable_complex_type_with_discriminator_set_to_null()
     {
-        var contextFactory = await InitializeAsync<Context38119>();
+        var contextFactory = await InitializeNonSharedTest<Context38119>();
 
         Guid entityId;
         await using (var context = contextFactory.CreateDbContext())
@@ -548,7 +548,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     [ConditionalFact]
     public virtual async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
     {
-        var contextFactory = await InitializeAsync<Context38119Nested>(
+        var contextFactory = await InitializeNonSharedTest<Context38119Nested>(
             seed: context =>
             {
                 context.Add(
@@ -579,7 +579,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    private class Context38119(DbContextOptions options) : DbContext(options)
+    protected class Context38119(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
