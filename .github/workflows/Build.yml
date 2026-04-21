@@ -4,13 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/*
-      - release/*
   pull_request:
-    branches:
-      - main
-      - feature/*
-      - release/*
 
 permissions: {}
 
@@ -70,9 +64,7 @@ jobs:
           failed=0
           for proj in $(find test -maxdepth 2 \( -name '*.csproj' -o -name '*.fsproj' -o -name '*.vbproj' \) \
             | grep -v -E "$pattern"); do
-            echo "::group::Testing $proj"
             dotnet test "$proj" || failed=1
-            echo "::endgroup::"
           done
           exit $failed
 
@@ -165,9 +157,7 @@ jobs:
         run: |
           failed=0
           for proj in $SQLSERVER_TEST_PROJECTS; do
-            echo "::group::Testing $proj"
             dotnet test "$proj" || failed=1
-            echo "::endgroup::"
           done
           exit $failed
 
@@ -205,9 +195,7 @@ jobs:
         run: |
           failed=0
           for proj in test/EFCore.Sqlite.FunctionalTests test/EFCore.Sqlite.Tests test/EFCore.AspNet.Sqlite.FunctionalTests; do
-            echo "::group::Testing $proj"
             dotnet test "$proj" || failed=1
-            echo "::endgroup::"
           done
           exit $failed
 
@@ -247,9 +235,7 @@ jobs:
           failed=0
           for proj in $(find test/Microsoft.Data.Sqlite.Tests -name '*.csproj' \
             | if [ "$RUNNER_OS" != "Windows" ]; then grep -v winsqlite3; else cat; fi); do
-            echo "::group::Testing $proj"
             dotnet test "$proj" || failed=1
-            echo "::endgroup::"
           done
           exit $failed
 
