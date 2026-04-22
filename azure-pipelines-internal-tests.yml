@@ -230,7 +230,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Windows.11.Client
+                value: Windows.11.Amd64.Client
               - name: _HelixAccessToken
                 value: $(HelixApiAccessToken)
             steps:

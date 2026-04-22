@@ -18,7 +18,7 @@
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.11.Client.Open;Windows.Server2025.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;Ubuntu.2204.Amd64.Open</HelixTargetQueues>
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.11.Amd64.Client.Open;Windows.Server2025.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;Ubuntu.2204.Amd64.Open</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
