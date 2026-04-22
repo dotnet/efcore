@@ -24,7 +24,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private readonly Stack<ProjectionMember> _projectionMembers = new();
-    private readonly Stack<INavigation> _includedNavigations = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -171,8 +170,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         break;
                 }
 
-                if (_includedNavigations.Count == 0)
-                    _projectionMapping[_projectionMembers.Peek()] = structuralTypeProjection;
+                _projectionMapping[_projectionMembers.Peek()] = structuralTypeProjection;
 
                 return structuralTypeShaper.Update(
                     new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
@@ -209,17 +207,14 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                Expression valueBuffer = shaper.ValueBufferExpression switch
-                {
-                    ProjectionBindingExpression projectionBinding => projectionBinding,
-                    ObjectArrayAccessExpression objectArrayAccess => Expression.Convert(
-                            Expression.Convert(objectArrayAccess.InnerProjection, typeof(object)), typeof(ValueBuffer)),
-                    _ => throw new UnreachableException()
-                };
+                var valueBuffer = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer));
+                _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
+
+                shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(
-                    shaper.ValueBufferExpression,
-                    shaper.Update(valueBuffer),
+                    valueBuffer,
+                    shaper,
                     includableCollectionNavigation,
                     includableCollectionNavigation.TargetEntityType.ClrType);
 

@@ -246,12 +246,11 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Select_nested_collection_on_required_associate(queryTrackingBehavior));
+            await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]["NestedCollection"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -262,12 +261,11 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Select_nested_collection_on_optional_associate(queryTrackingBehavior));
+            await base.Select_nested_collection_on_optional_associate(queryTrackingBehavior);
 
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]["NestedCollection"]
 FROM root c
 ORDER BY c["Id"]
 """);

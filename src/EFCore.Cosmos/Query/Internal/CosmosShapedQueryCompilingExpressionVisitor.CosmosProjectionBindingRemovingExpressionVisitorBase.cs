@@ -115,7 +115,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         _ownerMappings[objectAccessExpression]
                                                 = null;
                                         valueExpression = CreateGetValueExpression(jTokenParameter, storeName, typeof(JObject));
-
+                                        break;
+                                    case ObjectArrayAccessExpression objectArrayAccessExpression:
+                                        _ownerMappings[objectArrayAccessExpression]
+                                                = null;
+                                        valueExpression = CreateGetValueExpression(jTokenParameter, storeName, typeof(JArray));
                                         break;
                                     default:
                                         throw new InvalidOperationException(
@@ -253,7 +257,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         case ProjectionBindingExpression projectionBindingExpression:
                             var projection = GetProjection(projectionBindingExpression);
-                            objectArrayAccess = (ObjectArrayAccessExpression)projection.Expression;
+                            objectArrayAccess = (ObjectArrayAccessExpression)((StructuralTypeProjectionExpression)projection.Expression).Object;
                             break;
                         case ObjectArrayAccessExpression objectArrayProjectionExpression:
                             objectArrayAccess = objectArrayProjectionExpression;
@@ -267,12 +271,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var ordinalParameter = Parameter(typeof(int), jArray.Name + "Ordinal");
 
                     var accessExpression = objectArrayAccess.InnerProjection.Object;
-                    _projectionBindings[accessExpression] = jObjectParameter;
+                    _projectionBindings[objectArrayAccess] = jObjectParameter;
                     // The ShapedQueryCompilingExpressionVisitor will not generate CollectionShaperExpression for complex collection properties, so
                     // an ObjectArrayAccessExpression in a CollectionShaperExpression can only be generated for owned collections
                     // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
-                    _ownerMappings[accessExpression] = objectArrayAccess.Object;
-                    _ordinalParameterBindings[accessExpression] = Add(
+                    _ownerMappings[objectArrayAccess] = null;
+                    _ordinalParameterBindings[objectArrayAccess] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
 
                     var innerShaper = (BlockExpression)Visit(collectionShaperExpression.InnerShaper);

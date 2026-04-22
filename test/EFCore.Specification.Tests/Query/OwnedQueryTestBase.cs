@@ -898,6 +898,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<OwnedPerson>()
                 .Where(p => p.Orders.Where(o => o.Id == -10).Union(p.Orders.Where(o => o.Id == -11)).Count() == 2));
 
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_collection(bool async)
+        => AssertQuery(
+            true,
+            ss => ss.Set<OwnedPerson>()
+                .Select(p => p.Orders));
+
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();
 
