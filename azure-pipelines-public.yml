@@ -152,7 +152,37 @@ stages:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Windows.10.Amd64.Open
+                value: Windows.11.Client.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_Windows_Cosmos
+            displayName: 'Helix Windows Cosmos'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.Server2025.Amd64.Open
               - name: _HelixAccessToken
                 value: ''
             steps:
