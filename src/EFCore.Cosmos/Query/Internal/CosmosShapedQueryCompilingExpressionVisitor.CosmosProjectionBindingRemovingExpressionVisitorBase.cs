@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -42,9 +41,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private readonly IDictionary<Expression, ParameterExpression> _projectionBindings
             = new Dictionary<Expression, ParameterExpression>();
-
-        private readonly IDictionary<Expression, Expression> _ownerMappings
-            = new Dictionary<Expression, Expression>();
 
         private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
             = new Dictionary<Expression, Expression>();
@@ -105,27 +101,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 var accessExpression = structuralTypeProjectionExpression.Object;
                                 _projectionBindings[accessExpression] = parameterExpression;
 
-                                switch (accessExpression)
+                                valueExpression = accessExpression switch
                                 {
-                                    case ObjectReferenceExpression:
-                                        valueExpression = CreateGetValueExpression(jTokenParameter, storeName, parameterExpression.Type);
-                                        break;
-
-                                    case ObjectAccessExpression objectAccessExpression:
-                                        _ownerMappings[objectAccessExpression]
-                                                = null;
-                                        valueExpression = CreateGetValueExpression(jTokenParameter, storeName, typeof(JObject));
-                                        break;
-                                    case ObjectArrayAccessExpression objectArrayAccessExpression:
-                                        _ownerMappings[objectArrayAccessExpression]
-                                                = null;
-                                        valueExpression = CreateGetValueExpression(jTokenParameter, storeName, typeof(JArray));
-                                        break;
-                                    default:
-                                        throw new InvalidOperationException(
-                                            CoreStrings.TranslationFailed(binaryExpression.Print()));
-                                }
-
+                                    ObjectReferenceExpression => CreateGetValueExpression(jTokenParameter, storeName, parameterExpression.Type),
+                                    ObjectAccessExpression => CreateGetValueExpression(jTokenParameter, storeName, typeof(JObject)),
+                                    ObjectArrayAccessExpression => CreateGetValueExpression(jTokenParameter, storeName, typeof(JArray)),
+                                    _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(binaryExpression.Print())),
+                                };
                                 break;
                             case MethodCallExpression { Method.IsGenericMethod: true } jObjectMethodCallExpression
                                 when jObjectMethodCallExpression.Method.GetGenericMethodDefinition() == ToObjectWithSerializerMethodInfo:
@@ -146,6 +128,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             _materializationContextBindings[parameterExpression] = complexPropertyBindingExpression;
                             _projectionBindings[complexPropertyBindingExpression] = complexPropertyBindingExpression.JObjectParameter;
+                            if (_ordinalParameterBindings.TryGetValue(complexPropertyBindingExpression, out var ordinal))
+                            {
+                                _ordinalParameterBindings[complexPropertyBindingExpression.JObjectParameter] = ordinal;
+                            }
                         }
                         else
                         {
@@ -275,7 +261,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // The ShapedQueryCompilingExpressionVisitor will not generate CollectionShaperExpression for complex collection properties, so
                     // an ObjectArrayAccessExpression in a CollectionShaperExpression can only be generated for owned collections
                     // Complex properties are handled by CosmosShapedQueryCompilingExpressionVisitor.AddStructuralTypeInitialization
-                    _ownerMappings[objectArrayAccess] = null;
                     _ordinalParameterBindings[objectArrayAccess] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
 
@@ -308,7 +293,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             Expression instanceVariable,
             ParameterExpression ordinalParameter = null)
         {
-            _ownerMappings[tempValueBuffer] = jObjectVariable;
             _projectionBindings[tempValueBuffer] = jObjectVariable;
             if (ordinalParameter != null)
             {
@@ -552,11 +536,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var principalProperty = property.FindFirstPrincipal();
                     if (principalProperty != null)
                     {
-                        if (_ownerMappings.TryGetValue(jTokenExpression, out var ownerInfo) && ownerInfo != null)
-                        {
-                            return CreateGetValueExpression(ownerInfo, principalProperty, type);
-                        }
-                        else if (_projectionBindings.TryGetValue(jTokenExpression, out var projectionBinding))
+                        if (_projectionBindings.TryGetValue(jTokenExpression, out var projectionBinding))
                         {
                             return projectionBinding;
                         }
