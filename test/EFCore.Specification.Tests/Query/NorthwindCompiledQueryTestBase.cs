@@ -801,6 +801,32 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
                 "CHOPS", "CONSH", default));
     }
 
+    [ConditionalFact]
+    public virtual void Compiled_query_with_EF_Constant_throws()
+    {
+        var query = EF.CompileQuery(
+            (NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Constant("ALFKI")));
+
+        using var context = CreateContext();
+
+        var message = Assert.Throws<InvalidOperationException>(() => query(context).ToList()).Message;
+        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"), message);
+    }
+
+    [ConditionalFact]
+    public virtual void Compiled_query_with_EF_Parameter_throws()
+    {
+        var customerID = "ALFKI";
+
+        var query = EF.CompileQuery(
+            (NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Parameter(customerID)));
+
+        using var context = CreateContext();
+
+        var message = Assert.Throws<InvalidOperationException>(() => query(context).ToList()).Message;
+        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Parameter<T>"), message);
+    }
+
     protected async Task<int> CountAsync<T>(IAsyncEnumerable<T> source)
     {
         var count = 0;
