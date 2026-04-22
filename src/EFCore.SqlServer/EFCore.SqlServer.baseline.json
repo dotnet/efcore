@@ -1300,6 +1300,9 @@
         },
         {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId UniqueConstraintFound"
+        },
+        {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId VectorSearchWithoutApproximateWarning"
         }
       ]
     },

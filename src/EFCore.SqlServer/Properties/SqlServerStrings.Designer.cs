@@ -1188,5 +1188,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             return (EventDefinition)definition;
         }
+
+        /// <summary>
+        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateWarning))'.
+        /// </summary>
+        public static EventDefinition<string, string> LogVectorSearchWithoutApproximate(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogVectorSearchWithoutApproximate;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogVectorSearchWithoutApproximate,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.VectorSearchWithoutApproximateWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                            _resourceManager.GetString("LogVectorSearchWithoutApproximate")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
     }
 }
