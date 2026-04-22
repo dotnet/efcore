@@ -57,7 +57,6 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     private static ValueGenerator? CreateFromFactory(IProperty property, ITypeBase structuralType)
     {
         var factory = property.GetValueGeneratorFactory();
-
         return factory?.Invoke(property, structuralType);
     }
 

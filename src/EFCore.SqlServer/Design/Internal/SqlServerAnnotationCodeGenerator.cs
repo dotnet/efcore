@@ -47,9 +47,9 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
             nameof(RelationalEntityTypeBuilderExtensions.ToTable), [typeof(EntityTypeBuilder), typeof(string)])!;
 
-    private static readonly MethodInfo EntityTypeIsMemoryOptimizedMethodInfo
-        = typeof(SqlServerEntityTypeBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), [typeof(EntityTypeBuilder), typeof(bool)])!;
+    private static readonly MethodInfo TableIsMemoryOptimizedMethodInfo
+        = typeof(SqlServerTableBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerTableBuilderExtensions.IsMemoryOptimized), [typeof(TableBuilder), typeof(bool)])!;
 
     private static readonly MethodInfo PropertyIsSparseMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
@@ -320,10 +320,15 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
         if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.MemoryOptimized) is { } isMemoryOptimized)
         {
+            // ToTable(tb => tb.IsMemoryOptimized())
             fragments.Add(
-                isMemoryOptimized
-                    ? new MethodCallCodeFragment(EntityTypeIsMemoryOptimizedMethodInfo)
-                    : new MethodCallCodeFragment(EntityTypeIsMemoryOptimizedMethodInfo, false));
+                new MethodCallCodeFragment(
+                    EntityTypeToTableMethodInfo,
+                    new NestedClosureCodeFragment(
+                        "tb",
+                        isMemoryOptimized
+                            ? new MethodCallCodeFragment(TableIsMemoryOptimizedMethodInfo)
+                            : new MethodCallCodeFragment(TableIsMemoryOptimizedMethodInfo, false))));
         }
 
         if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)

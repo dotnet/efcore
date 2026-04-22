@@ -35,8 +35,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides,
-        RelationalAnnotationNames.JsonElementMappings,
-        "Relational:ContainerColumnTypeMapping"
+        RelationalAnnotationNames.JsonElementMappings
     };
 
     /// <summary>
@@ -234,7 +233,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
                     containerColumnName));
 
             annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
-            annotations.Remove("Relational:ContainerColumnTypeMapping");
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
@@ -282,7 +280,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
                     containerColumnName));
 
             annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
-            annotations.Remove("Relational:ContainerColumnTypeMapping");
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)

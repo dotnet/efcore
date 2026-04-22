@@ -1066,6 +1066,22 @@
           "Stage": "Experimental"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, bool memoryOptimized = true);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool memoryOptimized = true);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder collectionOwnershipBuilder, bool memoryOptimized = true);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder, bool memoryOptimized = true);",
+          "Stage": "Obsolete"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? IsMemoryOptimized(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? memoryOptimized, bool fromDataAnnotation = false);"
         },
         {

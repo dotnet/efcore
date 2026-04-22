@@ -1201,6 +1201,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         if (source.PendingSelector is NavigationTreeExpression { Value: EntityReference entityReference })
         {
+            // TODO: Move to InMemory #21624
+            if (entityReference.EntityType["InMemory:DefiningQuery"] != null)
+            {
+                throw new InvalidOperationException(
+#pragma warning disable CS0612 // Type or member is obsolete
+                    CoreStrings.IncludeOnEntityWithDefiningQueryNotSupported(expression, entityReference.EntityType.DisplayName()));
+#pragma warning restore CS0612 // Type or member is obsolete
+            }
+
             if (expression is ConstantExpression { Value: string navigationChain })
             {
                 var navigationPaths = navigationChain.Split(["."], StringSplitOptions.None);
