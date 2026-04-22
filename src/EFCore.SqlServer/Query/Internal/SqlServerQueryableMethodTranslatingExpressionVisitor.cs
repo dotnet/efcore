@@ -811,6 +811,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             case { Limit: not null, Offset: not null }:
                 throw new InvalidOperationException(SqlServerStrings.WithApproximateNotSupportedWithSkipAndTake);
 
+            // Already wrapped — calling WithApproximate() twice is a no-op.
+            case { Limit: WithApproximateExpression }:
+                return source;
+
             // Normal case: WithApproximate() after Take() — wrap the Limit with WithApproximateExpression
             case { Limit: { } limit }:
 #pragma warning disable EF1001 // Internal EF Core API usage.
