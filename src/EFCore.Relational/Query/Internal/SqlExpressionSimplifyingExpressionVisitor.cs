@@ -35,6 +35,20 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                 return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
             }
 
+            // Strip no-op SQL CASTs: when the Convert's store type matches the operand's store type,
+            // the CAST would be a no-op in SQL (e.g. CAST(column AS nvarchar(max)) when column is already nvarchar(max)).
+            // This can occur in various situations, e.g. when a C# implicit conversion exists for a value-converted type
+            // (see #36247 for more context on why we don't refrain from creating the CAST node during translation).
+            // However, CASTs around constants are preserved: they serve to explicitly type the constant in SQL
+            // (e.g. CAST(100 AS int)), which is important for some queries.
+            case SqlUnaryExpression
+            {
+                OperatorType: ExpressionType.Convert,
+                Operand: not SqlConstantExpression and { TypeMapping.StoreType: var operandStoreType } operand,
+                TypeMapping.StoreType: var convertStoreType
+            } when convertStoreType == operandStoreType:
+                return Visit(operand);
+
             case SqlBinaryExpression sqlBinaryExpression:
                 return SimplifySqlBinary(sqlBinaryExpression);
 

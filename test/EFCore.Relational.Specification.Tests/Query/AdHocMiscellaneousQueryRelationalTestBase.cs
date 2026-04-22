@@ -349,6 +349,53 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region 36247
+
+        [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context36247>(
+                seed: async ctx =>
+                {
+                    ctx.Users.AddRange(
+                        new Context36247.User { Name = new Context36247.FullName("Name1") },
+                        new Context36247.User { Name = new Context36247.FullName("Name2") });
+                    await ctx.SaveChangesAsync();
+                });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Users.Where(x => EF.Functions.Like(x.Name, "Name%"));
+
+            var result = async
+                ? await query.ToListAsync()
+                : [.. query];
+
+            Assert.Equal(2, result.Count);
+        }
+
+        protected class Context36247(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<User> Users { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<User>().Property(e => e.Name)
+                    .HasConversion(v => v.Value, v => new FullName(v));
+
+            public class User
+            {
+                public int Id { get; set; }
+                public FullName Name { get; set; }
+            }
+
+            public readonly record struct FullName(string Value)
+            {
+                public static implicit operator string(FullName fullName)
+                    => fullName.Value;
+            }
+        }
+
+        #endregion
     }
 }
 
