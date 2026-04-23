@@ -269,7 +269,14 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.Select_nested_collection_on_optional_associate(queryTrackingBehavior);
+            // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
+            // result to be filtered out entirely.
+            await AssertQuery(
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+                queryTrackingBehavior: queryTrackingBehavior);
 
             AssertSql(
                 """
