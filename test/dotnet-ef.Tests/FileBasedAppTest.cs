@@ -22,7 +22,10 @@ public sealed class FileBasedAppTest : IDisposable
     {
         using var directory = new TempDirectory();
         var csFile = Path.Combine(directory.Path, "MyApp.cs");
-        File.WriteAllText(csFile, """Console.WriteLine("Hello");""");
+        File.WriteAllText(csFile, """
+            #:property TargetFramework=net10.0
+            Console.WriteLine("Hello");
+            """);
 
         var project = Project.FromFile(csFile);
 
