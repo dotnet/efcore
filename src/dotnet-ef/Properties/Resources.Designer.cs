@@ -224,12 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("EFFullName");
 
         /// <summary>
-        ///     The file to use. An alternative to --project for file-based apps.
-        /// </summary>
-        public static string FileDescription
-            => GetString("FileDescription");
-
-        /// <summary>
         ///     The target framework. Defaults to the first one in the project.
         /// </summary>
         public static string FrameworkDescription
@@ -526,12 +520,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string PrefixDescription
             => GetString("PrefixDescription");
-
-        /// <summary>
-        ///     The --project and --file options cannot be used together.
-        /// </summary>
-        public static string ProjectAndFileOptions
-            => GetString("ProjectAndFileOptions");
 
         /// <summary>
         ///     The project or file to use. Defaults to the current working directory.

@@ -192,9 +192,6 @@
   <data name="DotnetEfFullName" xml:space="preserve">
     <value>Entity Framework Core .NET Command-line Tools</value>
   </data>
-  <data name="FileDescription" xml:space="preserve">
-    <value>The file to use. An alternative to --project for file-based apps.</value>
-  </data>
   <data name="DotNetEfConfigInvalidJson" xml:space="preserve">
     <value>Unable to read '{configFile}'. Fix the JSON and try again. {details}</value>
   </data>
@@ -356,9 +353,6 @@
   </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
-  </data>
-  <data name="ProjectAndFileOptions" xml:space="preserve">
-    <value>The --project and --file options cannot be used together.</value>
   </data>
   <data name="ProjectDescription" xml:space="preserve">
     <value>The project or file to use. Defaults to the current working directory.</value>
