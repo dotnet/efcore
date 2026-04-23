@@ -93,7 +93,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     case StructuralTypeShaperExpression shaper:
                         return base.Visit(shaper);
                     default:
-                        return QueryCompilationContext.NotTranslatedExpression;
+                        return base.Visit(expression);
                 }
         }
     }

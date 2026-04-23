@@ -214,7 +214,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]
 FROM root c
 """);
         }
