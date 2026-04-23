@@ -192,6 +192,9 @@
   <data name="DotnetEfFullName" xml:space="preserve">
     <value>Entity Framework Core .NET Command-line Tools</value>
   </data>
+  <data name="FileDescription" xml:space="preserve">
+    <value>The file to use. An alternative to --project for file-based apps.</value>
+  </data>
   <data name="DotNetEfConfigInvalidJson" xml:space="preserve">
     <value>Unable to read '{configFile}'. Fix the JSON and try again. {details}</value>
   </data>
@@ -354,8 +357,11 @@
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
   </data>
+  <data name="ProjectAndFileOptions" xml:space="preserve">
+    <value>The --project and --file options cannot be used together.</value>
+  </data>
   <data name="ProjectDescription" xml:space="preserve">
-    <value>The project to use. Defaults to the current working directory.</value>
+    <value>The project or file to use. Defaults to the current working directory.</value>
   </data>
   <data name="ProjectExtensionsDescription" xml:space="preserve">
     <value>Obsolete</value>
@@ -376,7 +382,7 @@
     <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
   </data>
   <data name="StartupProjectDescription" xml:space="preserve">
-    <value>The startup project to use. Defaults to the current working directory.</value>
+    <value>The startup project or file to use. Defaults to the current working directory.</value>
   </data>
   <data name="SuffixDescription" xml:space="preserve">
     <value>The suffix to attach to the name of all the generated files</value>

@@ -15,6 +15,7 @@ internal class RootCommand : CommandBase
 {
     private CommandLineApplication? _command;
     private CommandOption? _project;
+    private CommandOption? _file;
     private CommandOption? _startupProject;
     private CommandOption? _framework;
     private CommandOption? _configuration;
@@ -33,6 +34,7 @@ internal class RootCommand : CommandBase
         options.Configure(command);
 
         _project = options.Project;
+        _file = options.File;
         _startupProject = options.StartupProject;
         _framework = options.Framework;
         _configuration = options.Configuration;
@@ -60,7 +62,7 @@ internal class RootCommand : CommandBase
         }
 
         var config = DotNetEfConfigLoader.Load(Directory.GetCurrentDirectory());
-        var projectPath = _project!.Value() ?? config?.Project;
+        var projectPath = ResolveProjectOption(_project!, _file!, config?.Project);
         var startupProjectPath = _startupProject!.Value() ?? config?.StartupProject;
         var framework = _framework!.Value() ?? config?.Framework;
         var configuration = _configuration!.Value() ?? config?.Configuration;
@@ -302,6 +304,19 @@ internal class RootCommand : CommandBase
         }
 
         return (projects[0], startupProjects[0]);
+    }
+
+    internal static string? ResolveProjectOption(
+        CommandOption project,
+        CommandOption file,
+        string? configValue)
+    {
+        if (project.HasValue() && file.HasValue())
+        {
+            throw new CommandException(Resources.ProjectAndFileOptions);
+        }
+
+        return file.Value() ?? project.Value() ?? configValue;
     }
 
     private static List<string> ResolveProjects(string? path)
