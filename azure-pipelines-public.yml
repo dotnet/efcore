@@ -40,6 +40,7 @@ stages:
   jobs:
     - template: eng/common/templates/jobs/jobs.yml
       parameters:
+        continueOnError: true
         enableMicrobuild: true
         enablePublishBuildArtifacts: true
         enablePublishBuildAssets: true
@@ -52,10 +53,10 @@ stages:
         jobs:
           - job: Windows
             enablePublishTestResults: true
+            timeoutInMinutes: 90
             pool:
               name: $(DncEngPublicBuildPool)
               demands: ImageOverride -equals 1es-windows-2022-open
-              timeoutInMinutes: 90
             variables:
               - _InternalBuildArgs: ''
               # Rely on task Arcade injects, not auto-injected build step.
@@ -74,13 +75,38 @@ stages:
               - script: "echo ##vso[build.addbuildtag]release-candidate"
                 condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
-              - powershell: SqlLocalDB start
-                displayName: Start LocalDB
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine /bl:artifacts\log\$(_BuildConfig)\Build.binlog $(_InternalBuildArgs)
                   $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  Test__SqlServer__DefaultConnection: "Data Source="
                 name: Build
+              - task: PublishBuildArtifacts@1
+                displayName: Upload TestResults
+                condition: always()
+                continueOnError: true
+                inputs:
+                  pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactType: Container
+                  parallel: true
+
+          - job: Windows_SqlServer
+            displayName: 'Windows SQL Server'
+            enablePublishTestResults: true
+            timeoutInMinutes: 120
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+            steps:
+              - powershell: SqlLocalDB start
+                displayName: Start LocalDB
+              - script: eng\common\build.cmd -restore -build -test -ci -configuration $(_BuildConfig) -prepareMachine $(_InternalRuntimeDownloadArgs)
+                  /p:Projects="$(Build.SourcesDirectory)/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.SqlServer.HierarchyId.Tests/EFCore.SqlServer.HierarchyId.Tests.csproj;$(Build.SourcesDirectory)/test/EFCore.CrossStore.FunctionalTests/EFCore.CrossStore.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.AspNet.SqlServer.FunctionalTests/EFCore.AspNet.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj;$(Build.SourcesDirectory)/test/EFCore.FSharp.FunctionalTests/EFCore.FSharp.FunctionalTests.fsproj"
+                displayName: Test SQL Server
               - task: PublishBuildArtifacts@1
                 displayName: Upload TestResults
                 condition: always()
@@ -153,6 +179,96 @@ stages:
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
                 value: Windows.10.Amd64.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_Windows_SqlServer
+            displayName: 'Helix Windows SQL Server'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.11.Amd64.Client.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_Windows_Arm64
+            displayName: 'Helix Windows ARM64'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.11.Arm64.Open
+              - name: _HelixAccessToken
+                value: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - job: Helix_Windows_Cosmos
+            displayName: 'Helix Windows Cosmos'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022-open
+            variables:
+              - skipComponentGovernanceDetection: true
+              - Codeql.SkipTaskAutoInjection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.Server2025.Amd64.Open
               - name: _HelixAccessToken
                 value: ''
             steps:
@@ -320,3 +436,72 @@ stages:
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+- stage: validate
+  displayName: Validate
+  dependsOn: build
+  condition: always()
+  jobs:
+  - job: Validate_Job_Results
+    displayName: Validate Job Results
+    pool:
+      name: $(DncEngPublicBuildPool)
+      demands: ImageOverride -equals 1es-windows-2022-open
+    variables:
+      WindowsResult: $[ stageDependencies.build.Windows.result ]
+      HelixWindowsResult: $[ stageDependencies.build.Helix_Windows.result ]
+      WindowsSqlServerResult: $[ stageDependencies.build.Windows_SqlServer.result ]
+      HelixWindowsSqlServerResult: $[ stageDependencies.build.Helix_Windows_SqlServer.result ]
+      HelixWindowsCosmosResult: $[ stageDependencies.build.Helix_Windows_Cosmos.result ]
+      LinuxResult: $[ stageDependencies.build.Linux.result ]
+      HelixUbuntuResult: $[ stageDependencies.build.Helix_Ubuntu.result ]
+      HelixUbuntuSqlServerResult: $[ stageDependencies.build.Helix_Ubuntu_SqlServer.result ]
+      MacOsResult: $[ stageDependencies.build.macOS.result ]
+      HelixMacOsX64Result: $[ stageDependencies.build.Helix_macOS_x64.result ]
+      HelixMacOsArm64Result: $[ stageDependencies.build.Helix_macOS_ARM64.result ]
+      HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
+      HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
+    steps:
+      - pwsh: |
+          $groupResults = @{
+              Windows = @("$(WindowsResult)", "$(HelixWindowsResult)")
+              Linux = @("$(LinuxResult)", "$(HelixUbuntuResult)")
+              MacOS = @("$(MacOsResult)", "$(HelixMacOsX64Result)")
+              Arm64 = @("$(HelixWindowsArm64Result)", "$(HelixMacOsArm64Result)")
+              Cosmos = @("$(HelixWindowsCosmosResult)", "$(HelixUbuntuCosmosResult)")
+              SqlServer = @("$(WindowsSqlServerResult)", "$(HelixWindowsSqlServerResult)", "$(HelixUbuntuSqlServerResult)")
+          }
+
+          $failedGroups = @()
+
+          foreach ($groupName in $groupResults.Keys)
+          {
+              $results = $groupResults[$groupName]
+              Write-Host "$groupName results: $($results -join ', ')"
+
+              # Ignore jobs that were skipped (e.g. condition-gated)
+              $ran = $results | Where-Object { $_ -ne 'Skipped' }
+              if (-not $ran)
+              {
+                  Write-Host "  -> all jobs skipped, treating group as successful"
+                  continue
+              }
+
+              # Only 'Succeeded' counts as success. 'SucceededWithIssues' is treated as failure
+              # because the jobs run with continueOnError: true, which maps task failures to warnings.
+              $hasSuccess = $ran | Where-Object { $_ -eq 'Succeeded' }
+              if ($hasSuccess)
+              {
+                  continue
+              }
+
+              $failedGroups += $groupName
+          }
+
+          if ($failedGroups.Count -gt 0)
+          {
+              Write-Error "No jobs succeeded for group(s): $($failedGroups -join ', ')."
+              exit 1
+          }
+
+          Write-Host 'Group validation passed.'
+        displayName: Evaluate grouped job outcomes

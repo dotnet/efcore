@@ -250,6 +250,14 @@ public class CosmosTestStore : TestStore
     }
 
     public override async Task CleanAsync(DbContext context, bool createTables = true)
+        => await new TestCosmosExecutionStrategy().ExecuteAsync(
+            (context, createTables), async (state, ct) =>
+            {
+                await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
+                return true;
+            }, default);
+
+    private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try

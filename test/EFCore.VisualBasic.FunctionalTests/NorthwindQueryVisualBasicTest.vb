@@ -6,6 +6,7 @@ Imports Microsoft.EntityFrameworkCore.TestModels.Northwind
 Imports Microsoft.EntityFrameworkCore.TestUtilities
 Imports Xunit
 
+<SqlServerConfiguredCondition>
 Partial Public Class NorthwindQueryVisualBasicTest
     Inherits QueryTestBase(Of NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
 
