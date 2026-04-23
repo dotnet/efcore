@@ -52,6 +52,7 @@ internal class Project
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
         var args = new List<string> { "build", "--no-restore", };
+
         if (framework != null)
         {
             args.Add($"/property:TargetFramework={framework}");
