@@ -576,6 +576,9 @@
   <data name="EFConstantNotSupportedInPrecompiledQueries" xml:space="preserve">
     <value>The 'EF.Constant&lt;T&gt;' method is not supported when using precompiled queries.</value>
   </data>
+  <data name="EFMethodNotSupportedInCompiledQueries" xml:space="preserve">
+    <value>'{methodName}' is not supported when using compiled queries or query filters.</value>
+  </data>
   <data name="EFMethodWithNonEvaluatableArgument" xml:space="preserve">
     <value>The '{methodName}' method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
   </data>

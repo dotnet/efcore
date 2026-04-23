@@ -1229,6 +1229,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantNotSupportedInPrecompiledQueries");
 
         /// <summary>
+        ///     '{methodName}' is not supported when using compiled queries or query filters.
+        /// </summary>
+        public static string EFMethodNotSupportedInCompiledQueries(object? methodName)
+            => string.Format(
+                GetString("EFMethodNotSupportedInCompiledQueries", nameof(methodName)),
+                methodName);
+
+        /// <summary>
         ///     The '{methodName}' method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
         /// </summary>
         public static string EFMethodWithNonEvaluatableArgument(object? methodName)

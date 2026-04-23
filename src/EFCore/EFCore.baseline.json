@@ -3971,6 +3971,9 @@
           "Member": "static string DuplicateTrigger(object? trigger, object? entityType, object? conflictingEntityType);"
         },
         {
+          "Member": "static string EFMethodNotSupportedInCompiledQueries(object? methodName);"
+        },
+        {
           "Member": "static string EFMethodWithNonEvaluatableArgument(object? methodName);"
         },
         {
