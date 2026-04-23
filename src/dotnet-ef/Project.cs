@@ -51,7 +51,7 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        var args = new List<string> { GetDotnetCommand(file), };
+        var args = new List<string> { "build", "--no-restore", };
         if (framework != null)
         {
             args.Add($"/property:TargetFramework={framework}");
@@ -145,13 +145,9 @@ internal class Project
         public Dictionary<string, Dictionary<string, string>[]> Items { get; set; } = null!;
     }
 
-    // File-based apps (.cs) require "dotnet build" since "dotnet msbuild" cannot parse .cs files directly.
-    private static string GetDotnetCommand(string file)
-        => string.Equals(Path.GetExtension(file), ".cs", StringComparison.OrdinalIgnoreCase) ? "build" : "msbuild";
-
     private static bool HasMultipleTargetFrameworks(string file)
     {
-        var args = new List<string> { GetDotnetCommand(file), "/getProperty:TargetFrameworks", file };
+        var args = new List<string> { "build", "--no-restore", "/getProperty:TargetFrameworks", file };
 
         var output = new StringBuilder();
         var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));

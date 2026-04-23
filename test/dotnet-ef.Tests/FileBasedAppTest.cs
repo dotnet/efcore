@@ -92,6 +92,8 @@ public sealed class FileBasedAppTest(ITestOutputHelper output)
                 Console.WriteLine("Hello");
                 """);
 
+            Exe.Run("dotnet", ["restore", csFile], handleOutput: Reporter.WriteVerbose);
+
             var project = Project.FromFile(csFile);
 
             Assert.Equal("C#", project.Language);
