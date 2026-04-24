@@ -264,25 +264,9 @@ public class DotNetEfConfigTest
         return configFile;
     }
 
-    private sealed class TestDirectory : IDisposable
+    private sealed class TestDirectory : TempDirectory
     {
-        public TestDirectory()
-        {
-            Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
-            Directory.CreateDirectory(Path);
-        }
-
-        public string Path { get; }
-
         public string CreateConfig(string contents)
             => DotNetEfConfigTest.CreateConfig(Path, contents);
-
-        public void Dispose()
-        {
-            if (Directory.Exists(Path))
-            {
-                Directory.Delete(Path, recursive: true);
-            }
-        }
     }
 }
