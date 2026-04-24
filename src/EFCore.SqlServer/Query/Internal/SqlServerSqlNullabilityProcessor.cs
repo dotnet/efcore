@@ -73,6 +73,9 @@ public class SqlServerSqlNullabilityProcessor(
             SqlServerAggregateFunctionExpression aggregateFunctionExpression
                 => VisitSqlServerAggregateFunction(aggregateFunctionExpression, allowOptimizedExpansion, out nullable),
 
+            WithApproximateExpression withApproximate
+                => withApproximate.Update(Visit(withApproximate.Operand, allowOptimizedExpansion, out nullable)),
+
             _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 

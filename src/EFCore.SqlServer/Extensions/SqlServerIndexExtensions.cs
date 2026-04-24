@@ -466,9 +466,7 @@ public static class SqlServerIndexExtensions
     /// <returns>Whether the index is a vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static bool IsVectorIndex(this IReadOnlyIndex index)
-        => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric) is not null;
+        => index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric) is not null;
 
     /// <summary>
     ///     Returns the similarity metric for the vector index.
@@ -477,9 +475,7 @@ public static class SqlServerIndexExtensions
     /// <returns>The similarity metric for the vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static string? GetVectorMetric(this IReadOnlyIndex index)
-        => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)index[SqlServerAnnotationNames.VectorIndexMetric];
+        => (string?)index[SqlServerAnnotationNames.VectorIndexMetric];
 
     /// <summary>
     ///     Returns the similarity metric for the vector index.
@@ -490,11 +486,6 @@ public static class SqlServerIndexExtensions
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static string? GetVectorMetric(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        if (index is RuntimeIndex)
-        {
-            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-        }
-
         var annotation = index.FindAnnotation(SqlServerAnnotationNames.VectorIndexMetric);
         if (annotation != null)
         {
@@ -551,9 +542,7 @@ public static class SqlServerIndexExtensions
     /// <returns>The type of the vector index.</returns>
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static string? GetVectorIndexType(this IReadOnlyIndex index)
-        => (index is RuntimeIndex)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)index[SqlServerAnnotationNames.VectorIndexType];
+        => (string?)index[SqlServerAnnotationNames.VectorIndexType];
 
     /// <summary>
     ///     Returns the type of the vector index.
@@ -564,11 +553,6 @@ public static class SqlServerIndexExtensions
     [Experimental(EFDiagnostics.SqlServerVectorSearch)]
     public static string? GetVectorIndexType(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        if (index is RuntimeIndex)
-        {
-            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-        }
-
         var annotation = index.FindAnnotation(SqlServerAnnotationNames.VectorIndexType);
         if (annotation != null)
         {

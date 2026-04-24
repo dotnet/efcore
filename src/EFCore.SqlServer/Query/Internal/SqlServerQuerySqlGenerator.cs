@@ -548,16 +548,12 @@ public class SqlServerQuerySqlGenerator(
         if (selectExpression is { Limit: not null, Offset: null })
         {
             Sql.Append("TOP(");
-
             Visit(selectExpression.Limit);
 
-            Sql.Append(") ");
-
-            // When performing approximate vector search with VECTOR_SEARCH(), SQL Server requires adding
-            // WITH APPROXIMATE: https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql
-            if (selectExpression.Tables.Any(t => t.UnwrapJoin() is TableValuedFunctionExpression { Name: "VECTOR_SEARCH" }))
+            // WithApproximateExpression renders its own closing ") WITH APPROXIMATE " via VisitExtension
+            if (selectExpression.Limit is not WithApproximateExpression)
             {
-                Sql.Append("WITH APPROXIMATE ");
+                Sql.Append(") ");
             }
         }
 
@@ -755,6 +751,13 @@ public class SqlServerQuerySqlGenerator(
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);
+
+            // WithApproximateExpression wraps the Limit in the SelectExpression; it renders the operand value
+            // followed by ") WITH APPROXIMATE " (closing the TOP( opened by GenerateTop).
+            case WithApproximateExpression withApproximate:
+                Visit(withApproximate.Operand);
+                Sql.Append(") WITH APPROXIMATE ");
+                return withApproximate;
         }
 
         return base.VisitExtension(extensionExpression);

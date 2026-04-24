@@ -327,6 +327,10 @@
     <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
+  <data name="LogVectorSearchWithoutApproximate" xml:space="preserve">
+    <value>The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateWarning))'.</value>
+    <comment>Warning SqlServerEventId.VectorSearchWithoutApproximateWarning string string</comment>
+  </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
     <value>The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.</value>
   </data>
@@ -425,5 +429,11 @@
   </data>
   <data name="VectorSearchRequiresColumn" xml:space="preserve">
     <value>VectorSearch() requires a valid vector column.</value>
+  </data>
+  <data name="WithApproximateRequiresTake" xml:space="preserve">
+    <value>WithApproximate() must be called after Take() to specify the number of results.</value>
+  </data>
+  <data name="WithApproximateNotSupportedWithSkipAndTake" xml:space="preserve">
+    <value>WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().</value>
   </data>
 </root>
