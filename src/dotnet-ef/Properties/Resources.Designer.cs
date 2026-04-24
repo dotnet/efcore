@@ -522,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("PrefixDescription");
 
         /// <summary>
-        ///     The project to use. Defaults to the current working directory.
+        ///     The project or file-based app to use. Defaults to the current working directory.
         /// </summary>
         public static string ProjectDescription
             => GetString("ProjectDescription");
@@ -566,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("SelfContainedDescription");
 
         /// <summary>
-        ///     The startup project to use. Defaults to the current working directory.
+        ///     The startup project or file-based app to use. Defaults to the current working directory.
         /// </summary>
         public static string StartupProjectDescription
             => GetString("StartupProjectDescription");

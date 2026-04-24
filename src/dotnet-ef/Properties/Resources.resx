@@ -355,7 +355,7 @@
     <value>Prefix output with level.</value>
   </data>
   <data name="ProjectDescription" xml:space="preserve">
-    <value>The project to use. Defaults to the current working directory.</value>
+    <value>The project or file-based app to use. Defaults to the current working directory.</value>
   </data>
   <data name="ProjectExtensionsDescription" xml:space="preserve">
     <value>Obsolete</value>
@@ -376,7 +376,7 @@
     <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
   </data>
   <data name="StartupProjectDescription" xml:space="preserve">
-    <value>The startup project to use. Defaults to the current working directory.</value>
+    <value>The startup project or file-based app to use. Defaults to the current working directory.</value>
   </data>
   <data name="SuffixDescription" xml:space="preserve">
     <value>The suffix to attach to the name of all the generated files</value>
