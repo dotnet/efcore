@@ -4152,7 +4152,7 @@
           "Member": "static string InvalidIncludeExpression(object? expression);"
         },
         {
-          "Member": "static string InvalidJsonPathOrdinalCount(object? ordinalsCount, object? arraySegmentCount);"
+          "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
         },
         {
           "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
@@ -20840,7 +20840,7 @@
       ],
       "Properties": [
         {
-          "Member": "virtual string CompiledProviderName { get; }"
+          "Member": "virtual string MismatchedProviderName { get; }"
         },
         {
           "Member": "virtual string CurrentProviderName { get; }"

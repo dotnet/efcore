@@ -135,7 +135,7 @@
           "Member": "CosmosDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder BulkExecutionEnabled(bool enabled = true);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder BulkExecutionAllowed(bool enabled = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode connectionMode);"

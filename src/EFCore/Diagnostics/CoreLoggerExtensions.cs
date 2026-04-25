@@ -267,7 +267,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (ProviderMismatchEventData)payload;
-        return d.GenerateMessage(p.CompiledProviderName, p.CurrentProviderName);
+        return d.GenerateMessage(p.MismatchedProviderName, p.CurrentProviderName);
     }
 
     /// <summary>

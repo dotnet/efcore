@@ -792,7 +792,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     ? ordinals.GetRange(0, arraySegmentCount).ToArray()
                     : ordinals.ToArray();
 
-                var jsonPath = new JsonPath(pathSegments, ordinalsArray);
+                var jsonPath = new StructuredJsonPath(pathSegments, ordinalsArray);
                 if (jsonProperty is IProperty property)
                 {
                     var columnModificationParameters = new ColumnModificationParameters(
