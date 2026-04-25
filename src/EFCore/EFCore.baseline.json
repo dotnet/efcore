@@ -20835,7 +20835,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.ProviderMismatchEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string compiledProviderName, string currentProviderName);"
+          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string mismatchedProviderName, string currentProviderName);"
         }
       ],
       "Properties": [
