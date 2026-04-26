@@ -5,10 +5,6 @@ variables:
     value: true
   - name: _PublishUsingPipelines
     value: true
-  - name: _CosmosConnectionUrl
-    value: https://localhost:8081
-  - name: _CosmosToken
-    value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
   - group: DotNet-HelixApi-Access
   - name: _InternalRuntimeDownloadArgs
     value: /p:DotNetRuntimeSourceFeed=https://ci.dot.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
@@ -100,124 +96,12 @@ extends:
           enableMicrobuild: true
           enablePublishBuildArtifacts: true
           enablePublishBuildAssets: false
-          enablePublishTestResults: true
+          enablePublishTestResults: false
           publishAssetsImmediately: true
           isAssetlessBuild: true
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
-          - job: Windows
-            pool:
-              name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-windows-2022
-              os: windows
-            timeoutInMinutes: 180
-            variables:
-              - _InternalBuildArgs: ''
-              # Rely on task Arcade injects, not auto-injected build step.
-              - skipComponentGovernanceDetection: true
-            steps:
-              - task: NuGetCommand@2
-                displayName: 'Clear NuGet caches'
-                condition: succeeded()
-                inputs:
-                  command: custom
-                  arguments: 'locals all -clear'
-              - script: "echo ##vso[build.addbuildtag]daily-build"
-                condition: and(notin(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
-                displayName: 'Set CI tags'
-              - script: "echo ##vso[build.addbuildtag]release-candidate"
-                condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
-                displayName: 'Set CI tags'
-              - powershell: SqlLocalDB start
-                displayName: Start LocalDB
-              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
-              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                displayName: Build
-          - job: macOS
-            pool:
-              name: Azure Pipelines
-              image: macOS-15
-              os: macOS
-            variables:
-              # Rely on task Arcade injects, not auto-injected build step.
-              - skipComponentGovernanceDetection: true
-            steps:
-              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
-              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                  # Work-around for https://github.com/dotnet/runtime/issues/70758
-                  COMPlus_EnableWriteXorExecute: 0
-                displayName: Build
-          - job: Linux
-            timeoutInMinutes: 180
-            pool:
-              name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-ubuntu-2204
-              os: linux
-            variables:
-              # Rely on task Arcade injects, not auto-injected build step.
-              - skipComponentGovernanceDetection: true
-            steps:
-              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
-              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --test --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                displayName: Build
-            templateContext:
-              sdl:
-                binskim:
-                  preReleaseVersion: ''
-          - job: Linux_Cosmos
-            displayName: 'Linux Cosmos'
-            condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
-            timeoutInMinutes: 210
-            pool:
-              name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-ubuntu-2204
-              os: linux
-            variables:
-              - _runCounter: $[counter(variables['Build.Reason'], 0)]
-              - skipComponentGovernanceDetection: true
-              - _CosmosConnectionUrl: 'true'
-            steps:
-              - bash: |
-                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                displayName: Prepare to run Cosmos tests on ef-nightly-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
-              - bash: |
-                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                displayName: Prepare to run Cosmos tests on ef-pr-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
-              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
-              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/build.sh --restore --build --pack --ci --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                displayName: Build
-              - task: AzureCLI@2
-                displayName: Run Cosmos tests
-                inputs:
-                  azureSubscription: EFCosmosTesting
-                  addSpnToEnvironment: true
-                  scriptType: bash
-                  scriptLocation: 'inlineScript'
-                  inlineScript: |
-                      ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
-                env:
-                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                  Test__Cosmos__UseTokenCredential: true
-                  Test__Cosmos__SubscriptionId: d709b837-4a74-4aec-addc-b6e4b9b23e7e
-                  Test__Cosmos__ResourceGroup: efcosmosci
-                name: Build
-            templateContext:
-              sdl:
-                binskim:
-                  preReleaseVersion: ''
           - job: Helix_Windows
             displayName: 'Helix Windows'
             timeoutInMinutes: 180
