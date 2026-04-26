@@ -59,6 +59,17 @@ public class SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpress
                             argumentsPropagateNullability: Statics.TrueArrays[3],
                             typeof(byte[])),
                         method.ReturnType);
+
+                // Any without a predicate
+                case nameof(Enumerable.Any) when arguments is [var source] && source.Type == typeof(byte[]):
+                    return sqlExpressionFactory.GreaterThan(
+                        sqlExpressionFactory.Function(
+                            "DATALENGTH",
+                            [source],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
+                            typeof(int)),
+                        sqlExpressionFactory.Constant(0));
             }
         }
 
