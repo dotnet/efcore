@@ -253,12 +253,110 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         }
     }
 
+    private static readonly MethodInfo MaterializerMaterializeMethod
+        = typeof(RelationalEntityMaterializer<>).GetMethod(nameof(RelationalEntityMaterializer<object>.Materialize))!;
+
+    /// <summary>
+    ///     Attempts to use the non-generated materializer path for simple single-entity queries.
+    ///     Returns <see langword="null" /> if the query is not supported by this path.
+    /// </summary>
+    private Expression? TryVisitShapedQueryNonGenerated(ShapedQueryExpression shapedQueryExpression)
+    {
+        // Only handle simple cases: single entity with ProjectionBindingExpression, no split query, not from SQL
+        if (shapedQueryExpression.ShaperExpression
+            is not RelationalStructuralTypeShaperExpression
+            {
+                StructuralType: IEntityType entityType,
+                ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression,
+                IsNullable: false
+            })
+        {
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+
+        // Only support non-split, non-FromSql queries
+        var querySplittingBehavior = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior;
+        if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery || selectExpression.IsNonComposedFromSql())
+        {
+            return null;
+        }
+
+        // Get the property-to-column-index map
+        var projectionIndex = selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
+        if (projectionIndex is not IDictionary<IPropertyBase, int> propertyIndexMap)
+        {
+            return null;
+        }
+
+        // Only support entities with default (parameterless) constructor for now
+        // For TPH, check all concrete types in the hierarchy
+        var clrType = entityType.ClrType;
+        foreach (var concreteType in entityType.GetConcreteDerivedTypesInclusive())
+        {
+            if (concreteType.ClrType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                return null;
+            }
+        }
+
+        var isTracking = QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+
+        // Build the RelationalEntityMaterializer<TEntity>
+        var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(clrType);
+        var materializer = Activator.CreateInstance(materializerType, entityType, propertyIndexMap, isTracking)!;
+
+        // Create the shaper lambda: (queryContext, dataReader, resultContext, resultCoordinator) => materializer.Materialize(...)
+        var queryContextParam = Parameter(typeof(QueryContext), "queryContext");
+        var dataReaderParam = Parameter(typeof(DbDataReader), "dataReader");
+        var resultContextParam = Parameter(typeof(ResultContext), "resultContext");
+        var resultCoordinatorParam = Parameter(typeof(SingleQueryResultCoordinator), "resultCoordinator");
+
+        var materializeMethod = materializerType.GetMethod(nameof(RelationalEntityMaterializer<object>.Materialize))!;
+        var materializerConstant = Constant(materializer, materializerType);
+
+        var shaperLambda = Lambda(
+            Call(materializerConstant, materializeMethod, queryContextParam, dataReaderParam, resultContextParam, resultCoordinatorParam),
+            queryContextParam,
+            dataReaderParam,
+            resultContextParam,
+            resultCoordinatorParam);
+
+        // Build the RelationalCommandResolver
+        var relationalCommandResolver = CreateRelationalCommandResolverExpression(selectExpression);
+
+        // Return the SingleQueryingEnumerable.Create call expression
+        return Call(
+            CreateSingleQueryingEnumerableMethodInfo.MakeGenericMethod(clrType),
+            Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+            relationalCommandResolver,
+            Constant(null, typeof(ReaderColumn?[])),
+            shaperLambda,
+            Constant(_contextType),
+            Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+            Constant(_detailedErrorsEnabled),
+            Constant(_threadSafetyChecksEnabled));
+    }
+
     /// <inheritdoc />
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
     {
         var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
         VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
+
+        // Non-generated materializer path
+        if (TryVisitShapedQueryNonGenerated(shapedQueryExpression) is { } nonGeneratedResult)
+        {
+            return nonGeneratedResult;
+        }
+
+        throw new NotImplementedException(
+            "The non-generated materializer does not yet support this query shape. "
+            + $"Shaper expression type: {shapedQueryExpression.ShaperExpression.GetType().Name}");
+
+#pragma warning disable CS0162 // Unreachable code detected — keeping old generated path for reference
         var querySplittingBehavior = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior;
         var splitQuery = querySplittingBehavior == QuerySplittingBehavior.SplitQuery;
         var collectionCount = 0;
@@ -416,6 +514,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 Constant(_detailedErrorsEnabled),
                 Constant(_threadSafetyChecksEnabled));
         }
+#pragma warning restore CS0162
     }
 
     private static readonly MethodInfo CreateFromSqlQueryingEnumerableMethodInfo
