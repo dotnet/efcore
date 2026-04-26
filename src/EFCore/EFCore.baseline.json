@@ -4091,6 +4091,10 @@
           "Member": "static string ImplementationTypeRequired(object? service);"
         },
         {
+          "Member": "static string IncludeOnEntityWithDefiningQueryNotSupported(object? expression, object? entityType);",
+          "Stage": "Obsolete"
+        },
+        {
           "Member": "static string IncludeOnNonEntity(object? expression);"
         },
         {
