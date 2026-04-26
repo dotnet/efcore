@@ -43,13 +43,11 @@ public class CosmosBuilderExtensionsTest
             ConfigurationSource.Convention,
             ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        ((IConventionEntityType)entityType).Builder.HasPartitionKey("pk");
-        Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+        ((IConventionEntityType)entityType).Builder.HasPartitionKey(["pk"]);
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
         Assert.Equal(
             ConfigurationSource.Convention,
-            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
-#pragma warning restore CS0618 // Type or member is obsolete
+            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
         entityTypeBuilder.HasPartitionKey("pk");
 
@@ -60,24 +58,17 @@ public class CosmosBuilderExtensionsTest
 
         Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey(["partition"]));
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
         Assert.Equal(
             ConfigurationSource.Explicit,
-            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+            ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
 
-        Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey("partition"));
-#pragma warning restore CS0618 // Type or member is obsolete
+        Assert.False(((IConventionEntityType)entityType).Builder.CanSetPartitionKey(["partition"]));
 
         entityTypeBuilder.HasPartitionKey(null);
 
         Assert.Empty(entityType.GetPartitionKeyPropertyNames());
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.Null(entityType.GetPartitionKeyPropertyName());
-        Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ConditionalFact]

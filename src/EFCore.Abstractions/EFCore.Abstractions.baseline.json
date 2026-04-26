@@ -177,10 +177,6 @@
       "Methods": [
         {
           "Member": "IndexAttribute(string propertyName, params string[] additionalPropertyNames);"
-        },
-        {
-          "Member": "IndexAttribute(params string[] propertyNames);",
-          "Stage": "Obsolete"
         }
       ],
       "Properties": [

@@ -412,42 +412,6 @@ public class SqlServerConfigPatternsTest
         }
     }
 
-    public class AzureSqlDatabase
-    {
-        [InlineData(true), InlineData(false), ConditionalTheory]
-        public void Retry_on_failure_not_enabled_by_default_on_Azure_SQL(bool useAzure)
-        {
-            using var context = new NorthwindContext(useAzure);
-
-            Assert.IsType<SqlServerExecutionStrategy>(context.Database.CreateExecutionStrategy());
-        }
-
-        private class NorthwindContext(bool useAzure) : DbContext
-        {
-            private readonly bool _useAzure = useAzure;
-
-            public DbSet<Customer> Customers { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .EnableServiceProviderCaching(false)
-                    .UseSqlServer(
-                        @"Server=test.database.windows.net:4040;Database=Test;ConnectRetryCount=0",
-                        a =>
-                        {
-                            if (_useAzure)
-                            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                                a.UseAzureSqlDefaults(false);
-#pragma warning restore CS0618 // Type or member is obsolete
-                            }
-                        });
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => ConfigureModel(modelBuilder);
-        }
-    }
-
     public class NonDefaultAzureSqlDatabase
     {
         [InlineData(true), InlineData(false), ConditionalTheory]

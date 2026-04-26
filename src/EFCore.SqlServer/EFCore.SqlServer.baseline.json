@@ -435,10 +435,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount, System.TimeSpan maxRetryDelay, System.Collections.Generic.IEnumerable<int>? errorNumbersToAdd);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel);"
         }
       ]

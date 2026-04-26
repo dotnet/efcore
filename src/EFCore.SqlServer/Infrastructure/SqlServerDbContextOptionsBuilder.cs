@@ -118,11 +118,4 @@ public class SqlServerDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilder
     public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
         => WithOption(e => e.WithSqlServerCompatibilityLevel(compatibilityLevel));
 
-    /// <summary>
-    ///     Configures the context to use defaults optimized for Azure SQL, including retries on errors.
-    /// </summary>
-    /// <param name="enable">Whether the defaults should be enabled.</param>
-    [Obsolete("Use UseAzureSql instead of UseSqlServer with UseAzureSqlDefaults.")]
-    public virtual SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true)
-        => WithOption(e => e.WithLegacyAzureSql(enable));
 }

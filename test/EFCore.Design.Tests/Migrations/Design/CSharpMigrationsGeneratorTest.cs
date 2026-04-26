@@ -98,9 +98,6 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
             // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
             RelationalAnnotationNames.ContainerColumnName,
             RelationalAnnotationNames.ContainerColumnType,
-#pragma warning disable CS0618
-            RelationalAnnotationNames.ContainerColumnTypeMapping,
-#pragma warning restore CS0618
             RelationalAnnotationNames.StoreType,
             RelationalAnnotationNames.UseNamedDefaultConstraints,
             RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations
@@ -259,9 +256,6 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.ContainerColumnName,
             RelationalAnnotationNames.ContainerColumnType,
-#pragma warning disable CS0618
-            RelationalAnnotationNames.ContainerColumnTypeMapping,
-#pragma warning restore CS0618
             RelationalAnnotationNames.JsonPropertyName,
             RelationalAnnotationNames.StoreType,
             RelationalAnnotationNames.UseNamedDefaultConstraints,
@@ -488,7 +482,6 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
 
         var generator = new CSharpMigrationsGenerator(
             new MigrationsCodeGeneratorDependencies(
-                sqlServerTypeMappingSource,
                 sqlServerAnnotationCodeGenerator),
             new CSharpMigrationsGeneratorDependencies(
                 codeHelper,

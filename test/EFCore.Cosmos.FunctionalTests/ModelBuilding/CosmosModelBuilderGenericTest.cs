@@ -1114,10 +1114,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [ConditionalFact]
@@ -1215,10 +1211,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [ConditionalFact]
@@ -1311,10 +1303,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("DbContext", joinType.GetContainer());
             Assert.Equal(["Partition2Id"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("Partition2Id", joinType.FindPrimaryKey()!.Properties.Last().Name);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("Partition2Id", joinType.GetPartitionKeyPropertyName());
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void Join_type_is_automatically_configured_by_convention()

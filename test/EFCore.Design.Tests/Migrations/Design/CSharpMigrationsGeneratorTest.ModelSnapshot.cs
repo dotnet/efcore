@@ -2379,7 +2379,7 @@ namespace RootNamespace
 
                     b.ToTable("EntityWithOneProperty", "DefaultSchema");
 
-                    SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized(b);
+                    b.ToTable(tb => tb.IsMemoryOptimized());
                 });
 """),
             o => Assert.True(o.GetEntityTypes().Single().IsMemoryOptimized()));
@@ -9110,7 +9110,6 @@ namespace RootNamespace
 
         var generator = new CSharpMigrationsGenerator(
             new MigrationsCodeGeneratorDependencies(
-                sqlServerTypeMappingSource,
                 sqlServerAnnotationCodeGenerator),
             new CSharpMigrationsGeneratorDependencies(
                 codeHelper,

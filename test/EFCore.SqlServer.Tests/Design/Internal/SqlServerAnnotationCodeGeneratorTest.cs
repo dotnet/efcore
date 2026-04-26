@@ -495,9 +495,13 @@ public class SqlServerAnnotationCodeGeneratorTest
         var result = generator.GenerateFluentApiCalls(entityType, entityType.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
 
-        Assert.Equal(nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), result.Method);
-
-        Assert.Equal(0, result.Arguments.Count);
+        Assert.Equal(nameof(RelationalEntityTypeBuilderExtensions.ToTable), result.Method);
+        Assert.Single(result.Arguments);
+        var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(result.Arguments[0]);
+        Assert.Equal("tb", nestedClosure.Parameter);
+        var memoryOptimizedCall = Assert.Single(nestedClosure.MethodCalls);
+        Assert.Equal(nameof(SqlServerTableBuilderExtensions.IsMemoryOptimized), memoryOptimizedCall.Method);
+        Assert.Equal(0, memoryOptimizedCall.Arguments.Count);
     }
 
     private SqlServerAnnotationCodeGenerator CreateGenerator()
