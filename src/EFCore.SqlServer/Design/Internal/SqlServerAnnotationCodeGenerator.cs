@@ -45,7 +45,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
     private static readonly MethodInfo EntityTypeToTableMethodInfo
         = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
-            nameof(RelationalEntityTypeBuilderExtensions.ToTable), [typeof(EntityTypeBuilder), typeof(string)])!;
+            nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+            [typeof(EntityTypeBuilder), typeof(string), typeof(Action<TableBuilder>)])!;
 
     private static readonly MethodInfo TableIsMemoryOptimizedMethodInfo
         = typeof(SqlServerTableBuilderExtensions).GetRuntimeMethod(
