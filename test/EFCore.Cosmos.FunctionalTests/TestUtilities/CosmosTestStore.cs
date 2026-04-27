@@ -249,13 +249,13 @@ public class CosmosTestStore : TestStore
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
-    public override async Task CleanAsync(DbContext context, bool createTables = true)
-        => await new TestCosmosExecutionStrategy().ExecuteAsync(
-            (context, createTables), async (state, ct) =>
+    public override Task CleanAsync(DbContext context, bool createTables = true)
+        => new TestCosmosExecutionStrategy().ExecuteAsync(
+            (context, createTables), async (_, state, ct) =>
             {
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
-            }, default);
+            }, null, default);
 
     private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
