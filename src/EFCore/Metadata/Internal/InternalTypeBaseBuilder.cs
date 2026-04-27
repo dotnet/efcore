@@ -1577,24 +1577,20 @@ public abstract class InternalTypeBaseBuilder :
             var metadata = builder.Metadata;
 
             var conflictingMember = metadata.FindMembersInHierarchy(memberName).FirstOrDefault();
-            if (conflictingMember is ComplexProperty { IsCollection: true })
+            builder = conflictingMember switch
             {
-                throw new InvalidOperationException(
-                    CoreStrings.ComplexPropertyChainOnCollection(memberName, ((IReadOnlyTypeBase)metadata).DisplayName()));
-            }
-
-            if (conflictingMember is not null and not Internal.ComplexProperty
-                && conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ComplexPropertyChainInvalidMember(memberName, ((IReadOnlyTypeBase)metadata).DisplayName()));
-            }
-
-            builder = builder.ComplexProperty(
-                member,
-                complexTypeName: null,
-                collection: false,
-                ConfigurationSource.Explicit)!.Metadata.ComplexType.Builder;
+                ComplexProperty { IsCollection: true } =>
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainOnCollection(memberName, ((IReadOnlyTypeBase)metadata).DisplayName())),
+                not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit =>
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainInvalidMember(memberName, ((IReadOnlyTypeBase)metadata).DisplayName())),
+                _ => builder.ComplexProperty(
+                    member,
+                    complexTypeName: null,
+                    collection: false,
+                    ConfigurationSource.Explicit)!.Metadata.ComplexType.Builder
+            };
         }
 
         return (builder, memberChain[^1].ResolveMemberForType(builder.Metadata.ClrType));
@@ -1631,17 +1627,14 @@ public abstract class InternalTypeBaseBuilder :
             var metadata = builder.Metadata;
 
             var conflictingMember = metadata.FindMembersInHierarchy(segment).FirstOrDefault();
-            if (conflictingMember is ComplexProperty { IsCollection: true })
+            switch (conflictingMember)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.ComplexPropertyChainOnCollection(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
-            }
-
-            if (conflictingMember is not null and not Internal.ComplexProperty
-                && conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ComplexPropertyChainInvalidMember(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+                case ComplexProperty { IsCollection: true }:
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainOnCollection(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+                case not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainInvalidMember(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
             }
 
             var memberInfo = metadata.ClrType.GetMembersInHierarchy(segment).FirstOrDefault();
