@@ -1328,4 +1328,90 @@ FakeEntity [Deleted]"
         public int Id { get; set; }
         public int? AnotherId { get; set; }
     }
+
+    [ConditionalFact]
+    public void BatchCommands_sorts_added_entities_with_TPC_abstract_principal()
+    {
+        var configuration = CreateContextServices(CreateTpcFKModel());
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var principalEntry = stateManager.GetOrCreateEntry(
+            new ConcretePrincipal { Id = 1 });
+        principalEntry.SetEntityState(EntityState.Added);
+
+        var dependentEntry = stateManager.GetOrCreateEntry(
+            new TpcDependent { Id = 1, PrincipalId = 1 });
+        dependentEntry.SetEntityState(EntityState.Added);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches([dependentEntry, principalEntry], modelData);
+        var batch = Assert.Single(batches);
+
+        Assert.Equal(
+            [principalEntry, dependentEntry],
+            batch.ModificationCommands.Select(c => c.Entries.Single()));
+    }
+
+    [ConditionalFact]
+    public void BatchCommands_sorts_deleted_entities_with_TPC_abstract_principal()
+    {
+        var configuration = CreateContextServices(CreateTpcFKModel());
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var principalEntry = stateManager.GetOrCreateEntry(
+            new ConcretePrincipal { Id = 1 });
+        principalEntry.SetEntityState(EntityState.Deleted);
+
+        var dependentEntry = stateManager.GetOrCreateEntry(
+            new TpcDependent { Id = 1, PrincipalId = 1 });
+        dependentEntry.SetEntityState(EntityState.Deleted);
+
+        var modelData = new UpdateAdapter(stateManager);
+
+        var batches = CreateBatches([principalEntry, dependentEntry], modelData);
+        var batch = Assert.Single(batches);
+
+        Assert.Equal(
+            [dependentEntry, principalEntry],
+            batch.ModificationCommands.Select(c => c.Entries.Single()));
+    }
+
+    private static IModel CreateTpcFKModel()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<AbstractPrincipal>()
+            .UseTpcMappingStrategy()
+            .ToTable((string)null)
+            .Property(e => e.Id)
+            .ValueGeneratedNever();
+
+        modelBuilder.Entity<ConcretePrincipal>()
+            .ToTable(nameof(ConcretePrincipal));
+
+        modelBuilder.Entity<TpcDependent>(b =>
+        {
+            b.HasOne<AbstractPrincipal>()
+                .WithMany()
+                .HasForeignKey(c => c.PrincipalId);
+        });
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private abstract class AbstractPrincipal
+    {
+        public int Id { get; set; }
+    }
+
+    private class ConcretePrincipal : AbstractPrincipal
+    {
+    }
+
+    private class TpcDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
+    }
 }

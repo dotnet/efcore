@@ -16,13 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IReadOnlyProperty : IReadOnlyPropertyBase
 {
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IReadOnlyEntityType or IReadOnlyComplexType")]
-    IReadOnlyEntityType DeclaringEntityType
-        => (IReadOnlyEntityType)DeclaringType;
-
-    /// <summary>
     ///     Gets a value indicating whether this property can contain <see langword="null" />.
     /// </summary>
     bool IsNullable { get; }

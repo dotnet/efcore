@@ -920,11 +920,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => (IReadOnlyCollection<IQueryFilter>?)this[CoreAnnotationNames.QueryFilter] ?? [];
 
     /// <inheritdoc />
-    [DebuggerStepThrough, Obsolete("Use GetDeclaredQueryFilters() instead.")]
-    LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
-        => ((IReadOnlyEntityType)this).GetDeclaredQueryFilters().FirstOrDefault(f => f.IsAnonymous)?.Expression;
-
-    /// <inheritdoc />
     [DebuggerStepThrough]
     IQueryFilter? IReadOnlyEntityType.FindDeclaredQueryFilter(string? filterKey)
         => ((QueryFilterCollection?)this[CoreAnnotationNames.QueryFilter])?[filterKey];

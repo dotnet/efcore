@@ -51,7 +51,7 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        var args = new List<string> { "msbuild", };
+        var args = new List<string> { "build", "--no-restore", };
 
         if (framework != null)
         {
@@ -148,7 +148,7 @@ internal class Project
 
     private static bool HasMultipleTargetFrameworks(string file)
     {
-        var args = new List<string> { "msbuild", "/getProperty:TargetFrameworks", file };
+        var args = new List<string> { "build", "--no-restore", "/getProperty:TargetFrameworks", file };
 
         var output = new StringBuilder();
         var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));

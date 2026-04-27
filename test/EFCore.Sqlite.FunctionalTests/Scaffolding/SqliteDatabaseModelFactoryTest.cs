@@ -333,6 +333,25 @@ DROP TABLE PrincipalTable;");
                     DROP TABLE MinimalFKTest1;
                 ");
 
+    [ConditionalFact]
+    public void EF_internal_tables_are_not_scaffolded()
+        => Test(
+            @"
+CREATE TABLE ""__EFMigrationsLock"" ( ""Id"" INTEGER NOT NULL PRIMARY KEY, ""Timestamp"" TEXT NOT NULL );
+CREATE TABLE ""MyTable"" ( ""Id"" INTEGER NOT NULL PRIMARY KEY );",
+                [],
+                [],
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    Assert.Equal("MyTable", table.Name);
+                },
+                @"
+                    DROP TABLE ""__EFMigrationsLock"";
+                    DROP TABLE ""MyTable"";
+                ");
+    
+
     #endregion
 
     #region ColumnFacets

@@ -36,13 +36,6 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters();
 
     /// <summary>
-    ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
-    /// </summary>
-    /// <returns>The LINQ expression filter.</returns>
-    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
-    LambdaExpression? GetQueryFilter();
-
-    /// <summary>
     ///     Retrieves the query filter associated with the specified key.
     /// </summary>
     /// <param name="filterKey">The key identifying the query filter to retrieve.</param>

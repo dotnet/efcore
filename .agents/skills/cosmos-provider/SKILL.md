@@ -8,11 +8,6 @@ user-invocable: false
 
 Non-relational provider with its own parallel query pipeline. Uses JSON for document materialization.
 
-## When to Use
-
-- Working on Cosmos SQL generation
-- Working on document storage, partition key configuration, or `CosmosClientWrapper`
-
 ## Key Differences from Relational
 
 - No migrations — use `EnsureCreated()`

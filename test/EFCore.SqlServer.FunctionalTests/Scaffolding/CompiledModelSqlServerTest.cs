@@ -214,9 +214,8 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
                 Assert.False(vectorProperty.IsAutoLoaded);
 
                 var index = entityType.GetIndexes().Single();
-                // Vector index annotations are not used at runtime, so they are not included in the compiled model
-                Assert.Null(index[SqlServerAnnotationNames.VectorIndexMetric]);
-                Assert.Null(index[SqlServerAnnotationNames.VectorIndexType]);
+                Assert.Equal("cosine", index[SqlServerAnnotationNames.VectorIndexMetric]);
+                Assert.Equal("DiskANN", index[SqlServerAnnotationNames.VectorIndexType]);
             },
             useContext: null,
             additionalSourceFiles: []);

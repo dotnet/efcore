@@ -10,38 +10,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 public class InMemoryValueGeneratorSelectorTest
 {
     [ConditionalFact]
-    public void Returns_built_in_generators_for_types_setup_for_value_generation()
-    {
-        var model = BuildModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
-
-        var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.FindProperty("Id"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.FindProperty("Long"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.Select(entityType.FindProperty("Short"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.Select(entityType.FindProperty("Byte"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<int>>(selector.Select(entityType.FindProperty("NullableInt"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<long>>(selector.Select(entityType.FindProperty("NullableLong"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<short>>(selector.Select(entityType.FindProperty("NullableShort"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<byte>>(selector.Select(entityType.FindProperty("NullableByte"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.Select(entityType.FindProperty("UInt"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.FindProperty("ULong"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.FindProperty("UShort"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("SByte"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<uint>>(selector.Select(entityType.FindProperty("NullableUInt"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<ulong>>(selector.Select(entityType.FindProperty("NullableULong"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<ushort>>(selector.Select(entityType.FindProperty("NullableUShort"), entityType));
-        Assert.IsType<InMemoryIntegerValueGenerator<sbyte>>(selector.Select(entityType.FindProperty("NullableSByte"), entityType));
-        Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String"), entityType));
-        Assert.IsType<GuidValueGenerator>(selector.Select(entityType.FindProperty("Guid"), entityType));
-        Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary"), entityType));
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-
-    [ConditionalFact]
     public void Returns_built_in_generators_for_types_setup_for_value_generation_using_Try_method()
     {
         var model = BuildModel();
@@ -97,58 +65,33 @@ public class InMemoryValueGeneratorSelectorTest
         var model = BuildModel();
         var entityType = model.FindEntityType(typeof(AnEntity))!;
 
-        Assert.Equal(1, CreateAndUseFactory(entityType.FindProperty("Id"), useTry));
-        Assert.Equal(1L, CreateAndUseFactory(entityType.FindProperty("Long"), useTry));
-        Assert.Equal((short)1, CreateAndUseFactory(entityType.FindProperty("Short"), useTry));
-        Assert.Equal((byte)1, CreateAndUseFactory(entityType.FindProperty("Byte"), useTry));
-        Assert.Equal((int?)1, CreateAndUseFactory(entityType.FindProperty("NullableInt"), useTry));
-        Assert.Equal((long?)1, CreateAndUseFactory(entityType.FindProperty("NullableLong"), useTry));
-        Assert.Equal((short?)1, CreateAndUseFactory(entityType.FindProperty("NullableShort"), useTry));
-        Assert.Equal((byte?)1, CreateAndUseFactory(entityType.FindProperty("NullableByte"), useTry));
-        Assert.Equal((uint)1, CreateAndUseFactory(entityType.FindProperty("UInt"), useTry));
-        Assert.Equal((ulong)1, CreateAndUseFactory(entityType.FindProperty("ULong"), useTry));
-        Assert.Equal((ushort)1, CreateAndUseFactory(entityType.FindProperty("UShort"), useTry));
-        Assert.Equal((sbyte)1, CreateAndUseFactory(entityType.FindProperty("SByte"), useTry));
-        Assert.Equal((uint?)1, CreateAndUseFactory(entityType.FindProperty("NullableUInt"), useTry));
-        Assert.Equal((ulong?)1, CreateAndUseFactory(entityType.FindProperty("NullableULong"), useTry));
-        Assert.Equal((ushort?)1, CreateAndUseFactory(entityType.FindProperty("NullableUShort"), useTry));
-        Assert.Equal((sbyte?)1, CreateAndUseFactory(entityType.FindProperty("NullableSByte"), useTry));
+        Assert.Equal(1, CreateAndUseFactory(entityType.FindProperty("Id")));
+        Assert.Equal(1L, CreateAndUseFactory(entityType.FindProperty("Long")));
+        Assert.Equal((short)1, CreateAndUseFactory(entityType.FindProperty("Short")));
+        Assert.Equal((byte)1, CreateAndUseFactory(entityType.FindProperty("Byte")));
+        Assert.Equal((int?)1, CreateAndUseFactory(entityType.FindProperty("NullableInt")));
+        Assert.Equal((long?)1, CreateAndUseFactory(entityType.FindProperty("NullableLong")));
+        Assert.Equal((short?)1, CreateAndUseFactory(entityType.FindProperty("NullableShort")));
+        Assert.Equal((byte?)1, CreateAndUseFactory(entityType.FindProperty("NullableByte")));
+        Assert.Equal((uint)1, CreateAndUseFactory(entityType.FindProperty("UInt")));
+        Assert.Equal((ulong)1, CreateAndUseFactory(entityType.FindProperty("ULong")));
+        Assert.Equal((ushort)1, CreateAndUseFactory(entityType.FindProperty("UShort")));
+        Assert.Equal((sbyte)1, CreateAndUseFactory(entityType.FindProperty("SByte")));
+        Assert.Equal((uint?)1, CreateAndUseFactory(entityType.FindProperty("NullableUInt")));
+        Assert.Equal((ulong?)1, CreateAndUseFactory(entityType.FindProperty("NullableULong")));
+        Assert.Equal((ushort?)1, CreateAndUseFactory(entityType.FindProperty("NullableUShort")));
+        Assert.Equal((sbyte?)1, CreateAndUseFactory(entityType.FindProperty("NullableSByte")));
     }
 
-    private static object CreateAndUseFactory(IProperty property, bool useTry = true)
+    private static object CreateAndUseFactory(IProperty property)
     {
         var model = BuildModel();
 
         var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        ValueGenerator generator;
-        if (useTry)
-        {
-            selector.TrySelect(property, property.DeclaringType, out generator);
-        }
-        else
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            generator = selector.Select(property, property.DeclaringType);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        selector.TrySelect(property, property.DeclaringType, out var generator);
 
         return generator!.Next(null!);
-    }
-
-    [ConditionalFact]
-    public void Throws_for_unsupported_combinations()
-    {
-        var model = BuildModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
-
-        var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
-
-        Assert.Equal(
-            CoreStrings.NoValueGenerator("Float", "AnEntity", "float"),
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Float"), entityType)).Message);
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ConditionalFact]

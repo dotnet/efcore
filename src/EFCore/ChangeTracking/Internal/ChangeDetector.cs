@@ -344,6 +344,21 @@ public class ChangeDetector : IChangeDetector
 
         if ((currentValue is null) != (originalValue is null))
         {
+            // Set the discriminator value for the complex type when transitioning from null to non-null or vice versa.
+            // The discriminator is a shadow property whose value needs to be updated to reflect the new state.
+            var discriminatorProperty = complexProperty.ComplexType.FindDiscriminatorProperty();
+            if (discriminatorProperty != null)
+            {
+                if (currentValue is not null)
+                {
+                    entry[discriminatorProperty] = complexProperty.ComplexType.GetDiscriminatorValue();
+                }
+                else if (discriminatorProperty.IsShadowProperty())
+                {
+                    entry[discriminatorProperty] = discriminatorProperty.ClrType.GetDefaultValue();
+                }
+            }
+
             // If it changed from null to non-null or from non-null to null, mark all inner properties as modified
             // to ensure the entity is detected as modified and the complex type properties are persisted
             foreach (var innerProperty in complexProperty.ComplexType.GetFlattenedProperties())

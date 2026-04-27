@@ -136,9 +136,6 @@ public class ClrPropertyGetterFactoryTest
         public PropertyInfo PropertyInfo { get; }
         public FieldInfo FieldInfo { get; }
 
-        IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
-            => throw new NotImplementedException();
-
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
 

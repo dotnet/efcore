@@ -170,6 +170,54 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DotnetEfFullName");
 
         /// <summary>
+        ///     Unable to read '{configFile}'. Fix the JSON and try again. {details}
+        /// </summary>
+        public static string DotNetEfConfigInvalidJson(object? configFile, object? details)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidJson", nameof(configFile), nameof(details)),
+                configFile, details);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. The file must contain a JSON object.
+        /// </summary>
+        public static string DotNetEfConfigInvalidRoot(object? configFile)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidRoot", nameof(configFile)),
+                configFile);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. The '{propertyName}' property must be a non-empty JSON string.
+        /// </summary>
+        public static string DotNetEfConfigInvalidValue(object? configFile, object? propertyName)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidValue", nameof(configFile), nameof(propertyName)),
+                configFile, propertyName);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. The '{propertyName}' property must be a boolean.
+        /// </summary>
+        public static string DotNetEfConfigInvalidBoolValue(object? configFile, object? propertyName)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidBoolValue", nameof(configFile), nameof(propertyName)),
+                configFile, propertyName);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. Ensure the file is accessible and try again. {details}
+        /// </summary>
+        public static string DotNetEfConfigReadFailed(object? configFile, object? details)
+            => string.Format(
+                GetString("DotNetEfConfigReadFailed", nameof(configFile), nameof(details)),
+                configFile, details);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. Remove the unsupported '{propertyName}' property.
+        /// </summary>
+        public static string DotNetEfConfigUnknownProperty(object? configFile, object? propertyName)
+            => string.Format(
+                GetString("DotNetEfConfigUnknownProperty", nameof(configFile), nameof(propertyName)),
+                configFile, propertyName);
+
+        /// <summary>
         ///     Entity Framework Core Command-line Tools
         /// </summary>
         public static string EFFullName
@@ -474,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("PrefixDescription");
 
         /// <summary>
-        ///     The project to use. Defaults to the current working directory.
+        ///     The project or file-based app to use. Defaults to the current working directory.
         /// </summary>
         public static string ProjectDescription
             => GetString("ProjectDescription");
@@ -518,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("SelfContainedDescription");
 
         /// <summary>
-        ///     The startup project to use. Defaults to the current working directory.
+        ///     The startup project or file-based app to use. Defaults to the current working directory.
         /// </summary>
         public static string StartupProjectDescription
             => GetString("StartupProjectDescription");

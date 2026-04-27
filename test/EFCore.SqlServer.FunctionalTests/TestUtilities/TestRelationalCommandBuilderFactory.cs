@@ -37,10 +37,6 @@ public class TestRelationalCommandBuilderFactory(
             return this;
         }
 
-        [Obsolete("Code trying to add parameter should add type mapped parameter using TypeMappingSource directly.")]
-        public IRelationalTypeMappingSource TypeMappingSource
-            => Dependencies.TypeMappingSource;
-
         public IRelationalCommand Build()
             => new TestRelationalCommand(
                 Dependencies,

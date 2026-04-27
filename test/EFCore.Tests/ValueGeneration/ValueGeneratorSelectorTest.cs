@@ -6,62 +6,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 public class ValueGeneratorSelectorTest
 {
     [ConditionalFact]
-    public void Returns_built_in_generators_for_types_setup_for_value_generation()
-    {
-        var model = BuildModel();
-        var entityType = model.FindEntityType(typeof(AnEntity))!;
-
-        var selector = new ValueGeneratorSelector(
-            new ValueGeneratorSelectorDependencies(new ValueGeneratorCache(new ValueGeneratorCacheDependencies())));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        Assert.IsType<CustomValueGenerator>(selector.Select(entityType.FindProperty("Custom")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Id")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Long")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Short")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Byte")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableInt")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableLong")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableShort")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableByte")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("UInt")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("ULong")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("UShort")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("SByte")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableUInt")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableULong")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableUShort")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableSByte")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Decimal")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableDecimal")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Float")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableFloat")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Double")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableDouble")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("DateTime")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableDateTime")!, entityType));
-
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("DateTimeOffset")!, entityType));
-        Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("NullableDateTimeOffset")!, entityType));
-
-        Assert.IsType<StringValueGenerator>(selector.Select(entityType.FindProperty("String")!, entityType));
-
-        Assert.IsType<GuidValueGenerator>(selector.Select(entityType.FindProperty("Guid")!, entityType));
-        Assert.IsType<GuidValueGenerator>(selector.Select(entityType.FindProperty("NullableGuid")!, entityType));
-
-        Assert.IsType<BinaryValueGenerator>(selector.Select(entityType.FindProperty("Binary")!, entityType));
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-
-    [ConditionalFact]
     public void Returns_built_in_generators_for_types_setup_for_value_generation_using_Try_method()
     {
         var model = BuildModel();
@@ -118,23 +62,6 @@ public class ValueGeneratorSelectorTest
 
         Assert.IsType<BinaryValueGenerator>(
             selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
-    }
-
-    [ConditionalFact]
-    public void Throws_for_unsupported_combinations()
-    {
-        var model = BuildModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
-
-        var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
-
-        var selector = contextServices.GetRequiredService<IValueGeneratorSelector>();
-
-        Assert.Equal(
-            CoreStrings.NoValueGenerator("Random", "AnEntity", "char"),
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ConditionalFact]
@@ -210,23 +137,13 @@ public class ValueGeneratorSelectorTest
             => false;
     }
 
-    private static object CreateAndUseFactory(IProperty property, bool useTry = true)
+    private static object CreateAndUseFactory(IProperty property)
     {
         var model = BuildModel();
 
         var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        ValueGenerator generator;
-        if (useTry)
-        {
-            selector.TrySelect(property, property.DeclaringType, out generator);
-        }
-        else
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            generator = selector.Select(property, property.DeclaringType);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        selector.TrySelect(property, property.DeclaringType, out var generator);
 
         return generator!.Next(null!);
     }
