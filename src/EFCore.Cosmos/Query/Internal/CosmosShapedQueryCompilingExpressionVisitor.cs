@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
@@ -203,7 +202,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 {
                     var ordinalParameter = Parameter(typeof(int), "ordinal");
                     var materializeExpression = CreateStructuralCollectionPopulateExpression(jObjectVariable, navigation, navigation.TargetEntityType, navigation.TargetEntityType.GetContainingPropertyName(), ordinalParameter, tempValueBuffer);
-                    _projectionBindingRemovingExpressionVisitor.AddInclude(jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable, ordinalParameter);
+                    _projectionBindingRemovingExpressionVisitor.AddInclude(_parentJObject, jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable, ordinalParameter);
                 }
                 else
                 {
@@ -219,7 +218,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
                     var materializeExpression = CreateStructuralTypeMaterializeExpression(navigation.TargetEntityType, jObjectVariable, tempValueBuffer);
 
-                    _projectionBindingRemovingExpressionVisitor.AddInclude(jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable);
+                    _projectionBindingRemovingExpressionVisitor.AddInclude(_parentJObject, jObjectVariable, tempValueBuffer, expressions, navigation, materializeExpression, instanceVariable);
                 }
             }
         }

@@ -46,6 +46,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly IDictionary<Expression, Expression> _ordinalParameterBindings
             = new Dictionary<Expression, Expression>();
 
+        private readonly Dictionary<Expression, ParameterExpression> _ownerMappings
+            = new();
+
         public static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
@@ -195,30 +198,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return CreateGetValueExpression(innerExpression, property, methodCallExpression.Type);
             }
 
-            //if (method.DeclaringType == typeof(Enumerable)
-            //    && method.Name == nameof(Enumerable.Select)
-            //    && genericMethod == EnumerableMethods.Select)
-            //{
-            //    var lambda = (LambdaExpression)methodCallExpression.Arguments[1];
-            //    if (lambda.Body is IncludeExpression includeExpression)
-            //    {
-            //        if (includeExpression.Navigation is not INavigation navigation
-            //            || navigation.IsOnDependent
-            //            || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
-            //        {
-            //            throw new InvalidOperationException(
-            //                CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
-            //        }
-
-            //        _pendingIncludes.Add(includeExpression);
-
-            //        Visit(includeExpression.EntityExpression);
-
-            //        // Includes on collections are processed when visiting CollectionShaperExpression
-            //        return Visit(methodCallExpression.Arguments[0]);
-            //    }
-            //}
-
             return base.VisitMethodCall(methodCallExpression);
         }
 
@@ -286,6 +265,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         public void AddInclude(
+            ParameterExpression parentJObjectVariable,
             ParameterExpression jObjectVariable,
             Expression tempValueBuffer,
             List<Expression> shaperExpressions,
@@ -299,6 +279,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 _ordinalParameterBindings[tempValueBuffer] = ordinalParameter;
             }
+            _ownerMappings[tempValueBuffer] = parentJObjectVariable;
+            _ownerMappings[jObjectVariable] = parentJObjectVariable;
 
             // Cosmos does not support Includes for ISkipNavigation
             var includeMethod = navigation.IsCollection ? IncludeCollectionMethodInfo : IncludeReferenceMethodInfo;
@@ -537,15 +519,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var principalProperty = property.FindFirstPrincipal();
                     if (principalProperty != null)
                     {
-                        // If in owner mappings, we need to get the actual value
+                        if (_ownerMappings.TryGetValue(jTokenExpression, out var ownerMapping))
+                        {
+                            return CreateGetValueExpression(ownerMapping, principalProperty, type);
+                        }
+
+                        // For nested projections, we may not have an owner mapping
+                        // This only happens for non tracking queries, and theres only a check if the principal property is not null
+                        // So instead rewrite to check the jobject for null.
                         if (_projectionBindings.TryGetValue(jTokenExpression, out var projectionBinding))
                         {
                             return projectionBinding;
                         }
-                        else
-                        {
-                            return jTokenExpression;
-                        }
+
+                        // This should never happen right?
+                        return jTokenExpression;
                     }
                 }
 
