@@ -245,7 +245,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["AssociateCollection"]
 FROM root c
 ORDER BY c["Id"]
 """);

@@ -131,6 +131,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             };
 
             Expression jsonMaterializeExpression;
+            ProjectionExpression projection;
             switch (extensionExpression)
             {
                 case StructuralTypeShaperExpression shaper:
@@ -154,7 +155,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Visit(shapers)]);
 
-                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // Always true after #34067 ?
+                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                     {
                         var projection1 = GetProjection(projectionBindingExpression);
                         if (!projection1.IsValueProjection && projection1.Alias != null)
@@ -162,17 +163,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection1.Alias]);
                         }
                     }
-                    // #34067
-                    else if (shaper.ValueBufferExpression.UnwrapTypeConversion(out _) is StructuralTypeProjectionExpression structuralTypeProjection)
-                    {
-                        jsonMaterializeExpression = CheckGenerateExtractPath(jsonMaterializeExpression, structuralTypeProjection.Object, data);
-                    }
 
                     return jsonMaterializeExpression;
                 }
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    var projection = GetProjection(projectionBindingExpression);
+                    projection = GetProjection(projectionBindingExpression);
                     var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
                     var returnValue = Variable(projectionBindingExpression.Type, "returnValue");
 
@@ -200,23 +196,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var collectionType = collectionAccessor?.CollectionType ?? collectionShaperExpression.Type;
                     var elementType = collectionShaperExpression.ElementType;
 
-                    var materializeExpression = Call(
+                    jsonMaterializeExpression = Call(
                         ReadShapedCollectionMethod.MakeGenericMethod(elementType, collectionType),
                         CosmosQueryCompilationContext.QueryContextParameter,
                         data,
                         Constant(collectionAccessor),
                         innerShaper);
 
-                    // # 34067
-                    var objectArrayAccess = collectionShaperExpression.Projection switch
+                    projection = GetProjection((ProjectionBindingExpression)collectionShaperExpression.Projection);
+                    if (!projection.IsValueProjection && projection.Alias != null) // @TODO: We could do this in a switch read loop aswell..
                     {
-                        ProjectionBindingExpression projectionBindingExpression
-                            => (ObjectArrayAccessExpression)GetProjection(projectionBindingExpression).Expression,
-                        ObjectArrayAccessExpression objectArrayProjectionExpression
-                            => objectArrayProjectionExpression,
-                        _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionShaperExpression.Print())),
-                    };
-                    return CheckGenerateExtractPath(materializeExpression, objectArrayAccess, data);
+                        jsonMaterializeExpression = GenerateExtractPath(jsonMaterializeExpression, data, [projection.Alias]);
+                    }
+
+                    return jsonMaterializeExpression;
 
                 case IncludeExpression includeExpression:
                     return Visit(includeExpression.EntityExpression);

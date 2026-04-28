@@ -225,10 +225,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var reader = new Utf8JsonReader(data.Span);
             reader.Read();
             // This could be a scalar or a structural type, if it is an object, we need to move past it.
-            if (reader.TokenType == JsonTokenType.StartObject)
+            if (reader.TokenType is JsonTokenType.StartObject or JsonTokenType.StartArray)
             {
                 reader.Read();
-                while (reader.TokenType != JsonTokenType.EndObject)
+                while (reader.TokenType is not JsonTokenType.EndObject and not JsonTokenType.EndArray)
                 {
                     reader.Skip();
                     reader.Read();
@@ -253,7 +253,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             jsonReader.Read();
 
             var prop = jsonPropertyPath.First;
-            if (jsonReader.TokenType != JsonTokenType.StartObject)
+            if (jsonReader.TokenType != JsonTokenType.StartObject && jsonReader.TokenType != JsonTokenType.StartArray)
             {
                 throw new InvalidOperationException(
                     CoreStrings.JsonReaderInvalidTokenType(jsonReader.TokenType));
