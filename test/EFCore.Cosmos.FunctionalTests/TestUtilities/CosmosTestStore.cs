@@ -249,7 +249,15 @@ public class CosmosTestStore : TestStore
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
-    public override async Task CleanAsync(DbContext context, bool createTables = true)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
+        => new TestCosmosExecutionStrategy().ExecuteAsync(
+            (context, createTables), async (_, state, ct) =>
+            {
+                await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
+                return true;
+            }, null, default);
+
+    private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try

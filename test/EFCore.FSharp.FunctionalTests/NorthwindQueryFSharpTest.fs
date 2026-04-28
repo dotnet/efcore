@@ -9,6 +9,7 @@ open Microsoft.EntityFrameworkCore.TestModels.Northwind
 open Microsoft.EntityFrameworkCore.TestUtilities
 open global.Xunit
 
+[<SqlServerConfiguredCondition>]
 type NorthwindQueryFSharpTest(fixture) as self =
     inherit QueryTestBase<NorthwindFSharpQuerySqlServerFixture<NoopModelCustomizer>>(fixture)
 
