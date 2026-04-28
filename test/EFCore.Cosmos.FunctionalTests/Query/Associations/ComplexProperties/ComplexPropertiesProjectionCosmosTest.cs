@@ -169,7 +169,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]
 FROM root c
 """);
     }
@@ -294,7 +294,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]
 FROM root c
 """);
     }
@@ -305,7 +305,11 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE
+{
+    "First" : c["RequiredAssociate"],
+    "Second" : c["OptionalAssociate"]
+}
 FROM root c
 """);
     }
@@ -348,7 +352,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -372,7 +376,7 @@ ORDER BY c["Id"]
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]
 FROM root c
 ORDER BY c["Id"]
 """);

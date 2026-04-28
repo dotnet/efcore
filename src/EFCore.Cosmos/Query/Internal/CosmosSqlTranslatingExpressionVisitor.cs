@@ -369,7 +369,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             case ObjectArrayAccessExpression:
             case StructuralTypeProjectionExpression:
             case StructuralTypeReferenceExpression:
-            case MaterializeCollectionNavigationExpression:
+            // case MaterializeCollectionNavigationExpression:
             case SqlExpression:
                 return extensionExpression;
 
