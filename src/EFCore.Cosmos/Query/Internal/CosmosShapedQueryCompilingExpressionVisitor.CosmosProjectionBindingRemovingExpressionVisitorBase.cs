@@ -3,7 +3,6 @@
 
 #nullable disable
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -47,6 +46,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = new Dictionary<Expression, Expression>();
 
         private readonly Dictionary<Expression, ParameterExpression> _ownerMappings
+            = new();
+
+        private readonly Dictionary<Expression, Expression> _instanceEntityEntryMappings
             = new();
 
         public static readonly MethodInfo ToObjectWithSerializerMethodInfo
@@ -161,6 +163,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
                     }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    if (binaryExpression.Right.UnwrapTypeConversion(out var _) is MemberExpression { Expression: { } entityEntryVariable, Member: { } member }
+                     && member == typeof(InternalEntityEntry).GetProperty(nameof(EntityEntry.Entity)))
+                    {
+                        _instanceEntityEntryMappings[binaryExpression.Left] = entityEntryVariable;
+                        return binaryExpression;
+                    }
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 if (binaryExpression.Left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression)
@@ -259,6 +270,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Constant(navigation.GetCollectionAccessor()),
                         entities);
                 }
+
+                case EntityEntryBindingExpression entityEntryBinding:
+                    return _instanceEntityEntryMappings[entityEntryBinding.Instance];
             }
 
             return base.VisitExtension(extensionExpression);
@@ -288,7 +302,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var relatedEntityClrType = navigation.TargetEntityType.ClrType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             Expression entityEntryVariable = trackQueryResults
-                ? ((BinaryExpression)new ExtractingExpressionVisitor().Extract(navigationExpression, x => x is BinaryExpression { NodeType: ExpressionType.Assign, Left: ParameterExpression parameter } && x.Type == typeof(InternalEntityEntry))).Left
+                ? new EntityEntryBindingExpression(instanceVariable)
                 : Constant(null, typeof(InternalEntityEntry));
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -313,6 +327,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Constant(inverseNavigation, typeof(INavigation)),
                         Constant(fixup),
                         Constant(true))));
+        }
+
+        private class EntityEntryBindingExpression(Expression instance) : Expression
+        {
+            public override ExpressionType NodeType => ExpressionType.Extension;
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            public override Type Type => typeof(InternalEntityEntry);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            public Expression Instance { get; } = instance;
         }
 
         private static readonly MethodInfo IncludeReferenceMethodInfo
@@ -700,29 +725,5 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
-
-        private class ExtractingExpressionVisitor : ExpressionVisitor
-        {
-            private Expression _result;
-            private Func<Expression, bool> _func;
-            public Expression Extract(Expression expression, Func<Expression, bool> func)
-            {
-                _func = func;
-                Visit(expression);
-                return _result;
-            }
-
-            [return: NotNullIfNotNull("node")]
-            public override Expression Visit(Expression node)
-            {
-                if (_func(node))
-                {
-                    _result = node;
-                    return node;
-                }
-
-                return base.Visit(node);
-            }
-        }
     }
 }
