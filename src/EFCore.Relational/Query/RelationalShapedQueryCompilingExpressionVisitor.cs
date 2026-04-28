@@ -254,12 +254,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         }
     }
 
+    private int _nextCollectionId;
+
     /// <summary>
     ///     Attempts to use the non-generated materializer path.
     ///     Returns <see langword="null" /> if the query is not supported by this path.
     /// </summary>
     private Expression? TryVisitShapedQueryNonGenerated(ShapedQueryExpression shapedQueryExpression)
     {
+        _nextCollectionId = 0;
         var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
         // Only support non-split, non-FromSql queries
@@ -297,16 +300,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         {
             case IncludeExpression includeExpression:
             {
-                // Only support reference includes for now (not collection includes)
-                if (includeExpression.NavigationExpression is not RelationalStructuralTypeShaperExpression
-                    {
-                        StructuralType: IEntityType,
-                        ValueBufferExpression: ProjectionBindingExpression
-                    } includedShaper)
-                {
-                    return null;
-                }
-
                 // Recurse into the entity expression to build the inner materializer (which may have further includes)
                 var innerMaterializer = TryBuildMaterializerFromShaper(
                     includeExpression.EntityExpression, selectExpression, isTracking);
@@ -315,35 +308,105 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     return null;
                 }
 
-                // Build the materializer for the included navigation
-                // The included entity itself may have includes (ThenInclude), so recurse
-                var includedMaterializer = TryBuildMaterializerFromShaper(includedShaper, selectExpression, isTracking);
-                if (includedMaterializer is null)
-                {
-                    return null;
-                }
-
-                // Build the ReferenceIncludeInfo and attach it to the inner materializer
                 var navigation = includeExpression.Navigation;
 #pragma warning disable EF1001 // Internal EF Core API usage
-                var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
                 var inverseNavigation = navigation.Inverse;
                 IClrPropertySetter? inverseNavSetter = null;
                 if (inverseNavigation is { IsCollection: false })
                 {
                     inverseNavSetter = ((IRuntimePropertyBase)inverseNavigation).GetSetter();
                 }
+
+                switch (includeExpression.NavigationExpression)
+                {
+                    // Reference include (many-to-one / one-to-one)
+                    case RelationalStructuralTypeShaperExpression
+                    {
+                        StructuralType: IEntityType,
+                        ValueBufferExpression: ProjectionBindingExpression
+                    } includedShaper:
+                    {
+                        var includedMaterializer = TryBuildMaterializerFromShaper(
+                            includedShaper, selectExpression, isTracking);
+                        if (includedMaterializer is null)
+                        {
+                            return null;
+                        }
+
+                        var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
+
+                        innerMaterializer.AddReferenceInclude(new ReferenceIncludeInfo(
+                            includedMaterializer,
+                            navigation,
+                            navSetter,
+                            inverseNavigation,
+                            inverseNavSetter,
+                            isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
+
+                        return innerMaterializer;
+                    }
+
+                    // Collection include (one-to-many)
+                    case RelationalCollectionShaperExpression collectionShaper:
+                    {
+                        // Build the inner materializer for the child entity type
+                        var childMaterializer = TryBuildMaterializerFromShaper(
+                            collectionShaper.InnerShaper, selectExpression, isTracking);
+                        if (childMaterializer is null)
+                        {
+                            return null;
+                        }
+
+                        // Compile identifier lambdas — resolve ProjectionBindingExpressions to DbDataReader reads
+                        var identifierResolver = new ProjectionBindingResolver(selectExpression);
+                        var dataReaderParam = Expression.Parameter(typeof(DbDataReader), "dataReader");
+                        var queryContextParam = QueryCompilationContext.QueryContextParameter;
+
+                        var parentIdentifier = CompileIdentifierLambda(
+                            collectionShaper.ParentIdentifier, identifierResolver, selectExpression);
+                        var outerIdentifier = CompileIdentifierLambda(
+                            collectionShaper.OuterIdentifier, identifierResolver, selectExpression);
+                        var selfIdentifier = CompileIdentifierLambda(
+                            collectionShaper.SelfIdentifier, identifierResolver, selectExpression);
+
+                        // Extract value comparers as equality delegates
+                        var parentComparers = collectionShaper.ParentIdentifierValueComparers
+                            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+                            .ToArray();
+                        var outerComparers = collectionShaper.OuterIdentifierValueComparers
+                            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+                            .ToArray();
+                        var selfComparers = collectionShaper.SelfIdentifierValueComparers
+                            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+                            .ToArray();
+
+                        var collectionAccessor = navigation.GetCollectionAccessor()!;
+
+                        // Allocate a collection ID
+                        var collectionId = _nextCollectionId++;
+
+                        innerMaterializer.AddCollectionInclude(new CollectionIncludeInfo(
+                            childMaterializer,
+                            navigation,
+                            inverseNavigation,
+                            inverseNavSetter,
+                            collectionAccessor,
+                            parentIdentifier,
+                            outerIdentifier,
+                            selfIdentifier,
+                            parentComparers,
+                            outerComparers,
+                            selfComparers,
+                            collectionId,
+                            isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
+
+                        return innerMaterializer;
+                    }
+
+                    default:
+                        return null;
+                }
 #pragma warning restore EF1001
-
-                innerMaterializer.AddReferenceInclude(new ReferenceIncludeInfo(
-                    includedMaterializer,
-                    navigation,
-                    navSetter,
-                    inverseNavigation,
-                    inverseNavSetter,
-                    isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
-
-                return innerMaterializer;
             }
 
             case RelationalStructuralTypeShaperExpression
@@ -388,6 +451,135 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(entityType.ClrType);
         return (RelationalEntityMaterializer)Activator.CreateInstance(
             materializerType, entityType, propertyIndexMap, isTracking, isNullable)!;
+    }
+
+    /// <summary>
+    ///     Compiles an identifier expression (ParentIdentifier/OuterIdentifier/SelfIdentifier) from a
+    ///     <see cref="RelationalCollectionShaperExpression" /> into a <c>Func&lt;QueryContext, DbDataReader, object[]&gt;</c>.
+    ///     Resolves <see cref="ProjectionBindingExpression" /> nodes to actual DbDataReader column reads.
+    /// </summary>
+    private static Func<QueryContext, DbDataReader, object[]> CompileIdentifierLambda(
+        Expression identifierExpression,
+        ProjectionBindingResolver resolver,
+        SelectExpression selectExpression)
+    {
+        // The identifier expression is a NewArrayInit(typeof(object), [...]) where each element
+        // reads a column value. We need to rewrite ProjectionBindingExpression and ValueBuffer reads
+        // into DbDataReader.GetValue() calls.
+
+        var queryContextParam = Expression.Parameter(typeof(QueryContext), "queryContext");
+        var dataReaderParam = Expression.Parameter(typeof(DbDataReader), "dataReader");
+
+        var rewriter = new IdentifierExpressionRewriter(selectExpression, dataReaderParam);
+        var rewritten = rewriter.Visit(identifierExpression);
+
+        return Expression.Lambda<Func<QueryContext, DbDataReader, object[]>>(
+            rewritten, queryContextParam, dataReaderParam).Compile();
+    }
+
+    /// <summary>
+    ///     Resolves <see cref="ProjectionBindingExpression" /> nodes to their projection indices.
+    /// </summary>
+    private sealed class ProjectionBindingResolver(SelectExpression selectExpression) : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression node)
+            => node switch
+            {
+                ProjectionBindingExpression projectionBindingExpression
+                    => Expression.Constant(
+                        (int)selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>()),
+                _ => base.VisitExtension(node)
+            };
+    }
+
+    /// <summary>
+    ///     Rewrites identifier expressions:
+    ///     - Replaces ProjectionBindingExpression → column index constant
+    ///     - Replaces ValueBufferTryReadValue calls → DbDataReader.GetValue(index)
+    ///     - Ensures all elements are typed as object (for the object[] array)
+    /// </summary>
+    private sealed class IdentifierExpressionRewriter(SelectExpression selectExpression, ParameterExpression dataReaderParam) : ExpressionVisitor
+    {
+        private static readonly MethodInfo GetValueMethod
+            = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetValue))!;
+
+        private static readonly MethodInfo IsDbNullMethod
+            = typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!;
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is ProjectionBindingExpression pbe)
+            {
+                var columnIndex = (int)selectExpression.GetProjection(pbe).GetConstantValue<object>();
+                return CreateReaderGetValue(columnIndex, pbe.Type);
+            }
+
+            return base.VisitExtension(node);
+        }
+
+        private Expression CreateReaderGetValue(int columnIndex, Type targetType)
+        {
+            var indexExpr = Expression.Constant(columnIndex);
+
+            // Use GetFieldValue<T> for typed access (avoids type mismatches like SQLite long→int)
+            var getFieldValueMethod = typeof(DbDataReader)
+                .GetMethod(nameof(DbDataReader.GetFieldValue))!
+                .MakeGenericMethod(targetType.UnwrapNullableType());
+
+            if (targetType.IsNullableType())
+            {
+                // For nullable types: return IsDBNull ? null : (T?)GetFieldValue<T>(idx)
+                return Expression.Condition(
+                    Expression.Call(dataReaderParam, IsDbNullMethod, indexExpr),
+                    Expression.Default(targetType),
+                    Expression.Convert(
+                        Expression.Call(dataReaderParam, getFieldValueMethod, indexExpr),
+                        targetType));
+            }
+
+            return Expression.Call(dataReaderParam, getFieldValueMethod, indexExpr);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (node.Method.Name == "ValueBufferTryReadValue" && node.Arguments.Count == 3)
+            {
+                var indexExpr = Visit(node.Arguments[1]);
+
+                // Read value and convert DBNull.Value to null (DbDataReader.GetValue returns DBNull.Value for NULLs,
+                // but the identifier comparers expect null)
+                var getValueCall = Expression.Call(dataReaderParam, GetValueMethod, indexExpr);
+                return Expression.Condition(
+                    Expression.Call(dataReaderParam, IsDbNullMethod, indexExpr),
+                    Expression.Constant(null, typeof(object)),
+                    getValueCall);
+            }
+
+            return base.VisitMethodCall(node);
+        }
+
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            if (node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked)
+            {
+                var operand = Visit(node.Operand);
+
+                // If the operand type changed (e.g. we rewrote a ValueBufferTryReadValue<int?> to GetValue
+                // returning object), adjust the Convert accordingly
+                if (operand.Type != node.Operand.Type)
+                {
+                    // If target type is object and operand is already object, skip Convert
+                    if (node.Type == typeof(object) && operand.Type == typeof(object))
+                    {
+                        return operand;
+                    }
+
+                    return Expression.Convert(operand, node.Type);
+                }
+            }
+
+            return base.VisitUnary(node);
+        }
     }
 
     /// <summary>

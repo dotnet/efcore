@@ -376,4 +376,90 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
     }
 
     #endregion
+
+    #region Collection Include tests
+
+    [ConditionalFact]
+    public async Task Collection_include_no_tracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog1 = new Blog { Id = 1, Title = "Blog 1" };
+                var blog2 = new Blog { Id = 2, Title = "Blog 2" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog1 },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog1 },
+                    new Post { Id = 3, Title = "Post 3", Blog = blog2 });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Blogs
+            .Include(b => b.Posts)
+            .AsNoTracking()
+            .OrderBy(b => b.Id)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+
+        Assert.Equal("Blog 1", results[0].Title);
+        Assert.Equal(2, results[0].Posts.Count);
+        Assert.Contains(results[0].Posts, p => p.Title == "Post 1");
+        Assert.Contains(results[0].Posts, p => p.Title == "Post 2");
+
+        Assert.Equal("Blog 2", results[1].Title);
+        Assert.Single(results[1].Posts);
+        Assert.Equal("Post 3", results[1].Posts[0].Title);
+    }
+
+    [ConditionalFact]
+    public async Task Collection_include_tracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Blogs
+            .Include(b => b.Posts)
+            .ToListAsync();
+
+        Assert.Single(results);
+        Assert.Equal(2, results[0].Posts.Count);
+
+        // All entities tracked
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+    }
+
+    [ConditionalFact]
+    public async Task Collection_include_empty_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                ctx.Blogs.Add(new Blog { Id = 1, Title = "Empty Blog" });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Blogs
+            .Include(b => b.Posts)
+            .AsNoTracking()
+            .SingleAsync();
+
+        Assert.Equal("Empty Blog", result.Title);
+        Assert.Empty(result.Posts);
+    }
+
+    #endregion
 }

@@ -154,6 +154,70 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
     {
+        TEntity entity;
+
+        if (CollectionIncludes is not null)
+        {
+            // Collection include protocol: this method is called multiple times per parent entity.
+            // On first call (resultContext.Values == null), we materialize the parent and initialize collections.
+            // On subsequent calls, we populate collection elements.
+            // When the parent changes or rows end, we set ResultReady = true and return the parent.
+
+            if (resultContext.Values is null)
+            {
+                // First call for this parent entity
+                entity = MaterializeEntity(queryContext, dataReader)!;
+                if (entity is null)
+                {
+                    return null;
+                }
+
+                // Store entity reference for subsequent calls (using Values as a marker + storage)
+                resultContext.Values = [entity];
+
+                // Initialize collection includes
+                for (var i = 0; i < CollectionIncludes.Count; i++)
+                {
+                    InitializeIncludeCollection(queryContext, dataReader, resultCoordinator, entity, CollectionIncludes[i]);
+                }
+
+                // Process reference includes (same row as parent)
+                ProcessReferenceIncludes(queryContext, dataReader, resultContext, resultCoordinator, entity);
+            }
+            else
+            {
+                entity = (TEntity)resultContext.Values[0];
+            }
+
+            // Populate collection elements from the current row
+            for (var i = 0; i < CollectionIncludes.Count; i++)
+            {
+                PopulateIncludeCollection(queryContext, dataReader, resultCoordinator, entity, CollectionIncludes[i]);
+            }
+
+            // If ResultReady is true, return the entity; otherwise return default (MoveNext will call again)
+            return resultCoordinator.ResultReady ? entity : default;
+        }
+
+        // No collection includes — simple single-call path
+        entity = MaterializeEntity(queryContext, dataReader)!;
+        if (entity is null)
+        {
+            return null;
+        }
+
+        ProcessReferenceIncludes(queryContext, dataReader, resultContext, resultCoordinator, entity);
+
+        return entity;
+    }
+
+    /// <summary>
+    ///     Materializes the entity itself (identity resolution, instantiation, property population, tracking).
+    /// </summary>
+    private TEntity? MaterializeEntity(
+        QueryContext queryContext,
+        DbDataReader dataReader)
+    {
         // Check for null keys — needed for tracking (identity resolution) and nullable entities (LEFT JOIN)
         if (_keyColumns is not null)
         {
@@ -205,53 +269,235 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             queryContext.StartTracking(typeInfo.EntityType, entity, Snapshot.Empty);
         }
 
-        // Process reference includes
-        if (ReferenceIncludes is not null)
+        return entity;
+    }
+
+    /// <summary>
+    ///     Processes reference includes for the given entity.
+    /// </summary>
+    private void ProcessReferenceIncludes(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        ResultContext resultContext,
+        SingleQueryResultCoordinator resultCoordinator,
+        TEntity entity)
+    {
+        if (ReferenceIncludes is null)
         {
-            for (var i = 0; i < ReferenceIncludes.Count; i++)
+            return;
+        }
+
+        for (var i = 0; i < ReferenceIncludes.Count; i++)
+        {
+            var include = ReferenceIncludes[i];
+
+            // TPH guard: the navigation may be declared on a derived type that this entity isn't
+            if (!include.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
             {
-                var include = ReferenceIncludes[i];
+                continue;
+            }
 
-                // TPH guard: the navigation may be declared on a derived type that this entity isn't
-                if (!include.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
+            var relatedEntity = include.Materializer.Materialize(queryContext, dataReader, resultContext, resultCoordinator);
+
+            if (_isTracking && !include.IsKeylessEntityType)
+            {
+                // Tracking query with a trackable declaring type: the state manager handles fixup
+                // automatically when both entities are tracked. We only need to explicitly mark the
+                // navigation as loaded when the related entity is null (LEFT JOIN with no match),
+                // since the state manager won't see it.
+                if (relatedEntity is null)
                 {
-                    continue;
+                    queryContext.SetNavigationIsLoaded(entity, include.Navigation);
                 }
+            }
+            else
+            {
+                // Non-tracking query, or the declaring entity type is keyless (can't be tracked):
+                // perform fixup manually by setting the navigation property directly.
+                include.Navigation.SetIsLoadedWhenNoTracking(entity);
 
-                var relatedEntity = include.Materializer.Materialize(queryContext, dataReader, resultContext, resultCoordinator);
-
-                if (_isTracking && !include.IsKeylessEntityType)
+                if (relatedEntity is not null)
                 {
-                    // Tracking query with a trackable declaring type: the state manager handles fixup
-                    // automatically when both entities are tracked. We only need to explicitly mark the
-                    // navigation as loaded when the related entity is null (LEFT JOIN with no match),
-                    // since the state manager won't see it.
-                    if (relatedEntity is null)
-                    {
-                        queryContext.SetNavigationIsLoaded(entity, include.Navigation);
-                    }
-                }
-                else
-                {
-                    // Non-tracking query, or the declaring entity type is keyless (can't be tracked):
-                    // perform fixup manually by setting the navigation property directly.
-                    include.Navigation.SetIsLoadedWhenNoTracking(entity);
+                    include.NavigationSetter.SetClrValue(entity, relatedEntity);
 
-                    if (relatedEntity is not null)
+                    if (include.InverseNavigation is { IsCollection: false } inverse)
                     {
-                        include.NavigationSetter.SetClrValue(entity, relatedEntity);
-
-                        if (include.InverseNavigation is { IsCollection: false } inverse)
-                        {
-                            inverse.SetIsLoadedWhenNoTracking(relatedEntity);
-                            include.InverseNavigationSetter?.SetClrValue(relatedEntity, entity);
-                        }
+                        inverse.SetIsLoadedWhenNoTracking(relatedEntity);
+                        include.InverseNavigationSetter?.SetClrValue(relatedEntity, entity);
                     }
                 }
             }
         }
+    }
 
-        return entity;
+    /// <summary>
+    ///     Initializes a collection include for the given parent entity.
+    ///     Corresponds to InitializeIncludeCollection in the generated shaper's ClientMethods.
+    /// </summary>
+    private void InitializeIncludeCollection(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        SingleQueryResultCoordinator resultCoordinator,
+        TEntity entity,
+        CollectionIncludeInfo includeInfo)
+    {
+        // TPH guard
+        if (!includeInfo.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
+        {
+            return;
+        }
+
+        if (_isTracking && !includeInfo.IsKeylessEntityType)
+        {
+            queryContext.SetNavigationIsLoaded(entity, includeInfo.Navigation);
+        }
+        else
+        {
+            includeInfo.Navigation.SetIsLoadedWhenNoTracking(entity);
+        }
+
+        var collection = includeInfo.CollectionAccessor.GetOrCreate(entity, forMaterialization: true);
+
+        var parentKey = includeInfo.ParentIdentifier(queryContext, dataReader);
+        var outerKey = includeInfo.OuterIdentifier(queryContext, dataReader);
+
+        resultCoordinator.SetSingleQueryCollectionContext(
+            includeInfo.CollectionId,
+            new SingleQueryCollectionContext(entity, collection, parentKey, outerKey));
+    }
+
+    /// <summary>
+    ///     Populates a collection include from the current DbDataReader row.
+    ///     Corresponds to PopulateIncludeCollection in the generated shaper's ClientMethods.
+    /// </summary>
+    private void PopulateIncludeCollection(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        SingleQueryResultCoordinator resultCoordinator,
+        TEntity entity,
+        CollectionIncludeInfo ci)
+    {
+        var collectionContext = resultCoordinator.Collections[ci.CollectionId]!;
+
+        // TPH guard
+        if (!ci.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
+        {
+            return;
+        }
+
+        if (resultCoordinator.HasNext == false)
+        {
+            // Outer enumerator has ended — materialize last pending element
+            GenerateCurrentElementIfPending();
+            return;
+        }
+
+        if (!CompareIdentifiers(
+                ci.OuterIdentifierValueComparers,
+                ci.OuterIdentifier(queryContext, dataReader),
+                collectionContext.OuterIdentifier))
+        {
+            // Outer changed — collection has ended. Materialize last element.
+            GenerateCurrentElementIfPending();
+
+            // If parent also changed then this row is pointing to element of next collection
+            if (!CompareIdentifiers(
+                    ci.ParentIdentifierValueComparers,
+                    ci.ParentIdentifier(queryContext, dataReader),
+                    collectionContext.ParentIdentifier))
+            {
+                resultCoordinator.HasNext = true;
+            }
+
+            return;
+        }
+
+        var innerKey = ci.SelfIdentifier(queryContext, dataReader);
+        if (innerKey.All(e => e == null))
+        {
+            // No correlated element (null FK)
+            return;
+        }
+
+        if (collectionContext.SelfIdentifier is not null)
+        {
+            if (CompareIdentifiers(ci.SelfIdentifierValueComparers, innerKey, collectionContext.SelfIdentifier))
+            {
+                // Repeated row for current element (nested includes may need processing)
+                if (collectionContext.ResultContext.Values is not null)
+                {
+                    ProcessCurrentElementRow();
+                }
+
+                resultCoordinator.ResultReady = false;
+                return;
+            }
+
+            // New element — materialize the previous one first
+            GenerateCurrentElementIfPending();
+            resultCoordinator.HasNext = null;
+            collectionContext.UpdateSelfIdentifier(innerKey);
+        }
+        else
+        {
+            // First element in collection
+            collectionContext.UpdateSelfIdentifier(innerKey);
+        }
+
+        ProcessCurrentElementRow();
+        resultCoordinator.ResultReady = false;
+
+        void ProcessCurrentElementRow()
+        {
+            var previousResultReady = resultCoordinator.ResultReady;
+            resultCoordinator.ResultReady = true;
+
+            var relatedEntity = ci.InnerMaterializer.Materialize(
+                queryContext, dataReader, collectionContext.ResultContext, resultCoordinator);
+
+            if (resultCoordinator.ResultReady)
+            {
+                collectionContext.ResultContext.Values = null;
+                if (!_isTracking || ci.IsKeylessEntityType)
+                {
+                    ci.CollectionAccessor.Add(entity, relatedEntity!, forMaterialization: false);
+                    if (ci.InverseNavigation is { IsCollection: false })
+                    {
+                        ci.InverseNavigationSetter?.SetClrValue(relatedEntity!, entity);
+                        ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity!);
+                    }
+                }
+            }
+
+            resultCoordinator.ResultReady &= previousResultReady;
+        }
+
+        void GenerateCurrentElementIfPending()
+        {
+            if (collectionContext.ResultContext.Values is not null)
+            {
+                resultCoordinator.HasNext = false;
+                ProcessCurrentElementRow();
+            }
+
+            collectionContext.UpdateSelfIdentifier(null);
+        }
+    }
+
+    private static bool CompareIdentifiers(
+        IReadOnlyList<Func<object, object, bool>> valueComparers,
+        object[] left,
+        object[] right)
+    {
+        for (var i = 0; i < left.Length; i++)
+        {
+            if (!valueComparers[i](left[i], right[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private (TEntity Entity, ConcreteTypeInfo TypeInfo) InstantiateEntity(DbDataReader dataReader)
