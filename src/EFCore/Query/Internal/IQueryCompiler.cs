@@ -55,6 +55,30 @@ public interface IQueryCompiler
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    IEnumerable<TElement> ExecuteEnumerable<TElement>(Expression query);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IAsyncEnumerable<TElement> ExecuteAsyncEnumerable<TElement>(Expression query, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    Task<TElement> ExecuteNonEnumerableAsync<TElement>(Expression query, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     Expression<Func<QueryContext, TResult>> PrecompileQuery<TResult>(Expression query, bool async);
 }

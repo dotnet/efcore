@@ -88,11 +88,12 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
 
         await using var context = contextFactory.CreateDbContext();
 
-        var result = await context.SimpleEntities
+        var results = await context.SimpleEntities
             .AsNoTracking()
             .Where(e => e.Name == "Bob")
-            .SingleAsync();
+            .ToListAsync();
 
+        var result = Assert.Single(results);
         Assert.Equal(2, result.Id);
         Assert.Equal("Bob", result.Name);
         Assert.Equal(25, result.Age);
@@ -139,10 +140,10 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
         await using var context = contextFactory.CreateDbContext();
 
         // Query the same entity twice — should get the same instance
-        var first = await context.SimpleEntities.SingleAsync();
-        var second = await context.SimpleEntities.SingleAsync();
+        var firstResults = await context.SimpleEntities.ToListAsync();
+        var secondResults = await context.SimpleEntities.ToListAsync();
 
-        Assert.Same(first, second);
+        Assert.Same(Assert.Single(firstResults), Assert.Single(secondResults));
     }
 
     protected class SimpleEntity
@@ -331,10 +332,12 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
 
         await using var context = contextFactory.CreateDbContext();
 
-        var result = await context.Posts
+        var results = await context.Posts
             .Include(p => p.Blog)
             .AsNoTracking()
-            .SingleAsync();
+            .ToListAsync();
+
+        var result = Assert.Single(results);
 
         Assert.Equal("Orphan Post", result.Title);
         Assert.Null(result.Blog);
@@ -452,13 +455,431 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
 
         await using var context = contextFactory.CreateDbContext();
 
-        var result = await context.Blogs
+        var results = await context.Blogs
             .Include(b => b.Posts)
             .AsNoTracking()
-            .SingleAsync();
+            .ToListAsync();
+
+        var result = Assert.Single(results);
 
         Assert.Equal("Empty Blog", result.Title);
         Assert.Empty(result.Posts);
+    }
+
+    #endregion
+
+    #region Scalar projection tests
+
+    [ConditionalFact]
+    public async Task Scalar_projection_string()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.SimpleEntities
+            .OrderBy(e => e.Id)
+            .Select(e => e.Name)
+            .ToListAsync();
+
+        Assert.Equal(["Alice", "Bob"], results);
+    }
+
+    [ConditionalFact]
+    public async Task Scalar_projection_int()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.SimpleEntities
+            .OrderBy(e => e.Id)
+            .Select(e => e.Age)
+            .ToListAsync();
+
+        Assert.Equal([30, 25], results);
+    }
+
+    #endregion
+
+    #region Scalar aggregate tests
+
+    [ConditionalFact]
+    public async Task Max_int_async()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var maxAge = await context.SimpleEntities.MaxAsync(e => e.Age);
+
+        Assert.Equal(30, maxAge);
+    }
+
+    [ConditionalFact]
+    public async Task Max_int_sync()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var maxAge = context.SimpleEntities.Max(e => e.Age);
+
+        Assert.Equal(30, maxAge);
+    }
+
+    [ConditionalFact]
+    public async Task Count_async()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var count = await context.SimpleEntities.CountAsync();
+
+        Assert.Equal(2, count);
+    }
+
+    [ConditionalFact]
+    public async Task SingleAsync_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var entity = await context.SimpleEntities.SingleAsync();
+
+        Assert.Equal("Alice", entity.Name);
+    }
+
+    #endregion
+
+    #region Anonymous type projection tests
+
+    [ConditionalFact]
+    public async Task Anonymous_type_projection_two_scalars()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.SimpleEntities
+            .OrderBy(e => e.Id)
+            .Select(e => new { e.Id, e.Name })
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal(1, results[0].Id);
+        Assert.Equal("Alice", results[0].Name);
+        Assert.Equal(2, results[1].Id);
+        Assert.Equal("Bob", results[1].Name);
+    }
+
+    [ConditionalFact]
+    public async Task Anonymous_type_projection_with_nullable_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = "Desc1" },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.SimpleEntities
+            .OrderBy(e => e.Id)
+            .Select(e => new { e.Name, e.OptionalDescription })
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal("Alice", results[0].Name);
+        Assert.Equal("Desc1", results[0].OptionalDescription);
+        Assert.Equal("Bob", results[1].Name);
+        Assert.Null(results[1].OptionalDescription);
+    }
+
+    [ConditionalFact]
+    public async Task Anonymous_type_projection_mixed_value_and_reference_types()
+    {
+        var contextFactory = await InitializeNonSharedTest<SimpleEntityContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new SimpleEntity { Id = 1, Name = "Alice", Age = 30, OptionalDescription = null },
+                    new SimpleEntity { Id = 2, Name = "Bob", Age = 25, OptionalDescription = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.SimpleEntities
+            .OrderBy(e => e.Id)
+            .Select(e => new { e.Id, e.Name, e.Age })
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal(1, results[0].Id);
+        Assert.Equal("Alice", results[0].Name);
+        Assert.Equal(30, results[0].Age);
+        Assert.Equal(2, results[1].Id);
+        Assert.Equal("Bob", results[1].Name);
+        Assert.Equal(25, results[1].Age);
+    }
+
+    [ConditionalFact]
+    public async Task Anonymous_type_projection_with_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog1 = new Blog { Id = 1, Title = "Blog 1" };
+                var blog2 = new Blog { Id = 2, Title = "Blog 2" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog1 },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog2 });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .Select(p => new { p.Title, p.Blog })
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal("Post 1", results[0].Title);
+        Assert.NotNull(results[0].Blog);
+        Assert.Equal("Blog 1", results[0].Blog!.Title);
+        Assert.Equal("Post 2", results[1].Title);
+        Assert.NotNull(results[1].Blog);
+        Assert.Equal("Blog 2", results[1].Blog!.Title);
+    }
+
+    [ConditionalFact]
+    public async Task Anonymous_type_projection_nested()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .Select(p => new { Outer = new { p.Id, p.Title }, p.BlogId })
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal(1, results[0].Outer.Id);
+        Assert.Equal("Post 1", results[0].Outer.Title);
+        Assert.Equal(1, results[0].BlogId);
+        Assert.Equal(2, results[1].Outer.Id);
+        Assert.Equal("Post 2", results[1].Outer.Title);
+        Assert.Equal(1, results[1].BlogId);
+    }
+
+    [ConditionalFact]
+    public async Task Anonymous_type_projection_nested_anonymous_type()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .Select(p => new { p.Id, Inner = new { p.Title, p.BlogId } })
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal(1, results[0].Id);
+        Assert.Equal("Post 1", results[0].Inner.Title);
+        Assert.Equal(1, results[0].Inner.BlogId);
+        Assert.Equal(2, results[1].Id);
+        Assert.Equal("Post 2", results[1].Inner.Title);
+        Assert.Equal(1, results[1].Inner.BlogId);
+    }
+
+    #endregion
+
+    #region Value converter tests
+
+    [ConditionalFact]
+    public async Task Entity_with_value_converter_string_to_enum()
+    {
+        var contextFactory = await InitializeNonSharedTest<ValueConverterContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new OrderEntity { Id = 1, Description = "First order", Status = OrderStatus.Pending },
+                    new OrderEntity { Id = 2, Description = "Second order", Status = OrderStatus.Shipped },
+                    new OrderEntity { Id = 3, Description = "Third order", Status = OrderStatus.Delivered });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Orders
+            .AsNoTracking()
+            .OrderBy(e => e.Id)
+            .ToListAsync();
+
+        Assert.Equal(3, results.Count);
+
+        Assert.Equal(1, results[0].Id);
+        Assert.Equal("First order", results[0].Description);
+        Assert.Equal(OrderStatus.Pending, results[0].Status);
+
+        Assert.Equal(2, results[1].Id);
+        Assert.Equal("Second order", results[1].Description);
+        Assert.Equal(OrderStatus.Shipped, results[1].Status);
+
+        Assert.Equal(3, results[2].Id);
+        Assert.Equal("Third order", results[2].Description);
+        Assert.Equal(OrderStatus.Delivered, results[2].Status);
+    }
+
+    [ConditionalFact]
+    public async Task Entity_with_value_converter_nullable_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<ValueConverterContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new OrderEntity { Id = 1, Description = "First", Status = OrderStatus.Pending, CancelledStatus = OrderStatus.Pending },
+                    new OrderEntity { Id = 2, Description = "Second", Status = OrderStatus.Shipped, CancelledStatus = null });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Orders
+            .AsNoTracking()
+            .OrderBy(e => e.Id)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+
+        Assert.Equal(OrderStatus.Pending, results[0].CancelledStatus);
+        Assert.Null(results[1].CancelledStatus);
+    }
+
+    [ConditionalFact]
+    public async Task Entity_with_value_converter_tracked()
+    {
+        var contextFactory = await InitializeNonSharedTest<ValueConverterContext>(
+            seed: async ctx =>
+            {
+                ctx.AddRange(
+                    new OrderEntity { Id = 1, Description = "First", Status = OrderStatus.Shipped });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var entity = await context.Orders.SingleAsync();
+
+        Assert.Equal(OrderStatus.Shipped, entity.Status);
+        Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+    }
+
+    protected enum OrderStatus
+    {
+        Pending,
+        Shipped,
+        Delivered
+    }
+
+    protected class OrderEntity
+    {
+        public int Id { get; set; }
+        public string Description { get; set; } = null!;
+        public OrderStatus Status { get; set; }
+        public OrderStatus? CancelledStatus { get; set; }
+    }
+
+    protected class ValueConverterContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<OrderEntity> Orders => Set<OrderEntity>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderEntity>(b =>
+            {
+                b.Property(e => e.Status)
+                    .HasConversion<string>();
+                b.Property(e => e.CancelledStatus)
+                    .HasConversion<string>();
+            });
+        }
     }
 
     #endregion

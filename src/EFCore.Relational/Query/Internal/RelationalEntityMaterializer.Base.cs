@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -41,6 +42,21 @@ public abstract class RelationalEntityMaterializer
         DbDataReader dataReader,
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator);
+
+    /// <summary>
+    ///     Returns the typed <c>MaterializeTyped</c> delegate as a
+    ///     <c>Func&lt;QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?&gt;</c>,
+    ///     avoiding boxing when the caller knows <typeparamref name="T" /> matches the entity's CLR type.
+    /// </summary>
+    public Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?> GetTypedMaterializeDelegate<T>()
+        => Unsafe.As<Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>>(
+            GetMaterializeDelegateCore())!;
+
+    /// <summary>
+    ///     Returns the typed <c>MaterializeTyped</c> delegate as an untyped <c>Delegate</c>.
+    ///     Overridden by the generic subclass to supply the concrete delegate.
+    /// </summary>
+    protected abstract Delegate GetMaterializeDelegateCore();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

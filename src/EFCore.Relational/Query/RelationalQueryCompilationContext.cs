@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -57,7 +58,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
 
     /// <summary>
     ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior" /> configured for the query.
-    ///     If no value has been configured then <see cref="Microsoft.EntityFrameworkCore.QuerySplittingBehavior.SingleQuery" />
+    ///     If no value has been configured then <see cref="QuerySplittingBehavior.SingleQuery" />
     ///     will be used.
     /// </summary>
     public virtual QuerySplittingBehavior? QuerySplittingBehavior { get; internal set; }
@@ -66,4 +67,106 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     ///     A manager for SQL aliases, capable of generate uniquified table aliases.
     /// </summary>
     public virtual SqlAliasManager SqlAliasManager { get; }
+
+    /// <inheritdoc />
+    public override Func<QueryContext, IEnumerable<TElement>> CreateEnumerableQueryExecutor<TElement>(Expression query)
+    {
+        var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
+        var interceptedQuery = queryAndEventData.Query;
+
+        var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(interceptedQuery);
+        var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
+        var postprocessedQuery = Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
+
+        if (postprocessedQuery is ShapedQueryExpression shapedQuery)
+        {
+            Check.DebugAssert(shapedQuery.ResultCardinality is ResultCardinality.Enumerable);
+
+            // TODO: Make this into a singleton service
+            var materializerFactory = new RelationalMaterializerFactory(
+                this,
+                RelationalDependencies.MemoryCache,
+                RelationalDependencies.QuerySqlGeneratorFactory,
+                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+                detailedErrorsEnabled: false, // TODO: get from core singleton options
+                threadSafetyChecksEnabled: true); // TODO: get from core singleton options
+
+            return materializerFactory.CreateEnumerableMaterializer<TElement>(shapedQuery);
+        }
+
+        throw new NotImplementedException(
+            $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
+            + $"postprocessed expression type: {postprocessedQuery.GetType().Name}).");
+    }
+
+    /// <inheritdoc />
+    public override Func<QueryContext, TElement> CreateNonEnumerableQueryExecutor<TElement>(Expression query)
+    {
+        var (materializerFactory, cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
+
+        var enumerableFactory = materializerFactory.CreateEnumerableMaterializer<TElement>(shapedQuery);
+
+        return cardinality switch
+        {
+            ResultCardinality.Single =>
+                qc => enumerableFactory(qc).Single()!,
+
+            ResultCardinality.SingleOrDefault =>
+                qc => enumerableFactory(qc).SingleOrDefault()!,
+
+            _ => throw new UnreachableException()
+        };
+    }
+
+    /// <inheritdoc />
+    public override Func<QueryContext, Task<TElement>> CreateNonEnumerableAsyncQueryExecutor<TElement>(Expression query)
+    {
+        var (materializerFactory, cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
+
+        var enumerableFactory = materializerFactory.CreateEnumerableMaterializer<TElement>(shapedQuery);
+
+        return cardinality switch
+        {
+            ResultCardinality.Single =>
+                qc => ((IAsyncEnumerable<TElement>)enumerableFactory(qc))
+                    .SingleAsync(((RelationalQueryContext)qc).CancellationToken).AsTask(),
+
+            ResultCardinality.SingleOrDefault =>
+                qc => ((IAsyncEnumerable<TElement>)enumerableFactory(qc))
+                    .SingleOrDefaultAsync(((RelationalQueryContext)qc).CancellationToken).AsTask()!,
+
+            _ => throw new UnreachableException()
+        };
+    }
+
+    private (RelationalMaterializerFactory factory, ResultCardinality cardinality, ShapedQueryExpression shapedQuery)
+        PrepareNonEnumerableQuery<TElement>(Expression query)
+    {
+        var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
+        var interceptedQuery = queryAndEventData.Query;
+
+        var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(interceptedQuery);
+        var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
+        var postprocessedQuery = Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
+
+        if (postprocessedQuery is ShapedQueryExpression { ResultCardinality: var cardinality } shapedQuery
+            && cardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
+        {
+            // TODO: Make this into a singleton service
+            var materializerFactory = new RelationalMaterializerFactory(
+                this,
+                RelationalDependencies.MemoryCache,
+                RelationalDependencies.QuerySqlGeneratorFactory,
+                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+                detailedErrorsEnabled: false, // TODO: get from core singleton options
+                threadSafetyChecksEnabled: true); // TODO: get from core singleton options
+
+            return (materializerFactory, cardinality, shapedQuery);
+        }
+
+        throw new NotImplementedException(
+            $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
+            + $"postprocessed expression type: {postprocessedQuery.GetType().Name}, "
+            + $"cardinality: {(postprocessedQuery is ShapedQueryExpression sq ? sq.ResultCardinality.ToString() : "N/A")}).");
+    }
 }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Caching.Memory;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -45,11 +47,38 @@ public sealed record RelationalQueryCompilationContextDependencies
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
-    public RelationalQueryCompilationContextDependencies(ISqlAliasManagerFactory sqlAliasManagerFactory)
-        => SqlAliasManagerFactory = sqlAliasManagerFactory;
+    public RelationalQueryCompilationContextDependencies(
+        ISqlAliasManagerFactory sqlAliasManagerFactory,
+        IMemoryCache memoryCache,
+        IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+        IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
+    {
+        SqlAliasManagerFactory = sqlAliasManagerFactory;
+        MemoryCache = memoryCache;
+        QuerySqlGeneratorFactory = querySqlGeneratorFactory;
+        RelationalParameterBasedSqlProcessorFactory = relationalParameterBasedSqlProcessorFactory;
+    }
 
     /// <summary>
     ///     A manager for SQL aliases, capable of generate uniquified table aliases.
     /// </summary>
     public ISqlAliasManagerFactory SqlAliasManagerFactory { get; init; }
+
+    /// <summary>
+    ///     The memory cache.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public IMemoryCache MemoryCache { get; init; }
+
+    /// <summary>
+    ///     The SQL generator factory.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; init; }
+
+    /// <summary>
+    ///     The relational parameter-based SQL processor factory.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; init; }
 }

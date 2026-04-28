@@ -4,9 +4,10 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -678,173 +679,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         => GetXMethods.GetOrAdd(type, static t => GetFieldValueMethod.MakeGenericMethod(t));
 
     /// <summary>
-    ///     Reads a value of this type mapping's provider CLR type from the <paramref name="reader" /> at the given
-    ///     <paramref name="ordinal" /> using the appropriate typed reader method (e.g. <see cref="DbDataReader.GetInt32" />),
-    ///     and sets it on the <paramref name="entity" /> via the given <paramref name="setter" /> without boxing.
-    /// </summary>
-    /// <remarks>
-    ///     The setter is downcast to <c>ClrPropertySetter&lt;TEntity, TEntity, TValue&gt;</c> and the typed
-    ///     overload is called directly, avoiding boxing for both the read and set sides.
-    ///     This requires <typeparamref name="TEntity" /> to match the declaring entity type of the property;
-    ///     for TPH hierarchies where properties are declared on derived types, use
-    ///     <see cref="ReadAndSetBoxed" /> instead.
-    /// </remarks>
-    /// <param name="reader">The data reader to read from.</param>
-    /// <param name="ordinal">The column ordinal.</param>
-    /// <param name="entity">The entity instance.</param>
-    /// <param name="setter">The property setter from the model.</param>
-    /// <param name="propertyClrType">The CLR type of the property (may be nullable).</param>
-    /// <typeparam name="TEntity">The entity CLR type — must match the setter's declaring type.</typeparam>
-#pragma warning disable EF1001 // Internal EF Core API usage — ClrPropertySetter is internal but we need typed access
-    public virtual void ReadAndSet<TEntity>(DbDataReader reader, int ordinal, TEntity entity, IClrPropertySetter setter, Type propertyClrType)
-        where TEntity : class
-    {
-        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
-
-        switch (Type.GetTypeCode(providerType))
-        {
-            case TypeCode.Int32:
-                SetValue(reader.GetInt32(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.String:
-                ((ClrPropertySetter<TEntity, TEntity, string>)setter)
-                    .SetClrValueUsingContainingEntity(entity, [], reader.GetString(ordinal));
-                break;
-            case TypeCode.Int64:
-                SetValue(reader.GetInt64(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Int16:
-                SetValue(reader.GetInt16(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Byte:
-                SetValue(reader.GetByte(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Boolean:
-                SetValue(reader.GetBoolean(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.DateTime:
-                SetValue(reader.GetDateTime(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Decimal:
-                SetValue(reader.GetDecimal(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Double:
-                SetValue(reader.GetDouble(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Single:
-                SetValue(reader.GetFloat(ordinal), entity, setter, propertyClrType);
-                break;
-            case TypeCode.Char:
-                SetValue(reader.GetChar(ordinal), entity, setter, propertyClrType);
-                break;
-
-            default:
-                if (providerType == typeof(Guid))
-                {
-                    SetValue(reader.GetGuid(ordinal), entity, setter, propertyClrType);
-                }
-                else
-                {
-                    setter.SetClrValue(entity, reader.GetValue(ordinal));
-                }
-
-                break;
-        }
-
-        static void SetValue<TValue>(TValue value, TEntity entity, IClrPropertySetter setter, Type propertyClrType)
-            where TValue : struct
-        {
-            if (propertyClrType == typeof(TValue?))
-            {
-                ((ClrPropertySetter<TEntity, TEntity, TValue?>)setter)
-                    .SetClrValueUsingContainingEntity(entity, [], value);
-            }
-            else
-            {
-                ((ClrPropertySetter<TEntity, TEntity, TValue>)setter)
-                    .SetClrValueUsingContainingEntity(entity, [], value);
-            }
-        }
-    }
-#pragma warning restore EF1001
-
-    /// <summary>
-    ///     Reads a value of this type mapping's provider CLR type from the <paramref name="reader" /> at the given
-    ///     <paramref name="ordinal" /> using the appropriate typed reader method (e.g. <see cref="DbDataReader.GetInt32" />),
-    ///     and sets it on the <paramref name="entity" /> via the given <paramref name="setter" />.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         The value is read using a typed DbDataReader method to avoid boxing on the read side, but is boxed
-    ///         when passed to <see cref="IClrPropertySetter.SetClrValue" />.
-    ///     </para>
-    ///     <para>
-    ///         This is used for TPH inheritance hierarchies where properties may be declared on derived types,
-    ///         making it impossible to downcast the setter to <c>ClrPropertySetter&lt;TEntity, TEntity, TValue&gt;</c>
-    ///         (since the setter's entity type parameter is the derived type, not the base type).
-    ///         To eliminate boxing here, <see cref="IClrPropertySetter" /> would need a generic typed method
-    ///         that doesn't require knowing the entity type at compile time.
-    ///     </para>
-    /// </remarks>
-    /// <param name="reader">The data reader to read from.</param>
-    /// <param name="ordinal">The column ordinal.</param>
-    /// <param name="entity">The entity instance.</param>
-    /// <param name="setter">The property setter from the model.</param>
-    public virtual void ReadAndSetBoxed(DbDataReader reader, int ordinal, object entity, IClrPropertySetter setter)
-    {
-        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
-
-        switch (Type.GetTypeCode(providerType))
-        {
-            case TypeCode.Int32:
-                setter.SetClrValue(entity, reader.GetInt32(ordinal));
-                break;
-            case TypeCode.String:
-                setter.SetClrValue(entity, reader.GetString(ordinal));
-                break;
-            case TypeCode.Int64:
-                setter.SetClrValue(entity, reader.GetInt64(ordinal));
-                break;
-            case TypeCode.Int16:
-                setter.SetClrValue(entity, reader.GetInt16(ordinal));
-                break;
-            case TypeCode.Byte:
-                setter.SetClrValue(entity, reader.GetByte(ordinal));
-                break;
-            case TypeCode.Boolean:
-                setter.SetClrValue(entity, reader.GetBoolean(ordinal));
-                break;
-            case TypeCode.DateTime:
-                setter.SetClrValue(entity, reader.GetDateTime(ordinal));
-                break;
-            case TypeCode.Decimal:
-                setter.SetClrValue(entity, reader.GetDecimal(ordinal));
-                break;
-            case TypeCode.Double:
-                setter.SetClrValue(entity, reader.GetDouble(ordinal));
-                break;
-            case TypeCode.Single:
-                setter.SetClrValue(entity, reader.GetFloat(ordinal));
-                break;
-            case TypeCode.Char:
-                setter.SetClrValue(entity, reader.GetChar(ordinal));
-                break;
-
-            default:
-                if (providerType == typeof(Guid))
-                {
-                    setter.SetClrValue(entity, reader.GetGuid(ordinal));
-                }
-                else
-                {
-                    setter.SetClrValue(entity, reader.GetValue(ordinal));
-                }
-
-                break;
-        }
-    }
-
-    /// <summary>
     ///     Returns whether the given CLR type has a dedicated typed <see cref="DbDataReader" /> method
     ///     (e.g. <see cref="DbDataReader.GetInt32" />). Types not in this set use the boxing
     ///     <see cref="DbDataReader.GetValue" /> fallback.
@@ -858,6 +692,141 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     /// <param name="expression">The input expression, containing the database value.</param>
     /// <returns>The expression with customization added.</returns>
+    // TODO: OBSOLETE
     public virtual Expression CustomizeDataReaderExpression(Expression expression)
         => expression;
+
+    /// <summary>
+    ///     Creates an <see cref="ITypedValueReader{TState}" /> for reading column values at
+    ///     <paramref name="ordinal" /> via this type mapping.
+    ///     If a <see cref="ValueConverter" /> is configured, the returned reader wraps a
+    ///     <see cref="RelationalTypedValueReader" /> in a converting reader that applies the
+    ///     provider-to-model conversion; otherwise the base reader is returned directly.
+    ///     The reader is immutable and safe to share across threads.
+    /// </summary>
+    public virtual ITypedValueReader<DbDataReader> CreateReader(int ordinal)
+    {
+        var baseReader = new RelationalTypedValueReader(ordinal, this);
+#pragma warning disable EF1001
+        return Converter is { } converter
+            ? converter.CreateConvertingReader(baseReader)
+            : baseReader;
+#pragma warning restore EF1001
+    }
+
+    /// <summary>
+    ///     Reads a typed value from the <paramref name="reader" /> at the given <paramref name="ordinal" />,
+    ///     using the appropriate typed <see cref="DbDataReader" /> method (e.g. <see cref="DbDataReader.GetInt32" />).
+    ///     This is the runtime analog of <see cref="CustomizeDataReaderExpression" /> and the single override point
+    ///     for provider-specific type mappings that need to apply post-processing (e.g. casting <c>float</c> to
+    ///     <c>double</c>, wrapping a string in a UTF-8 stream).
+    /// </summary>
+    /// <remarks>
+    ///     The JIT eliminates all branches at each call site where <typeparamref name="T" /> is statically known,
+    ///     reducing the method to a single typed reader call. For unknown types the fallback is
+    ///     <see cref="DbDataReader.GetFieldValue{T}" />.
+    /// </remarks>
+    public virtual T Read<T>(DbDataReader reader, int ordinal)
+    {
+        // TODO: Consider just putting these in overridden type mappings (e.g. IntTypeMapping)
+
+        // All of the following conditions gets elided (when T is a value type), so this is actually
+        // efficient.
+
+        // When T is object (boxed/non-generic path), delegate to the ClrType-based dispatch so we
+        // return the correctly-typed value (e.g. int, not Int64 from SQLite) rather than the raw
+        // ADO.NET object from GetFieldValue<object>.
+        if (typeof(T) == typeof(object))
+        {
+            return (T)Read(reader, ordinal)!;
+        }
+
+        if (typeof(T) == typeof(int))
+        {
+            return (T)(object)reader.GetInt32(ordinal);
+        }
+
+        if (typeof(T) == typeof(string))
+        {
+            return (T)(object)reader.GetString(ordinal);
+        }
+
+        if (typeof(T) == typeof(long))
+        {
+            return (T)(object)reader.GetInt64(ordinal);
+        }
+
+        if (typeof(T) == typeof(short))
+        {
+            return (T)(object)reader.GetInt16(ordinal);
+        }
+
+        if (typeof(T) == typeof(byte))
+        {
+            return (T)(object)reader.GetByte(ordinal);
+        }
+
+        if (typeof(T) == typeof(bool))
+        {
+            return (T)(object)reader.GetBoolean(ordinal);
+        }
+
+        if (typeof(T) == typeof(DateTime))
+        {
+            return (T)(object)reader.GetDateTime(ordinal);
+        }
+
+        if (typeof(T) == typeof(decimal))
+        {
+            return (T)(object)reader.GetDecimal(ordinal);
+        }
+
+        if (typeof(T) == typeof(double))
+        {
+            return (T)(object)reader.GetDouble(ordinal);
+        }
+
+        if (typeof(T) == typeof(float))
+        {
+            return (T)(object)reader.GetFloat(ordinal);
+        }
+
+        if (typeof(T) == typeof(char))
+        {
+            return (T)(object)reader.GetChar(ordinal);
+        }
+
+        if (typeof(T) == typeof(Guid))
+        {
+            return (T)(object)reader.GetGuid(ordinal);
+        }
+
+        return reader.GetFieldValue<T>(ordinal);
+    }
+
+    /// <summary>
+    ///     Reads a value from the data reader at the given ordinal using <see cref="Read{T}" />, and boxes
+    ///     it as <c>object?</c>. Used by the <c>T == object</c> branch of <see cref="Read{T}" />.
+    /// </summary>
+    private object? Read(DbDataReader reader, int ordinal)
+    {
+        var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
+
+        return Type.GetTypeCode(providerType) switch
+        {
+            TypeCode.Int32 => Read<int>(reader, ordinal),
+            TypeCode.String => Read<string>(reader, ordinal),
+            TypeCode.Int64 => Read<long>(reader, ordinal),
+            TypeCode.Int16 => Read<short>(reader, ordinal),
+            TypeCode.Byte => Read<byte>(reader, ordinal),
+            TypeCode.Boolean => Read<bool>(reader, ordinal),
+            TypeCode.DateTime => Read<DateTime>(reader, ordinal),
+            TypeCode.Decimal => Read<decimal>(reader, ordinal),
+            TypeCode.Double => Read<double>(reader, ordinal),
+            TypeCode.Single => Read<float>(reader, ordinal),
+            TypeCode.Char => Read<char>(reader, ordinal),
+            _ when providerType == typeof(Guid) => Read<Guid>(reader, ordinal),
+            _ => reader.GetValue(ordinal)
+        };
+    }
 }

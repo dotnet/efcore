@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -261,4 +262,19 @@ public abstract class ValueConverter
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public abstract Expression ConstructorExpression { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Creates an <see cref="ITypedValueReader{TState}" /> that reads provider-typed values from
+    ///     <paramref name="inner" /> and converts them to the model type via
+    ///     <see cref="ValueConverter{TModel,TProvider}.ConvertFromProviderTyped" />.
+    ///     Created once per converted property at query-compilation time; the returned reader is reused per row.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    public abstract ITypedValueReader<TState> CreateConvertingReader<TState>(ITypedValueReader<TState> inner);
 }

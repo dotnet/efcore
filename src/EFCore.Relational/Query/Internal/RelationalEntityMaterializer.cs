@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -133,8 +133,9 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
 
                 var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
                 var setter = ((IRuntimePropertyBase)property).MaterializationSetter;
+                var reader = typeMapping.CreateReader(columnIndex);
 
-                materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, property.ClrType, typeMapping, setter));
+                materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, setter, reader));
             }
 
             _concreteTypes[i] = new ConcreteTypeInfo(
@@ -149,6 +150,23 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
 
     /// <inheritdoc />
     public override object? Materialize(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        ResultContext resultContext,
+        SingleQueryResultCoordinator resultCoordinator)
+        => MaterializeTyped(queryContext, dataReader, resultContext, resultCoordinator);
+
+    /// <inheritdoc />
+    protected override Delegate GetMaterializeDelegateCore()
+        => (Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TEntity?>)MaterializeTyped;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public TEntity? MaterializeTyped(
         QueryContext queryContext,
         DbDataReader dataReader,
         ResultContext resultContext,
@@ -175,19 +193,30 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 // Store entity reference for subsequent calls (using Values as a marker + storage)
                 resultContext.Values = [entity];
 
+                // Reset per-include result contexts: when the outer entity changes, the per-include
+                // contexts must be cleared so included materializers start fresh on the new entity.
+                if (ReferenceIncludes is not null)
+                {
+                    for (var i = 0; i < ReferenceIncludes.Count; i++)
+                    {
+                        ReferenceIncludes[i].ResultContext.Values = null;
+                    }
+                }
+
                 // Initialize collection includes
                 for (var i = 0; i < CollectionIncludes.Count; i++)
                 {
                     InitializeIncludeCollection(queryContext, dataReader, resultCoordinator, entity, CollectionIncludes[i]);
                 }
-
-                // Process reference includes (same row as parent)
-                ProcessReferenceIncludes(queryContext, dataReader, resultContext, resultCoordinator, entity);
             }
             else
             {
                 entity = (TEntity)resultContext.Values[0];
             }
+
+            // Process reference includes on every row: if any included materializer has collection includes of
+            // its own, it must be driven row-by-row alongside this entity's collection includes.
+            ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
 
             // Populate collection elements from the current row
             for (var i = 0; i < CollectionIncludes.Count; i++)
@@ -199,16 +228,67 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             return resultCoordinator.ResultReady ? entity : default;
         }
 
-        // No collection includes — simple single-call path
-        entity = MaterializeEntity(queryContext, dataReader)!;
-        if (entity is null)
+        // No direct collection includes. If reference includes exist, their inner materializers may themselves
+        // have collection includes — in that case we must participate in the multi-call protocol too.
+        if (ReferenceIncludes is not null)
         {
-            return null;
+            if (resultContext.Values is null)
+            {
+                // First call for this parent entity: materialize, reset per-include contexts, process includes.
+                entity = MaterializeEntity(queryContext, dataReader)!;
+                if (entity is null)
+                {
+                    return null;
+                }
+
+                for (var i = 0; i < ReferenceIncludes.Count; i++)
+                {
+                    ReferenceIncludes[i].ResultContext.Values = null;
+                }
+
+                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
+
+                // Always cache the entity: even when ResultReady is true, a containing outer materializer
+                // with collection includes may call this materializer again on subsequent rows (to drive nested
+                // collection population). Without caching, we'd try to re-read from the reader.
+                resultContext.Values = [entity];
+
+                if (!resultCoordinator.ResultReady)
+                {
+                    return null;
+                }
+
+                return entity;
+            }
+            else
+            {
+                // Subsequent call — an inner materializer's collection is still accumulating rows.
+                entity = (TEntity)resultContext.Values[0];
+
+                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
+
+                // When all inner collections finish (ResultReady = true), return the entity.
+                // SingleQueryingEnumerable will then reset resultContext.Values = null for the next entity.
+                return resultCoordinator.ResultReady ? entity : default;
+            }
         }
 
-        ProcessReferenceIncludes(queryContext, dataReader, resultContext, resultCoordinator, entity);
+        // No includes at all — cache the entity in resultContext.Values on first call and use the cache on
+        // subsequent calls. This is necessary when this materializer is used as a reference include inside an
+        // outer materializer that has collection includes: the outer materializer calls us on every row to drive
+        // its collection population, and we must not re-read from the reader after the first call.
+        if (resultContext.Values is null)
+        {
+            entity = MaterializeEntity(queryContext, dataReader)!;
+            if (entity is not null)
+            {
+                resultContext.Values = [entity];
+            }
 
-        return entity;
+            return entity;
+        }
+
+        return (TEntity?)resultContext.Values[0];
     }
 
     /// <summary>
@@ -278,7 +358,6 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     private void ProcessReferenceIncludes(
         QueryContext queryContext,
         DbDataReader dataReader,
-        ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator,
         TEntity entity)
     {
@@ -297,7 +376,9 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 continue;
             }
 
-            var relatedEntity = include.Materializer.Materialize(queryContext, dataReader, resultContext, resultCoordinator);
+            // Each include has its own ResultContext so its collection-include protocol state
+            // does not collide with the outer materializer's context (which holds a different entity type).
+            var relatedEntity = include.Materializer.Materialize(queryContext, dataReader, include.ResultContext, resultCoordinator);
 
             if (_isTracking && !include.IsKeylessEntityType)
             {
@@ -529,47 +610,26 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     }
 
     /// <summary>
-    ///     For the non-inheritance case (single concrete type = TEntity), uses the non-boxing
-    ///     <see cref="RelationalTypeMapping.ReadAndSet{TEntity}" /> which downcasts the setter to
-    ///     <c>ClrPropertySetter&lt;TEntity, TEntity, TValue&gt;</c>.
-    ///     For TPH inheritance, falls back to the boxing <see cref="RelationalTypeMapping.ReadAndSetBoxed" />
-    ///     because the setter's entity type parameter is the derived type and cannot be downcast to TEntity.
-    ///     To eliminate boxing for TPH, <see cref="IClrPropertySetter" /> would need a typed method that
-    ///     doesn't require knowing the entity type at compile time.
+    ///     Reads and sets all mapped properties on <paramref name="entity" /> from the current row.
+    ///     Each <see cref="PropertyMaterializer.Reader" /> is produced by
+    ///     <see cref="RelationalTypeMapping.CreateReader" /> and is either a
+    ///     <see cref="RelationalTypedValueReader" /> (no converter) or a
+    ///     <see cref="ConvertingTypedValueReader{TModel,TProvider,TState}" /> wrapping it (with converter).
+    ///     The <see cref="DbDataReader" /> is passed as state per-call, so all reader instances are
+    ///     immutable and safe to share across concurrent executions.
     /// </summary>
-    private void PopulateProperties(DbDataReader dataReader, TEntity entity, PropertyMaterializer[] materializers)
+    private static void PopulateProperties(DbDataReader dataReader, TEntity entity, PropertyMaterializer[] materializers)
     {
-        if (_concreteTypes.Length == 1)
+        for (var i = 0; i < materializers.Length; i++)
         {
-            for (var i = 0; i < materializers.Length; i++)
+            ref readonly var pm = ref materializers[i];
+
+            if (pm.IsNullable && dataReader.IsDBNull(pm.ColumnIndex))
             {
-                ref readonly var pm = ref materializers[i];
-
-                if (pm.IsNullable && dataReader.IsDBNull(pm.ColumnIndex))
-                {
-                    continue;
-                }
-
-                pm.TypeMapping.ReadAndSet(dataReader, pm.ColumnIndex, entity, pm.Setter, pm.PropertyClrType);
+                continue;
             }
-        }
-        else
-        {
-            // TODO: Temporary boxing property population path, since ClrPropertySetter is generic over both tyhe
-            // property type and the entity type, but with inheritance the entity type to be materialized varies
-            // and isn't known. To eliminate this boxing, IClrPropertySetter would need a non-generic ReadAndSet
-            // method that takes the entity as object (but the property should still be typed to avoid boxing that)
-            for (var i = 0; i < materializers.Length; i++)
-            {
-                ref readonly var pm = ref materializers[i];
 
-                if (pm.IsNullable && dataReader.IsDBNull(pm.ColumnIndex))
-                {
-                    continue;
-                }
-
-                pm.TypeMapping.ReadAndSetBoxed(dataReader, pm.ColumnIndex, entity, pm.Setter);
-            }
+            pm.Setter.SetClrValue(entity, pm.Reader, dataReader);
         }
     }
 
@@ -586,15 +646,18 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     private readonly struct PropertyMaterializer(
         int columnIndex,
         bool isNullable,
-        Type propertyClrType,
-        RelationalTypeMapping typeMapping,
-        IClrPropertySetter setter)
+        IClrPropertySetter setter,
+        ITypedValueReader<DbDataReader> reader)
     {
         public int ColumnIndex { get; } = columnIndex;
         public bool IsNullable { get; } = isNullable;
-        public Type PropertyClrType { get; } = propertyClrType;
-        public RelationalTypeMapping TypeMapping { get; } = typeMapping;
         public IClrPropertySetter Setter { get; } = setter;
+
+        /// <summary>
+        ///     The reader for this property, produced by <see cref="RelationalTypeMapping.CreateReader" />.
+        ///     Immutable; the <see cref="DbDataReader" /> is passed as state per-call.
+        /// </summary>
+        public ITypedValueReader<DbDataReader> Reader { get; } = reader;
     }
 
     private readonly struct KeyColumnInfo(int columnIndex, Type clrType)

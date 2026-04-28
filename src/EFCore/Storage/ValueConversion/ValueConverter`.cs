@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
+
 /// <summary>
 ///     Defines conversions from an object of one type in a model to an object of the same or
 ///     different type in the store.
@@ -181,6 +183,11 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// </remarks>
     public override Type ProviderClrType
         => typeof(TProvider);
+
+    /// <inheritdoc />
+    [EntityFrameworkInternal]
+    public override ITypedValueReader<TState> CreateConvertingReader<TState>(ITypedValueReader<TState> inner)
+        => new ConvertingTypedValueReader<TModel, TProvider, TState>(inner, ConvertFromProviderTyped);
 
     private readonly ConstructorInfo _constructorInfo = typeof(ValueConverter<TModel, TProvider>).GetConstructor(
     [

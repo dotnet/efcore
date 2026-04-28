@@ -29,6 +29,13 @@ public readonly struct ReferenceIncludeInfo(
     public RelationalEntityMaterializer Materializer { get; } = materializer;
 
     /// <summary>
+    ///     Isolated <see cref="ResultContext" /> for the included materializer's own collection-include protocol.
+    ///     Each reference include needs its own context so that its state does not collide with the outer
+    ///     materializer's <see cref="ResultContext" /> (which stores a different entity type in <c>Values[0]</c>).
+    /// </summary>
+    public ResultContext ResultContext { get; } = new();
+
+    /// <summary>
     ///     The navigation from the principal entity to the included entity (e.g. Post.Blog).
     /// </summary>
     public INavigationBase Navigation { get; } = navigation;

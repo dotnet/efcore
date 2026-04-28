@@ -128,7 +128,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     }
 
     private EntityQueryable<TEntity> CreateEntityQueryable()
-        => new(_context.GetDependencies().QueryProvider, EntityType);
+        => new((EntityQueryProvider)_context.GetDependencies().QueryProvider, EntityType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

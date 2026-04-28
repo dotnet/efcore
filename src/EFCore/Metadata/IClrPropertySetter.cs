@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -42,4 +44,19 @@ public interface IClrPropertySetter
     /// <param name="value">The value to set.</param>
     /// <returns>The instance with the value set.</returns>
     object SetClrValue(object instance, object? value);
+
+    /// <summary>
+    ///     Sets the value of the property by reading it from <paramref name="reader" /> without boxing.
+    /// </summary>
+    /// <remarks>
+    ///     The concrete implementation (<see cref="Internal.ClrPropertySetter{TEntity,TStructural,TValue}" />)
+    ///     knows <c>TValue</c> at compile time and calls <c>reader.Read&lt;TValue&gt;(state)</c> directly,
+    ///     eliminating both the per-type dispatch switch and boxing on the hot path.
+    ///     The default implementation falls back to boxing via <see cref="SetClrValueUsingContainingEntity(object,object?)" />.
+    /// </remarks>
+    /// <param name="entity">The entity instance.</param>
+    /// <param name="reader">The typed value reader for the current column.</param>
+    /// <param name="state">The data-source state passed through to <paramref name="reader" />.</param>
+    void SetClrValue<TState>(object entity, ITypedValueReader<TState> reader, TState state)
+        => SetClrValueUsingContainingEntity(entity, reader.Read<object>(state));
 }

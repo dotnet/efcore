@@ -24,7 +24,7 @@ public static class SingleQueryingEnumerable
         RelationalQueryContext relationalQueryContext,
         RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
-        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> materializer,
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
@@ -33,7 +33,7 @@ public static class SingleQueryingEnumerable
             relationalQueryContext,
             relationalCommandResolver,
             readerColumns,
-            shaper,
+            materializer,
             contextType,
             standAloneStateManager,
             detailedErrorsEnabled,
@@ -51,7 +51,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     private readonly RelationalQueryContext _relationalQueryContext;
     private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-    private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+    private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _materializer;
     private readonly Type _contextType;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
     private readonly bool _standAloneStateManager;
@@ -68,7 +68,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         RelationalQueryContext relationalQueryContext,
         RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
-        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> materializer,
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
@@ -77,7 +77,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         _relationalQueryContext = relationalQueryContext;
         _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
-        _shaper = shaper;
+        _materializer = materializer;
         _contextType = contextType;
         _queryLogger = relationalQueryContext.QueryLogger;
         _standAloneStateManager = standAloneStateManager;
@@ -169,7 +169,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._shaper;
+            _shaper = queryingEnumerable._materializer;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -320,7 +320,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._shaper;
+            _shaper = queryingEnumerable._materializer;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;

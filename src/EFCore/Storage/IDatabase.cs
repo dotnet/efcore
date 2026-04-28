@@ -65,4 +65,35 @@ public interface IDatabase
     /// <returns>An expression tree which can be used to execute the query.</returns>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async);
+
+    /// <summary>
+    ///     Compiles the given query to generate a <see cref="Func{QueryContext, IEnumerable}" /> for an
+    ///     enumerable query, where <typeparamref name="TElement" /> is the element type directly (not
+    ///     wrapped in <see cref="IEnumerable{T}" /> or <see cref="IAsyncEnumerable{T}" />).
+    /// </summary>
+    /// <typeparam name="TElement">The element type of the query result.</typeparam>
+    /// <param name="query">The query to compile.</param>
+    /// <param name="async">A value indicating whether this is an async query.</param>
+    /// <returns>A <see cref="Func{QueryContext, IEnumerable}" /> which can be invoked to get results of the query.</returns>
+    Func<QueryContext, IEnumerable<TElement>> CompileEnumerableQuery<TElement>(Expression query, bool async)
+        // Default: fall back to the old path, wrapping TElement back in IEnumerable<TElement>.
+        => CompileQuery<IEnumerable<TElement>>(query, async);
+
+    /// <summary>
+    ///     Compiles the given query to generate a <see cref="Func{QueryContext, TElement}" /> for a
+    ///     non-enumerable query (e.g. Single, Count, Max), where <typeparamref name="TElement" /> is the
+    ///     result type directly (not wrapped in <see cref="Task{T}" />).
+    /// </summary>
+    /// <typeparam name="TElement">The result type of the query.</typeparam>
+    /// <param name="query">The query to compile.</param>
+    /// <param name="async">A value indicating whether this is an async query.</param>
+    /// <returns>A <see cref="Func{QueryContext, TElement}" /> which can be invoked to get the result of the query.</returns>
+    Func<QueryContext, TElement> CompileNonEnumerableQuery<TElement>(Expression query, bool async);
+
+    /// <summary>
+    ///     Compiles the given query to generate a func for a
+    ///     non-enumerable async query (e.g. SingleAsync, CountAsync, MaxAsync), where
+    ///     <typeparamref name="TElement" /> is the result type directly (not wrapped in <see cref="Task{T}" />).
+    /// </summary>
+    Func<QueryContext, Task<TElement>> CompileNonEnumerableAsyncQuery<TElement>(Expression query);
 }
