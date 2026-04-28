@@ -4,6 +4,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -253,27 +254,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         }
     }
 
-    private static readonly MethodInfo MaterializerMaterializeMethod
-        = typeof(RelationalEntityMaterializer<>).GetMethod(nameof(RelationalEntityMaterializer<object>.Materialize))!;
-
     /// <summary>
-    ///     Attempts to use the non-generated materializer path for simple single-entity queries.
+    ///     Attempts to use the non-generated materializer path.
     ///     Returns <see langword="null" /> if the query is not supported by this path.
     /// </summary>
     private Expression? TryVisitShapedQueryNonGenerated(ShapedQueryExpression shapedQueryExpression)
     {
-        // Only handle simple cases: single entity with ProjectionBindingExpression, no split query, not from SQL
-        if (shapedQueryExpression.ShaperExpression
-            is not RelationalStructuralTypeShaperExpression
-            {
-                StructuralType: IEntityType entityType,
-                ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression,
-                IsNullable: false
-            })
-        {
-            return null;
-        }
-
         var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
         // Only support non-split, non-FromSql queries
@@ -283,16 +269,114 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             return null;
         }
 
-        // Get the property-to-column-index map
-        var projectionIndex = selectExpression.GetProjection(projectionBindingExpression).GetConstantValue<object>();
+        var isTracking = QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+
+        // Recursively build the materializer tree from the shaper expression
+        var materializer = TryBuildMaterializerFromShaper(
+            shapedQueryExpression.ShaperExpression, selectExpression, isTracking);
+        if (materializer is null)
+        {
+            return null;
+        }
+
+        return BuildSingleQueryingEnumerableExpression(
+            materializer.EntityType.ClrType, materializer, typeof(RelationalEntityMaterializer<>), selectExpression);
+    }
+
+    /// <summary>
+    ///     Recursively builds a <see cref="RelationalEntityMaterializer{TEntity}" /> from a shaper expression.
+    ///     Handles <see cref="IncludeExpression" /> by recursing into its <see cref="IncludeExpression.EntityExpression" />
+    ///     to build the inner materializer first, then attaching the included navigation's materializer to it.
+    /// </summary>
+    private RelationalEntityMaterializer? TryBuildMaterializerFromShaper(
+        Expression shaperExpression,
+        SelectExpression selectExpression,
+        bool isTracking)
+    {
+        switch (shaperExpression)
+        {
+            case IncludeExpression includeExpression:
+            {
+                // Only support reference includes for now (not collection includes)
+                if (includeExpression.NavigationExpression is not RelationalStructuralTypeShaperExpression
+                    {
+                        StructuralType: IEntityType,
+                        ValueBufferExpression: ProjectionBindingExpression
+                    } includedShaper)
+                {
+                    return null;
+                }
+
+                // Recurse into the entity expression to build the inner materializer (which may have further includes)
+                var innerMaterializer = TryBuildMaterializerFromShaper(
+                    includeExpression.EntityExpression, selectExpression, isTracking);
+                if (innerMaterializer is null)
+                {
+                    return null;
+                }
+
+                // Build the materializer for the included navigation
+                // The included entity itself may have includes (ThenInclude), so recurse
+                var includedMaterializer = TryBuildMaterializerFromShaper(includedShaper, selectExpression, isTracking);
+                if (includedMaterializer is null)
+                {
+                    return null;
+                }
+
+                // Build the ReferenceIncludeInfo and attach it to the inner materializer
+                var navigation = includeExpression.Navigation;
+#pragma warning disable EF1001 // Internal EF Core API usage
+                var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
+                var inverseNavigation = navigation.Inverse;
+                IClrPropertySetter? inverseNavSetter = null;
+                if (inverseNavigation is { IsCollection: false })
+                {
+                    inverseNavSetter = ((IRuntimePropertyBase)inverseNavigation).GetSetter();
+                }
+#pragma warning restore EF1001
+
+                innerMaterializer.AddReferenceInclude(new ReferenceIncludeInfo(
+                    includedMaterializer,
+                    navigation,
+                    navSetter,
+                    inverseNavigation,
+                    inverseNavSetter,
+                    isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
+
+                return innerMaterializer;
+            }
+
+            case RelationalStructuralTypeShaperExpression
+            {
+                StructuralType: IEntityType entityType,
+                ValueBufferExpression: ProjectionBindingExpression projectionBinding
+            } shaper:
+            {
+                return TryBuildEntityMaterializer(
+                    entityType, projectionBinding, selectExpression, isTracking, shaper.IsNullable);
+            }
+
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>
+    ///     Builds a <see cref="RelationalEntityMaterializer{TEntity}" /> for the given entity type and projection.
+    /// </summary>
+    private static RelationalEntityMaterializer? TryBuildEntityMaterializer(
+        IEntityType entityType,
+        ProjectionBindingExpression projectionBinding,
+        SelectExpression selectExpression,
+        bool isTracking,
+        bool isNullable)
+    {
+        var projectionIndex = selectExpression.GetProjection(projectionBinding).GetConstantValue<object>();
         if (projectionIndex is not IDictionary<IPropertyBase, int> propertyIndexMap)
         {
             return null;
         }
 
-        // Only support entities with default (parameterless) constructor for now
-        // For TPH, check all concrete types in the hierarchy
-        var clrType = entityType.ClrType;
         foreach (var concreteType in entityType.GetConcreteDerivedTypesInclusive())
         {
             if (concreteType.ClrType.GetConstructor(Type.EmptyTypes) == null)
@@ -301,34 +385,48 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             }
         }
 
-        var isTracking = QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+        var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(entityType.ClrType);
+        return (RelationalEntityMaterializer)Activator.CreateInstance(
+            materializerType, entityType, propertyIndexMap, isTracking, isNullable)!;
+    }
 
-        // Build the RelationalEntityMaterializer<TEntity>
-        var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(clrType);
-        var materializer = Activator.CreateInstance(materializerType, entityType, propertyIndexMap, isTracking)!;
-
-        // Create the shaper lambda: (queryContext, dataReader, resultContext, resultCoordinator) => materializer.Materialize(...)
+    /// <summary>
+    ///     Builds the expression tree for <c>SingleQueryingEnumerable.Create(...)</c> with the given materializer.
+    /// </summary>
+    private Expression BuildSingleQueryingEnumerableExpression(
+        Type resultClrType,
+        object materializer,
+        Type materializerOpenGenericType,
+        SelectExpression selectExpression)
+    {
         var queryContextParam = Parameter(typeof(QueryContext), "queryContext");
         var dataReaderParam = Parameter(typeof(DbDataReader), "dataReader");
         var resultContextParam = Parameter(typeof(ResultContext), "resultContext");
         var resultCoordinatorParam = Parameter(typeof(SingleQueryResultCoordinator), "resultCoordinator");
 
-        var materializeMethod = materializerType.GetMethod(nameof(RelationalEntityMaterializer<object>.Materialize))!;
+        var materializerType = materializerOpenGenericType.MakeGenericType(resultClrType);
+        var materializeMethod = materializerType.GetMethod("Materialize")!;
         var materializerConstant = Constant(materializer, materializerType);
 
+        var materializeCall = Call(
+            materializerConstant, materializeMethod, queryContextParam, dataReaderParam, resultContextParam, resultCoordinatorParam);
+
+        // The base class Materialize returns object? but the shaper needs the typed result
+        var typedCall = materializeCall.Type == resultClrType
+            ? (Expression)materializeCall
+            : Convert(materializeCall, resultClrType);
+
         var shaperLambda = Lambda(
-            Call(materializerConstant, materializeMethod, queryContextParam, dataReaderParam, resultContextParam, resultCoordinatorParam),
+            typedCall,
             queryContextParam,
             dataReaderParam,
             resultContextParam,
             resultCoordinatorParam);
 
-        // Build the RelationalCommandResolver
         var relationalCommandResolver = CreateRelationalCommandResolverExpression(selectExpression);
 
-        // Return the SingleQueryingEnumerable.Create call expression
         return Call(
-            CreateSingleQueryingEnumerableMethodInfo.MakeGenericMethod(clrType),
+            CreateSingleQueryingEnumerableMethodInfo.MakeGenericMethod(resultClrType),
             Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
             relationalCommandResolver,
             Constant(null, typeof(ReaderColumn?[])),

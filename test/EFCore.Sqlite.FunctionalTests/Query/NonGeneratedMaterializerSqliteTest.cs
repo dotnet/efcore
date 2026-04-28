@@ -253,4 +253,127 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
     }
 
     #endregion
+
+    #region Reference Include tests
+
+    [ConditionalFact]
+    public async Task Reference_include_no_tracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "EF Blog" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .Include(p => p.Blog)
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+
+        Assert.Equal("Post 1", results[0].Title);
+        Assert.NotNull(results[0].Blog);
+        Assert.Equal("EF Blog", results[0].Blog!.Title);
+
+        Assert.Equal("Post 2", results[1].Title);
+        Assert.NotNull(results[1].Blog);
+        Assert.Equal("EF Blog", results[1].Blog!.Title);
+    }
+
+    [ConditionalFact]
+    public async Task Reference_include_tracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "EF Blog" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .Include(p => p.Blog)
+            .OrderBy(p => p.Id)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.NotNull(results[0].Blog);
+        Assert.NotNull(results[1].Blog);
+
+        // Same Blog instance via identity resolution
+        Assert.Same(results[0].Blog, results[1].Blog);
+
+        // All tracked
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+    }
+
+    [ConditionalFact]
+    public async Task Reference_include_null_related_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<OptionalBlogPostContext>(
+            seed: async ctx =>
+            {
+                ctx.Posts.Add(new OptionalPost { Id = 1, Title = "Orphan Post" });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Posts
+            .Include(p => p.Blog)
+            .AsNoTracking()
+            .SingleAsync();
+
+        Assert.Equal("Orphan Post", result.Title);
+        Assert.Null(result.Blog);
+    }
+
+    protected class OptionalPost
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public int? BlogId { get; set; }
+        public Blog? Blog { get; set; }
+    }
+
+    protected class OptionalBlogPostContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Blog> Blogs => Set<Blog>();
+        public DbSet<OptionalPost> Posts => Set<OptionalPost>();
+    }
+
+    protected class Blog
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public List<Post> Posts { get; set; } = [];
+    }
+
+    protected class Post
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public int BlogId { get; set; }
+        public Blog? Blog { get; set; }
+    }
+
+    protected class BlogPostContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Blog> Blogs => Set<Blog>();
+        public DbSet<Post> Posts => Set<Post>();
+    }
+
+    #endregion
 }

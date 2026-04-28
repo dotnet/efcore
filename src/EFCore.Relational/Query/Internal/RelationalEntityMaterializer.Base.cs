@@ -1,0 +1,58 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+/// <remarks>
+///     Abstract base class for <see cref="RelationalEntityMaterializer{TEntity}" />.
+///     Holds include information and the entity type, providing a non-generic handle for
+///     building materializer trees.
+/// </remarks>
+public abstract class RelationalEntityMaterializer
+{
+    private List<ReferenceIncludeInfo>? _referenceIncludes;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract IEntityType EntityType { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract object? Materialize(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        ResultContext resultContext,
+        SingleQueryResultCoordinator resultCoordinator);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void AddReferenceInclude(ReferenceIncludeInfo includeInfo)
+        => (_referenceIncludes ??= []).Add(includeInfo);
+
+    /// <summary>
+    ///     The reference includes for this entity, or null if there are none.
+    /// </summary>
+    protected List<ReferenceIncludeInfo>? ReferenceIncludes
+        => _referenceIncludes;
+}

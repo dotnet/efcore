@@ -33,12 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///         This code is regular C# and does not need generation.
 ///     </para>
 /// </remarks>
-public class RelationalEntityMaterializer<TEntity>
+public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterializer
     where TEntity : class, new()
 {
+    private readonly IEntityType _entityType;
     private readonly IKey? _primaryKey;
     private readonly KeyColumnInfo[]? _keyColumns;
     private readonly bool _isTracking;
+    private readonly bool _isNullable;
 
     /// <summary>
     ///     The concrete type infos for this entity type hierarchy. For non-TPH entities, this contains
@@ -66,19 +68,23 @@ public class RelationalEntityMaterializer<TEntity>
     public RelationalEntityMaterializer(
         IEntityType entityType,
         IReadOnlyDictionary<IPropertyBase, int> projectionMap,
-        bool isTracking)
+        bool isTracking,
+        bool isNullable = false)
     {
-        // Note that isTracking may be true but with a non-trackable projected type (e.g. keyless entity type).
-        _primaryKey = isTracking ? entityType.FindPrimaryKey() : null;
+        _entityType = entityType;
+        var primaryKey = entityType.FindPrimaryKey();
+        _primaryKey = isTracking ? primaryKey : null;
         _isTracking = _primaryKey is not null;
+        _isNullable = isNullable;
 
-        if (_primaryKey is not null)
+        // Build key column info — needed for tracking (identity resolution) and for nullable entities (null detection)
+        if (primaryKey is not null && (isTracking || isNullable))
         {
-            _keyColumns = new KeyColumnInfo[_primaryKey.Properties.Count];
+            _keyColumns = new KeyColumnInfo[primaryKey.Properties.Count];
 
-            for (var i = 0; i < _primaryKey.Properties.Count; i++)
+            for (var i = 0; i < primaryKey.Properties.Count; i++)
             {
-                var keyProperty = _primaryKey.Properties[i];
+                var keyProperty = primaryKey.Properties[i];
                 _keyColumns[i] = new KeyColumnInfo(projectionMap[keyProperty], keyProperty.ClrType);
             }
         }
@@ -138,23 +144,21 @@ public class RelationalEntityMaterializer<TEntity>
         }
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public TEntity? Materialize(
+    /// <inheritdoc />
+    public override IEntityType EntityType => _entityType;
+
+    /// <inheritdoc />
+    public override object? Materialize(
         QueryContext queryContext,
         DbDataReader dataReader,
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
     {
-        if (_isTracking)
+        // Check for null keys — needed for tracking (identity resolution) and nullable entities (LEFT JOIN)
+        if (_keyColumns is not null)
         {
-            // Identity resolution: check if we already have this entity tracked
-            var keyValues = new object[_keyColumns!.Length];
             var hasNullKey = false;
+            object[]? keyValues = _isTracking ? new object[_keyColumns.Length] : null;
 
             for (var i = 0; i < _keyColumns.Length; i++)
             {
@@ -166,11 +170,14 @@ public class RelationalEntityMaterializer<TEntity>
                     break;
                 }
 
-                keyValues[i] = dataReader.GetFieldValue<object>(keyCol.ColumnIndex);
-
-                if (keyValues[i].GetType() != keyCol.ClrType)
+                if (keyValues is not null)
                 {
-                    keyValues[i] = Convert.ChangeType(keyValues[i], keyCol.ClrType);
+                    keyValues[i] = dataReader.GetFieldValue<object>(keyCol.ColumnIndex);
+
+                    if (keyValues[i].GetType() != keyCol.ClrType)
+                    {
+                        keyValues[i] = Convert.ChangeType(keyValues[i], keyCol.ClrType);
+                    }
                 }
             }
 
@@ -179,10 +186,13 @@ public class RelationalEntityMaterializer<TEntity>
                 return null;
             }
 
-            var entry = queryContext.TryGetEntry(_primaryKey!, keyValues, throwOnNullKey: true, out _);
-            if (entry is not null)
+            if (_isTracking)
             {
-                return (TEntity)entry.Entity;
+                var entry = queryContext.TryGetEntry(_primaryKey!, keyValues!, throwOnNullKey: true, out _);
+                if (entry is not null)
+                {
+                    return (TEntity)entry.Entity;
+                }
             }
         }
 
@@ -193,6 +203,52 @@ public class RelationalEntityMaterializer<TEntity>
         if (_isTracking)
         {
             queryContext.StartTracking(typeInfo.EntityType, entity, Snapshot.Empty);
+        }
+
+        // Process reference includes
+        if (ReferenceIncludes is not null)
+        {
+            for (var i = 0; i < ReferenceIncludes.Count; i++)
+            {
+                var include = ReferenceIncludes[i];
+
+                // TPH guard: the navigation may be declared on a derived type that this entity isn't
+                if (!include.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
+                {
+                    continue;
+                }
+
+                var relatedEntity = include.Materializer.Materialize(queryContext, dataReader, resultContext, resultCoordinator);
+
+                if (_isTracking && !include.IsKeylessEntityType)
+                {
+                    // Tracking query with a trackable declaring type: the state manager handles fixup
+                    // automatically when both entities are tracked. We only need to explicitly mark the
+                    // navigation as loaded when the related entity is null (LEFT JOIN with no match),
+                    // since the state manager won't see it.
+                    if (relatedEntity is null)
+                    {
+                        queryContext.SetNavigationIsLoaded(entity, include.Navigation);
+                    }
+                }
+                else
+                {
+                    // Non-tracking query, or the declaring entity type is keyless (can't be tracked):
+                    // perform fixup manually by setting the navigation property directly.
+                    include.Navigation.SetIsLoadedWhenNoTracking(entity);
+
+                    if (relatedEntity is not null)
+                    {
+                        include.NavigationSetter.SetClrValue(entity, relatedEntity);
+
+                        if (include.InverseNavigation is { IsCollection: false } inverse)
+                        {
+                            inverse.SetIsLoadedWhenNoTracking(relatedEntity);
+                            include.InverseNavigationSetter?.SetClrValue(relatedEntity, entity);
+                        }
+                    }
+                }
+            }
         }
 
         return entity;
@@ -253,6 +309,10 @@ public class RelationalEntityMaterializer<TEntity>
         }
         else
         {
+            // TODO: Temporary boxing property population path, since ClrPropertySetter is generic over both tyhe
+            // property type and the entity type, but with inheritance the entity type to be materialized varies
+            // and isn't known. To eliminate this boxing, IClrPropertySetter would need a non-generic ReadAndSet
+            // method that takes the entity as object (but the property should still be typed to avoid boxing that)
             for (var i = 0; i < materializers.Length; i++)
             {
                 ref readonly var pm = ref materializers[i];
