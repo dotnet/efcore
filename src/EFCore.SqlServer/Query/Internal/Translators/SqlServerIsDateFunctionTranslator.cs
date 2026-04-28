@@ -33,7 +33,7 @@ public class SqlServerIsDateFunctionTranslator(ISqlExpressionFactory sqlExpressi
                         [arguments[1]],
                         nullable: true,
                         argumentsPropagateNullability: Statics.TrueArrays[1],
-                        method.ReturnType),
+                        typeof(int)),
                     method.ReturnType)
                 : null;
 }

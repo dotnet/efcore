@@ -44,7 +44,7 @@ WHERE "b"."Guid" = @p
 
         AssertSql(
             """
-SELECT CAST("b"."Guid" AS TEXT)
+SELECT "b"."Guid"
 FROM "BasicTypesEntities" AS "b"
 """);
     }
