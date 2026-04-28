@@ -327,5 +327,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         public ParameterExpression JObjectParameter { get; } = jObjectParameter;
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            return this;
+        }
     }
 }

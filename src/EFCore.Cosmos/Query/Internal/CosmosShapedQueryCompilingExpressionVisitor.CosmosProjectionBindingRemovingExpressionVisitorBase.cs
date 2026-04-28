@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -305,7 +306,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var relatedEntityClrType = navigation.TargetEntityType.ClrType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             Expression entityEntryVariable = trackQueryResults
-                ? shaperExpressions.Select(x => x is BinaryExpression { NodeType: ExpressionType.Assign, Left: ParameterExpression parameter } && x.Type == typeof(InternalEntityEntry) ? parameter : null).First(x => x != null)
+                ? ((BinaryExpression)new ExtractingExpressionVisitor().Extract(navigationExpression, x => x is BinaryExpression { NodeType: ExpressionType.Assign, Left: ParameterExpression parameter } && x.Type == typeof(InternalEntityEntry))).Left
                 : Constant(null, typeof(InternalEntityEntry));
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -536,6 +537,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var principalProperty = property.FindFirstPrincipal();
                     if (principalProperty != null)
                     {
+                        // If in owner mappings, we need to get the actual value
                         if (_projectionBindings.TryGetValue(jTokenExpression, out var projectionBinding))
                         {
                             return projectionBinding;
@@ -710,5 +712,29 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
+
+        private class ExtractingExpressionVisitor : ExpressionVisitor
+        {
+            private Expression _result;
+            private Func<Expression, bool> _func;
+            public Expression Extract(Expression expression, Func<Expression, bool> func)
+            {
+                _func = func;
+                Visit(expression);
+                return _result;
+            }
+
+            [return: NotNullIfNotNull("node")]
+            public override Expression Visit(Expression node)
+            {
+                if (_func(node))
+                {
+                    _result = node;
+                    return node;
+                }
+
+                return base.Visit(node);
+            }
+        }
     }
 }
