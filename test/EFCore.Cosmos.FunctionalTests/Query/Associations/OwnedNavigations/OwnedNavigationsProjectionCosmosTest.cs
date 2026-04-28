@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Sdk;
-
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 public class OwnedNavigationsProjectionCosmosTest : OwnedNavigationsProjectionTestBase<OwnedNavigationsCosmosFixture>
@@ -171,14 +169,11 @@ FROM root c
                 ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
                 queryTrackingBehavior: queryTrackingBehavior);
 
-            if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
-            {
-                AssertSql(
-                    """
+            AssertSql(
+                """
 SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]
 FROM root c
 """);
-            }
         }
     }
 
@@ -193,14 +188,11 @@ FROM root c
                 ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
                 queryTrackingBehavior: queryTrackingBehavior);
 
-            if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
-            {
-                AssertSql(
-                    """
+            AssertSql(
+                """
 SELECT VALUE c["OptionalAssociate"]["RequiredNestedAssociate"]
 FROM root c
 """);
-            }
         }
     }
 
@@ -254,10 +246,10 @@ ORDER BY c["Id"]
 
     public override async Task Select_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
-
             AssertSql(
                 """
 SELECT VALUE c["RequiredAssociate"]["NestedCollection"]
@@ -291,10 +283,10 @@ ORDER BY c["Id"]
 
     public override async Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.SelectMany_associate_collection(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.SelectMany_associate_collection(queryTrackingBehavior);
-
             AssertSql(
                 """
 SELECT VALUE a
@@ -306,10 +298,10 @@ JOIN a IN c["AssociateCollection"]
 
     public override async Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
-
             AssertSql(
                 """
 SELECT VALUE n
@@ -321,10 +313,10 @@ JOIN n IN c["RequiredAssociate"]["NestedCollection"]
 
     public override async Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
-
             AssertSql(
                 """
 SELECT VALUE n
@@ -391,17 +383,20 @@ FROM root c
 
     public override async Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
     {
-        throw SkipException.ForSkip("Didn't work on main either.");
-//        await base.Select_optional_associate_and_ints(queryTrackingBehavior);
+        await base.Select_optional_associate_and_ints(queryTrackingBehavior);
 
-//        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
-//        {
-//            AssertSql(
-//                """
-//SELECT c, c["RequiredAssociate"]["Ints"]
-//FROM root c
-//""");
-//        }
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE
+{
+    "First" : c["OptionalAssociate"],
+    "Ints" : c["RequiredAssociate"]["Ints"]
+}
+FROM root c
+""");
+        }
     }
 
     #endregion Multiple
@@ -428,7 +423,7 @@ FROM root c
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
+            await AssertTranslationFailed(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
         }
     }
 
