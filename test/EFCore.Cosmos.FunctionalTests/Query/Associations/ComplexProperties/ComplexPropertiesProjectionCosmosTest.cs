@@ -147,22 +147,32 @@ FROM root c
 
     public override async Task Select_required_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_required_nested_on_optional_associate(queryTrackingBehavior);
+        // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
+        // result to be filtered out entirely.
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
+            ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
+            queryTrackingBehavior: queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]
 FROM root c
 """);
     }
 
     public override async Task Select_optional_nested_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_optional_nested_on_optional_associate(queryTrackingBehavior);
+        // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
+        // result to be filtered out entirely.
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
+            ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
+            queryTrackingBehavior: queryTrackingBehavior);
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]["RequiredNestedAssociate"]
 FROM root c
 """);
     }
@@ -366,7 +376,7 @@ ORDER BY c["Id"]
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]
 FROM root c
 ORDER BY c["Id"]
 """);

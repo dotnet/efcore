@@ -172,8 +172,19 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 _projectionMapping[_projectionMembers.Peek()] = structuralTypeProjection;
 
-                return structuralTypeShaper.Update(
+                structuralTypeShaper = structuralTypeShaper.Update(
                     new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+
+                if (structuralTypeShaper.StructuralType is IComplexType { ComplexProperty.IsNullable: true })
+                {
+                    // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                    // This mirrors for structural types what we do for scalars.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    structuralTypeShaper = structuralTypeShaper.MakeClrTypeNullable();
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                }
+
+                return structuralTypeShaper;
             }
 
             case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
@@ -419,6 +430,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         if (targetType != expression.Type
             && targetType.TryGetSequenceType() == null)
         {
+            if (!(targetType.MakeNullable() == expression.Type))
+            {
+
+            }
             Check.DebugAssert(targetType.MakeNullable() == expression.Type, "expression.Type must be nullable of targetType");
 
             expression = Expression.Convert(expression, targetType);
