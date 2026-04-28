@@ -1,11 +1,73 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.DotNet.Cli.CommandLine;
+
 namespace Microsoft.EntityFrameworkCore.Tools;
 
 public sealed class ProjectTest(ITestOutputHelper output)
 {
     private const string TargetFramework = "net10.0";
+
+    [Fact]
+    public void Alias_option_is_used()
+    {
+        var primary = CreateOption("--project");
+        var alias = CreateOption("--file");
+        alias.TryParse("MyApp.cs");
+
+        Assert.Equal("MyApp.cs", RootCommand.ResolveOption(primary, alias, configValue: null));
+    }
+
+    [Fact]
+    public void Primary_option_is_used_when_alias_is_not_specified()
+    {
+        var primary = CreateOption("--project");
+        var alias = CreateOption("--file");
+        primary.TryParse("MyApp.csproj");
+
+        Assert.Equal("MyApp.csproj", RootCommand.ResolveOption(primary, alias, configValue: null));
+    }
+
+    [Fact]
+    public void Config_value_is_used_when_no_options_specified()
+    {
+        var primary = CreateOption("--project");
+        var alias = CreateOption("--file");
+
+        Assert.Equal("FromConfig", RootCommand.ResolveOption(primary, alias, configValue: "FromConfig"));
+    }
+
+    [Fact]
+    public void Alias_option_takes_precedence_over_config()
+    {
+        var primary = CreateOption("--project");
+        var alias = CreateOption("--file");
+        alias.TryParse("MyApp.cs");
+
+        Assert.Equal("MyApp.cs", RootCommand.ResolveOption(primary, alias, configValue: "FromConfig"));
+    }
+
+    [Fact]
+    public void Primary_and_alias_options_together_throws()
+    {
+        var primary = CreateOption("--project");
+        var alias = CreateOption("--file");
+        primary.TryParse("MyApp.csproj");
+        alias.TryParse("MyApp.cs");
+
+        Assert.Throws<CommandException>(
+            () => RootCommand.ResolveOption(primary, alias, configValue: null));
+    }
+
+    [Fact]
+    public void Returns_null_when_nothing_specified()
+    {
+        var primary = CreateOption("--project");
+        var alias = CreateOption("--file");
+
+        Assert.Null(RootCommand.ResolveOption(primary, alias, configValue: null));
+    }
 
     [Fact]
     public void Csproj_metadata_can_be_extracted()
@@ -92,4 +154,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
             }
         }
     }
+
+    private static CommandOption CreateOption(string name)
+        => new($"{name} <VALUE>", CommandOptionType.SingleValue);
 }

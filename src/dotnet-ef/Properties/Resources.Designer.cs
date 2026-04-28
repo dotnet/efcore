@@ -224,6 +224,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("EFFullName");
 
         /// <summary>
+        ///     The file-based app to use. An alias for --project.
+        /// </summary>
+        public static string FileDescription
+            => GetString("FileDescription");
+
+        /// <summary>
         ///     The target framework. Defaults to the first one in the project.
         /// </summary>
         public static string FrameworkDescription
@@ -386,6 +392,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
+        ///     The --{option1} and --{option2} options cannot be used together.
+        /// </summary>
+        public static string MutuallyExclusiveOptions(object? option1, object? option2)
+            => string.Format(
+                GetString("MutuallyExclusiveOptions", nameof(option1), nameof(option2)),
+                option1, option2);
+
+        /// <summary>
         ///     The project targets multiple frameworks. Use the --framework option to specify which target framework to use.
         /// </summary>
         public static string MultipleTargetFrameworks
@@ -522,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("PrefixDescription");
 
         /// <summary>
-        ///     The project or file-based app to use. Defaults to the current working directory.
+        ///     The project to use. Defaults to the current working directory.
         /// </summary>
         public static string ProjectDescription
             => GetString("ProjectDescription");
@@ -566,10 +580,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("SelfContainedDescription");
 
         /// <summary>
-        ///     The startup project or file-based app to use. Defaults to the current working directory.
+        ///     The startup project to use. Defaults to the current working directory.
         /// </summary>
         public static string StartupProjectDescription
             => GetString("StartupProjectDescription");
+
+        /// <summary>
+        ///     The startup file-based app to use. An alias for --startup-project.
+        /// </summary>
+        public static string StartupFileDescription
+            => GetString("StartupFileDescription");
 
         /// <summary>
         ///     The suffix to attach to the name of all the generated files

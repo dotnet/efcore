@@ -192,6 +192,9 @@
   <data name="DotnetEfFullName" xml:space="preserve">
     <value>Entity Framework Core .NET Command-line Tools</value>
   </data>
+  <data name="FileDescription" xml:space="preserve">
+    <value>The file-based app to use. An alias for --project.</value>
+  </data>
   <data name="DotNetEfConfigInvalidJson" xml:space="preserve">
     <value>Unable to read '{configFile}'. Fix the JSON and try again. {details}</value>
   </data>
@@ -291,6 +294,9 @@
   <data name="MultipleStartupProjects" xml:space="preserve">
     <value>More than one project was found in the current working directory. Use the --startup-project option.</value>
   </data>
+  <data name="MutuallyExclusiveOptions" xml:space="preserve">
+    <value>The --{option1} and --{option2} options cannot be used together.</value>
+  </data>
   <data name="MultipleTargetFrameworks" xml:space="preserve">
     <value>The project targets multiple frameworks. Use the --framework option to specify which target framework to use.</value>
   </data>
@@ -355,7 +361,7 @@
     <value>Prefix output with level.</value>
   </data>
   <data name="ProjectDescription" xml:space="preserve">
-    <value>The project or file-based app to use. Defaults to the current working directory.</value>
+    <value>The project to use. Defaults to the current working directory.</value>
   </data>
   <data name="ProjectExtensionsDescription" xml:space="preserve">
     <value>Obsolete</value>
@@ -376,7 +382,10 @@
     <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
   </data>
   <data name="StartupProjectDescription" xml:space="preserve">
-    <value>The startup project or file-based app to use. Defaults to the current working directory.</value>
+    <value>The startup project to use. Defaults to the current working directory.</value>
+  </data>
+  <data name="StartupFileDescription" xml:space="preserve">
+    <value>The startup file-based app to use. An alias for --startup-project.</value>
   </data>
   <data name="SuffixDescription" xml:space="preserve">
     <value>The suffix to attach to the name of all the generated files</value>
