@@ -21,9 +21,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
-    private int _currentStructuralIndex;
-    private ParameterExpression _parentJObject;
-    private CosmosProjectionBindingRemovingExpressionVisitor _projectionBindingRemovingExpressionVisitor;
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
@@ -62,9 +59,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         {
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
-        
-        shaperBody = _projectionBindingRemovingExpressionVisitor.Visit(shaperBody);
 
+        // Because the shaper might process the data twice (duplicated shaper),
+        // we pass the data as ROM, and the shaper will create a JsonReaderData where needed.
+        var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
         var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter)
             .ProcessShaper(shaperBody);
 

@@ -71,7 +71,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true, bool isProjection = false)
+    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
@@ -89,7 +89,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression, applyDefaultTypeMapping) switch
+        return TranslateInternal(expression, applyDefaultTypeMapping, isProjection: true) switch
         {
             // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
             // expanding them in pre-visitation)
@@ -105,7 +105,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         };
     }
 
-    private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
+    private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true, bool isProjection = false)
     {
         var result = Visit(expression);
 
