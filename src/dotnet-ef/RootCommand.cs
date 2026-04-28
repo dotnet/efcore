@@ -15,7 +15,9 @@ internal class RootCommand : CommandBase
 {
     private CommandLineApplication? _command;
     private CommandOption? _project;
+    private CommandOption? _file;
     private CommandOption? _startupProject;
+    private CommandOption? _startupFile;
     private CommandOption? _framework;
     private CommandOption? _configuration;
     private CommandOption? _runtime;
@@ -33,7 +35,9 @@ internal class RootCommand : CommandBase
         options.Configure(command);
 
         _project = options.Project;
+        _file = options.File;
         _startupProject = options.StartupProject;
+        _startupFile = options.StartupFile;
         _framework = options.Framework;
         _configuration = options.Configuration;
         _runtime = options.Runtime;
@@ -60,8 +64,8 @@ internal class RootCommand : CommandBase
         }
 
         var config = DotNetEfConfigLoader.Load(Directory.GetCurrentDirectory());
-        var projectPath = _project!.Value() ?? config?.Project;
-        var startupProjectPath = _startupProject!.Value() ?? config?.StartupProject;
+        var projectPath = ResolveOption(_project!, _file!, config?.Project);
+        var startupProjectPath = ResolveOption(_startupProject!, _startupFile!, config?.StartupProject);
         var framework = _framework!.Value() ?? config?.Framework;
         var configuration = _configuration!.Value() ?? config?.Configuration;
         var runtime = _runtime!.Value() ?? config?.Runtime;
@@ -302,6 +306,20 @@ internal class RootCommand : CommandBase
         }
 
         return (projects[0], startupProjects[0]);
+    }
+
+    internal static string? ResolveOption(
+        CommandOption primary,
+        CommandOption alias,
+        string? configValue)
+    {
+        if (primary.HasValue() && alias.HasValue())
+        {
+            throw new CommandException(
+                Resources.MutuallyExclusiveOptions(primary.LongName!, alias.LongName!));
+        }
+
+        return alias.Value() ?? primary.Value() ?? configValue;
     }
 
     private static List<string> ResolveProjects(string? path)
