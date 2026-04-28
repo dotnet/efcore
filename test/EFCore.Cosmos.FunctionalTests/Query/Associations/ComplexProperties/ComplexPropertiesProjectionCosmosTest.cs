@@ -278,14 +278,8 @@ FROM root c
 
     public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+        await AssertTranslationFailed(() =>
             base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior));
-
-        AssertSql(
-            """
-SELECT c["Id"], c
-FROM root c
-""");
     }
 
     public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
