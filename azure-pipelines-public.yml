@@ -32,7 +32,7 @@ trigger:
       - feature/*
       - internal/release/*
 
-pr: ['*']
+pr: none
 
 stages:
 - stage: build
