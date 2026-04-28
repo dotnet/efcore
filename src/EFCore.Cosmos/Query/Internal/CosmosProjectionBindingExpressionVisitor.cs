@@ -151,18 +151,18 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 switch (structuralTypeShaper.ValueBufferExpression)
                 {
-                    case ProjectionBindingExpression projectionBinding:
+                    case ProjectionBindingExpression innerProjectionBinding:
 
-                        if (projectionBinding.ProjectionMember is null)
+                        if (innerProjectionBinding.ProjectionMember is null)
                         {
                             return QueryCompilationContext.NotTranslatedExpression;
                         }
 
-                        VerifySelectExpression(projectionBinding);
+                        VerifySelectExpression(innerProjectionBinding);
 
                         structuralTypeProjection =
                             (StructuralTypeProjectionExpression)_selectExpression
-                                .GetMappedProjection(projectionBinding.ProjectionMember);
+                                .GetMappedProjection(innerProjectionBinding.ProjectionMember);
 
                         break;
                     default:
@@ -172,17 +172,32 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 _projectionMapping[_projectionMembers.Peek()] = structuralTypeProjection;
 
-                structuralTypeShaper = structuralTypeShaper.Update(
-                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
+                var projectionBinding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer));
 
-                if (structuralTypeShaper.StructuralType is IComplexType { ComplexProperty.IsNullable: true })
+                if (structuralTypeShaper.StructuralType is IComplexType { ComplexProperty: { } complexProperty })
                 {
-                    // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
-                    // This mirrors for structural types what we do for scalars.
+                    if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
+                    {
+                        structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
+
+                        return new CollectionShaperExpression(
+                            projectionBinding,
+                            structuralTypeShaper,
+                            complexProperty,
+                            complexProperty.ComplexType.ClrType);
+                    }
+
+                    if (complexProperty.IsNullable)
+                    {
+                        // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                        // This mirrors for structural types what we do for scalars.
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    structuralTypeShaper = structuralTypeShaper.MakeClrTypeNullable();
+                        structuralTypeShaper = structuralTypeShaper.MakeClrTypeNullable();
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                    }
                 }
+
+                structuralTypeShaper = structuralTypeShaper.Update(projectionBinding);
 
                 return structuralTypeShaper;
             }

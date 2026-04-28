@@ -260,10 +260,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             jArray),
                         Lambda(innerShaper, jObjectParameter, ordinalParameter));
 
-                    var navigation = collectionShaperExpression.Navigation;
                     return Call(
-                        PopulateCollectionMethodInfo.MakeGenericMethod(navigation.TargetEntityType.ClrType, navigation.ClrType),
-                        Constant(navigation.GetCollectionAccessor()),
+                        PopulateCollectionMethodInfo.MakeGenericMethod(collectionShaperExpression.ElementType, collectionShaperExpression.Type),
+                        Constant(collectionShaperExpression.StrucutralProperty.GetCollectionAccessor()),
                         entities);
                 }
 

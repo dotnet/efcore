@@ -191,7 +191,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 case CollectionShaperExpression collectionShaperExpression:
                     var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
 
-                    var navigation = collectionShaperExpression.Navigation;
+                    var navigation = collectionShaperExpression.StrucutralProperty;
                     var collectionAccessor = navigation?.GetCollectionAccessor();
                     var collectionType = collectionAccessor?.CollectionType ?? collectionShaperExpression.Type;
                     var elementType = collectionShaperExpression.ElementType;

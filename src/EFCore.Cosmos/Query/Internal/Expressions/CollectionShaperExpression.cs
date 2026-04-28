@@ -12,12 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 /// <remarks>
-///     This represents a shaper that returns a collection. EG .Select(x => x.Collection)
+///     This represents a shaper that returns a structural collection. EG .Select(x => x.Collection)
 /// </remarks>
 public class CollectionShaperExpression(
     Expression projection,
     Expression innerShaper,
-    INavigationBase? navigation,
+    IPropertyBase? strucutralProperty,
     Type elementType)
     : Expression, IPrintableExpression
 {
@@ -43,7 +43,7 @@ public class CollectionShaperExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigationBase? Navigation { get; } = navigation;
+    public virtual IPropertyBase? StrucutralProperty { get; } = strucutralProperty;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,7 +69,7 @@ public class CollectionShaperExpression(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+        => StrucutralProperty?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +95,7 @@ public class CollectionShaperExpression(
         Expression projection,
         Expression innerShaper)
         => projection != Projection || innerShaper != InnerShaper
-            ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
+            ? new CollectionShaperExpression(projection, innerShaper, StrucutralProperty, ElementType)
             : this;
 
     /// <summary>
@@ -113,7 +113,7 @@ public class CollectionShaperExpression(
             expressionPrinter.Visit(Projection);
             expressionPrinter.Append(", ");
             expressionPrinter.Visit(InnerShaper);
-            expressionPrinter.AppendLine($", {Navigation?.Name})");
+            expressionPrinter.AppendLine($", {StrucutralProperty?.Name})");
         }
     }
 }
