@@ -391,7 +391,8 @@ ORDER BY c["Id"]
 
     public override async Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
     {
-        await base.Select_nullable_value_type_with_Value(queryTrackingBehavior);
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_nullable_value_type_with_Value(queryTrackingBehavior));
+        Assert.Equal("Nullable object must have a value.", ex.Message);
 
         AssertSql(
             """

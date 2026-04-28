@@ -345,7 +345,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             throw new InvalidOperationException(
                 CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(),
-                    "Could not project out structural subquery.")); // @TODO: Create issue?
+                    "Could not project out subquery.")); // @TODO: Create issue?
         }
 
         var @object = Visit(methodCallExpression.Object);
