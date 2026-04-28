@@ -3839,6 +3839,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.
+        /// </summary>
+        public static EventDefinition<string, string> LogOldMigrationVersion(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOldMigrationVersion;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOldMigrationVersion,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.OldMigrationVersionWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OldMigrationVersionWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.OldMigrationVersionWarning,
+                            _resourceManager.GetString("LogOldMigrationVersion")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.
         /// </summary>
         public static EventDefinition<string> LogNonDeterministicModel(IDiagnosticsLogger logger)

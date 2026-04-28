@@ -10,6 +10,7 @@ public class AdHocComplexTypeQueryCosmosTest(NonSharedFixture fixture) : AdHocCo
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
@@ -81,6 +82,24 @@ OFFSET 0 LIMIT 2
             """
 SELECT VALUE c
 FROM root c
+""");
+    }
+
+    public override async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
+    {
+        await base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
 """);
     }
 

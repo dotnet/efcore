@@ -338,7 +338,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 : null;
 
             // for the RevEng path, we avoid adding period properties to the entity
-            // because we don't want code for them to be generated - they need to be in shadow state
+            // because we don't want code for them to be generated - they are created as shadow properties
             // so if we don't find property on the entity, we know it's this scenario
             // and in that case period column name is actually the same as the period property name annotation
             // since in RevEng scenario there can't be custom column mapping

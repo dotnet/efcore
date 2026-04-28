@@ -676,7 +676,6 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task MaxBy_no_data_nullable_source(bool async)
     {
         // Always throws for sync.
@@ -761,7 +760,6 @@ OFFSET 0 LIMIT 1
 """);
             });
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task MaxBy_with_coalesce(bool async)
     {
         // Always throws for sync.
@@ -846,7 +844,6 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task MinBy_no_data_nullable_source(bool async)
     {
         // Always throws for sync.
@@ -915,7 +912,6 @@ OFFSET 0 LIMIT 1
         AssertSql();
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task MinBy_with_coalesce(bool async)
     {
         // Always throws for sync.
@@ -1422,7 +1418,6 @@ WHERE (((c["$type"] = "Order") AND (c["OrderID"] > 10)) AND (c["CustomerID"] != 
         AssertSql();
     }
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_client_Take(bool async)
     {
         // Always throws for sync.
@@ -2272,7 +2267,6 @@ WHERE NOT(false)
 """);
             });
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Contains_top_level(bool async)
     {
         // Always throws for sync.
@@ -2525,7 +2519,6 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
     {
         // Always throws for sync.
@@ -2629,6 +2622,7 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Where_subquery_where_any(bool async)
         => Fixture.NoSyncTest(
@@ -2700,6 +2694,7 @@ WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/289 (EXISTS/ANY/ALL subqueries cause internal server error)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Where_subquery_where_all(bool async)
         => Fixture.NoSyncTest(

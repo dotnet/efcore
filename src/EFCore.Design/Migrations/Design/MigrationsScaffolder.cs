@@ -268,7 +268,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
             if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
+                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model, resetVersion: true).GetRelationalModel()))
             {
                 var applied = false;
                 

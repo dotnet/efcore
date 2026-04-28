@@ -5,7 +5,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.SqlServerHierarchyIdDbContextOptionsBuilderExtensions",
       "Methods": [
         {
-          "Member": "static T Microsoft.EntityFrameworkCore.SqlServerHierarchyIdDbContextOptionsBuilderExtensions.UseHierarchyId<T>(this T optionsBuilder);"
+          "Member": "static T UseHierarchyId<T>(this T optionsBuilder);"
         }
       ]
     },
@@ -13,7 +13,7 @@
       "Type": "static class Microsoft.Extensions.DependencyInjection.SqlServerHierarchyIdServiceCollectionExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.SqlServerHierarchyIdServiceCollectionExtensions.AddEntityFrameworkSqlServerHierarchyId(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkSqlServerHierarchyId(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
         }
       ]
     },
@@ -21,18 +21,18 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<Microsoft.EntityFrameworkCore.HierarchyId>",
       "Methods": [
         {
-          "Member": "override Microsoft.EntityFrameworkCore.HierarchyId Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter.FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
+          "Member": "override Microsoft.EntityFrameworkCore.HierarchyId FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter.ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, Microsoft.EntityFrameworkCore.HierarchyId value);"
+          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, Microsoft.EntityFrameworkCore.HierarchyId value);"
         }
       ],
       "Properties": [
         {
-          "Member": "override System.Linq.Expressions.Expression Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter.ConstructorExpression { get; }"
+          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter.Instance { get; }"
+          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonHierarchyIdReaderWriter Instance { get; }"
         }
       ]
     },
@@ -40,18 +40,18 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<Microsoft.SqlServer.Types.SqlHierarchyId>",
       "Methods": [
         {
-          "Member": "override Microsoft.SqlServer.Types.SqlHierarchyId Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter.FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
+          "Member": "override Microsoft.SqlServer.Types.SqlHierarchyId FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter.ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, Microsoft.SqlServer.Types.SqlHierarchyId value);"
+          "Member": "override void ToJsonTyped(System.Text.Json.Utf8JsonWriter writer, Microsoft.SqlServer.Types.SqlHierarchyId value);"
         }
       ],
       "Properties": [
         {
-          "Member": "override System.Linq.Expressions.Expression Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter.ConstructorExpression { get; }"
+          "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter.Instance { get; }"
+          "Member": "static Microsoft.EntityFrameworkCore.SqlServer.Storage.Json.SqlServerJsonSqlHierarchyIdReaderWriter Instance { get; }"
         }
       ]
     }

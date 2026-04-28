@@ -5,24 +5,24 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings",
       "Methods": [
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(object? numValues, object? numProperties);"
+          "Member": "static string InvalidNumberOfIndexSortOrderValues(object? numValues, object? numProperties);"
         }
       ],
       "Properties": [
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings.ArgumentIsEmpty { get; }"
+          "Member": "static string ArgumentIsEmpty { get; }"
         },
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings.ArgumentIsNegativeNumber { get; }"
+          "Member": "static string ArgumentIsNegativeNumber { get; }"
         },
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending { get; }"
+          "Member": "static string CannotSpecifyBothIsDescendingAndAllDescending { get; }"
         },
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings.CollectionArgumentHasEmptyElements { get; }"
+          "Member": "static string CollectionArgumentHasEmptyElements { get; }"
         },
         {
-          "Member": "static string Microsoft.EntityFrameworkCore.Diagnostics.AbstractionsStrings.CollectionArgumentIsEmpty { get; }"
+          "Member": "static string CollectionArgumentIsEmpty { get; }"
         }
       ]
     },
@@ -30,12 +30,12 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.BackingFieldAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.BackingFieldAttribute.BackingFieldAttribute(string name);"
+          "Member": "BackingFieldAttribute(string name);"
         }
       ],
       "Properties": [
         {
-          "Member": "string Microsoft.EntityFrameworkCore.BackingFieldAttribute.Name { get; }"
+          "Member": "string Name { get; }"
         }
       ]
     },
@@ -43,12 +43,12 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.CommentAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.CommentAttribute.CommentAttribute(string comment);"
+          "Member": "CommentAttribute(string comment);"
         }
       ],
       "Properties": [
         {
-          "Member": "string Microsoft.EntityFrameworkCore.CommentAttribute.Comment { get; }"
+          "Member": "string Comment { get; }"
         }
       ]
     },
@@ -56,27 +56,27 @@
       "Type": "class Microsoft.EntityFrameworkCore.DbFunctionAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.DbFunctionAttribute.DbFunctionAttribute();"
+          "Member": "DbFunctionAttribute();"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.DbFunctionAttribute.DbFunctionAttribute(string name, string? schema = null);"
+          "Member": "DbFunctionAttribute(string name, string? schema = null);"
         }
       ],
       "Properties": [
         {
-          "Member": "virtual bool Microsoft.EntityFrameworkCore.DbFunctionAttribute.IsBuiltIn { get; set; }"
+          "Member": "virtual bool IsBuiltIn { get; set; }"
         },
         {
-          "Member": "virtual bool Microsoft.EntityFrameworkCore.DbFunctionAttribute.IsNullable { get; set; }"
+          "Member": "virtual bool IsNullable { get; set; }"
         },
         {
-          "Member": "bool Microsoft.EntityFrameworkCore.DbFunctionAttribute.IsNullableHasValue { get; }"
+          "Member": "bool IsNullableHasValue { get; }"
         },
         {
-          "Member": "virtual string? Microsoft.EntityFrameworkCore.DbFunctionAttribute.Name { get; set; }"
+          "Member": "virtual string? Name { get; set; }"
         },
         {
-          "Member": "virtual string? Microsoft.EntityFrameworkCore.DbFunctionAttribute.Schema { get; set; }"
+          "Member": "virtual string? Schema { get; set; }"
         }
       ]
     },
@@ -84,44 +84,44 @@
       "Type": "enum Microsoft.EntityFrameworkCore.DeleteBehavior",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.DeleteBehavior.DeleteBehavior();"
+          "Member": "DeleteBehavior();"
         }
       ],
       "Fields": [
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.Cascade",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Cascade",
           "Value": "3"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.ClientCascade",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior ClientCascade",
           "Value": "4"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.ClientNoAction",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior ClientNoAction",
           "Value": "6"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetDefault",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior ClientSetDefault",
           "Value": "8"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetNull",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior ClientSetNull",
           "Value": "0"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior NoAction",
           "Value": "5"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.Restrict",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Restrict",
           "Value": "1"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.SetDefault",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior SetDefault",
           "Value": "7"
         },
         {
-          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehavior.SetNull",
+          "Member": "const Microsoft.EntityFrameworkCore.DeleteBehavior SetNull",
           "Value": "2"
         }
       ]
@@ -130,12 +130,12 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.DeleteBehaviorAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.DeleteBehaviorAttribute.DeleteBehaviorAttribute(Microsoft.EntityFrameworkCore.DeleteBehavior behavior);"
+          "Member": "DeleteBehaviorAttribute(Microsoft.EntityFrameworkCore.DeleteBehavior behavior);"
         }
       ],
       "Properties": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.DeleteBehavior Microsoft.EntityFrameworkCore.DeleteBehaviorAttribute.Behavior { get; }"
+          "Member": "Microsoft.EntityFrameworkCore.DeleteBehavior Behavior { get; }"
         }
       ]
     },
@@ -143,12 +143,12 @@
       "Type": "class Microsoft.EntityFrameworkCore.EntityTypeConfigurationAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.EntityTypeConfigurationAttribute.EntityTypeConfigurationAttribute(System.Type entityConfigurationType);"
+          "Member": "EntityTypeConfigurationAttribute(System.Type entityConfigurationType);"
         }
       ],
       "Properties": [
         {
-          "Member": "System.Type Microsoft.EntityFrameworkCore.EntityTypeConfigurationAttribute.EntityTypeConfigurationType { get; }"
+          "Member": "System.Type EntityTypeConfigurationType { get; }"
         }
       ]
     },
@@ -156,19 +156,19 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader",
       "Methods": [
         {
-          "Member": "void Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader.Dispose();"
+          "Member": "void Dispose();"
         },
         {
-          "Member": "bool Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader.IsLoaded(object entity, string navigationName = \"\");"
+          "Member": "bool IsLoaded(object entity, string navigationName = \"\");"
         },
         {
-          "Member": "void Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader.Load(object entity, string navigationName = \"\");"
+          "Member": "void Load(object entity, string navigationName = \"\");"
         },
         {
-          "Member": "System.Threading.Tasks.Task Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader.LoadAsync(object entity, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken), string navigationName = \"\");"
+          "Member": "System.Threading.Tasks.Task LoadAsync(object entity, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken), string navigationName = \"\");"
         },
         {
-          "Member": "void Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader.SetLoaded(object entity, string navigationName = \"\", bool loaded = true);"
+          "Member": "void SetLoaded(object entity, string navigationName = \"\", bool loaded = true);"
         }
       ]
     },
@@ -176,31 +176,31 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.IndexAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.IndexAttribute.IndexAttribute(string propertyName, params string[] additionalPropertyNames);"
+          "Member": "IndexAttribute(string propertyName, params string[] additionalPropertyNames);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.IndexAttribute.IndexAttribute(params string[] propertyNames);",
+          "Member": "IndexAttribute(params string[] propertyNames);",
           "Stage": "Obsolete"
         }
       ],
       "Properties": [
         {
-          "Member": "bool Microsoft.EntityFrameworkCore.IndexAttribute.AllDescending { get; set; }"
+          "Member": "bool AllDescending { get; set; }"
         },
         {
-          "Member": "bool[]? Microsoft.EntityFrameworkCore.IndexAttribute.IsDescending { get; set; }"
+          "Member": "bool[]? IsDescending { get; set; }"
         },
         {
-          "Member": "bool Microsoft.EntityFrameworkCore.IndexAttribute.IsUnique { get; set; }"
+          "Member": "bool IsUnique { get; set; }"
         },
         {
-          "Member": "bool Microsoft.EntityFrameworkCore.IndexAttribute.IsUniqueHasValue { get; }"
+          "Member": "bool IsUniqueHasValue { get; }"
         },
         {
-          "Member": "string? Microsoft.EntityFrameworkCore.IndexAttribute.Name { get; set; }"
+          "Member": "string? Name { get; set; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<string> Microsoft.EntityFrameworkCore.IndexAttribute.PropertyNames { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<string> PropertyNames { get; }"
         }
       ]
     },
@@ -208,7 +208,7 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.KeylessAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.KeylessAttribute.KeylessAttribute();"
+          "Member": "KeylessAttribute();"
         }
       ]
     },
@@ -216,7 +216,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Infrastructure.LazyLoaderExtensions",
       "Methods": [
         {
-          "Member": "static TRelated? Microsoft.EntityFrameworkCore.Infrastructure.LazyLoaderExtensions.Load<TRelated>(this Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader? loader, object entity, ref TRelated? navigationField, string navigationName = \"\");"
+          "Member": "static TRelated? Load<TRelated>(this Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader? loader, object entity, ref TRelated? navigationField, string navigationName = \"\");"
         }
       ]
     },
@@ -224,7 +224,7 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.Query.NotParameterizedAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Query.NotParameterizedAttribute.NotParameterizedAttribute();"
+          "Member": "NotParameterizedAttribute();"
         }
       ]
     },
@@ -232,7 +232,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.ObservableCollectionExtensions",
       "Methods": [
         {
-          "Member": "static System.ComponentModel.BindingList<T> Microsoft.EntityFrameworkCore.ObservableCollectionExtensions.ToBindingList<T>(this System.Collections.ObjectModel.ObservableCollection<T> source);"
+          "Member": "static System.ComponentModel.BindingList<T> ToBindingList<T>(this System.Collections.ObjectModel.ObservableCollection<T> source);"
         }
       ]
     },
@@ -240,13 +240,13 @@
       "Type": "class Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionListSource<T> : System.Collections.ObjectModel.ObservableCollection<T>, System.ComponentModel.IListSource where T : class",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionListSource<T>.ObservableCollectionListSource();"
+          "Member": "ObservableCollectionListSource();"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionListSource<T>.ObservableCollectionListSource(System.Collections.Generic.IEnumerable<T> collection);"
+          "Member": "ObservableCollectionListSource(System.Collections.Generic.IEnumerable<T> collection);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.ChangeTracking.ObservableCollectionListSource<T>.ObservableCollectionListSource(System.Collections.Generic.List<T> list);"
+          "Member": "ObservableCollectionListSource(System.Collections.Generic.List<T> list);"
         }
       ]
     },
@@ -254,7 +254,7 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.OwnedAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.OwnedAttribute.OwnedAttribute();"
+          "Member": "OwnedAttribute();"
         }
       ]
     },
@@ -262,18 +262,18 @@
       "Type": "class Microsoft.EntityFrameworkCore.PrecisionAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.PrecisionAttribute.PrecisionAttribute(int precision, int scale);"
+          "Member": "PrecisionAttribute(int precision, int scale);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.PrecisionAttribute.PrecisionAttribute(int precision);"
+          "Member": "PrecisionAttribute(int precision);"
         }
       ],
       "Properties": [
         {
-          "Member": "int Microsoft.EntityFrameworkCore.PrecisionAttribute.Precision { get; }"
+          "Member": "int Precision { get; }"
         },
         {
-          "Member": "int? Microsoft.EntityFrameworkCore.PrecisionAttribute.Scale { get; }"
+          "Member": "int? Scale { get; }"
         }
       ]
     },
@@ -281,12 +281,12 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.PrimaryKeyAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.PrimaryKeyAttribute.PrimaryKeyAttribute(string propertyName, params string[] additionalPropertyNames);"
+          "Member": "PrimaryKeyAttribute(string propertyName, params string[] additionalPropertyNames);"
         }
       ],
       "Properties": [
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<string> Microsoft.EntityFrameworkCore.PrimaryKeyAttribute.PropertyNames { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<string> PropertyNames { get; }"
         }
       ]
     },
@@ -294,12 +294,12 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.UnicodeAttribute : System.Attribute",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.UnicodeAttribute.UnicodeAttribute(bool unicode = true);"
+          "Member": "UnicodeAttribute(bool unicode = true);"
         }
       ],
       "Properties": [
         {
-          "Member": "bool Microsoft.EntityFrameworkCore.UnicodeAttribute.IsUnicode { get; }"
+          "Member": "bool IsUnicode { get; }"
         }
       ]
     }

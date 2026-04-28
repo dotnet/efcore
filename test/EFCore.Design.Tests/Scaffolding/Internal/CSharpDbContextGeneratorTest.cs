@@ -1093,25 +1093,21 @@ public partial class TestDbContext : DbContext
                 skipBuild: true);
 
         [ConditionalFact]
-        public async Task Temporal_table_works()
-            // Shadow properties. Issue #26007.
-            => Assert.Equal(
-                SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState("Customer", "PeriodStart"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                    TestAsync(
-                        modelBuilder => modelBuilder.Entity(
-                            "Customer", e =>
-                            {
-                                e.Property<int>("Id");
-                                e.Property<string>("Name");
-                                e.HasKey("Id");
-                                e.ToTable(tb => tb.IsTemporal());
-                            }),
-                        new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                        code =>
-                        {
-                            AssertFileContents(
-                                $$"""
+        public Task Temporal_table_works()
+            => TestAsync(
+                modelBuilder => modelBuilder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+                        e.ToTable(tb => tb.IsTemporal());
+                    }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1157,12 +1153,15 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                                code.ContextFile);
-                        },
-                        model =>
-                        {
-                            // TODO
-                        }))).Message);
+                        code.ContextFile);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Customer")!;
+                    Assert.True(entityType.IsTemporal());
+                    Assert.Equal("PeriodStart", entityType.GetPeriodStartPropertyName());
+                    Assert.Equal("PeriodEnd", entityType.GetPeriodEndPropertyName());
+                });
 
         [ConditionalFact]
         public Task Sequences_work()

@@ -100,7 +100,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     }
 
     [ConditionalTheory, InlineData(false), InlineData(true)]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = await Fixture.CreateOptions(seed: false);
@@ -698,6 +697,7 @@ OFFSET 0 LIMIT 1
     }
 
     [ConditionalFact]
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Can_use_non_persisted_properties_complex()
     {
@@ -776,10 +776,13 @@ OFFSET 0 LIMIT 2
             Action<ModelBuilder> onModelCreating = null,
             bool seed = true)
         {
-            var options = CreateOptions(TestStore);
-            var embeddedOptions = new EmbeddedTransportationContextOptions(options, onModelCreating);
+            EmbeddedTransportationContextOptions embeddedOptions = null;
+
             await TestStore.InitializeAsync(
-                ServiceProvider, () => new EmbeddedTransportationContext(embeddedOptions), async c =>
+                ServiceProvider,
+                () => new EmbeddedTransportationContext(
+                    embeddedOptions ??= new EmbeddedTransportationContextOptions(CreateOptions(TestStore), onModelCreating)),
+                async c =>
                 {
                     if (seed)
                     {

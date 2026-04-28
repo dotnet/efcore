@@ -75,10 +75,37 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression, applyDefaultTypeMapping, isProjection);
+        return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
     }
 
-    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping, bool isProjection)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual Expression? TranslateProjection(Expression expression, bool applyDefaultTypeMapping = true)
+    {
+        TranslationErrorDetails = null;
+
+        return TranslateInternal(expression, applyDefaultTypeMapping) switch
+        {
+            // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
+            // expanding them in pre-visitation)
+            StructuralTypeReferenceExpression { Parameter: { } shaper }
+                => shaper,
+
+            StructuralTypeReferenceExpression { Subquery: not null }
+                => null, // TODO: think about this - probably unsupported (if so, message)
+
+            SqlExpression s => s,
+
+            _ => null
+        };
+    }
+
+    private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var result = Visit(expression);
 
@@ -107,7 +134,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             return translation;
         }
 
-        return null;
+        return result;
     }
 
     /// <summary>
@@ -342,6 +369,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             case ObjectArrayAccessExpression:
             case StructuralTypeProjectionExpression:
             case StructuralTypeReferenceExpression:
+            case MaterializeCollectionNavigationExpression:
             case SqlExpression:
                 return extensionExpression;
 

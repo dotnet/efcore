@@ -532,14 +532,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        // We can not apply distinct because SQL DISTINCT operates on the full
-        // structural type, but the shaper extracts only a subset of that data.
-        // Cosmos: Projecting out nested documents retrieves the entire document #34067
-        if (select.UsesClientProjection)
-        {
-            return null;
-        }
-
         select.ApplyDistinct();
 
         return source;
@@ -972,11 +964,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct)
-        {
-            // TODO: The base TranslateSelect does not allow returning null (presumably because client eval should always be possible)
-            return null!;
-        }
 
         var newSelectorBody = RemapLambdaBody(source, selector);
 

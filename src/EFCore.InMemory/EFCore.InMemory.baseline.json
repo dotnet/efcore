@@ -5,10 +5,10 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.DefiningQueryRewritingConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.QueryFilterRewritingConvention",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.DefiningQueryRewritingConvention.DefiningQueryRewritingConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+          "Member": "DefiningQueryRewritingConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "override void Microsoft.EntityFrameworkCore.Metadata.Conventions.DefiningQueryRewritingConvention.ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+          "Member": "override void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
         }
       ]
     },
@@ -16,7 +16,7 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Infrastructure.IInMemoryDbContextOptionsBuilderInfrastructure",
       "Properties": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.IInMemoryDbContextOptionsBuilderInfrastructure.OptionsBuilder { get; }"
+          "Member": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder OptionsBuilder { get; }"
         }
       ]
     },
@@ -24,16 +24,16 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.InMemoryConventionSetBuilder : Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilder",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.Conventions.InMemoryConventionSetBuilder.InMemoryConventionSetBuilder(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+          "Member": "InMemoryConventionSetBuilder(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Microsoft.EntityFrameworkCore.Metadata.Conventions.InMemoryConventionSetBuilder.Build();"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Build();"
         },
         {
-          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet Microsoft.EntityFrameworkCore.Metadata.Conventions.InMemoryConventionSetBuilder.CreateConventionSet();"
+          "Member": "override Microsoft.EntityFrameworkCore.Metadata.Conventions.ConventionSet CreateConventionSet();"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder Microsoft.EntityFrameworkCore.Metadata.Conventions.InMemoryConventionSetBuilder.CreateModelBuilder();"
+          "Member": "static Microsoft.EntityFrameworkCore.ModelBuilder CreateModelBuilder();"
         }
       ]
     },
@@ -41,7 +41,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.InMemoryDatabaseFacadeExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.InMemoryDatabaseFacadeExtensions.IsInMemory(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade database);"
+          "Member": "static bool IsInMemory(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade database);"
         }
       ]
     },
@@ -49,7 +49,7 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.InMemoryDatabaseRoot",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Storage.InMemoryDatabaseRoot.InMemoryDatabaseRoot();"
+          "Member": "InMemoryDatabaseRoot();"
         }
       ]
     },
@@ -57,24 +57,24 @@
       "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInMemoryDbContextOptionsBuilderInfrastructure",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder.InMemoryDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
+          "Member": "InMemoryDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder.EnableNullChecks(bool nullChecksEnabled = true);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder EnableNullChecks(bool nullChecksEnabled = true);"
         },
         {
-          "Member": "override bool Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder.Equals(object? obj);"
+          "Member": "override bool Equals(object? obj);"
         },
         {
-          "Member": "override int Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder.GetHashCode();"
+          "Member": "override int GetHashCode();"
         },
         {
-          "Member": "override string? Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder.ToString();"
+          "Member": "override string? ToString();"
         }
       ],
       "Properties": [
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder.OptionsBuilder { get; }"
+          "Member": "virtual Microsoft.EntityFrameworkCore.DbContextOptionsBuilder OptionsBuilder { get; }"
         }
       ]
     },
@@ -82,16 +82,16 @@
       "Type": "static class Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions.UseInMemoryDatabase<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseInMemoryDatabase(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string databaseName, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions.UseInMemoryDatabase<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string databaseName, Microsoft.EntityFrameworkCore.Storage.InMemoryDatabaseRoot? databaseRoot, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string databaseName, Microsoft.EntityFrameworkCore.Storage.InMemoryDatabaseRoot? databaseRoot, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder Microsoft.EntityFrameworkCore.InMemoryDbContextOptionsExtensions.UseInMemoryDatabase(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string databaseName, Microsoft.EntityFrameworkCore.Storage.InMemoryDatabaseRoot? databaseRoot, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
+          "Member": "static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder UseInMemoryDatabase(this Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder, string databaseName, Microsoft.EntityFrameworkCore.Storage.InMemoryDatabaseRoot? databaseRoot, System.Action<Microsoft.EntityFrameworkCore.Infrastructure.InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null);"
         }
       ]
     },
@@ -99,16 +99,16 @@
       "Type": "static class Microsoft.EntityFrameworkCore.InMemoryEntityTypeBuilderExtensions",
       "Methods": [
         {
-          "Member": "static bool Microsoft.EntityFrameworkCore.InMemoryEntityTypeBuilderExtensions.CanSetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Linq.Expressions.LambdaExpression? query, bool fromDataAnnotation = false);"
+          "Member": "static bool CanSetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Linq.Expressions.LambdaExpression? query, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder Microsoft.EntityFrameworkCore.InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, System.Linq.Expressions.LambdaExpression? query);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder ToInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, System.Linq.Expressions.LambdaExpression? query);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> Microsoft.EntityFrameworkCore.InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<System.Linq.IQueryable<TEntity>>> query);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> ToInMemoryQuery<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<System.Linq.IQueryable<TEntity>>> query);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? Microsoft.EntityFrameworkCore.InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Linq.Expressions.LambdaExpression? query, bool fromDataAnnotation = false);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? ToInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Linq.Expressions.LambdaExpression? query, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -116,16 +116,16 @@
       "Type": "static class Microsoft.EntityFrameworkCore.InMemoryEntityTypeExtensions",
       "Methods": [
         {
-          "Member": "static System.Linq.Expressions.LambdaExpression? Microsoft.EntityFrameworkCore.InMemoryEntityTypeExtensions.GetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+          "Member": "static System.Linq.Expressions.LambdaExpression? GetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? Microsoft.EntityFrameworkCore.InMemoryEntityTypeExtensions.GetInMemoryQueryConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetInMemoryQueryConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
         },
         {
-          "Member": "static void Microsoft.EntityFrameworkCore.InMemoryEntityTypeExtensions.SetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Linq.Expressions.LambdaExpression? inMemoryQuery);"
+          "Member": "static void SetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Linq.Expressions.LambdaExpression? inMemoryQuery);"
         },
         {
-          "Member": "static System.Linq.Expressions.LambdaExpression? Microsoft.EntityFrameworkCore.InMemoryEntityTypeExtensions.SetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Linq.Expressions.LambdaExpression? inMemoryQuery, bool fromDataAnnotation = false);"
+          "Member": "static System.Linq.Expressions.LambdaExpression? SetInMemoryQuery(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Linq.Expressions.LambdaExpression? inMemoryQuery, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -133,10 +133,10 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId",
       "Fields": [
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.ChangesSaved"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ChangesSaved"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.TransactionIgnoredWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId TransactionIgnoredWarning"
         }
       ]
     },
@@ -144,7 +144,7 @@
       "Type": "static class Microsoft.Extensions.DependencyInjection.InMemoryServiceCollectionExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection Microsoft.Extensions.DependencyInjection.InMemoryServiceCollectionExtensions.AddEntityFrameworkInMemoryDatabase(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkInMemoryDatabase(this Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection);"
         }
       ]
     }

@@ -63,7 +63,6 @@ ORDER BY c["Id"]
             });
 
     [ConditionalTheory]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
     {
         // Always throws for sync.
@@ -669,6 +668,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_indexer_properties(bool async)
     {
@@ -691,6 +691,7 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_indexer_properties_converted(bool async)
     {
@@ -713,6 +714,7 @@ ORDER BY c["Name"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_owned_indexer_properties(bool async)
     {
@@ -735,6 +737,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
@@ -810,6 +813,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             () => base.Indexer_property_is_pushdown_into_subquery(async),
             CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Can_query_indexer_property_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -850,6 +854,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/238 (ORDER BY with expressions/functions not supported)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Ordering_by_identifying_projection(bool async)
     {
@@ -1235,7 +1240,6 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["O
             });
 
     [ConditionalTheory, MemberData(nameof(IsAsyncData))]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
     {
         // Always throws for sync.

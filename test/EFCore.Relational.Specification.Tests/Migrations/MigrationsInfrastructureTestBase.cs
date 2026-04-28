@@ -622,6 +622,7 @@ public abstract class MigrationsInfrastructureFixtureBase
                 .Log(RelationalEventId.PendingModelChangesWarning)
                 .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
                 .Log(RelationalEventId.MigrationsUserTransactionWarning)
+                .Log(RelationalEventId.OldMigrationVersionWarning)
             );
 
     protected override bool ShouldLogCategory(string logCategory)

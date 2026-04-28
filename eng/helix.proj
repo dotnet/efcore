@@ -49,6 +49,8 @@
     <!-- The trimming and NativeAOT test projects are console programs -->
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.TrimmingTests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.NativeAotTests/*.csproj"/>
+    <!-- API baseline tests require source files and cannot run in Helix -->
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.ApiBaseline.Tests/*.csproj"/>
   </ItemGroup>
 
   <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->

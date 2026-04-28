@@ -15,6 +15,14 @@
     <UsingToolXliff>false</UsingToolXliff>
 
     <ShouldUseLiveRoslyn Condition="'$(PreReleaseVersionLabel)' == 'servicing' And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">true</ShouldUseLiveRoslyn>
+
+    <!--
+      Upper bound for NuGet dependency version ranges on packages built from this repo.
+      Calculated as (major+1).0.0-0, where the -0 pre-release suffix ensures that pre-release
+      versions of the next major (like 12.0.0-preview1) are excluded, since in NuGet SemVer 2.0
+      ordering 12.0.0-preview1 > 12.0.0-0.
+    -->
+    <NextMajorVersion>$([MSBuild]::Add($([System.Version]::Parse('$(VersionPrefix)').Major), 1)).0.0-0</NextMajorVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
@@ -51,7 +59,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Tooling dependencies">
-    <ICSharpCodeDecompilerVersion>9.1.0.7988</ICSharpCodeDecompilerVersion>
+    <ICSharpCodeDecompilerVersion>10.0.0.8330</ICSharpCodeDecompilerVersion>
     <SystemCommandLineVersion>2.0.5</SystemCommandLineVersion>
   </PropertyGroup>
 
