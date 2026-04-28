@@ -99,10 +99,18 @@ FROM root c
     }
 
     [ConditionalFact]
-    public Task Select_distinct_associate()
-        => AssertTranslationFailed(() => AssertQuery(
+    public async Task Select_distinct_associate()
+    {
+        await AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct(),
-            queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["RequiredAssociate"]
+FROM root c
+""");
+    }
 
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
