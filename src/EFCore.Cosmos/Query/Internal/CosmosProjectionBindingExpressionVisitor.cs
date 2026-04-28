@@ -336,6 +336,18 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
+        if (methodCallExpression is
+            {
+                Method.IsGenericMethod: true,
+                Method: var method,
+            }
+            && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(),
+                    "Could not project out structural subquery.")); // @TODO: Create issue?
+        }
+
         var @object = Visit(methodCallExpression.Object);
         var arguments = new Expression[methodCallExpression.Arguments.Count];
         for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
@@ -445,10 +457,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         if (targetType != expression.Type
             && targetType.TryGetSequenceType() == null)
         {
-            if (!(targetType.MakeNullable() == expression.Type))
-            {
-
-            }
             Check.DebugAssert(targetType.MakeNullable() == expression.Type, "expression.Type must be nullable of targetType");
 
             expression = Expression.Convert(expression, targetType);
