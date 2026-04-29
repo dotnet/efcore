@@ -1069,7 +1069,7 @@ WHERE "o0"."OrderID" = "s"."OrderID"
 @p='1'
 
 UPDATE "Order Details" AS "o"
-SET "Quantity" = CAST(@p AS INTEGER)
+SET "Quantity" = @p
 FROM "Orders" AS "o0"
 LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
 WHERE "c"."City" = 'Seattle' AND "o"."OrderID" = "o0"."OrderID"
@@ -1546,7 +1546,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 @p2='10'
 
 UPDATE "Order Details" AS "o2"
-SET "Quantity" = CAST(@p AS INTEGER),
+SET "Quantity" = @p,
     "UnitPrice" = @p2
 FROM (
     SELECT "o1"."OrderID", "o1"."ProductID"

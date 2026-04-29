@@ -366,6 +366,18 @@
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
+  <data name="ComplexPropertyChainIntermediateNotFound" xml:space="preserve">
+    <value>The intermediate complex property '{member}' was not found on type '{type}'. When using dotted property names, all intermediate segments must refer to complex properties.</value>
+  </data>
+  <data name="ComplexPropertyChainInvalidMember" xml:space="preserve">
+    <value>The member '{member}' on type '{type}' is configured as a non-complex property and cannot be used as an intermediate in a chained property access. Configure it as a complex property first if that's the intention.</value>
+  </data>
+  <data name="ComplexPropertyChainInvalidSegment" xml:space="preserve">
+    <value>The dotted property name '{dottedName}' contains an empty segment. Dotted property names must consist of non-empty segments separated by '.'.</value>
+  </data>
+  <data name="ComplexPropertyChainOnCollection" xml:space="preserve">
+    <value>The member '{member}' on type '{type}' is a complex collection property and cannot be traversed in a chained property access. Configure properties on complex collection element types using the 'ComplexCollection' method.</value>
+  </data>
   <data name="ComplexPropertyIndexer" xml:space="preserve">
     <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
   </data>
@@ -786,6 +798,9 @@
   </data>
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because its primary key property '{keyProperty}' is null.</value>
+  </data>
+  <data name="InvalidMemberAccessChainExpression" xml:space="preserve">
+    <value>The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty' or a chain of member accesses through non-collection complex properties: 't =&gt; t.MyComplex.MyProperty'.</value>
   </data>
   <data name="InvalidMemberExpression" xml:space="preserve">
     <value>The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.</value>

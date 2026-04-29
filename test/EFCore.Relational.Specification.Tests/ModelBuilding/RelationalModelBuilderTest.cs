@@ -780,6 +780,44 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             TestComplexCollectionBuilder<TElement> builder)
             => builder.ToJson();
 
+        public override void Dotted_complex_collection_string_configures_nested_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Ignore<StreetAddress>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.ToJson();
+                        cb.Ignore(c => c.Orders);
+                        cb.Ignore(c => c.Details);
+                    });
+                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>("Customer.SomeOrders", ob =>
+                    {
+                        ob.Ignore(o => o.Customer);
+                        ob.Ignore(o => o.Products);
+                        ob.Ignore(o => o.Details);
+                        ob.Ignore(o => o.OrderCombination);
+                        ob.Ignore(o => o.SpecialCustomer);
+                        ob.Ignore(o => o.BackOrder);
+                        ob.Ignore(o => o.SpecialOrderCombination);
+                        ob.Ignore(o => o.ShippingAddress);
+                    });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var someOrdersComplex = customerType.FindComplexProperty("SomeOrders");
+
+            Assert.NotNull(someOrdersComplex);
+            Assert.True(someOrdersComplex!.IsCollection);
+        }
+
         [ConditionalFact]
         public virtual void Complex_collection_mapped_to_json_uses_property_name_when_column_name_not_specified()
         {

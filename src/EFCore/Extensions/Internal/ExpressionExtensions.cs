@@ -121,7 +121,37 @@ public static class ExpressionExtensions
         return memberInfos?.Count == 1 ? memberInfos[0] : null;
     }
 
-    private static IReadOnlyList<TMemberInfo>? MatchMemberAccess<TMemberInfo>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static List<MemberInfo>? MatchMemberAccessChain(
+        this LambdaExpression lambdaExpression)
+    {
+        Check.DebugAssert(
+            lambdaExpression.Parameters.Count == 1,
+            $"Parameters.Count is {lambdaExpression.Parameters.Count}");
+
+        return MatchMemberAccess<MemberInfo>(lambdaExpression.Parameters[0], lambdaExpression.Body);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static List<MemberInfo> GetMemberAccessChain(
+        this LambdaExpression expression,
+        string parameterName)
+            => expression.MatchMemberAccessChain()
+                ?? throw new ArgumentException(
+                    CoreStrings.InvalidMemberAccessChainExpression(expression),
+                    parameterName);
+
+    private static List<TMemberInfo>? MatchMemberAccess<TMemberInfo>(
         this Expression parameterExpression,
         Expression memberAccessExpression)
         where TMemberInfo : MemberInfo
@@ -132,8 +162,7 @@ public static class ExpressionExtensions
         do
         {
             var memberExpression = unwrappedExpression as MemberExpression;
-
-            if (!(memberExpression?.Member is TMemberInfo memberInfo))
+            if (memberExpression?.Member is not TMemberInfo memberInfo)
             {
                 return null;
             }

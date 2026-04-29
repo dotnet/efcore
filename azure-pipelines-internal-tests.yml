@@ -97,6 +97,7 @@ extends:
       jobs:
       - template: /eng/common/templates-official/jobs/jobs.yml@self
         parameters:
+          continueOnError: true
           enableMicrobuild: true
           enablePublishBuildArtifacts: true
           enablePublishBuildAssets: false
@@ -129,14 +130,32 @@ extends:
               - script: "echo ##vso[build.addbuildtag]release-candidate"
                 condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
-              - powershell: SqlLocalDB start
-                displayName: Start LocalDB
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  Test__SqlServer__DefaultConnection: "Data Source="
                 displayName: Build
+
+          - job: Windows_SqlServer
+            displayName: 'Windows SQL Server'
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            timeoutInMinutes: 120
+            variables:
+              - skipComponentGovernanceDetection: true
+            steps:
+              - powershell: SqlLocalDB start
+                displayName: Start LocalDB
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - script: eng\common\build.cmd -restore -build -test -ci -configuration $(_BuildConfig) -prepareMachine $(_InternalRuntimeDownloadArgs)
+                  /p:Projects="$(Build.SourcesDirectory)/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.SqlServer.HierarchyId.Tests/EFCore.SqlServer.HierarchyId.Tests.csproj;$(Build.SourcesDirectory)/test/EFCore.CrossStore.FunctionalTests/EFCore.CrossStore.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.OData.FunctionalTests/EFCore.OData.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.AspNet.SqlServer.FunctionalTests/EFCore.AspNet.SqlServer.FunctionalTests.csproj;$(Build.SourcesDirectory)/test/EFCore.VisualBasic.FunctionalTests/EFCore.VisualBasic.FunctionalTests.vbproj;$(Build.SourcesDirectory)/test/EFCore.FSharp.FunctionalTests/EFCore.FSharp.FunctionalTests.fsproj"
+                displayName: Test SQL Server
+
           - job: macOS
             pool:
               name: Azure Pipelines
@@ -174,6 +193,7 @@ extends:
               sdl:
                 binskim:
                   preReleaseVersion: ''
+
           - job: Linux_Cosmos
             displayName: 'Linux Cosmos'
             condition: notin(variables['Build.Reason'], 'PullRequest', 'Schedule')
@@ -218,6 +238,7 @@ extends:
               sdl:
                 binskim:
                   preReleaseVersion: ''
+
           - job: Helix_Windows
             displayName: 'Helix Windows'
             timeoutInMinutes: 180
@@ -231,6 +252,132 @@ extends:
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
                 value: Windows.10.Amd64
+              - name: _HelixAccessToken
+                value: $(HelixApiAccessToken)
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+
+          - job: Helix_Windows_SqlServer
+            displayName: 'Helix Windows SQL Server'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            variables:
+              - skipComponentGovernanceDetection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.11.Amd64.Client
+              - name: _HelixAccessToken
+                value: $(HelixApiAccessToken)
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+
+          - job: Helix_Windows_Arm64
+            displayName: 'Helix Windows ARM64'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            variables:
+              - skipComponentGovernanceDetection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.11.Arm64
+              - name: _HelixAccessToken
+                value: $(HelixApiAccessToken)
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - template: /eng/common/core-templates/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 3
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send tests to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+
+          - job: Helix_Windows_Cosmos
+            displayName: 'Helix Windows Cosmos'
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngInternalBuildPool)
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            variables:
+              - skipComponentGovernanceDetection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: Windows.Server2025.Amd64
               - name: _HelixAccessToken
                 value: $(HelixApiAccessToken)
             steps:
@@ -470,3 +617,74 @@ extends:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+    - stage: validate
+      displayName: Validate
+      dependsOn: build
+      condition: always()
+      jobs:
+      - job: Validate_Job_Results
+        displayName: Validate Job Results
+        pool:
+          name: $(DncEngInternalBuildPool)
+          demands: ImageOverride -equals 1es-windows-2022
+          os: windows
+        variables:
+          WindowsResult: $[ stageDependencies.build.Windows.result ]
+          HelixWindowsResult: $[ stageDependencies.build.Helix_Windows.result ]
+          WindowsSqlServerResult: $[ stageDependencies.build.Windows_SqlServer.result ]
+          HelixWindowsSqlServerResult: $[ stageDependencies.build.Helix_Windows_SqlServer.result ]
+          HelixWindowsCosmosResult: $[ stageDependencies.build.Helix_Windows_Cosmos.result ]
+          LinuxResult: $[ stageDependencies.build.Linux.result ]
+          HelixUbuntuResult: $[ stageDependencies.build.Helix_Ubuntu.result ]
+          HelixUbuntuSqlServerResult: $[ stageDependencies.build.Helix_Ubuntu_SqlServer.result ]
+          MacOsResult: $[ stageDependencies.build.macOS.result ]
+          HelixMacOsX64Result: $[ stageDependencies.build.Helix_macOS_x64.result ]
+          HelixMacOsArm64Result: $[ stageDependencies.build.Helix_macOS_ARM64.result ]
+          HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
+          LinuxCosmosResult: $[ stageDependencies.build.Linux_Cosmos.result ]
+          HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
+        steps:
+          - pwsh: |
+              $groupResults = @{
+                  Windows = @("$(WindowsResult)", "$(HelixWindowsResult)")
+                  Linux = @("$(LinuxResult)", "$(HelixUbuntuResult)")
+                  MacOS = @("$(MacOsResult)", "$(HelixMacOsX64Result)")
+                  Arm64 = @("$(HelixWindowsArm64Result)", "$(HelixMacOsArm64Result)")
+                  Cosmos = @("$(HelixWindowsCosmosResult)", "$(LinuxCosmosResult)", "$(HelixUbuntuCosmosResult)")
+                  SqlServer = @("$(WindowsSqlServerResult)", "$(HelixWindowsSqlServerResult)", "$(HelixUbuntuSqlServerResult)")
+              }
+
+              $failedGroups = @()
+
+              foreach ($groupName in $groupResults.Keys)
+              {
+                  $results = $groupResults[$groupName]
+                  Write-Host "$groupName results: $($results -join ', ')"
+
+                  # Ignore jobs that were skipped (e.g. condition-gated)
+                  $ran = $results | Where-Object { $_ -ne 'Skipped' }
+                  if (-not $ran)
+                  {
+                      Write-Host "  -> all jobs skipped, treating group as successful"
+                      continue
+                  }
+
+                  # Only 'Succeeded' counts as success. 'SucceededWithIssues' is treated as failure
+                  # because the jobs run with continueOnError: true, which maps task failures to warnings.
+                  $hasSuccess = $ran | Where-Object { $_ -eq 'Succeeded' }
+                  if ($hasSuccess)
+                  {
+                      continue
+                  }
+
+                  $failedGroups += $groupName
+              }
+
+              if ($failedGroups.Count -gt 0)
+              {
+                  Write-Error "No jobs succeeded for group(s): $($failedGroups -join ', ')."
+                  exit 1
+              }
+
+              Write-Host 'Group validation passed.'
+            displayName: Evaluate grouped job outcomes

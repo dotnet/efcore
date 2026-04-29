@@ -18,7 +18,7 @@
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;Ubuntu.2204.Amd64.Open</HelixTargetQueues>
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Windows.11.Amd64.Client.Open;Windows.11.Arm64.Open;Windows.Server2025.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;Ubuntu.2204.Amd64.Open</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
@@ -60,21 +60,36 @@
     </XUnitProject>
   </ItemGroup>
 
-  <!-- Start LocalDb instance for test projects which uses SqlServer on Windows -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
-    <XUnitProject Update="$(SqlServerTests)">
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.10.Amd64`))'">
+    <XUnitProject Remove="$(CosmosTests)"/>
+    <XUnitProject Remove="$(SqlServerTests)"/>
+    <XUnitProject Update="@(XUnitProject)">
+      <PreCommands>$(PreCommands); set "Test__SqlServer__DefaultConnection=Data Source="</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11.Arm64`))'">
+    <XUnitProject Remove="$(SqlServerTests)"/>
+    <XUnitProject Remove="$(CosmosTests)"/>
+    <XUnitProject Update="@(XUnitProject)">
+      <PreCommands>$(PreCommands); set "Test__SqlServer__DefaultConnection=Data Source="</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11.Amd64.Client`))'">
+    <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
+    <XUnitProject Include="$(SqlServerTests)">
       <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
     </XUnitProject>
   </ItemGroup>
 
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.11`))'">
-    <XUnitProject Remove="$(CosmosTests)"/>
-  </ItemGroup>
-
   <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows.Server2025.Amd64`))'">
-    <XUnitProject Update="$(CosmosTests)">
-      <PreCommands>$(PreCommands); set Test__Cosmos__SkipConnectionCheck=true</PreCommands>
-    </XUnitProject>
+    <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/**/*.fsproj"/>
+    <XUnitProject Include="$(CosmosTests)">
+      <PreCommands>$(PreCommands); call %HELIX_CORRELATION_PAYLOAD%\testing\WaitCosmosEmulator.cmd; set Test__Cosmos__DefaultConnection=https://localhost:8081; set Test__Cosmos__SkipConnectionCheck=true</PreCommands>
+     </XUnitProject>
   </ItemGroup>
 
   <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Only run SqlServer tests. -->

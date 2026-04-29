@@ -62,12 +62,12 @@ FROM "Prices" AS "p"
 """,
             //
             """
-SELECT CAST(AVG("p"."FloatColumn") AS REAL)
+SELECT AVG("p"."FloatColumn")
 FROM "Prices" AS "p"
 """,
             //
             """
-SELECT CAST(AVG("p"."NullableFloatColumn") AS REAL)
+SELECT AVG("p"."NullableFloatColumn")
 FROM "Prices" AS "p"
 """,
             //
@@ -158,6 +158,18 @@ SELECT "d"."Id", CASE
 END AS "Foo"
 FROM "Data" AS "d"
 ORDER BY "d"."Id"
+""");
+    }
+
+    public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+    {
+        await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
+
+        AssertSql(
+            """
+SELECT "u"."Id", "u"."Name"
+FROM "Users" AS "u"
+WHERE "u"."Name" LIKE 'Name%'
 """);
     }
 }
