@@ -2995,55 +2995,35 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT VALUE
-{
-    "CustomerId" : c["id"],
-    "City" : c["City"]
-}
+SELECT c["id"], c["City"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 1
 """,
                     //
                     """
-SELECT VALUE
-{
-    "CustomerId" : c["id"],
-    "City" : c["City"]
-}
+SELECT c["id"], c["City"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 1
 """,
                     //
                     """
-SELECT VALUE
-{
-    "CustomerId" : c["id"],
-    "City" : c["City"]
-}
+SELECT c["id"], c["City"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 2
 """,
                     //
                     """
-SELECT VALUE
-{
-    "CustomerId" : c["id"],
-    "City" : c["City"]
-}
+SELECT c["id"], c["City"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 2
 """,
                     //
                     """
-SELECT VALUE
-{
-    "CustomerId" : c["id"],
-    "City" : c["City"]
-}
+SELECT c["id"], c["City"]
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"] DESC
@@ -3051,11 +3031,7 @@ OFFSET 0 LIMIT 1
 """,
                     //
                     """
-SELECT VALUE
-{
-    "CustomerId" : c["id"],
-    "City" : c["City"]
-}
+SELECT c["id"], c["City"]
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"] DESC

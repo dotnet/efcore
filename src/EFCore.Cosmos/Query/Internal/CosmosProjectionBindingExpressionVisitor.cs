@@ -92,9 +92,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             case null:
                 return null;
-            case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression or MaterializeCollectionNavigationExpression or ConstantExpression:
+            case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression or MaterializeCollectionNavigationExpression:
                 return base.Visit(expression);
-            case QueryParameterExpression queryParameter:
+            case ConstantExpression when _clientEval:
+                return expression;
+            case QueryParameterExpression queryParameter when _clientEval:
                 return Expression.Call(
                     GetParameterValueMethodInfo.MakeGenericMethod(queryParameter.Type),
                     QueryCompilationContext.QueryContextParameter,
