@@ -114,6 +114,9 @@ public class CoreEventIdTest : EventIdTestBase
 
         public override TypeBase DeclaringType { get; } = entityType;
 
+        public override bool IsInModel
+            => true;
+
         public override Type ClrType
             => throw new NotImplementedException();
 

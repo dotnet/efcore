@@ -26,9 +26,10 @@ Default to `emit baseline` if the user only asks to "run ApiChief".
 
 ### 1. Identify the target project(s)
 
-- Match user intent against project folders under `src/` such as `EFCore`, `EFCore.Cosmos`, `EFCore.Relational`, or `Microsoft.Data.Sqlite.Core`.
+- Match user intent against project folders under `src/`.
 - Ask for clarification only if the target is ambiguous.
 - The checked-in baseline path convention in this repo is `src/<ProjectName>/<ProjectName>.baseline.json`.
+- If asked just to update the baselines, run EFCore.ApiBaseline.Tests tests and skip the rest of the steps below.
 
 ### 2. Prepare the environment
 

@@ -621,7 +621,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="property">The property to be indexed.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created index.</returns>
-    IConventionIndex? AddIndex(IConventionProperty property, bool fromDataAnnotation = false)
+    IConventionIndex? AddIndex(IConventionPropertyBase property, bool fromDataAnnotation = false)
         => AddIndex([property], fromDataAnnotation);
 
     /// <summary>
@@ -630,7 +630,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="properties">The properties that are to be indexed.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created index.</returns>
-    IConventionIndex? AddIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+    IConventionIndex? AddIndex(IReadOnlyList<IConventionPropertyBase> properties, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Adds a named index to this entity type.
@@ -640,7 +640,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created index.</returns>
     IConventionIndex? AddIndex(
-        IConventionProperty property,
+        IConventionPropertyBase property,
         string name,
         bool fromDataAnnotation = false)
         => AddIndex([property], name, fromDataAnnotation);
@@ -653,7 +653,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created index.</returns>
     IConventionIndex? AddIndex(
-        IReadOnlyList<IConventionProperty> properties,
+        IReadOnlyList<IConventionPropertyBase> properties,
         string name,
         bool fromDataAnnotation = false);
 
@@ -665,7 +665,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// </remarks>
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    new IConventionIndex? FindIndex(IReadOnlyProperty property)
+    new IConventionIndex? FindIndex(IReadOnlyPropertyBase property)
         => FindIndex([property]);
 
     /// <summary>
@@ -676,7 +676,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// </remarks>
     /// <param name="properties">The properties to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    new IConventionIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    new IConventionIndex? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
@@ -715,7 +715,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// </summary>
     /// <param name="properties">The properties that make up the index.</param>
     /// <returns>The index that was removed.</returns>
-    IConventionIndex? RemoveIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    IConventionIndex? RemoveIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Removes an index from this entity type.

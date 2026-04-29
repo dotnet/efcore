@@ -34,10 +34,129 @@ public partial class PrincipalDerivedEntityType
             discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalDerived<DependentBase<byte?>>",
             propertyCount: 0,
-            complexPropertyCount: 1);
+            complexPropertyCount: 2,
+            namedIndexCount: 1);
 
+        DependentComplexProperty.Create(runtimeEntityType);
         ManyOwnedComplexProperty.Create(runtimeEntityType);
+        var iX_PrincipalDerived_Dependent = runtimeEntityType.AddIndex(
+            new[] { runtimeEntityType.FindComplexProperty("Dependent") },
+            name: "IX_PrincipalDerived_Dependent");
+
         return runtimeEntityType;
+    }
+
+    public static class DependentComplexProperty
+    {
+        public static RuntimeComplexProperty Create(RuntimeEntityType declaringType)
+        {
+            var complexProperty = declaringType.AddComplexProperty("Dependent",
+                typeof(CompiledModelTestBase.DependentBase<byte?>),
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>.Dependent#DependentBase<byte?>",
+                typeof(CompiledModelTestBase.DependentBase<byte?>),
+                propertyInfo: typeof(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>).GetProperty("Dependent", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>).GetField("<Dependent>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true,
+                propertyCount: 1);
+
+            var complexType = complexProperty.ComplexType;
+            complexProperty.SetGetter(
+                CompiledModelTestBase.DependentBase<byte?> (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> instance) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(instance),
+                bool (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> instance) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(instance) == null);
+            complexProperty.SetSetter(
+                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> instance, CompiledModelTestBase.DependentBase<byte?> value) =>
+                {
+                    PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(instance) = value;
+                    return instance;
+                });
+            complexProperty.SetMaterializationSetter(
+                CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> instance, CompiledModelTestBase.DependentBase<byte?> value) =>
+                {
+                    PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(instance) = value;
+                    return instance;
+                });
+            complexProperty.SetAccessors(
+                CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))),
+                CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))),
+                null,
+                CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(complexProperty));
+            complexProperty.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: 40,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
+            var id = complexType.AddProperty(
+                "Id",
+                typeof(byte?),
+                propertyInfo: typeof(CompiledModelTestBase.DependentBase<byte?>).GetProperty("Id", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CompiledModelTestBase.DependentBase<byte?>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            id.SetGetter(
+                byte? (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity, IReadOnlyList<int> indices) => (PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity) == null ? default(byte? ) : DependentBaseUnsafeAccessors<byte?>.Id(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity))),
+                bool (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity, IReadOnlyList<int> indices) => !((PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity) == null ? default(byte? ) : DependentBaseUnsafeAccessors<byte?>.Id(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity))).HasValue),
+                byte? (CompiledModelTestBase.DependentBase<byte?> instance) => DependentBaseUnsafeAccessors<byte?>.Id(instance),
+                bool (CompiledModelTestBase.DependentBase<byte?> instance) => !(DependentBaseUnsafeAccessors<byte?>.Id(instance).HasValue));
+            id.SetSetter(
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity, IReadOnlyList<int> indices, byte? value) =>
+                {
+                    var level1 = PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity);
+                    DependentBaseUnsafeAccessors<byte?>.Id(level1) = value;
+                },
+                CompiledModelTestBase.DependentBase<byte?> (CompiledModelTestBase.DependentBase<byte?> instance, byte? value) =>
+                {
+                    DependentBaseUnsafeAccessors<byte?>.Id(instance) = value;
+                    return instance;
+                });
+            id.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity, IReadOnlyList<int> indices, byte? value) =>
+                {
+                    var level1 = PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(entity);
+                    DependentBaseUnsafeAccessors<byte?>.Id(level1) = value;
+                },
+                CompiledModelTestBase.DependentBase<byte?> (CompiledModelTestBase.DependentBase<byte?> instance, byte? value) =>
+                {
+                    DependentBaseUnsafeAccessors<byte?>.Id(instance) = value;
+                    return instance;
+                });
+            id.SetAccessors(
+                byte? (IInternalEntry entry) => (PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))) == null ? default(byte? ) : DependentBaseUnsafeAccessors<byte?>.Id(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))))),
+                byte? (IInternalEntry entry) => (PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))) == null ? default(byte? ) : DependentBaseUnsafeAccessors<byte?>.Id(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))))),
+                byte? (IInternalEntry entry) => entry.ReadOriginalValue<byte?>(id, 41),
+                byte? (IInternalEntry entry) => entry.GetCurrentValue<byte?>(id));
+            id.SetPropertyIndexes(
+                index: 39,
+                originalValueIndex: 41,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
+            id.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
+                comparer: new ValueComparer<byte>(
+                    bool (byte v1, byte v2) => v1 == v2,
+                    int (byte v) => ((int)v),
+                    byte (byte v) => v),
+                keyComparer: new ValueComparer<byte>(
+                    bool (byte v1, byte v2) => v1 == v2,
+                    int (byte v) => ((int)v),
+                    byte (byte v) => v),
+                providerValueComparer: new ValueComparer<byte>(
+                    bool (byte v1, byte v2) => v1 == v2,
+                    int (byte v) => ((int)v),
+                    byte (byte v) => v));
+            id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
+            id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            complexType.AddAnnotation("Relational:ContainerColumnName", "Dependent");
+            complexType.AddAnnotation("Relational:ContainerColumnType", "nvarchar(450)");
+            complexType.AddAnnotation("Relational:FunctionName", null);
+            complexType.AddAnnotation("Relational:Schema", null);
+            complexType.AddAnnotation("Relational:SqlQuery", "select * from PrincipalBase");
+            complexType.AddAnnotation("Relational:TableName", "PrincipalBase");
+            complexType.AddAnnotation("Relational:ViewName", null);
+            complexType.AddAnnotation("Relational:ViewSchema", null);
+            return complexProperty;
+        }
     }
 
     public static class ManyOwnedComplexProperty
@@ -83,7 +202,7 @@ public partial class PrincipalDerivedEntityType
                 IList<CompiledModelTestBase.OwnedType> (IInternalEntry entry) => entry.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(complexProperty));
             complexProperty.SetPropertyIndexes(
                 index: 0,
-                originalValueIndex: 40,
+                originalValueIndex: 42,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -2434,6 +2553,9 @@ public partial class PrincipalDerivedEntityType
         var valueTypeEnumerable1 = principalBase.FindProperty("ValueTypeEnumerable");
         var valueTypeIList1 = principalBase.FindProperty("ValueTypeIList");
         var valueTypeList1 = principalBase.FindProperty("ValueTypeList");
+        var dependent = runtimeEntityType.FindComplexProperty("Dependent");
+        var dependentBasebyte = dependent.ComplexType;
+        var id1 = dependentBasebyte.FindProperty("Id");
         var manyOwned = runtimeEntityType.FindComplexProperty("ManyOwned");
         var ownedCollection = manyOwned.ComplexType;
         var details0 = ownedCollection.FindProperty("Details");
@@ -2453,7 +2575,7 @@ public partial class PrincipalDerivedEntityType
         var enum21 = principalBase0.FindProperty("Enum2");
         var flagsEnum11 = principalBase0.FindProperty("FlagsEnum1");
         var flagsEnum21 = principalBase0.FindProperty("FlagsEnum2");
-        var id1 = principalBase0.FindProperty("Id");
+        var id2 = principalBase0.FindProperty("Id");
         var refTypeArray3 = principalBase0.FindProperty("RefTypeArray");
         var refTypeEnumerable3 = principalBase0.FindProperty("RefTypeEnumerable");
         var refTypeIList3 = principalBase0.FindProperty("RefTypeIList");
@@ -2469,7 +2591,7 @@ public partial class PrincipalDerivedEntityType
                 var structuralType1 = ((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(source.Entity));
                 var liftedArg0 = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray0))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray0))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList0))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(principal))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)))));
                 var structuralType2 = ((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(source.Entity));
-                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg0, ((ISnapshot)(new Snapshot<CompiledModelTestBase.AFlagsEnum, long?, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object>(((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray1))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray1))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList1))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))))))), SnapshotFactoryFactory.SnapshotComplexCollection(((IList)(source.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(manyOwned))), manyOwned)))) })));
+                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg0, ((ISnapshot)(new Snapshot<CompiledModelTestBase.AFlagsEnum, long?, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, byte?, object>(((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))), (((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray1))) == null ? null : ((IPAddress[])(((ValueComparer<object>)(((IProperty)refTypeArray1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IPAddress[]>(refTypeArray1))))))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList1))) == null ? null : ((List<IPAddress>)(((ValueComparer<object>)(((IProperty)refTypeList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<List<IPAddress>>(refTypeList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(dependent))), (source.GetCurrentValue<byte?>(id1) == null ? null : ((ValueComparer<byte?>)(((IProperty)id1).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id1))), SnapshotFactoryFactory.SnapshotComplexCollection(((IList)(source.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(manyOwned))), manyOwned)))) })));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
             ISnapshot () => ((ISnapshot)(new Snapshot<long?, long?, string>((default(long? ) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(default(long? ))), (default(long? ) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(default(long? ))), (default(string) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(default(string)))))));
@@ -2486,11 +2608,11 @@ public partial class PrincipalDerivedEntityType
                 return ((ISnapshot)(new Snapshot<long?, long?, object>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), SnapshotFactoryFactory.SnapshotCollection(source.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 39,
+            propertyCount: 40,
             navigationCount: 1,
-            complexPropertyCount: 2,
+            complexPropertyCount: 3,
             complexCollectionCount: 1,
-            originalValueCount: 41,
+            originalValueCount: 43,
             shadowCount: 2,
             relationshipCount: 3,
             storeGeneratedCount: 3));

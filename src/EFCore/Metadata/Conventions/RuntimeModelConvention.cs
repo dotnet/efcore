@@ -610,7 +610,46 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     }
 
     private static RuntimeKey Create(IKey key, RuntimeEntityType runtimeEntityType)
-        => runtimeEntityType.AddKey(runtimeEntityType.FindProperties(key.Properties.Select(p => p.Name))!);
+        => runtimeEntityType.AddKey(
+            key.Properties.Select(p => FindRuntimeProperty(runtimeEntityType, p)).ToArray());
+
+    private static RuntimeProperty FindRuntimeProperty(RuntimeEntityType runtimeEntityType, IProperty property)
+        => (RuntimeProperty)FindRuntimePropertyBase(runtimeEntityType, property);
+
+    private static RuntimePropertyBase FindRuntimePropertyBase(RuntimeEntityType runtimeEntityType, IPropertyBase property)
+    {
+        if (property.DeclaringType is IEntityType)
+        {
+            if (property is IComplexProperty)
+            {
+                return (RuntimePropertyBase)runtimeEntityType.FindComplexProperty(property.Name)!;
+            }
+
+            return runtimeEntityType.FindProperty(property.Name)!;
+        }
+
+        // Build the chain of complex property names from entity down to the property's declaring type.
+        var chain = new List<string>();
+        var typeBase = (IReadOnlyTypeBase)property.DeclaringType;
+        while (typeBase is IReadOnlyComplexType complexType)
+        {
+            chain.Insert(0, complexType.ComplexProperty.Name);
+            typeBase = complexType.ComplexProperty.DeclaringType;
+        }
+
+        ITypeBase currentType = runtimeEntityType;
+        foreach (var complexPropertyName in chain)
+        {
+            currentType = currentType.FindComplexProperty(complexPropertyName)!.ComplexType;
+        }
+
+        if (property is IComplexProperty)
+        {
+            return (RuntimePropertyBase)currentType.FindComplexProperty(property.Name)!;
+        }
+
+        return (RuntimePropertyBase)currentType.FindProperty(property.Name)!;
+    }
 
     /// <summary>
     ///     Updates the key annotations that will be set on the read-only object.
@@ -639,7 +678,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
     private static RuntimeIndex Create(IIndex index, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddIndex(
-            runtimeEntityType.FindProperties(index.Properties.Select(p => p.Name))!,
+            index.Properties.Select(p => FindRuntimePropertyBase(runtimeEntityType, p)).ToArray(),
             index.Name,
             index.IsUnique);
 

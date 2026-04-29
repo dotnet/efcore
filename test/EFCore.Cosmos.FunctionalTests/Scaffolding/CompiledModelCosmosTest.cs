@@ -622,6 +622,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             eb.ComplexProperty(
                 c => c.Owned, ob =>
                 {
+                    ob.IsRequired();
                     ob.Ignore(e => e.RefTypeArray);
                     ob.Ignore(e => e.RefTypeList);
                     ob.ComplexProperty(
@@ -660,6 +661,9 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
         => 12;
 
     protected override bool SupportsNonAutoLoadedProperties
+        => false;
+
+    protected override bool SupportsIndexes
         => false;
 
     protected override TestHelpers TestHelpers

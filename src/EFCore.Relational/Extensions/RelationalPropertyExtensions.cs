@@ -86,6 +86,18 @@ public static class RelationalPropertyExtensions
                         }
                     }
                 }
+                else
+                {
+                    var containingEntityType = property.DeclaringType.ContainingEntityType;
+                    foreach (var containingType in containingEntityType.GetDerivedTypesInclusive())
+                    {
+                        if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+                }
 
                 if (!tableFound)
                 {

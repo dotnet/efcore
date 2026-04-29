@@ -759,6 +759,30 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         public override void Complex_properties_can_be_configured_by_type()
             => base.Complex_properties_can_be_configured_by_type();
 
+        public override void Can_define_index_on_complex_property_via_lambda()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Can_define_index_on_complex_property_via_lambda).Message);
+
+        public override void Can_define_composite_index_mixing_entity_and_complex_property_via_lambda()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Id,Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Can_define_composite_index_mixing_entity_and_complex_property_via_lambda).Message);
+
+        public override void Can_define_index_on_complex_property_via_string_dotted_path()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Can_define_index_on_complex_property_via_string_dotted_path).Message);
+
+        public override void Index_on_complex_property_marks_chain_as_required()
+            => Assert.Equal(
+                CosmosStrings.IndexesExist(nameof(ComplexProperties), "Up"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Index_on_complex_property_marks_chain_as_required).Message);
+
         public override void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();

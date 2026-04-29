@@ -260,7 +260,55 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IIndex index,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        List<IComplexProperty>? complexProperties = null;
+        foreach (var property in index.Properties)
+        {
+            if (property is IComplexProperty complexProperty)
+            {
+                (complexProperties ??= []).Add(complexProperty);
+            }
+            else if (property is not IProperty)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IndexPropertyMustBePropertyOrComplexProperty(
+                        property.Name,
+                        index.DeclaringEntityType.DisplayName()));
+            }
+
+            if (property.DeclaringType is not IComplexType)
+            {
+                continue;
+            }
+
+            ValidateComplexPropertyChainForKeyOrIndex(
+                property,
+                static (props, type, propName) => CoreStrings.IndexOnComplexCollection(props, type, propName),
+                nullableErrorFactory: null,
+                index.Properties.Format(),
+                index.DeclaringEntityType.DisplayName());
+        }
+
+        if (complexProperties != null)
+        {
+            ValidateIndexOnComplexProperty(index, complexProperties, logger);
+        }
     }
+
+    /// <summary>
+    ///     Validates an index that contains a complex property.
+    /// </summary>
+    /// <param name="index">The index to validate.</param>
+    /// <param name="complexProperties">The complex properties contained in the index.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateIndexOnComplexProperty(
+        IIndex index,
+        IReadOnlyList<IComplexProperty> complexProperties,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        => throw new InvalidOperationException(
+            CoreStrings.IndexOnComplexProperty(
+                index.Properties.Format(),
+                index.DeclaringEntityType.DisplayName(),
+                complexProperties[0].Name));
 
     /// <summary>
     ///     Validates a single key.
@@ -273,6 +321,50 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     {
         ValidateShadowKey(key, logger);
         ValidateMutableKey(key, logger);
+
+        foreach (var property in key.Properties)
+        {
+            if (property.DeclaringType is not IComplexType)
+            {
+                continue;
+            }
+
+            ValidateComplexPropertyChainForKeyOrIndex(
+                property,
+                static (props, type, propName) => CoreStrings.KeyOnComplexCollection(props, type, propName),
+                static (props, type, propName) => CoreStrings.KeyOnNullableComplexProperty(props, type, propName),
+                key.Properties.Format(),
+                key.DeclaringEntityType.DisplayName());
+        }
+    }
+
+    private static void ValidateComplexPropertyChainForKeyOrIndex(
+        IPropertyBase property,
+        Func<string, string, string, string> collectionErrorFactory,
+        Func<string, string, string, string>? nullableErrorFactory,
+        string propertyListFormatted,
+        string entityTypeName)
+    {
+        var typeBase = property.DeclaringType;
+        while (typeBase is IComplexType complexType)
+        {
+            var complexProperty = complexType.ComplexProperty;
+
+            if (complexProperty.IsCollection)
+            {
+                throw new InvalidOperationException(
+                    collectionErrorFactory(propertyListFormatted, entityTypeName, complexProperty.Name));
+            }
+
+            if (nullableErrorFactory != null
+                && complexProperty.IsNullable)
+            {
+                throw new InvalidOperationException(
+                    nullableErrorFactory(propertyListFormatted, entityTypeName, complexProperty.Name));
+            }
+
+            typeBase = complexProperty.DeclaringType;
+        }
     }
 
     /// <summary>
