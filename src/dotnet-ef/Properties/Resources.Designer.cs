@@ -236,10 +236,33 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("FrameworkDescription");
 
         /// <summary>
-        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project.
+        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app.
         /// </summary>
         public static string GetMetadataFailed
             => GetString("GetMetadataFailed");
+
+        /// <summary>
+        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app. Output:
+        ///     {output}
+        /// </summary>
+        public static string GetMetadataFailedWithOutput(object? output)
+            => string.Format(
+                GetString("GetMetadataFailedWithOutput", nameof(output)),
+                output);
+
+        /// <summary>
+        ///     Unable to retrieve project metadata. Restore the project (e.g. by running 'dotnet restore') and try again.
+        /// </summary>
+        public static string RestoreRequired
+            => GetString("RestoreRequired");
+
+        /// <summary>
+        ///     The project file '{file}' could not be found.
+        /// </summary>
+        public static string ProjectFileNotFound(object? file)
+            => string.Format(
+                GetString("ProjectFileNotFound", nameof(file)),
+                file);
 
         /// <summary>
         ///     Generate a script that can be used on a database at any migration.

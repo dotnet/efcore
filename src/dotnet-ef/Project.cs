@@ -51,6 +51,11 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
+        if (!File.Exists(file))
+        {
+            throw new CommandException(Resources.ProjectFileNotFound(file));
+        }
+
         var args = new List<string> { "build", "--no-restore", };
 
         if (framework != null)
@@ -81,14 +86,22 @@ internal class Project
         args.Add(file);
 
         var output = new StringBuilder();
+        var error = new StringBuilder();
 
         Reporter.WriteVerbose(Resources.RunningCommand("dotnet " + string.Join(" ", args)));
 
-        var exitCode = Exe.Run("dotnet", args, handleOutput: line =>
-        {
-            output.AppendLine(line);
-            Reporter.WriteVerbose(line);
-        });
+        var exitCode = Exe.Run(
+            "dotnet", args,
+            handleOutput: line =>
+            {
+                output.AppendLine(line);
+                Reporter.WriteVerbose(line);
+            },
+            handleError: line =>
+            {
+                error.AppendLine(line);
+                Reporter.WriteVerbose(line);
+            });
         if (exitCode != 0)
         {
             if (framework == null && HasMultipleTargetFrameworks(file))
@@ -96,7 +109,18 @@ internal class Project
                 throw new CommandException(Resources.MultipleTargetFrameworks);
             }
 
-            throw new CommandException(Resources.GetMetadataFailed);
+            var combinedOutput = (error.ToString() + output.ToString()).Trim();
+
+            // NETSDK1004 indicates the assets file is missing, i.e. the project hasn't been restored yet.
+            if (combinedOutput.Contains("NETSDK1004", StringComparison.Ordinal))
+            {
+                throw new CommandException(Resources.RestoreRequired);
+            }
+
+            throw new CommandException(
+                combinedOutput.Length == 0
+                    ? Resources.GetMetadataFailed
+                    : Resources.GetMetadataFailedWithOutput(combinedOutput));
         }
 
         var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;

@@ -95,6 +95,15 @@ public sealed class ProjectTest(ITestOutputHelper output)
     }
 
     [Fact]
+    public void Throws_for_missing_project_file()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), "Missing.csproj");
+
+        var ex = Assert.Throws<CommandException>(() => Project.FromFile(missing));
+        Assert.Contains(missing, ex.Message);
+    }
+
+    [Fact]
     public void File_based_app_can_be_built()
     {
         WithVerboseOutput(() =>
