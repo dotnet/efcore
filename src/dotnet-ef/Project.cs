@@ -96,11 +96,21 @@ internal class Project
             "dotnet", args,
             handleOutput: line =>
             {
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+
                 output.AppendLine(line);
                 Reporter.WriteVerbose(line);
             },
             handleError: line =>
             {
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+
                 error.AppendLine(line);
                 Reporter.WriteError(line);
             });
