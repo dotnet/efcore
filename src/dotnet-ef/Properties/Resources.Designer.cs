@@ -242,15 +242,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("GetMetadataFailed");
 
         /// <summary>
-        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app. Output:
-        ///     {output}
-        /// </summary>
-        public static string GetMetadataFailedWithOutput(object? output)
-            => string.Format(
-                GetString("GetMetadataFailedWithOutput", nameof(output)),
-                output);
-
-        /// <summary>
         ///     Unable to retrieve project metadata. Restore the project (e.g. by running 'dotnet restore') and try again.
         /// </summary>
         public static string RestoreRequired

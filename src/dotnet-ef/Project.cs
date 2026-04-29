@@ -102,7 +102,7 @@ internal class Project
             handleError: line =>
             {
                 error.AppendLine(line);
-                Reporter.WriteVerbose(line);
+                Reporter.WriteError(line);
             });
         if (exitCode != 0)
         {
@@ -111,18 +111,14 @@ internal class Project
                 throw new CommandException(Resources.MultipleTargetFrameworks);
             }
 
-            var combinedOutput = (error.ToString() + output.ToString()).Trim();
-
             // NETSDK1004 indicates the assets file is missing, i.e. the project hasn't been restored yet.
-            if (combinedOutput.Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal))
+            if (output.ToString().Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal)
+                || error.ToString().Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal))
             {
                 throw new CommandException(Resources.RestoreRequired);
             }
 
-            throw new CommandException(
-                combinedOutput.Length == 0
-                    ? Resources.GetMetadataFailed
-                    : Resources.GetMetadataFailedWithOutput(combinedOutput));
+            throw new CommandException(Resources.GetMetadataFailed);
         }
 
         var metadata = JsonSerializer.Deserialize<ProjectMetadata>(output.ToString())!;

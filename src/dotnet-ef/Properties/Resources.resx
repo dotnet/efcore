@@ -222,10 +222,6 @@
   <data name="GetMetadataFailed" xml:space="preserve">
     <value>Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app.</value>
   </data>
-  <data name="GetMetadataFailedWithOutput" xml:space="preserve">
-    <value>Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app. Output:
-{output}</value>
-  </data>
   <data name="RestoreRequired" xml:space="preserve">
     <value>Unable to retrieve project metadata. Restore the project (e.g. by running 'dotnet restore') and try again.</value>
   </data>
