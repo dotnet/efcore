@@ -242,13 +242,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("GetMetadataFailed");
 
         /// <summary>
-        ///     Unable to retrieve project metadata. Restore the project (e.g. by running 'dotnet restore') and try again.
+        ///     Unable to retrieve project metadata. Restore the project or file-based app (e.g. by running 'dotnet restore') and try again.
         /// </summary>
         public static string RestoreRequired
             => GetString("RestoreRequired");
 
         /// <summary>
-        ///     The project file '{file}' could not be found.
+        ///     The file '{file}' could not be found.
         /// </summary>
         public static string ProjectFileNotFound(object? file)
             => string.Format(

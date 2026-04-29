@@ -151,8 +151,10 @@ public sealed class ProjectTest(ITestOutputHelper output)
         var captured = new StringBuilder();
         var previousIsVerbose = Reporter.IsVerbose;
         var previousPrefixOutput = Reporter.PrefixOutput;
+        var previousNoColor = Reporter.NoColor;
         Reporter.IsVerbose = true;
         Reporter.PrefixOutput = true;
+        Reporter.NoColor = true;
         Reporter.SetStdOut(new TestOutputWriter(output, captured));
         try
         {
@@ -162,6 +164,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
         {
             Reporter.IsVerbose = previousIsVerbose;
             Reporter.PrefixOutput = previousPrefixOutput;
+            Reporter.NoColor = previousNoColor;
             Reporter.SetStdOut(Console.Out);
         }
 
