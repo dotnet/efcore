@@ -34,7 +34,7 @@ OFFSET 0 LIMIT 2
         // #34067: Cosmos: Projecting out nested documents retrieves the entire document
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["Complex"]
 FROM root c
 """);
     }

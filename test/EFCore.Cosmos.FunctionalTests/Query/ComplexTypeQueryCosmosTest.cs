@@ -36,7 +36,7 @@ public class ComplexTypeQueryCosmosTest(ComplexTypeQueryCosmosTest.ComplexTypeQu
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddress"]
 FROM root c
 """);
     });
@@ -48,7 +48,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddress"]["Country"]
 FROM root c
 """);
     });
@@ -72,7 +72,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddress"]
 FROM root c
 WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);
@@ -212,8 +212,8 @@ WHERE (c["ShippingAddress"]["Country"]["Code"] = "DE")
         await base.Select_struct_complex_type(async);
 
         AssertSql(
-                """
-SELECT VALUE c
+            """
+SELECT VALUE c["ShippingAddress"]
 FROM root c
 """);
     });
@@ -225,7 +225,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddress"]["Country"]
 FROM root c
 """);
     });
@@ -249,7 +249,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddress"]
 FROM root c
 WHERE (c["ShippingAddress"]["ZipCode"] = 7728)
 """);

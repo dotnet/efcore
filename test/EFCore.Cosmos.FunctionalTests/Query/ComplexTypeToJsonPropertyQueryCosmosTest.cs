@@ -36,7 +36,7 @@ public class ComplexTypeToJsonPropertyQueryCosmosTest(ComplexTypeToJsonPropertyQ
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddressRenamed"]
 FROM root c
 """);
     });
@@ -48,7 +48,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddressRenamed"]["CountryRenamed"]
 FROM root c
 """);
     });
@@ -72,7 +72,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddressRenamed"]
 FROM root c
 WHERE (c["ShippingAddressRenamed"]["ZipCodeRenamed"] = 7728)
 """);
@@ -212,8 +212,8 @@ WHERE (c["ShippingAddressRenamed"]["CountryRenamed"]["CodeRenamed"] = "DE")
         await base.Select_struct_complex_type(async);
 
         AssertSql(
-                """
-SELECT VALUE c
+            """
+SELECT VALUE c["ShippingAddressRenamed"]
 FROM root c
 """);
     });
@@ -225,7 +225,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddressRenamed"]["CountryRenamed"]
 FROM root c
 """);
     });
@@ -249,7 +249,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["ShippingAddressRenamed"]
 FROM root c
 WHERE (c["ShippingAddressRenamed"]["ZipCodeRenamed"] = 7728)
 """);

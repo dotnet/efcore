@@ -6,6 +6,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -438,21 +439,13 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Sum_with_division_on_decimal(bool async)
-    {
+    public override Task Sum_with_division_on_decimal(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_with_division_on_decimal(async));
+        => AssertTranslationFailed(() => base.Sum_with_division_on_decimal(async));
 
-        AssertSql();
-    }
-
-    public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
-    {
+    public override Task Sum_with_division_on_decimal_no_significant_digits(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_with_division_on_decimal_no_significant_digits(async));
-
-        AssertSql();
-    }
+        => AssertTranslationFailed(() => base.Sum_with_division_on_decimal_no_significant_digits(async));
 
     public override Task Sum_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -3038,35 +3031,55 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT c["id"], c["City"]
+SELECT VALUE
+{
+    "CustomerId" : c["id"],
+    "City" : c["City"]
+}
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 1
 """,
                     //
                     """
-SELECT c["id"], c["City"]
+SELECT VALUE
+{
+    "CustomerId" : c["id"],
+    "City" : c["City"]
+}
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 1
 """,
                     //
                     """
-SELECT c["id"], c["City"]
+SELECT VALUE
+{
+    "CustomerId" : c["id"],
+    "City" : c["City"]
+}
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 2
 """,
                     //
                     """
-SELECT c["id"], c["City"]
+SELECT VALUE
+{
+    "CustomerId" : c["id"],
+    "City" : c["City"]
+}
 FROM root c
 WHERE (c["id"] = "ALFKI")
 OFFSET 0 LIMIT 2
 """,
                     //
                     """
-SELECT c["id"], c["City"]
+SELECT VALUE
+{
+    "CustomerId" : c["id"],
+    "City" : c["City"]
+}
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"] DESC
@@ -3074,7 +3087,11 @@ OFFSET 0 LIMIT 1
 """,
                     //
                     """
-SELECT c["id"], c["City"]
+SELECT VALUE
+{
+    "CustomerId" : c["id"],
+    "City" : c["City"]
+}
 FROM root c
 WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["id"] DESC

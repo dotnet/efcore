@@ -55,7 +55,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["Orders"]
 FROM root c
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 ORDER BY c["Id"]
@@ -385,7 +385,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Te
                 // TODO: The following should project out c["PersonAddress"], not c: #34067
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -401,7 +401,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]["Country"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -1086,7 +1086,7 @@ WHERE (c["Terminator"] = "Star")
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
