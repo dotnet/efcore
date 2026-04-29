@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -16,6 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 {
+    private static readonly MethodInfo GetParameterValueMethodInfo
+        = typeof(CosmosProjectionBindingExpressionVisitor)
+            .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
+
     private readonly CosmosQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly ITypeMappingSource _typeMappingSource;
@@ -83,6 +88,11 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 return null;
             case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression or MaterializeCollectionNavigationExpression:
                 return base.Visit(expression);
+            case QueryParameterExpression queryParameter:
+                return Expression.Call(
+                    GetParameterValueMethodInfo.MakeGenericMethod(queryParameter.Type),
+                    QueryCompilationContext.QueryContextParameter,
+                    Expression.Constant(queryParameter.Name));
             default:
                 var translation = _sqlTranslator.TranslateProjection(expression);
                 switch (translation)
@@ -464,4 +474,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
         return expression;
     }
+
+    [UsedImplicitly]
+    private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
+        => (T)queryContext.Parameters[parameterName]!;
 }
