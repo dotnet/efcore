@@ -4018,6 +4018,12 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
                 """
 SELECT VALUE c
 FROM root c
+""",
+                //
+                """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 1
 """);
         }
     }
@@ -4352,6 +4358,11 @@ WHERE (c["Title"] = "Sales Representative")
         {
             await base.Throws_on_concurrent_query_list(async);
             AssertSql(
+                """
+SELECT VALUE c
+FROM root c
+""",
+                //
                 """
 SELECT VALUE c
 FROM root c

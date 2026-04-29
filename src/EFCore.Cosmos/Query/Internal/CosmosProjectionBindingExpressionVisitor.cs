@@ -313,6 +313,35 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitMember(MemberExpression memberExpression)
+    {
+        var expression = Visit(memberExpression.Expression);
+        Expression updatedMemberExpression = memberExpression.Update(
+            expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
+
+        if (expression?.Type.IsNullableType() == true)
+        {
+            var nullableReturnType = memberExpression.Type.MakeNullable();
+            if (!memberExpression.Type.IsNullableType())
+            {
+                updatedMemberExpression = Expression.Convert(updatedMemberExpression, nullableReturnType);
+            }
+
+            updatedMemberExpression = Expression.Condition(
+                Expression.Equal(expression, Expression.Default(expression.Type)),
+                Expression.Constant(null, nullableReturnType),
+                updatedMemberExpression);
+        }
+
+        return updatedMemberExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
     {
         var expression = memberAssignment.Expression;
