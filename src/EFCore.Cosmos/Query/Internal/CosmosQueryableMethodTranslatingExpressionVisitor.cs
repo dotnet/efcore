@@ -443,7 +443,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregate(source, selector, resultType, "AVG");
+        => TranslateAggregateWithSelector(source, selector, resultType, "AVG");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -840,7 +840,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregate(source, selector, resultType, "MAX");
+        => TranslateAggregateWithSelector(source, selector, resultType, "MAX");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -849,7 +849,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregate(source, selector, resultType, "MIN");
+        => TranslateAggregateWithSelector(source, selector, resultType, "MIN");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1173,27 +1173,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-    {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
-        {
-            return null;
-        }
-
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
-        }
-
-        var serverOutputType = resultType.UnwrapNullableType();
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-        projection = _sqlExpressionFactory.Function("SUM", [projection], serverOutputType, projection.TypeMapping);
-
-        return AggregateResultShaper(source, projection, resultType);
-    }
+        => TranslateAggregateWithSelector(source, selector, resultType, "SUM");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1466,13 +1446,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
     #endregion Queryable collection support
 
-    private ShapedQueryExpression? TranslateAggregate(
+    private ShapedQueryExpression? TranslateAggregateWithSelector(
         ShapedQueryExpression source,
-        LambdaExpression? selector,
+        LambdaExpression? selectorLambda,
         Type resultType,
         string functionName)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
+
         if (selectExpression.IsDistinct
             || selectExpression.Limit != null
             || selectExpression.Offset != null)
@@ -1480,9 +1461,30 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        if (selector != null)
+        Expression? selector = null;
+        if (selectorLambda == null
+            || selectorLambda.Body == selectorLambda.Parameters[0])
         {
-            source = TranslateSelect(source, selector);
+            var shaperExpression = source.ShaperExpression;
+            if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
+            {
+                shaperExpression = unaryExpression.Operand;
+            }
+
+            if (shaperExpression is ProjectionBindingExpression projectionBindingExpression)
+            {
+                selector = selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember ?? new ProjectionMember());
+            }
+        }
+        else
+        {
+            selector = RemapLambdaBody(source, selectorLambda);
+        }
+
+        if (selector == null
+            || TranslateExpression(selector) is not { } translatedSelector)
+        {
+            return null;
         }
 
         if (!_subquery && resultType.IsNullableType())
@@ -1493,8 +1495,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = source.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
         }
 
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-        projection = _sqlExpressionFactory.Function(functionName, [projection], resultType, _typeMappingSource.FindMapping(resultType));
+        var serverOutputType = resultType.UnwrapNullableType();
+        var projection = _sqlExpressionFactory.Function(functionName, [translatedSelector], serverOutputType, new CosmosNumberProjectionTypeMapping(serverOutputType));
 
         return AggregateResultShaper(source, projection, resultType);
     }

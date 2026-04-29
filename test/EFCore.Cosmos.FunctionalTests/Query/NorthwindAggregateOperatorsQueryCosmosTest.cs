@@ -1003,22 +1003,13 @@ WHERE (c["$type"] = "Order")
 """);
             });
 
-    public override async Task Average_with_division_on_decimal(bool async)
-    {
+    public override Task Average_with_division_on_decimal(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Average_with_division_on_decimal(async));
+        => AssertTranslationFailed(() => base.Average_with_division_on_decimal(async));
 
-        AssertSql();
-    }
-
-    public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
-    {
+    public override Task Average_with_division_on_decimal_no_significant_digits(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async ()
-            => await base.Average_with_division_on_decimal_no_significant_digits(async));
-
-        AssertSql();
-    }
+        => AssertTranslationFailed(() => base.Average_with_division_on_decimal_no_significant_digits(async));
 
     public override Task Average_with_coalesce(bool async)
         => Fixture.NoSyncTest(
@@ -2314,36 +2305,17 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override async Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
-    {
+    public override Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async ()
-            => await base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
+        => AssertTranslationFailed(() => base.Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(async));
 
-        AssertSql();
-    }
-
-    public override async Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Aggregate selecting non-mapped type. Issue #20677.
-            await Assert.ThrowsAsync<KeyNotFoundException>(async ()
-                => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
-
-            AssertSql();
-        }
-    }
-
-    public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
-    {
+    public override Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async ()
-            => await base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+        => AssertTranslationFailed(() => base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
 
-        AssertSql();
-    }
+    public override Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
+        // Aggregate selecting non-mapped type. Issue #20677.
+        => AssertTranslationFailed(() => base.Min_with_non_matching_types_in_projection_introduces_explicit_cast(async));
 
     public override async Task OrderBy_Take_Last_gives_correct_result(bool async)
     {
@@ -2774,13 +2746,9 @@ FROM root c
         AssertSql();
     }
 
-    public override async Task Sum_over_explicit_cast_over_column(bool async)
-    {
+    public override Task Sum_over_explicit_cast_over_column(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await base.Sum_over_explicit_cast_over_column(async));
-
-        AssertSql();
-    }
+        => AssertTranslationFailed(() => base.Sum_over_explicit_cast_over_column(async));
 
     public override async Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
     {
@@ -2888,16 +2856,12 @@ FROM root c
         AssertSql();
     }
 
-    public override async Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
-    {
+    public override Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertAverage(
+        => AssertTranslationFailed(() => AssertAverage(
             async,
             ss => ss.Set<Order>(),
             selector: c => c.ShipVia));
-
-        AssertSql();
-    }
 
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
     {
