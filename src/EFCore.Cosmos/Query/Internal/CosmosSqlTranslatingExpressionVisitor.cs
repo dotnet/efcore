@@ -119,7 +119,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 translation = isProjection && translation is not SqlConstantExpression && translation is not ScalarAccessExpression
                  && (translation.Type == typeof(int) || translation.Type == typeof(long) || translation.Type == typeof(short) || translation.Type == typeof(float)
                   || translation.Type == typeof(uint) || translation.Type == typeof(ulong) || translation.Type == typeof(ushort))
-                    ? sqlExpressionFactory.ApplyTypeMapping(translation, new CosmosNumberProjectionTypeMapping(translation.Type))
+                    ? sqlExpressionFactory.ApplyTypeMapping(translation, CosmosNumberProjectionTypeMapping.CreateFromType(translation.Type))
                     : sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
                 if (translation.TypeMapping == null)

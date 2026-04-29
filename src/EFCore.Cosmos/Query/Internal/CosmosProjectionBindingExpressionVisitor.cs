@@ -21,11 +21,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         = typeof(CosmosProjectionBindingExpressionVisitor)
             .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
 
-    private readonly CosmosQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
-    private readonly ITypeMappingSource _typeMappingSource;
-    private readonly IModel _model;
     private SelectExpression _selectExpression;
+
+    private bool _clientEval;
 
     private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private readonly Stack<ProjectionMember> _projectionMembers = new();
@@ -42,10 +41,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         CosmosSqlTranslatingExpressionVisitor sqlTranslator,
         ITypeMappingSource typeMappingSource)
     {
-        _model = model;
-        _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _sqlTranslator = sqlTranslator;
-        _typeMappingSource = typeMappingSource;
         _selectExpression = null!;
     }
 
@@ -58,10 +54,20 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
     {
         _selectExpression = selectExpression;
+        _clientEval = false;
 
         _projectionMembers.Push(new ProjectionMember());
 
         var result = Visit(expression);
+
+        if (result == QueryCompilationContext.NotTranslatedExpression)
+        {
+            _clientEval = true;
+
+            result = Visit(expression);
+
+            _projectionMapping.Clear();
+        }
 
         _selectExpression.ReplaceProjectionMapping(_projectionMapping);
         _selectExpression = null!;
@@ -86,7 +92,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             case null:
                 return null;
-            case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression or MaterializeCollectionNavigationExpression:
+            case NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression or MaterializeCollectionNavigationExpression or ConstantExpression:
                 return base.Visit(expression);
             case QueryParameterExpression queryParameter:
                 return Expression.Call(
@@ -97,13 +103,20 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 var translation = _sqlTranslator.TranslateProjection(expression);
                 switch (translation)
                 {
-                    case SqlExpression sqlExpression:
-                        _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
+                    case SqlExpression when _clientEval:
+                        return new ProjectionBindingExpression(
+                            _selectExpression, _selectExpression.AddToProjection(translation), expression.Type.MakeNullable());
+                    case SqlExpression when !_clientEval:
+                        _projectionMapping[_projectionMembers.Peek()] = translation;
                         return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
                     case StructuralTypeShaperExpression shaper:
                         return base.Visit(shaper);
                     default:
-                        return base.Visit(expression);
+                        if (_clientEval)
+                        {
+                            return base.Visit(expression);
+                        }
+                        return QueryCompilationContext.NotTranslatedExpression;
                 }
         }
     }
@@ -180,9 +193,16 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         break;
                 }
 
-                _projectionMapping[_projectionMembers.Peek()] = structuralTypeProjection;
-
-                var projectionBinding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer));
+                ProjectionBindingExpression projectionBinding;
+                if (_clientEval)
+                {
+                    projectionBinding = new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(structuralTypeProjection), typeof(ValueBuffer));
+                }
+                else
+                {
+                    _projectionMapping[_projectionMembers.Peek()] = structuralTypeProjection;
+                    projectionBinding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer));
+                }
 
                 if (structuralTypeShaper.StructuralType is IComplexType { ComplexProperty: { } complexProperty })
                 {
@@ -243,8 +263,16 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                var valueBuffer = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer));
-                _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
+                ProjectionBindingExpression valueBuffer;
+                if (_clientEval)
+                {
+                    valueBuffer = new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(shaper.ValueBufferExpression), typeof(ValueBuffer));
+                }
+                else
+                {
+                    valueBuffer = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer));
+                    _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
+                }
 
                 shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
@@ -288,17 +316,25 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
     {
         var expression = memberAssignment.Expression;
+        Expression? visitedExpression;
 
-        var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
-        _projectionMembers.Push(projectionMember);
-
-        var visitedExpression = Visit(memberAssignment.Expression);
-        if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
+        if (_clientEval)
         {
-            return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
+            visitedExpression = Visit(memberAssignment.Expression);
         }
+        else
+        {
+            var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
+            _projectionMembers.Push(projectionMember);
 
-        _projectionMembers.Pop();
+            visitedExpression = Visit(memberAssignment.Expression);
+            if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
+            }
+
+            _projectionMembers.Pop();
+        }
 
         visitedExpression = MatchTypes(visitedExpression, expression.Type);
 
@@ -355,7 +391,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             throw new InvalidOperationException(
                 CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(),
-                    "Could not project out subquery.")); // @TODO: Create issue?
+                    "Could not project out subquery.")); // @TODO: Create issue? Why was this again :p
         }
 
         var @object = Visit(methodCallExpression.Object);
@@ -402,7 +438,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             return newExpression;
         }
 
-        if (newExpression.Members == null)
+        if (!_clientEval && newExpression.Members == null)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
@@ -411,15 +447,27 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         for (var i = 0; i < newArguments.Length; i++)
         {
             var argument = newExpression.Arguments[i];
-            var projectionMember = _projectionMembers.Peek().Append(newExpression.Members![i]);
-            _projectionMembers.Push(projectionMember);
-            var visitedArgument = Visit(argument);
-            if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
+            Expression visitedArgument;
+            if (_clientEval)
             {
-                return QueryCompilationContext.NotTranslatedExpression;
+                visitedArgument = Visit(argument);
+                if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
             }
+            else
+            {
+                var projectionMember = _projectionMembers.Peek().Append(newExpression.Members![i]);
+                _projectionMembers.Push(projectionMember);
+                visitedArgument = Visit(argument);
+                if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
 
-            _projectionMembers.Pop();
+                _projectionMembers.Pop();
+            }
 
             newArguments[i] = MatchTypes(visitedArgument, argument.Type);
         }
