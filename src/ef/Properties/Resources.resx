@@ -142,7 +142,7 @@
     <value>The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
-    <value>The directory to put the DbContext file in. Paths are relative to the project directory.</value>
+    <value>The directory to put the DbContext file in. Paths are relative to the project or file-based app directory.</value>
   </data>
   <data name="ContextNameDescription" xml:space="preserve">
     <value>The name of the DbContext. Defaults to the database name.</value>
@@ -277,7 +277,7 @@
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
-    <value>The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".</value>
+    <value>The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".</value>
   </data>
   <data name="MigrationsRemoveDescription" xml:space="preserve">
     <value>Removes the last migration.</value>
@@ -346,7 +346,7 @@
     <value>The file to write the result to.</value>
   </data>
   <data name="OutputDirDescription" xml:space="preserve">
-    <value>The directory to put files in. Paths are relative to the project directory.</value>
+    <value>The directory to put files in. Paths are relative to the project or file-based app directory.</value>
   </data>
   <data name="Pending" xml:space="preserve">
     <value> (Pending)</value>
