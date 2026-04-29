@@ -223,10 +223,10 @@
     <value>Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app.</value>
   </data>
   <data name="RestoreRequired" xml:space="preserve">
-    <value>Unable to retrieve project metadata. Restore the project (e.g. by running 'dotnet restore') and try again.</value>
+    <value>Unable to retrieve project metadata. Restore the project or file-based app (e.g. by running 'dotnet restore') and try again.</value>
   </data>
   <data name="ProjectFileNotFound" xml:space="preserve">
-    <value>The project file '{file}' could not be found.</value>
+    <value>The file '{file}' could not be found.</value>
   </data>
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>
