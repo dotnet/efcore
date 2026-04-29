@@ -1496,7 +1496,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var serverOutputType = resultType.UnwrapNullableType();
-        var projection = _sqlExpressionFactory.Function(functionName, [translatedSelector], serverOutputType, new CosmosNumberProjectionTypeMapping(serverOutputType));
+        var projection = _sqlExpressionFactory.Function(functionName, [translatedSelector], serverOutputType, CosmosNumberProjectionTypeMapping.CreateFromType(serverOutputType));
 
         return AggregateResultShaper(source, projection, resultType);
     }
