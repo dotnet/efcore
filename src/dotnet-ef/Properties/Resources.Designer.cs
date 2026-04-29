@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("FileDescription");
 
         /// <summary>
-        ///     The target framework. Defaults to the first one in the project or file-based app.
+        ///     The target framework. Defaults to the first one in the project.
         /// </summary>
         public static string FrameworkDescription
             => GetString("FrameworkDescription");
