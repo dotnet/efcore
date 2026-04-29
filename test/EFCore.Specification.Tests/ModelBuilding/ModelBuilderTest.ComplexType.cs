@@ -2285,5 +2285,365 @@ public abstract partial class ModelBuilderTest
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
             Assert.Equal(BasicEnum.Two, complexType.GetDiscriminatorValue());
         }
+
+        [ConditionalFact]
+        public virtual void Chained_property_lambda_configures_nested_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.Ignore(c => c.Details);
+                    });
+                    b.Property(e => e.Customer.Name).IsRequired();
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var nameProperty = customerType.FindProperty("Name")!;
+
+            Assert.False(nameProperty.IsNullable);
+        }
+
+        [ConditionalFact]
+        public virtual void Chained_property_lambda_auto_creates_intermediate_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.ComplexProperty(c => c.Details, db =>
+                        {
+                            db.Ignore(d => d.Customer);
+                        });
+                    });
+                    b.Property(e => e.Customer.Details.CustomerId).HasMaxLength(50);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var detailsComplex = customerType.FindComplexProperty("Details");
+
+            Assert.NotNull(detailsComplex);
+            Assert.Equal(50, detailsComplex!.ComplexType.FindProperty("CustomerId")!.GetMaxLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Chained_complex_property_lambda_configures_nested_complex()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                    });
+                    b.ComplexProperty(e => e.Customer.Details, cb =>
+                    {
+                        cb.Ignore(c => c.Customer);
+                        cb.Property(c => c.CustomerId).HasMaxLength(3);
+                    });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var detailsType = customerType.FindComplexProperty("Details")!.ComplexType;
+            var customerIdProperty = detailsType.FindProperty("CustomerId")!;
+
+            Assert.Equal(3, customerIdProperty.GetMaxLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Chained_ignore_lambda_ignores_nested_member()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.ComplexProperty(c => c.Details, db =>
+                        {
+                            db.Ignore(d => d.Customer);
+                        });
+                    });
+                    b.Ignore(e => e.Customer.Details);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var detailsComplex = customerType.FindComplexProperty("Details");
+
+            Assert.Null(detailsComplex);
+        }
+
+        [ConditionalFact]
+        public virtual void Nested_chained_property_lambda_resolves_through_complex()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.ComplexProperty(c => c.Details, db =>
+                        {
+                            db.Ignore(d => d.Customer);
+                        });
+                        cb.Property(c => c.Details.CustomerId).HasMaxLength(50);
+                    });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var detailsType = customerType.FindComplexProperty("Details")!.ComplexType;
+            var customerIdProperty = detailsType.FindProperty("CustomerId")!;
+
+            Assert.Equal(50, customerIdProperty.GetMaxLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Nested_chained_ignore_lambda_ignores_nested_member()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.ComplexProperty(c => c.Details, db =>
+                        {
+                            db.Ignore(d => d.Customer);
+                        });
+                        cb.Ignore(c => c.Details.CustomerId);
+                    });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var detailsType = customerType.FindComplexProperty("Details")!.ComplexType;
+
+            Assert.Null(detailsType.FindProperty("CustomerId"));
+        }
+
+        [ConditionalFact]
+        public virtual void Chained_primitive_collection_lambda_configures_nested_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.Ignore(c => c.Details);
+                    });
+                    b.PrimitiveCollection(e => e.Customer.Notes).HasMaxLength(50);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var notesProperty = customerType.FindProperty("Notes")!;
+
+            Assert.Equal(50, notesProperty.GetMaxLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_for_nonexistent_intermediate_complex()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainIntermediateNotFound("MissingComplex", nameof(ComplexProperties)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Ignore(e => e.Customer);
+                        b.Ignore(e => e.Customers);
+                        b.Property<string>("MissingComplex.Foo");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_for_empty_segment()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidSegment("Customer..Name"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Ignore(e => e.Customers);
+                        b.ComplexProperty(e => e.Customer);
+                        b.Property<string>("Customer..Name");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_for_trailing_dot()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidSegment("Customer.Name."),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Ignore(e => e.Customers);
+                        b.ComplexProperty(e => e.Customer);
+                        b.Property<string>("Customer.Name.");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_for_leading_dot()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidSegment(".Customer.Name"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Ignore(e => e.Customers);
+                        b.ComplexProperty(e => e.Customer);
+                        b.Property<string>(".Customer.Name");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_when_intermediate_is_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+            modelBuilder.Entity<ComplexProperties>(b =>
+            {
+                b.HasOne(e => e.Customer);
+                b.Ignore(e => e.Customers);
+            });
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember("Customer", nameof(ComplexProperties)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Property<string>("Customer.Name");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_when_intermediate_is_scalar_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+            modelBuilder.Entity<ComplexProperties>(b =>
+            {
+                b.Ignore(e => e.Customer);
+                b.Ignore(e => e.Customers);
+                b.Property(e => e.Id);
+            });
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember("Id", nameof(ComplexProperties)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Property<string>("Id.Something");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_when_intermediate_is_skip_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+            modelBuilder.Entity<ComplexProperties>(b =>
+            {
+                b.Ignore(e => e.Customer);
+                b.HasMany(e => e.Customers).WithMany();
+            });
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember("Customers", nameof(ComplexProperties)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Property<string>("Customers.Name");
+                    })).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_when_intermediate_is_service_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<IndexedClass>();
+            modelBuilder.Entity<ComplexProperties>(b =>
+            {
+                b.Ignore(e => e.Customer);
+                b.Ignore(e => e.Customers);
+                b.Metadata.AddServiceProperty(
+                    typeof(ComplexProperties).GetProperty(nameof(ComplexProperties.Customer))!,
+                    serviceType: null);
+            });
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember("Customer", nameof(ComplexProperties)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<ComplexProperties>(b =>
+                    {
+                        b.Property<string>("Customer.Name");
+                    })).Message);
+        }
     }
 }

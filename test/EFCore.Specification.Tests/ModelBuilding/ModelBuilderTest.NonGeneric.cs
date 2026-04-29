@@ -1,10 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
+    private static string ToDottedName(IReadOnlyList<MemberInfo> memberChain)
+        => string.Join(".", memberChain.Select(m => m.GetSimpleMemberName()));
+
     public class NonGenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
         : TestModelBuilder(fixture, configure)
     {
@@ -94,8 +100,8 @@ public abstract partial class ModelBuilderTest
 
         public override TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(EntityTypeBuilder.Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(EntityTypeBuilder.Property(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName)
@@ -104,8 +110,8 @@ public abstract partial class ModelBuilderTest
         public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(EntityTypeBuilder.PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(EntityTypeBuilder.PrimitiveCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
@@ -121,8 +127,8 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TEntity, TProperty?>> propertyExpression)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(EntityTypeBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
@@ -130,9 +136,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(
-                EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(EntityTypeBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
@@ -140,8 +145,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(Wrap<TProperty>(EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TProperty>(EntityTypeBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
 
             return this;
         }
@@ -152,10 +157,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(
-                Wrap<TProperty>(
-                    EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TProperty>(EntityTypeBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
 
             return this;
         }
@@ -181,8 +184,8 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
@@ -190,9 +193,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TElement>(
-                EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexCollection<TProperty, TElement>(
@@ -217,8 +219,9 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
+
             return this;
         }
 
@@ -228,10 +231,9 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(
-                Wrap<TElement>(
-                    EntityTypeBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TElement>(EntityTypeBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
+
             return this;
         }
 
@@ -247,7 +249,10 @@ public abstract partial class ModelBuilderTest
                 EntityTypeBuilder.Navigation(navigationExpression.GetMemberAccess().GetSimpleMemberName()));
 
         public override TestEntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object?>> propertyExpression)
-            => Wrap(EntityTypeBuilder.Ignore(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap(EntityTypeBuilder.Ignore(ToDottedName(memberChain)));
+        }
 
         public override TestEntityTypeBuilder<TEntity> Ignore(string propertyName)
             => Wrap(EntityTypeBuilder.Ignore(propertyName));
@@ -498,8 +503,8 @@ public abstract partial class ModelBuilderTest
         public override TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(PropertyBuilder.Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.Property(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName)
@@ -508,8 +513,8 @@ public abstract partial class ModelBuilderTest
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(PropertyBuilder.PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.PrimitiveCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
@@ -525,8 +530,8 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TComplex, TProperty?>> propertyExpression)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
@@ -534,10 +539,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(
-                PropertyBuilder.ComplexProperty(
-                    memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
@@ -554,8 +557,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
 
             return this;
         }
@@ -566,11 +569,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(
-                Wrap<TProperty>(
-                    PropertyBuilder.ComplexProperty(
-                        memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
 
             return this;
         }
@@ -587,8 +587,8 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
@@ -596,9 +596,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TElement>(
-                PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexCollection<TProperty, TElement>(
@@ -623,8 +622,9 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
+
             return this;
         }
 
@@ -634,15 +634,17 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(
-                Wrap<TElement>(
-                    PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
+
             return this;
         }
 
         public override TestComplexPropertyBuilder<TComplex> Ignore(Expression<Func<TComplex, object?>> propertyExpression)
-            => Wrap<TComplex>(PropertyBuilder.Ignore(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TComplex>(PropertyBuilder.Ignore(ToDottedName(memberChain)));
+        }
 
         public override TestComplexPropertyBuilder<TComplex> Ignore(string propertyName)
             => Wrap<TComplex>(PropertyBuilder.Ignore(propertyName));
@@ -710,8 +712,8 @@ public abstract partial class ModelBuilderTest
         public override TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(PropertyBuilder.Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.Property(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexCollectionTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName)
@@ -720,8 +722,8 @@ public abstract partial class ModelBuilderTest
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(PropertyBuilder.PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.PrimitiveCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
@@ -737,8 +739,8 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TComplex, TProperty?>> propertyExpression)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
@@ -746,10 +748,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TProperty>(
-                PropertyBuilder.ComplexProperty(
-                    memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
         }
 
         public override TestComplexCollectionBuilder<TComplex> ComplexProperty<TProperty>(
@@ -766,8 +766,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
 
             return this;
         }
@@ -778,11 +778,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
             where TProperty : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(
-                Wrap<TProperty>(
-                    PropertyBuilder.ComplexProperty(
-                        memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
 
             return this;
         }
@@ -799,8 +796,8 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TComplex, IEnumerable<TElement?>?>> propertyExpression)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
         }
 
         public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
@@ -808,9 +805,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            return Wrap<TElement>(
-                PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
         }
 
         public override TestComplexCollectionBuilder<TComplex> ComplexCollection<TProperty, TElement>(
@@ -835,8 +831,9 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
+
             return this;
         }
 
@@ -846,15 +843,17 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexCollectionBuilder<TElement>> buildAction)
             where TElement : default
         {
-            var memberInfo = propertyExpression.GetMemberAccess();
-            buildAction(
-                Wrap<TElement>(
-                    PropertyBuilder.ComplexCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(Wrap<TElement>(PropertyBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
+
             return this;
         }
 
         public override TestComplexCollectionBuilder<TComplex> Ignore(Expression<Func<TComplex, object?>> propertyExpression)
-            => Wrap<TComplex>(PropertyBuilder.Ignore(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TComplex>(PropertyBuilder.Ignore(ToDottedName(memberChain)));
+        }
 
         public override TestComplexCollectionBuilder<TComplex> Ignore(string propertyName)
             => Wrap<TComplex>(PropertyBuilder.Ignore(propertyName));

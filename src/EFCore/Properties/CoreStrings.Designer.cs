@@ -687,6 +687,38 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
+        ///     The intermediate complex property '{member}' was not found on type '{type}'. When using dotted property names, all intermediate segments must refer to complex properties.
+        /// </summary>
+        public static string ComplexPropertyChainIntermediateNotFound(object? member, object? type)
+            => string.Format(
+                GetString("ComplexPropertyChainIntermediateNotFound", nameof(member), nameof(type)),
+                member, type);
+
+        /// <summary>
+        ///     The member '{member}' on type '{type}' is configured as a non-complex property and cannot be used as an intermediate in a chained property access. Configure it as a complex property first if that's the intention.
+        /// </summary>
+        public static string ComplexPropertyChainInvalidMember(object? member, object? type)
+            => string.Format(
+                GetString("ComplexPropertyChainInvalidMember", nameof(member), nameof(type)),
+                member, type);
+
+        /// <summary>
+        ///     The dotted property name '{dottedName}' contains an empty segment. Dotted property names must consist of non-empty segments separated by '.'.
+        /// </summary>
+        public static string ComplexPropertyChainInvalidSegment(object? dottedName)
+            => string.Format(
+                GetString("ComplexPropertyChainInvalidSegment", nameof(dottedName)),
+                dottedName);
+
+        /// <summary>
+        ///     The member '{member}' on type '{type}' is a complex collection property and cannot be traversed in a chained property access. Configure properties on complex collection element types using the 'ComplexCollection' method.
+        /// </summary>
+        public static string ComplexPropertyChainOnCollection(object? member, object? type)
+            => string.Format(
+                GetString("ComplexPropertyChainOnCollection", nameof(member), nameof(type)),
+                member, type);
+
+        /// <summary>
         ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.
         /// </summary>
         public static string ComplexPropertyIndexer(object? type, object? property)
@@ -1772,6 +1804,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("InvalidKeyValue", nameof(entityType), nameof(keyProperty)),
                 entityType, keyProperty);
+
+        /// <summary>
+        ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty' or a chain of member accesses through non-collection complex properties: 't =&gt; t.MyComplex.MyProperty'.
+        /// </summary>
+        public static string InvalidMemberAccessChainExpression(object? expression)
+            => string.Format(
+                GetString("InvalidMemberAccessChainExpression", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The expression '{expression}' is not a valid member access expression. The expression should represent a simple property or field access: 't =&gt; t.MyProperty'.
