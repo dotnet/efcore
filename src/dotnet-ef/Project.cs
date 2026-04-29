@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 
 internal class Project
 {
+    private const string MissingAssetsFileErrorCode = "NETSDK1004";
+
     private readonly string _file;
     private readonly string? _framework;
     private readonly string? _configuration;
@@ -112,7 +114,7 @@ internal class Project
             var combinedOutput = (error.ToString() + output.ToString()).Trim();
 
             // NETSDK1004 indicates the assets file is missing, i.e. the project hasn't been restored yet.
-            if (combinedOutput.Contains("NETSDK1004", StringComparison.Ordinal))
+            if (combinedOutput.Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal))
             {
                 throw new CommandException(Resources.RestoreRequired);
             }
