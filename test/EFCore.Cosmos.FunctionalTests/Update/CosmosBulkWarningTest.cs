@@ -58,6 +58,6 @@ public class CosmosBulkWarningTest(CosmosBulkWarningTest.ThrowingFixture fixture
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
 
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionEnabled());
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionAllowed());
     }
 }

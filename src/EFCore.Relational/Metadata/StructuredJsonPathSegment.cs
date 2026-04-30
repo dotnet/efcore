@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
 ///     Represents a single segment in a JSON path. A segment is either a property name or an array index placeholder.
@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public sealed class JsonPathSegment
+public sealed class StructuredJsonPathSegment
 {
     /// <summary>
-    ///     Creates a new <see cref="JsonPathSegment" /> for a named property.
+    ///     Creates a new <see cref="StructuredJsonPathSegment" /> for a named property.
     /// </summary>
     /// <param name="propertyName">The JSON property name.</param>
-    public JsonPathSegment(string propertyName)
+    public StructuredJsonPathSegment(string propertyName)
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -23,17 +23,17 @@ public sealed class JsonPathSegment
         IsArray = false;
     }
 
-    private JsonPathSegment(bool isArray)
+    private StructuredJsonPathSegment(bool isArray)
     {
         PropertyName = null;
         IsArray = isArray;
     }
 
     /// <summary>
-    ///     Creates a new <see cref="JsonPathSegment" /> for an array index placeholder.
+    ///     Creates a new <see cref="StructuredJsonPathSegment" /> for an array index placeholder.
     /// </summary>
     /// <returns>A new array index placeholder segment.</returns>
-    public static JsonPathSegment Array { get; } = new(isArray: true);
+    public static StructuredJsonPathSegment Array { get; } = new(isArray: true);
 
     /// <summary>
     ///     Gets the JSON property name. <see langword="null" /> for array index placeholder segments.

@@ -296,7 +296,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
                     .AppendLine("// If you encounter a merge conflict in the line below, it means you need to")
                     .AppendLine("// discard one of the migration branches and recreate its migrations on top of")
                     .AppendLine("// the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.")
-                    .Append("public override string LatestMigrationId => ").Append(Code.Literal(latestMigrationId)).AppendLine(";")
+                    .Append("public override string LastMigrationId => ").Append(Code.Literal(latestMigrationId)).AppendLine(";")
                     .AppendLine();
             }
 

@@ -1790,12 +1790,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The number of ordinals provided ({ordinalsCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).
+        ///     The number of indices provided ({indicesCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).
         /// </summary>
-        public static string InvalidJsonPathOrdinalCount(object? ordinalsCount, object? arraySegmentCount)
+        public static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount)
             => string.Format(
-                GetString("InvalidJsonPathOrdinalCount", nameof(ordinalsCount), nameof(arraySegmentCount)),
-                ordinalsCount, arraySegmentCount);
+                GetString("InvalidStructuredJsonPathIndexCount", nameof(indicesCount), nameof(arraySegmentCount)),
+                indicesCount, arraySegmentCount);
 
         /// <summary>
         ///     Unable to track an entity of type '{entityType}' because its primary key property '{keyProperty}' is null.

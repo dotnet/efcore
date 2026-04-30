@@ -2,55 +2,56 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
 ///     Represents a structured JSON path consisting of property name segments and array index placeholders,
-///     along with runtime ordinal values for array positions.
+///     along with runtime index values for array positions.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class JsonPath
+public class StructuredJsonPath
 {
     /// <summary>
-    ///     A <see cref="JsonPath" /> representing the root of a JSON document (<c>$</c>).
+    ///     A <see cref="StructuredJsonPath" /> representing the root of a JSON document (<c>$</c>).
     /// </summary>
-    public static JsonPath Root { get; } = new([], []);
+    public static StructuredJsonPath Root { get; } = new([], []);
 
     /// <summary>
-    ///     Creates a new <see cref="JsonPath" /> instance.
+    ///     Creates a new <see cref="StructuredJsonPath" /> instance.
     /// </summary>
     /// <param name="segments">The path segments.</param>
-    /// <param name="ordinals">
-    ///     The ordinal values for array index placeholders. Must have one entry for each segment
-    ///     where <see cref="JsonPathSegment.IsArray" /> is <see langword="true" />.
+    /// <param name="indices">
+    ///     The index values for array index placeholders. Must have one entry for each segment
+    ///     where <see cref="StructuredJsonPathSegment.IsArray" /> is <see langword="true" />.
     /// </param>
-    public JsonPath(IReadOnlyList<JsonPathSegment> segments, int[] ordinals)
+    public StructuredJsonPath(IReadOnlyList<StructuredJsonPathSegment> segments, int[] indices)
     {
         var arraySegmentCount = segments.Count(s => s.IsArray);
-        if (ordinals.Length != arraySegmentCount)
+        if (indices.Length != arraySegmentCount)
         {
             throw new ArgumentException(
-                CoreStrings.InvalidJsonPathOrdinalCount(ordinals.Length, arraySegmentCount),
-                nameof(ordinals));
+                CoreStrings.InvalidStructuredJsonPathIndexCount(indices.Length, arraySegmentCount),
+                nameof(indices));
         }
 
         Segments = segments;
-        Ordinals = ordinals;
+        Indices = indices;
     }
 
     /// <summary>
     ///     Gets the path segments.
     /// </summary>
-    public virtual IReadOnlyList<JsonPathSegment> Segments { get; }
+    public virtual IReadOnlyList<StructuredJsonPathSegment> Segments { get; }
 
     /// <summary>
-    ///     Gets the ordinal values for array index placeholders. The ordinals are applied in order
-    ///     to the segments where <see cref="JsonPathSegment.IsArray" /> is <see langword="true" />.
+    ///     Gets the index values for array index placeholders. The indices are applied in order
+    ///     to the segments where <see cref="StructuredJsonPathSegment.IsArray" /> is <see langword="true" />.
     /// </summary>
-    public virtual int[] Ordinals { get; }
+    public virtual int[] Indices { get; }
 
     /// <summary>
     ///     Gets a value indicating whether this path represents the root of a JSON document (<c>$</c>).
@@ -67,13 +68,13 @@ public class JsonPath
     {
         builder.Append('$');
 
-        var ordinalIndex = 0;
+        var indexPosition = 0;
         foreach (var segment in Segments)
         {
             if (segment.IsArray)
             {
                 builder.Append('[');
-                builder.Append(Ordinals[ordinalIndex++]);
+                builder.Append(Indices[indexPosition++]);
                 builder.Append(']');
             }
             else

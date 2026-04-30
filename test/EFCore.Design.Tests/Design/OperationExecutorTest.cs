@@ -184,7 +184,7 @@ namespace My.Gnomespace.Data
         // If you encounter a merge conflict in the line below, it means you need to
         // discard one of the migration branches and recreate its migrations on top of
         // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-        public override string LatestMigrationId => "11112233445566_{{migrationName}}";
+        public override string LastMigrationId => "11112233445566_{{migrationName}}";
 
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
