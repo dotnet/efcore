@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : JsonQueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryRelationalFixture, new()
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory]
     public override async Task Project_json_reference_in_tracking_query_fails(bool async)
     {
         var message =
@@ -17,7 +17,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory]
     public override async Task Project_json_collection_in_tracking_query_fails(bool async)
     {
         var message =
@@ -27,7 +27,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         Assert.Equal(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner, message);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory]
     public override async Task Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
