@@ -703,7 +703,7 @@ FROM (
     {
         using var context = CreateContext();
         var query = context.Set<Order>()
-            .FromSqlRaw("""SELECT * FROM root c WHERE c["$type"] = "Product" """)
+            .FromSqlRaw("""SELECT "Order" AS "$type" FROM root c""")
             .AsNoTracking();
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync());
