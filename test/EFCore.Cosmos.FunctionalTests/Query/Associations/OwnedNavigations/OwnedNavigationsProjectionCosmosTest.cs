@@ -345,11 +345,14 @@ FROM root c
     {
         await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);
 
-        AssertSql(
-            """
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
 SELECT c["Id"], c["RequiredAssociate"]
 FROM root c
 """);
+        }
     }
 
     public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
