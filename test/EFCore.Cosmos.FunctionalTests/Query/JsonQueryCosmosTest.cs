@@ -568,7 +568,22 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
             });
 
     public override Task Json_collection_filter_in_projection(bool async)
-        => AssertTranslationFailed(() => base.Json_collection_filter_in_projection(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Json_collection_filter_in_projection(async);
+
+                AssertSql(
+                    """
+SELECT VALUE ARRAY(
+    SELECT VALUE o
+    FROM o IN c["OwnedCollectionRoot"]
+    WHERE (o["Name"] != "Foo"))
+FROM root c
+WHERE (c["Discriminator"] = "Basic")
+ORDER BY c["Id"]
+""");
+            });
 
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {

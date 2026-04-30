@@ -15,7 +15,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor(CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
             SelectExpression selectExpression,
-            ParameterExpression data) : ExpressionVisitor
+        ParameterExpression data) : ExpressionVisitor
     {
         private static readonly MethodInfo QueryContextStartTrackingMethod =
             typeof(QueryContext).GetMethod(nameof(QueryContext.StartTracking))!;
@@ -155,7 +155,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             Call(jsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
                             Visit(shapers)]);
 
-                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
+                    if (shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression) // @TODO: Why isn't this always true? It's for collection shapers right?
                     {
                         var projection1 = GetProjection(projectionBindingExpression);
                         if (!projection1.IsValueProjection && projection1.Alias != null)
@@ -191,16 +191,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 case CollectionShaperExpression collectionShaperExpression:
                     var innerShaper = ProcessShaper(collectionShaperExpression.InnerShaper);
 
-                    var navigation = collectionShaperExpression.StrucutralProperty;
-                    var collectionAccessor = navigation?.GetCollectionAccessor();
-                    var collectionType = collectionAccessor?.CollectionType ?? collectionShaperExpression.Type;
-                    var elementType = collectionShaperExpression.ElementType;
-
                     jsonMaterializeExpression = Call(
-                        ReadShapedCollectionMethod.MakeGenericMethod(elementType, collectionType),
+                        ReadShapedCollectionMethod.MakeGenericMethod(collectionShaperExpression.ElementType, collectionShaperExpression.Type),
                         CosmosQueryCompilationContext.QueryContextParameter,
                         data,
-                        Constant(collectionAccessor),
+                        Constant(collectionShaperExpression.CollectionCreator),
                         innerShaper);
 
                     projection = GetProjection((ProjectionBindingExpression)collectionShaperExpression.Projection);
@@ -1020,11 +1015,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
-            => selectExpression.Projection[GetProjectionIndex(projectionBindingExpression)];
+            => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
 
         private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
             => projectionBindingExpression.ProjectionMember != null
-                ? selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
+                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
                 : (projectionBindingExpression.Index
                     ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
 

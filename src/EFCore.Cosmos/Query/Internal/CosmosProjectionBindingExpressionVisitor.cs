@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -21,9 +23,13 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         = typeof(CosmosProjectionBindingExpressionVisitor)
             .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
 
-    private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
-    private SelectExpression _selectExpression;
+    private string? _translationErrorDetails;
 
+    private readonly CosmosQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+    private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
+    private readonly ITypeMappingSource _typeMappingSource;
+    private readonly IModel _model;
+    private SelectExpression _selectExpression;
     private bool _clientEval;
 
     private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
@@ -41,7 +47,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         CosmosSqlTranslatingExpressionVisitor sqlTranslator,
         ITypeMappingSource typeMappingSource)
     {
+        _model = model;
+        _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _sqlTranslator = sqlTranslator;
+        _typeMappingSource = typeMappingSource;
         _selectExpression = null!;
     }
 
@@ -67,6 +76,14 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             result = Visit(expression);
 
             _projectionMapping.Clear();
+        }
+
+        if (result == QueryCompilationContext.NotTranslatedExpression)
+        {
+            var message = _translationErrorDetails == null
+                ? CoreStrings.TranslationFailed(expression.Print())
+                : CoreStrings.TranslationFailedWithDetails(expression.Print(), _translationErrorDetails);
+            throw new InvalidOperationException(message);
         }
 
         _selectExpression.ReplaceProjectionMapping(_projectionMapping);
@@ -131,8 +148,18 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-        var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
-        var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
+        var left = Visit(binaryExpression.Left);
+        if (left == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+        var right = Visit(binaryExpression.Right);
+        if (right == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+        left = MatchTypes(left, binaryExpression.Left.Type);
+        right = MatchTypes(right, binaryExpression.Right.Type);
 
         return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
     }
@@ -146,8 +173,20 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
     {
         var test = Visit(conditionalExpression.Test);
+        if (test == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
         var ifTrue = Visit(conditionalExpression.IfTrue);
+        if (ifTrue == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
         var ifFalse = Visit(conditionalExpression.IfFalse);
+        if (ifFalse == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
 
         if (test.Type == typeof(bool?))
         {
@@ -215,7 +254,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         return new CollectionShaperExpression(
                             projectionBinding,
                             structuralTypeShaper,
-                            complexProperty,
+                            complexProperty.GetCollectionAccessor()!,
                             complexProperty.ComplexType.ClrType);
                     }
 
@@ -281,7 +320,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 return new CollectionShaperExpression(
                     valueBuffer,
                     shaper,
-                    includableCollectionNavigation,
+                    includableCollectionNavigation.GetCollectionAccessor()!,
                     includableCollectionNavigation.TargetEntityType.ClrType);
 
             case IncludeExpression includeExpression:
@@ -318,6 +357,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
         var expression = Visit(memberExpression.Expression);
+        if (expression == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
         Expression updatedMemberExpression = memberExpression.Update(
             expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
 
@@ -359,12 +402,13 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             _projectionMembers.Push(projectionMember);
 
             visitedExpression = Visit(memberAssignment.Expression);
-            if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
-            {
-                return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
-            }
 
             _projectionMembers.Pop();
+        }
+
+        if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
         }
 
         visitedExpression = MatchTypes(visitedExpression, expression.Type);
@@ -420,17 +464,99 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             }
             && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
         {
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(),
-                    "Could not project out subquery.")); // @TODO: Create issue? Why was this again :p
+            // Special case for translating ToList in a projection.
+            // @TODO: Shouldn't this happen in CosmosQueryableMethodTranslator?
+            if (method is { Name: nameof(Enumerable.ToList), IsGenericMethod: true }
+             && method.DeclaringType == typeof(Enumerable)
+             && methodCallExpression.Arguments is [var argument]
+             && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+            {
+                if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is not { } subquery
+                    || !subquery.TryConvertToArray(_typeMappingSource, out var array))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                ((SelectExpression)subquery.QueryExpression).ApplyProjection();
+
+                // If ToList() was composed over a subquery with operators, the result here is an ArrayExpression (ARRAY(SELECT ...)), whose
+                // CLR Type is IEnumerable<T>. This can be directly used in the resulting ProjectingBindingExpression - the shaper will
+                // simply read the JSON results out successfully.
+                // But if ToList() is composed directly over an array property, that property could have type e.g. T[], which will be read
+                // in the shaper, and then the cast from T[] to List<T> will fail. As a result, wrap the array in an additional
+                // "reprojection" subquery, effectively to change the CLR type.
+                if (array is SqlExpression scalarArray && !(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+                {
+                    Check.DebugAssert(
+                    array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
+
+                    if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
+                    {
+                        throw new UnreachableException("Scalar array with no element type mapping");
+                    }
+
+                    // @TODO: Doesn't this cause an additional ARRAY(SELECT ...) to be generated in the SQL? This is bad for RU's as it will allocate an additional array
+                    // TODO: Proper alias management (#33894).
+                    var arrayReprojectionSubquery = SelectExpression.CreateForCollection(
+                        array, "i", new ScalarReferenceExpression("i", elementTypeMapping.ClrType, elementTypeMapping));
+                    arrayReprojectionSubquery.ApplyProjection();
+
+                    array = new ScalarArrayExpression(
+                        arrayReprojectionSubquery,
+                        methodCallExpression.Type, // List<>
+                        _typeMappingSource.FindMapping(methodCallExpression.Type, _model, elementTypeMapping));
+                }
+
+                var binding = CreateBinding();
+
+                // @TODO: Ask if there is a better way for this..
+                // We should update projection bindings in the subquery shaper to relate to a query expression that can actually provide the correct binding information.
+                // Then are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
+                // This appears to be needed because ShapedQueryExpression doesn't properly replace projection bindings their query expression when updating the shaper expression.
+                // But fixing that causes a lot of errors (in other providers?).
+                var innerShaper = new ProjectionBindigQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
+
+                var elementType = methodCallExpression.Type.GetSequenceType();
+                var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(methodCallExpression.Type.GetConstructor(Type.EmptyTypes)!)).Compile();
+
+                return new CollectionShaperExpression(binding, subquery.ShaperExpression, methodCallExpression.Type, collectionCreator, elementType);
+
+                ProjectionBindingExpression CreateBinding()
+                {
+                    if (_clientEval)
+                    {
+                        return new ProjectionBindingExpression(
+                            _selectExpression,
+                            _selectExpression.AddToProjection(array),
+                            methodCallExpression.Type);
+                    }
+                    else
+                    {
+                        _projectionMapping[_projectionMembers.Peek()] = array;
+                        return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), methodCallExpression.Type);
+                    }
+                }
+            }
+
+            _translationErrorDetails = "Could not project out subquery.";
+            return QueryCompilationContext.NotTranslatedExpression; // @TODO: Why was this again? Should we create an issue?
         }
 
         var @object = Visit(methodCallExpression.Object);
+        if (@object == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
         var arguments = new Expression[methodCallExpression.Arguments.Count];
         for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
         {
-            var argument = methodCallExpression.Arguments[i];
-            arguments[i] = MatchTypes(Visit(argument), argument.Type);
+            var argument = Visit(methodCallExpression.Arguments[i]);
+            if (argument == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+            arguments[i] = MatchTypes(argument, methodCallExpression.Arguments[i].Type);
         }
 
         Expression updatedMethodCallExpression = methodCallExpression.Update(
@@ -454,6 +580,20 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         }
 
         return updatedMethodCallExpression;
+    }
+
+    private class ProjectionBindigQueryProjectionApplyingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is ProjectionBindingExpression projectionBindingExpression)
+            {
+                var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
+                selectExpression.ApplyProjection();
+            }
+
+            return base.VisitExtension(node);
+        }
     }
 
     /// <summary>
@@ -513,7 +653,20 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
+    {
+        var expressions = new Expression[newArrayExpression.Expressions.Count];
+        for (var i = 0; i < expressions.Length; i++)
+        {
+            var expression = Visit(newArrayExpression.Expressions[i]);
+            if (expression == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+            expressions[i] = MatchTypes(expression, newArrayExpression.Expressions[i].Type);
+        }
+
+        return newArrayExpression.Update(expressions);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -524,6 +677,10 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
         var operand = Visit(unaryExpression.Operand);
+        if (operand == QueryCompilationContext.NotTranslatedExpression)
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
 
         return (unaryExpression.NodeType == ExpressionType.Convert
                 || unaryExpression.NodeType == ExpressionType.ConvertChecked)

@@ -168,11 +168,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         public static TCollection MaterializedShapedCollection<TElement, TCollection>(
             QueryContext queryContext,
             ReadOnlyMemory<byte> data,
-            IClrCollectionAccessor accessor,
+            Func<object> creator,
             Func<QueryContext, ReadOnlyMemory<byte>, TElement> shaper)
         {
             // TODO: throw a better exception for non ICollection navigations
-            var collection = (ICollection<TElement>)accessor.Create();
+            var collection = (ICollection<TElement>)creator();
 
             var reader = new Utf8JsonReader(data.Span);
             reader.Read();
