@@ -8369,7 +8369,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
                 }));
 
-   [ConditionalFact]
+    [ConditionalFact]
     public void Seed_data_with_NFD_vs_NFC_unicode_string_is_considered_unchanged()
     {
         var nfcString = "Caf\u00E9";

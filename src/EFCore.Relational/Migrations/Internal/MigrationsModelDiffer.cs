@@ -2520,7 +2520,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 && string.Equals(sourceString.ReplaceLineEndings(), targetString.ReplaceLineEndings(), comparisonType));
 
     private static object? NormalizeStringValue(object? value)
-        => value is string s ? s.Normalize() : value;
+        => value is string s ? s.Normalize(NormalizationForm.FormC) : value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
