@@ -666,7 +666,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     //      case (JsonTokenType.EndObject):
                     //          goto break
                     //      default:
-                    //          throw invalid json?
+                    //          throw invalid json
                     // label: break
                     // if (entityType == default) throw unable to discriminate?
 
@@ -683,6 +683,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         nameof(JsonValueReaderWriter<>.FromJsonTyped),
                         [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
 
+                    var discriminatorValueVariable = Variable(discriminatorProperty.ClrType, "discriminatorValue");
                     var loop = Loop(Block(
                     Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
                     Switch( // switch(tokenType)
@@ -697,10 +698,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     Utf8JsonReaderValueTextEqualsMethod,
                                     Property(Constant(discriminatorPropertyNameBytes), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!)),
                                 Block(
+                                    [discriminatorValueVariable],
                                     Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod), // jsonReaderManager.MoveNext()
+                                    Assign(discriminatorValueVariable, Call(discriminatorJsonValueReaderWriterConstant, fromJsonMethod, managerVariable, Default(typeof(object)))), // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
                                     Switch(
-                                        Call(discriminatorJsonValueReaderWriterConstant, fromJsonMethod, managerVariable, Default(typeof(object))), // jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-                                        Throw(New(typeof(Exception)), typeof(void)), // default: throw unable to discriminate @TODO
+                                        discriminatorValueVariable, 
+                                        Throw(
+                                            New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                                                Call(null, typeof(CoreStrings).GetMethod(nameof(CoreStrings.UnableToDiscriminate))!,
+                                                    Constant(rootEntityType.DisplayName()), Convert(discriminatorValueVariable, typeof(object)))), typeof(void)), // default: throw new InvalidOperationException(CoreStrings.UnableToDiscriminate)
                                         rootEntityType.GetConcreteDerivedTypesInclusive().Select(x => SwitchCase( // case "Type1":
                                             Block(
                                                 Assign(entityTypeVariable, Constant(x)),  // entityType = x
@@ -717,7 +723,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     discriminatorBlockExpressions.Add(loop);
 
                     discriminatorBlockExpressions.Add(
-                        IfThen(Equal(entityTypeVariable, Default(typeof(IEntityType))), Throw(New(typeof(Exception))))); // if (entityTypeVariable == default) throw missing discriminator? @TODO
+                        IfThen(Equal(entityTypeVariable, Default(typeof(IEntityType))), // if (entityTypeVariable == default) throw UnableToDiscriminate
+                            Throw(New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                                    Call(null, typeof(CoreStrings).GetMethod(nameof(CoreStrings.UnableToDiscriminate))!,
+                                        Constant(rootEntityType.DisplayName()), Constant(null))), typeof(void))));
 
                     return Block(
                         [managerVariable, tokenTypeVariable],
