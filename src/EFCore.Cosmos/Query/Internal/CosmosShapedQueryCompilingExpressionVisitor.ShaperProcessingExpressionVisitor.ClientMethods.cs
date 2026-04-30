@@ -60,9 +60,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             switch (tokenType)
             {
                 case JsonTokenType.Null:
-                    return nullable
-                        ? default
-                        : throw new InvalidOperationException("Nullable object must have a value"); // @TODO ?
+                    return default; // See: #21006?
 
                 case not JsonTokenType.StartObject:
                     throw new InvalidOperationException(
@@ -87,9 +85,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             switch (tokenType)
             {
                 case JsonTokenType.Null:
-                    return nullable
-                        ? null
-                        : throw new InvalidOperationException("Nullable object must have a value"); // @TODO ?
+                    return default; // See: #21006
 
                 case not JsonTokenType.StartObject:
                     throw new InvalidOperationException(
@@ -111,17 +107,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
+            var collectionAccessor = structuralProperty.GetCollectionAccessor();
+            var result = (TResult)collectionAccessor!.Create();
+
             switch (tokenType)
             {
                 case JsonTokenType.Null:
-                    return default; // throw new InvalidOperationException("Nullable object must have a value"); // @TODO ?
+                    return result; // See: #21006
 
                 case not JsonTokenType.StartArray:
                     throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
-
-            var collectionAccessor = structuralProperty.GetCollectionAccessor();
-            var result = (TResult)collectionAccessor!.Create();
 
             tokenType = manager.MoveNext();
 
@@ -277,6 +273,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         break;
                     case JsonTokenType.EndObject:
+                        // @TODO: Missing property We need to return the default value from the shaper???
                     case JsonTokenType.Null:
                         throw new NullReferenceException(); // This is what 10.0 threw
                     default:

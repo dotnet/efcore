@@ -84,7 +84,7 @@ ReadItem(?, ?)
 
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredReference"]["NestedRequiredReference"]
 FROM root c
 WHERE (c["Id"] = 5)
 """);
@@ -112,7 +112,7 @@ ReadItem(?, ?)
 
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredReference"]
 FROM root c
 WHERE (c["Id"] = 6)
 """);
