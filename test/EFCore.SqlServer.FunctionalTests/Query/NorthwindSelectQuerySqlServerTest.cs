@@ -856,8 +856,24 @@ WHERE [c].[CustomerID] = N'ALFKI'
     {
         await base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(async);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='1'
+
+SELECT (
+    SELECT TOP(LEAST(@i, 1)) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='1'
 
 SELECT (
@@ -871,6 +887,7 @@ SELECT (
     ORDER BY [o0].[OrderID])
 FROM [Customers] AS [c]
 """);
+        }
     }
 
     public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(bool async)
@@ -1369,8 +1386,22 @@ INNER JOIN (
     {
         await base.Select_with_multiple_Take(async);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='5'
+@p1='3'
+
+SELECT TOP(LEAST(@p, @p1)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p1='3'
 @p='5'
 
@@ -1382,6 +1413,7 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
 """);
+        }
     }
 
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)

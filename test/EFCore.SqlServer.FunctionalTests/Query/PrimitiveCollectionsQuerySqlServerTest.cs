@@ -241,64 +241,125 @@ WHERE [p].[Id] NOT IN (2, 999)
     {
         await base.Inline_collection_Min_with_two_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[Int]) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT MIN([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
 """);
+        }
     }
 
     public override async Task Inline_collection_List_Min_with_two_values()
     {
         await base.Inline_collection_List_Min_with_two_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[Int]) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT MIN([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
 """);
+        }
     }
 
     public override async Task Inline_collection_Max_with_two_values()
     {
         await base.Inline_collection_Max_with_two_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[Int]) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT MAX([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
 """);
+        }
     }
 
     public override async Task Inline_collection_List_Max_with_two_values()
     {
         await base.Inline_collection_List_Max_with_two_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[Int]) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT MAX([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
 """);
+        }
     }
 
     public override async Task Inline_collection_Min_with_three_values()
     {
         await base.Inline_collection_Min_with_three_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='25'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[Int], @i) = 25
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='25'
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -307,14 +368,28 @@ WHERE (
     SELECT MIN([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@i)) AS [v]([Value])) = 25
 """);
+        }
     }
 
     public override async Task Inline_collection_List_Min_with_three_values()
     {
         await base.Inline_collection_List_Min_with_three_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='25'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[Int], @i) = 25
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='25'
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -323,14 +398,28 @@ WHERE (
     SELECT MIN([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@i)) AS [v]([Value])) = 25
 """);
+        }
     }
 
     public override async Task Inline_collection_Max_with_three_values()
     {
         await base.Inline_collection_Max_with_three_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='35'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[Int], @i) = 35
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='35'
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -339,14 +428,28 @@ WHERE (
     SELECT MAX([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@i)) AS [v]([Value])) = 35
 """);
+        }
     }
 
     public override async Task Inline_collection_List_Max_with_three_values()
     {
         await base.Inline_collection_List_Max_with_three_values();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='35'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[Int], @i) = 35
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='35'
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -355,14 +458,28 @@ WHERE (
     SELECT MAX([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@i)) AS [v]([Value])) = 35
 """);
+        }
     }
 
     public override async Task Inline_collection_of_nullable_value_type_Min()
     {
         await base.Inline_collection_of_nullable_value_type_Min();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='25' (Nullable = true)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[Int], @i) = 25
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='25' (Nullable = true)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -371,14 +488,28 @@ WHERE (
     SELECT MIN([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@i)) AS [v]([Value])) = 25
 """);
+        }
     }
 
     public override async Task Inline_collection_of_nullable_value_type_Max()
     {
         await base.Inline_collection_of_nullable_value_type_Max();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='35' (Nullable = true)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[Int], @i) = 35
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='35' (Nullable = true)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -387,34 +518,59 @@ WHERE (
     SELECT MAX([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@i)) AS [v]([Value])) = 35
 """);
+        }
     }
 
     public override async Task Inline_collection_of_nullable_value_type_with_null_Min()
     {
         await base.Inline_collection_of_nullable_value_type_with_null_Min();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[NullableInt], NULL) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT MIN([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[NullableInt]), (NULL)) AS [v]([Value])) = 30
 """);
+        }
     }
 
     public override async Task Inline_collection_of_nullable_value_type_with_null_Max()
     {
         await base.Inline_collection_of_nullable_value_type_with_null_Max();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[NullableInt], NULL) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT MAX([v].[Value])
     FROM (VALUES (CAST(30 AS int)), ([p].[NullableInt]), (NULL)) AS [v]([Value])) = 30
 """);
+        }
     }
 
     public override async Task Inline_collection_with_single_parameter_element_Contains()
@@ -452,8 +608,24 @@ WHERE (
     {
         await base.Inline_collection_Contains_with_EF_Parameter();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@p='[2,999,1000]' (Size = 12)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] IN (
+    SELECT [p0].[value]
+    FROM OPENJSON(@p) WITH ([value] int '$') AS [p0]
+)
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='[2,999,1000]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -463,14 +635,31 @@ WHERE [p].[Id] IN (
     FROM OPENJSON(@p) WITH ([value] int '$') AS [p0]
 )
 """);
+        }
     }
 
     public override async Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
     {
         await base.Inline_collection_Contains_with_IEnumerable_EF_Parameter();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@Select='["10","a","aa"]' (Size = 15)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[NullableString] IN (
+    SELECT [s].[value]
+    FROM OPENJSON(@Select) WITH ([value] nvarchar(max) '$') AS [s]
+)
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @Select='["10","a","aa"]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -480,14 +669,31 @@ WHERE [p].[NullableString] IN (
     FROM OPENJSON(@Select) WITH ([value] nvarchar(max) '$') AS [s]
 )
 """);
+        }
     }
 
     public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
     {
         await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@p='[2,999,1000]' (Size = 12)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@p) WITH ([value] int '$') AS [p0]
+    WHERE [p0].[value] > [p].[Id]) = 2
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='[2,999,1000]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -497,6 +703,7 @@ WHERE (
     FROM OPENJSON(@p) WITH ([value] int '$') AS [p0]
     WHERE [p0].[value] > [p].[Id]) = 2
 """);
+        }
     }
 
     public override async Task Inline_collection_in_query_filter()
@@ -750,8 +957,24 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
     {
         await base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@nullableInts_without_nulls='[999]' (Size = 5)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[NullableInt] IN (
+    SELECT [n].[value]
+    FROM OPENJSON(@nullableInts_without_nulls) AS [n]
+) OR [p].[NullableInt] IS NULL
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @nullableInts_without_nulls='[999]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
@@ -761,6 +984,7 @@ WHERE [p].[NullableInt] IN (
     FROM OPENJSON(@nullableInts_without_nulls) AS [n]
 ) OR [p].[NullableInt] IS NULL
 """);
+        }
     }
 
     public override async Task Parameter_collection_of_strings_Contains_string()
@@ -1098,8 +1322,24 @@ WHERE (
 
             case ParameterTranslationMode.Parameter:
             {
-                AssertSql(
-                    """
+                if (TestEnvironment.IsJsonTypeSupported)
+                {
+                    AssertSql(
+                        """
+@ids='[2,999]' (Size = 7)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
 @ids='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
@@ -1109,6 +1349,7 @@ WHERE (
     FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
     WHERE [i].[value] > [t].[Id]) = 1
 """);
+                }
                 break;
             }
 
@@ -1153,8 +1394,24 @@ WHERE [t].[Id] IN (2, 999)
 
             case ParameterTranslationMode.Parameter:
             {
-                AssertSql(
-                    """
+                if (TestEnvironment.IsJsonTypeSupported)
+                {
+                    AssertSql(
+                        """
+@ints='[2,999]' (Size = 7)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
+)
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
 @ints='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
@@ -1164,6 +1421,7 @@ WHERE [t].[Id] IN (
     FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
 )
 """);
+                }
                 break;
             }
 
@@ -1218,8 +1476,24 @@ WHERE [t].[Id] IN (2, 999)
     {
         await base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@ids='[2,999]' (Size = 7)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > [t].[Id]) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @ids='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
@@ -1229,14 +1503,31 @@ WHERE (
     FROM OPENJSON(@ids) WITH ([value] int '$') AS [i]
     WHERE [i].[value] > [t].[Id]) = 1
 """);
+        }
     }
 
     public override async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@ints='[2,999]' (Size = 7)
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
+)
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @ints='[2,999]' (Size = 4000)
 
 SELECT [t].[Id]
@@ -1246,6 +1537,7 @@ WHERE [t].[Id] IN (
     FROM OPENJSON(@ints) WITH ([value] int '$') AS [i]
 )
 """);
+        }
     }
 
     public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
@@ -1337,8 +1629,24 @@ WHERE EXISTS (
 
             case ParameterTranslationMode.Parameter:
             {
-                AssertSql(
-                    """
+                if (TestEnvironment.IsJsonTypeSupported)
+                {
+                    AssertSql(
+                        """
+@filter='[2]' (Size = 3)
+
+SELECT [t].[Id]
+FROM [TestEntity38008] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON(@filter) WITH ([value] int '$') AS [f]
+    WHERE [f].[value] = [t].[Status])
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
 @filter='[2]' (Size = 4000)
 
 SELECT [t].[Id]
@@ -1348,6 +1656,7 @@ WHERE EXISTS (
     FROM OPENJSON(@filter) WITH ([value] int '$') AS [f]
     WHERE [f].[value] = [t].[Status])
 """);
+                }
                 break;
             }
 
@@ -1430,8 +1739,19 @@ WHERE [p].[Int] NOT IN (10, 999)
     {
         await base.Column_collection_of_ints_Contains();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_CONTAINS([p].[Ints], 10) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE 10 IN (
@@ -1439,14 +1759,26 @@ WHERE 10 IN (
     FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
 )
 """);
+        }
     }
 
     public override async Task Column_collection_of_nullable_ints_Contains()
     {
         await base.Column_collection_of_nullable_ints_Contains();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_CONTAINS([p].[NullableInts], 10) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE 10 IN (
@@ -1454,6 +1786,7 @@ WHERE 10 IN (
     FROM OPENJSON([p].[NullableInts]) WITH ([value] int '$') AS [n]
 )
 """);
+        }
     }
 
     public override async Task Column_collection_of_nullable_ints_Contains_null()
@@ -1475,8 +1808,19 @@ WHERE EXISTS (
     {
         await base.Column_collection_of_strings_Contains();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_CONTAINS([p].[Strings], N'10') = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE N'10' IN (
@@ -1484,6 +1828,7 @@ WHERE N'10' IN (
     FROM OPENJSON([p].[Strings]) WITH ([value] nvarchar(max) '$') AS [s]
 )
 """);
+        }
     }
 
     public override async Task Column_collection_of_strings_Contains_null()
@@ -1517,8 +1862,19 @@ WHERE EXISTS (
     {
         await base.Column_collection_of_bools_Contains();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_CONTAINS([p].[Bools], CAST(1 AS bit)) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(1 AS bit) IN (
@@ -1526,6 +1882,7 @@ WHERE CAST(1 AS bit) IN (
     FROM OPENJSON([p].[Bools]) WITH ([value] bit '$') AS [b]
 )
 """);
+        }
     }
 
     [ConditionalFact]
@@ -1557,20 +1914,40 @@ WHERE [t].[Ints] = @ints
     {
         await base.Column_collection_inside_json_owned_entity();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
 SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM OPENJSON(JSON_QUERY([t].[Owned], '$.Strings')) AS [s]) = 2
 """,
-            //
-            """
+                //
+                """
+SELECT TOP(2) [t].[Id], [t].[Owned]
+FROM [TestOwner] AS [t]
+WHERE JSON_VALUE([t].[Owned], '$.Strings[1]' RETURNING nvarchar(max)) = N'bar'
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT TOP(2) [t].[Id], [t].[Owned]
+FROM [TestOwner] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON(JSON_QUERY([t].[Owned], '$.Strings')) AS [s]) = 2
+""",
+                //
+                """
 SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
 WHERE JSON_VALUE([t].[Owned], '$.Strings[1]') = N'bar'
 """);
+        }
     }
 
     public override async Task Parameter_with_inferred_value_converter()
@@ -1697,48 +2074,96 @@ WHERE (
     {
         await base.Column_collection_index_int();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE([p].[Ints], '$[1]' RETURNING int) = 10
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
 """);
+        }
     }
 
     public override async Task Column_collection_index_string()
     {
         await base.Column_collection_index_string();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE([p].[Strings], '$[1]' RETURNING nvarchar(max)) = N'10'
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE JSON_VALUE([p].[Strings], '$[1]') = N'10'
 """);
+        }
     }
 
     public override async Task Column_collection_index_datetime()
     {
         await base.Column_collection_index_datetime();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE([p].[DateTimes], '$[1]' RETURNING datetime2) = '2020-01-10T12:30:00.0000000Z'
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE([p].[DateTimes], '$[1]') AS datetime2) = '2020-01-10T12:30:00.0000000Z'
 """);
+        }
     }
 
     public override async Task Column_collection_index_beyond_end()
     {
         await base.Column_collection_index_beyond_end();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE([p].[Ints], '$[999]' RETURNING int) = 10
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
 """);
+        }
     }
 
     public override async Task Nullable_reference_column_collection_index_equals_nullable_column()
@@ -1746,26 +2171,52 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
         // TODO: This test is incorrect, see #33784
         await base.Nullable_reference_column_collection_index_equals_nullable_column();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE([p].[NullableStrings], '$[2]' RETURNING nvarchar(max)) = [p].[NullableString] OR (JSON_VALUE([p].[NullableStrings], '$[2]' RETURNING nvarchar(max)) IS NULL AND [p].[NullableString] IS NULL)
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE JSON_VALUE([p].[NullableStrings], '$[2]') = [p].[NullableString] OR (JSON_VALUE([p].[NullableStrings], '$[2]') IS NULL AND [p].[NullableString] IS NULL)
 """);
+        }
     }
 
     public override async Task Non_nullable_reference_column_collection_index_equals_nullable_column()
     {
         await base.Non_nullable_reference_column_collection_index_equals_nullable_column();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Strings]) AS [s]) AND JSON_VALUE([p].[Strings], '$[1]' RETURNING nvarchar(max)) = [p].[NullableString]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([p].[Strings]) AS [s]) AND JSON_VALUE([p].[Strings], '$[1]') = [p].[NullableString]
 """);
+        }
     }
 
     public override async Task Inline_collection_index_Column()
@@ -1788,12 +2239,24 @@ WHERE (
     {
         await base.Inline_collection_index_Column_with_EF_Constant();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE(CAST('[1,2,3]' AS json), '$[' + CAST([p].[Int] AS nvarchar(max)) + ']' RETURNING int) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE(N'[1,2,3]', '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = 1
 """);
+        }
     }
 
     public override async Task Inline_collection_value_index_Column()
@@ -1833,14 +2296,28 @@ WHERE (
     {
         await base.Parameter_collection_index_Column_equal_Column();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@ints='[0,2,3]' (Size = 7)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']' RETURNING int) = [p].[Int]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @ints='[0,2,3]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = [p].[Int]
 """);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
@@ -1848,26 +2325,52 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
     {
         await base.Parameter_collection_index_Column_equal_constant();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@ints='[1,2,3]' (Size = 7)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']' RETURNING int) = 1
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @ints='[1,2,3]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = 1
 """);
+        }
     }
 
     public override async Task Column_collection_ElementAt()
     {
         await base.Column_collection_ElementAt();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_VALUE([p].[Ints], '$[1]' RETURNING int) = 10
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
 """);
+        }
     }
 
     public override async Task Column_collection_First()
@@ -2234,8 +2737,23 @@ WHERE (
     {
         await base.Parameter_collection_with_type_inference_for_JsonScalarExpression();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@values='["one","two"]' (Size = 13)
+
+SELECT CASE
+    WHEN [p].[Id] <> 0 THEN JSON_VALUE(@values, '$[' + CAST([p].[Int] % 2 AS nvarchar(max)) + ']' RETURNING nvarchar(max))
+    ELSE N'foo'
+END
+FROM [PrimitiveCollectionsEntity] AS [p]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @values='["one","two"]' (Size = 4000)
 
 SELECT CASE
@@ -2244,6 +2762,7 @@ SELECT CASE
 END
 FROM [PrimitiveCollectionsEntity] AS [p]
 """);
+        }
     }
 
     public override async Task Column_collection_Union_parameter_collection()
@@ -2335,14 +2854,28 @@ WHERE (
     {
         await base.Column_collection_equality_parameter_collection();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@ints='[1,10]' (Size = 6)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE CAST([p].[Ints] AS nvarchar(max)) = CAST(@ints AS nvarchar(max))
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @ints='[1,10]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Ints] = @ints
 """);
+        }
     }
 
     public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection()
@@ -2356,12 +2889,24 @@ WHERE [p].[Ints] = @ints
     {
         await base.Column_collection_equality_inline_collection();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE CAST([p].[Ints] AS nvarchar(max)) = N'[1,10]'
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Ints] = N'[1,10]'
 """);
+        }
     }
 
     public override async Task Column_collection_equality_inline_collection_with_parameters()
@@ -2730,13 +3275,26 @@ ORDER BY [p].[Id], CAST([i].[key] AS int), [i].[key], CAST([i0].[value] AS int) 
     {
         await base.Project_primitive_collections_element();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+SELECT JSON_VALUE([p].[Ints], '$[0]' RETURNING int) AS [Indexer], JSON_VALUE([p].[DateTimes], '$[0]' RETURNING datetime2) AS [EnumerableElementAt], JSON_VALUE([p].[Strings], '$[1]' RETURNING nvarchar(max)) AS [QueryableElementAt]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] < 4
+ORDER BY [p].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT CAST(JSON_VALUE([p].[Ints], '$[0]') AS int) AS [Indexer], CAST(JSON_VALUE([p].[DateTimes], '$[0]') AS datetime2) AS [EnumerableElementAt], JSON_VALUE([p].[Strings], '$[1]') AS [QueryableElementAt]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Id] < 4
 ORDER BY [p].[Id]
 """);
+        }
     }
 
     public override async Task Project_inline_collection()
@@ -3608,6 +4166,9 @@ WHERE (
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

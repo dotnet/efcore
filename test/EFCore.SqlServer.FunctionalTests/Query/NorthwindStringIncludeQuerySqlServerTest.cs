@@ -761,8 +761,31 @@ ORDER BY [c].[City], [c].[CustomerID], [o].[OrderID]
     {
         await base.Multi_level_includes_are_applied_with_take(async);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='1'
+
+SELECT [c0].[CustomerID], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[OrderID0], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
+FROM (
+    SELECT TOP(LEAST(@p, 1)) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
+ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='1'
 
 SELECT [c1].[CustomerID], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[OrderID0], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
@@ -783,6 +806,7 @@ LEFT JOIN (
 ) AS [s] ON [c1].[CustomerID] = [s].[CustomerID]
 ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0]
 """);
+        }
     }
 
     public override async Task Include_multiple_references_then_include_collection_multi_level_reverse(bool async)
@@ -940,8 +964,32 @@ ORDER BY [o1].[OrderID], [s].[OrderID]
     {
         await base.Multi_level_includes_are_applied_with_skip_take(async);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='1'
+
+SELECT [c0].[CustomerID], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[OrderID0], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+    OFFSET @p ROWS FETCH NEXT LEAST(@p, 1) ROWS ONLY
+) AS [c0]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
+ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='1'
 
 SELECT [c1].[CustomerID], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[OrderID0], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
@@ -963,6 +1011,7 @@ LEFT JOIN (
 ) AS [s] ON [c1].[CustomerID] = [s].[CustomerID]
 ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0]
 """);
+        }
     }
 
     public override async Task Include_collection_OrderBy_empty_list_contains(bool async)

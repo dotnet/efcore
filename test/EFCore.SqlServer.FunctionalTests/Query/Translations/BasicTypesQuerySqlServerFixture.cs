@@ -13,6 +13,9 @@ public class BasicTypesQuerySqlServerFixture : BasicTypesQueryFixtureBase, ITest
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => TestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
@@ -20,10 +23,4 @@ public class BasicTypesQuerySqlServerFixture : BasicTypesQueryFixtureBase, ITest
         modelBuilder.Entity<BasicTypesEntity>().Property(b => b.Decimal).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<NullableBasicTypesEntity>().Property(b => b.Decimal).HasColumnType("decimal(18,2)");
     }
-}
-
-public class BasicTypesQuerySqlServer160Fixture : BasicTypesQuerySqlServerFixture
-{
-    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).UseSqlServerCompatibilityLevel(160);
 }

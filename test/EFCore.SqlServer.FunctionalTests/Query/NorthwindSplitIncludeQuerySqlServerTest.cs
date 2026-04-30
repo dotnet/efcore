@@ -2331,8 +2331,51 @@ ORDER BY [c0].[CustomerID], [o3].[OrderID]
     {
         await base.Multi_level_includes_are_applied_with_take(async);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='1'
+
+SELECT TOP(LEAST(@p, 1)) [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
+""",
+                //
+                """
+@p='1'
+
+SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [c0].[CustomerID]
+FROM (
+    SELECT TOP(LEAST(@p, 1)) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+INNER JOIN [Orders] AS [o3] ON [c0].[CustomerID] = [o3].[CustomerID]
+ORDER BY [c0].[CustomerID], [o3].[OrderID]
+""",
+                //
+                """
+@p='1'
+
+SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [c0].[CustomerID], [o3].[OrderID]
+FROM (
+    SELECT TOP(LEAST(@p, 1)) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+INNER JOIN [Orders] AS [o3] ON [c0].[CustomerID] = [o3].[CustomerID]
+INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
+ORDER BY [c0].[CustomerID], [o3].[OrderID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='1'
 
 SELECT TOP(1) [c0].[CustomerID]
@@ -2344,8 +2387,8 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
 """,
-            //
-            """
+                //
+                """
 @p='1'
 
 SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [c1].[CustomerID]
@@ -2362,8 +2405,8 @@ FROM (
 INNER JOIN [Orders] AS [o3] ON [c1].[CustomerID] = [o3].[CustomerID]
 ORDER BY [c1].[CustomerID], [o3].[OrderID]
 """,
-            //
-            """
+                //
+                """
 @p='1'
 
 SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [c1].[CustomerID], [o3].[OrderID]
@@ -2381,14 +2424,61 @@ INNER JOIN [Orders] AS [o3] ON [c1].[CustomerID] = [o3].[CustomerID]
 INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
 ORDER BY [c1].[CustomerID], [o3].[OrderID]
 """);
+        }
     }
 
     public override async Task Multi_level_includes_are_applied_with_skip_take(bool async)
     {
         await base.Multi_level_includes_are_applied_with_skip_take(async);
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='1'
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
+OFFSET @p ROWS FETCH NEXT LEAST(@p, 1) ROWS ONLY
+""",
+                //
+                """
+@p='1'
+
+SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [c0].[CustomerID]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+    OFFSET @p ROWS FETCH NEXT LEAST(@p, 1) ROWS ONLY
+) AS [c0]
+INNER JOIN [Orders] AS [o3] ON [c0].[CustomerID] = [o3].[CustomerID]
+ORDER BY [c0].[CustomerID], [o3].[OrderID]
+""",
+                //
+                """
+@p='1'
+
+SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [c0].[CustomerID], [o3].[OrderID]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+    OFFSET @p ROWS FETCH NEXT LEAST(@p, 1) ROWS ONLY
+) AS [c0]
+INNER JOIN [Orders] AS [o3] ON [c0].[CustomerID] = [o3].[CustomerID]
+INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
+ORDER BY [c0].[CustomerID], [o3].[OrderID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p='1'
 
 SELECT TOP(1) [c0].[CustomerID]
@@ -2401,8 +2491,8 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
 """,
-            //
-            """
+                //
+                """
 @p='1'
 
 SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [c1].[CustomerID]
@@ -2420,8 +2510,8 @@ FROM (
 INNER JOIN [Orders] AS [o3] ON [c1].[CustomerID] = [o3].[CustomerID]
 ORDER BY [c1].[CustomerID], [o3].[OrderID]
 """,
-            //
-            """
+                //
+                """
 @p='1'
 
 SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [c1].[CustomerID], [o3].[OrderID]
@@ -2440,6 +2530,7 @@ INNER JOIN [Orders] AS [o3] ON [c1].[CustomerID] = [o3].[CustomerID]
 INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
 ORDER BY [c1].[CustomerID], [o3].[OrderID]
 """);
+        }
     }
 
     public override async Task Filtered_include_with_multiple_ordering(bool async)
