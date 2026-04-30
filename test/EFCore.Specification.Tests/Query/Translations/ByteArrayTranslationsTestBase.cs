@@ -37,6 +37,10 @@ public abstract class ByteArrayTranslationsTestBase<TFixture>(TFixture fixture) 
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(s.Byte)));
 
     [ConditionalFact]
+    public virtual Task Any()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Any()));
+
+    [ConditionalFact]
     public virtual Task SequenceEqual()
     {
         var byteArrayParam = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
