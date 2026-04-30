@@ -699,7 +699,7 @@ FROM (
             });
 
     [ConditionalFact]
-    public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws()
+    public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws() // @TODO: We now generate a default value for any missing properties... Should we not for keys? How does this work in relational?
     {
         using var context = CreateContext();
         var query = context.Set<Order>()
