@@ -62,18 +62,7 @@ public class SqlServerValueGeneratorSelectorTest
 
     private static ValueGenerator CreateValueGenerator(IValueGeneratorSelector selector, IProperty property, bool useTry)
     {
-        ValueGenerator generator;
-        if (useTry)
-        {
-            selector.TrySelect(property, property.DeclaringType, out generator);
-        }
-        else
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            generator = selector.Select(property, property.DeclaringType);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
+        selector.TrySelect(property, property.DeclaringType, out var generator);
         return generator;
     }
 
@@ -172,27 +161,6 @@ public class SqlServerValueGeneratorSelectorTest
         AssertGenerator<StringValueGenerator>("String", useKeySequence: true, useTry: useTry);
         AssertGenerator<SequentialGuidValueGenerator>("Guid", useKeySequence: true, useTry: useTry);
         AssertGenerator<BinaryValueGenerator>("Binary", useKeySequence: true, useTry: useTry);
-    }
-
-    [ConditionalFact]
-    public void Throws_for_unsupported_combinations()
-    {
-        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        builder.Entity<AnEntity>(b =>
-        {
-            b.Property(e => e.TimeSpan).ValueGeneratedOnAdd();
-            b.HasKey(e => e.TimeSpan);
-        });
-        var model = builder.FinalizeModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
-
-        var selector = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
-
-        Assert.Equal(
-            CoreStrings.NoValueGenerator("TimeSpan", "AnEntity", "TimeSpan"),
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("TimeSpan"), entityType)).Message);
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ConditionalFact]

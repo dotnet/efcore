@@ -332,7 +332,7 @@ public class ServiceProviderCacheTest
     [ConditionalFact]
     public void Service_provider_cache_can_be_cleared()
     {
-        var cache = ServiceProviderCache.Instance;
+        var cache = new ServiceProviderCache();
         var options = new DbContextOptionsBuilder().UseInMemoryDatabase("TestDB").Options;
 
         var provider1 = cache.GetOrAdd(options, providerRequired: false);

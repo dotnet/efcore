@@ -47,7 +47,7 @@ WHERE abs("b"."Double") = 9.5
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST(abs("b"."Float") AS REAL) = 9.5
+WHERE abs("b"."Float") = 9.5
 """);
     }
 
@@ -186,7 +186,7 @@ WHERE round("b"."Double", 1) = 255.09999999999999
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE round(CAST("b"."Float" AS REAL), 1) = 255.09999999999999
+WHERE round("b"."Float", 1) = 255.09999999999999
 """);
     }
 
@@ -609,7 +609,7 @@ WHERE "b"."Double" >= -1.0 AND "b"."Double" <= 1.0 AND asin("b"."Double") > -1.7
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE "b"."Float" >= -1 AND "b"."Float" <= 1 AND CAST(asin("b"."Float") AS REAL) > -1.7976931348623157E+308
+WHERE "b"."Float" >= -1 AND "b"."Float" <= 1 AND asin("b"."Float") > -1.7976931348623157E+308
 """);
     }
 

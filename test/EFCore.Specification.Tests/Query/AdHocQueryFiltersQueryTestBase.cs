@@ -815,4 +815,87 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 38132
+
+    [ConditionalFact]
+    public virtual async Task Query_filter_with_primary_constructor_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38132>(
+            addServices: s =>
+            {
+                s.AddSingleton(typeof(Guid),
+                    new Guid("00000001-0000-0000-0000-000000000001"));
+                return s;
+            },
+            usePooling: false);
+        using var context = contextFactory.CreateDbContext();
+
+        var result = context.Set<Entity38132>().ToList();
+        Assert.Empty(result);
+    }
+
+    protected class Context38132(DbContextOptions options, Guid tenantId) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity38132>()
+                .HasQueryFilter(e => e.TenantId == tenantId);
+    }
+
+    public class Entity38132
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Guid TenantId { get; set; }
+    }
+
+    #endregion
+
+    #region 38151
+
+    [ConditionalFact]
+    public virtual async Task Query_filter_with_EF_Constant_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38151_Constant>();
+        using var context = contextFactory.CreateDbContext();
+
+        var message = Assert.Throws<InvalidOperationException>(() => context.Set<Entity38151>().ToList()).Message;
+        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"), message);
+    }
+
+    protected class Context38151_Constant(DbContextOptions options) : DbContext(options)
+    {
+        public int TenantId { get; set; } = 1;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity38151>()
+                .HasQueryFilter(e => e.TenantId == EF.Constant(TenantId));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Query_filter_with_EF_Parameter_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38151_Parameter>();
+        using var context = contextFactory.CreateDbContext();
+
+        var message = Assert.Throws<InvalidOperationException>(() => context.Set<Entity38151>().ToList()).Message;
+        Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Parameter<T>"), message);
+    }
+
+    protected class Context38151_Parameter(DbContextOptions options) : DbContext(options)
+    {
+        public int TenantId { get; set; } = 1;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity38151>()
+                .HasQueryFilter(e => e.TenantId == EF.Parameter(TenantId));
+    }
+
+    public class Entity38151
+    {
+        public int Id { get; set; }
+        public int TenantId { get; set; }
+    }
+
+    #endregion
 }

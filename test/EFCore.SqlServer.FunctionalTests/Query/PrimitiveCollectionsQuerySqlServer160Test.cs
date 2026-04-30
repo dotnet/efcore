@@ -415,7 +415,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM (VALUES (CAST(@i AS int))) AS [v]([Value])
+    FROM (VALUES (@i)) AS [v]([Value])
     WHERE [v].[Value] > [p].[Id]) = 1
 """);
     }

@@ -2138,5 +2138,36 @@ public abstract partial class ModelBuilderTest
         }
 
         private class CustomValueComparer<T>() : ValueComparer<T>(false);
+
+        [ConditionalFact]
+        public virtual void Lambda_throws_when_intermediate_is_owned_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember(nameof(Customer.Details), nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<Customer>().Property(c => c.Details.CustomerId)).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Dotted_string_throws_when_intermediate_is_nested_owned_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<CustomerDetails>().OwnsOne(
+                o => o.Customer,
+                cb => cb.OwnsMany(c => c.Orders));
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyChainInvalidMember(nameof(CustomerDetails.Customer), "CustomerDetails"),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<CustomerDetails>().Property<string>("Customer.Name")).Message);
+        }
     }
 }

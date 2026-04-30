@@ -588,10 +588,6 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGeneratorSelector",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator Select(string? language);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "Microsoft.EntityFrameworkCore.Scaffolding.IModelCodeGenerator Select(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions options);"
         }
       ]
@@ -784,10 +780,6 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator AnnotationCodeGenerator { get; init; }"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMappingSource RelationalTypeMappingSource { get; init; }",
-          "Stage": "Obsolete"
         }
       ]
     },

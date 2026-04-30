@@ -934,6 +934,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupportedInPrecompiledQueries);
                     }
 
+                    if (!_parameterize)
+                    {
+                        throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
+                    }
+
                     var argument = Visit(methodCall.Arguments[0], out var argumentState);
 
                     if (!argumentState.IsEvaluatable)
@@ -1118,6 +1123,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         Expression HandleParameter(MethodCallExpression methodCall, string methodName)
         {
+            if (!_parameterize)
+            {
+                throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries(methodName));
+            }
+
             var argument = Visit(methodCall.Arguments[0], out var argumentState);
 
             if (!argumentState.IsEvaluatable)
@@ -2145,7 +2155,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 if (visited != expression)
                 {
                     parameterName = QueryFilterPrefix
-                        + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName } ? ("__" + memberName) : "__p");
+                        + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName }
+                            ? "__" + SanitizeCompilerGeneratedName(memberName)
+                            : "__p");
                     isContextAccessor = true;
 
                     // Context accessors (query filters accessing the context) never get constantized

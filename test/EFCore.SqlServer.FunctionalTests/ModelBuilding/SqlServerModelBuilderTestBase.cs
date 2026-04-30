@@ -2062,9 +2062,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             foreach (var outerOwnedEntity in outerOwnedEntities)
             {
                 Assert.False(outerOwnedEntity.IsMappedToJson());
-#pragma warning disable CS0618
-                Assert.Null(outerOwnedEntity.GetContainerColumnTypeMapping());
-#pragma warning restore CS0618
                 var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
 
@@ -2077,9 +2074,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             foreach (var ownedEntity in ownedEntities)
             {
                 Assert.False(ownedEntity.IsMappedToJson());
-#pragma warning disable CS0618
-                Assert.Null(ownedEntity.GetContainerColumnTypeMapping());
-#pragma warning restore CS0618
                 var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
                 Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);

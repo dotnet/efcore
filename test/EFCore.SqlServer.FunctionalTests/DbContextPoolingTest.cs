@@ -392,7 +392,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         }
     }
 
-    [Fact]
+    [ConditionalFact, SqlServerConfiguredCondition]
     public async Task Parameterless_pooled_factory_should_use_ConfigureDbContext_options()
     {
         var services = new ServiceCollection();
@@ -409,7 +409,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", db.Database.ProviderName);
     }
 
-    [Fact]
+    [ConditionalFact, SqlServerConfiguredCondition]
     public async Task Parameterless_pooled_factory_with_custom_pool_size_should_still_resolve()
     {
         var services = new ServiceCollection();

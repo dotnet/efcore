@@ -4139,7 +4139,7 @@ FROM [Weapons] AS [w]
             """
 SELECT [m].[CodeName]
 FROM [Missions] AS [m]
-WHERE CAST([m].[Difficulty] AS nvarchar(max)) LIKE N'%Med%'
+WHERE [m].[Difficulty] LIKE N'%Med%'
 """);
     }
 
@@ -8377,7 +8377,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE @prm & CAST([g].[Rank] AS int) = CAST([g].[Rank] AS int)
+WHERE @prm & [g].[Rank] = [g].[Rank]
 """);
     }
 

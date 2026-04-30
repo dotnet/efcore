@@ -1555,6 +1555,112 @@ public abstract class InternalTypeBaseBuilder :
         }
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual (InternalTypeBaseBuilder Builder, MemberInfo FinalMember) ResolveComplexChain(
+        IReadOnlyList<MemberInfo> memberChain)
+    {
+        if (memberChain.Count == 1)
+        {
+            return (this, memberChain[0].ResolveMemberForType(Metadata.ClrType));
+        }
+
+        var builder = this;
+        for (var i = 0; i < memberChain.Count - 1; i++)
+        {
+            var member = memberChain[i].ResolveMemberForType(builder.Metadata.ClrType);
+            var memberName = member.GetSimpleMemberName();
+            var metadata = builder.Metadata;
+
+            var conflictingMember = metadata.FindMembersInHierarchy(memberName).FirstOrDefault();
+            builder = conflictingMember switch
+            {
+                ComplexProperty { IsCollection: true } =>
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainOnCollection(memberName, ((IReadOnlyTypeBase)metadata).DisplayName())),
+                not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit =>
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainInvalidMember(memberName, ((IReadOnlyTypeBase)metadata).DisplayName())),
+                _ => builder.ComplexProperty(
+                    member,
+                    complexTypeName: null,
+                    collection: false,
+                    ConfigurationSource.Explicit)!.Metadata.ComplexType.Builder
+            };
+        }
+
+        return (builder, memberChain[^1].ResolveMemberForType(builder.Metadata.ClrType));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual (InternalTypeBaseBuilder Builder, string FinalName) ResolveComplexChainByName(string dottedName)
+    {
+        var segments = dottedName.Split('.');
+        if (segments.Length == 1)
+        {
+            return (this, dottedName);
+        }
+
+        // Validate no empty segments (including the final one, e.g. "Address." or "Address..Street")
+        foreach (var segment in segments)
+        {
+            if (string.IsNullOrEmpty(segment))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexPropertyChainInvalidSegment(dottedName));
+            }
+        }
+
+        var builder = this;
+        for (var i = 0; i < segments.Length - 1; i++)
+        {
+            var segment = segments[i];
+            var metadata = builder.Metadata;
+
+            var conflictingMember = metadata.FindMembersInHierarchy(segment).FirstOrDefault();
+            switch (conflictingMember)
+            {
+                case ComplexProperty { IsCollection: true }:
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainOnCollection(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+                case not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyChainInvalidMember(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+            }
+
+            var memberInfo = metadata.ClrType.GetMembersInHierarchy(segment).FirstOrDefault();
+            if (conflictingMember is ComplexProperty complexProperty)
+            {
+                complexProperty.UpdateConfigurationSource(ConfigurationSource.Explicit);
+                
+                builder = complexProperty.ComplexType.Builder;
+                continue;
+            }
+            else if (memberInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ComplexPropertyChainIntermediateNotFound(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
+            }
+
+            var complexBuilder = builder.ComplexProperty(
+                propertyType: null, segment, memberInfo, complexTypeName: null,
+                complexType: null, collection: false, ConfigurationSource.Explicit);
+
+            builder = complexBuilder!.Metadata.ComplexType.Builder;
+        }
+
+        return (builder, segments[^1]);
+    }
+
     IConventionTypeBase IConventionTypeBaseBuilder.Metadata
     {
         [DebuggerStepThrough]

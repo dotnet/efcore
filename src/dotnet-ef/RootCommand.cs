@@ -15,7 +15,9 @@ internal class RootCommand : CommandBase
 {
     private CommandLineApplication? _command;
     private CommandOption? _project;
+    private CommandOption? _file;
     private CommandOption? _startupProject;
+    private CommandOption? _startupFile;
     private CommandOption? _framework;
     private CommandOption? _configuration;
     private CommandOption? _runtime;
@@ -33,7 +35,9 @@ internal class RootCommand : CommandBase
         options.Configure(command);
 
         _project = options.Project;
+        _file = options.File;
         _startupProject = options.StartupProject;
+        _startupFile = options.StartupFile;
         _framework = options.Framework;
         _configuration = options.Configuration;
         _runtime = options.Runtime;
@@ -59,31 +63,46 @@ internal class RootCommand : CommandBase
             return ShowHelp(_help.HasValue(), commands);
         }
 
+        var config = DotNetEfConfigLoader.Load(Directory.GetCurrentDirectory());
+        var projectPath = ResolveOption(_project!, _file!, config?.Project);
+        var startupProjectPath = ResolveOption(_startupProject!, _startupFile!, config?.StartupProject);
+        var framework = _framework!.Value() ?? config?.Framework;
+        var configuration = _configuration!.Value() ?? config?.Configuration;
+        var runtime = _runtime!.Value() ?? config?.Runtime;
+        var context = ResolveContext(_args!, config?.Context);
+        var remainingArguments = CreateRemainingArguments(_args!, context);
+
+        if (config?.Verbose == true && !ContainsOption(_args!, "-v", "--verbose"))
+            Reporter.IsVerbose = true;
+
+        if (config?.NoColor == true && !ContainsOption(_args!, "--no-color"))
+            Reporter.NoColor = true;
+
+        if (config?.PrefixOutput == true && !ContainsOption(_args!, "--prefix-output"))
+            Reporter.PrefixOutput = true;
+
         var (projectFile, startupProjectFile) = ResolveProjects(
-            _project!.Value(),
-            _startupProject!.Value());
+            projectPath,
+            startupProjectPath);
 
         Reporter.WriteVerbose(Resources.UsingProject(projectFile));
         Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
         var project = Project.FromFile(
             projectFile,
-            _framework!.Value(),
-            _configuration!.Value(),
-            _runtime!.Value());
+            framework,
+            configuration,
+            runtime);
         var startupProject = Project.FromFile(
             startupProjectFile,
-            _framework!.Value(),
-            _configuration!.Value(),
-            _runtime!.Value());
+            framework,
+            configuration,
+            runtime);
 
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
-            var skipOptimization = _args!.Count > 2
-                && _args[0] == "dbcontext"
-                && _args[1] == "optimize"
-                && !_args.Any(a => a == "--no-scaffold");
+            var skipOptimization = ShouldSkipOptimization(_args!);
             startupProject.Build(skipOptimization ? ["/p:EFScaffoldModelStage=none", "/p:EFPrecompileQueriesStage=none"] : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
@@ -169,7 +188,7 @@ internal class RootCommand : CommandBase
                 Resources.UnsupportedFramework(startupProject.ProjectName, targetFramework.Identifier));
         }
 
-        args.AddRange(_args!);
+        args.AddRange(remainingArguments);
         args.Add("--assembly");
         args.Add(targetPath);
         args.Add("--project");
@@ -194,10 +213,10 @@ internal class RootCommand : CommandBase
             args.Add(designAssembly);
         }
 
-        if (_configuration.HasValue())
+        if (configuration != null)
         {
             args.Add("--configuration");
-            args.Add(_configuration.Value()!);
+            args.Add(configuration);
         }
 
         if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
@@ -289,6 +308,20 @@ internal class RootCommand : CommandBase
         return (projects[0], startupProjects[0]);
     }
 
+    internal static string? ResolveOption(
+        CommandOption primary,
+        CommandOption alias,
+        string? configValue)
+    {
+        if (primary.HasValue() && alias.HasValue())
+        {
+            throw new CommandException(
+                Resources.MutuallyExclusiveOptions(primary.LongName!, alias.LongName!));
+        }
+
+        return alias.Value() ?? primary.Value() ?? configValue;
+    }
+
     private static List<string> ResolveProjects(string? path)
     {
         if (path == null)
@@ -311,6 +344,61 @@ internal class RootCommand : CommandBase
 
         return projectFiles;
     }
+
+    internal static string? ResolveContext(IList<string> args, string? configValue)
+        => configValue != null
+            && AppliesToContext(args)
+            && !ContainsOption(args, "-c", "--context")
+                ? configValue
+                : null;
+
+    internal static List<string> CreateRemainingArguments(
+        IList<string> args,
+        string? context)
+    {
+        var remainingArguments = new List<string>(args);
+
+        if (context != null)
+        {
+            remainingArguments.Add("--context");
+            remainingArguments.Add(context);
+        }
+
+        return remainingArguments;
+    }
+
+    private static bool AppliesToContext(IList<string> args)
+        => args.Count >= 2
+            && (args[0], args[1]) switch
+            {
+                ("database", "drop") => true,
+                ("database", "update") => true,
+                ("dbcontext", "info") => true,
+                ("dbcontext", "optimize") => true,
+                ("dbcontext", "script") => true,
+                ("migrations", "add") => true,
+                ("migrations", "bundle") => true,
+                ("migrations", "has-pending-model-changes") => true,
+                ("migrations", "list") => true,
+                ("migrations", "remove") => true,
+                ("migrations", "script") => true,
+                _ => false
+            };
+
+    private static bool ContainsOption(
+        IList<string> args,
+        params string[] names)
+        => args.Any(
+            argument => names.Any(
+                name => string.Equals(argument, name, StringComparison.Ordinal)
+                    || argument.StartsWith(name + "=", StringComparison.Ordinal)
+                    || argument.StartsWith(name + ":", StringComparison.Ordinal)));
+
+    internal static bool ShouldSkipOptimization(IList<string> args)
+        => args.Count > 2
+            && args[0] == "dbcontext"
+            && args[1] == "optimize"
+            && !args.Any(a => a == "--no-scaffold");
 
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!

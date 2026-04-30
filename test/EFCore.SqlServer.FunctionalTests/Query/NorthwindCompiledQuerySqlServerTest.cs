@@ -759,6 +759,12 @@ ORDER BY [c].[CustomerID]
 """);
     }
 
+    public override void Compiled_query_with_EF_Constant_throws()
+        => base.Compiled_query_with_EF_Constant_throws();
+
+    public override void Compiled_query_with_EF_Parameter_throws()
+        => base.Compiled_query_with_EF_Parameter_throws();
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -2798,7 +2798,7 @@ FROM "Weapons" AS "w"
             """
 SELECT "m"."CodeName"
 FROM "Missions" AS "m"
-WHERE instr(CAST("m"."Difficulty" AS TEXT), 'Med') > 0
+WHERE instr("m"."Difficulty", 'Med') > 0
 """);
     }
 
@@ -4413,7 +4413,7 @@ WHERE substr("t"."Note", 0 + 1, "g"."SquadId") = "t"."GearNickName" OR (("t"."No
             """
 SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "LocustLeaders" AS "l"
-WHERE CAST("l"."ThreatLevel" AS INTEGER) >= 5
+WHERE "l"."ThreatLevel" >= 5
 """);
     }
 
@@ -6514,7 +6514,7 @@ FROM "Gears" AS "g"
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE @prm & CAST("g"."Rank" AS INTEGER) = CAST("g"."Rank" AS INTEGER)
+WHERE @prm & "g"."Rank" = "g"."Rank"
 """);
     }
 
@@ -7481,7 +7481,7 @@ ORDER BY "f"."Id", "g0"."Nickname"
             """
 SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "LocustLeaders" AS "l"
-WHERE CAST("l"."ThreatLevel" AS INTEGER) <= 5 + CAST("l"."ThreatLevel" AS INTEGER)
+WHERE "l"."ThreatLevel" <= 5 + "l"."ThreatLevel"
 """);
     }
 
@@ -8260,7 +8260,7 @@ INNER JOIN "Squads" AS "s" ON "g"."SquadId" = "s"."Id"
 
         AssertSql(
             """
-SELECT 'HasSoulPatch ' || CAST("g"."HasSoulPatch" AS TEXT) || ' HasSoulPatch' AS "HasSoulPatch", 'Rank ' || CAST("g"."Rank" AS TEXT) || ' Rank' AS "Rank", 'SquadId ' || CAST("g"."SquadId" AS TEXT) || ' SquadId' AS "SquadId", 'Rating ' || COALESCE(CAST("m"."Rating" AS TEXT), '') || ' Rating' AS "Rating", 'Timeline ' || CAST("m"."Timeline" AS TEXT) || ' Timeline' AS "Timeline"
+SELECT 'HasSoulPatch ' || CAST("g"."HasSoulPatch" AS TEXT) || ' HasSoulPatch' AS "HasSoulPatch", 'Rank ' || CAST("g"."Rank" AS TEXT) || ' Rank' AS "Rank", 'SquadId ' || CAST("g"."SquadId" AS TEXT) || ' SquadId' AS "SquadId", 'Rating ' || COALESCE(CAST("m"."Rating" AS TEXT), '') || ' Rating' AS "Rating", 'Timeline ' || "m"."Timeline" || ' Timeline' AS "Timeline"
 FROM "Gears" AS "g"
 CROSS JOIN "Missions" AS "m"
 ORDER BY "g"."Nickname", "m"."Id"
@@ -8847,7 +8847,7 @@ ORDER BY "g"."SquadId", "g"."Nickname"
 
         AssertSql(
             """
-SELECT "g"."FullName", CAST("l0"."ThreatLevel" AS INTEGER) AS "ThreatLevel"
+SELECT "g"."FullName", "l0"."ThreatLevel"
 FROM "Gears" AS "g"
 LEFT JOIN (
     SELECT "l"."ThreatLevel", "l"."DefeatedByNickname"

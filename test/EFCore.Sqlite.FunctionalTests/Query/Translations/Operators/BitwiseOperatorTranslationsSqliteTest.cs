@@ -20,11 +20,11 @@ public class BitwiseOperatorTranslationsSqliteTest : BitwiseOperatorTranslations
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST("b"."Int" AS INTEGER) | "b"."Long" = 7
+WHERE "b"."Int" | "b"."Long" = 7
 """,
             //
             """
-SELECT CAST("b"."Int" AS INTEGER) | "b"."Long"
+SELECT "b"."Int" | "b"."Long"
 FROM "BasicTypesEntities" AS "b"
 """);
     }
@@ -54,7 +54,7 @@ FROM "BasicTypesEntities" AS "b"
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST("b"."Int" | "b"."Short" AS INTEGER) | "b"."Long" = 7
+WHERE "b"."Int" | "b"."Short" | "b"."Long" = 7
 """);
     }
 

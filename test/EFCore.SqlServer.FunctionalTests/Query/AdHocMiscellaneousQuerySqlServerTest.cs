@@ -2211,7 +2211,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
 
         AssertSql(
             """
-SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+SELECT [f].[Taste] AS [Bar]
 FROM [Foods] AS [f]
 """);
     }
@@ -2668,6 +2668,18 @@ SELECT [d].[Id], CASE
 END AS [Foo]
 FROM [Data] AS [d]
 ORDER BY [d].[Id]
+""");
+    }
+
+    public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
+    {
+        await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Name]
+FROM [Users] AS [u]
+WHERE [u].[Name] LIKE N'Name%'
 """);
     }
 }

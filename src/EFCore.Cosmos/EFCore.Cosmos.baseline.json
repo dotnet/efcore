@@ -318,10 +318,6 @@
           "Member": "static bool CanSetJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static bool CanSetPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "static bool CanSetPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Collections.Generic.IReadOnlyList<string>? names, bool fromDataAnnotation = false);"
         },
         {
@@ -380,10 +376,6 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> HasPartitionKey<TEntity, TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasPartitionKey(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Collections.Generic.IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);"
@@ -511,30 +503,6 @@
           "Member": "static System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IProperty> GetPartitionKeyProperties(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty? GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IMutableProperty? GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IProperty? GetPartitionKeyProperty(this Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static string? GetPartitionKeyPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetPartitionKeyPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);",
-          "Stage": "Obsolete"
-        },
-        {
           "Member": "static System.Collections.Generic.IReadOnlyList<string> GetPartitionKeyPropertyNames(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
@@ -587,14 +555,6 @@
         },
         {
           "Member": "static bool? SetHasShadowId(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? alwaysCreate, bool fromDataAnnotation = false);"
-        },
-        {
-          "Member": "static void SetPartitionKeyPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? name);",
-          "Stage": "Obsolete"
-        },
-        {
-          "Member": "static string? SetPartitionKeyPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, string? name, bool fromDataAnnotation = false);",
-          "Stage": "Obsolete"
         },
         {
           "Member": "static void SetPartitionKeyPropertyNames(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Collections.Generic.IReadOnlyList<string>? names);"

@@ -18,7 +18,7 @@ public static class SqlServerQueryableExtensions
     #region VectorSearch
 
     /// <summary>
-    ///     Search for vectors similar to a given query vector using an approximate nearest neighbors vector search algorithm.
+    ///     Search for vectors similar to a given query vector using the SQL Server <c>VECTOR_SEARCH()</c> function.
     /// </summary>
     /// <param name="source">The <see cref="DbSet{T}" /> representing the table containing the vector column to query.</param>
     /// <param name="vectorPropertySelector">A selector for the vector property on the entity.</param>
@@ -30,8 +30,9 @@ public static class SqlServerQueryableExtensions
     /// </param>
     /// <remarks>
     ///     <para>
-    ///         Compose the returned query with <c>OrderBy(r => r.Distance)</c> and <c>Take(...)</c> to limit the results as required
-    ///         for approximate vector search.
+    ///         Use <see cref="WithApproximate{T}" /> after <c>Take(...)</c> to enable approximate nearest neighbor (ANN)
+    ///         search, which uses the vector index for better performance. Without <c>WithApproximate</c>, an exact k-nearest
+    ///         neighbor (kNN) search is performed. Add an explicit <c>OrderBy</c> to control result ordering.
     ///     </para>
     /// </remarks>
     /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql">
@@ -74,6 +75,32 @@ public static class SqlServerQueryableExtensions
         where T : class
         where TVector : unmanaged
         => throw new UnreachableException();
+
+    /// <summary>
+    ///     Enables approximate nearest neighbor (ANN) search for a vector search query. This causes <c>WITH APPROXIMATE</c> to
+    ///     be added to the SQL <c>TOP</c> clause, instructing SQL Server to use the vector index for better performance.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method must be called after <c>Take(...)</c> to specify the number of results. Without <c>WithApproximate</c>,
+    ///         vector search performs an exact k-nearest neighbor (kNN) search without using the vector index.
+    ///     </para>
+    /// </remarks>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/vector-search-transact-sql">
+    ///     SQL Server documentation for <c>VECTOR_SEARCH()</c>.
+    /// </seealso>
+    [Experimental(EFDiagnostics.SqlServerVectorSearch)]
+    public static IQueryable<T> WithApproximate<T>(this IQueryable<T> source)
+    {
+        var queryableSource = (IQueryable)source;
+
+        return queryableSource.Provider is EntityQueryProvider
+            ? queryableSource.Provider.CreateQuery<T>(
+                Expression.Call(
+                    method: new Func<IQueryable<T>, IQueryable<T>>(WithApproximate).Method,
+                    queryableSource.Expression))
+            : throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(WithApproximate)));
+    }
 
     #endregion VectorSearch
 

@@ -170,10 +170,64 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DotnetEfFullName");
 
         /// <summary>
+        ///     Unable to read '{configFile}'. Fix the JSON and try again. {details}
+        /// </summary>
+        public static string DotNetEfConfigInvalidJson(object? configFile, object? details)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidJson", nameof(configFile), nameof(details)),
+                configFile, details);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. The file must contain a JSON object.
+        /// </summary>
+        public static string DotNetEfConfigInvalidRoot(object? configFile)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidRoot", nameof(configFile)),
+                configFile);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. The '{propertyName}' property must be a non-empty JSON string.
+        /// </summary>
+        public static string DotNetEfConfigInvalidValue(object? configFile, object? propertyName)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidValue", nameof(configFile), nameof(propertyName)),
+                configFile, propertyName);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. The '{propertyName}' property must be a boolean.
+        /// </summary>
+        public static string DotNetEfConfigInvalidBoolValue(object? configFile, object? propertyName)
+            => string.Format(
+                GetString("DotNetEfConfigInvalidBoolValue", nameof(configFile), nameof(propertyName)),
+                configFile, propertyName);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. Ensure the file is accessible and try again. {details}
+        /// </summary>
+        public static string DotNetEfConfigReadFailed(object? configFile, object? details)
+            => string.Format(
+                GetString("DotNetEfConfigReadFailed", nameof(configFile), nameof(details)),
+                configFile, details);
+
+        /// <summary>
+        ///     Unable to read '{configFile}'. Remove the unsupported '{propertyName}' property.
+        /// </summary>
+        public static string DotNetEfConfigUnknownProperty(object? configFile, object? propertyName)
+            => string.Format(
+                GetString("DotNetEfConfigUnknownProperty", nameof(configFile), nameof(propertyName)),
+                configFile, propertyName);
+
+        /// <summary>
         ///     Entity Framework Core Command-line Tools
         /// </summary>
         public static string EFFullName
             => GetString("EFFullName");
+
+        /// <summary>
+        ///     The file-based app to use. An alias for --project.
+        /// </summary>
+        public static string FileDescription
+            => GetString("FileDescription");
 
         /// <summary>
         ///     The target framework. Defaults to the first one in the project.
@@ -336,6 +390,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MultipleStartupProjects
             => GetString("MultipleStartupProjects");
+
+        /// <summary>
+        ///     The --{option1} and --{option2} options cannot be used together.
+        /// </summary>
+        public static string MutuallyExclusiveOptions(object? option1, object? option2)
+            => string.Format(
+                GetString("MutuallyExclusiveOptions", nameof(option1), nameof(option2)),
+                option1, option2);
 
         /// <summary>
         ///     The project targets multiple frameworks. Use the --framework option to specify which target framework to use.
@@ -522,6 +584,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string StartupProjectDescription
             => GetString("StartupProjectDescription");
+
+        /// <summary>
+        ///     The startup file-based app to use. An alias for --startup-project.
+        /// </summary>
+        public static string StartupFileDescription
+            => GetString("StartupFileDescription");
 
         /// <summary>
         ///     The suffix to attach to the name of all the generated files

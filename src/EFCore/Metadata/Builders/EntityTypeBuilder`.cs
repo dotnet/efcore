@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -146,10 +147,13 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
-        => new(
-            Builder.Property(
-                    Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!
-                .Metadata);
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.Property(leafMember, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -162,10 +166,13 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression)
-        => new(
-            Builder.PrimitiveCollection(
-                Check.NotNull(propertyExpression).GetMemberAccess(),
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.PrimitiveCollection(leafMember, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures a complex property of the entity type.
@@ -282,13 +289,14 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
         Expression<Func<TEntity, TProperty?>> propertyExpression)
         where TProperty : notnull
-        => new(
-            Builder.ComplexProperty(
-                    Check.NotNull(propertyExpression).GetMemberAccess(),
-                    complexTypeName: null,
-                    collection: false,
-                    ConfigurationSource.Explicit)!
-                .Metadata);
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the entity type.
@@ -304,13 +312,15 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, TProperty?>> propertyExpression,
         string complexTypeName)
         where TProperty : notnull
-        => new(
-            Builder.ComplexProperty(
-                    Check.NotNull(propertyExpression).GetMemberAccess(),
-                    Check.NotEmpty(complexTypeName),
-                    collection: false,
-                    ConfigurationSource.Explicit)!
-                .Metadata);
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures a complex property of the entity type.
@@ -370,13 +380,14 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
         Expression<Func<TEntity, TProperty?>> propertyExpression)
         where TProperty : struct
-        => new(
-            Builder.ComplexProperty(
-                    Check.NotNull(propertyExpression).GetMemberAccess(),
-                    complexTypeName: null,
-                    collection: false,
-                    ConfigurationSource.Explicit)!
-                .Metadata);
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex property of the entity type.
@@ -392,13 +403,15 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, TProperty?>> propertyExpression,
         string complexTypeName)
         where TProperty : struct
-        => new(
-            Builder.ComplexProperty(
-                    Check.NotNull(propertyExpression).GetMemberAccess(),
-                    Check.NotEmpty(complexTypeName),
-                    collection: false,
-                    ConfigurationSource.Explicit)!
-                .Metadata);
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures a complex property of the entity type.
@@ -566,12 +579,14 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
         Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression)
         where TElement : notnull
-        => new(
-            Builder.ComplexProperty(
-                Check.NotNull(propertyExpression).GetMemberAccess(),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection property of the entity type.
@@ -588,12 +603,15 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
         string complexTypeName)
         where TElement : notnull
-        => new(
-            Builder.ComplexProperty(
-                Check.NotNull(propertyExpression).GetMemberAccess(),
-                Check.NotEmpty(complexTypeName),
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures a complex collection property of the entity type.
@@ -656,12 +674,14 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
         Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression)
         where TElement : struct
-        => new(
-            Builder.ComplexProperty(
-                Check.NotNull(propertyExpression).GetMemberAccess(),
-                complexTypeName: null,
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection property of the entity type.
@@ -678,12 +698,15 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, IEnumerable<TElement?>?>> propertyExpression,
         string complexTypeName)
         where TElement : struct
-        => new(
-            Builder.ComplexProperty(
-                Check.NotNull(propertyExpression).GetMemberAccess(),
-                Check.NotEmpty(complexTypeName),
-                collection: true,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        return new(innerBuilder.ComplexProperty(
+            leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures a complex collection property of the entity type.
@@ -776,8 +799,14 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     ///     (<c>blog => blog.Url</c>).
     /// </param>
     public virtual EntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object?>> propertyExpression)
-        => (EntityTypeBuilder<TEntity>)base.Ignore(
-            Check.NotNull(propertyExpression).GetMemberAccess().GetSimpleMemberName());
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = Builder.ResolveComplexChain(memberChain);
+        innerBuilder.Ignore(leafMember.GetSimpleMemberName(), ConfigurationSource.Explicit);
+        return this;
+    }
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties

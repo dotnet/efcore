@@ -1382,5 +1382,43 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                 .IsRequired();
+
+        [ConditionalFact]
+        public virtual void Dotted_complex_collection_string_configures_nested_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Ignore<StreetAddress>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer, cb =>
+                    {
+                        cb.Ignore(c => c.Orders);
+                        cb.Ignore(c => c.Details);
+                    });
+                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>("Customer.SomeOrders", ob =>
+                    {
+                        ob.Ignore(o => o.Customer);
+                        ob.Ignore(o => o.Products);
+                        ob.Ignore(o => o.Details);
+                        ob.Ignore(o => o.OrderCombination);
+                        ob.Ignore(o => o.SpecialCustomer);
+                        ob.Ignore(o => o.BackOrder);
+                        ob.Ignore(o => o.SpecialOrderCombination);
+                        ob.Ignore(o => o.ShippingAddress);
+                    });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var someOrdersComplex = customerType.FindComplexProperty("SomeOrders");
+
+            Assert.NotNull(someOrdersComplex);
+            Assert.True(someOrdersComplex!.IsCollection);
+        }
     }
 }

@@ -426,7 +426,7 @@ SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
-    FROM (SELECT CAST(@i AS INTEGER) AS "Value") AS "v"
+    FROM (SELECT @i AS "Value") AS "v"
     WHERE "v"."Value" > "p"."Id") = 1
 """);
     }
