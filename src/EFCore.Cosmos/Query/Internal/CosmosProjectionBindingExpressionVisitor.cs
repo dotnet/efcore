@@ -249,6 +249,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
+                        // @TODO: Shouldn't this actually be a ProjectionBindingExpression related to a select expression that holds a projection?
                         structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                         return new CollectionShaperExpression(
@@ -315,6 +316,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     _projectionMapping[_projectionMembers.Peek()] = shaper.ValueBufferExpression;
                 }
 
+                // @TODO: Shouldn't this actually be a ProjectionBindingExpression related to a select expression that holds a projection?
                 shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(
