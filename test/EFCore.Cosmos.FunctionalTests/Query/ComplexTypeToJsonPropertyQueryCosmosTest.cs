@@ -78,8 +78,17 @@ WHERE (c["ShippingAddressRenamed"]["ZipCodeRenamed"] = 7728)
 """);
     });
 
-    public override async Task Select_complex_type_Distinct(bool async)
-        => await AssertTranslationFailed(async () => await base.Select_complex_type_Distinct(async)); // Cosmos: Projecting out nested documents retrieves the entire document #34067
+    public override Task Select_complex_type_Distinct(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
+    {
+        await base.Select_complex_type_Distinct(async);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["ShippingAddressRenamed"]
+FROM root c
+""");
+    });
 
     public override Task Complex_type_equals_complex_type(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
@@ -256,7 +265,16 @@ WHERE (c["ShippingAddressRenamed"]["ZipCodeRenamed"] = 7728)
     });
 
     public override Task Select_struct_complex_type_Distinct(bool async)
-        => AssertTranslationFailed(() => base.Select_struct_complex_type_Distinct(async)); // #34067
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
+    {
+        await base.Select_struct_complex_type_Distinct(async);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["ShippingAddressRenamed"]
+FROM root c
+""");
+    });
 
     public override Task Struct_complex_type_equals_struct_complex_type(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
