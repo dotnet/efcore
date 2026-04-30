@@ -72,32 +72,51 @@ public sealed class ProjectTest(ITestOutputHelper output)
     [Fact]
     public void Csproj_metadata_can_be_extracted()
     {
-        using var directory = new TempDirectory();
-        var csprojFile = Path.Combine(directory.Path, "MyApp.csproj");
-        File.WriteAllText(csprojFile, $"""
-            <Project Sdk="Microsoft.NET.Sdk">
-              <PropertyGroup>
-                <TargetFramework>{TargetFramework}</TargetFramework>
-              </PropertyGroup>
-            </Project>
-            """);
+        var capturedOutput = WithCapturedOutput(() =>
+        {
+            using var directory = new TempDirectory();
+            var csprojFile = Path.Combine(directory.Path, "MyApp.csproj");
+            File.WriteAllText(csprojFile, $"""
+                <Project Sdk="Microsoft.NET.Sdk">
+                  <PropertyGroup>
+                    <TargetFramework>{TargetFramework}</TargetFramework>
+                  </PropertyGroup>
+                </Project>
+                """);
 
-        Exe.Run("dotnet", ["restore", csprojFile], handleOutput: _ => { });
+            Exe.Run("dotnet", ["restore", csprojFile], handleOutput: _ => { });
 
-        var project = Project.FromFile(csprojFile);
+            var project = Project.FromFile(csprojFile);
 
-        Assert.Equal("C#", project.Language);
-        Assert.Equal("MyApp", project.AssemblyName);
-        Assert.Equal(TargetFramework, project.TargetFramework);
-        Assert.NotNull(project.OutputPath);
-        Assert.NotNull(project.ProjectDir);
-        Assert.Equal("MyApp.dll", project.TargetFileName);
+            Assert.Equal("C#", project.Language);
+            Assert.Equal("MyApp", project.AssemblyName);
+            Assert.Equal(TargetFramework, project.TargetFramework);
+            Assert.NotNull(project.OutputPath);
+            Assert.NotNull(project.ProjectDir);
+            Assert.Equal("MyApp.dll", project.TargetFileName);
+        });
+
+        Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
+    }
+
+    [Fact]
+    public void Throws_for_missing_project_file()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), "Missing.csproj");
+
+        var capturedOutput = WithCapturedOutput(() =>
+        {
+            var ex = Assert.Throws<CommandException>(() => Project.FromFile(missing));
+            Assert.Contains(missing, ex.Message);
+        });
+
+        Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
     }
 
     [Fact]
     public void File_based_app_can_be_built()
     {
-        WithVerboseOutput(() =>
+        var capturedOutput = WithCapturedOutput(() =>
         {
             using var directory = new TempDirectory();
             var csFile = Path.Combine(directory.Path, "MyApp.cs");
@@ -123,15 +142,20 @@ public sealed class ProjectTest(ITestOutputHelper output)
             var targetPath = Path.Combine(targetDir, project.TargetFileName!);
             Assert.True(File.Exists(targetPath), $"Expected build output at {targetPath}");
         });
+
+        Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
     }
 
-    private void WithVerboseOutput(Action action)
+    private string WithCapturedOutput(Action action)
     {
+        var captured = new StringBuilder();
         var previousIsVerbose = Reporter.IsVerbose;
         var previousPrefixOutput = Reporter.PrefixOutput;
+        var previousNoColor = Reporter.NoColor;
         Reporter.IsVerbose = true;
         Reporter.PrefixOutput = true;
-        Reporter.SetStdOut(new TestOutputWriter(output));
+        Reporter.NoColor = true;
+        Reporter.SetStdOut(new TestOutputWriter(output, captured));
         try
         {
             action();
@@ -140,17 +164,21 @@ public sealed class ProjectTest(ITestOutputHelper output)
         {
             Reporter.IsVerbose = previousIsVerbose;
             Reporter.PrefixOutput = previousPrefixOutput;
+            Reporter.NoColor = previousNoColor;
             Reporter.SetStdOut(Console.Out);
         }
+
+        return captured.ToString();
     }
 
-    private sealed class TestOutputWriter(ITestOutputHelper output) : StringWriter
+    private sealed class TestOutputWriter(ITestOutputHelper output, StringBuilder captured) : StringWriter
     {
         public override void WriteLine(string? value)
         {
             if (value != null)
             {
                 output.WriteLine(value);
+                captured.AppendLine(value);
             }
         }
     }

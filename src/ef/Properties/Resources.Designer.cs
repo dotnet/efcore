@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ContextDescription");
 
         /// <summary>
-        ///     The directory to put the DbContext file in. Paths are relative to the project directory.
+        ///     The directory to put the DbContext file in. Paths are relative to the project or file-based app directory.
         /// </summary>
         public static string ContextDirDescription
             => GetString("ContextDirDescription");
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
-        ///     The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
+        ///     The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".
         /// </summary>
         public static string MigrationsOutputDirDescription
             => GetString("MigrationsOutputDirDescription");
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("OutputDescription");
 
         /// <summary>
-        ///     The directory to put files in. Paths are relative to the project directory.
+        ///     The directory to put files in. Paths are relative to the project or file-based app directory.
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
