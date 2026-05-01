@@ -518,7 +518,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE o
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))

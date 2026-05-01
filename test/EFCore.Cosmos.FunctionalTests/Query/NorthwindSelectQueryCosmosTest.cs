@@ -1589,8 +1589,12 @@ ORDER BY c["OrderID"]
 
     public override async Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
     {
-        // Cross collection join. Issue #17246.
-        await AssertTranslationFailed(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
+            ex.Message);
 
         AssertSql();
     }
