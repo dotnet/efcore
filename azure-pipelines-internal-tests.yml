@@ -623,7 +623,7 @@ extends:
       condition: always()
       jobs:
       - job: Validate_Job_Results
-        displayName: Validate Job Results
+        displayName: Job Results
         pool:
           name: $(DncEngInternalBuildPool)
           demands: ImageOverride -equals 1es-windows-2022

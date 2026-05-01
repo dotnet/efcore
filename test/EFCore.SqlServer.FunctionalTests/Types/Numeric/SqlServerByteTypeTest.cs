@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+
 namespace Microsoft.EntityFrameworkCore.Types.Numeric;
 
 public class SqlServerByteTypeTest(SqlServerByteTypeTest.ByteTypeFixture fixture, ITestOutputHelper testOutputHelper)
@@ -189,15 +191,11 @@ FROM [JsonTypeEntity] AS [j]
         }
     }
 
+    // TODO: Currently failing on Helix only, see #36746
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [SkipOnHelixCondition]
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
-        // TODO: Currently failing on Helix only, see #36746
-        if (Environment.GetEnvironmentVariable("HELIX_WORKITEM_ROOT") is not null)
-        {
-            return;
-        }
-
         await base.ExecuteUpdate_within_json_to_nonjson_column();
 
         if (Fixture.UsingJsonType)
