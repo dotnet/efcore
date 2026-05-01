@@ -71,7 +71,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
     }
 
     [ConditionalFact]
-    [SkipOnHelixCondition]
+    [SkipOnCiCondition]
     public void Csproj_metadata_can_be_extracted()
     {
         var capturedOutput = WithCapturedOutput(() =>
@@ -116,7 +116,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
     }
 
     [ConditionalFact]
-    [SkipOnHelixCondition]
+    [SkipOnCiCondition]
     public void File_based_app_can_be_built()
     {
         var capturedOutput = WithCapturedOutput(() =>
