@@ -60,6 +60,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
+        VerifyNoClientConstant(shaperBody);
+
         // Because the shaper might process the data twice (duplicated shaper),
         // we pass the data as ROM, and the shaper will create a JsonReaderData where needed.
         var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
