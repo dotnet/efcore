@@ -466,7 +466,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             }
             && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable))
             && methodCallExpression.Arguments is [var collectionArgument, ..]
-            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType)
         {
             // Special case for translating ToList in a projection.
             // @TODO: Shouldn't this happen in CosmosQueryableMethodTranslator?
@@ -519,7 +519,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 // But fixing that causes a lot of errors (in other providers?).
                 var innerShaper = new ProjectionBindigQueryProjectionApplyingExpressionVisitor().Visit(subquery.ShaperExpression);
 
-                var elementType = methodCallExpression.Type.GetSequenceType();
                 var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(methodCallExpression.Type.GetConstructor(Type.EmptyTypes)!)).Compile();
 
                 return new CollectionShaperExpression(binding, subquery.ShaperExpression, methodCallExpression.Type, collectionCreator, elementType);
