@@ -881,7 +881,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             // passed as an argument for a parameter of type Parent). The latter type should generally get stripped out as a pure C#/LINQ
             // artifact that shouldn't affect translation, but the latter may be an indication from the user that they want to apply a
             // type change.
-            ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+        ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
                 when operand.Type.IsInterface && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                 // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
                 || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }

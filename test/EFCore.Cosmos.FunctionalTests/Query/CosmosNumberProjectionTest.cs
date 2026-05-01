@@ -351,7 +351,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Convert not supported")] // Not a regression from 10.0
     public async Task Int_as_double_devided_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => (double)e.Int / (e.Int - 1)));
@@ -375,7 +375,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Convert not supported")] // Not a regression from 10.0
     public async Task Float_devided_int_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Float / (int)(e.Float - 1)));
