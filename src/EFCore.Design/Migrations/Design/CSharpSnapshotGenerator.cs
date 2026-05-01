@@ -453,10 +453,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         stringBuilder.IncrementIndent();
 
         // ComplexCollectionTypePropertyBuilder doesn't have IsConcurrencyToken method
+        // JSON-mapped types don't support IsConcurrencyToken either
         var isInComplexCollection = property.DeclaringType is IComplexType complexType
             && complexType.ComplexProperty.IsCollection;
+        var isMappedToJson = property.DeclaringType.IsMappedToJson();
 
-        if (!isInComplexCollection && property.IsConcurrencyToken)
+        if (!isInComplexCollection && !isMappedToJson && property.IsConcurrencyToken)
         {
             stringBuilder
                 .AppendLine()
@@ -471,7 +473,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         // ComplexCollectionTypePropertyBuilder doesn't have ValueGenerated* methods
-        if (!isInComplexCollection && property.ValueGenerated != ValueGenerated.Never)
+        // JSON-mapped types don't support ValueGenerated either
+        if (!isInComplexCollection && !isMappedToJson && property.ValueGenerated != ValueGenerated.Never)
         {
             stringBuilder
                 .AppendLine()
@@ -504,10 +507,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .ToDictionary(a => a.Name, a => a);
 
         // ComplexCollectionTypePropertyBuilder doesn't have HasMaxLength or HasPrecision methods
+        // JSON-mapped types don't support HasMaxLength or HasPrecision either
         var isInComplexCollection = property.DeclaringType is IComplexType complexType
             && complexType.ComplexProperty.IsCollection;
+        var isMappedToJson = property.DeclaringType.IsMappedToJson();
 
-        if (!isInComplexCollection)
+        if (!isInComplexCollection && !isMappedToJson)
         {
             GenerateFluentApiForMaxLength(property, stringBuilder);
             GenerateFluentApiForPrecisionAndScale(property, stringBuilder);

@@ -4482,8 +4482,7 @@ namespace RootNamespace
                                         {
                                             b3.Property<int>("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId");
 
-                                            b3.Property<int>("__synthesizedOrdinal")
-                                                .ValueGeneratedOnAddOrUpdate();
+                                            b3.Property<int>("__synthesizedOrdinal");
 
                                             b3.Property<int>("Id");
 
@@ -6663,6 +6662,157 @@ namespace RootNamespace
                 // This verifies that the snapshot doesn't contain HasMaxLength which would cause a compile error
                 var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name");
                 Assert.Null(nameProperty.GetMaxLength());
+            });
+
+#pragma warning disable EF8001 // Owned JSON entities are obsolete
+    [ConditionalFact]
+    public virtual void Owned_type_json_property_annotations_not_supported_are_ignored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.OwnsOne(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson();
+                            bb.Ignore(x => x.Id);
+                            bb.WithOwner(e => e.EntityWithOneProperty);
+                            // Set annotations directly on the model to simulate convention behavior
+                            // These should NOT appear in snapshot for JSON-mapped owned types
+                            var alternateIdProperty = (IMutableProperty)bb.Property(x => x.AlternateId).Metadata;
+                            alternateIdProperty.SetMaxLength(100);
+                            alternateIdProperty.SetPrecision(10);
+                            alternateIdProperty.SetScale(2);
+                            alternateIdProperty.IsConcurrencyToken = true;
+                            alternateIdProperty.ValueGenerated = ValueGenerated.OnAdd;
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("EntityWithOnePropertyId");
+
+                            b1.Property<int>("AlternateId");
+
+                            b1.HasKey("EntityWithOnePropertyId");
+
+                            b1.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                            b1
+                                .ToJson("EntityWithTwoProperties")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.WithOwner("EntityWithOneProperty")
+                                .HasForeignKey("EntityWithOnePropertyId");
+
+                            b1.Navigation("EntityWithOneProperty");
+                        });
+
+                    b.Navigation("EntityWithTwoProperties");
+                });
+""", usingSystem: false),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                    .ForeignKey;
+                var ownedType1 = ownership1.DeclaringEntityType;
+
+                // MaxLength, Precision, IsConcurrencyToken, and ValueGenerated are NOT in the snapshot
+                var alternateIdProperty = ownedType1.FindProperty("AlternateId");
+                Assert.Null(alternateIdProperty.GetMaxLength());
+                Assert.Null(alternateIdProperty.GetPrecision());
+                Assert.False(alternateIdProperty.IsConcurrencyToken);
+                Assert.Equal(ValueGenerated.Never, alternateIdProperty.ValueGenerated);
+            });
+#pragma warning restore EF8001 // Owned JSON entities are obsolete
+
+    [ConditionalFact]
+    public virtual void Complex_type_json_property_annotations_not_supported_are_ignored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(b =>
+                {
+                    b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                    b.ComplexProperty(
+                        x => x.EntityWithTwoProperties, bb =>
+                        {
+                            bb.ToJson("TwoProps").HasColumnType("json");
+                            // Set annotations directly on the model to simulate convention behavior
+                            // These should NOT appear in snapshot for JSON-mapped complex types
+                            var alternateIdProperty = (IMutableProperty)bb.Property(x => x.AlternateId).Metadata;
+                            alternateIdProperty.SetMaxLength(100);
+                            alternateIdProperty.SetPrecision(10);
+                            alternateIdProperty.SetScale(2);
+                            alternateIdProperty.IsConcurrencyToken = true;
+                            alternateIdProperty.ValueGenerated = ValueGenerated.OnAdd;
+                        });
+                });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
+                        {
+                            b1.Property<int>("AlternateId");
+
+                            b1.Property<int>("Id");
+
+                            b1
+                                .ToJson("TwoProps")
+                                .HasColumnType("json");
+                        });
+
+                    b.HasKey("Id")
+                        .HasName("PK_Custom");
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var complexType1 = complexProperty1.ComplexType;
+
+                // MaxLength, Precision, IsConcurrencyToken, and ValueGenerated are NOT in the snapshot
+                var alternateIdProperty = complexType1.FindProperty("AlternateId");
+                Assert.Null(alternateIdProperty.GetMaxLength());
+                Assert.Null(alternateIdProperty.GetPrecision());
+                Assert.False(alternateIdProperty.IsConcurrencyToken);
+                Assert.Equal(ValueGenerated.Never, alternateIdProperty.ValueGenerated);
             });
 
     #endregion
