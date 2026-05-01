@@ -3782,6 +3782,7 @@ WHERE c["id"] IN (null, "ALFKI")
 
     public override async Task Select_distinct_Select_with_client_bindings(bool async)
     {
+        // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Select_distinct_Select_with_client_bindings(async));
 
         AssertSql();

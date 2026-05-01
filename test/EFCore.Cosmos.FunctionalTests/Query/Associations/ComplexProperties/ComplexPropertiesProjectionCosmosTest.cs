@@ -83,6 +83,13 @@ FROM root c
 """);
     }
 
+    [ConditionalFact]
+    public virtual Task Select_scalar_on_distinct_required_associate()
+        => AssertTranslationFailed(() => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct().Select(x => x.String),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
+
+
     #endregion Scalar properties
 
     #region Structural properties
