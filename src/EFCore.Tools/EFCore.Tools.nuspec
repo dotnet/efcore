@@ -4,8 +4,14 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework="$targetFramework$">
-        <dependency id="Microsoft.EntityFrameworkCore.Design" version="8.0.0" />
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="8.0.26" />
+      </group>
+      <group targetFramework="net9.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="9.0.15" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>
     <readme>docs\PACKAGE.md</readme>
