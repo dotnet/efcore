@@ -464,16 +464,17 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 Method.IsGenericMethod: true,
                 Method: var method,
             }
-            && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
+            && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable))
+            && methodCallExpression.Arguments is [var collectionArgument, ..]
+            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
         {
             // Special case for translating ToList in a projection.
             // @TODO: Shouldn't this happen in CosmosQueryableMethodTranslator?
             if (method is { Name: nameof(Enumerable.ToList), IsGenericMethod: true }
              && method.DeclaringType == typeof(Enumerable)
-             && methodCallExpression.Arguments is [var argument]
-             && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
+             )
             {
-                if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is not { } subquery
+                if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
                     || !subquery.TryConvertToArray(_typeMappingSource, out var array))
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
