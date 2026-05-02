@@ -30,7 +30,7 @@ public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderW
     /// <inheritdoc/>
     public override T FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.TryGetDouble(out var d)
-         ? T.CreateChecked(d)
+         ? T.CreateChecked(d) // #38138
          : throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
 
     /// <inheritdoc/>
