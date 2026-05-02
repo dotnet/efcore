@@ -274,7 +274,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 if (nestedStructuralProperty.IsCollection)
                 {
-                    var shaperEntityParameter = Parameter(structuralType.ClrType);
+                    var shaperEntityParameter = Parameter(nestedStructuralProperty.DeclaringType.ClrType);
                     var ownedNavigationType = nestedStructuralProperty.GetMemberInfo(forMaterialization: true, forSet: true).GetMemberType();
                     var shaperCollectionParameter = Parameter(ownedNavigationType);
                     var expressions = new List<Expression>();
@@ -343,7 +343,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 else
                 {
                     var fixup = GenerateReferenceFixupForJson(
-                        structuralType.ClrType,
+                        nestedStructuralProperty.DeclaringType.ClrType,
                         nestedStructuralProperty.ClrType,
                         nestedStructuralProperty,
                         inverseNavigation);
@@ -1242,6 +1242,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         // to readonly fields.
                         if (jsonStructuralTypeVariable.Type.IsValueType /*&& Nullable.GetUnderlyingType(fixup.Value.Parameters[1].Type) is null*/)
                         {
+                            // No convert because it is a value type and inheritance is not supported for complex properties / value types.
                             var fixupBody = ReplacingExpressionVisitor.Replace(
                                 originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
                                 replacements: [jsonStructuralTypeVariable, navigationEntityParameter],
@@ -1251,16 +1252,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         else
                         {
+                            // Need to convert because fixup expects declaring type
+                            var convertedJsonStructuralTypeVariable = Convert(jsonStructuralTypeVariable, fixup.Value.Parameters[0].Type);
+
                             // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
                             // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
                             // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
                             // But in this case fixups are standalone, so the null safety must be added here.
                             finalBlockExpressions.Add(
                                 IfThen(
-                                    NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
+                                    NotEqual(convertedJsonStructuralTypeVariable, Constant(null, convertedJsonStructuralTypeVariable.Type)),
                                     Invoke(
                                         fixup.Value,
-                                        jsonStructuralTypeVariable,
+                                        convertedJsonStructuralTypeVariable,
                                         navigationEntityParameter)));
                         }
                     }
