@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using Azure;
@@ -23,6 +24,30 @@ public class CosmosTestStore : TestStore
 
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
+
+    // Shared databases are deleted at process exit, not when individual fixtures dispose,
+    // because multiple fixtures can share the same database concurrently.
+    private static readonly ConcurrentDictionary<string, CosmosTestStore> _sharedStores = new();
+
+    static CosmosTestStore()
+    {
+        AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
+        {
+            Task.WhenAll(_sharedStores.Select(
+                async entry =>
+                {
+                    try
+                    {
+                        await entry.Value.EnsureDeletedAsync(entry.Value._storeContext).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                    }
+
+                    entry.Value._storeContext.Dispose();
+                })).GetAwaiter().GetResult();
+        };
+    }
 
     public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -58,6 +83,11 @@ public class CosmosTestStore : TestStore
             };
 
         _storeContext = new TestStoreContext(this);
+
+        if (shared)
+        {
+            _sharedStores.TryAdd(Name, this);
+        }
     }
 
     private static string CreateName(string name)
@@ -481,22 +511,11 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized)
+        if (_initialized && _connectionAvailable != false && !Shared)
         {
-            if (_connectionAvailable == false)
-            {
-                return;
-            }
-
-            if (Shared)
-            {
-                GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
-            }
-
             await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
+            _storeContext.Dispose();
         }
-
-        _storeContext.Dispose();
     }
 
     private class TestStoreContext(CosmosTestStore testStore) : DbContext
