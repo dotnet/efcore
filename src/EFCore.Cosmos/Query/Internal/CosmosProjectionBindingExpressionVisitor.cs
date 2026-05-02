@@ -465,14 +465,15 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 Method: var method,
             }
             && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable))
-            && methodCallExpression.Arguments is [var collectionArgument, ..]
-            && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType)
+            && methodCallExpression.Arguments is [var collectionArgument, ..])
+        {
+            var elementType = collectionArgument.Type.GetSequenceType();
+            switch (method)
         {
             // Special case for translating ToList in a projection.
             // @TODO: Shouldn't this happen in CosmosQueryableMethodTranslator?
-            if (method is { Name: nameof(Enumerable.ToList), IsGenericMethod: true }
-             && method.DeclaringType == typeof(Enumerable)
-             )
+                case { Name: nameof(Enumerable.ToList), IsGenericMethod: true }
+                    when method.DeclaringType == typeof(Enumerable):
             {
                 if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
                     || !subquery.TryConvertToArray(_typeMappingSource, out var array))
@@ -538,10 +539,24 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), methodCallExpression.Type);
                     }
                 }
+                }
+                case { Name: nameof(Queryable.AsQueryable), IsGenericMethod: true }
+                    when method.DeclaringType == typeof(Queryable):
+                {
+                    return Visit(methodCallExpression);
+                }
+                case { Name: nameof(Enumerable.ToArray), IsGenericMethod: true }
+                    when method.DeclaringType == typeof(Enumerable)
+                      && _clientEval:
+                    break; // Allow client eval of ToArray
+                default:
+                    if (collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) != null) // We don't allow translation over queries?
+                    {
+                        _translationErrorDetails = "Could not project out subquery.";
+                        return QueryCompilationContext.NotTranslatedExpression; // @TODO: Why was this again? Should we create an issue?
+                    }
+                    break;
             }
-
-            _translationErrorDetails = "Could not project out subquery.";
-            return QueryCompilationContext.NotTranslatedExpression; // @TODO: Why was this again? Should we create an issue?
         }
 
         var @object = Visit(methodCallExpression.Object);
