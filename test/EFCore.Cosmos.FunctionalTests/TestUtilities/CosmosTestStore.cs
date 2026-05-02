@@ -25,26 +25,31 @@ public class CosmosTestStore : TestStore
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
 
-    // Shared databases are deleted at process exit, not when individual fixtures dispose,
-    // because multiple fixtures can share the same database concurrently.
-    private static readonly ConcurrentDictionary<string, CosmosTestStore> _sharedStores = new();
+    // Databases shared across multiple test fixtures are deleted at process exit
+    // to avoid one fixture's disposal racing with another fixture's queries.
+    // Single-fixture databases are deleted immediately to avoid hitting emulator limits.
+    private static readonly HashSet<string> _deferredDeletionStoreNames = ["Northwind", "F1Test"];
+    private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
 
     static CosmosTestStore()
     {
         AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
         {
-            Task.WhenAll(_sharedStores.Select(
+            Task.WhenAll(_deferredStores.Select(
                 async entry =>
                 {
+                    var store = entry.Value;
                     try
                     {
-                        await entry.Value.EnsureDeletedAsync(entry.Value._storeContext).ConfigureAwait(false);
+                        store.GetTestStoreIndex(store.ServiceProvider)
+                            .RemoveShared(store.GetType().Name + store.Name);
+                        await store.EnsureDeletedAsync(store._storeContext).ConfigureAwait(false);
                     }
                     catch
                     {
                     }
 
-                    entry.Value._storeContext.Dispose();
+                    store._storeContext.Dispose();
                 })).GetAwaiter().GetResult();
         };
     }
@@ -84,9 +89,9 @@ public class CosmosTestStore : TestStore
 
         _storeContext = new TestStoreContext(this);
 
-        if (shared)
+        if (shared && _deferredDeletionStoreNames.Contains(name))
         {
-            _sharedStores.TryAdd(Name, this);
+            _deferredStores.TryAdd(Name, this);
         }
     }
 
@@ -511,11 +516,23 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized && _connectionAvailable != false && !Shared)
+        if (!_initialized || _connectionAvailable == false)
         {
-            await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
-            _storeContext.Dispose();
+            return;
         }
+
+        if (_deferredStores.ContainsKey(Name))
+        {
+            return;
+        }
+
+        if (Shared)
+        {
+            GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
+        }
+
+        await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
+        _storeContext.Dispose();
     }
 
     private class TestStoreContext(CosmosTestStore testStore) : DbContext

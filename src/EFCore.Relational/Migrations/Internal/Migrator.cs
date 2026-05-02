@@ -192,6 +192,7 @@ public class Migrator : IMigrator
             var seed = coreOptionsExtension.Seeder;
             if (seed != null)
             {
+                context.ChangeTracker.Clear();
                 seed(context, state.AnyOperationPerformed);
             }
             else if (coreOptionsExtension.AsyncSeeder != null)
@@ -328,6 +329,7 @@ public class Migrator : IMigrator
             var seedAsync = coreOptionsExtension.AsyncSeeder;
             if (seedAsync != null)
             {
+                context.ChangeTracker.Clear();
                 await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
             }
             else if (coreOptionsExtension.Seeder != null)
