@@ -76,7 +76,7 @@ ReadItem(?, ?)
         }
     }
 
-    public override async Task Project_missing_required_navigation(bool async)
+    public override async Task Project_missing_required_navigation(bool async) // @TODO: Cosmos will filter out undefined result...
     {
         if (async)
         {
@@ -119,7 +119,7 @@ WHERE (c["Id"] = 6)
         }
     }
 
-    public override async Task Project_missing_required_scalar(bool async)
+    public override async Task Project_missing_required_scalar(bool async) // @TODO: Cosmos will filter out undefined result...
     {
         if (async)
         {
