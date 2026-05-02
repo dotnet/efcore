@@ -442,7 +442,7 @@ stages:
   condition: always()
   jobs:
   - job: Validate_Job_Results
-    displayName: Validate Job Results
+    displayName: Job Results
     pool:
       name: $(DncEngPublicBuildPool)
       demands: ImageOverride -equals 1es-windows-2022-open

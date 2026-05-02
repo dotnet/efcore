@@ -136,7 +136,7 @@
     <value>The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
-    <value>The directory to put the DbContext file in. Paths are relative to the project directory.</value>
+    <value>The directory to put the DbContext file in. Paths are relative to the project or file-based app directory.</value>
   </data>
   <data name="ContextNameDescription" xml:space="preserve">
     <value>The name of the DbContext. Defaults to the database name.</value>
@@ -220,7 +220,13 @@
     <value>The target framework. Defaults to the first one in the project.</value>
   </data>
   <data name="GetMetadataFailed" xml:space="preserve">
-    <value>Unable to retrieve project metadata. Ensure it's an SDK-style project.</value>
+    <value>Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app.</value>
+  </data>
+  <data name="RestoreRequired" xml:space="preserve">
+    <value>Unable to retrieve project metadata. Restore the project or file-based app (e.g. by running 'dotnet restore') and try again.</value>
+  </data>
+  <data name="ProjectFileNotFound" xml:space="preserve">
+    <value>The file '{file}' could not be found.</value>
   </data>
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>
@@ -262,7 +268,7 @@
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
-    <value>The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".</value>
+    <value>The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".</value>
   </data>
   <data name="MigrationsRemoveDescription" xml:space="preserve">
     <value>Removes the last migration.</value>
@@ -346,7 +352,7 @@
     <value>The file to write the result to.</value>
   </data>
   <data name="OutputDirDescription" xml:space="preserve">
-    <value>The directory to put files in. Paths are relative to the project directory.</value>
+    <value>The directory to put files in. Paths are relative to the project or file-based app directory.</value>
   </data>
   <data name="PrecompileQueriesDescription" xml:space="preserve">
     <value>Generate precompiled queries.</value>
@@ -405,8 +411,14 @@
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
     <value>Use table, view, sequence, and column names directly from the database.</value>
   </data>
+  <data name="UsingFileBasedApp" xml:space="preserve">
+    <value>Using file-based app '{file}'.</value>
+  </data>
   <data name="UsingProject" xml:space="preserve">
     <value>Using project '{project}'.</value>
+  </data>
+  <data name="UsingStartupFileBasedApp" xml:space="preserve">
+    <value>Using startup file-based app '{file}'.</value>
   </data>
   <data name="UsingStartupProject" xml:space="preserve">
     <value>Using startup project '{startupProject}'.</value>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\dotnet-ef\dotnet-ef.csproj" />
+    <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>
 
 </Project>

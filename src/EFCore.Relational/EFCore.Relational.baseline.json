@@ -936,7 +936,7 @@
           "Member": "virtual bool IsWrite { get; set; }"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; }"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; }"
         },
         {
           "Member": "virtual string? OriginalParameterName { get; }"
@@ -986,7 +986,7 @@
           "Member": "ColumnModificationParameters(Microsoft.EntityFrameworkCore.Update.IUpdateEntry? entry, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, Microsoft.EntityFrameworkCore.Metadata.IColumnBase column, System.Func<string> generateParameterName, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping, bool valueIsRead, bool valueIsWrite, bool columnIsKey, bool columnIsCondition, bool sensitiveLoggingEnabled);"
         },
         {
-          "Member": "ColumnModificationParameters(string columnName, object? value, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, string? columnType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, Microsoft.EntityFrameworkCore.Infrastructure.JsonPath jsonPath, bool read, bool write, bool key, bool condition, bool sensitiveLoggingEnabled, bool? isNullable = null);"
+          "Member": "ColumnModificationParameters(string columnName, object? value, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, string? columnType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath jsonPath, bool read, bool write, bool key, bool condition, bool sensitiveLoggingEnabled, bool? isNullable = null);"
         },
         {
           "Member": "ColumnModificationParameters();"
@@ -1042,7 +1042,7 @@
           "Member": "bool IsWrite { get; init; }"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; init; }"
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; init; }"
         },
         {
           "Member": "object? OriginalValue { get; init; }"
@@ -3581,7 +3581,7 @@
           "Member": "bool IsWrite { get; set; }"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; }"
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; }"
         },
         {
           "Member": "string? OriginalParameterName { get; }"
@@ -6192,7 +6192,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? ParentElement { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> Path { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Path { get; }"
         },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IJsonElementMapping> PropertyMappings { get; }"
@@ -7305,10 +7305,10 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.JsonPath",
+      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath",
       "Methods": [
         {
-          "Member": "JsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> segments, int[] ordinals);"
+          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, int[] indices);"
         },
         {
           "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
@@ -7322,21 +7322,21 @@
           "Member": "virtual bool IsRoot { get; }"
         },
         {
-          "Member": "virtual int[] Ordinals { get; }"
+          "Member": "virtual int[] Indices { get; }"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.JsonPath Root { get; }"
+          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath Root { get; }"
         },
         {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> Segments { get; }"
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Segments { get; }"
         }
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment",
       "Methods": [
         {
-          "Member": "JsonPathSegment(string propertyName);"
+          "Member": "StructuredJsonPathSegment(string propertyName);"
         },
         {
           "Member": "override string ToString();"
@@ -7344,7 +7344,7 @@
       ],
       "Properties": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment Array { get; }"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment Array { get; }"
         },
         {
           "Member": "bool IsArray { get; }"
@@ -8445,7 +8445,7 @@
       ],
       "Properties": [
         {
-          "Member": "virtual string? LatestMigrationId { get; }"
+          "Member": "virtual string? LastMigrationId { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IModel Model { get; }"

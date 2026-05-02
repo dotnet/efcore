@@ -57,7 +57,7 @@ public abstract class RelationalJsonElement : IRelationalJsonElement
         bool isNullable)
     {
         ContainingColumn = parentElement.ContainingColumn;
-        Path = [.. parentElement.Path, JsonPathSegment.Array];
+        Path = [.. parentElement.Path, StructuredJsonPathSegment.Array];
         ParentElement = parentElement;
         IsNullable = isNullable;
     }
@@ -73,7 +73,7 @@ public abstract class RelationalJsonElement : IRelationalJsonElement
         => GetDefaultStoreTypeMapping();
 
     /// <inheritdoc />
-    public virtual IReadOnlyList<JsonPathSegment> Path { get; protected set; }
+    public virtual IReadOnlyList<StructuredJsonPathSegment> Path { get; protected set; }
 
     /// <inheritdoc />
     public virtual IRelationalJsonElement? ParentElement { get; }

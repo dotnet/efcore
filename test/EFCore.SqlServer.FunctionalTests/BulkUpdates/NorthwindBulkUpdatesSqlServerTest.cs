@@ -1612,7 +1612,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory]
     public override async Task Update_with_two_inner_joins(bool async)
     {
         await base.Update_with_two_inner_joins(async);
@@ -1630,7 +1630,7 @@ WHERE [p].[Discontinued] = CAST(1 AS bit) AND [o0].[OrderDate] > '1990-01-01T00:
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory]
     public override async Task Update_with_PK_pushdown_and_join_and_multiple_setters(bool async)
     {
         await base.Update_with_PK_pushdown_and_join_and_multiple_setters(async);

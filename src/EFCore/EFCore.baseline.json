@@ -4152,7 +4152,7 @@
           "Member": "static string InvalidIncludeExpression(object? expression);"
         },
         {
-          "Member": "static string InvalidJsonPathOrdinalCount(object? ordinalsCount, object? arraySegmentCount);"
+          "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
         },
         {
           "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
@@ -20772,12 +20772,12 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.ProviderMismatchEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string compiledProviderName, string currentProviderName);"
+          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string mismatchedProviderName, string currentProviderName);"
         }
       ],
       "Properties": [
         {
-          "Member": "virtual string CompiledProviderName { get; }"
+          "Member": "virtual string MismatchedProviderName { get; }"
         },
         {
           "Member": "virtual string CurrentProviderName { get; }"

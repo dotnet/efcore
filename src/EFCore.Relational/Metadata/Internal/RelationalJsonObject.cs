@@ -59,15 +59,15 @@ public class RelationalJsonObject : RelationalJsonElement, IRelationalJsonObject
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<JsonPathSegment> CreateChildPath(string childName)
+    public virtual IReadOnlyList<StructuredJsonPathSegment> CreateChildPath(string childName)
     {
-        var path = new JsonPathSegment[Path.Count + 1];
+        var path = new StructuredJsonPathSegment[Path.Count + 1];
         for (var i = 0; i < Path.Count; i++)
         {
             path[i] = Path[i];
         }
 
-        path[^1] = new JsonPathSegment(childName);
+        path[^1] = new StructuredJsonPathSegment(childName);
         return path;
     }
 
