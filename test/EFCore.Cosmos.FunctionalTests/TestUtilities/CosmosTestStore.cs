@@ -253,8 +253,6 @@ public class CosmosTestStore : TestStore
         => new TestCosmosExecutionStrategy().ExecuteAsync(
             (context, createTables), async (_, state, ct) =>
             {
-                // Clear tracked entities so execution strategy retries don't fail with identity conflicts
-                state.context.ChangeTracker.Clear();
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
             }, null, default);

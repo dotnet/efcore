@@ -51,6 +51,11 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     /// </summary>
     public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
+        // Clear tracked entities so this method is safe to call inside a retry loop.
+        // The seeder adds entities to the context, so a previous failed call would leave
+        // stale entries in the change tracker that conflict on the next attempt.
+        _currentContext.Context.ChangeTracker.Clear();
+
         var model = _designTimeModel.Model;
         var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(model.GetThroughput(), cancellationToken)
             .ConfigureAwait(false);
