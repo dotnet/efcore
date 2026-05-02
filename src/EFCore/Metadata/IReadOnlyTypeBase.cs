@@ -131,16 +131,32 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
             var name = ClrType.ShortDisplayName();
             if (name.StartsWith("<>", StringComparison.Ordinal))
             {
+                // Anonymous and closure types: <>f__AnonymousType0, <>c__DisplayClass0_0, ...
                 name = name[2..];
             }
-
-            var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
-            if (lessIndex == -1)
+            else if (name.Length > 2 && name[0] == '<')
             {
-                return name;
+                // File-scoped types: Roslyn synthesizes the metadata name
+                // <FileName>F<hex>__UserTypeName for `file class` / `file record` declarations.
+                // The `>F` signature distinguishes file-scoped types from other compiler-generated
+                // types whose names also begin with `<` (async state machines `<Method>d__0`,
+                // local function host classes `<Method>g__Local|0_0`, etc.). For those the
+                // signature character following `>` is `d`, `g`, etc., never `F`.
+                var closeAngle = name.IndexOf('>', 1);
+                if (closeAngle != -1
+                    && closeAngle + 1 < name.Length
+                    && name[closeAngle + 1] == 'F')
+                {
+                    var separator = name.IndexOf("__", closeAngle + 1, StringComparison.Ordinal);
+                    if (separator != -1)
+                    {
+                        name = name[(separator + 2)..];
+                    }
+                }
             }
 
-            return name[..lessIndex];
+            var lessIndex = name.IndexOf('<', StringComparison.Ordinal);
+            return lessIndex == -1 ? name : name[..lessIndex];
         }
 
         var hashIndex = Name.LastIndexOf("#", StringComparison.Ordinal);

@@ -3032,6 +3032,58 @@ public partial class EntityTypeTest
         Assert.Equal("__AnonymousType01Child", entityType.ShortName());
     }
 
+    [ConditionalTheory]
+    // file class MyEntity in Program.cs
+    [InlineData("<Program>F1234ABCD__MyEntity", "MyEntity")]
+    // file class declared in a file whose name itself contains "__"
+    [InlineData("<My__File>F1234ABCD__MyEntity", "MyEntity")]
+    // file class whose user-chosen name contains "__"
+    [InlineData("<Program>F1234ABCD__Foo__Bar", "Foo__Bar")]
+    // file class with generic type parameters
+    [InlineData("<Program>F1234ABCD__MyEntity<int>", "MyEntity")]
+    public void ShortName_on_file_scoped_type(string clrName, string expectedShortName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_FileScoped");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedShortName, entityType.ShortName());
+    }
+
+    [ConditionalTheory]
+    // Regular type — no `<` prefix, no transformation
+    [InlineData("Foo", "Foo")]
+    // Type whose user-chosen name contains "__" but is not file-scoped — no `<` prefix, no transformation
+    [InlineData("Foo__Bar", "Foo__Bar")]
+    // Generic type — existing logic still strips generics from the tail
+    [InlineData("MyType<int>", "MyType")]
+    // Generic type whose name contains "__"
+    [InlineData("Foo__Bar<int>", "Foo__Bar")]
+    public void ShortName_unchanged_for_regular_types(string clrName, string expectedShortName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_Regular");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedShortName, entityType.ShortName());
+    }
+
     private readonly IMutableModel _model = BuildModel();
 
     private IMutableEntityType DependentType
