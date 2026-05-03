@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Transactions;
 
@@ -251,19 +252,23 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         }
 
         return Dependencies.ExecutionStrategy.Execute(
-            (this, operationsPerformed), static (context, state) =>
+            (Creator: this, Created: operationsPerformed, Retrying: new StrongBox<bool>(false)),
+            static (context, state) =>
             {
-                var (creator, created) = state;
-
                 var coreOptionsExtension =
-                    creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
+                    state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
                 var seed = coreOptionsExtension?.Seeder;
                 if (seed != null)
                 {
-                    context.ChangeTracker.Clear();
+                    if (state.Retrying.Value)
+                    {
+                        context.ChangeTracker.Clear();
+                    }
+
+                    state.Retrying.Value = true;
                     using var transaction = context.Database.BeginTransaction();
-                    seed(context, created);
+                    seed(context, state.Created);
                     transaction.Commit();
                 }
                 else if (coreOptionsExtension?.AsyncSeeder != null)
@@ -271,7 +276,7 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
                     throw new InvalidOperationException(CoreStrings.MissingSeeder);
                 }
 
-                return created;
+                return state.Created;
             }, verifySucceeded: null);
     }
 
@@ -306,20 +311,24 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         }
 
         return await Dependencies.ExecutionStrategy.ExecuteAsync(
-            (this, operationsPerformed), static async (context, state, ct) =>
+            (Creator: this, Created: operationsPerformed, Retrying: new StrongBox<bool>(false)),
+            static async (context, state, ct) =>
             {
-                var (creator, created) = state;
-
                 var coreOptionsExtension =
-                    creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
+                    state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
                 var seedAsync = coreOptionsExtension?.AsyncSeeder;
                 if (seedAsync != null)
                 {
-                    context.ChangeTracker.Clear();
+                    if (state.Retrying.Value)
+                    {
+                        context.ChangeTracker.Clear();
+                    }
+
+                    state.Retrying.Value = true;
                     var transaction = await context.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
                     await using var _ = transaction.ConfigureAwait(false);
-                    await seedAsync(context, created, ct).ConfigureAwait(false);
+                    await seedAsync(context, state.Created, ct).ConfigureAwait(false);
                     await transaction.CommitAsync(ct).ConfigureAwait(false);
                 }
                 else if (coreOptionsExtension?.Seeder != null)
@@ -327,7 +336,7 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
                     throw new InvalidOperationException(CoreStrings.MissingSeeder);
                 }
 
-                return created;
+                return state.Created;
             }, verifySucceeded: null, cancellationToken).ConfigureAwait(false);
     }
 

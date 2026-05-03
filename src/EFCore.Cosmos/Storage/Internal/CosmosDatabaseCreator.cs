@@ -56,25 +56,37 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
         var created = new StrongBox<bool>(false);
+        var dataInserted = new StrongBox<bool>(false);
         return _executionStrategy.ExecuteAsync(
-            (Creator: this, Created: created), static async (_, state, ct) =>
+            (Creator: this, Created: created, DataInserted: dataInserted), static async (_, state, ct) =>
             {
                 var creator = state.Creator;
-                var model = creator._designTimeModel.Model;
-                state.Created.Value |= await creator._cosmosClient
-                    .CreateDatabaseIfNotExistsAsync(model.GetThroughput(), ct)
-                    .ConfigureAwait(false);
 
-                foreach (var container in GetContainersToCreate(model))
+                if (state.DataInserted.Value)
                 {
-                    state.Created.Value |= await creator._cosmosClient
-                        .CreateContainerIfNotExistsAsync(container, ct)
-                        .ConfigureAwait(false);
+                    // On retry after InsertDataAsync succeeded, clear stale tracked entities
+                    // from the previous seeding attempt but don't re-insert model data.
+                    creator._currentContext.Context.ChangeTracker.Clear();
                 }
-
-                if (state.Created.Value)
+                else
                 {
-                    await creator.InsertDataAsync(ct).ConfigureAwait(false);
+                    var model = creator._designTimeModel.Model;
+                    state.Created.Value |= await creator._cosmosClient
+                        .CreateDatabaseIfNotExistsAsync(model.GetThroughput(), ct)
+                        .ConfigureAwait(false);
+
+                    foreach (var container in GetContainersToCreate(model))
+                    {
+                        state.Created.Value |= await creator._cosmosClient
+                            .CreateContainerIfNotExistsAsync(container, ct)
+                            .ConfigureAwait(false);
+                    }
+
+                    if (state.Created.Value)
+                    {
+                        await creator.InsertDataAsync(ct).ConfigureAwait(false);
+                        state.DataInserted.Value = true;
+                    }
                 }
 
                 await creator.SeedDataAsync(state.Created.Value, ct).ConfigureAwait(false);
@@ -212,7 +224,6 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
         if (coreOptionsExtension?.AsyncSeeder is not null)
         {
-            _currentContext.Context.ChangeTracker.Clear();
             await coreOptionsExtension.AsyncSeeder(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
         else if (coreOptionsExtension?.Seeder is not null)

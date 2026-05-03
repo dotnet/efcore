@@ -192,7 +192,12 @@ public class Migrator : IMigrator
             var seed = coreOptionsExtension.Seeder;
             if (seed != null)
             {
-                context.ChangeTracker.Clear();
+                if (state.SeedingAttempted)
+                {
+                    context.ChangeTracker.Clear();
+                }
+
+                state.SeedingAttempted = true;
                 seed(context, state.AnyOperationPerformed);
             }
             else if (coreOptionsExtension.AsyncSeeder != null)
@@ -329,7 +334,12 @@ public class Migrator : IMigrator
             var seedAsync = coreOptionsExtension.AsyncSeeder;
             if (seedAsync != null)
             {
-                context.ChangeTracker.Clear();
+                if (state.SeedingAttempted)
+                {
+                    context.ChangeTracker.Clear();
+                }
+
+                state.SeedingAttempted = true;
                 await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
             }
             else if (coreOptionsExtension.Seeder != null)

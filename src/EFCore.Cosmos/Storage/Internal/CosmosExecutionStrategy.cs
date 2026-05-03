@@ -104,7 +104,6 @@ public class CosmosExecutionStrategy : ExecutionStrategy
 
         static bool IsTransient(HttpStatusCode? statusCode)
             => statusCode is null
-            or HttpStatusCode.InternalServerError
             or HttpStatusCode.ServiceUnavailable
             or HttpStatusCode.TooManyRequests
             or HttpStatusCode.RequestTimeout

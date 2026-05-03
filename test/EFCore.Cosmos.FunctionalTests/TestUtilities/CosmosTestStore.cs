@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -28,7 +29,7 @@ public class CosmosTestStore : TestStore
     // Databases shared across multiple test fixtures are deleted at process exit
     // to avoid one fixture's disposal racing with another fixture's queries.
     // Single-fixture databases are deleted immediately to avoid hitting emulator limits.
-    private static readonly HashSet<string> _deferredDeletionStoreNames = ["Northwind", "F1Test"];
+    private static readonly HashSet<string> _deferredDeletionStoreNames = ["Northwind", "CosmosBulkExecutionTest"];
     private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
 
     static CosmosTestStore()
@@ -286,8 +287,14 @@ public class CosmosTestStore : TestStore
 
     public override Task CleanAsync(DbContext context, bool createTables = true)
         => new TestCosmosExecutionStrategy().ExecuteAsync(
-            (context, createTables), async (_, state, ct) =>
+            (context, createTables, Retrying: new StrongBox<bool>(false)), async (_, state, ct) =>
             {
+                if (state.Retrying.Value)
+                {
+                    state.context.ChangeTracker.Clear();
+                }
+
+                state.Retrying.Value = true;
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
             }, null, default);
@@ -521,9 +528,13 @@ public class CosmosTestStore : TestStore
             return;
         }
 
-        if (_deferredStores.ContainsKey(Name))
+        if (_deferredStores.TryGetValue(Name, out var canonical))
         {
-            _storeContext.Dispose();
+            if (!ReferenceEquals(this, canonical))
+            {
+                _storeContext.Dispose();
+            }
+
             return;
         }
 
