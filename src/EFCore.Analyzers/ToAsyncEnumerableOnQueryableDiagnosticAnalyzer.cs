@@ -59,28 +59,25 @@ public sealed class ToAsyncEnumerableOnQueryableDiagnosticAnalyzer : DiagnosticA
             return;
         }
 
-        // The source is exposed as Arguments[0].Value for an extension method invocation. Inspect the operation
-        // before any implicit IQueryable -> IEnumerable conversion: if the user wrote it as an IQueryable, warn.
-        // If they explicitly cast to IEnumerable first (e.g. ((IEnumerable<T>)q).ToAsyncEnumerable()), there is
-        // no implicit conversion to peel and the underlying IQueryable type is hidden — that's a deliberate opt-out.
+        // The source is exposed as Arguments[0].Value for an extension method invocation. Peel any
+        // chained implicit conversions to recover the user-written expression's type — a single C#
+        // expression can produce stacked IConversionOperation nodes in the Roslyn tree. An explicit
+        // cast to IEnumerable<T> (e.g. ((IEnumerable<T>)q).ToAsyncEnumerable()) shows up as
+        // IsImplicit: false, so the loop stops there and the underlying IQueryable type is hidden —
+        // a deliberate opt-out. Mirrors the WalkDownConversion(predicate) helper used across
+        // dotnet/roslyn-analyzers.
         if (invocation.Arguments.Length == 0)
         {
             return;
         }
 
         var sourceOperation = invocation.Arguments[0].Value;
-        ITypeSymbol? sourceType = null;
-
-        if (sourceOperation is IConversionOperation { IsImplicit: true } conversion)
+        while (sourceOperation is IConversionOperation { IsImplicit: true } conversion)
         {
-            sourceType = conversion.Operand.Type;
-        }
-        else
-        {
-            sourceType = sourceOperation.Type;
+            sourceOperation = conversion.Operand;
         }
 
-        if (sourceType is null || !ImplementsGenericIQueryable(sourceType))
+        if (sourceOperation.Type is not { } sourceType || !ImplementsGenericIQueryable(sourceType))
         {
             return;
         }
