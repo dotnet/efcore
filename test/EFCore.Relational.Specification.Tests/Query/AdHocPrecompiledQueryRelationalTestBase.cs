@@ -131,6 +131,35 @@ Assert.Equal(10, e.PrivateAutoPropertyExposer);
             });
     }
 
+    [ConditionalFact]
+    public virtual async Task NoTracking_query_with_namespaced_entity_generates_valid_identifiers()
+    {
+        // Regression test for #37972: entity types whose Name is namespace-qualified
+        // (e.g. "Microsoft.EntityFrameworkCore.Query.JsonEntity") were used directly as the
+        // variable-name seed when generating the no-tracking identity-resolution shaper, producing
+        // invalid C# identifiers like `microsoft.EntityFrameworkCore.Query.JsonEntityPrimaryKeyProperties`.
+        // The fix is to use IReadOnlyTypeBase.ShortName() instead of .Name. This test guards
+        // against the regression by exercising the same path: the generated interceptor source
+        // would fail to compile if the variable name contains dots.
+        var contextFactory = await InitializeNonSharedTest<JsonContext>();
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.JsonContext(dbContextOptions);
+await context.Database.BeginTransactionAsync();
+
+_ = context.JsonEntities.AsNoTracking().ToList();
+""",
+            typeof(JsonContext),
+            options,
+            interceptorCodeAsserter: code =>
+            {
+                Assert.Contains("jsonEntityPrimaryKeyProperties", code);
+                Assert.DoesNotContain("Microsoft.EntityFrameworkCore.Query.JsonEntityPrimaryKeyProperties", code);
+            });
+    }
+
     public class NonPublicContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<NonPublicEntity> NonPublicEntities { get; set; } = null!;
