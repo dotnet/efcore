@@ -77,19 +77,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     await creator.InsertDataAsync(ct).ConfigureAwait(false);
                 }
 
-                var coreOptionsExtension =
-                    creator._contextOptions.FindExtension<CoreOptionsExtension>();
-
-                if (coreOptionsExtension?.AsyncSeeder is not null)
-                {
-                    creator._currentContext.Context.ChangeTracker.Clear();
-                    await coreOptionsExtension.AsyncSeeder(
-                        creator._currentContext.Context, state.Created.Value, ct).ConfigureAwait(false);
-                }
-                else if (coreOptionsExtension?.Seeder is not null)
-                {
-                    throw new InvalidOperationException(CoreStrings.MissingSeeder);
-                }
+                await creator.SeedDataAsync(state.Created.Value, ct).ConfigureAwait(false);
 
                 return state.Created.Value;
             }, verifySucceeded: null, cancellationToken);
@@ -220,14 +208,14 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     public virtual async Task SeedDataAsync(bool created, CancellationToken cancellationToken = default)
     {
         var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+            _contextOptions.FindExtension<CoreOptionsExtension>();
 
-        if (coreOptionsExtension.AsyncSeeder is not null)
+        if (coreOptionsExtension?.AsyncSeeder is not null)
         {
+            _currentContext.Context.ChangeTracker.Clear();
             await coreOptionsExtension.AsyncSeeder(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
-        else if (coreOptionsExtension.Seeder != null)
+        else if (coreOptionsExtension?.Seeder is not null)
         {
             throw new InvalidOperationException(CoreStrings.MissingSeeder);
         }

@@ -523,6 +523,7 @@ public class CosmosTestStore : TestStore
 
         if (_deferredStores.ContainsKey(Name))
         {
+            _storeContext.Dispose();
             return;
         }
 
