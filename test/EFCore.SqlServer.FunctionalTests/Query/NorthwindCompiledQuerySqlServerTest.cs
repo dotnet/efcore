@@ -393,44 +393,88 @@ WHERE [c].[CustomerID] = @s1 OR [c].[CustomerID] = @s2 OR [c].[CustomerID] = @s3
     {
         base.Query_with_array_parameter();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@args='["ALFKI"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""",
+                //
+                """
+@args='["ANATR"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @args='["ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """,
-            //
-            """
+                //
+                """
 @args='["ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """);
+        }
     }
 
     public override async Task Query_with_array_parameter_async()
     {
         await base.Query_with_array_parameter_async();
 
-        AssertSql(
-            """
+        if (TestEnvironment.IsJsonTypeSupported)
+        {
+            AssertSql(
+                """
+@args='["ALFKI"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""",
+                //
+                """
+@args='["ANATR"]' (Size = 9)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]' RETURNING nchar(5))
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @args='["ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """,
-            //
-            """
+                //
+                """
 @args='["ANATR"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = JSON_VALUE(@args, '$[0]')
 """);
+        }
     }
 
     public override void Multiple_queries()
