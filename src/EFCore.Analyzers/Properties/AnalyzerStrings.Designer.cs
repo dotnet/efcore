@@ -142,6 +142,15 @@ namespace Microsoft.EntityFrameworkCore {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Use &apos;AsAsyncEnumerable&apos; to iterate the query asynchronously..
+        /// </summary>
+        public static string ToAsyncEnumerableOnQueryableCodeActionTitle {
+            get {
+                return ResourceManager.GetString("ToAsyncEnumerableOnQueryableCodeActionTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor..
         /// </summary>
         public static string UninitializedDbSetWarningSuppressionJustification {

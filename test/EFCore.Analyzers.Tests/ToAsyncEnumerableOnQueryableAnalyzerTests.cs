@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Testing;
 
 namespace Microsoft.EntityFrameworkCore;
 
-using Verify = CSharpAnalyzerVerifier<ToAsyncEnumerableOnQueryableDiagnosticAnalyzer>;
+using Verify = CSharpCodeFixVerifier<ToAsyncEnumerableOnQueryableDiagnosticAnalyzer, ToAsyncEnumerableOnQueryableCodeFixProvider>;
 
 public class ToAsyncEnumerableOnQueryableAnalyzerTests
 {
@@ -169,4 +169,83 @@ class C
 }
 """,
             DiagnosticResult.CompilerWarning(EFDiagnostics.ToAsyncEnumerableOnQueryable).WithLocation(0));
+
+    // -- Code fix verification --
+
+    [Fact]
+    public Task CodeFix_DbSet_replaces_ToAsyncEnumerable_with_AsAsyncEnumerable()
+        => Verify.VerifyCodeFixAsync(
+            $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db)
+    {
+        _ = db.Users.{|#0:ToAsyncEnumerable|}();
+    }
+}
+""",
+            $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db)
+    {
+        _ = db.Users.AsAsyncEnumerable();
+    }
+}
+""",
+            DiagnosticResult.CompilerWarning(EFDiagnostics.ToAsyncEnumerableOnQueryable).WithLocation(0));
+
+    [Fact]
+    public Task CodeFix_chained_query_replaces_method_name_only()
+        => Verify.VerifyCodeFixAsync(
+            $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db)
+    {
+        _ = db.Users.Where(u => u.Id > 0).Select(u => u.Id).{|#0:ToAsyncEnumerable|}();
+    }
+}
+""",
+            $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db)
+    {
+        _ = db.Users.Where(u => u.Id > 0).Select(u => u.Id).AsAsyncEnumerable();
+    }
+}
+""",
+            DiagnosticResult.CompilerWarning(EFDiagnostics.ToAsyncEnumerableOnQueryable).WithLocation(0));
+
+    [Fact]
+    public async Task CodeFix_static_call_form_is_not_offered()
+    {
+        // The static-call form `AsyncEnumerable.ToAsyncEnumerable<T>(q)` would require a structural
+        // rewrite (different containing class). The analyzer warns but no automated fix is offered;
+        // VerifyCodeFixAsync with identical source/fixedSource asserts the fix does NOT change the code.
+        var source = $$"""
+{{MyDbContext}}
+
+class C
+{
+    void M(MyDbContext db)
+    {
+        _ = AsyncEnumerable.{|#0:ToAsyncEnumerable|}<User>(db.Users);
+    }
+}
+""";
+        await Verify.VerifyCodeFixAsync(
+            source,
+            source,
+            DiagnosticResult.CompilerWarning(EFDiagnostics.ToAsyncEnumerableOnQueryable).WithLocation(0));
+    }
 }
