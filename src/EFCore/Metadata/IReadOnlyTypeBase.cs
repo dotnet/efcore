@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -86,7 +87,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     {
         if (!HasSharedClrType)
         {
-            return ClrType.ShortDisplayName();
+            return StripFileScopedTypePrefixes(ClrType.ShortDisplayName());
         }
 
         var shortName = Name;
@@ -134,25 +135,13 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
                 // Anonymous and closure types: <>f__AnonymousType0, <>c__DisplayClass0_0, ...
                 name = name[2..];
             }
-            else if (name.Length > 2 && name[0] == '<')
+            else
             {
                 // File-scoped types: Roslyn synthesizes the metadata name
                 // <FileName>F<hex>__UserTypeName for `file class` / `file record` declarations.
-                // The `>F` signature distinguishes file-scoped types from other compiler-generated
-                // types whose names also begin with `<` (async state machines `<Method>d__0`,
-                // local function host classes `<Method>g__Local|0_0`, etc.). For those the
-                // signature character following `>` is `d`, `g`, etc., never `F`.
-                var closeAngle = name.IndexOf('>', 1);
-                if (closeAngle != -1
-                    && closeAngle + 1 < name.Length
-                    && name[closeAngle + 1] == 'F')
-                {
-                    var separator = name.IndexOf("__", closeAngle + 1, StringComparison.Ordinal);
-                    if (separator != -1)
-                    {
-                        name = name[(separator + 2)..];
-                    }
-                }
+                // Strip these sentinels wherever they appear (top-level or nested in generic args),
+                // so e.g. List<<File>F1234__Inner> becomes List<Inner>.
+                name = StripFileScopedTypePrefixes(name);
             }
 
             var lessIndex = name.IndexOf('<', StringComparison.Ordinal);
@@ -175,6 +164,63 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         }
 
         return Name[(hashIndex + 1)..];
+    }
+
+    /// <summary>
+    ///     Strips Roslyn's synthesized file-scoped type prefix (<c>&lt;FileName&gt;F&lt;hex&gt;__</c>)
+    ///     from a CLR display name, including occurrences nested inside generic argument lists.
+    ///     For example <c>List&lt;&lt;Program&gt;F1234__Inner&gt;</c> becomes <c>List&lt;Inner&gt;</c>.
+    /// </summary>
+    /// <remarks>
+    ///     The <c>&gt;F</c> signature distinguishes file-scoped types from other compiler-generated
+    ///     types whose names begin with <c>&lt;</c> (async state machines <c>&lt;Method&gt;d__0</c>,
+    ///     local function host classes <c>&lt;Method&gt;g__Local|0_0</c>, anonymous types
+    ///     <c>&lt;&gt;f__AnonymousType</c>, closure display classes <c>&lt;&gt;c__DisplayClass</c>).
+    ///     Filenames cannot contain <c>&lt;</c> or <c>&gt;</c>, so the closing <c>&gt;</c> of a
+    ///     sentinel is always the next <c>&gt;</c> after the opening <c>&lt;</c> with no
+    ///     intervening <c>&lt;</c>.
+    /// </remarks>
+    private static string StripFileScopedTypePrefixes(string name)
+    {
+        if (name.IndexOf('<', StringComparison.Ordinal) == -1)
+        {
+            return name;
+        }
+
+        StringBuilder? sb = null;
+        var i = 0;
+        while (i < name.Length)
+        {
+            if (name[i] == '<')
+            {
+                // Look for the immediately-following `>F<hex>__` sentinel:
+                //   - the next `>` must come without any nested `<` in between (filenames have neither)
+                //   - the char right after `>` must be `F`
+                //   - a `__` must follow (the prefix terminator)
+                var closeAngle = name.IndexOf('>', i + 1);
+                if (closeAngle != -1
+                    && closeAngle + 1 < name.Length
+                    && name[closeAngle + 1] == 'F')
+                {
+                    var nestedLt = name.IndexOf('<', i + 1, closeAngle - i - 1);
+                    if (nestedLt == -1)
+                    {
+                        var separator = name.IndexOf("__", closeAngle + 1, StringComparison.Ordinal);
+                        if (separator != -1)
+                        {
+                            sb ??= new StringBuilder(name.Length).Append(name, 0, i);
+                            i = separator + 2;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            sb?.Append(name[i]);
+            i++;
+        }
+
+        return sb?.ToString() ?? name;
     }
 
     /// <summary>
