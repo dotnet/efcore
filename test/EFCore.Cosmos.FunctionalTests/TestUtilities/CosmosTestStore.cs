@@ -26,10 +26,9 @@ public class CosmosTestStore : TestStore
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
 
-    // Databases shared across multiple test fixtures are deleted at process exit
+    // The Northwind database is shared across multiple test fixtures and is deleted at process exit
     // to avoid one fixture's disposal racing with another fixture's queries.
-    // Single-fixture databases are deleted immediately to avoid hitting emulator limits.
-    private static readonly HashSet<string> _deferredDeletionStoreNames = ["Northwind", "CosmosBulkExecutionTest"];
+    private const string DeferredDeletionStoreName = "Northwind";
     private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
 
     static CosmosTestStore()
@@ -90,9 +89,16 @@ public class CosmosTestStore : TestStore
 
         _storeContext = new TestStoreContext(this);
 
-        if (shared && _deferredDeletionStoreNames.Contains(name))
+        if (shared && name == DeferredDeletionStoreName)
         {
             _deferredStores.TryAdd(Name, this);
+        }
+        else if (shared)
+        {
+            Check.DebugAssert(
+                !_deferredStores.ContainsKey(Name) && !_deferredStores.Values.Any(s => s.Name == Name),
+                $"Cosmos database '{name}' is shared across multiple fixture types. "
+                + "Add it to the deferred deletion list or give each fixture a unique StoreName.");
         }
     }
 

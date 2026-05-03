@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
@@ -56,6 +59,53 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
         Assert.Contains("Consistency, Session, Properties, and Triggers are not allowed when AllowBulkExecution is set to true.", inner.Message);
     }
 
+    [ConditionalFact]
+    public virtual async Task AutoTransactionBehaviorNever_DoesNotThrow()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(x => x.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+
+        context.AddRange(Enumerable.Range(0, 100).Select(x => new Customer()));
+        await context.SaveChangesAsync();
+    }
+
+    [ConditionalFact]
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public virtual async Task AutoTransactionBehaviorWhenNeeded_Throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(x => x.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
+
+        context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
+    }
+
+    [ConditionalFact]
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public virtual async Task AutoTransactionBehaviorAlways_Throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(x => x.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
+    }
+
+    private string BulkExecutionWithTransactionalBatchMessage => CoreStrings.WarningAsErrorTemplate(
+        CosmosEventId.BulkExecutionWithTransactionalBatch.ToString(),
+        CosmosResources.LogBulkExecutionWithTransactionalBatch(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
+        "CosmosEventId.BulkExecutionWithTransactionalBatch");
+
     public class CosmosBulkExecutionContext : DbContext
     {
         public CosmosBulkExecutionContext(DbContextOptions options) : base(options)
@@ -75,16 +125,5 @@ public class CosmosBulkExecutionTest(NonSharedFixture fixture) : NonSharedModelT
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string PartitionKey { get; set; } = "1";
-    }
-
-    public class CosmosFixture : SharedStoreFixtureBase<CosmosBulkExecutionContext>
-    {
-        protected override string StoreName
-            => nameof(CosmosBulkExecutionTest);
-
-        protected override ITestStoreFactory TestStoreFactory
-            => CosmosTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => base.AddOptions(builder).UseCosmos(x => x.BulkExecutionAllowed()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch));
     }
 }

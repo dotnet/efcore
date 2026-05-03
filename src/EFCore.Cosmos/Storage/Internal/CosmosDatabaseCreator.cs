@@ -62,13 +62,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             {
                 var creator = state.Creator;
 
-                if (state.DataInserted.Value)
-                {
-                    // On retry after InsertDataAsync succeeded, clear stale tracked entities
-                    // from the previous seeding attempt but don't re-insert model data.
-                    creator._currentContext.Context.ChangeTracker.Clear();
-                }
-                else
+                if (!state.DataInserted.Value)
                 {
                     var model = creator._designTimeModel.Model;
                     state.Created.Value |= await creator._cosmosClient
@@ -89,7 +83,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     }
                 }
 
-                await creator.SeedDataAsync(state.Created.Value, ct).ConfigureAwait(false);
+                await creator.SeedDataAsync(state.Created.Value, ct, clearChangeTracker: state.DataInserted.Value)
+                    .ConfigureAwait(false);
 
                 return state.Created.Value;
             }, verifySucceeded: null, cancellationToken);
@@ -217,13 +212,19 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual async Task SeedDataAsync(bool created, CancellationToken cancellationToken = default)
+    public virtual async Task SeedDataAsync(
+        bool created, CancellationToken cancellationToken = default, bool clearChangeTracker = false)
     {
         var coreOptionsExtension =
             _contextOptions.FindExtension<CoreOptionsExtension>();
 
         if (coreOptionsExtension?.AsyncSeeder is not null)
         {
+            if (clearChangeTracker)
+            {
+                _currentContext.Context.ChangeTracker.Clear();
+            }
+
             await coreOptionsExtension.AsyncSeeder(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
         else if (coreOptionsExtension?.Seeder is not null)
