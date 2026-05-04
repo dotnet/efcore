@@ -291,11 +291,5 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
             Assert.Fail(ErrorMessage);
             throw new UnreachableException();
         }
-
-        public override TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
-        {
-            Assert.Fail(ErrorMessage);
-            throw new UnreachableException();
-        }
     }
 }

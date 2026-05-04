@@ -251,7 +251,7 @@ public static class CosmosQueryableExtensions
             throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
         }
 
-        return provider.ExecuteAsync<Task<CosmosPage<TSource>>>(
+        return provider.ExecuteAsync<CosmosPage<TSource>>(
             Expression.Call(
                 instance: null,
                 method: new Func<IQueryable<TSource>, int, string?, int?, CancellationToken, Task<CosmosPage<TSource>>>(ToPageAsync).Method,

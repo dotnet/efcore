@@ -3473,7 +3473,7 @@ public static class EntityFrameworkQueryableExtensions
                 : [source.Expression, additionalArgument]);
 
         return source.Provider is IAsyncQueryProvider provider
-            ? provider.ExecuteNonEnumerableAsync<TResult>(expression, cancellationToken)
+            ? provider.ExecuteAsync<TResult>(expression, cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
     }
 
@@ -3534,7 +3534,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>The total number of rows deleted in the database.</returns>
     public static Task<int> ExecuteDeleteAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         => source.Provider is IAsyncQueryProvider provider
-            ? provider.ExecuteNonEnumerableAsync<int>(
+            ? provider.ExecuteAsync<int>(
                 Expression.Call(ExecuteDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression), cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
 
@@ -3610,7 +3610,7 @@ public static class EntityFrameworkQueryableExtensions
         var setters = setterBuilder.BuildSettersExpression();
 
         return source.Provider is IAsyncQueryProvider provider
-            ? provider.ExecuteNonEnumerableAsync<int>(
+            ? provider.ExecuteAsync<int>(
                 Expression.Call(
                     ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)),
                     source.Expression,

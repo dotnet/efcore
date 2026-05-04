@@ -92,41 +92,38 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     }
 
     /// <inheritdoc />
-    public override Func<QueryContext, TElement> CreateNonEnumerableQueryExecutor<TElement>(Expression query)
+    public override Func<QueryContext, TResult> CreateSingleValueQueryExecutor<TResult>(Expression query)
     {
-        var (cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
+        var (cardinality, shapedQuery) = PrepareSingleValueQuery<TResult>(query);
 
         var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
-            .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
+            .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
         return cardinality switch
         {
-            ResultCardinality.Single =>
-                qc => enumerableFactory(qc).Single()!,
-
-            ResultCardinality.SingleOrDefault =>
-                qc => enumerableFactory(qc).SingleOrDefault()!,
+            ResultCardinality.Single => qc => enumerableFactory(qc).Single()!,
+            ResultCardinality.SingleOrDefault => qc => enumerableFactory(qc).SingleOrDefault()!,
 
             _ => throw new UnreachableException()
         };
     }
 
     /// <inheritdoc />
-    public override Func<QueryContext, Task<TElement>> CreateNonEnumerableAsyncQueryExecutor<TElement>(Expression query)
+    public override Func<QueryContext, Task<TResult>> CreateSingleValueAsyncQueryExecutor<TResult>(Expression query)
     {
-        var (cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
+        var (cardinality, shapedQuery) = PrepareSingleValueQuery<TResult>(query);
 
         var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
-            .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
+            .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
         return cardinality switch
         {
             ResultCardinality.Single =>
-                qc => ((IAsyncEnumerable<TElement>)enumerableFactory(qc))
+                qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
                     .SingleAsync(((RelationalQueryContext)qc).CancellationToken).AsTask(),
 
             ResultCardinality.SingleOrDefault =>
-                qc => ((IAsyncEnumerable<TElement>)enumerableFactory(qc))
+                qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
                     .SingleOrDefaultAsync(((RelationalQueryContext)qc).CancellationToken).AsTask()!,
 
             _ => throw new UnreachableException()
@@ -134,7 +131,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     }
 
     private (ResultCardinality cardinality, ShapedQueryExpression shapedQuery)
-        PrepareNonEnumerableQuery<TElement>(Expression query)
+        PrepareSingleValueQuery<TResult>(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
         var interceptedQuery = queryAndEventData.Query;
@@ -150,7 +147,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         }
 
         throw new NotImplementedException(
-            $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
+            $"The non-generated materializer does not yet support this query shape (TResult={typeof(TResult).Name}, "
             + $"postprocessed expression type: {postprocessedQuery.GetType().Name}, "
             + $"cardinality: {(postprocessedQuery is ShapedQueryExpression sq ? sq.ResultCardinality.ToString() : "N/A")}).");
     }

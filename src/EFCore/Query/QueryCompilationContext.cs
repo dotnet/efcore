@@ -219,25 +219,25 @@ public class QueryCompilationContext
 
     /// <summary>
     ///     Creates the query executor func for a non-enumerable sync query (e.g. Single, Count, Max) where
-    ///     <typeparamref name="TElement" /> is the result type directly.
+    ///     <typeparamref name="TResult" /> is the result type directly.
     /// </summary>
-    /// <typeparam name="TElement">The result type of the query.</typeparam>
+    /// <typeparam name="TResult">The result type of the query.</typeparam>
     /// <param name="query">The query to generate executor for.</param>
-    /// <returns>Returns <see cref="Func{QueryContext, TElement}" /> which can be invoked to get the result of this query.</returns>
-    public virtual Func<QueryContext, TElement> CreateNonEnumerableQueryExecutor<TElement>(Expression query)
+    /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get the result of this query.</returns>
+    public virtual Func<QueryContext, TResult> CreateSingleValueQueryExecutor<TResult>(Expression query)
         // Default implementation: delegate to the old expression-tree-based path.
-        => CreateQueryExecutor<TElement>(query);
+        => CreateQueryExecutor<TResult>(query);
 
     /// <summary>
     ///     Creates the query executor func for a non-enumerable async query (e.g. SingleAsync, CountAsync, MaxAsync)
-    ///     where <typeparamref name="TElement" /> is the result type directly (not wrapped in <see cref="Task{T}" />).
+    ///     where <typeparamref name="TResult" /> is the result type directly (not wrapped in <see cref="Task{T}" />).
     /// </summary>
-    /// <typeparam name="TElement">The result type of the query.</typeparam>
+    /// <typeparam name="TResult">The result type of the query.</typeparam>
     /// <param name="query">The query to generate executor for.</param>
     /// <returns>Returns a func which can be invoked to get the async result of this query.</returns>
-    public virtual Func<QueryContext, Task<TElement>> CreateNonEnumerableAsyncQueryExecutor<TElement>(Expression query)
+    public virtual Func<QueryContext, Task<TResult>> CreateSingleValueAsyncQueryExecutor<TResult>(Expression query)
         // Default implementation: delegate to the old expression-tree-based path.
-        => CreateQueryExecutor<Task<TElement>>(query);
+        => CreateQueryExecutor<Task<TResult>>(query);
 
     /// <summary>
     ///     Creates the query executor func which gives results for this query.

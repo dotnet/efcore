@@ -80,20 +80,20 @@ public interface IDatabase
         => CompileQuery<IEnumerable<TElement>>(query, async);
 
     /// <summary>
-    ///     Compiles the given query to generate a <see cref="Func{QueryContext, TElement}" /> for a
-    ///     non-enumerable query (e.g. Single, Count, Max), where <typeparamref name="TElement" /> is the
+    ///     Compiles the given query to generate a <see cref="Func{QueryContext, TResult}" /> for a
+    ///     single-value query (e.g. Single, Count, Max), where <typeparamref name="TResult" /> is the
     ///     result type directly (not wrapped in <see cref="Task{T}" />).
     /// </summary>
-    /// <typeparam name="TElement">The result type of the query.</typeparam>
+    /// <typeparam name="TResult">The result type of the query.</typeparam>
     /// <param name="query">The query to compile.</param>
     /// <param name="async">A value indicating whether this is an async query.</param>
-    /// <returns>A <see cref="Func{QueryContext, TElement}" /> which can be invoked to get the result of the query.</returns>
-    Func<QueryContext, TElement> CompileNonEnumerableQuery<TElement>(Expression query, bool async);
+    /// <returns>A <see cref="Func{QueryContext, TResult}" /> which can be invoked to get the result of the query.</returns>
+    Func<QueryContext, TResult> CompileSingleValueQuery<TResult>(Expression query, bool async);
 
     /// <summary>
     ///     Compiles the given query to generate a func for a
-    ///     non-enumerable async query (e.g. SingleAsync, CountAsync, MaxAsync), where
-    ///     <typeparamref name="TElement" /> is the result type directly (not wrapped in <see cref="Task{T}" />).
+    ///     single-value async query (e.g. SingleAsync, CountAsync, MaxAsync), where
+    ///     <typeparamref name="TResult" /> is the result type directly (not wrapped in <see cref="Task{T}" />).
     /// </summary>
-    Func<QueryContext, Task<TElement>> CompileNonEnumerableAsyncQuery<TElement>(Expression query);
+    Func<QueryContext, Task<TResult>> CompileSingleValueAsyncQuery<TResult>(Expression query);
 }

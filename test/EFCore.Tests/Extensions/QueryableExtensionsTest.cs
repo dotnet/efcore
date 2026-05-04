@@ -130,7 +130,7 @@ public class QueryableExtensionsTest
     {
         private readonly MethodCallExpression _expectedMethodCall = expectedMethodCall;
 
-        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             var actualMethodCall = (MethodCallExpression)expression;
 
@@ -159,7 +159,7 @@ public class QueryableExtensionsTest
                 Assert.Equal(expectedArgument.ToString(), actualArgument.ToString());
             }
 
-            return default;
+            return Task.FromResult<TResult>(default!);
         }
 
         public IQueryable CreateQuery(Expression expression)

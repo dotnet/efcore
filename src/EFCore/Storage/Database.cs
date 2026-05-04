@@ -79,14 +79,14 @@ public abstract class Database : IDatabase
             .CreateEnumerableQueryExecutor<TElement>(query);
 
     /// <inheritdoc />
-    public virtual Func<QueryContext, TElement> CompileNonEnumerableQuery<TElement>(Expression query, bool async)
+    public virtual Func<QueryContext, TResult> CompileSingleValueQuery<TResult>(Expression query, bool async)
         => Dependencies.QueryCompilationContextFactory
             .Create(async)
-            .CreateNonEnumerableQueryExecutor<TElement>(query);
+            .CreateSingleValueQueryExecutor<TResult>(query);
 
     /// <inheritdoc />
-    public virtual Func<QueryContext, Task<TElement>> CompileNonEnumerableAsyncQuery<TElement>(Expression query)
+    public virtual Func<QueryContext, Task<TResult>> CompileSingleValueAsyncQuery<TResult>(Expression query)
         => Dependencies.QueryCompilationContextFactory
             .Create(async: true)
-            .CreateNonEnumerableAsyncQueryExecutor<TElement>(query);
+            .CreateSingleValueAsyncQueryExecutor<TResult>(query);
 }

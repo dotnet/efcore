@@ -21,16 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public interface IAsyncQueryProvider : IQueryProvider
 {
     /// <summary>
-    ///     Executes the strongly-typed query represented by a specified expression tree asynchronously.
-    /// </summary>
-    TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     Executes a non-enumerable query asynchronously where <typeparamref name="TElement" /> is the result type
+    ///     Executes a single-value query asynchronously where <typeparamref name="TResult" /> is the result type
     ///     directly (not wrapped in <see cref="Task{T}" />). This avoids the NativeAOT-incompatible pattern of
-    ///     passing <c>Task&lt;TElement&gt;</c> as a generic type parameter.
+    ///     passing <c>Task&lt;TResult&gt;</c> as a generic type parameter.
     /// </summary>
-    Task<TElement> ExecuteNonEnumerableAsync<TElement>(Expression expression, CancellationToken cancellationToken = default)
-        // Default: fall back to the old path for backward compatibility.
-        => ExecuteAsync<Task<TElement>>(expression, cancellationToken);
+    Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default);
 }
