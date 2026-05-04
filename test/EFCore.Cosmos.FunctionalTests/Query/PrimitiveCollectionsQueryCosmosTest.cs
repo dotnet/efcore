@@ -2215,6 +2215,8 @@ ORDER BY c["Id"]
 """);
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Project_inline_collection()
     {
         await base.Project_inline_collection();

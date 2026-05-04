@@ -7305,56 +7305,6 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath",
-      "Methods": [
-        {
-          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, int[] indices);"
-        },
-        {
-          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual bool IsRoot { get; }"
-        },
-        {
-          "Member": "virtual int[] Indices { get; }"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath Root { get; }"
-        },
-        {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Segments { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment",
-      "Methods": [
-        {
-          "Member": "StructuredJsonPathSegment(string propertyName);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment Array { get; }"
-        },
-        {
-          "Member": "bool IsArray { get; }"
-        },
-        {
-          "Member": "string? PropertyName { get; }"
-        }
-      ]
-    },
-    {
       "Type": "class Microsoft.EntityFrameworkCore.Query.JsonQueryExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
       "Methods": [
         {
@@ -7969,6 +7919,9 @@
         },
         {
           "Member": "int LastCommittedCommandIndex { get; set; }"
+        },
+        {
+          "Member": "bool SeedingAttempted { get; set; }"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? Transaction { get; set; }"
@@ -16941,7 +16894,8 @@
       ],
       "Properties": [
         {
-          "Member": "static string BadSequenceString { get; }"
+          "Member": "static string BadSequenceString { get; }",
+          "Stage": "Obsolete"
         },
         {
           "Member": "static string BadSequenceType { get; }"
@@ -19925,6 +19879,56 @@
         },
         {
           "Member": "override System.Type Type { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath",
+      "Methods": [
+        {
+          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, int[] indices);"
+        },
+        {
+          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual int[] Indices { get; }"
+        },
+        {
+          "Member": "virtual bool IsRoot { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath Root { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Segments { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment",
+      "Methods": [
+        {
+          "Member": "StructuredJsonPathSegment(string propertyName);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment Array { get; }"
+        },
+        {
+          "Member": "bool IsArray { get; }"
+        },
+        {
+          "Member": "string? PropertyName { get; }"
         }
       ]
     },
