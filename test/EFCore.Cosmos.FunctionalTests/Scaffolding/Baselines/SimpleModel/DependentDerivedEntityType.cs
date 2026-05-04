@@ -101,15 +101,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             type.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),
@@ -149,15 +149,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             data.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),
@@ -181,15 +181,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),

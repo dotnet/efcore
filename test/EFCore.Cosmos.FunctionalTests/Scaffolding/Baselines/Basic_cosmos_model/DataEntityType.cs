@@ -94,7 +94,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<long, string>(
@@ -151,7 +151,7 @@ namespace TestNamespace
                     int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<byte[], string>(
@@ -271,7 +271,7 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             map.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new StringDictionaryComparer<Dictionary<string, string[]>, string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 keyComparer: new ValueComparer<Dictionary<string, string[]>>(
@@ -305,15 +305,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),
@@ -375,15 +375,15 @@ namespace TestNamespace
                 storeGenerationIndex: 1);
             _etag.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),

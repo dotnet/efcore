@@ -184,7 +184,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -254,7 +254,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -324,7 +324,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -544,7 +544,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -619,7 +619,7 @@ namespace TestNamespace
                     int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -734,7 +734,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -794,7 +794,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -824,7 +824,7 @@ namespace TestNamespace
                         int (char v) => ((int)v),
                         char (char v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -886,7 +886,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -995,7 +995,7 @@ namespace TestNamespace
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1066,7 +1066,7 @@ namespace TestNamespace
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1173,7 +1173,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1359,7 +1359,7 @@ namespace TestNamespace
                     int (DateTimeOffset v) => ((object)v).GetHashCode(),
                     DateTimeOffset (DateTimeOffset v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1476,7 +1476,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1630,7 +1630,7 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1760,7 +1760,7 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1867,7 +1867,7 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1997,7 +1997,7 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2112,7 +2112,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2199,7 +2199,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2259,7 +2259,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2289,7 +2289,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -2351,7 +2351,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2381,7 +2381,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -2443,7 +2443,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2584,7 +2584,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2671,7 +2671,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2731,7 +2731,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2761,7 +2761,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -2823,7 +2823,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2853,7 +2853,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -2915,7 +2915,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3056,7 +3056,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3143,7 +3143,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3203,7 +3203,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3233,7 +3233,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -3295,7 +3295,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3325,7 +3325,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -3387,7 +3387,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3528,7 +3528,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3615,7 +3615,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3675,7 +3675,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3705,7 +3705,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -3767,7 +3767,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3797,7 +3797,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -3859,7 +3859,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4002,7 +4002,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4117,7 +4117,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4204,7 +4204,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4264,7 +4264,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4294,7 +4294,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -4356,7 +4356,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4386,7 +4386,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -4448,7 +4448,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4589,7 +4589,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4676,7 +4676,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4736,7 +4736,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4766,7 +4766,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -4828,7 +4828,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4858,7 +4858,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -4920,7 +4920,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5065,7 +5065,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5156,7 +5156,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5216,7 +5216,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5246,7 +5246,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -5308,7 +5308,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5338,7 +5338,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -5400,7 +5400,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5545,7 +5545,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5632,7 +5632,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5692,7 +5692,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5722,7 +5722,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -5784,7 +5784,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5814,7 +5814,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -5876,7 +5876,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6009,7 +6009,7 @@ namespace TestNamespace
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6128,7 +6128,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6260,7 +6260,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6320,7 +6320,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6379,7 +6379,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6409,7 +6409,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -6470,7 +6470,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6500,7 +6500,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -6621,7 +6621,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6727,7 +6727,7 @@ namespace TestNamespace
                     int (short v) => ((int)v),
                     short (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6844,7 +6844,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6914,7 +6914,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7031,7 +7031,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7156,7 +7156,7 @@ namespace TestNamespace
                     int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7302,7 +7302,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7364,7 +7364,7 @@ namespace TestNamespace
                     int (int? v) => ((int)v),
                     int? (int? v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7474,7 +7474,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7596,7 +7596,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7671,7 +7671,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7732,7 +7732,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7762,7 +7762,7 @@ namespace TestNamespace
                         int (char v) => ((int)v),
                         char (char v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -7874,7 +7874,7 @@ namespace TestNamespace
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7995,7 +7995,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8116,7 +8116,7 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8237,7 +8237,7 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8366,7 +8366,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8511,7 +8511,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8599,7 +8599,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8687,7 +8687,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8832,7 +8832,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8977,7 +8977,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9065,7 +9065,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9153,7 +9153,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9298,7 +9298,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9443,7 +9443,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9531,7 +9531,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9619,7 +9619,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9764,7 +9764,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9909,7 +9909,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9997,7 +9997,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10085,7 +10085,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10230,7 +10230,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10375,7 +10375,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10463,7 +10463,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10551,7 +10551,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10696,7 +10696,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10841,7 +10841,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -10929,7 +10929,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11017,7 +11017,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11166,7 +11166,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11319,7 +11319,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11411,7 +11411,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11503,7 +11503,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11652,7 +11652,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11797,7 +11797,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11885,7 +11885,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -11973,7 +11973,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12110,7 +12110,7 @@ namespace TestNamespace
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12233,7 +12233,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12308,7 +12308,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12367,7 +12367,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12397,7 +12397,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -12508,7 +12508,7 @@ namespace TestNamespace
                     int (short v) => ((int)v),
                     short (short v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12629,7 +12629,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12750,7 +12750,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12879,7 +12879,7 @@ namespace TestNamespace
                     int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -12968,7 +12968,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13027,7 +13027,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13057,7 +13057,7 @@ namespace TestNamespace
                         int (PhysicalAddress v) => ((object)v).GetHashCode(),
                         PhysicalAddress (PhysicalAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -13113,15 +13113,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13164,15 +13164,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13186,15 +13186,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -13297,7 +13297,7 @@ namespace TestNamespace
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13418,7 +13418,7 @@ namespace TestNamespace
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13547,7 +13547,7 @@ namespace TestNamespace
                     int (ushort v) => ((int)v),
                     ushort (ushort v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13692,7 +13692,7 @@ namespace TestNamespace
                     int (uint v) => ((int)v),
                     uint (uint v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13841,7 +13841,7 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -13982,7 +13982,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14055,7 +14055,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14114,7 +14114,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14144,7 +14144,7 @@ namespace TestNamespace
                         int (Uri v) => ((object)v).GetHashCode(),
                         Uri (Uri v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -14206,7 +14206,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14265,7 +14265,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14295,7 +14295,7 @@ namespace TestNamespace
                         int (PhysicalAddress v) => ((object)v).GetHashCode(),
                         PhysicalAddress (PhysicalAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -14415,7 +14415,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14466,15 +14466,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             @string.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14517,15 +14517,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14539,15 +14539,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -14592,15 +14592,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringReadOnlyCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14614,15 +14614,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -14668,11 +14668,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToBoolConverterProperty.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<bool>(
@@ -14723,11 +14723,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
@@ -14781,15 +14781,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToCharConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -14841,11 +14841,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDateOnlyConverterProperty.TypeMapping = SqlServerDateOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<DateOnly>(
@@ -14898,11 +14898,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDateTimeConverterProperty.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<DateTime>(
@@ -14955,11 +14955,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDateTimeOffsetConverterProperty.TypeMapping = SqlServerDateTimeOffsetTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<DateTimeOffset>(
@@ -15012,11 +15012,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDecimalNumberConverterProperty.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<decimal>(
@@ -15069,11 +15069,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDoubleNumberConverterProperty.TypeMapping = SqlServerDoubleTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<double>(
@@ -15126,11 +15126,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToEnumConverterProperty.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<long>(
@@ -15180,15 +15180,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToGuidConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -15232,11 +15232,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToIntNumberConverterProperty.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -15289,11 +15289,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToTimeOnlyConverterProperty.TypeMapping = SqlServerTimeOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<TimeOnly>(
@@ -15346,11 +15346,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToTimeSpanConverterProperty.TypeMapping = SqlServerTimeSpanTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<TimeSpan>(
@@ -15403,15 +15403,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToUriConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -15517,7 +15517,7 @@ namespace TestNamespace
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -15588,7 +15588,7 @@ namespace TestNamespace
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -15751,7 +15751,7 @@ namespace TestNamespace
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -15822,7 +15822,7 @@ namespace TestNamespace
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -15993,7 +15993,7 @@ namespace TestNamespace
                     int (ushort v) => ((int)v),
                     ushort (ushort v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -16134,7 +16134,7 @@ namespace TestNamespace
                     int (uint v) => ((int)v),
                     uint (uint v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -16279,7 +16279,7 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -16465,7 +16465,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -16535,7 +16535,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -16594,7 +16594,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -16624,7 +16624,7 @@ namespace TestNamespace
                         int (Uri v) => ((object)v).GetHashCode(),
                         Uri (Uri v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -16686,7 +16686,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
