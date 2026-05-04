@@ -1,9 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -193,8 +200,185 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                 return (queryCtx, reader, rc, coord) => (T?)entityMaterializer.Materialize(queryCtx, reader, rc, coord);
             }
 
+            case RelationalCollectionShaperExpression collectionShaper:
+            {
+                return BuildStandaloneCollectionMaterializer<T>(collectionShaper, select, isTracking, ref nextCollectionId);
+            }
+
             default:
                 throw new UnreachableException($"Unexpected shaper expression type '{shaperExpression.GetType().Name}'.");
+        }
+    }
+
+    /// <summary>
+    ///     Builds a materializer for a standalone collection projection (e.g. <c>Select(x => x.Posts)</c>).
+    ///     This mirrors the generated shaper's <c>InitializeCollection</c> / <c>PopulateCollection</c> protocol:
+    ///     on first call the collection is created and stored in <see cref="ResultContext.Values" />;
+    ///     on every call (including first) elements are populated from the current row;
+    ///     when <see cref="SingleQueryResultCoordinator.ResultReady" /> is true the collection is returned.
+    /// </summary>
+    private Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>
+        BuildStandaloneCollectionMaterializer<T>(
+            RelationalCollectionShaperExpression collectionShaper,
+            SelectExpression select,
+            bool isTracking,
+            ref int nextCollectionId)
+    {
+        var collectionId = nextCollectionId++;
+
+        var innerElementMaterializer = BuildMaterializer<object>(
+            collectionShaper.InnerShaper, select, isTracking, ref nextCollectionId);
+
+        var parentIdentifier = CompileIdentifierLambda(collectionShaper.ParentIdentifier, select);
+        var outerIdentifier = CompileIdentifierLambda(collectionShaper.OuterIdentifier, select);
+        var selfIdentifier = CompileIdentifierLambda(collectionShaper.SelfIdentifier, select);
+
+        var parentComparers = collectionShaper.ParentIdentifierValueComparers
+            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+            .ToArray();
+        var outerComparers = collectionShaper.OuterIdentifierValueComparers
+            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+            .ToArray();
+        var selfComparers = collectionShaper.SelfIdentifierValueComparers
+            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+            .ToArray();
+
+        var navigation = collectionShaper.Navigation;
+        var collectionAccessor = navigation?.GetCollectionAccessor();
+
+        // Mirrors the generated shaper structure: InitializeCollection on first call,
+        // PopulateCollection on every call, return collection when ResultReady.
+        return (queryContext, dataReader, resultContext, resultCoordinator) =>
+        {
+            if (resultContext.Values is null)
+            {
+                var collection = collectionAccessor?.Create() ?? Activator.CreateInstance(typeof(T))!;
+
+                resultCoordinator.SetSingleQueryCollectionContext(
+                    collectionId,
+                    new SingleQueryCollectionContext(
+                        null, collection,
+                        parentIdentifier(queryContext, dataReader),
+                        outerIdentifier(queryContext, dataReader)));
+
+                resultContext.Values = [collection];
+            }
+
+            PopulateCollection(
+                queryContext, dataReader, resultCoordinator, collectionId,
+                parentIdentifier, outerIdentifier, selfIdentifier,
+                parentComparers, outerComparers, selfComparers,
+                innerElementMaterializer);
+
+            return resultCoordinator.ResultReady ? (T)resultContext.Values[0] : default;
+        };
+    }
+
+    /// <summary>
+    ///     Populates a standalone collection from the current <see cref="DbDataReader" /> row.
+    ///     This is the non-generated equivalent of
+    ///     <see cref="RelationalShapedQueryCompilingExpressionVisitor.ShaperProcessingExpressionVisitor.PopulateCollection{TCollection, TElement, TRelatedEntity}" />.
+    /// </summary>
+    internal static void PopulateCollection(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        SingleQueryResultCoordinator resultCoordinator,
+        int collectionId,
+        Func<QueryContext, DbDataReader, object[]> parentIdentifier,
+        Func<QueryContext, DbDataReader, object[]> outerIdentifier,
+        Func<QueryContext, DbDataReader, object[]> selfIdentifier,
+        IReadOnlyList<Func<object, object, bool>> parentIdentifierValueComparers,
+        IReadOnlyList<Func<object, object, bool>> outerIdentifierValueComparers,
+        IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?> innerShaper)
+    {
+        var collectionContext = resultCoordinator.Collections[collectionId]!;
+        if (collectionContext.Collection is null)
+        {
+            return;
+        }
+
+        if (resultCoordinator.HasNext == false)
+        {
+            GenerateCurrentElementIfPending();
+            return;
+        }
+
+        if (!CompareIdentifiers(
+                outerIdentifierValueComparers,
+                outerIdentifier(queryContext, dataReader),
+                collectionContext.OuterIdentifier))
+        {
+            GenerateCurrentElementIfPending();
+
+            if (!CompareIdentifiers(
+                    parentIdentifierValueComparers,
+                    parentIdentifier(queryContext, dataReader),
+                    collectionContext.ParentIdentifier))
+            {
+                resultCoordinator.HasNext = true;
+            }
+
+            return;
+        }
+
+        var innerKey = selfIdentifier(queryContext, dataReader);
+        if (innerKey.Length > 0 && innerKey.All(e => e == null))
+        {
+            return;
+        }
+
+        if (collectionContext.SelfIdentifier is not null)
+        {
+            if (CompareIdentifiers(selfIdentifierValueComparers, innerKey, collectionContext.SelfIdentifier))
+            {
+                if (collectionContext.ResultContext.Values is not null)
+                {
+                    ProcessCurrentElementRow();
+                }
+
+                resultCoordinator.ResultReady = false;
+                return;
+            }
+
+            GenerateCurrentElementIfPending();
+            resultCoordinator.HasNext = null;
+            collectionContext.UpdateSelfIdentifier(innerKey);
+        }
+        else
+        {
+            collectionContext.UpdateSelfIdentifier(innerKey);
+        }
+
+        ProcessCurrentElementRow();
+        resultCoordinator.ResultReady = false;
+
+        void ProcessCurrentElementRow()
+        {
+            var previousResultReady = resultCoordinator.ResultReady;
+            resultCoordinator.ResultReady = true;
+
+            var element = innerShaper(
+                queryContext, dataReader, collectionContext.ResultContext, resultCoordinator);
+
+            if (resultCoordinator.ResultReady)
+            {
+                collectionContext.ResultContext.Values = null;
+                ((IList)collectionContext.Collection!).Add(element);
+            }
+
+            resultCoordinator.ResultReady &= previousResultReady;
+        }
+
+        void GenerateCurrentElementIfPending()
+        {
+            if (collectionContext.ResultContext.Values is not null)
+            {
+                resultCoordinator.HasNext = false;
+                ProcessCurrentElementRow();
+            }
+
+            collectionContext.UpdateSelfIdentifier(null);
         }
     }
 
@@ -411,6 +595,22 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
 
             materializer.ClearCollectionIncludes();
         }
+    }
+
+    private static bool CompareIdentifiers(
+        IReadOnlyList<Func<object, object, bool>> valueComparers,
+        object[] left,
+        object[] right)
+    {
+        for (var i = 0; i < left.Length; i++)
+        {
+            if (!valueComparers[i](left[i], right[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static Func<QueryContext, DbDataReader, object[]> CompileIdentifierLambda(
