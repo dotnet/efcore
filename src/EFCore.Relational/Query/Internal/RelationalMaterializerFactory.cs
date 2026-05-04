@@ -266,13 +266,20 @@ public class RelationalMaterializerFactory(
 
                         var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
 
-                        innerMaterializer.AddReferenceInclude(new ReferenceIncludeInfo(
+                        var refInclude = new ReferenceIncludeInfo(
                             includedMaterializer,
                             navigation,
                             navSetter,
                             inverseNavigation,
                             inverseNavSetter,
-                            isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
+                            isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null);
+                        innerMaterializer.AddReferenceInclude(refInclude);
+
+                        // Flatten collection includes from the referenced entity up to the parent.
+                        // In the generated shaper, ALL collection populations are driven at the top
+                        // level; nesting them inside a reference include's MaterializeTyped causes
+                        // ResultReady/HasNext interference.
+                        FlattenCollectionIncludes(includedMaterializer, refInclude.ResultContext, innerMaterializer);
 
                         return innerMaterializer;
                     }
@@ -359,6 +366,58 @@ public class RelationalMaterializerFactory(
         var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(entityType.ClrType);
         return (RelationalEntityMaterializer)Activator.CreateInstance(
             materializerType, entityType, propertyIndexMap, isTracking, isNullable)!;
+    }
+
+    /// <summary>
+    ///     Recursively extracts collection includes from a reference include's materializer (and any
+    ///     nested reference includes) and adds them to the <paramref name="target" /> materializer.
+    ///     This mirrors the generated shaper's behavior where all collection populations are driven
+    ///     at the top level rather than nested inside reference include materializers.
+    /// </summary>
+    private static void FlattenCollectionIncludes(
+        RelationalEntityMaterializer materializer,
+        ResultContext materializerResultContext,
+        RelationalEntityMaterializer target)
+    {
+        // First, recursively flatten collections from this materializer's own reference includes.
+        if (materializer.ReferenceIncludes is not null)
+        {
+            for (var i = 0; i < materializer.ReferenceIncludes.Count; i++)
+            {
+                var refInclude = materializer.ReferenceIncludes[i];
+                FlattenCollectionIncludes(refInclude.Materializer, refInclude.ResultContext, target);
+            }
+        }
+
+        // Then extract this materializer's direct collection includes and re-parent them.
+        if (materializer.CollectionIncludes is not null)
+        {
+            for (var i = 0; i < materializer.CollectionIncludes.Count; i++)
+            {
+                var ci = materializer.CollectionIncludes[i];
+
+                // Capture the ResultContext so the parent entity can be retrieved after
+                // ProcessReferenceIncludes has materialized it.
+                var capturedContext = materializerResultContext;
+                target.AddCollectionInclude(new CollectionIncludeInfo(
+                    ci.InnerMaterializer,
+                    ci.Navigation,
+                    ci.InverseNavigation,
+                    ci.InverseNavigationSetter,
+                    ci.CollectionAccessor,
+                    ci.ParentIdentifier,
+                    ci.OuterIdentifier,
+                    ci.SelfIdentifier,
+                    ci.ParentIdentifierValueComparers,
+                    ci.OuterIdentifierValueComparers,
+                    ci.SelfIdentifierValueComparers,
+                    ci.CollectionId,
+                    ci.IsKeylessEntityType,
+                    parentEntityProvider: () => capturedContext.Values?[0]));
+            }
+
+            materializer.ClearCollectionIncludes();
+        }
     }
 
     private static Func<QueryContext, DbDataReader, object[]> CompileIdentifierLambda(

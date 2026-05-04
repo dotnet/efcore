@@ -77,6 +77,15 @@ public abstract class RelationalEntityMaterializer
         => (_collectionIncludes ??= []).Add(includeInfo);
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void ClearCollectionIncludes()
+        => _collectionIncludes = null;
+
+    /// <summary>
     ///     Whether this materializer has any collection includes (affects the multi-call protocol).
     /// </summary>
     public bool HasCollectionIncludes
@@ -85,12 +94,12 @@ public abstract class RelationalEntityMaterializer
     /// <summary>
     ///     The reference includes for this entity, or null if there are none.
     /// </summary>
-    protected List<ReferenceIncludeInfo>? ReferenceIncludes
+    public List<ReferenceIncludeInfo>? ReferenceIncludes
         => _referenceIncludes;
 
     /// <summary>
     ///     The collection includes for this entity, or null if there are none.
     /// </summary>
-    protected List<CollectionIncludeInfo>? CollectionIncludes
+    public List<CollectionIncludeInfo>? CollectionIncludes
         => _collectionIncludes;
 }

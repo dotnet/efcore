@@ -30,7 +30,8 @@ public readonly struct CollectionIncludeInfo(
     IReadOnlyList<Func<object, object, bool>> outerIdentifierValueComparers,
     IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
     int collectionId,
-    bool isKeylessEntityType)
+    bool isKeylessEntityType,
+    Func<object?>? parentEntityProvider = null)
 {
     /// <summary>
     ///     The materializer for the included (child) entity type.
@@ -96,4 +97,12 @@ public readonly struct CollectionIncludeInfo(
     ///     Whether the navigation's declaring entity type is keyless.
     /// </summary>
     public bool IsKeylessEntityType { get; } = isKeylessEntityType;
+
+    /// <summary>
+    ///     Optional provider for the parent entity of this collection. When non-null, this collection
+    ///     was flattened from a reference include and the parent entity is obtained from this delegate
+    ///     (which captures the reference include's <see cref="ResultContext" />). When null, the parent
+    ///     entity is the outer entity being materialized.
+    /// </summary>
+    public Func<object?>? ParentEntityProvider { get; } = parentEntityProvider;
 }

@@ -172,6 +172,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
     {
+
         TEntity entity;
 
         if (CollectionIncludes is not null)
@@ -203,10 +204,21 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                     }
                 }
 
-                // Initialize collection includes
+                // Process reference includes ONCE during initialization. After flattening, reference
+                // include materializers no longer have collection includes, so they complete in a single
+                // call without affecting ResultReady.
+                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
+
+                // Initialize collection includes. Direct collections use the outer entity as parent;
+                // flattened collections (from reference includes) obtain their parent from the provider
+                // (which reads the entity from the reference include's ResultContext, populated above).
                 for (var i = 0; i < CollectionIncludes.Count; i++)
                 {
-                    InitializeIncludeCollection(queryContext, dataReader, resultCoordinator, entity, CollectionIncludes[i]);
+                    var ci = CollectionIncludes[i];
+                    var parentEntity = ci.ParentEntityProvider is not null
+                        ? ci.ParentEntityProvider()
+                        : (object)entity;
+                    InitializeIncludeCollection(queryContext, dataReader, resultCoordinator, _isTracking, parentEntity, ci);
                 }
             }
             else
@@ -214,27 +226,24 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 entity = (TEntity)resultContext.Values[0];
             }
 
-            // Process reference includes on every row: if any included materializer has collection includes of
-            // its own, it must be driven row-by-row alongside this entity's collection includes.
-            ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
-
-            // Populate collection elements from the current row
+            // Populate ALL collection elements from the current row. Both direct and flattened
+            // collections are processed at the same level, using the parent entity stored in the
+            // SingleQueryCollectionContext during initialization.
             for (var i = 0; i < CollectionIncludes.Count; i++)
             {
-                PopulateIncludeCollection(queryContext, dataReader, resultCoordinator, entity, CollectionIncludes[i]);
+                PopulateIncludeCollection(queryContext, dataReader, resultCoordinator, CollectionIncludes[i]);
             }
 
             // If ResultReady is true, return the entity; otherwise return default (MoveNext will call again)
             return resultCoordinator.ResultReady ? entity : default;
         }
 
-        // No direct collection includes. If reference includes exist, their inner materializers may themselves
-        // have collection includes — in that case we must participate in the multi-call protocol too.
+        // Reference includes only (no collection includes). After flattening, reference include
+        // materializers never have collection includes, so they complete in a single call.
         if (ReferenceIncludes is not null)
         {
             if (resultContext.Values is null)
             {
-                // First call for this parent entity: materialize, reset per-include contexts, process includes.
                 entity = MaterializeEntity(queryContext, dataReader)!;
                 if (entity is null)
                 {
@@ -248,29 +257,12 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
 
                 ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
 
-                // Always cache the entity: even when ResultReady is true, a containing outer materializer
-                // with collection includes may call this materializer again on subsequent rows (to drive nested
-                // collection population). Without caching, we'd try to re-read from the reader.
                 resultContext.Values = [entity];
-
-                if (!resultCoordinator.ResultReady)
-                {
-                    return null;
-                }
 
                 return entity;
             }
-            else
-            {
-                // Subsequent call — an inner materializer's collection is still accumulating rows.
-                entity = (TEntity)resultContext.Values[0];
 
-                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
-
-                // When all inner collections finish (ResultReady = true), return the entity.
-                // SingleQueryingEnumerable will then reset resultContext.Values = null for the next entity.
-                return resultCoordinator.ResultReady ? entity : default;
-            }
+            return (TEntity?)resultContext.Values[0];
         }
 
         // No includes at all — cache the entity in resultContext.Values on first call and use the cache on
@@ -415,36 +407,37 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     ///     Initializes a collection include for the given parent entity.
     ///     Corresponds to InitializeIncludeCollection in the generated shaper's ClientMethods.
     /// </summary>
-    private void InitializeIncludeCollection(
+    private static void InitializeIncludeCollection(
         QueryContext queryContext,
         DbDataReader dataReader,
         SingleQueryResultCoordinator resultCoordinator,
-        TEntity entity,
+        bool isTracking,
+        object? parentEntity,
         CollectionIncludeInfo includeInfo)
     {
-        // TPH guard
-        if (!includeInfo.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
-        {
-            return;
-        }
+        object? collection = null;
 
-        if (_isTracking && !includeInfo.IsKeylessEntityType)
+        if (parentEntity is not null
+            && includeInfo.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(parentEntity))
         {
-            queryContext.SetNavigationIsLoaded(entity, includeInfo.Navigation);
-        }
-        else
-        {
-            includeInfo.Navigation.SetIsLoadedWhenNoTracking(entity);
-        }
+            if (isTracking && !includeInfo.IsKeylessEntityType)
+            {
+                queryContext.SetNavigationIsLoaded(parentEntity, includeInfo.Navigation);
+            }
+            else
+            {
+                includeInfo.Navigation.SetIsLoadedWhenNoTracking(parentEntity);
+            }
 
-        var collection = includeInfo.CollectionAccessor.GetOrCreate(entity, forMaterialization: true);
+            collection = includeInfo.CollectionAccessor.GetOrCreate(parentEntity, forMaterialization: true);
+        }
 
         var parentKey = includeInfo.ParentIdentifier(queryContext, dataReader);
         var outerKey = includeInfo.OuterIdentifier(queryContext, dataReader);
 
         resultCoordinator.SetSingleQueryCollectionContext(
             includeInfo.CollectionId,
-            new SingleQueryCollectionContext(entity, collection, parentKey, outerKey));
+            new SingleQueryCollectionContext(parentEntity, collection, parentKey, outerKey));
     }
 
     /// <summary>
@@ -455,13 +448,14 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         QueryContext queryContext,
         DbDataReader dataReader,
         SingleQueryResultCoordinator resultCoordinator,
-        TEntity entity,
         CollectionIncludeInfo ci)
     {
         var collectionContext = resultCoordinator.Collections[ci.CollectionId]!;
+        var parent = collectionContext.Parent;
 
-        // TPH guard
-        if (!ci.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
+        // TPH guard: check the parent entity stored in the collection context (which may be
+        // the outer entity for direct collections or a reference entity for flattened collections).
+        if (parent is null || !ci.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(parent))
         {
             return;
         }
@@ -541,10 +535,10 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 collectionContext.ResultContext.Values = null;
                 if (!_isTracking || ci.IsKeylessEntityType)
                 {
-                    ci.CollectionAccessor.Add(entity, relatedEntity!, forMaterialization: false);
+                    ci.CollectionAccessor.Add(parent, relatedEntity!, forMaterialization: false);
                     if (ci.InverseNavigation is { IsCollection: false })
                     {
-                        ci.InverseNavigationSetter?.SetClrValue(relatedEntity!, entity);
+                        ci.InverseNavigationSetter?.SetClrValue(relatedEntity!, parent);
                         ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity!);
                     }
                 }
