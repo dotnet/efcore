@@ -1,16 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-using System.Data.Common;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Caching.Memory;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -29,30 +22,21 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     for supported query shapes, producing a tree of <see cref="RelationalEntityMaterializer{TEntity}" />
 ///     instances wired together with include information.
 /// </remarks>
-public class RelationalMaterializerFactory(
-    RelationalQueryCompilationContext queryCompilationContext,
-    IMemoryCache memoryCache,
-    IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-    IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
-    bool detailedErrorsEnabled,
-    bool threadSafetyChecksEnabled)
+public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOptions)
 {
-    private readonly Type _contextType = queryCompilationContext.ContextType;
-    private readonly bool _useRelationalNulls
-        = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-    private readonly ParameterTranslationMode _collectionParameterTranslationMode
-        = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
-
-    private int _nextCollectionId;
+    private readonly bool _detailedErrorsEnabled = coreSingletonOptions.AreDetailedErrorsEnabled;
+    private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
 
     /// <summary>
     ///     Builds a non-generated query executor for an enumerable query where <typeparamref name="TElement" />
     ///     is the element type directly. This eliminates the need for <c>MakeGenericMethod</c>, making the
     ///     entire path NativeAOT-compatible.
     /// </summary>
-    public Func<QueryContext, IEnumerable<TElement>> CreateEnumerableMaterializer<TElement>(ShapedQueryExpression shapedQueryExpression)
+    public Func<QueryContext, IEnumerable<TElement>> CreateEnumerableMaterializer<TElement>(
+        RelationalQueryCompilationContext queryCompilationContext,
+        ShapedQueryExpression shapedQueryExpression)
     {
-        _nextCollectionId = 0;
+        var nextCollectionId = 0;
 
         var (select, shaper) = ((SelectExpression)shapedQueryExpression.QueryExpression, shapedQueryExpression.ShaperExpression);
 
@@ -67,32 +51,37 @@ public class RelationalMaterializerFactory(
             throw new NotImplementedException("The non-generated materializer does not yet support FromSql queries.");
         }
 
+        var contextType = queryCompilationContext.ContextType;
         var isTracking = queryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+        var useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
+        var collectionParameterTranslationMode
+            = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        var relationalDependencies = queryCompilationContext.RelationalDependencies;
 
         var relationalCommandCache = new RelationalCommandCache(
-            memoryCache,
-            querySqlGeneratorFactory,
-            relationalParameterBasedSqlProcessorFactory,
+            relationalDependencies.MemoryCache,
+            relationalDependencies.QuerySqlGeneratorFactory,
+            relationalDependencies.RelationalParameterBasedSqlProcessorFactory,
             select,
-            _useRelationalNulls,
-            _collectionParameterTranslationMode);
+            useRelationalNulls,
+            collectionParameterTranslationMode);
 
         if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert)
         {
             shaper = convert.Operand;
         }
 
-        var rowMaterializer = BuildMaterializer<TElement>(shaper, select, isTracking);
+        var rowMaterializer = BuildMaterializer<TElement>(shaper, select, isTracking, ref nextCollectionId);
 
         return qc => new SingleQueryingEnumerable<TElement>(
             (RelationalQueryContext)qc,
             relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
             readerColumns: null,
             materializer: rowMaterializer!,
-            contextType: _contextType,
+            contextType: contextType,
             standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
-            detailedErrorsEnabled: detailedErrorsEnabled,
-            threadSafetyChecksEnabled: threadSafetyChecksEnabled);
+            detailedErrorsEnabled: _detailedErrorsEnabled,
+            threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
     }
 
     /// <summary>
@@ -105,7 +94,8 @@ public class RelationalMaterializerFactory(
     private Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?> BuildMaterializer<T>(
         Expression shaperExpression,
         SelectExpression select,
-        bool isTracking)
+        bool isTracking,
+        ref int nextCollectionId)
     {
         if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } convert)
         {
@@ -147,9 +137,11 @@ public class RelationalMaterializerFactory(
             case NewExpression newExpression:
             {
                 var invoker = ConstructorInvoker.Create(newExpression.Constructor!);
-                var m = newExpression.Arguments
-                    .Select(arg => BuildMaterializer<object>(arg, select, isTracking))
-                    .ToArray();
+                var m = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
+                for (var i = 0; i < m.Length; i++)
+                {
+                    m[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId);
+                }
 
                 // Use individual-arg overloads (0–4 args) to avoid array allocation on each row.
                 return m.Length switch
@@ -187,7 +179,7 @@ public class RelationalMaterializerFactory(
             case RelationalStructuralTypeShaperExpression:
             case IncludeExpression:
             {
-                var entityMaterializer = TryBuildMaterializerFromShaper(shaperExpression, select, isTracking)
+                var entityMaterializer = TryBuildMaterializerFromShaper(shaperExpression, select, isTracking, ref nextCollectionId)
                     ?? throw new NotImplementedException(
                         $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}'.");
 
@@ -212,7 +204,8 @@ public class RelationalMaterializerFactory(
     private RelationalEntityMaterializer? TryBuildMaterializerFromShaper(
         Expression shaperExpression,
         SelectExpression selectExpression,
-        bool isTracking)
+        bool isTracking,
+        ref int nextCollectionId)
     {
         switch (shaperExpression)
         {
@@ -230,7 +223,7 @@ public class RelationalMaterializerFactory(
             {
                 // Recurse into the entity expression to build the inner materializer (which may have further includes)
                 var innerMaterializer = TryBuildMaterializerFromShaper(
-                    includeExpression.EntityExpression, selectExpression, isTracking);
+                    includeExpression.EntityExpression, selectExpression, isTracking, ref nextCollectionId);
                 if (innerMaterializer is null)
                 {
                     return null;
@@ -258,7 +251,7 @@ public class RelationalMaterializerFactory(
                     case IncludeExpression:
                     {
                         var includedMaterializer = TryBuildMaterializerFromShaper(
-                            includeExpression.NavigationExpression, selectExpression, isTracking);
+                            includeExpression.NavigationExpression, selectExpression, isTracking, ref nextCollectionId);
                         if (includedMaterializer is null)
                         {
                             return null;
@@ -288,7 +281,7 @@ public class RelationalMaterializerFactory(
                     case RelationalCollectionShaperExpression collectionShaper:
                     {
                         var childMaterializer = TryBuildMaterializerFromShaper(
-                            collectionShaper.InnerShaper, selectExpression, isTracking);
+                            collectionShaper.InnerShaper, selectExpression, isTracking, ref nextCollectionId);
                         if (childMaterializer is null)
                         {
                             return null;
@@ -312,7 +305,7 @@ public class RelationalMaterializerFactory(
                             .ToArray();
 
                         var collectionAccessor = navigation.GetCollectionAccessor()!;
-                        var collectionId = _nextCollectionId++;
+                        var collectionId = nextCollectionId++;
 
                         innerMaterializer.AddCollectionInclude(new CollectionIncludeInfo(
                             childMaterializer,

@@ -54,7 +54,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
-    protected virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
+    public virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
 
     /// <summary>
     ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior" /> configured for the query.
@@ -82,16 +82,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         {
             Check.DebugAssert(shapedQuery.ResultCardinality is ResultCardinality.Enumerable);
 
-            // TODO: Make this into a singleton service
-            var materializerFactory = new RelationalMaterializerFactory(
-                this,
-                RelationalDependencies.MemoryCache,
-                RelationalDependencies.QuerySqlGeneratorFactory,
-                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                detailedErrorsEnabled: false, // TODO: get from core singleton options
-                threadSafetyChecksEnabled: true); // TODO: get from core singleton options
-
-            return materializerFactory.CreateEnumerableMaterializer<TElement>(shapedQuery);
+            return RelationalDependencies.RelationalMaterializerFactory
+                .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
         }
 
         throw new NotImplementedException(
@@ -102,9 +94,10 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <inheritdoc />
     public override Func<QueryContext, TElement> CreateNonEnumerableQueryExecutor<TElement>(Expression query)
     {
-        var (materializerFactory, cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
+        var (cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
 
-        var enumerableFactory = materializerFactory.CreateEnumerableMaterializer<TElement>(shapedQuery);
+        var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
+            .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
 
         return cardinality switch
         {
@@ -121,9 +114,10 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <inheritdoc />
     public override Func<QueryContext, Task<TElement>> CreateNonEnumerableAsyncQueryExecutor<TElement>(Expression query)
     {
-        var (materializerFactory, cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
+        var (cardinality, shapedQuery) = PrepareNonEnumerableQuery<TElement>(query);
 
-        var enumerableFactory = materializerFactory.CreateEnumerableMaterializer<TElement>(shapedQuery);
+        var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
+            .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
 
         return cardinality switch
         {
@@ -139,7 +133,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         };
     }
 
-    private (RelationalMaterializerFactory factory, ResultCardinality cardinality, ShapedQueryExpression shapedQuery)
+    private (ResultCardinality cardinality, ShapedQueryExpression shapedQuery)
         PrepareNonEnumerableQuery<TElement>(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
@@ -152,16 +146,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         if (postprocessedQuery is ShapedQueryExpression { ResultCardinality: var cardinality } shapedQuery
             && cardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
         {
-            // TODO: Make this into a singleton service
-            var materializerFactory = new RelationalMaterializerFactory(
-                this,
-                RelationalDependencies.MemoryCache,
-                RelationalDependencies.QuerySqlGeneratorFactory,
-                RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                detailedErrorsEnabled: false, // TODO: get from core singleton options
-                threadSafetyChecksEnabled: true); // TODO: get from core singleton options
-
-            return (materializerFactory, cardinality, shapedQuery);
+            return (cardinality, shapedQuery);
         }
 
         throw new NotImplementedException(
