@@ -2211,6 +2211,8 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
             });
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Select_expression_date_add_milliseconds_below_the_range(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -3688,6 +3690,8 @@ WHERE (c["Title"] = @value)
         AssertSql();
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Checked_context_with_arithmetic_does_not_fail(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -4359,6 +4363,8 @@ FROM root c
         }
     }
 
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Convert_to_nullable_on_nullable_value_is_ignored(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
