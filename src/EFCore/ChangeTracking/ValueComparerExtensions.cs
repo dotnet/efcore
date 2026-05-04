@@ -17,6 +17,19 @@ public static class ValueComparerExtensions
     /// <param name="valueComparer">The value comparer.</param>
     /// <returns><see langword="true" /> if the value comparer is the default; <see langword="false" /> otherwise.</returns>
     public static bool IsDefault(this ValueComparer valueComparer)
-        => valueComparer.GetType().IsGenericType
-            && valueComparer.GetType().GetGenericTypeDefinition() == typeof(ValueComparer.DefaultValueComparer<>);
+    {
+        var type = valueComparer.GetType();
+        while (type != null && type != typeof(object))
+        {
+            if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(ValueComparer.DefaultValueComparer<>))
+            {
+                return true;
+            }
+
+            type = type.BaseType;
+        }
+
+        return false;
+    }
 }
