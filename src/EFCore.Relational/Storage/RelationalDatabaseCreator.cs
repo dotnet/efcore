@@ -238,6 +238,12 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
         using var transactionScope = new TransactionScope(
             TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var operationsPerformed = false;
         if (!Exists())
         {
@@ -255,18 +261,19 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
             (Creator: this, Created: operationsPerformed, Retrying: new StrongBox<bool>(false)),
             static (context, state) =>
             {
+                if (state.Retrying.Value)
+                {
+                    context.ChangeTracker.Clear();
+                }
+
+                state.Retrying.Value = true;
+
                 var coreOptionsExtension =
                     state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
                 var seed = coreOptionsExtension?.Seeder;
                 if (seed != null)
                 {
-                    if (state.Retrying.Value)
-                    {
-                        context.ChangeTracker.Clear();
-                    }
-
-                    state.Retrying.Value = true;
                     using var transaction = context.Database.BeginTransaction();
                     seed(context, state.Created);
                     transaction.Commit();
@@ -295,6 +302,12 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
         using var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
 
+        if (Dependencies.CurrentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            Dependencies.Logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var operationsPerformed = false;
         if (!await ExistsAsync(cancellationToken).ConfigureAwait(false))
         {
@@ -314,18 +327,19 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
             (Creator: this, Created: operationsPerformed, Retrying: new StrongBox<bool>(false)),
             static async (context, state, ct) =>
             {
+                if (state.Retrying.Value)
+                {
+                    context.ChangeTracker.Clear();
+                }
+
+                state.Retrying.Value = true;
+
                 var coreOptionsExtension =
                     state.Creator.Dependencies.ContextOptions.FindExtension<CoreOptionsExtension>();
 
                 var seedAsync = coreOptionsExtension?.AsyncSeeder;
                 if (seedAsync != null)
                 {
-                    if (state.Retrying.Value)
-                    {
-                        context.ChangeTracker.Clear();
-                    }
-
-                    state.Retrying.Value = true;
                     var transaction = await context.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
                     await using var _ = transaction.ConfigureAwait(false);
                     await seedAsync(context, state.Created, ct).ConfigureAwait(false);

@@ -11281,6 +11281,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy ExecutionStrategy { get; }"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> Logger { get; init; }"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrationCommandExecutor MigrationCommandExecutor { get; init; }"
         },
         {

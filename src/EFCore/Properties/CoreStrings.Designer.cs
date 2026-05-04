@@ -3895,6 +3895,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     'EnsureCreated' was called on a context that is already tracking added, modified, or deleted entities. These tracked changes would be lost if a retry occurs due to a transient failure.
+        /// </summary>
+        public static EventDefinition LogEnsureCreatedWithTrackedEntities(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogEnsureCreatedWithTrackedEntities;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogEnsureCreatedWithTrackedEntities,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.EnsureCreatedWithTrackedEntitiesWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.EnsureCreatedWithTrackedEntitiesWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.EnsureCreatedWithTrackedEntitiesWarning,
+                            _resourceManager.GetString("LogEnsureCreatedWithTrackedEntities")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
         /// </summary>
         public static EventDefinition<string, string> LogComplexElementPropertyChangeDetected(IDiagnosticsLogger logger)

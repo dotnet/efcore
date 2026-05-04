@@ -22,6 +22,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     private readonly ICurrentDbContext _currentContext;
     private readonly IDbContextOptions _contextOptions;
     private readonly IExecutionStrategy _executionStrategy;
+    private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +37,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         IDatabase database,
         ICurrentDbContext currentContext,
         IDbContextOptions contextOptions,
-        IExecutionStrategy executionStrategy)
+        IExecutionStrategy executionStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
     {
         _cosmosClient = cosmosClient;
         _designTimeModel = designTimeModel;
@@ -45,6 +47,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         _currentContext = currentContext;
         _contextOptions = contextOptions;
         _executionStrategy = executionStrategy;
+        _logger = logger;
     }
 
     /// <summary>
@@ -55,12 +58,27 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     /// </summary>
     public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
+        if (_currentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            _logger.EnsureCreatedWithTrackedEntitiesWarning();
+        }
+
         var created = new StrongBox<bool>(false);
         var dataInserted = new StrongBox<bool>(false);
+        var retrying = new StrongBox<bool>(false);
         return _executionStrategy.ExecuteAsync(
-            (Creator: this, Created: created, DataInserted: dataInserted), static async (_, state, ct) =>
+            (Creator: this, Created: created, DataInserted: dataInserted, Retrying: retrying),
+            static async (_, state, ct) =>
             {
                 var creator = state.Creator;
+
+                if (state.Retrying.Value)
+                {
+                    creator._currentContext.Context.ChangeTracker.Clear();
+                }
+
+                state.Retrying.Value = true;
 
                 if (!state.DataInserted.Value)
                 {
@@ -83,10 +101,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     }
                 }
 
-                await creator.SeedDataAsync(
-                        state.Created.Value,
-                        clearChangeTracker: state.DataInserted.Value || !state.Created.Value,
-                        ct)
+                await creator.SeedDataAsync(state.Created.Value, cancellationToken: ct)
                     .ConfigureAwait(false);
 
                 return state.Created.Value;
@@ -216,18 +231,13 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task SeedDataAsync(
-        bool created, bool clearChangeTracker = false, CancellationToken cancellationToken = default)
+        bool created, CancellationToken cancellationToken = default)
     {
         var coreOptionsExtension =
             _contextOptions.FindExtension<CoreOptionsExtension>();
 
         if (coreOptionsExtension?.AsyncSeeder is not null)
         {
-            if (clearChangeTracker)
-            {
-                _currentContext.Context.ChangeTracker.Clear();
-            }
-
             await coreOptionsExtension.AsyncSeeder(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
         else if (coreOptionsExtension?.Seeder is not null)

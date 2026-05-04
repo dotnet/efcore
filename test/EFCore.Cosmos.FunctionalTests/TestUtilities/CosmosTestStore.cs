@@ -299,7 +299,9 @@ public class CosmosTestStore : TestStore
     }
 
     public override Task CleanAsync(DbContext context, bool createTables = true)
-        => new TestCosmosExecutionStrategy().ExecuteAsync(
+    {
+        context.ChangeTracker.Clear();
+        return new TestCosmosExecutionStrategy().ExecuteAsync(
             (context, createTables, Retrying: new StrongBox<bool>(false)), async (_, state, ct) =>
             {
                 if (state.Retrying.Value)
@@ -311,6 +313,7 @@ public class CosmosTestStore : TestStore
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
             }, null, default);
+    }
 
     private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {

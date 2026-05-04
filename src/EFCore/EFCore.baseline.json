@@ -2931,6 +2931,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId DuplicateDependentEntityTypeInstanceWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId EnsureCreatedWithTrackedEntitiesWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ExecutionStrategyRetrying"
         },
         {
@@ -3177,6 +3180,9 @@
         },
         {
           "Member": "static void DuplicateDependentEntityTypeInstanceWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Update> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType dependent1, Microsoft.EntityFrameworkCore.Metadata.IEntityType dependent2);"
+        },
+        {
+          "Member": "static void EnsureCreatedWithTrackedEntitiesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> diagnostics);"
         },
         {
           "Member": "static void ExecutionStrategyRetrying(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> diagnostics, System.Collections.Generic.IReadOnlyList<System.Exception> exceptionsEncountered, System.TimeSpan delay, bool async);"
@@ -4152,9 +4158,6 @@
           "Member": "static string InvalidIncludeExpression(object? expression);"
         },
         {
-          "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
-        },
-        {
           "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
         },
         {
@@ -4195,6 +4198,9 @@
         },
         {
           "Member": "static string InvalidSetTypeOwned(object? typeName, object? ownerType);"
+        },
+        {
+          "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
         },
         {
           "Member": "static string InvalidSwitch(object? name, object? value);"
@@ -20777,10 +20783,10 @@
       ],
       "Properties": [
         {
-          "Member": "virtual string MismatchedProviderName { get; }"
+          "Member": "virtual string CurrentProviderName { get; }"
         },
         {
-          "Member": "virtual string CurrentProviderName { get; }"
+          "Member": "virtual string MismatchedProviderName { get; }"
         }
       ]
     },
