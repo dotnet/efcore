@@ -2,7 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -78,77 +83,245 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
         var postprocessedQuery = Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
 
-        if (postprocessedQuery is ShapedQueryExpression shapedQuery)
+        return postprocessedQuery switch
         {
-            Check.DebugAssert(shapedQuery.ResultCardinality is ResultCardinality.Enumerable);
+            ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery
+                => RelationalDependencies.RelationalMaterializerFactory
+                    .CreateEnumerableMaterializer<TElement>(this, shapedQuery),
 
-            return RelationalDependencies.RelationalMaterializerFactory
-                .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
-        }
-
-        throw new NotImplementedException(
-            $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
-            + $"postprocessed expression type: {postprocessedQuery.GetType().Name}).");
+                _ => throw new NotImplementedException(
+                    $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
+                    + $"postprocessed expression type: {postprocessedQuery.GetType().Name})."),
+        };
     }
 
     /// <inheritdoc />
     public override Func<QueryContext, TResult> CreateSingleValueQueryExecutor<TResult>(Expression query)
     {
-        var (cardinality, shapedQuery) = PrepareSingleValueQuery<TResult>(query);
+        var postprocessedQuery = TranslateQuery(query);
 
-        var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
-            .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
-
-        return cardinality switch
+        switch (postprocessedQuery)
         {
-            ResultCardinality.Single => qc => enumerableFactory(qc).Single()!,
-            ResultCardinality.SingleOrDefault => qc => enumerableFactory(qc).SingleOrDefault()!,
+            case ShapedQueryExpression { ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault } shapedQuery:
+            {
+                var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
+                    .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
-            _ => throw new UnreachableException()
-        };
+                return shapedQuery.ResultCardinality switch
+                {
+                    ResultCardinality.Single => qc => enumerableFactory(qc).Single()!,
+                    ResultCardinality.SingleOrDefault => qc => enumerableFactory(qc).SingleOrDefault()!,
+
+                    _ => throw new UnreachableException()
+                };
+            }
+
+            // Non-query operations (ExecuteDelete / ExecuteUpdate) produce a DeleteExpression / UpdateExpression
+            // instead of a ShapedQueryExpression. These don't involve entity materialization — they just execute
+            // a SQL command and return the affected row count. This mirrors the generated shaper's NonQueryResult.
+            case DeleteExpression or UpdateExpression:
+            {
+                var commandCache = CreateNonQueryCommandCache(postprocessedQuery);
+                var contextType = ContextType;
+                var threadSafetyChecksEnabled = RelationalDependencies.RelationalMaterializerFactory.ThreadSafetyChecksEnabled;
+
+                return qc => (TResult)(object)ExecuteNonQuery(
+                    (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
+                    CommandSource.ExecuteUpdate, threadSafetyChecksEnabled);
+            }
+
+            default:
+                throw new NotImplementedException(
+                    $"The non-generated materializer does not yet support this query shape (TResult={typeof(TResult).Name}, "
+                    + $"postprocessed expression type: {postprocessedQuery.GetType().Name}).");
+        }
     }
 
     /// <inheritdoc />
     public override Func<QueryContext, Task<TResult>> CreateSingleValueAsyncQueryExecutor<TResult>(Expression query)
     {
-        var (cardinality, shapedQuery) = PrepareSingleValueQuery<TResult>(query);
+        var postprocessedQuery = TranslateQuery(query);
 
-        var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
-            .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
-
-        return cardinality switch
+        switch (postprocessedQuery)
         {
-            ResultCardinality.Single =>
-                qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
-                    .SingleAsync(((RelationalQueryContext)qc).CancellationToken).AsTask(),
+            case ShapedQueryExpression { ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault } shapedQuery:
+            {
+                var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
+                    .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
-            ResultCardinality.SingleOrDefault =>
-                qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
-                    .SingleOrDefaultAsync(((RelationalQueryContext)qc).CancellationToken).AsTask()!,
+                return shapedQuery.ResultCardinality switch
+                {
+                    ResultCardinality.Single =>
+                        qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
+                            .SingleAsync(((RelationalQueryContext)qc).CancellationToken).AsTask(),
 
-            _ => throw new UnreachableException()
-        };
+                    ResultCardinality.SingleOrDefault =>
+                        qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
+                            .SingleOrDefaultAsync(((RelationalQueryContext)qc).CancellationToken).AsTask()!,
+
+                    _ => throw new UnreachableException()
+                };
+            }
+
+            case DeleteExpression or UpdateExpression:
+            {
+                var commandCache = CreateNonQueryCommandCache(postprocessedQuery);
+                var contextType = ContextType;
+                var threadSafetyChecksEnabled = RelationalDependencies.RelationalMaterializerFactory.ThreadSafetyChecksEnabled;
+
+                return async qc => (TResult)(object)await ExecuteNonQueryAsync(
+                    (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
+                    CommandSource.ExecuteUpdate, threadSafetyChecksEnabled).ConfigureAwait(false);
+            }
+
+            default:
+                throw new NotImplementedException(
+                    $"The non-generated materializer does not yet support this query shape (TResult={typeof(TResult).Name}, "
+                    + $"postprocessed expression type: {postprocessedQuery.GetType().Name}).");
+        }
     }
 
-    private (ResultCardinality cardinality, ShapedQueryExpression shapedQuery)
-        PrepareSingleValueQuery<TResult>(Expression query)
+    private Expression TranslateQuery(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
         var interceptedQuery = queryAndEventData.Query;
 
         var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(interceptedQuery);
         var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
-        var postprocessedQuery = Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
+        return Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
+    }
 
-        if (postprocessedQuery is ShapedQueryExpression { ResultCardinality: var cardinality } shapedQuery
-            && cardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
+    private RelationalCommandCache CreateNonQueryCommandCache(Expression nonQueryExpression)
+    {
+        var useRelationalNulls = RelationalOptionsExtension.Extract(ContextOptions).UseRelationalNulls;
+        var collectionParameterTranslationMode
+            = RelationalOptionsExtension.Extract(ContextOptions).ParameterizedCollectionMode;
+
+        // Apply tags, matching the generated shaper
+        if (nonQueryExpression is DeleteExpression deleteExpression)
         {
-            return (cardinality, shapedQuery);
+            nonQueryExpression = deleteExpression.ApplyTags(Tags);
+        }
+        else if (nonQueryExpression is UpdateExpression updateExpression)
+        {
+            nonQueryExpression = updateExpression.ApplyTags(Tags);
         }
 
-        throw new NotImplementedException(
-            $"The non-generated materializer does not yet support this query shape (TResult={typeof(TResult).Name}, "
-            + $"postprocessed expression type: {postprocessedQuery.GetType().Name}, "
-            + $"cardinality: {(postprocessedQuery is ShapedQueryExpression sq ? sq.ResultCardinality.ToString() : "N/A")}).");
+        return new RelationalCommandCache(
+            RelationalDependencies.MemoryCache,
+            RelationalDependencies.QuerySqlGeneratorFactory,
+            RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+            nonQueryExpression,
+            useRelationalNulls,
+            collectionParameterTranslationMode);
+    }
+
+    private static int ExecuteNonQuery(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandResolver relationalCommandResolver,
+        Type contextType,
+        CommandSource commandSource,
+        bool threadSafetyChecksEnabled)
+    {
+        try
+        {
+            using var _ = threadSafetyChecksEnabled
+                ? relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()
+                : default(ConcurrencyDetectorCriticalSectionDisposer?);
+
+            return relationalQueryContext.ExecutionStrategy.Execute(
+                (relationalQueryContext, relationalCommandResolver, commandSource),
+                static (_, state) =>
+                {
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                    return relationalCommand.ExecuteNonQuery(
+                        new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.Parameters,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            state.commandSource));
+                },
+                null);
+        }
+        catch (Exception exception)
+        {
+            HandleNonQueryException(relationalQueryContext, contextType, commandSource, exception);
+            throw;
+        }
+    }
+
+    private static Task<int> ExecuteNonQueryAsync(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandResolver relationalCommandResolver,
+        Type contextType,
+        CommandSource commandSource,
+        bool threadSafetyChecksEnabled)
+    {
+        try
+        {
+            using var _ = threadSafetyChecksEnabled
+                ? relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()
+                : default(ConcurrencyDetectorCriticalSectionDisposer?);
+
+            return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                (relationalQueryContext, relationalCommandResolver, commandSource),
+                static (_, state, cancellationToken) =>
+                {
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                    return relationalCommand.ExecuteNonQueryAsync(
+                        new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.Parameters,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            state.commandSource),
+                        cancellationToken);
+                },
+                null,
+                relationalQueryContext.CancellationToken);
+        }
+        catch (Exception exception)
+        {
+            HandleNonQueryException(relationalQueryContext, contextType, commandSource, exception);
+            throw;
+        }
+    }
+
+    private static void HandleNonQueryException(
+        RelationalQueryContext relationalQueryContext,
+        Type contextType,
+        CommandSource commandSource,
+        Exception exception)
+    {
+        if (relationalQueryContext.ExceptionDetector.IsCancellation(exception))
+        {
+            relationalQueryContext.QueryLogger.QueryCanceled(contextType);
+        }
+        else
+        {
+            switch (commandSource)
+            {
+                case CommandSource.ExecuteDelete:
+                    relationalQueryContext.QueryLogger.ExecuteDeleteFailed(contextType, exception);
+                    break;
+
+                case CommandSource.ExecuteUpdate:
+                    relationalQueryContext.QueryLogger.ExecuteUpdateFailed(contextType, exception);
+                    break;
+
+                default:
+                    relationalQueryContext.QueryLogger.NonQueryOperationFailed(contextType, exception);
+                    break;
+            }
+        }
     }
 }

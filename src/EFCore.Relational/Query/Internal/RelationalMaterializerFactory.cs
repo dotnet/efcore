@@ -35,6 +35,15 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public bool ThreadSafetyChecksEnabled => _threadSafetyChecksEnabled;
+
+    /// <summary>
     ///     Builds a non-generated query executor for an enumerable query where <typeparamref name="TElement" />
     ///     is the element type directly. This eliminates the need for <c>MakeGenericMethod</c>, making the
     ///     entire path NativeAOT-compatible.
@@ -150,36 +159,62 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                     m[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId);
                 }
 
-                // Use individual-arg overloads (0–4 args) to avoid array allocation on each row.
-                return m.Length switch
+                // Each argument gets its own ResultContext so entity materializers within a
+                // NewExpression don't share the Values init guard. This mirrors the generated
+                // shaper where each entity occupies a separate slot in the values array.
+                var argContexts = new ResultContext[m.Length];
+                for (var i = 0; i < argContexts.Length; i++)
                 {
-                    0 => (queryCtx, reader, rc, coord)
-                        => (T?)invoker.Invoke(),
-                    1 => (queryCtx, reader, rc, coord)
-                        => (T?)invoker.Invoke(m[0](queryCtx, reader, rc, coord)),
-                    2 => (queryCtx, reader, rc, coord)
-                        => (T?)invoker.Invoke(m[0](queryCtx, reader, rc, coord), m[1](queryCtx, reader, rc, coord)),
-                    3 => (queryCtx, reader, rc, coord)
-                        => (T?)invoker.Invoke(
-                            m[0](queryCtx, reader, rc, coord),
-                            m[1](queryCtx, reader, rc, coord),
-                            m[2](queryCtx, reader, rc, coord)),
-                    4 => (queryCtx, reader, rc, coord)
-                        => (T?)invoker.Invoke(
-                            m[0](queryCtx, reader, rc, coord),
-                            m[1](queryCtx, reader, rc, coord),
-                            m[2](queryCtx, reader, rc, coord),
-                            m[3](queryCtx, reader, rc, coord)),
-                    _ => (queryCtx, reader, rc, coord) =>
+                    argContexts[i] = new ResultContext();
+                }
+
+                // Reusable buffer for passing args to the ConstructorInvoker.
+                var invokerArgs = new object?[m.Length];
+
+                // Mirrors the generated shaper's structure:
+                // - Init (rc.Values == null): materialize all args once, store in rc.Values
+                // - Every call: drive collection populations by calling all arg materializers
+                // - Return: when ResultReady, construct result from rc.Values
+                //
+                // This ensures scalars/entities are read from the reader only once (during init)
+                // and reused from the values array on subsequent calls during collection population,
+                // matching how the generated shaper stores all values in _valuesArrayInitializers.
+                return (queryCtx, reader, rc, coord) =>
+                {
+                    if (rc.Values is null)
                     {
-                        var args = new object?[m.Length];
-                        for (var i = 0; i < args.Length; i++)
+                        for (var i = 0; i < argContexts.Length; i++)
                         {
-                            args[i] = m[i](queryCtx, reader, rc, coord);
+                            argContexts[i].Values = null;
                         }
 
-                        return (T?)invoker.Invoke(args.AsSpan());
+                        rc.Values = new object[m.Length];
+                        for (var i = 0; i < m.Length; i++)
+                        {
+                            var result = m[i](queryCtx, reader, argContexts[i], coord);
+
+                            // For entity materializers with collection includes, the return value is
+                            // null (ResultReady=false during collection population), but the entity is
+                            // cached in argContexts[i].Values[0]. For scalars and simple entities, the
+                            // return value is the actual value.
+                            rc.Values[i] = (argContexts[i].Values?[0] ?? result)!;
+                        }
                     }
+                    else
+                    {
+                        for (var i = 0; i < m.Length; i++)
+                        {
+                            m[i](queryCtx, reader, argContexts[i], coord);
+                        }
+                    }
+
+                    if (!coord.ResultReady)
+                    {
+                        return default;
+                    }
+
+                    rc.Values.CopyTo(invokerArgs.AsSpan());
+                    return (T?)invoker.Invoke(invokerArgs.AsSpan());
                 };
             }
 
