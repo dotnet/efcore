@@ -76,29 +76,29 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <inheritdoc />
     public override Func<QueryContext, IEnumerable<TElement>> CreateEnumerableQueryExecutor<TElement>(Expression query)
     {
-        var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
-        var interceptedQuery = queryAndEventData.Query;
+        var postprocessedQuery = TranslateQuery(query);
+        var runtimeParameterPopulators = GetRuntimeParameterPopulators();
 
-        var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(interceptedQuery);
-        var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
-        var postprocessedQuery = Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
-
-        return postprocessedQuery switch
+        if (postprocessedQuery is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery)
         {
-            ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery
-                => RelationalDependencies.RelationalMaterializerFactory
-                    .CreateEnumerableMaterializer<TElement>(this, shapedQuery),
+            var inner = RelationalDependencies.RelationalMaterializerFactory
+                .CreateEnumerableMaterializer<TElement>(this, shapedQuery);
 
-                _ => throw new NotImplementedException(
-                    $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
-                    + $"postprocessed expression type: {postprocessedQuery.GetType().Name})."),
-        };
+            return runtimeParameterPopulators is null
+                ? inner
+                : qc => { runtimeParameterPopulators(qc); return inner(qc); };
+        }
+
+        throw new NotImplementedException(
+            $"The non-generated materializer does not yet support this query shape (TElement={typeof(TElement).Name}, "
+            + $"postprocessed expression type: {postprocessedQuery.GetType().Name}).");
     }
 
     /// <inheritdoc />
     public override Func<QueryContext, TResult> CreateSingleValueQueryExecutor<TResult>(Expression query)
     {
         var postprocessedQuery = TranslateQuery(query);
+        var runtimeParameterPopulators = GetRuntimeParameterPopulators();
 
         switch (postprocessedQuery)
         {
@@ -107,27 +107,32 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
                 var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
                     .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
-                return shapedQuery.ResultCardinality switch
+                Func<QueryContext, TResult> inner = shapedQuery.ResultCardinality switch
                 {
                     ResultCardinality.Single => qc => enumerableFactory(qc).Single()!,
                     ResultCardinality.SingleOrDefault => qc => enumerableFactory(qc).SingleOrDefault()!,
 
                     _ => throw new UnreachableException()
                 };
+
+                return runtimeParameterPopulators is null
+                    ? inner
+                    : qc => { runtimeParameterPopulators(qc); return inner(qc); };
             }
 
-            // Non-query operations (ExecuteDelete / ExecuteUpdate) produce a DeleteExpression / UpdateExpression
-            // instead of a ShapedQueryExpression. These don't involve entity materialization — they just execute
-            // a SQL command and return the affected row count. This mirrors the generated shaper's NonQueryResult.
             case DeleteExpression or UpdateExpression:
             {
                 var commandCache = CreateNonQueryCommandCache(postprocessedQuery);
                 var contextType = ContextType;
                 var threadSafetyChecksEnabled = RelationalDependencies.RelationalMaterializerFactory.ThreadSafetyChecksEnabled;
 
-                return qc => (TResult)(object)ExecuteNonQuery(
+                Func<QueryContext, TResult> inner = qc => (TResult)(object)ExecuteNonQuery(
                     (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
                     CommandSource.ExecuteUpdate, threadSafetyChecksEnabled);
+
+                return runtimeParameterPopulators is null
+                    ? inner
+                    : qc => { runtimeParameterPopulators(qc); return inner(qc); };
             }
 
             default:
@@ -141,6 +146,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     public override Func<QueryContext, Task<TResult>> CreateSingleValueAsyncQueryExecutor<TResult>(Expression query)
     {
         var postprocessedQuery = TranslateQuery(query);
+        var runtimeParameterPopulators = GetRuntimeParameterPopulators();
 
         switch (postprocessedQuery)
         {
@@ -149,7 +155,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
                 var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
                     .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
 
-                return shapedQuery.ResultCardinality switch
+                Func<QueryContext, Task<TResult>> inner = shapedQuery.ResultCardinality switch
                 {
                     ResultCardinality.Single =>
                         qc => ((IAsyncEnumerable<TResult>)enumerableFactory(qc))
@@ -161,6 +167,10 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
 
                     _ => throw new UnreachableException()
                 };
+
+                return runtimeParameterPopulators is null
+                    ? inner
+                    : qc => { runtimeParameterPopulators(qc); return inner(qc); };
             }
 
             case DeleteExpression or UpdateExpression:
@@ -169,9 +179,14 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
                 var contextType = ContextType;
                 var threadSafetyChecksEnabled = RelationalDependencies.RelationalMaterializerFactory.ThreadSafetyChecksEnabled;
 
-                return async qc => (TResult)(object)await ExecuteNonQueryAsync(
-                    (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
-                    CommandSource.ExecuteUpdate, threadSafetyChecksEnabled).ConfigureAwait(false);
+                Func<QueryContext, Task<TResult>> inner = async qc
+                    => (TResult)(object)await ExecuteNonQueryAsync(
+                        (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
+                        CommandSource.ExecuteUpdate, threadSafetyChecksEnabled).ConfigureAwait(false);
+
+                return runtimeParameterPopulators is null
+                    ? inner
+                    : qc => { runtimeParameterPopulators(qc); return inner(qc); };
             }
 
             default:

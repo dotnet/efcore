@@ -308,6 +308,72 @@ public class QueryCompilationContext
                             Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
                     .Append(query));
 
+    /// <summary>
+    ///     Returns compiled runtime parameter populators that, when invoked with a <see cref="QueryContext" />,
+    ///     add runtime parameters to <see cref="QueryContext.Parameters" />. Returns <see langword="null" />
+    ///     if no runtime parameters were registered during compilation.
+    /// </summary>
+    /// <remarks>
+    ///     This is the non-generated equivalent of <see cref="InsertRuntimeParameters" />.
+    /// </remarks>
+    protected Action<QueryContext>? GetRuntimeParameterPopulators()
+    {
+        if (_runtimeParameters is null)
+        {
+            return null;
+        }
+
+        var populators = new (string Name, Func<QueryContext, object?> ValueExtractor)[_runtimeParameters.Count];
+        var i = 0;
+        foreach (var (name, valueExtractor) in _runtimeParameters)
+        {
+            // The valueExtractor lambda may contain QueryParameterExpression nodes that reference
+            // other parameters in the QueryContext. Resolve them to dictionary lookups before compiling.
+            var resolvedBody = new QueryParameterReplacingVisitor(valueExtractor.Parameters[0]).Visit(valueExtractor.Body);
+
+            populators[i++] = (name, Expression.Lambda<Func<QueryContext, object?>>(
+                Expression.Convert(resolvedBody, typeof(object)),
+                valueExtractor.Parameters).Compile());
+        }
+
+        return qc =>
+        {
+            for (var j = 0; j < populators.Length; j++)
+            {
+                qc.Parameters.Add(populators[j].Name, populators[j].ValueExtractor(qc));
+            }
+        };
+    }
+
+    private sealed class QueryParameterReplacingVisitor(ParameterExpression queryContextParameter) : ExpressionVisitor
+    {
+        private static readonly PropertyInfo ParametersProperty
+            = typeof(QueryContext).GetProperty(nameof(QueryContext.Parameters))!;
+
+        private static readonly PropertyInfo DictionaryIndexer
+            = typeof(Dictionary<string, object?>).GetProperty("Item")!;
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                case QueryParameterExpression queryParameter:
+                    return Expression.Convert(
+                        Expression.Property(
+                            Expression.Property(queryContextParameter, ParametersProperty),
+                            DictionaryIndexer,
+                            Expression.Constant(queryParameter.Name)),
+                        queryParameter.Type);
+
+                case LiftableConstantExpression liftableConstant:
+                    return liftableConstant.OriginalExpression;
+
+                default:
+                    return base.VisitExtension(node);
+            }
+        }
+    }
+
     private static readonly PropertyInfo QueryContextParametersProperty
         = typeof(QueryContext).GetProperty(nameof(QueryContext.Parameters))!;
 
