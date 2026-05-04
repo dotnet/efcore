@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Globalization;
-using System.Text;   
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -2211,8 +2210,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         continue;
                     }
 
-                    var sourceValue = NormalizeStringValue(sourceColumnModification.OriginalValue);
-                    var targetValue = NormalizeStringValue(targetColumnModification.Value);
+                    var sourceValue = sourceColumnModification.OriginalValue;
+                    var targetValue = targetColumnModification.Value;
                     var comparer = targetColumn.ProviderValueComparer;
                     if (sourceColumn.ProviderClrType == targetColumn.ProviderClrType
                         && comparer.Equals(sourceValue, targetValue))
@@ -2519,9 +2518,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             || (sourceString is not null
                 && targetString is not null
                 && string.Equals(sourceString.ReplaceLineEndings(), targetString.ReplaceLineEndings(), comparisonType));
-
-    private static object? NormalizeStringValue(object? value)
-        => value is string s ? s.Normalize(NormalizationForm.FormC) : value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

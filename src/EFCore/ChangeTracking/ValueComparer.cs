@@ -304,10 +304,14 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             return new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons);
         }
 
+        if (nonNullableType == typeof(string))
+        {
+            return new DefaultStringValueComparer(favorStructuralComparisons);
+        }
+
         return nonNullableType.IsInteger()
             || nonNullableType == typeof(decimal)
             || nonNullableType == typeof(bool)
-            || nonNullableType == typeof(string)
             || nonNullableType == typeof(DateTime)
             || nonNullableType == typeof(DateOnly)
             || nonNullableType == typeof(Guid)
@@ -376,4 +380,23 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
             => Expression.Call(leftExpression, EqualsExactMethodInfo, rightExpression);
     }
+
+#pragma warning disable CA1309 // Use ordinal StringComparison - InvariantCulture is intentional to handle Unicode canonical equivalence (NFC/NFD)
+    internal sealed class DefaultStringValueComparer(bool favorStructuralComparisons)
+        : DefaultValueComparer<string>((v1, v2) => string.Equals(v1, v2, StringComparison.InvariantCulture), favorStructuralComparisons)
+    {
+        private static readonly MethodInfo StringEqualsMethodInfo
+            = typeof(string).GetMethod(nameof(string.Equals), [typeof(string), typeof(string), typeof(StringComparison)])!;
+
+        // String canonical equivalence (e.g. NFC vs NFD Unicode normalization) is handled by InvariantCulture comparison.
+        // Override hash code to be consistent with InvariantCulture equality so that canonically equivalent strings
+        // produce the same hash code.
+        public override int GetHashCode(string instance)
+            => StringComparer.InvariantCulture.GetHashCode(instance);
+
+        public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+            => Expression.Call(StringEqualsMethodInfo, leftExpression, rightExpression, Expression.Constant(StringComparison.InvariantCulture));
+    }
+#pragma warning restore CA1309
 }
+

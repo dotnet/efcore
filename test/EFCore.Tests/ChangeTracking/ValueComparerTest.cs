@@ -611,7 +611,33 @@ public class ValueComparerTest
         Assert.NotEqual(getHashCode(value2), getHashCode(value1a));
         Assert.NotEqual(getKeyHashCode(value2), getKeyHashCode(value1a));
     }
+    [ConditionalFact]
+    public void Default_string_comparer_treats_NFC_and_NFD_as_equal()
+    {
+        var nfcString = "Caf\u00E9"; // é as precomposed NFC character
+        var nfdString = "Cafe\u0301"; // e + combining acute accent (NFD)
 
+        Assert.NotEqual(nfcString, nfdString); // ordinal: not equal
+
+        var comparer = ValueComparer.CreateDefault<string>(false);
+
+        Assert.True(comparer.Equals(nfcString, nfdString));
+        Assert.Equal(comparer.GetHashCode(nfcString), comparer.GetHashCode(nfdString));
+    }
+
+    [ConditionalFact]
+    public void Default_string_comparer_extract_equals_body_uses_invariant_culture()
+    {
+        var comparer = ValueComparer.CreateDefault<string>(false);
+
+        var p1 = Expression.Parameter(typeof(string), "s1");
+        var p2 = Expression.Parameter(typeof(string), "s2");
+        var body = comparer.ExtractEqualsBody(p1, p2);
+        var lambda = Expression.Lambda<Func<string, string, bool>>(body, p1, p2).Compile();
+
+        Assert.True(lambda("Caf\u00E9", "Cafe\u0301"));
+        Assert.False(lambda("abc", "xyz"));
+    }
     private static LambdaExpression CreateAndExpression(ValueComparer comparer)
     {
         var param1 = Expression.Parameter(typeof(DeepBinary), "v1");

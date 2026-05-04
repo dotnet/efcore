@@ -8375,8 +8375,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         var nfcString = "Caf\u00E9";
         var nfdString = "Cafe\u0301";
 
-        Assert.NotEqual(nfcString, nfdString); 
-        Assert.Equal(nfcString, nfdString.Normalize()); 
+        Assert.NotEqual(nfcString, nfdString);
+        Assert.Equal(nfcString, nfdString.Normalize());
 
         Execute(
             source => source.Entity(
@@ -8395,7 +8395,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<string>("WebDescription");
                     x.HasData(new { BusinessTypeId = 28, WebDescription = nfdString });
                 }),
-            operations => Assert.Empty(operations)); 
+            operations => Assert.Empty(operations));
     }
 
     [ConditionalFact]
