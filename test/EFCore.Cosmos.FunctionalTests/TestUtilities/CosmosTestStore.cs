@@ -35,22 +35,29 @@ public class CosmosTestStore : TestStore
     {
         AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
         {
-            Task.WhenAll(_deferredStores.Select(
-                async entry =>
-                {
-                    var store = entry.Value;
-                    try
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            try
+            {
+                Task.WhenAll(_deferredStores.Select(
+                    async entry =>
                     {
-                        store.GetTestStoreIndex(store.ServiceProvider)
-                            .RemoveShared(store.GetType().Name + store.Name);
-                        await store.EnsureDeletedAsync(store._storeContext).ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                    }
+                        var store = entry.Value;
+                        try
+                        {
+                            store.GetTestStoreIndex(store.ServiceProvider)
+                                .RemoveShared(store.GetType().Name + store.Name);
+                            await store.EnsureDeletedAsync(store._storeContext, cts.Token).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                        }
 
-                    store._storeContext.Dispose();
-                })).GetAwaiter().GetResult();
+                        store._storeContext.Dispose();
+                    })).GetAwaiter().GetResult();
+            }
+            catch
+            {
+            }
         };
     }
 

@@ -2,12 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class CosmosBulkExecutionTest(CosmosBulkExecutionTest.BulkFixture fixture)
-    : IClassFixture<CosmosBulkExecutionTest.BulkFixture>
+public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBulkExecutionTest.BulkFixture fixture)
+    : NonSharedModelTestBase(nonSharedFixture), IClassFixture<CosmosBulkExecutionTest.BulkFixture>, IClassFixture<NonSharedFixture>
 {
+    protected override string NonSharedStoreName => nameof(CosmosBulkExecutionTest);
+
+    protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
+
     [ConditionalFact]
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
     [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
@@ -38,6 +43,76 @@ public class CosmosBulkExecutionTest(CosmosBulkExecutionTest.BulkFixture fixture
         context.AddRange(Enumerable.Range(0, 100).Select(x => new Customer()));
         await context.SaveChangesAsync();
     }
+
+    [ConditionalFact]
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public virtual async Task AutoTransactionBehaviorWhenNeeded_Throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(x => x.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
+
+        context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
+    }
+
+    [ConditionalFact]
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Transactional batch limits not enforced)
+    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
+    public virtual async Task AutoTransactionBehaviorAlways_Throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(x => x.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        context.AddRange(Enumerable.Range(0, 200).Select(x => new Customer()));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
+        Assert.Equal(BulkExecutionWithTransactionalBatchMessage, ex.Message);
+    }
+
+    [ConditionalFact]
+    public async Task SessionEnabled_Throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(
+                c => c.BulkExecutionAllowed()
+                    .SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+        context.Database.UseSessionToken("0:-1#1");
+        context.Add(new Customer());
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+        var inner = Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains(
+            "Consistency, Session, Properties, and Triggers are not allowed when AllowBulkExecution is set to true.",
+            inner.Message);
+    }
+
+    [ConditionalFact]
+    public async Task Trigger_Throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onModelCreating: b => b.Entity<Customer>().HasTrigger(
+                NonSharedStoreName, Azure.Cosmos.Scripts.TriggerType.Post, Azure.Cosmos.Scripts.TriggerOperation.Create),
+            onConfiguring: cfg => cfg.UseCosmos(c => c.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+        context.Add(new Customer());
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+        var inner = Assert.IsType<InvalidOperationException>(ex.InnerException);
+        Assert.Contains(
+            "Consistency, Session, Properties, and Triggers are not allowed when AllowBulkExecution is set to true.",
+            inner.Message);
+    }
+
+    private string BulkExecutionWithTransactionalBatchMessage => CoreStrings.WarningAsErrorTemplate(
+        CosmosEventId.BulkExecutionWithTransactionalBatch.ToString(),
+        CosmosResources.LogBulkExecutionWithTransactionalBatch(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
+        "CosmosEventId.BulkExecutionWithTransactionalBatch");
 
     public class CosmosBulkExecutionContext(DbContextOptions options) : DbContext(options)
     {

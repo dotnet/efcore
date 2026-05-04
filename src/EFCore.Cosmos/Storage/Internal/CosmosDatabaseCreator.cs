@@ -83,7 +83,10 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                     }
                 }
 
-                await creator.SeedDataAsync(state.Created.Value, ct, clearChangeTracker: state.DataInserted.Value)
+                await creator.SeedDataAsync(
+                        state.Created.Value,
+                        clearChangeTracker: state.DataInserted.Value || !state.Created.Value,
+                        ct)
                     .ConfigureAwait(false);
 
                 return state.Created.Value;
@@ -213,7 +216,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task SeedDataAsync(
-        bool created, CancellationToken cancellationToken = default, bool clearChangeTracker = false)
+        bool created, bool clearChangeTracker = false, CancellationToken cancellationToken = default)
     {
         var coreOptionsExtension =
             _contextOptions.FindExtension<CoreOptionsExtension>();
