@@ -127,8 +127,17 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
 
                 if (typeof(T) != typeof(object))
                 {
-                    // Top-level scalar projection (Select(b => b.Age)): T is known statically, so Read<T> dispatches
-                    // to the correct typed reader method (GetInt32, GetString, etc.) with zero boxing.
+                    if (nullable && typeof(T).IsValueType && Nullable.GetUnderlyingType(typeof(T)) is null)
+                    {
+                        // Non-nullable value type projected from a nullable column (e.g. LEFT JOIN).
+                        // Mirrors the generated shaper: read as Nullable<T>, call .Value to throw
+                        // InvalidOperationException ("Nullable object must have a value") when NULL.
+                        return (qc, reader, rc, coord)
+                            => reader.IsDBNull(columnIndex)
+                                ? throw new InvalidOperationException("Nullable object must have a value.")
+                                : typedReader.Read<T>(reader);
+                    }
+
                     return nullable
                         ? (qc, reader, rc, coord) => reader.IsDBNull(columnIndex) ? default : typedReader.Read<T>(reader)
                         : (qc, reader, rc, coord) => typedReader.Read<T>(reader);
@@ -299,12 +308,16 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     ///     Extends <see cref="IdentifierExpressionRewriter" /> to reuse its <c>VisitMethodCall</c> and
     ///     <c>VisitUnary</c> handling.
     /// </summary>
-    private sealed class ShaperExpressionRewritingVisitor : IdentifierExpressionRewriter
+    private sealed class ShaperExpressionRewritingVisitor(
+        SelectExpression selectExpression,
+        ParameterExpression dataReaderParameter,
+        ParameterExpression? entityValuesParam = null)
+        : IdentifierExpressionRewriter(selectExpression, dataReaderParameter)
     {
         private static readonly MethodInfo IsDbNullMethod
             = typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!;
 
-        private readonly ParameterExpression? _entityValuesParam;
+        private readonly ParameterExpression? _entityValuesParam = entityValuesParam;
 
         /// <summary>
         ///     Sub-expressions extracted during visitation (entities, includes, and scalars when in
@@ -313,15 +326,6 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
         ///     each entry and wire them via <see cref="ComposeWithMultiCallProtocol{T}" />.
         /// </summary>
         public List<Expression> ExtractedSubExpressions { get; } = [];
-
-        public ShaperExpressionRewritingVisitor(
-            SelectExpression selectExpression,
-            ParameterExpression dataReaderParameter,
-            ParameterExpression? entityValuesParam = null)
-            : base(selectExpression, dataReaderParameter)
-        {
-            _entityValuesParam = entityValuesParam;
-        }
 
         protected override Expression VisitExtension(Expression node)
         {
@@ -382,9 +386,22 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
 
                     if (nullable)
                     {
+                        var targetType = projectionBinding.Type;
+
+                        // For non-nullable value types from nullable columns, throw
+                        // InvalidOperationException (matching Nullable<T>.Value behavior)
+                        // instead of returning default.
+                        var nullValue = targetType.IsValueType && Nullable.GetUnderlyingType(targetType) is null
+                            ? Throw(
+                                New(
+                                    typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                                    Constant("Nullable object must have a value.")),
+                                targetType)
+                            : (Expression)Default(targetType);
+
                         valueExpression = Condition(
                             Call(DataReaderParam, IsDbNullMethod, Constant(columnIndex)),
-                            Default(projectionBinding.Type),
+                            nullValue,
                             valueExpression);
                     }
 
