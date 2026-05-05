@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
@@ -20,6 +21,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     private readonly IDatabase _database;
     private readonly ICurrentDbContext _currentContext;
     private readonly IDbContextOptions _contextOptions;
+    private readonly IExecutionStrategy _executionStrategy;
+    private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +36,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         IUpdateAdapterFactory updateAdapterFactory,
         IDatabase database,
         ICurrentDbContext currentContext,
-        IDbContextOptions contextOptions)
+        IDbContextOptions contextOptions,
+        IExecutionStrategy executionStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
     {
         _cosmosClient = cosmosClient;
         _designTimeModel = designTimeModel;
@@ -41,6 +46,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         _database = database;
         _currentContext = currentContext;
         _contextOptions = contextOptions;
+        _executionStrategy = executionStrategy;
+        _logger = logger;
     }
 
     /// <summary>
@@ -49,26 +56,56 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
+    public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
-        var model = _designTimeModel.Model;
-        var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(model.GetThroughput(), cancellationToken)
-            .ConfigureAwait(false);
-
-        foreach (var container in GetContainersToCreate(model))
+        if (_currentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {
-            created |= await _cosmosClient.CreateContainerIfNotExistsAsync(container, cancellationToken)
-                .ConfigureAwait(false);
+            _logger.EnsureCreatedWithTrackedEntitiesWarning();
         }
 
-        if (created)
-        {
-            await InsertDataAsync(cancellationToken).ConfigureAwait(false);
-        }
+        var created = new StrongBox<bool>(false);
+        var dataInserted = new StrongBox<bool>(false);
+        var retrying = new StrongBox<bool>(false);
+        return _executionStrategy.ExecuteAsync(
+            (Creator: this, Created: created, DataInserted: dataInserted, Retrying: retrying),
+            static async (_, state, ct) =>
+            {
+                var creator = state.Creator;
 
-        await SeedDataAsync(created, cancellationToken).ConfigureAwait(false);
+                if (state.Retrying.Value)
+                {
+                    creator._currentContext.Context.ChangeTracker.Clear();
+                }
 
-        return created;
+                state.Retrying.Value = true;
+
+                if (!state.DataInserted.Value)
+                {
+                    var model = creator._designTimeModel.Model;
+                    state.Created.Value |= await creator._cosmosClient
+                        .CreateDatabaseIfNotExistsAsync(model.GetThroughput(), ct)
+                        .ConfigureAwait(false);
+
+                    foreach (var container in GetContainersToCreate(model))
+                    {
+                        state.Created.Value |= await creator._cosmosClient
+                            .CreateContainerIfNotExistsAsync(container, ct)
+                            .ConfigureAwait(false);
+                    }
+
+                    if (state.Created.Value)
+                    {
+                        await creator.InsertDataAsync(ct).ConfigureAwait(false);
+                        state.DataInserted.Value = true;
+                    }
+                }
+
+                await creator.SeedDataAsync(state.Created.Value, cancellationToken: ct)
+                    .ConfigureAwait(false);
+
+                return state.Created.Value;
+            }, verifySucceeded: null, cancellationToken);
     }
 
     private static IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
@@ -193,17 +230,17 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual async Task SeedDataAsync(bool created, CancellationToken cancellationToken = default)
+    public virtual async Task SeedDataAsync(
+        bool created, CancellationToken cancellationToken = default)
     {
         var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+            _contextOptions.FindExtension<CoreOptionsExtension>();
 
-        if (coreOptionsExtension.AsyncSeeder is not null)
+        if (coreOptionsExtension?.AsyncSeeder is not null)
         {
             await coreOptionsExtension.AsyncSeeder(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
-        else if (coreOptionsExtension.Seeder != null)
+        else if (coreOptionsExtension?.Seeder is not null)
         {
             throw new InvalidOperationException(CoreStrings.MissingSeeder);
         }

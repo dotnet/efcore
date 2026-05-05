@@ -271,6 +271,30 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.EnsureCreatedWithTrackedEntitiesWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void EnsureCreatedWithTrackedEntitiesWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics)
+    {
+        var definition = CoreResources.LogEnsureCreatedWithTrackedEntities(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                (d, _) => ((EventDefinition)d).GenerateMessage());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

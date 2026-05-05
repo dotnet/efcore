@@ -948,6 +948,10 @@
     <value>A compiled model was found but it was built for the database provider '{compiledProviderName}'. The current context is using the database provider '{currentProviderName}'. The compiled model was ignored. Regenerate the compiled model with the correct provider.</value>
     <comment>Warning CoreEventId.CompiledModelProviderMismatchWarning string string</comment>
   </data>
+  <data name="LogEnsureCreatedWithTrackedEntities" xml:space="preserve">
+    <value>'EnsureCreated' was called on a context that is already tracking added, modified, or deleted entities. These tracked changes would be lost if a retry occurs due to a transient failure. Call 'EnsureCreated' before making changes to the context, or disable this warning by using 'ConfigureWarnings(w =&gt; w.Ignore(CoreEventId.EnsureCreatedWithTrackedEntitiesWarning))'.</value>
+    <comment>Warning CoreEventId.EnsureCreatedWithTrackedEntitiesWarning</comment>
+  </data>
   <data name="LogComplexElementPropertyChangeDetected" xml:space="preserve">
     <value>The unchanged property '{typePath}.{property}' was detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
     <comment>Debug CoreEventId.ComplexElementPropertyChangeDetected string string</comment>

@@ -32,4 +32,9 @@ public sealed class MigrationExecutionState
     ///     The transaction that is in use.
     /// </summary>
     public IDbContextTransaction? Transaction { get; set; }
+
+    /// <summary>
+    ///     Indicates whether seeding has been attempted.
+    /// </summary>
+    public bool SeedingAttempted { get; set; }
 }

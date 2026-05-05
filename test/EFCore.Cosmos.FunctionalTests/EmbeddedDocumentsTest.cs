@@ -163,7 +163,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
             await context.SaveChangesAsync();
-            var people = await context.Set<Person>().ToListAsync();
+            var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
 
             Assert.Empty(people[0].Addresses);
 
@@ -190,7 +190,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            var people = await context.Set<Person>().ToListAsync();
+            var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
             addedAddress1 = new Address
             {
                 Street = "First",

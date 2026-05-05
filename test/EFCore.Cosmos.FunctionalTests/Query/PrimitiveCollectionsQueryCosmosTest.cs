@@ -2217,7 +2217,10 @@ ORDER BY c["Id"]
 
     public override async Task Project_inline_collection()
     {
-        await base.Project_inline_collection();
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(x => new[] { x.String, "foo" }),
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true),
+            elementSorter: e => e[0]);
 
         // The following should be SELECT VALUE [c["String"], "foo"], #33779
         AssertSql(

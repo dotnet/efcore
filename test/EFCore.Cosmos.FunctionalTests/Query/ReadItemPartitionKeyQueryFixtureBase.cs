@@ -108,7 +108,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
     {
         { typeof(HierarchicalPartitionKeyEntity), e => ((HierarchicalPartitionKeyEntity?)e)?.Id },
         { typeof(OnlyHierarchicalPartitionKeyEntity), e => ((OnlyHierarchicalPartitionKeyEntity?)e)?.Payload },
-        { typeof(SinglePartitionKeyEntity), e => ((SinglePartitionKeyEntity?)e)?.Id },
+        { typeof(SinglePartitionKeyEntity), e => (((SinglePartitionKeyEntity?)e)?.Id, ((SinglePartitionKeyEntity?)e)?.PartitionKey) },
         { typeof(FancyDiscriminatorEntity), e => ((FancyDiscriminatorEntity?)e)?.Id },
         { typeof(OnlySinglePartitionKeyEntity), e => ((OnlySinglePartitionKeyEntity?)e)?.Payload },
         { typeof(NoPartitionKeyEntity), e => ((NoPartitionKeyEntity?)e)?.Id },
