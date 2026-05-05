@@ -185,11 +185,11 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                         {
                             var result = m[i](queryCtx, reader, argContexts[i], coord);
 
-                            // For entity materializers with collection includes, the return value is
-                            // null (ResultReady=false during collection population), but the entity is
-                            // cached in argContexts[i].Values[0]. For scalars and simple entities, the
-                            // return value is the actual value.
-                            rc.Values[i] = (argContexts[i].Values?[0] ?? result)!;
+                            // For entity materializers with collection includes, the return value may be
+                            // null (ResultReady=false during collection population), but the entity itself
+                            // is cached in argContexts[i].Values[0]. For everything else (scalars, nested
+                            // NewExpressions), the return value is the actual value.
+                            rc.Values[i] = (result ?? argContexts[i].Values?[0])!;
                         }
                     }
                     else
