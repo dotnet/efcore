@@ -1668,7 +1668,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Equal(
             CoreStrings.ConflictingPropertyOrNavigation(
-                nameof(Order.Customer), nameof(Order), nameof(Order)),
+                nameof(Order.Customer), nameof(Order), nameof(Navigation)),
             Assert.Throws<InvalidOperationException>(() => dependentEntityBuilder
                 .Property(Order.CustomerProperty, ConfigurationSource.Explicit)).Message);
     }
@@ -2487,9 +2487,23 @@ public class InternalEntityTypeBuilderTest
         }
         else
         {
+            var conflictingKind = firstMemberType switch
+            {
+                MemberType.Property => nameof(Property),
+                MemberType.ComplexProperty => nameof(ComplexProperty),
+                MemberType.ServiceProperty => nameof(ServiceProperty),
+                MemberType.Navigation => nameof(Navigation),
+                MemberType.SkipNavigation => nameof(SkipNavigation),
+                _ => throw new InvalidOperationException()
+            };
+            var declaringTypeName = firstEntityTypeBuilder.Metadata.DisplayName();
+
             Assert.Equal(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    nameof(Order.Products), nameof(SpecialOrder), firstEntityTypeBuilder.Metadata.DisplayName()),
+                declaringTypeName == nameof(SpecialOrder)
+                    ? CoreStrings.ConflictingPropertyOrNavigation(
+                        nameof(Order.Products), nameof(SpecialOrder), conflictingKind)
+                    : CoreStrings.ConflictingPropertyOrNavigationOnBaseType(
+                        nameof(Order.Products), nameof(SpecialOrder), conflictingKind, declaringTypeName),
                 Assert.Throws<InvalidOperationException>(() => ConfigureMember(secondEntityTypeBuilder, secondMemberType, secondSource))
                     .Message);
 

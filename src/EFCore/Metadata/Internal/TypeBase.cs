@@ -634,9 +634,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         if (conflictingMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName()));
+                conflictingMember.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)
@@ -1082,9 +1080,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         if (conflictingMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    conflictingMember.DeclaringType.DisplayName()));
+                conflictingMember.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)

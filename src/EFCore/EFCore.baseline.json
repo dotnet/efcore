@@ -3845,7 +3845,10 @@
           "Member": "static string ConflictingKeylessAndPrimaryKeyAttributes(object? entity);"
         },
         {
-          "Member": "static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingType);"
+          "Member": "static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingMemberKind);"
+        },
+        {
+          "Member": "static string ConflictingPropertyOrNavigationOnBaseType(object? member, object? type, object? conflictingMemberKind, object? conflictingType);"
         },
         {
           "Member": "static string ConflictingRelationshipConversions(object? entityType, object? property, object? valueConversion, object? conflictingValueConversion);"

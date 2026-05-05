@@ -338,6 +338,34 @@ public static class PropertyBaseExtensions
         return false;
     }
 
+    /// <summary>
+    ///     Builds the message for the diagnostic that fires when a member conflicts with an existing
+    ///     member on the structural type or one of its base types. The kind of the conflicting member
+    ///     is taken straight from the runtime type name (e.g. <c>Property</c>, <c>Navigation</c>,
+    ///     <c>SkipNavigation</c>, <c>ComplexProperty</c>, <c>ServiceProperty</c>) so it stays in sync
+    ///     with the codebase without an extra mapping table.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public static string FormatConflictingMemberMessage(
+        this IReadOnlyPropertyBase conflictingMember,
+        string newMemberName,
+        IReadOnlyTypeBase owningType)
+    {
+        var conflictingMemberKind = conflictingMember.GetType().Name;
+        var owningTypeDisplayName = owningType.DisplayName();
+        var declaringTypeDisplayName = ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName();
+
+        return declaringTypeDisplayName == owningTypeDisplayName
+            ? CoreStrings.ConflictingPropertyOrNavigation(newMemberName, owningTypeDisplayName, conflictingMemberKind)
+            : CoreStrings.ConflictingPropertyOrNavigationOnBaseType(
+                newMemberName, owningTypeDisplayName, conflictingMemberKind, declaringTypeDisplayName);
+    }
+
     private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
         => propertyBase.DeclaringType switch
         {

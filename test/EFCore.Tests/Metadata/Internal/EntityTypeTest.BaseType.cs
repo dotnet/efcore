@@ -370,7 +370,7 @@ public partial class EntityTypeTest
         b.BaseType = a;
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(B).Name, typeof(A).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(B).Name, nameof(Property), typeof(A).Name),
             Assert.Throws<InvalidOperationException>(() => b.AddProperty("G")).Message);
     }
 
@@ -389,7 +389,7 @@ public partial class EntityTypeTest
         d.BaseType = c;
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(D).Name, typeof(A).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(D).Name, nameof(Property), typeof(A).Name),
             Assert.Throws<InvalidOperationException>(() => d.AddProperty("G")).Message);
     }
 
@@ -406,7 +406,7 @@ public partial class EntityTypeTest
         b.AddProperty(A.GProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(A).Name, typeof(B).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(A).Name, nameof(Property), typeof(B).Name),
             Assert.Throws<InvalidOperationException>(() => a.AddProperty(A.GProperty)).Message);
     }
 
@@ -426,7 +426,7 @@ public partial class EntityTypeTest
         d.AddProperty(A.GProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("G", typeof(A).Name, typeof(D).Name),
+            CoreStrings.ConflictingPropertyOrNavigationOnBaseType("G", typeof(A).Name, nameof(Property), typeof(D).Name),
             Assert.Throws<InvalidOperationException>(() => a.AddProperty(A.GProperty)).Message);
     }
 
