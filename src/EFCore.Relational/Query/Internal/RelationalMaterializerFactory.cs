@@ -370,6 +370,12 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         private static readonly MethodInfo IsDbNullMethod
             = typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!;
 
+        private static readonly PropertyInfo _parametersProperty
+            = typeof(QueryContext).GetProperty(nameof(QueryContext.Parameters))!;
+
+        private static readonly PropertyInfo _dictionaryIndexer
+            = typeof(Dictionary<string, object?>).GetProperty("Item")!;
+
         private readonly ParameterExpression? _entityValuesParam = entityValuesParam;
 
         /// <summary>
@@ -471,6 +477,33 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                         node.Type);
                 }
 
+                // Collection shapers nested inside client-evaluated expressions (e.g. `.ToArray()`,
+                // `.AsEnumerable()`) need to be extracted and materialized separately via
+                // BuildStandaloneCollectionMaterializer / BuildMaterializer.
+                case RelationalCollectionShaperExpression or RelationalSplitCollectionShaperExpression
+                    when _entityValuesParam is not null:
+                {
+                    var index = ExtractedSubExpressions.Count;
+                    ExtractedSubExpressions.Add(node);
+                    return Convert(
+                        ArrayIndex(_entityValuesParam, Constant(index)),
+                        node.Type);
+                }
+
+                // Runtime query parameters: replace with dictionary lookup on QueryContext.Parameters.
+                // These appear in client-evaluated expressions that reference funcletized closure variables.
+                case QueryParameterExpression queryParameter:
+                    return Convert(
+                        Property(
+                            Property(QueryCompilationContext.QueryContextParameter, _parametersProperty),
+                            _dictionaryIndexer,
+                            Constant(queryParameter.Name)),
+                        queryParameter.Type);
+
+                // Liftable constants: in non-generated mode, resolve to the original expression directly.
+                case LiftableConstantExpression liftableConstant:
+                    return liftableConstant.OriginalExpression;
+
                 default:
                     return base.VisitExtension(node);
             }
@@ -512,13 +545,21 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         var navigation = collectionShaper.Navigation;
         var collectionAccessor = navigation?.GetCollectionAccessor();
 
+        // Build a typed add delegate: (collection, element) => ((ICollection<TElement>)collection).Add((TElement)element).
+        // This works for any ICollection<T> including HashSet<T>, unlike IList.Add.
+        var addMethod = typeof(ICollection<>).MakeGenericType(collectionShaper.ElementType)
+            .GetMethod(nameof(ICollection<object>.Add))!;
+        Action<object, object?> collectionAdd = (collection, element) =>
+            addMethod.Invoke(collection, [element]);
+
         // Mirrors the generated shaper structure: InitializeCollection on first call,
         // PopulateCollection on every call, return collection when ResultReady.
         return (queryContext, dataReader, resultContext, resultCoordinator) =>
         {
             if (resultContext.Values is null)
             {
-                var collection = collectionAccessor?.Create() ?? Activator.CreateInstance(typeof(T))!;
+                var collection = collectionAccessor?.Create()
+                    ?? Activator.CreateInstance(collectionShaper.Type)!;
 
                 resultCoordinator.SetSingleQueryCollectionContext(
                     collectionId,
@@ -534,7 +575,8 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                 queryContext, dataReader, resultCoordinator, collectionId,
                 parentIdentifier, outerIdentifier, selfIdentifier,
                 parentComparers, outerComparers, selfComparers,
-                innerElementMaterializer);
+                innerElementMaterializer,
+                collectionAdd);
 
             return resultCoordinator.ResultReady ? (T)resultContext.Values[0] : default;
         };
@@ -556,7 +598,8 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         IReadOnlyList<Func<object, object, bool>> parentIdentifierValueComparers,
         IReadOnlyList<Func<object, object, bool>> outerIdentifierValueComparers,
         IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
-        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?> innerShaper)
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?> innerShaper,
+        Action<object, object?> collectionAdd)
     {
         var collectionContext = resultCoordinator.Collections[collectionId]!;
         if (collectionContext.Collection is null)
@@ -630,7 +673,7 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
             if (resultCoordinator.ResultReady)
             {
                 collectionContext.ResultContext.Values = null;
-                ((IList)collectionContext.Collection!).Add(element);
+                collectionAdd(collectionContext.Collection!, element);
             }
 
             resultCoordinator.ResultReady &= previousResultReady;

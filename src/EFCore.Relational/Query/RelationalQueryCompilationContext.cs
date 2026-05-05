@@ -116,6 +116,20 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
                     : qc => { runtimeParameterPopulators(qc); return inner(qc); };
             }
 
+            // Enumerable cardinality can appear here when ToQueryString() calls
+            // CreateSingleValueQueryExecutor<IEnumerable>. Return the enumerable directly.
+            case ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery:
+            {
+                var enumerableFactory = RelationalDependencies.RelationalMaterializerFactory
+                    .CreateEnumerableMaterializer<TResult>(this, shapedQuery);
+
+                Func<QueryContext, TResult> inner = qc => (TResult)(object)enumerableFactory(qc)!;
+
+                return runtimeParameterPopulators is null
+                    ? inner
+                    : qc => { runtimeParameterPopulators(qc); return inner(qc); };
+            }
+
             case DeleteExpression or UpdateExpression:
             {
                 var inner = RelationalDependencies.RelationalMaterializerFactory
