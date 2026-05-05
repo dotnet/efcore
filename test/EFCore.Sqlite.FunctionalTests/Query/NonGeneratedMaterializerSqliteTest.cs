@@ -883,4 +883,34 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
     }
 
     #endregion
+
+    #region Split query
+
+    [ConditionalFact]
+    public async Task Split_query_basic_include()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Blogs
+            .AsSplitQuery()
+            .Include(b => b.Posts)
+            .AsNoTracking()
+            .ToListAsync();
+
+        Assert.Single(results);
+        Assert.Equal("Blog 1", results[0].Title);
+        Assert.Equal(2, results[0].Posts.Count);
+    }
+
+    #endregion
 }

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     for supported query shapes, producing a tree of <see cref="RelationalEntityMaterializer{TEntity}" />
 ///     instances wired together with include information.
 /// </remarks>
-public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOptions)
+public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOptions)
 {
     private readonly bool _detailedErrorsEnabled = coreSingletonOptions.AreDetailedErrorsEnabled;
     private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
@@ -44,14 +44,11 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
         RelationalQueryCompilationContext queryCompilationContext,
         ShapedQueryExpression shapedQueryExpression)
     {
-        var nextCollectionId = 0;
-
         var (select, shaper) = ((SelectExpression)shapedQueryExpression.QueryExpression, shapedQueryExpression.ShaperExpression);
 
-        var querySplittingBehavior = queryCompilationContext.QuerySplittingBehavior;
-        if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery)
+        if (queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery)
         {
-            throw new NotImplementedException("The non-generated materializer does not yet support split queries.");
+            return CreateSplitQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
         }
 
         if (select.IsNonComposedFromSql())
@@ -59,20 +56,20 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             throw new NotImplementedException("The non-generated materializer does not yet support FromSql queries.");
         }
 
-        var contextType = queryCompilationContext.ContextType;
-        var isTracking = queryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
-        var useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-        var collectionParameterTranslationMode
-            = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
-        var relationalDependencies = queryCompilationContext.RelationalDependencies;
+        return CreateSingleQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
+    }
 
-        var relationalCommandCache = new RelationalCommandCache(
-            relationalDependencies.MemoryCache,
-            relationalDependencies.QuerySqlGeneratorFactory,
-            relationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-            select,
-            useRelationalNulls,
-            collectionParameterTranslationMode);
+    /// <summary>
+    ///     Builds a non-generated query executor for a single (non-split) enumerable query.
+    /// </summary>
+    private Func<QueryContext, IEnumerable<TElement>> CreateSingleQueryEnumerableMaterializer<TElement>(
+        RelationalQueryCompilationContext queryCompilationContext,
+        SelectExpression select,
+        Expression shaper)
+    {
+        var nextCollectionId = 0;
+        var isTracking = queryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+        var relationalCommandCache = CreateCommandCache(queryCompilationContext, select);
 
         if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert)
         {
@@ -86,7 +83,7 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
             readerColumns: null,
             materializer: rowMaterializer!,
-            contextType: contextType,
+            contextType: queryCompilationContext.ContextType,
             standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
             detailedErrorsEnabled: _detailedErrorsEnabled,
             threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
@@ -103,7 +100,8 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
         Expression shaperExpression,
         SelectExpression select,
         bool isTracking,
-        ref int nextCollectionId)
+        ref int nextCollectionId,
+        List<SplitCollectionIncludeInfo>? splitCollectionInfos = null)
     {
         if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } convert)
         {
@@ -159,7 +157,7 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                 var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
-                    subMaterializers[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId);
+                    subMaterializers[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
                 }
 
                 var invokerArgs = new object?[subMaterializers.Length];
@@ -176,7 +174,8 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             case RelationalStructuralTypeShaperExpression:
             case IncludeExpression:
             {
-                var entityMaterializer = TryBuildMaterializerFromShaper(shaperExpression, select, isTracking, ref nextCollectionId)
+                var entityMaterializer = TryBuildMaterializerFromShaper(
+                        shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId)
                     ?? throw new NotImplementedException(
                         $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}'.");
 
@@ -193,6 +192,61 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             case RelationalCollectionShaperExpression collectionShaper:
             {
                 return BuildStandaloneCollectionMaterializer<T>(collectionShaper, select, isTracking, ref nextCollectionId);
+            }
+
+            // Standalone split-query collection projection (e.g. Select(c => new { Orders = c.Orders.ToList() })).
+            // In a split query, the collection is loaded via a separate SQL query. We add it to
+            // splitCollectionInfos and return a materializer that creates the empty collection.
+            // The collection is populated in-place by PopulateSplitIncludeCollection via relatedDataLoaders,
+            // so no multi-call protocol is needed here — just create and return it immediately.
+            // InitializeSplitIncludeCollection receives the collection via ParentEntityProvider and
+            // registers it with the coordinator.
+            case RelationalSplitCollectionShaperExpression splitCollectionShaper
+                when splitCollectionInfos is not null:
+            {
+                var collectionId = nextCollectionId++;
+
+                var childSplitCollections = new List<SplitCollectionIncludeInfo>();
+                var childMaterializer = TryBuildMaterializerFromShaper(
+                    splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
+                    isTracking, childSplitCollections, ref nextCollectionId);
+                if (childMaterializer is null)
+                {
+                    goto default; // fall through to default
+                }
+
+                var parentIdentifier = CompileIdentifierLambda(
+                    splitCollectionShaper.ParentIdentifier, select);
+                var childIdentifier = CompileIdentifierLambda(
+                    splitCollectionShaper.ChildIdentifier, splitCollectionShaper.SelectExpression);
+                var identifierComparers = splitCollectionShaper.IdentifierValueComparers
+                    .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+                    .ToArray();
+
+                var navigation = splitCollectionShaper.Navigation;
+                var collectionAccessor = navigation?.GetCollectionAccessor();
+
+                splitCollectionInfos.Add(new SplitCollectionIncludeInfo(
+                    childMaterializer,
+                    navigation: null, // standalone — not an include
+                    inverseNavigation: null,
+                    inverseNavigationSetter: null,
+                    collectionAccessor: collectionAccessor,
+                    parentIdentifier,
+                    childIdentifier,
+                    identifierComparers,
+                    collectionId,
+                    splitCollectionShaper.SelectExpression,
+                    childSplitCollections,
+                    parentEntityProvider: null));
+
+                // Create and return the empty collection. It will be populated in-place by
+                // relatedDataLoaders (PopulateSplitIncludeCollection) before the result is used.
+                // ParentEntityProvider will be set up by BuildSplitEntityMaterializer to provide
+                // this collection to InitializeSplitIncludeCollection for coordinator registration.
+                var collectionType = splitCollectionShaper.Type;
+                return (queryCtx, reader, rc, coord)
+                    => (T?)(collectionAccessor?.Create() ?? Activator.CreateInstance(collectionType));
             }
 
             default:
@@ -227,7 +281,7 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
                     subMaterializers[i] = BuildMaterializer<object>(
-                        rewriter.ExtractedSubExpressions[i], select, isTracking, ref nextCollectionId);
+                        rewriter.ExtractedSubExpressions[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
                 }
 
                 var projectionFunc = Lambda<Func<QueryContext, DbDataReader, object[], T?>>(
@@ -252,10 +306,9 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     ///     On subsequent calls: drives sub-materializers for collection population.
     ///     When ResultReady: composes the final result from rc.Values via <paramref name="resultComposer" />.
     /// </summary>
-    private static Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>
-        ComposeWithMultiCallProtocol<T>(
-            Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[] subMaterializers,
-            Func<QueryContext, DbDataReader, object[], T?> resultComposer)
+    private static Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?> ComposeWithMultiCallProtocol<T>(
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[] subMaterializers,
+        Func<QueryContext, DbDataReader, object[], T?> resultComposer)
     {
         var subContexts = new ResultContext[subMaterializers.Length];
         for (var i = 0; i < subContexts.Length; i++)
@@ -431,12 +484,11 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     ///     on every call (including first) elements are populated from the current row;
     ///     when <see cref="SingleQueryResultCoordinator.ResultReady" /> is true the collection is returned.
     /// </summary>
-    private Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>
-        BuildStandaloneCollectionMaterializer<T>(
-            RelationalCollectionShaperExpression collectionShaper,
-            SelectExpression select,
-            bool isTracking,
-            ref int nextCollectionId)
+    private Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?> BuildStandaloneCollectionMaterializer<T>(
+        RelationalCollectionShaperExpression collectionShaper,
+        SelectExpression select,
+        bool isTracking,
+        ref int nextCollectionId)
     {
         var collectionId = nextCollectionId++;
 
@@ -598,11 +650,15 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
 
     /// <summary>
     ///     Recursively builds a <see cref="RelationalEntityMaterializer{TEntity}" /> from a shaper expression.
+    ///     When <paramref name="splitCollectionInfos" /> is non-null, operates in split-query mode:
+    ///     <see cref="RelationalSplitCollectionShaperExpression" /> nodes are collected into the list
+    ///     instead of being added as <see cref="CollectionIncludeInfo" /> on the entity materializer.
     /// </summary>
     private static RelationalEntityMaterializer? TryBuildMaterializerFromShaper(
         Expression shaperExpression,
         SelectExpression selectExpression,
         bool isTracking,
+        List<SplitCollectionIncludeInfo>? splitCollectionInfos,
         ref int nextCollectionId)
     {
         switch (shaperExpression)
@@ -621,7 +677,8 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             {
                 // Recurse into the entity expression to build the inner materializer (which may have further includes)
                 var innerMaterializer = TryBuildMaterializerFromShaper(
-                    includeExpression.EntityExpression, selectExpression, isTracking, ref nextCollectionId);
+                    includeExpression.EntityExpression, selectExpression, isTracking,
+                    splitCollectionInfos, ref nextCollectionId);
                 if (innerMaterializer is null)
                 {
                     return null;
@@ -648,8 +705,11 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                     }:
                     case IncludeExpression:
                     {
+                        var splitCountBefore = splitCollectionInfos?.Count ?? 0;
+
                         var includedMaterializer = TryBuildMaterializerFromShaper(
-                            includeExpression.NavigationExpression, selectExpression, isTracking, ref nextCollectionId);
+                            includeExpression.NavigationExpression, selectExpression, isTracking,
+                            splitCollectionInfos, ref nextCollectionId);
                         if (includedMaterializer is null)
                         {
                             return null;
@@ -666,20 +726,38 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                             isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null);
                         innerMaterializer.AddReferenceInclude(refInclude);
 
-                        // Flatten collection includes from the referenced entity up to the parent.
-                        // In the generated shaper, ALL collection populations are driven at the top
-                        // level; nesting them inside a reference include's MaterializeTyped causes
-                        // ResultReady/HasNext interference.
-                        FlattenCollectionIncludes(includedMaterializer, refInclude.ResultContext, innerMaterializer);
+                        // For single queries, flatten collection includes from the referenced entity
+                        // up to the parent. For split queries, this isn't needed — collections are
+                        // loaded via separate queries and don't participate in the multi-call protocol.
+                        if (splitCollectionInfos is null)
+                        {
+                            FlattenCollectionIncludes(includedMaterializer, refInclude.ResultContext, innerMaterializer);
+                        }
+                        else
+                        {
+                            // For split queries, any split collections added by the recursive call
+                            // need their ParentEntityProvider set to return the referenced entity
+                            // (e.g. Customer from OrderDetail → Order → Customer → Orders).
+                            // Only set ParentEntityProvider if it hasn't already been set by a deeper
+                            // level in the reference include chain — deeper levels set it to the
+                            // correct entity closest to the collection.
+                            var capturedContext = refInclude.ResultContext;
+                            for (var i = splitCountBefore; i < splitCollectionInfos.Count; i++)
+                            {
+                                splitCollectionInfos[i].ParentEntityProvider ??= () => capturedContext.Values?[0];
+                            }
+                        }
 
                         return innerMaterializer;
                     }
 
-                    // Collection include (one-to-many)
-                    case RelationalCollectionShaperExpression collectionShaper:
+                    // Single-query collection include (one-to-many)
+                    case RelationalCollectionShaperExpression collectionShaper
+                        when splitCollectionInfos is null:
                     {
                         var childMaterializer = TryBuildMaterializerFromShaper(
-                            collectionShaper.InnerShaper, selectExpression, isTracking, ref nextCollectionId);
+                            collectionShaper.InnerShaper, selectExpression, isTracking,
+                            splitCollectionInfos: null, ref nextCollectionId);
                         if (childMaterializer is null)
                         {
                             return null;
@@ -719,6 +797,48 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
                             selfComparers,
                             collectionId,
                             isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
+
+                        return innerMaterializer;
+                    }
+
+                    // Split-query collection include (one-to-many via separate SQL query)
+                    case RelationalSplitCollectionShaperExpression splitCollectionShaper
+                        when splitCollectionInfos is not null:
+                    {
+                        var collectionId = nextCollectionId++;
+
+                        var childSplitCollections = new List<SplitCollectionIncludeInfo>();
+                        var childMaterializer = TryBuildMaterializerFromShaper(
+                            splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
+                            isTracking, childSplitCollections, ref nextCollectionId);
+                        if (childMaterializer is null)
+                        {
+                            return null;
+                        }
+
+                        var parentIdentifier = CompileIdentifierLambda(
+                            splitCollectionShaper.ParentIdentifier, selectExpression);
+                        var childIdentifier = CompileIdentifierLambda(
+                            splitCollectionShaper.ChildIdentifier, splitCollectionShaper.SelectExpression);
+                        var identifierComparers = splitCollectionShaper.IdentifierValueComparers
+                            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+                            .ToArray();
+
+                        var collectionAccessor = navigation.GetCollectionAccessor()!;
+
+                        splitCollectionInfos.Add(new SplitCollectionIncludeInfo(
+                            childMaterializer,
+                            navigation,
+                            inverseNavigation,
+                            inverseNavSetter,
+                            collectionAccessor,
+                            parentIdentifier,
+                            childIdentifier,
+                            identifierComparers,
+                            collectionId,
+                            splitCollectionShaper.SelectExpression,
+                            childSplitCollections,
+                            parentEntityProvider: null));
 
                         return innerMaterializer;
                     }
@@ -963,15 +1083,10 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             CommandSource.ExecuteUpdate, _threadSafetyChecksEnabled).ConfigureAwait(false);
     }
 
-    private static RelationalCommandCache CreateNonQueryCommandCache(
+    private RelationalCommandCache CreateNonQueryCommandCache(
         RelationalQueryCompilationContext queryCompilationContext,
         Expression nonQueryExpression)
     {
-        var useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
-        var collectionParameterTranslationMode
-            = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
-        var relationalDependencies = queryCompilationContext.RelationalDependencies;
-
         if (nonQueryExpression is DeleteExpression deleteExpression)
         {
             nonQueryExpression = deleteExpression.ApplyTags(queryCompilationContext.Tags);
@@ -981,13 +1096,7 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             nonQueryExpression = updateExpression.ApplyTags(queryCompilationContext.Tags);
         }
 
-        return new RelationalCommandCache(
-            relationalDependencies.MemoryCache,
-            relationalDependencies.QuerySqlGeneratorFactory,
-            relationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-            nonQueryExpression,
-            useRelationalNulls,
-            collectionParameterTranslationMode);
+        return CreateCommandCache(queryCompilationContext, nonQueryExpression);
     }
 
     private static int ExecuteNonQuery(
@@ -1100,4 +1209,22 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     }
 
     #endregion Non-query execution
+
+    private RelationalCommandCache CreateCommandCache(
+        RelationalQueryCompilationContext queryCompilationContext,
+        Expression queryExpression)
+    {
+        var useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
+        var collectionParameterTranslationMode
+            = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        var relationalDependencies = queryCompilationContext.RelationalDependencies;
+
+        return new RelationalCommandCache(
+            relationalDependencies.MemoryCache,
+            relationalDependencies.QuerySqlGeneratorFactory,
+            relationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+            queryExpression,
+            useRelationalNulls,
+            collectionParameterTranslationMode);
+    }
 }
