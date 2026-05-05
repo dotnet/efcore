@@ -144,70 +144,24 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
 
             case NewExpression newExpression:
             {
+                // TODO: For JIT mode, probably better to fall through to the default case, to just compile the expression tree.
+                // But probably good to leave the optimization here for NativeAOT.
                 var invoker = ConstructorInvoker.Create(newExpression.Constructor!);
-                var m = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
-                for (var i = 0; i < m.Length; i++)
+                var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
+                for (var i = 0; i < subMaterializers.Length; i++)
                 {
-                    m[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId);
+                    subMaterializers[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId);
                 }
 
-                // Each argument gets its own ResultContext so entity materializers within a
-                // NewExpression don't share the Values init guard. This mirrors the generated
-                // shaper where each entity occupies a separate slot in the values array.
-                var argContexts = new ResultContext[m.Length];
-                for (var i = 0; i < argContexts.Length; i++)
-                {
-                    argContexts[i] = new ResultContext();
-                }
+                var invokerArgs = new object?[subMaterializers.Length];
 
-                // Reusable buffer for passing args to the ConstructorInvoker.
-                var invokerArgs = new object?[m.Length];
-
-                // Mirrors the generated shaper's structure:
-                // - Init (rc.Values == null): materialize all args once, store in rc.Values
-                // - Every call: drive collection populations by calling all arg materializers
-                // - Return: when ResultReady, construct result from rc.Values
-                //
-                // This ensures scalars/entities are read from the reader only once (during init)
-                // and reused from the values array on subsequent calls during collection population,
-                // matching how the generated shaper stores all values in _valuesArrayInitializers.
-                return (queryCtx, reader, rc, coord) =>
-                {
-                    if (rc.Values is null)
+                return ComposeWithMultiCallProtocol<T>(
+                    subMaterializers,
+                    (_, _, values) =>
                     {
-                        for (var i = 0; i < argContexts.Length; i++)
-                        {
-                            argContexts[i].Values = null;
-                        }
-
-                        rc.Values = new object[m.Length];
-                        for (var i = 0; i < m.Length; i++)
-                        {
-                            var result = m[i](queryCtx, reader, argContexts[i], coord);
-
-                            // For entity materializers with collection includes, the return value may be
-                            // null (ResultReady=false during collection population), but the entity itself
-                            // is cached in argContexts[i].Values[0]. For everything else (scalars, nested
-                            // NewExpressions), the return value is the actual value.
-                            rc.Values[i] = (result ?? argContexts[i].Values?[0])!;
-                        }
-                    }
-                    else
-                    {
-                        for (var i = 0; i < m.Length; i++)
-                        {
-                            m[i](queryCtx, reader, argContexts[i], coord);
-                        }
-                    }
-
-                    if (!coord.ResultReady)
-                    {
-                        return default;
-                    }
-
-                    rc.Values.CopyTo(invokerArgs.AsSpan());
-                    return (T?)invoker.Invoke(invokerArgs.AsSpan());
-                };
+                        values.CopyTo(invokerArgs.AsSpan());
+                        return (T?)invoker.Invoke(invokerArgs.AsSpan());
+                    });
             }
 
             case RelationalStructuralTypeShaperExpression:
@@ -233,7 +187,223 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             }
 
             default:
-                throw new UnreachableException($"Unexpected shaper expression type '{shaperExpression.GetType().Name}'.");
+            {
+                // Fallback for arbitrary expression trees (e.g. client-evaluated method calls,
+                // member accesses, conditionals, etc.) that contain EF-specific extension nodes.
+                //
+                // This mirrors the generated shaper's approach: entity/include sub-expressions are
+                // extracted and materialized separately (with full multi-call protocol support),
+                // then the remaining pure CLR expression (method calls, member accesses, etc.)
+                // is compiled against the materialized entity values.
+
+                // Single-pass rewrite: replaces ProjectionBindingExpression nodes with typed reader
+                // calls and entity/include nodes with array element accesses on an entityValues
+                // parameter. Collects the original entity expressions for materializer building.
+                // Use the shared QueryContextParameter so references in the shaper tree
+                // (e.g. from funcletized closure variables) match the lambda parameter.
+                var queryContextParam = QueryCompilationContext.QueryContextParameter;
+                var dataReaderParam = Parameter(typeof(DbDataReader), "dataReader");
+                var entityValuesParam = Parameter(typeof(object[]), "entityValues");
+
+                var rewriter = new ShaperExpressionRewritingVisitor(select, dataReaderParam, entityValuesParam);
+                var rewritten = rewriter.Visit(shaperExpression);
+
+                if (rewritten.Type != typeof(T))
+                {
+                    rewritten = Convert(rewritten, typeof(T));
+                }
+
+                // Build materializers for extracted sub-expressions (entities and scalars).
+                var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[rewriter.ExtractedSubExpressions.Count];
+                for (var i = 0; i < subMaterializers.Length; i++)
+                {
+                    subMaterializers[i] = BuildMaterializer<object>(
+                        rewriter.ExtractedSubExpressions[i], select, isTracking, ref nextCollectionId);
+                }
+
+                var projectionFunc = Lambda<Func<QueryContext, DbDataReader, object[], T?>>(
+                    rewritten, queryContextParam, dataReaderParam, entityValuesParam).Compile();
+
+                if (subMaterializers.Length == 0)
+                {
+                    return (queryCtx, reader, rc, coord) => projectionFunc(queryCtx, reader, Array.Empty<object>());
+                }
+
+                return ComposeWithMultiCallProtocol<T>(
+                    subMaterializers,
+                    (queryCtx, reader, values) => projectionFunc(queryCtx, reader, values));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Wraps an array of sub-materializers with the multi-call protocol used by
+    ///     <see cref="SingleQueryingEnumerable{T}" /> for collection population.
+    ///     On first call (rc.Values == null): materializes all sub-expressions, stores in rc.Values.
+    ///     On subsequent calls: drives sub-materializers for collection population.
+    ///     When ResultReady: composes the final result from rc.Values via <paramref name="resultComposer" />.
+    /// </summary>
+    private static Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>
+        ComposeWithMultiCallProtocol<T>(
+            Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[] subMaterializers,
+            Func<QueryContext, DbDataReader, object[], T?> resultComposer)
+    {
+        var subContexts = new ResultContext[subMaterializers.Length];
+        for (var i = 0; i < subContexts.Length; i++)
+        {
+            subContexts[i] = new ResultContext();
+        }
+
+        return (queryCtx, reader, rc, coord) =>
+        {
+            if (rc.Values is null)
+            {
+                for (var i = 0; i < subContexts.Length; i++)
+                {
+                    subContexts[i].Values = null;
+                }
+
+                rc.Values = new object[subMaterializers.Length];
+                for (var i = 0; i < subMaterializers.Length; i++)
+                {
+                    var result = subMaterializers[i](queryCtx, reader, subContexts[i], coord);
+
+                    // For entity materializers with collection includes, the return value may be
+                    // null (ResultReady=false during collection population), but the entity itself
+                    // is cached in subContexts[i].Values[0]. For everything else (scalars, nested
+                    // NewExpressions), the return value is the actual value.
+                    rc.Values[i] = (result ?? subContexts[i].Values?[0])!;
+                }
+            }
+            else
+            {
+                // Only drive sub-materializers that have internal state (entity materializers with
+                // collection includes). Scalars and simple entities don't need subsequent calls —
+                // their values were cached in rc.Values during init.
+                for (var i = 0; i < subMaterializers.Length; i++)
+                {
+                    if (subContexts[i].Values is not null)
+                    {
+                        subMaterializers[i](queryCtx, reader, subContexts[i], coord);
+                    }
+                }
+            }
+
+            return coord.ResultReady ? resultComposer(queryCtx, reader, rc.Values) : default;
+        };
+    }
+
+    /// <summary>
+    ///     Rewrites a shaper expression tree by replacing <see cref="ProjectionBindingExpression" /> nodes
+    ///     with type-mapping-aware <see cref="DbDataReader" /> access calls (including value converters).
+    ///     Extends <see cref="IdentifierExpressionRewriter" /> to reuse its <c>VisitMethodCall</c> and
+    ///     <c>VisitUnary</c> handling.
+    /// </summary>
+    private sealed class ShaperExpressionRewritingVisitor : IdentifierExpressionRewriter
+    {
+        private static readonly MethodInfo IsDbNullMethod
+            = typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!;
+
+        private readonly ParameterExpression? _entityValuesParam;
+
+        /// <summary>
+        ///     Sub-expressions extracted during visitation (entities, includes, and scalars when in
+        ///     multi-call mode). Each is replaced with a typed array access on
+        ///     <c>_entityValuesParam[index]</c>. After visitation, callers build materializers for
+        ///     each entry and wire them via <see cref="ComposeWithMultiCallProtocol{T}" />.
+        /// </summary>
+        public List<Expression> ExtractedSubExpressions { get; } = [];
+
+        public ShaperExpressionRewritingVisitor(
+            SelectExpression selectExpression,
+            ParameterExpression dataReaderParameter,
+            ParameterExpression? entityValuesParam = null)
+            : base(selectExpression, dataReaderParameter)
+        {
+            _entityValuesParam = entityValuesParam;
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                case ProjectionBindingExpression projectionBinding
+                    when _entityValuesParam is not null:
+                {
+                    // In multi-call mode, extract scalar reads into the values array so they're
+                    // cached during init and not re-read from the reader on subsequent calls.
+                    var index = ExtractedSubExpressions.Count;
+                    ExtractedSubExpressions.Add(node);
+                    return Convert(
+                        ArrayIndex(_entityValuesParam, Constant(index)),
+                        projectionBinding.Type);
+                }
+
+                case ProjectionBindingExpression projectionBinding:
+                {
+                    var projectionIndex = SelectExpression.GetProjection(projectionBinding).GetConstantValue<object>();
+                    if (projectionIndex is not int columnIndex)
+                    {
+                        return base.VisitExtension(node);
+                    }
+
+                    var projection = SelectExpression.Projection[columnIndex];
+                    var nullable = projection.Expression is not ColumnExpression col || col.IsNullable;
+                    var typeMapping = (RelationalTypeMapping)projection.Expression.TypeMapping!;
+                    var getMethod = typeMapping.GetDataReaderMethod();
+
+                    Expression valueExpression = Call(
+                        getMethod.DeclaringType != typeof(DbDataReader)
+                            ? Convert(DataReaderParam, getMethod.DeclaringType!)
+                            : DataReaderParam,
+                        getMethod,
+                        Constant(columnIndex));
+
+                    valueExpression = typeMapping.CustomizeDataReaderExpression(valueExpression);
+
+                    var converter = typeMapping.Converter;
+                    if (converter is not null)
+                    {
+                        if (valueExpression.Type != converter.ProviderClrType)
+                        {
+                            valueExpression = Convert(valueExpression, converter.ProviderClrType);
+                        }
+
+                        valueExpression = ReplacingExpressionVisitor.Replace(
+                            converter.ConvertFromProviderExpression.Parameters.Single(),
+                            valueExpression,
+                            converter.ConvertFromProviderExpression.Body);
+                    }
+
+                    if (valueExpression.Type != projectionBinding.Type)
+                    {
+                        valueExpression = Convert(valueExpression, projectionBinding.Type);
+                    }
+
+                    if (nullable)
+                    {
+                        valueExpression = Condition(
+                            Call(DataReaderParam, IsDbNullMethod, Constant(columnIndex)),
+                            Default(projectionBinding.Type),
+                            valueExpression);
+                    }
+
+                    return valueExpression;
+                }
+
+                case RelationalStructuralTypeShaperExpression or IncludeExpression
+                    when _entityValuesParam is not null:
+                {
+                    var index = ExtractedSubExpressions.Count;
+                    ExtractedSubExpressions.Add(node);
+                    return Convert(
+                        ArrayIndex(_entityValuesParam, Constant(index)),
+                        node.Type);
+                }
+
+                default:
+                    return base.VisitExtension(node);
+            }
         }
     }
 
@@ -412,7 +582,7 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     /// <summary>
     ///     Recursively builds a <see cref="RelationalEntityMaterializer{TEntity}" /> from a shaper expression.
     /// </summary>
-    private RelationalEntityMaterializer? TryBuildMaterializerFromShaper(
+    private static RelationalEntityMaterializer? TryBuildMaterializerFromShaper(
         Expression shaperExpression,
         SelectExpression selectExpression,
         bool isTracking,
@@ -655,9 +825,10 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
     }
 
     /// <summary>
-    ///     Rewrites identifier expressions for collection includes.
+    ///     Rewrites expressions by replacing <see cref="ProjectionBindingExpression" /> nodes with
+    ///     <see cref="DbDataReader" /> access calls. Used for collection identifier expressions.
     /// </summary>
-    private sealed class IdentifierExpressionRewriter(SelectExpression selectExpression, ParameterExpression dataReaderParam) : ExpressionVisitor
+    private class IdentifierExpressionRewriter : ExpressionVisitor
     {
         private static readonly MethodInfo GetValueMethod
             = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetValue))!;
@@ -665,11 +836,20 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
         private static readonly MethodInfo IsDbNullMethod
             = typeof(DbDataReader).GetMethod(nameof(DbDataReader.IsDBNull))!;
 
+        protected readonly SelectExpression SelectExpression;
+        protected readonly ParameterExpression DataReaderParam;
+
+        public IdentifierExpressionRewriter(SelectExpression selectExpression, ParameterExpression dataReaderParam)
+        {
+            SelectExpression = selectExpression;
+            DataReaderParam = dataReaderParam;
+        }
+
         protected override Expression VisitExtension(Expression node)
         {
             if (node is ProjectionBindingExpression pbe)
             {
-                var columnIndex = (int)selectExpression.GetProjection(pbe).GetConstantValue<object>();
+                var columnIndex = (int)SelectExpression.GetProjection(pbe).GetConstantValue<object>();
                 return CreateReaderGetValue(columnIndex, pbe.Type);
             }
 
@@ -687,14 +867,14 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             if (targetType.IsNullableType())
             {
                 return Condition(
-                    Call(dataReaderParam, IsDbNullMethod, indexExpr),
+                    Call(DataReaderParam, IsDbNullMethod, indexExpr),
                     Default(targetType),
                     Convert(
-                        Call(dataReaderParam, getFieldValueMethod, indexExpr),
+                        Call(DataReaderParam, getFieldValueMethod, indexExpr),
                         targetType));
             }
 
-            return Call(dataReaderParam, getFieldValueMethod, indexExpr);
+            return Call(DataReaderParam, getFieldValueMethod, indexExpr);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -703,9 +883,9 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             {
                 var indexExpr = Visit(node.Arguments[1]);
                 return Condition(
-                    Call(dataReaderParam, IsDbNullMethod, indexExpr),
+                    Call(DataReaderParam, IsDbNullMethod, indexExpr),
                     Constant(null, typeof(object)),
-                    Call(dataReaderParam, GetValueMethod, indexExpr));
+                    Call(DataReaderParam, GetValueMethod, indexExpr));
             }
 
             return base.VisitMethodCall(node);
