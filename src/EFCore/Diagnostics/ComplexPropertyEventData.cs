@@ -23,9 +23,7 @@ public class ComplexPropertyEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         IReadOnlyComplexProperty property)
         : base(eventDefinition, messageGenerator)
-    {
-        Property = property;
-    }
+        => Property = property;
 
     /// <summary>
     ///     The property.

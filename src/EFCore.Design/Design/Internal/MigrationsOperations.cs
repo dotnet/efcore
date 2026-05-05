@@ -42,11 +42,12 @@ public class MigrationsOperations
         _projectDir = projectDir;
         _rootNamespace = rootNamespace;
         _language = language;
-        args ??= Array.Empty<string>();
+        args ??= [];
         _contextOperations = new DbContextOperations(
             reporter,
             assembly,
             startupAssembly,
+            project: "",
             projectDir,
             rootNamespace,
             language,
@@ -66,8 +67,16 @@ public class MigrationsOperations
         string name,
         string? outputDir,
         string? contextType,
-        string? @namespace)
+        string? @namespace,
+        bool dryRun)
     {
+        var invalidPathChars = Path.GetInvalidFileNameChars();
+        if (name.Any(c => invalidPathChars.Contains(c)))
+        {
+            throw new OperationException(
+                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
+        }
+
         if (outputDir != null)
         {
             outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
@@ -92,9 +101,9 @@ public class MigrationsOperations
         var migration =
             string.IsNullOrEmpty(@namespace)
                 // TODO: Honor _nullable (issue #18950)
-                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language)
-                : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
-        return scaffolder.Save(_projectDir, migration, outputDir);
+                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun)
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun);
+        return scaffolder.Save(_projectDir, migration, outputDir, dryRun);
     }
 
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
@@ -102,12 +111,13 @@ public class MigrationsOperations
     // => "namespace $(rootnamespace).A.B.C"
     private string? SubnamespaceFromOutputPath(string? outputDir)
     {
-        if (outputDir?.StartsWith(_projectDir, StringComparison.Ordinal) != true)
+        var fullPath = Path.GetFullPath(_projectDir);
+        if (outputDir?.StartsWith(fullPath, StringComparison.Ordinal) != true)
         {
             return null;
         }
 
-        var subPath = outputDir[_projectDir.Length..];
+        var subPath = outputDir[fullPath.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(
@@ -210,7 +220,6 @@ public class MigrationsOperations
             EnsureServices(services);
 
             var migrator = services.GetRequiredService<IMigrator>();
-
             migrator.Migrate(targetMigration);
         }
 
@@ -225,7 +234,8 @@ public class MigrationsOperations
     /// </summary>
     public virtual MigrationFiles RemoveMigration(
         string? contextType,
-        bool force)
+        bool force,
+        bool dryRun)
     {
         using var context = _contextOperations.CreateContext(contextType);
         var services = _servicesBuilder.Build(context);
@@ -235,7 +245,7 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
+        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun);
 
         _reporter.WriteInformation(DesignStrings.Done);
 
@@ -277,13 +287,19 @@ public class MigrationsOperations
         var assemblyName = _assembly.GetName();
         var options = services.GetRequiredService<IDbContextOptions>();
         var contextType = services.GetRequiredService<ICurrentDbContext>().Context.GetType();
-        var migrationsAssemblyName = RelationalOptionsExtension.Extract(options).MigrationsAssembly
-            ?? contextType.Assembly.GetName().Name;
-        if (assemblyName.Name != migrationsAssemblyName
-            && assemblyName.FullName != migrationsAssemblyName)
+        var optionsExtension = RelationalOptionsExtension.Extract(options);
+        if (optionsExtension.MigrationsAssemblyObject == null
+            || optionsExtension.MigrationsAssemblyObject != _assembly)
         {
-            throw new OperationException(
-                DesignStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
+            var migrationsAssemblyName = optionsExtension.MigrationsAssembly
+                ?? optionsExtension.MigrationsAssemblyObject?.GetName().Name
+                ?? contextType.Assembly.GetName().Name;
+            if (assemblyName.Name != migrationsAssemblyName
+                && assemblyName.FullName != migrationsAssemblyName)
+            {
+                throw new OperationException(
+                    DesignStrings.MigrationsAssemblyMismatch(assemblyName.Name, migrationsAssemblyName));
+            }
         }
     }
 }

@@ -25,9 +25,7 @@ public class ModelCacheKeyFactory : IModelCacheKeyFactory
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public ModelCacheKeyFactory(ModelCacheKeyFactoryDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

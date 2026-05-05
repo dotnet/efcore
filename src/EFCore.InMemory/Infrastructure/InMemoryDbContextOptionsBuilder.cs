@@ -28,9 +28,7 @@ public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderI
     /// </summary>
     /// <param name="optionsBuilder">The options builder.</param>
     public InMemoryDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        OptionsBuilder = optionsBuilder;
-    }
+        => OptionsBuilder = optionsBuilder;
 
     /// <summary>
     ///     Clones the configuration in this builder.

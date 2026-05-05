@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
@@ -30,6 +30,6 @@ public abstract class SpatialFixtureBase : SharedStoreFixtureBase<SpatialContext
             });
     }
 
-    protected override void Seed(SpatialContext context)
-        => SpatialContext.Seed(context, _geometryFactory);
+    protected override Task SeedAsync(SpatialContext context)
+        => SpatialContext.SeedAsync(context, _geometryFactory);
 }

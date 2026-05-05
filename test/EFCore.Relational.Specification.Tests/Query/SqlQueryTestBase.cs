@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
@@ -17,9 +19,7 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected SqlQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -194,6 +194,22 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         var query = context.Database.SqlQueryRaw<UnmappedCustomer>(
             NormalizeDelimitersInRawString(
                 "SELECT [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"));
+
+        Assert.Equal(
+            RelationalStrings.FromSqlMissingColumn("Region"),
+            (async
+                ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
+                : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task SqlQueryRaw_queryable_simple_different_cased_columns_and_not_enough_columns_throws(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Database.SqlQueryRaw<UnmappedCustomer>(
+            NormalizeDelimitersInRawString(
+                "SELECT [PostalCODE], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"));
 
         Assert.Equal(
             RelationalStrings.FromSqlMissingColumn("Region"),
@@ -800,7 +816,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                 .Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)),
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1)).Select(e => UnmappedCustomer.FromCustomer(e)),
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Substring(0, 1) == c.CompanyName.Substring(0, 1))
+                .Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
@@ -1217,6 +1234,42 @@ SELECT * FROM [Customers2]
             CoreStrings.PropertyNotAddedAdHoc("Person", "Contact", "ContactInfo"),
             Assert.Throws<InvalidOperationException>(
                 () => context.Database.SqlQueryRaw<Person>(NormalizeDelimitersInRawString(@"SELECT * FROM [People]"))).Message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        using var context = CreateContext();
+        var rawQuery = NormalizeDelimitersInRawString("SELECT 'x' AS [Value] FROM [Customers]");
+        var query = context.Database.SqlQueryRaw<string>(rawQuery).Where(s => s.Length == 0);
+
+        if (async)
+        {
+            await query.LoadAsync();
+        }
+        else
+        {
+            query.Load();
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        using var context = CreateContext();
+        var rawQuery = NormalizeDelimitersInRawString("SELECT 'x' AS [Value] FROM [Customers]");
+        var query = context.Database.SqlQueryRaw<string>(rawQuery).Where(s => s.ToUpper().Length == 0);
+
+        if (async)
+        {
+            await query.LoadAsync();
+        }
+        else
+        {
+            query.Load();
+        }
     }
 
     protected class Blog

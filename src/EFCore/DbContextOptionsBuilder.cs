@@ -465,7 +465,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         => WithOption(e => e.WithRootApplicationServiceProvider(rootServiceProvider));
 
     /// <summary>
-    ///     Resolves the root <see cref="IServiceProvider" /> from from the scoped application service provider. The root provider can
+    ///     Resolves the root <see cref="IServiceProvider" /> from the scoped application service provider. The root provider can
     ///     be used to obtain singleton application services from singleton internal services.
     /// </summary>
     /// <remarks>
@@ -729,6 +729,50 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder ConfigureLoggingCacheTime(TimeSpan timeSpan)
         => WithOption(e => e.WithLoggingCacheTime(timeSpan));
+
+    /// <summary>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreated" />
+    ///     is called or after migrations are applied.
+    ///     It will be invoked even if no changes to the store were performed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
+    ///         operation was performed.
+    ///     </para>
+    ///     <para>
+    ///         It is recomended to also call <see cref="UseAsyncSeeding" /> with the same logic.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="seed">The seed method to run.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual DbContextOptionsBuilder UseSeeding(Action<DbContext, bool> seed)
+        => WithOption(e => e.WithSeeding(seed));
+
+    /// <summary>
+    ///     Configures the seed method to run after <see cref="DatabaseFacade.EnsureCreatedAsync" />
+    ///     is called or after migrations are applied asynchronously.
+    ///     It will be invoked even if no changes to the store were performed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The <see langword="bool" /> argument of the seed delegate indicates whether any store management
+    ///         operation was performed.
+    ///     </para>
+    ///     <para>
+    ///         It is recomended to also call <see cref="UseSeeding" /> with the same logic.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="seedAsync">The seed method to run.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual DbContextOptionsBuilder UseAsyncSeeding(Func<DbContext, bool, CancellationToken, Task> seedAsync)
+        => WithOption(e => e.WithAsyncSeeding(seedAsync));
 
     /// <summary>
     ///     Adds the given extension to the options. If an existing extension of the same type already exists, it will be replaced.

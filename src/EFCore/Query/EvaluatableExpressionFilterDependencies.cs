@@ -45,9 +45,7 @@ public sealed record EvaluatableExpressionFilterDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public EvaluatableExpressionFilterDependencies(IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
-    {
-        Plugins = plugins;
-    }
+        => Plugins = plugins;
 
     /// <summary>
     ///     Gets the plugins.

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class NonSharedModelUpdatesSqlServerTest : NonSharedModelUpdatesTestBase
 {
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
@@ -93,10 +95,11 @@ WHERE [Id] = @p5;
                 mb.Entity<User>().ToTable("Users");
                 mb.Entity<DailyDigest>().ToTable("DailyDigests");
             },
-            createTestStore: () => SqlServerTestStore.GetOrCreateWithScriptPath(
-                "Issue29502",
-                Path.Combine("Update", "Issue29502.sql"),
-                shared: false));
+            createTestStore: () => Task.FromResult<TestStore>(
+                SqlServerTestStore.GetOrCreateWithScriptPath(
+                    "Issue29502",
+                    Path.Combine("Update", "Issue29502.sql"),
+                    shared: false)));
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,

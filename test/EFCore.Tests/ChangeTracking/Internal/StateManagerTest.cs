@@ -528,14 +528,9 @@ public class StateManagerTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultSensitiveServiceProvider);
     }
 
-    private class IdentityConflictContext : DbContext
+    private class IdentityConflictContext(params IInterceptor[] interceptors) : DbContext
     {
-        private readonly IInterceptor[] _interceptors;
-
-        public IdentityConflictContext(params IInterceptor[] interceptors)
-        {
-            _interceptors = interceptors;
-        }
+        private readonly IInterceptor[] _interceptors = interceptors;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -606,11 +601,11 @@ public class StateManagerTest
         var stateManager = CreateStateManager(model);
 
         var category = new Category { Id = 77, PrincipalId = 777 };
-        var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", 777 });
+        var snapshot = new Snapshot<int, string, int>(77, "Bjork", 777);
 
-        var entry = stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer);
+        var entry = stateManager.StartTrackingFromQuery(categoryType, category, snapshot);
 
-        Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer));
+        Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, snapshot));
     }
 
     [ConditionalFact]
@@ -979,11 +974,11 @@ public class StateManagerTest
         var fk = model.FindEntityType(typeof(Product)).GetForeignKeys().Single();
 
         Assert.Equal(
-            new[] { productEntry1, productEntry2 },
+            [productEntry1, productEntry2],
             stateManager.GetDependents(categoryEntry1, fk).ToArray());
 
         Assert.Equal(
-            new[] { productEntry3, productEntry4 },
+            [productEntry3, productEntry4],
             stateManager.GetDependents(categoryEntry2, fk).ToArray());
 
         Assert.Empty(stateManager.GetDependents(categoryEntry3, fk).ToArray());
@@ -1031,9 +1026,7 @@ public class StateManagerTest
         public decimal Price { get; set; }
     }
 
-    private class SpecialProduct : Product
-    {
-    }
+    private class SpecialProduct : Product;
 
     private class Dogegory
     {

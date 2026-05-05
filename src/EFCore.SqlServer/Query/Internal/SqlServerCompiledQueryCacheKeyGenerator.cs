@@ -26,9 +26,7 @@ public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCa
         RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies,
         ISqlServerConnection sqlServerConnection)
         : base(dependencies, relationalDependencies)
-    {
-        _sqlServerConnection = sqlServerConnection;
-    }
+        => _sqlServerConnection = sqlServerConnection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,18 +39,13 @@ public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCa
             GenerateCacheKeyCore(query, async),
             _sqlServerConnection.IsMultipleActiveResultSetsEnabled);
 
-    private readonly struct SqlServerCompiledQueryCacheKey : IEquatable<SqlServerCompiledQueryCacheKey>
+    private readonly struct SqlServerCompiledQueryCacheKey(
+        RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
+        bool multipleActiveResultSetsEnabled)
+        : IEquatable<SqlServerCompiledQueryCacheKey>
     {
-        private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey;
-        private readonly bool _multipleActiveResultSetsEnabled;
-
-        public SqlServerCompiledQueryCacheKey(
-            RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
-            bool multipleActiveResultSetsEnabled)
-        {
-            _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
-            _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
-        }
+        private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
+        private readonly bool _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
 
         public override bool Equals(object? obj)
             => obj is SqlServerCompiledQueryCacheKey sqlServerCompiledQueryCacheKey

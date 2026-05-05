@@ -34,9 +34,7 @@ public class ConnectionErrorEventData : ConnectionEndEventData, IErrorEventData
         DateTimeOffset startTime,
         TimeSpan duration)
         : base(eventDefinition, messageGenerator, connection, context, connectionId, async, startTime, duration)
-    {
-        Exception = exception;
-    }
+        => Exception = exception;
 
     /// <summary>
     ///     The exception that was thrown when the connection failed.

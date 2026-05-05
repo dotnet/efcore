@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
@@ -45,7 +43,7 @@ public abstract class SetOperationBase : TableExpressionBase
         SelectExpression source1,
         SelectExpression source2,
         bool distinct,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, annotations)
     {
         IsDistinct = distinct;
@@ -56,12 +54,8 @@ public abstract class SetOperationBase : TableExpressionBase
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     The bool value indicating whether result will remove duplicate rows.
@@ -77,6 +71,15 @@ public abstract class SetOperationBase : TableExpressionBase
     ///     The second source of the set operation.
     /// </summary>
     public virtual SelectExpression Source2 { get; }
+
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="source1">The <see cref="Source1" /> property of the result.</param>
+    /// <param name="source2">The <see cref="Source2" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public abstract SetOperationBase Update(SelectExpression source1, SelectExpression source2);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

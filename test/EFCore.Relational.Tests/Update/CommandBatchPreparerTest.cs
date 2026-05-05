@@ -25,7 +25,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { entry }, modelData);
+        var commandBatches = CreateBatches([entry], modelData);
         Assert.Single(commandBatches);
         Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -66,7 +66,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { entry }, modelData);
+        var commandBatches = CreateBatches([entry], modelData);
         Assert.Single(commandBatches);
         Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -107,7 +107,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { entry }, modelData);
+        var commandBatches = CreateBatches([entry], modelData);
         Assert.Single(commandBatches);
         Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -139,7 +139,7 @@ public class CommandBatchPreparerTest
         relatedEntry1.SetEntityState(EntityState.Added);
         relatedEntry2.SetEntityState(EntityState.Added);
 
-        var batches = CreateBatches(new[] { relatedEntry1, entry, relatedEntry2 }, new UpdateAdapter(stateManager));
+        var batches = CreateBatches([relatedEntry1, entry, relatedEntry2], new UpdateAdapter(stateManager));
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -163,7 +163,7 @@ public class CommandBatchPreparerTest
         relatedEntry1.SetEntityState(EntityState.Added);
         relatedEntry2.SetEntityState(EntityState.Added);
 
-        var batches = CreateBatches(new[] { relatedEntry1, entry, relatedEntry2 }, new UpdateAdapter(stateManager));
+        var batches = CreateBatches([relatedEntry1, entry, relatedEntry2], new UpdateAdapter(stateManager));
 
         Assert.Collection(
             batches,
@@ -187,7 +187,7 @@ public class CommandBatchPreparerTest
             new RelatedFakeEntity { Id = 42 });
         relatedEntry.SetEntityState(EntityState.Added);
 
-        var batches = CreateBatches(new[] { relatedEntry, entry }, modelData);
+        var batches = CreateBatches([relatedEntry, entry], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -211,7 +211,7 @@ public class CommandBatchPreparerTest
             new RelatedFakeEntity { Id = 42 });
         relatedEntry.SetEntityState(EntityState.Modified);
 
-        var batches = CreateBatches(new[] { relatedEntry, entry }, modelData);
+        var batches = CreateBatches([relatedEntry, entry], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -235,7 +235,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { secondEntry, firstEntry }, modelData);
+        var batches = CreateBatches([secondEntry, firstEntry], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -264,7 +264,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { relatedEntry, previousParent, newParent }, modelData);
+        var batches = CreateBatches([relatedEntry, previousParent, newParent], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -292,7 +292,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { newChild, previousChild }, modelData);
+        var batches = CreateBatches([newChild, previousChild], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -328,7 +328,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { newEntity, newChildEntity, oldEntity, oldChildEntity }, modelData);
+        var batches = CreateBatches([newEntity, newChildEntity, oldEntity, oldChildEntity], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -393,7 +393,7 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { fakeEntry, fakeEntry2, relatedFakeEntry }, modelData);
+        var batches = CreateBatches([fakeEntry, fakeEntry2, relatedFakeEntry], modelData);
         var batch = Assert.Single(batches);
 
         Assert.Equal(
@@ -448,7 +448,7 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
         Assert.Equal(
             CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
             Assert.Throws<InvalidOperationException>(
-                () => CreateBatches(new[] { fakeEntry, relatedFakeEntry }, modelData, sensitiveLogging)).Message);
+                () => CreateBatches([fakeEntry, relatedFakeEntry], modelData, sensitiveLogging)).Message);
     }
 
     [InlineData(true)]
@@ -494,7 +494,7 @@ Index { 'UniqueValue' } FakeEntity [Added]"
         Assert.Equal(
             CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
             Assert.Throws<InvalidOperationException>(
-                () => CreateBatches(new[] { fakeEntry, relatedFakeEntry, fakeEntry2 }, modelData, sensitiveLogging)).Message);
+                () => CreateBatches([fakeEntry, relatedFakeEntry, fakeEntry2], modelData, sensitiveLogging)).Message);
     }
 
     [InlineData(true)]
@@ -533,7 +533,7 @@ FakeEntity [Deleted]"
             CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
             Assert.Throws<InvalidOperationException>(
                 // Order is important for this test. Entry which is not part of cycle but tail should come first.
-                () => CreateBatches(new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }, modelData, sensitiveLogging)).Message);
+                () => CreateBatches([anotherFakeEntry, fakeEntry, relatedFakeEntry], modelData, sensitiveLogging)).Message);
     }
 
     [ConditionalFact]
@@ -554,7 +554,7 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { fakeEntry2, fakeEntry }, modelData);
+        var batches = CreateBatches([fakeEntry2, fakeEntry], modelData);
         var batch = Assert.Single(batches);
 
         // The DELETE must be ordered before the UPDATE, otherwise we'd get a unique constraint violation.
@@ -579,7 +579,7 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { firstEntry, secondEntry }, modelData);
+        var commandBatches = CreateBatches([firstEntry, secondEntry], modelData);
 
         Assert.Single(commandBatches);
         Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -632,7 +632,7 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { entry }, modelData);
+        var commandBatches = CreateBatches([entry], modelData);
 
         Assert.Single(commandBatches);
         Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -687,7 +687,7 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { firstEntry, secondEntry }, modelData);
+        var commandBatches = CreateBatches([firstEntry, secondEntry], modelData);
 
         Assert.Single(commandBatches);
         Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -742,7 +742,7 @@ FakeEntity [Deleted]"
                     nameof(RelatedFakeEntity), "{Id: 42}", EntityState.Deleted,
                     nameof(FakeEntity), "{Id: 42}", EntityState.Added),
                 Assert.Throws<InvalidOperationException>(
-                    () => CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: true)).Message);
+                    () => CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: true)).Message);
         }
         else
         {
@@ -751,7 +751,7 @@ FakeEntity [Deleted]"
                     nameof(RelatedFakeEntity), EntityState.Deleted,
                     nameof(FakeEntity), EntityState.Added),
                 Assert.Throws<InvalidOperationException>(
-                    () => CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: false)).Message);
+                    () => CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: false)).Message);
         }
     }
 
@@ -794,7 +794,7 @@ FakeEntity [Deleted]"
                         nameof(FakeEntity), nameof(RelatedFakeEntity),
                         "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "RelatedId"),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: true)).Message);
+                        () => CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: true)).Message);
             }
             else
             {
@@ -803,7 +803,7 @@ FakeEntity [Deleted]"
                         nameof(FakeEntity), nameof(RelatedFakeEntity),
                         "{'RelatedId'}", "{'RelatedId'}", "RelatedId"),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: false)).Message);
+                        () => CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: false)).Message);
             }
         }
         else
@@ -815,7 +815,7 @@ FakeEntity [Deleted]"
                         nameof(FakeEntity), nameof(RelatedFakeEntity),
                         "{Id: 42}", "{RelatedId: 1}", "{RelatedId: 2}", "RelatedId"),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: true)).Message);
+                        () => CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: true)).Message);
             }
             else
             {
@@ -824,7 +824,7 @@ FakeEntity [Deleted]"
                         nameof(FakeEntity), nameof(RelatedFakeEntity),
                         "{'RelatedId'}", "{'RelatedId'}", "RelatedId"),
                     Assert.Throws<InvalidOperationException>(
-                        () => CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: false)).Message);
+                        () => CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: false)).Message);
             }
         }
     }
@@ -847,7 +847,7 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { firstEntry }, modelData, sensitiveLogging: true);
+        var commandBatches = CreateBatches([firstEntry], modelData, sensitiveLogging: true);
 
         if (state == EntityState.Deleted)
         {
@@ -862,10 +862,8 @@ FakeEntity [Deleted]"
             Assert.Equal(EntityState.Modified, command.EntityState);
 
             // Detect indirect update dependencies. Issue #17947.
-            Assert.Equal(
-                "4",
-                Assert.Throws<EqualException>(
-                    () => Assert.Equal(5, command.ColumnModifications.Count)).Actual);
+            Assert.Throws<EqualException>(
+                () => Assert.Equal(5, command.ColumnModifications.Count));
         }
 
         // var columnMod = command.ColumnModifications[0];
@@ -928,7 +926,7 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var batches = CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: false);
+        var batches = CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: false);
 
         Assert.Single(batches);
     }
@@ -951,15 +949,13 @@ FakeEntity [Deleted]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var commandBatches = CreateBatches(new[] { firstEntry, secondEntry }, modelData, sensitiveLogging: true);
+        var commandBatches = CreateBatches([firstEntry, secondEntry], modelData, sensitiveLogging: true);
 
         if (state == EntityState.Deleted)
         {
             // Detect indirect update dependencies. Issue #17947.
-            Assert.Equal(
-                "1",
-                Assert.Throws<EqualException>(
-                    () => Assert.Equal(2, commandBatches.Count)).Actual);
+            Assert.Throws<EqualException>(
+                () => Assert.Equal(2, commandBatches.Count));
         }
         else
         {

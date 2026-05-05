@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 public static class ScaffoldingModelExtensions
 {
-    private static readonly bool UseOldBehavior28905 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue28905", out var enabled28905) && enabled28905;
-
     /// <summary>
     ///     Check whether an entity type could be considered a many-to-many join entity type.
     /// </summary>
@@ -30,7 +27,7 @@ public static class ScaffoldingModelExtensions
             var primaryKey = entityType.FindPrimaryKey();
             var properties = entityType.GetProperties().ToList();
             var foreignKeys = entityType.GetForeignKeys().ToList();
-            var referencingForeignKeys = UseOldBehavior28905 ? new() : entityType.GetReferencingForeignKeys().ToList();
+            var referencingForeignKeys = entityType.GetReferencingForeignKeys().ToList();
             if (primaryKey is { Properties.Count: > 1 }
                 && referencingForeignKeys.Count == 0
                 && foreignKeys.Count == 2

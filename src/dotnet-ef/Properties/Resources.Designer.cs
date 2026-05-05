@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ConnectionDescription");
 
         /// <summary>
-        ///     The DbContext to use.
+        ///     The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.
         /// </summary>
         public static string ContextDescription
             => GetString("ContextDescription");
@@ -290,6 +290,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationToDescription");
 
         /// <summary>
+        ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
+        /// </summary>
+        public static string MissingConditionalOption(object? requiredOption, object? conditionalOption)
+            => string.Format(
+                GetString("MissingConditionalOption", nameof(requiredOption), nameof(conditionalOption)),
+                requiredOption, conditionalOption);
+
+        /// <summary>
         ///     More than one project was found in the current working directory. Use the --project option.
         /// </summary>
         public static string MultipleProjects
@@ -314,6 +322,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
+
+        /// <summary>
+        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental)
+        /// </summary>
+        public static string NativeAotDescription
+            => GetString("NativeAotDescription");
+
+        /// <summary>
+        ///     NativeAOT support is experimental and can change in the future.
+        /// </summary>
+        public static string NativeAotWarning
+            => GetString("NativeAotWarning");
 
         /// <summary>
         ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254
@@ -370,6 +390,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 projectDir);
 
         /// <summary>
+        ///     Don't generate a compiled model.
+        /// </summary>
+        public static string NoScaffoldDescription
+            => GetString("NoScaffoldDescription");
+
+        /// <summary>
         ///     Don't generate SQL transaction statements.
         /// </summary>
         public static string NoTransactionsDescription
@@ -386,6 +412,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     Generate precompiled queries.
+        /// </summary>
+        public static string PrecompileQueriesDescription
+            => GetString("PrecompileQueriesDescription");
+
+        /// <summary>
+        ///     Query precompilation is an experimental feature and should be used with caution.
+        /// </summary>
+        public static string PrecompileQueriesWarning
+            => GetString("PrecompileQueriesWarning");
 
         /// <summary>
         ///     Prefix output with level.
@@ -434,6 +472,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string StartupProjectDescription
             => GetString("StartupProjectDescription");
+
+        /// <summary>
+        ///     The suffix to attach to the name of all the generated files
+        /// </summary>
+        public static string SuffixDescription
+            => GetString("SuffixDescription");
 
         /// <summary>
         ///     Don't generate DbContext.OnConfiguring.

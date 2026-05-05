@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -76,7 +77,7 @@ public class InversePropertyAttributeConvention :
         var entityType = entityTypeBuilder.Metadata;
         var targetEntityType = targetEntityTypeBuilder.Metadata;
         var targetClrType = targetEntityType.ClrType;
-        var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType);
+        var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType, useAttributes: true);
         var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
                 .FirstOrDefault(
                     p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)
@@ -629,7 +630,8 @@ public class InversePropertyAttributeConvention :
             {
                 foreach (var (memberInfo, references) in navigationMap.Values)
                 {
-                    if (memberInfo.GetMemberType().IsAssignableFrom(entityType.ClrType)
+                    var memberInfoType = memberInfo.GetMemberType();
+                    if ((memberInfoType.TryGetSequenceType() ?? memberInfoType).IsAssignableFrom(entityType.ClrType)
                         && IsAmbiguousInverse(navigation, entityType, references))
                     {
                         return true;
@@ -692,7 +694,7 @@ public class InversePropertyAttributeConvention :
         List<(MemberInfo, IConventionEntityType)> referencingNavigationsWithAttribute;
         if (!inverseNavigations.TryGetValue(inverseNavigation.Name, out var inverseTuple))
         {
-            referencingNavigationsWithAttribute = new List<(MemberInfo, IConventionEntityType)>();
+            referencingNavigationsWithAttribute = [];
             inverseNavigations[inverseNavigation.Name] = (inverseNavigation, referencingNavigationsWithAttribute);
         }
         else

@@ -3,15 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindFunctionsQueryInMemoryTest : NorthwindFunctionsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindFunctionsQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindFunctionsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindFunctionsQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-#pragma warning disable IDE0060 // Remove unused parameter
-        ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
+    // StringComparison.CurrentCulture{,IgnoreCase} and InvariantCulture{,IgnoreCase} are not supported in real providers, but the in-memory
+    // provider does support them.
+    public override Task String_StartsWith_with_StringComparison_unsupported(bool async)
+        => Task.CompletedTask;
+
+    public override Task String_EndsWith_with_StringComparison_unsupported(bool async)
+        => Task.CompletedTask;
+
+    public override Task String_Contains_with_StringComparison_unsupported(bool async)
+        => Task.CompletedTask;
 }

@@ -1,0 +1,66 @@
+id: 
+name: GitOps.PullRequestIssueManagement
+description: GitOps.PullRequestIssueManagement primitive
+owner: 
+resource: repository
+disabled: false
+where: 
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches: []
+    eventResponderTasks:
+    - if:
+      - payloadType: Pull_Request
+      - hasLabel:
+          label: auto-merge
+      then:
+      - enableAutoMerge:
+          mergeMethod: Squash
+      description: Auto-merge PRs
+    - if:
+      - payloadType: Pull_Request
+      - labelRemoved:
+          label: auto-merge
+      then:
+      - disableAutoMerge
+      description: Auto-merge PRs
+    - if:
+      - payloadType: Pull_Request
+      - isAction:
+          action: Opened
+      - isActivitySender:
+          user: dotnet-maestro[bot]
+          issueAuthor: False
+      - titleContains:
+          pattern: Update dependencies
+          isRegex: False
+      then:
+      - addLabel:
+          label: area-infrastructure
+      - addLabel:
+          label: 'type-dependency update :arrow_up_small:'
+      - approvePullRequest:
+          comment: Auto-approving dependency update.
+      description: '[Infrastructure PRs] Add area-infrastructure label to dependency update Pull Requests'
+    - if:
+      - payloadType: Pull_Request
+      - isAction:
+          action: Opened
+      - isActivitySender:
+          user: dotnet-maestro-bot
+          issueAuthor: False
+      - titleContains:
+          pattern: Merge branch
+          isRegex: False
+      then:
+      - addLabel:
+          label: area-infrastructure
+      - addLabel:
+          label: 'type-merge forward :fast_forward:'
+      - approvePullRequest:
+          comment: Auto-approving branch merge.
+      - addLabel:
+          label: auto-merge
+      description: '[Infrastructure PRs] Add area-infrastructure label to auto-merge Pull Requests'
+onFailure: 
+onSuccess: 

@@ -19,8 +19,8 @@ public class SqliteParameterBasedSqlProcessor : RelationalParameterBasedSqlProce
     /// </summary>
     public SqliteParameterBasedSqlProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
+        : base(dependencies, parameters)
     {
     }
 
@@ -34,5 +34,5 @@ public class SqliteParameterBasedSqlProcessor : RelationalParameterBasedSqlProce
         Expression queryExpression,
         IReadOnlyDictionary<string, object?> parametersValues,
         out bool canCache)
-        => new SqliteSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(queryExpression, parametersValues, out canCache);
+        => new SqliteSqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersValues, out canCache);
 }

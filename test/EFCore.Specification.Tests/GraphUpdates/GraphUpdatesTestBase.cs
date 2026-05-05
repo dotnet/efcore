@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
@@ -10,15 +12,12 @@ using System.Runtime.CompilerServices;
 // ReSharper disable NonReadonlyMemberInGetHashCode
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
-    protected GraphUpdatesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     public abstract class GraphUpdatesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
@@ -576,6 +575,109 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                 .HasMany(entity => entity.Entities)
                 .WithMany()
                 .UsingEntity<RootStructure>();
+
+            modelBuilder.Entity<OwnerRoot>(
+                b =>
+                {
+                    b.OwnsOne(e => e.OptionalSingle).OwnsOne(e => e.Single);
+                    b.OwnsOne(e => e.RequiredSingle).OwnsOne(e => e.Single);
+                    b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
+                    b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
+                });
+
+            modelBuilder.Entity<ParentEntity32084>()
+                .HasOne(x => x.Child)
+                .WithOne()
+                .HasForeignKey<ChildBaseEntity32084>(x => x.ParentId);
+
+            modelBuilder.Entity<ChildEntity32084>();
+
+            modelBuilder.Entity<StableParent32084>(
+                b =>
+                {
+                    b.HasOne(x => x.Child).WithOne().HasForeignKey<StableChild32084>(x => x.ParentId);
+                    b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
+                });
+
+            modelBuilder.Entity<StableChild32084>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
+                });
+
+            modelBuilder.Entity<SneakyUncle32084>(
+                b =>
+                {
+                    b.HasOne(x => x.Brother).WithOne().HasForeignKey<SneakyUncle32084>(x => x.BrotherId);
+                    b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<int>>(
+                b =>
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.TargetId,
+                            e.SourceId,
+                            e.PrimaryGroup
+                        });
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool>>(
+                b =>
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.TargetId,
+                            e.SourceId,
+                            e.PrimaryGroup
+                        });
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(
+                b =>
+                {
+                    b.HasKey(
+                        e => new
+                        {
+                            e.TargetId,
+                            e.SourceId,
+                            e.PrimaryGroup
+                        });
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<BoolOnlyKey<bool>>(
+                b =>
+                {
+                    b.HasKey(e => e.PrimaryGroup);
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<BoolOnlyKey<bool?>>(
+                b =>
+                {
+                    b.HasKey(e => e.PrimaryGroup);
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+        }
+
+        private class StableGuidGenerator : ValueGenerator<Guid>
+        {
+            private readonly ConcurrentDictionary<object, Guid> _guids = new(ReferenceEqualityComparer.Instance);
+
+            public override Guid Next(EntityEntry entry)
+                => _guids.GetOrAdd(entry.Entity, _ => Guid.NewGuid());
+
+            public override bool GeneratesTemporaryValues
+                => false;
+
+            public override bool GeneratesStableValues
+                => true;
         }
 
         protected virtual object CreateFullGraph()
@@ -733,7 +835,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                 }
             };
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             var tracker = new KeyValueEntityTracker();
 
@@ -759,7 +861,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
             context.Add(new SharedFkDependant { Root = root, Parent = parent });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
 
         public class KeyValueEntityTracker
@@ -793,9 +895,32 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     protected virtual IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query)
         => query;
 
-    protected Root LoadRequiredGraph(DbContext context)
+    protected virtual OwnerRoot CreateOwnerRoot()
+        => new()
+        {
+            OptionalSingle = new OwnedOptionalSingle1 { Name = "OS", Single = new OwnedOptionalSingle2 { Name = "OS2" } },
+            RequiredSingle = new OwnedRequiredSingle1 { Name = "RS", Single = new OwnedRequiredSingle2 { Name = "RS2 " } },
+            OptionalChildren =
+            {
+                new OwnedOptional1 { Name = "OC1" },
+                new OwnedOptional1
+                {
+                    Name = "OC2", Children = { new OwnedOptional2 { Name = "OCC1" }, new OwnedOptional2 { Name = "OCC2" } }
+                }
+            },
+            RequiredChildren =
+            {
+                new OwnedRequired1
+                {
+                    Name = "RC1", Children = { new OwnedRequired2 { Name = "RCC1" }, new OwnedRequired2 { Name = "RCC2" } }
+                },
+                new OwnedRequired1 { Name = "RC2" }
+            }
+        };
+
+    protected Task<Root> LoadRequiredGraphAsync(DbContext context)
         => QueryRequiredGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -803,9 +928,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
-    protected Root LoadOptionalGraph(DbContext context)
+    protected Task<Root> LoadOptionalGraphAsync(DbContext context)
         => QueryOptionalGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryOptionalGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -816,9 +941,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredNonPkGraph(DbContext context)
+    protected Task<Root> LoadRequiredNonPkGraphAsync(DbContext context)
         => QueryRequiredNonPkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredNonPkGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -830,9 +955,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredAkGraph(DbContext context)
+    protected Task<Root> LoadRequiredAkGraphAsync(DbContext context)
         => QueryRequiredAkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredAkGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -842,9 +967,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
             .OrderBy(e => e.Id);
 
-    protected Root LoadOptionalAkGraph(DbContext context)
+    protected Task<Root> LoadOptionalAkGraphAsync(DbContext context)
         => QueryOptionalAkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryOptionalAkGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -856,9 +981,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredNonPkAkGraph(DbContext context)
+    protected Task<Root> LoadRequiredNonPkAkGraphAsync(DbContext context)
         => QueryRequiredNonPkAkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredNonPkAkGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -870,9 +995,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
             .OrderBy(e => e.Id);
 
-    protected Root LoadOptionalOneToManyGraph(DbContext context)
+    protected Task<Root> LoadOptionalOneToManyGraphAsync(DbContext context)
         => QueryOptionalOneToManyGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryOptionalOneToManyGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -882,9 +1007,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredCompositeGraph(DbContext context)
+    protected Task<Root> LoadRequiredCompositeGraphAsync(DbContext context)
         => QueryRequiredCompositeGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredCompositeGraph(DbContext context)
         => ModifyQueryRoot(context.Set<Root>())
@@ -895,7 +1020,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     {
         var newEntities = new HashSet<object>(actualEntries.Select(ne => ne.Entity));
         var missingEntities = expectedEntries.Select(e => e.Entity).Where(e => !newEntities.Contains(e)).ToList();
-        Assert.Equal(Array.Empty<object>(), missingEntities);
+        Assert.Equal([], missingEntities);
         Assert.Equal(expectedEntries.Count, actualEntries.Count);
     }
 
@@ -1922,14 +2047,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             => _id;
     }
 
-    protected class MyDiscriminator
+    protected class MyDiscriminator(int value)
     {
-        public MyDiscriminator(int value)
-        {
-            Value = value;
-        }
-
-        public int Value { get; }
+        public int Value { get; } = value;
 
         public override bool Equals(object obj)
             => throw new InvalidOperationException();
@@ -2906,6 +3026,169 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             => base.GetHashCode();
     }
 
+    protected class OwnerRoot : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<OwnedRequired1> _requiredChildren = new ObservableHashSet<OwnedRequired1>(ReferenceEqualityComparer.Instance);
+        private ICollection<OwnedOptional1> _optionalChildren = new ObservableHashSet<OwnedOptional1>(ReferenceEqualityComparer.Instance);
+        private OwnedRequiredSingle1 _requiredSingle;
+        private OwnedOptionalSingle1 _optionalSingle;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public OwnedRequiredSingle1 RequiredSingle
+        {
+            get => _requiredSingle;
+            set => SetWithNotify(value, ref _requiredSingle);
+        }
+
+        public OwnedOptionalSingle1 OptionalSingle
+        {
+            get => _optionalSingle;
+            set => SetWithNotify(value, ref _optionalSingle);
+        }
+
+        public ICollection<OwnedRequired1> RequiredChildren
+        {
+            get => _requiredChildren;
+            set => SetWithNotify(value, ref _requiredChildren);
+        }
+
+        public ICollection<OwnedOptional1> OptionalChildren
+        {
+            get => _optionalChildren;
+            set => SetWithNotify(value, ref _optionalChildren);
+        }
+    }
+
+    protected class OwnedRequired1 : NotifyingEntity
+    {
+        private ICollection<OwnedRequired2> _children = new ObservableHashSet<OwnedRequired2>(ReferenceEqualityComparer.Instance);
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public ICollection<OwnedRequired2> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class OwnedRequired2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
+    protected class OwnedOptional1 : NotifyingEntity
+    {
+        private ICollection<OwnedOptional2> _children = new ObservableHashSet<OwnedOptional2>(ReferenceEqualityComparer.Instance);
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public ICollection<OwnedOptional2> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class OwnedOptional2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
+    protected class OwnedRequiredSingle1 : NotifyingEntity
+    {
+        private OwnedRequiredSingle2 _single;
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public OwnedRequiredSingle2 Single
+        {
+            get => _single;
+            set => SetWithNotify(value, ref _single);
+        }
+    }
+
+    protected class OwnedRequiredSingle2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
+    protected class OwnedOptionalSingle1 : NotifyingEntity
+    {
+        private string _name;
+        private OwnedOptionalSingle2 _single;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public OwnedOptionalSingle2 Single
+        {
+            get => _single;
+            set => SetWithNotify(value, ref _single);
+        }
+    }
+
+    protected class OwnedOptionalSingle2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
     protected class BadCustomer : NotifyingEntity
     {
         private int _id;
@@ -2956,9 +3239,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
-    protected class HiddenAreaTask : TaskWithChoices
-    {
-    }
+    protected class HiddenAreaTask : TaskWithChoices;
 
     protected abstract class QuestTask : NotifyingEntity
     {
@@ -2971,9 +3252,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
-    protected class QuizTask : TaskWithChoices
-    {
-    }
+    protected class QuizTask : TaskWithChoices;
 
     protected class TaskChoice : NotifyingEntity
     {
@@ -4149,8 +4428,152 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
-    protected class Beetroot2 : Parsnip2
+    protected class Beetroot2 : Parsnip2;
+
+    protected class ParentEntity32084 : NotifyingEntity
     {
+        private Guid _id;
+        private ChildBaseEntity32084 _child;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public ChildBaseEntity32084 Child
+        {
+            get => _child;
+            set => SetWithNotify(value, ref _child);
+        }
+    }
+
+    protected abstract class ChildBaseEntity32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid _parentId;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+    }
+
+    protected class ChildEntity32084 : ChildBaseEntity32084
+    {
+        private string _childValue;
+
+        public string ChildValue
+        {
+            get => _childValue;
+            set => SetWithNotify(value, ref _childValue);
+        }
+    }
+
+    protected class StableParent32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private StableChild32084 _child;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public StableChild32084 Child
+        {
+            get => _child;
+            set => SetWithNotify(value, ref _child);
+        }
+    }
+
+    protected class StableChild32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid _parentId;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+    }
+
+    protected class SneakyUncle32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid? _brotherId;
+        private StableParent32084 _brother;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid? BrotherId
+        {
+            get => _brotherId;
+            set => SetWithNotify(value, ref _brotherId);
+        }
+
+        public StableParent32084 Brother
+        {
+            get => _brother;
+            set => SetWithNotify(value, ref _brother);
+        }
+    }
+
+    protected class CompositeKeyWith<T> : NotifyingEntity
+        where T : new()
+    {
+        private Guid _targetId;
+        private Guid _sourceId;
+        private T _primaryGroup;
+
+        public Guid TargetId
+        {
+            get => _targetId;
+            set => SetWithNotify(value, ref _targetId);
+        }
+
+        public Guid SourceId
+        {
+            get => _sourceId;
+            set => SetWithNotify(value, ref _sourceId);
+        }
+
+        public T PrimaryGroup
+        {
+            get => _primaryGroup;
+            set => SetWithNotify(value, ref _primaryGroup);
+        }
+    }
+
+    protected class BoolOnlyKey<T> : NotifyingEntity
+        where T : new()
+    {
+        private T _primaryGroup;
+
+        public T PrimaryGroup
+        {
+            get => _primaryGroup;
+            set => SetWithNotify(value, ref _primaryGroup);
+        }
     }
 
     protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
@@ -4174,15 +4597,6 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
     protected DbContext CreateContext()
         => Fixture.CreateContext();
-
-    protected virtual void ExecuteWithStrategyInTransaction(
-        Action<DbContext> testOperation,
-        Action<DbContext> nestedTestOperation1 = null,
-        Action<DbContext> nestedTestOperation2 = null,
-        Action<DbContext> nestedTestOperation3 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
-            CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,

@@ -79,7 +79,7 @@ public class ModelTest
 
         Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
 
-        Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
+        Assert.Equal([entityType], model.GetEntityTypes().ToArray());
 
         Assert.Same(entityType, model.RemoveEntityType(entityType.ClrType));
 
@@ -105,7 +105,7 @@ public class ModelTest
 
         Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
 
-        Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
+        Assert.Equal([entityType], model.GetEntityTypes().ToArray());
 
         Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
 
@@ -133,7 +133,7 @@ public class ModelTest
         Assert.Same(entityType, model.FindEntityType(entityTypeName));
         Assert.Null(model.FindEntityType(typeof(Customer)));
 
-        Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
+        Assert.Equal([entityType], model.GetEntityTypes().ToArray());
 
         Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
 
@@ -298,9 +298,7 @@ public class ModelTest
         public ICollection<Order> Orders { get; set; }
     }
 
-    private class SpecialCustomer : Customer
-    {
-    }
+    private class SpecialCustomer : Customer;
 
     private class Order
     {

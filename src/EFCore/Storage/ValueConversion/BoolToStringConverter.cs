@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using static System.Linq.Expressions.Expression;
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 /// <summary>
@@ -11,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class BoolToStringConverter : BoolToTwoValuesConverter<string>
 {
+    private static readonly MethodInfo StringToUpperInvariantMethod = typeof(string).GetMethod(nameof(string.ToUpperInvariant))!;
+    private static readonly MethodInfo StringCharsMethod = typeof(string).GetMethod("get_Chars", [typeof(int)])!;
+    private static readonly MethodInfo StringIsNullOrEmpty = typeof(string).GetMethod(nameof(string.IsNullOrEmpty), [typeof(string)])!;
+
     /// <summary>
     ///     Creates a new instance of this converter. A case-insensitive first character test is used
     ///     when converting from the store.
@@ -48,9 +54,33 @@ public class BoolToStringConverter : BoolToTwoValuesConverter<string>
 
     private static Expression<Func<string, bool>> FromProvider(string trueValue)
     {
-        var testChar = trueValue.ToUpperInvariant()[0];
+        // v => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)trueValue.ToUpperInvariant()[0];
+        var prm = Parameter(typeof(string), "v");
+        var result = Lambda<Func<string, bool>>(
+            AndAlso(
+                Not(
+                    Call(
+                        StringIsNullOrEmpty,
+                        prm)),
+                Equal(
+                    Convert(
+                        Call(
+                            Call(
+                                prm,
+                                StringToUpperInvariantMethod),
+                            StringCharsMethod,
+                            Constant(0)),
+                        typeof(int)),
+                    Convert(
+                        Call(
+                            Call(
+                                Constant(trueValue),
+                                StringToUpperInvariantMethod),
+                            StringCharsMethod,
+                            Constant(0)),
+                        typeof(int)))),
+            prm);
 
-        return v => !string.IsNullOrEmpty(v)
-            && v.ToUpperInvariant()[0] == testChar;
+        return result;
     }
 }

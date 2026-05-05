@@ -19,9 +19,7 @@ public class SqliteModificationCommandBatchFactory : IModificationCommandBatchFa
     /// </summary>
     public SqliteModificationCommandBatchFactory(
         ModificationCommandBatchFactoryDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

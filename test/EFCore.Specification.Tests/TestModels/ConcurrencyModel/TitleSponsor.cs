@@ -3,16 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class TitleSponsor : Sponsor
 {
-    public class TitleSponsorProxy : TitleSponsor, IF1Proxy
+    public class TitleSponsorProxy(ILazyLoader loader) : TitleSponsor(loader), IF1Proxy
     {
-        public TitleSponsorProxy(
-            ILazyLoader loader)
-            : base(loader)
-        {
-        }
-
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }
         public bool InitializedCalled { get; set; }

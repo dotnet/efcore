@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBase<ComplexNavigationsContext>, IQueryFixtureBase
 {
     protected override string StoreName
@@ -468,8 +470,8 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
         modelBuilder.Entity<ComplexNavigationGlobalization>().HasOne(g => g.Language);
     }
 
-    protected override void Seed(ComplexNavigationsContext context)
-        => ComplexNavigationsData.Seed(context);
+    protected override Task SeedAsync(ComplexNavigationsContext context)
+        => ComplexNavigationsData.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(

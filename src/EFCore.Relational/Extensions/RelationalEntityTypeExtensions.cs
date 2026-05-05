@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -355,9 +356,11 @@ public static class RelationalEntityTypeExtensions
     public static string? GetDefaultViewSchema(this IReadOnlyEntityType entityType)
     {
         var ownership = entityType.FindOwnership();
-        if (ownership is { IsUnique: true })
+        if (ownership != null)
         {
-            return ownership.PrincipalEntityType.GetViewSchema();
+            return ownership.PrincipalEntityType.GetViewName() != null
+                ? ownership.PrincipalEntityType.GetViewSchema()
+                : entityType.Model.GetDefaultSchema();
         }
 
         return GetViewName(entityType) != null ? entityType.Model.GetDefaultSchema() : null;
@@ -1603,9 +1606,50 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type to get the container column name for.</param>
     /// <returns>The container column name to which the entity type is mapped.</returns>
     public static string? GetContainerColumnName(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName
-            ? columnName
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName());
+    {
+        var containerColumnName = entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
+        return containerColumnName == null
+                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
+                : (string?)containerColumnName.Value;
+    }
+
+    /// <summary>
+    ///     Sets the column type to use for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="columnType">The database column type.</param>
+    public static void SetContainerColumnType(this IMutableEntityType entityType, string? columnType)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType);
+
+    /// <summary>
+    ///     Sets the column type to use for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="columnType">The database column type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetContainerColumnType(
+        this IConventionEntityType entityType,
+        string? columnType,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetContainerColumnTypeConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the column type to use for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The database column type.</returns>
+    public static string? GetContainerColumnType(this IReadOnlyEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value as string;
 
     /// <summary>
     ///     Sets the type mapping for the container column to which the entity type is mapped.
@@ -1680,8 +1724,14 @@ public static class RelationalEntityTypeExtensions
     ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyEntityType entityType)
-        => (string?)entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (!entityType.IsMappedToJson() ? null : entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name);
+    {
+        var propertyName = entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
+        return propertyName == null
+                ? (entityType.IsMappedToJson()
+                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                    : null)
+                : (string?)propertyName.Value;
+    }
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.
