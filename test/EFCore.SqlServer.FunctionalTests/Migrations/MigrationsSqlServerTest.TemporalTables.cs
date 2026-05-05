@@ -61,6 +61,57 @@ EXEC(N'CREATE TABLE [Customer] (
     }
 
     [ConditionalFact]
+    public virtual async Task Create_temporal_table_with_period_columns_not_hidden()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("SystemTimeStart");
+                        ttb.HasPeriodEnd("SystemTimeEnd");
+                        ttb.PeriodColumnsHidden(false);
+                    }));
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customer", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("SystemTimeEnd", c.Name),
+                    c => Assert.Equal("SystemTimeStart", c.Name));
+            });
+
+        AssertSql(
+            """
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'CREATE TABLE [Customer] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
+    PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + N'.[CustomerHistory]))');
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task Create_temporal_table_custom_column_mappings_and_default_history_table()
     {
         await Test(

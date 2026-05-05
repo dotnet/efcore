@@ -88,6 +88,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.Sparse);
             annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
             annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
         }
 
         base.Generate(column, parameters);
@@ -171,6 +172,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
         }
 
         base.Generate(entityType, parameters);
@@ -187,6 +189,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
         }
 
         base.Generate(table, parameters);

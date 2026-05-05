@@ -130,6 +130,11 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
 
                 yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
             }
+
+            if (!entityType.IsTemporalPeriodColumnsHidden())
+            {
+                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden, false);
+            }
         }
     }
 
@@ -351,10 +356,20 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
             if (column.Name == periodStartColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
+
+                if (!entityType.IsTemporalPeriodColumnsHidden())
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden, false);
+                }
             }
             else if (column.Name == periodEndColumnName)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
+
+                if (!entityType.IsTemporalPeriodColumnsHidden())
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden, false);
+                }
             }
         }
     }

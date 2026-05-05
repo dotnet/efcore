@@ -148,6 +148,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
             nameof(TemporalPeriodPropertyBuilder.HasColumnName), [typeof(string)])!;
 
+    private static readonly MethodInfo TemporalTablePeriodColumnsHiddenMethodInfo
+        = typeof(TemporalTableBuilder).GetRuntimeMethod(
+            nameof(TemporalTableBuilder.PeriodColumnsHidden), [typeof(bool)])!;
+
     private static readonly MethodInfo ModelHasFullTextCatalogMethodInfo
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.HasFullTextCatalog), [typeof(ModelBuilder), typeof(string)])!;
@@ -385,6 +389,14 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodEndColumnName))
                     : new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName));
 
+            // ttb => ttb.PeriodColumnsHidden(false)
+            // Only emit when explicitly set to false; the default (true) matches legacy behavior.
+            if (annotations.TryGetValue(SqlServerAnnotationNames.TemporalPeriodColumnsHidden, out var periodColumnsHiddenAnnotation)
+                && periodColumnsHiddenAnnotation.Value as bool? == false)
+            {
+                temporalTableBuilderCalls.Add(new MethodCallCodeFragment(TemporalTablePeriodColumnsHiddenMethodInfo, false));
+            }
+
             // ToTable(tb => tb.IsTemporal(ttb => { ... }))
             var toTemporalTableCall = new MethodCallCodeFragment(
                 EntityTypeToTableMethodInfo,
@@ -403,6 +415,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
         }
 
         return fragments;

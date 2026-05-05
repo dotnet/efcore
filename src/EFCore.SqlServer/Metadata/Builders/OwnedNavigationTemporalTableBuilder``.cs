@@ -81,4 +81,23 @@ public class OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
     public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(
         Expression<Func<TDependentEntity, DateTime>> propertyExpression)
         => HasPeriodEnd(Check.NotNull(propertyExpression).GetMemberAccess().Name);
+
+    /// <summary>
+    ///     Configures whether the period columns of the temporal table are defined with the HIDDEN flag,
+    ///     which excludes them from <c>SELECT *</c> results.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The default value is <see langword="true" />, matching the behavior of EF Core releases prior to this option
+    ///         being introduced. Set to <see langword="false" /> to make the period columns visible in <c>SELECT *</c>.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///         for more information.
+    ///     </para>
+    /// </remarks>
+    /// <param name="hidden">A value indicating whether the period columns should be hidden.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public new virtual OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> PeriodColumnsHidden(bool hidden = true)
+        => (OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>)base.PeriodColumnsHidden(hidden);
 }

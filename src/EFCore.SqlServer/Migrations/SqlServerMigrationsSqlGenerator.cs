@@ -1882,7 +1882,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             builder.Append(" GENERATED ALWAYS AS ROW ");
             builder.Append(isPeriodStartColumn ? "START" : "END");
-            builder.Append(" HIDDEN");
+
+            // Defaults to true to preserve backward compatibility - the period columns have always been hidden.
+            // Set to false via TemporalTableBuilder.PeriodColumnsHidden(false) to make them visible.
+            var hidden = operation[SqlServerAnnotationNames.TemporalPeriodColumnsHidden] as bool? ?? true;
+            if (hidden)
+            {
+                builder.Append(" HIDDEN");
+            }
         }
 
         builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
@@ -3199,6 +3206,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     {
                         addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
                         addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
+                        addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
 
                         // model differ adds default value, but for period end we need to replace it with the correct one -
                         // DateTime.MaxValue
@@ -3360,8 +3368,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     // generating ALTER COLUMN operations and could just muddy the waters
                     alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
                     alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
+                    alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
                     alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
                     alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
+                    alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
 
                     if (temporalInformation.IsTemporalTable)
                     {

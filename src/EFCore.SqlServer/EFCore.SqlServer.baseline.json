@@ -239,6 +239,9 @@
           "Member": "override string? ToString();"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder PeriodColumnsHidden(bool hidden = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder UseHistoryTable(string name);"
         },
         {
@@ -254,6 +257,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.DateTime>> propertyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> PeriodColumnsHidden(bool hidden = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name);"
@@ -1123,6 +1129,9 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsTemporalConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsTemporalPeriodColumnsHiddenConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
           "Member": "static string? GetPeriodEndPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
@@ -1156,6 +1165,9 @@
           "Member": "static bool IsTemporal(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
+          "Member": "static bool IsTemporalPeriodColumnsHidden(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
           "Member": "static void SetHistoryTableName(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? historyTableName);"
         },
         {
@@ -1178,6 +1190,12 @@
         },
         {
           "Member": "static bool? SetIsTemporal(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? temporal, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetIsTemporalPeriodColumnsHidden(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? hidden);"
+        },
+        {
+          "Member": "static bool? SetIsTemporalPeriodColumnsHidden(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? hidden, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static void SetPeriodEndPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? periodEndPropertyName);"
@@ -3050,6 +3068,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder PeriodColumnsHidden(bool hidden = true);"
+        },
+        {
           "Member": "override string? ToString();"
         },
         {
@@ -3068,6 +3089,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPeriodStart(System.Linq.Expressions.Expression<System.Func<TEntity, System.DateTime>> propertyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> PeriodColumnsHidden(bool hidden = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> UseHistoryTable(string name);"

@@ -91,6 +91,29 @@ public class TemporalTableBuilder
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
+    /// <summary>
+    ///     Configures whether the period columns of the temporal table are defined with the HIDDEN flag,
+    ///     which excludes them from <c>SELECT *</c> results.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The default value is <see langword="true" />, matching the behavior of EF Core releases prior to this option
+    ///         being introduced. Set to <see langword="false" /> to make the period columns visible in <c>SELECT *</c>.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="hidden">A value indicating whether the period columns should be hidden.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual TemporalTableBuilder PeriodColumnsHidden(bool hidden = true)
+    {
+        _entityTypeBuilder.Metadata.SetIsTemporalPeriodColumnsHidden(hidden);
+
+        return this;
+    }
+
     private IMutableProperty ConfigurePeriodProperty(string propertyName)
     {
         // TODO: Configure the property explicitly, but remove it if it's no longer used, issue #15898
