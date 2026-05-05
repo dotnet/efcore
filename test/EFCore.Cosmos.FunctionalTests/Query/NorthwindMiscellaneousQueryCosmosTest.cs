@@ -2211,13 +2211,15 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
             });
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Select_expression_date_add_milliseconds_below_the_range(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Select_expression_date_add_milliseconds_below_the_range(a);
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<Order>().Where(o => o.OrderDate != null)
+                        .Select(o => new Order { OrderDate = o.OrderDate.Value.AddMilliseconds(-1000000000000) }),
+                    elementSorter: e => e.OrderDate);
 
                 AssertSql(
                     """
@@ -3690,13 +3692,21 @@ WHERE (c["Title"] = @value)
         AssertSql();
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Checked_context_with_arithmetic_does_not_fail(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Checked_context_with_arithmetic_does_not_fail(async);
+                checked
+                {
+                    await AssertQuery(
+                        a,
+                        ss => ss.Set<OrderDetail>()
+                            .Where(w => w.Quantity + 1 == 5 && w.Quantity - 1 == 3 && w.Quantity * 1 == w.Quantity)
+                            .OrderBy(o => o.OrderID)
+                            .Select(o => o),
+                        elementSorter: e => (e.OrderID, e.ProductID),
+                        elementAsserter: (e, a2) => { AssertEqual(e, a2); });
+                }
 
                 AssertSql(
                     """
@@ -4363,13 +4373,14 @@ FROM root c
         }
     }
 
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/292 (Non-deterministic ordering)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Convert_to_nullable_on_nullable_value_is_ignored(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Convert_to_nullable_on_nullable_value_is_ignored(a);
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<Order>().Select(o => new Order { OrderDate = o.OrderDate.Value }),
+                    elementSorter: e => e.OrderDate);
 
                 AssertSql(
                     """

@@ -37,7 +37,9 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
     [ConditionalFact]
     public virtual async Task AutoTransactionBehaviorNever_DoesNotThrow()
     {
-        using var context = fixture.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
+            onConfiguring: cfg => cfg.UseCosmos(x => x.BulkExecutionAllowed()));
+        using var context = contextFactory.CreateDbContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
 
         context.AddRange(Enumerable.Range(0, 100).Select(x => new Customer()));
