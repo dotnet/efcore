@@ -5,6 +5,7 @@ using System.Collections;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -33,15 +34,6 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
 {
     private readonly bool _detailedErrorsEnabled = coreSingletonOptions.AreDetailedErrorsEnabled;
     private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public bool ThreadSafetyChecksEnabled => _threadSafetyChecksEnabled;
 
     /// <summary>
     ///     Builds a non-generated query executor for an enumerable query where <typeparamref name="TElement" />
@@ -739,4 +731,176 @@ public class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOp
             return base.VisitUnary(node);
         }
     }
+
+    #region Non-query execution (ExecuteDelete / ExecuteUpdate)
+
+    /// <summary>
+    ///     Builds a non-generated executor for a non-query operation (ExecuteDelete / ExecuteUpdate).
+    ///     These don't involve entity materialization — they just execute a SQL command and return the
+    ///     affected row count.
+    /// </summary>
+    public Func<QueryContext, int> CreateNonQueryExecutor(
+        RelationalQueryCompilationContext queryCompilationContext,
+        Expression nonQueryExpression)
+    {
+        var commandCache = CreateNonQueryCommandCache(queryCompilationContext, nonQueryExpression);
+        var contextType = queryCompilationContext.ContextType;
+
+        return qc => ExecuteNonQuery(
+            (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
+            CommandSource.ExecuteUpdate, _threadSafetyChecksEnabled);
+    }
+
+    /// <summary>
+    ///     Builds a non-generated async executor for a non-query operation (ExecuteDelete / ExecuteUpdate).
+    /// </summary>
+    public Func<QueryContext, Task<int>> CreateNonQueryAsyncExecutor(
+        RelationalQueryCompilationContext queryCompilationContext,
+        Expression nonQueryExpression)
+    {
+        var commandCache = CreateNonQueryCommandCache(queryCompilationContext, nonQueryExpression);
+        var contextType = queryCompilationContext.ContextType;
+
+        return async qc => await ExecuteNonQueryAsync(
+            (RelationalQueryContext)qc, commandCache.GetRelationalCommandTemplate, contextType,
+            CommandSource.ExecuteUpdate, _threadSafetyChecksEnabled).ConfigureAwait(false);
+    }
+
+    private static RelationalCommandCache CreateNonQueryCommandCache(
+        RelationalQueryCompilationContext queryCompilationContext,
+        Expression nonQueryExpression)
+    {
+        var useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
+        var collectionParameterTranslationMode
+            = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).ParameterizedCollectionMode;
+        var relationalDependencies = queryCompilationContext.RelationalDependencies;
+
+        if (nonQueryExpression is DeleteExpression deleteExpression)
+        {
+            nonQueryExpression = deleteExpression.ApplyTags(queryCompilationContext.Tags);
+        }
+        else if (nonQueryExpression is UpdateExpression updateExpression)
+        {
+            nonQueryExpression = updateExpression.ApplyTags(queryCompilationContext.Tags);
+        }
+
+        return new RelationalCommandCache(
+            relationalDependencies.MemoryCache,
+            relationalDependencies.QuerySqlGeneratorFactory,
+            relationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+            nonQueryExpression,
+            useRelationalNulls,
+            collectionParameterTranslationMode);
+    }
+
+    private static int ExecuteNonQuery(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandResolver relationalCommandResolver,
+        Type contextType,
+        CommandSource commandSource,
+        bool threadSafetyChecksEnabled)
+    {
+        try
+        {
+            using var _ = threadSafetyChecksEnabled
+                ? relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()
+                : default(ConcurrencyDetectorCriticalSectionDisposer?);
+
+            return relationalQueryContext.ExecutionStrategy.Execute(
+                (relationalQueryContext, relationalCommandResolver, commandSource),
+                static (_, state) =>
+                {
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                    return relationalCommand.ExecuteNonQuery(
+                        new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.Parameters,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            state.commandSource));
+                },
+                null);
+        }
+        catch (Exception exception)
+        {
+            HandleNonQueryException(relationalQueryContext, contextType, commandSource, exception);
+            throw;
+        }
+    }
+
+    private static Task<int> ExecuteNonQueryAsync(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandResolver relationalCommandResolver,
+        Type contextType,
+        CommandSource commandSource,
+        bool threadSafetyChecksEnabled)
+    {
+        try
+        {
+            using var _ = threadSafetyChecksEnabled
+                ? relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()
+                : default(ConcurrencyDetectorCriticalSectionDisposer?);
+
+            return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                (relationalQueryContext, relationalCommandResolver, commandSource),
+                static (_, state, cancellationToken) =>
+                {
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                    return relationalCommand.ExecuteNonQueryAsync(
+                        new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.Parameters,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            state.commandSource),
+                        cancellationToken);
+                },
+                null,
+                relationalQueryContext.CancellationToken);
+        }
+        catch (Exception exception)
+        {
+            HandleNonQueryException(relationalQueryContext, contextType, commandSource, exception);
+            throw;
+        }
+    }
+
+    private static void HandleNonQueryException(
+        RelationalQueryContext relationalQueryContext,
+        Type contextType,
+        CommandSource commandSource,
+        Exception exception)
+    {
+        if (relationalQueryContext.ExceptionDetector.IsCancellation(exception))
+        {
+            relationalQueryContext.QueryLogger.QueryCanceled(contextType);
+        }
+        else
+        {
+            switch (commandSource)
+            {
+                case CommandSource.ExecuteDelete:
+                    relationalQueryContext.QueryLogger.ExecuteDeleteFailed(contextType, exception);
+                    break;
+
+                case CommandSource.ExecuteUpdate:
+                    relationalQueryContext.QueryLogger.ExecuteUpdateFailed(contextType, exception);
+                    break;
+
+                default:
+                    relationalQueryContext.QueryLogger.NonQueryOperationFailed(contextType, exception);
+                    break;
+            }
+        }
+    }
+
+    #endregion Non-query execution
 }
