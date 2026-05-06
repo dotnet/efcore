@@ -109,7 +109,18 @@ public class OwnedNavigationTemporalTableBuilder
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual OwnedNavigationTemporalTableBuilder PeriodColumnsHidden(bool hidden = true)
     {
-        _referenceOwnershipBuilder.OwnedEntityType.SetIsTemporalPeriodColumnsHidden(hidden);
+        var entityType = _referenceOwnershipBuilder.OwnedEntityType;
+        if (entityType.GetPeriodStartPropertyName() is { } startName
+            && entityType.FindProperty(startName) is { } startProperty)
+        {
+            startProperty.SetIsHidden(hidden);
+        }
+
+        if (entityType.GetPeriodEndPropertyName() is { } endName
+            && entityType.FindProperty(endName) is { } endProperty)
+        {
+            endProperty.SetIsHidden(hidden);
+        }
 
         return this;
     }

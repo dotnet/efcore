@@ -1884,8 +1884,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder.Append(isPeriodStartColumn ? "START" : "END");
 
             // Defaults to true to preserve backward compatibility - the period columns have always been hidden.
-            // Set to false via TemporalTableBuilder.PeriodColumnsHidden(false) to make them visible.
-            var hidden = operation[SqlServerAnnotationNames.TemporalPeriodColumnsHidden] as bool? ?? true;
+            // Set to false via TemporalPeriodPropertyBuilder.IsHidden(false) (or
+            // TemporalTableBuilder.PeriodColumnsHidden(false) which sets both period columns).
+            var hidden = operation[SqlServerAnnotationNames.IsHidden] as bool? ?? true;
             if (hidden)
             {
                 builder.Append(" HIDDEN");
@@ -3206,7 +3207,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     {
                         addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
                         addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
-                        addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
+                        addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.IsHidden);
 
                         // model differ adds default value, but for period end we need to replace it with the correct one -
                         // DateTime.MaxValue
@@ -3368,10 +3369,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     // generating ALTER COLUMN operations and could just muddy the waters
                     alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
                     alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
-                    alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
+                    alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.IsHidden);
                     alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
                     alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
-                    alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden);
+                    alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.IsHidden);
 
                     if (temporalInformation.IsTemporalTable)
                     {
@@ -3483,6 +3484,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 temporalInformation.Key.Schema,
                 temporalInformation.Value.PeriodStartColumnName!,
                 temporalInformation.Value.PeriodEndColumnName!,
+                temporalInformation.Value.PeriodStartHidden,
+                temporalInformation.Value.PeriodEndHidden,
                 temporalInformation.Value.SuppressTransaction);
         }
 
@@ -3508,13 +3511,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             var periodStartColumnName = operation[SqlServerAnnotationNames.TemporalPeriodStartColumnName] as string;
             var periodEndColumnName = operation[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
 
+            // Period columns default to HIDDEN; the annotation is only present when explicitly configured visible.
+            var periodStartHidden = operation[SqlServerAnnotationNames.TemporalPeriodStartHidden] as bool? ?? true;
+            var periodEndHidden = operation[SqlServerAnnotationNames.TemporalPeriodEndHidden] as bool? ?? true;
+
             return new TemporalOperationInformation
             {
                 IsTemporalTable = isTemporalTable,
                 HistoryTableName = historyTableName,
                 HistoryTableSchema = historyTableSchema,
                 PeriodStartColumnName = periodStartColumnName,
-                PeriodEndColumnName = periodEndColumnName
+                PeriodEndColumnName = periodEndColumnName,
+                PeriodStartHidden = periodStartHidden,
+                PeriodEndHidden = periodEndHidden
             };
         }
 
@@ -3610,7 +3619,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 });
         }
 
-        void EnablePeriod(string table, string? schema, string periodStartColumnName, string periodEndColumnName, bool suppressTransaction)
+        void EnablePeriod(
+            string table,
+            string? schema,
+            string periodStartColumnName,
+            string periodEndColumnName,
+            bool periodStartHidden,
+            bool periodEndHidden,
+            bool suppressTransaction)
         {
             var addPeriodSql = new StringBuilder()
                 .Append("ALTER TABLE ")
@@ -3634,31 +3650,39 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             operations.Add(
                 new SqlOperation { Sql = addPeriodSql, SuppressTransaction = suppressTransaction });
 
-            operations.Add(
-                new SqlOperation
-                {
-                    Sql = new StringBuilder()
-                        .Append("ALTER TABLE ")
-                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
-                        .Append(" ALTER COLUMN ")
-                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodStartColumnName))
-                        .Append(" ADD HIDDEN")
-                        .ToString(),
-                    SuppressTransaction = suppressTransaction
-                });
+            // Period columns are HIDDEN by default. Skip the `ADD HIDDEN` ALTER when the column was
+            // configured visible via TemporalPeriodPropertyBuilder.IsHidden(false).
+            if (periodStartHidden)
+            {
+                operations.Add(
+                    new SqlOperation
+                    {
+                        Sql = new StringBuilder()
+                            .Append("ALTER TABLE ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
+                            .Append(" ALTER COLUMN ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodStartColumnName))
+                            .Append(" ADD HIDDEN")
+                            .ToString(),
+                        SuppressTransaction = suppressTransaction
+                    });
+            }
 
-            operations.Add(
-                new SqlOperation
-                {
-                    Sql = new StringBuilder()
-                        .Append("ALTER TABLE ")
-                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
-                        .Append(" ALTER COLUMN ")
-                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
-                        .Append(" ADD HIDDEN")
-                        .ToString(),
-                    SuppressTransaction = suppressTransaction
-                });
+            if (periodEndHidden)
+            {
+                operations.Add(
+                    new SqlOperation
+                    {
+                        Sql = new StringBuilder()
+                            .Append("ALTER TABLE ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
+                            .Append(" ALTER COLUMN ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
+                            .Append(" ADD HIDDEN")
+                            .ToString(),
+                        SuppressTransaction = suppressTransaction
+                    });
+            }
         }
 
         void DecompressTable(string tableName, string? schema, bool suppressTransaction)
@@ -3740,5 +3764,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         public bool ShouldEnableVersioning { get; set; }
         public bool ShouldEnablePeriod { get; set; }
         public bool SuppressTransaction { get; set; }
+
+        // Period columns default to HIDDEN. When converting an existing table to temporal, these flags
+        // capture the user-configured visibility from the period column annotations so EnablePeriod can
+        // conditionally emit `ALTER COLUMN ... ADD HIDDEN`.
+        public bool PeriodStartHidden { get; set; } = true;
+        public bool PeriodEndHidden { get; set; } = true;
     }
 }

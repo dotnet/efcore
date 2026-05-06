@@ -110,6 +110,57 @@ EXEC(N'CREATE TABLE [Customer] (
     }
 
     [ConditionalFact]
+    public virtual async Task Convert_normal_table_to_temporal_with_visible_period_columns()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(tb => tb.IsTemporal(ttb => ttb.PeriodColumnsHidden(false)));
+
+                    e.Metadata[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] = "PeriodStart";
+                    e.Metadata[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] = "PeriodEnd";
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+            });
+
+        // The convert-to-temporal path should NOT emit `ALTER COLUMN ... ADD HIDDEN` operations
+        // when the user has configured the period columns visible.
+        AssertSql(
+            """
+ALTER TABLE [Customer] ADD [PeriodEnd] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
+""",
+            //
+            """
+ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
+""",
+            //
+            """
+ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])
+""",
+            //
+            """
+DECLARE @historyTableSchema nvarchar(max) = QUOTENAME(SCHEMA_NAME())
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @historyTableSchema + '.[CustomerHistory]))')
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task Create_temporal_table_custom_column_mappings_and_default_history_table()
     {
         await Test(

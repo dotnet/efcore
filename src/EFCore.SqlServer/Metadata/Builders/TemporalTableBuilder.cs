@@ -109,7 +109,18 @@ public class TemporalTableBuilder
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TemporalTableBuilder PeriodColumnsHidden(bool hidden = true)
     {
-        _entityTypeBuilder.Metadata.SetIsTemporalPeriodColumnsHidden(hidden);
+        var entityType = _entityTypeBuilder.Metadata;
+        if (entityType.GetPeriodStartPropertyName() is { } startName
+            && entityType.FindProperty(startName) is { } startProperty)
+        {
+            startProperty.SetIsHidden(hidden);
+        }
+
+        if (entityType.GetPeriodEndPropertyName() is { } endName
+            && entityType.FindProperty(endName) is { } endProperty)
+        {
+            endProperty.SetIsHidden(hidden);
+        }
 
         return this;
     }

@@ -297,53 +297,6 @@ public static class SqlServerEntityTypeExtensions
         return (string.IsNullOrEmpty(schema) ? "" : schema + ".") + historyTableName;
     }
 
-    /// <summary>
-    ///     Returns a value indicating whether the period columns of the entity type mapped to a temporal table are
-    ///     defined with the HIDDEN flag, which excludes them from <c>SELECT *</c> results.
-    /// </summary>
-    /// <remarks>
-    ///     The default value is <see langword="true" />, matching the behavior of EF Core releases prior to this option
-    ///     being introduced. Set to <see langword="false" /> to make the period columns visible.
-    /// </remarks>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns><see langword="true" /> if the period columns are hidden; otherwise <see langword="false" />.</returns>
-    public static bool IsTemporalPeriodColumnsHidden(this IReadOnlyEntityType entityType)
-        => entityType[SqlServerAnnotationNames.TemporalPeriodColumnsHidden] as bool? ?? true;
-
-    /// <summary>
-    ///     Sets a value indicating whether the period columns of the entity type mapped to a temporal table are
-    ///     defined with the HIDDEN flag.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="hidden">The value to set; <see langword="null" /> to remove the explicit configuration.</param>
-    public static void SetIsTemporalPeriodColumnsHidden(this IMutableEntityType entityType, bool? hidden)
-        => entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden, hidden);
-
-    /// <summary>
-    ///     Sets a value indicating whether the period columns of the entity type mapped to a temporal table are
-    ///     defined with the HIDDEN flag.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="hidden">The value to set; <see langword="null" /> to remove the explicit configuration.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    public static bool? SetIsTemporalPeriodColumnsHidden(
-        this IConventionEntityType entityType,
-        bool? hidden,
-        bool fromDataAnnotation = false)
-        => (bool?)entityType.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.TemporalPeriodColumnsHidden,
-            hidden,
-            fromDataAnnotation)?.Value;
-
-    /// <summary>
-    ///     Gets the configuration source for the period-columns-hidden setting.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns>The configuration source for the period-columns-hidden setting.</returns>
-    public static ConfigurationSource? GetIsTemporalPeriodColumnsHiddenConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalPeriodColumnsHidden)?.GetConfigurationSource();
-
     #endregion Temporal table
 
     #region SQL OUTPUT clause
