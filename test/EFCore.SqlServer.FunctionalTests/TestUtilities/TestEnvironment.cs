@@ -139,7 +139,7 @@ public static class TestEnvironment
 
             try
             {
-                _supportsHiddenColumns = ((GetProductMajorVersion() >= 13 && GetEngineEdition() != 6) || IsAzureSql) && GetCompatibilityLevel() >= 130;
+                _supportsHiddenColumns = GetEngineEdition() != 6 && GetCompatibilityLevel() >= 130;
             }
             catch (PlatformNotSupportedException)
             {
@@ -448,8 +448,7 @@ public static class TestEnvironment
 
             try
             {
-                _isVectorTypeSupported = ((!IsLocalDb && GetProductMajorVersion() >= 17) || IsAzureSql)
-                    && GetCompatibilityLevel() >= 170;
+                _isVectorTypeSupported = !IsLocalDb && GetCompatibilityLevel() >= 170;
             }
             catch (PlatformNotSupportedException)
             {
@@ -523,7 +522,7 @@ public static class TestEnvironment
         sqlConnection.Open();
 
         using var command = new SqlCommand(
-            "SELECT compatibility_level FROM sys.databases WHERE [name] = 'master';", sqlConnection);
+            "SELECT compatibility_level FROM sys.databases WHERE [name] = 'model';", sqlConnection);
         _compatibilityLevel = (byte)command.ExecuteScalar();
 
         return _compatibilityLevel.Value;
