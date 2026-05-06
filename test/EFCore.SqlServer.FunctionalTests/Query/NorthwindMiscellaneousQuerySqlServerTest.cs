@@ -1998,7 +1998,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND 0 = 1
+WHERE 0 = 1
 """);
     }
 
