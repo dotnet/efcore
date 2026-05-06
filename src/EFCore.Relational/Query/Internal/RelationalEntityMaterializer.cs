@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.Common;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -60,6 +62,19 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     private readonly int _discriminatorColumnIndex;
 
     /// <summary>
+    ///     Typed reader for the discriminator column, applying value conversion (e.g. Int64 → enum).
+    ///     Null when there's no discriminator.
+    /// </summary>
+    private readonly ITypedValueReader<DbDataReader>? _discriminatorReader;
+
+    /// <summary>
+    ///     JSON-mapped complex properties on this entity. Each entry contains the JSON column index,
+    ///     the materializer for the complex type, and the setter to assign it on the entity.
+    ///     Null when the entity has no JSON complex properties.
+    /// </summary>
+    private readonly JsonComplexPropertyInfo[]? _jsonComplexProperties;
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -94,6 +109,12 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         _discriminatorColumnIndex = discriminatorProperty is not null && projectionMap.TryGetValue(discriminatorProperty, out var discIdx)
             ? discIdx
             : -1;
+
+        if (discriminatorProperty is not null && _discriminatorColumnIndex >= 0)
+        {
+            var discriminatorTypeMapping = (RelationalTypeMapping)discriminatorProperty.GetTypeMapping();
+            _discriminatorReader = discriminatorTypeMapping.CreateReader(_discriminatorColumnIndex);
+        }
 
         var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
         _concreteTypes = new ConcreteTypeInfo[concreteEntityTypes.Count];
@@ -143,6 +164,42 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 discriminatorValue,
                 materializers.ToArray());
         }
+
+        // Build JSON complex property info for JSON-mapped complex properties on this entity.
+        // This mirrors ProcessTopLevelComplexJsonProperties in the generated shaper.
+        List<JsonComplexPropertyInfo>? jsonComplexProps = null;
+
+        foreach (var (property, projectionIndex) in projectionMap)
+        {
+            if (property is IComplexProperty { ComplexType: var complexType } complexProperty
+                && complexType.IsMappedToJson())
+            {
+                // Look up the JSON column's type mapping — needed to correctly read the column
+                // value (e.g. SQLite stores JSON as string, not MemoryStream).
+                var jsonColumnName = complexType.GetContainerColumnName()!;
+                var jsonColumn = complexType.ContainingEntityType.GetViewOrTableMappings()
+                    .Select(m => m.Table.FindColumn(jsonColumnName))
+                    .FirstOrDefault(c => c is not null)
+                    ?? throw new UnreachableException(
+                        $"Could not find JSON container column '{jsonColumnName}' for complex type '{complexType.DisplayName()}'.");
+
+                var jsonColumnTypeMapping = (RelationalTypeMapping)jsonColumn.StoreTypeMapping;
+                var jsonStreamReader = RelationalMaterializerFactory.BuildJsonColumnReader(
+                    jsonColumnTypeMapping, projectionIndex);
+
+                jsonComplexProps ??= [];
+                jsonComplexProps.Add(new JsonComplexPropertyInfo(
+                    projectionIndex,
+                    jsonStreamReader,
+                    RelationalMaterializerFactory.BuildJsonStructuralTypeMaterializer(
+                        complexType, isTracking, isNullable || complexProperty.IsNullable),
+                    ((IRuntimePropertyBase)complexProperty).MaterializationSetter,
+                    complexProperty.IsCollection,
+                    complexProperty));
+            }
+        }
+
+        _jsonComplexProperties = jsonComplexProps?.ToArray();
     }
 
     /// <inheritdoc />
@@ -172,7 +229,6 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
     {
-
         TEntity entity;
 
         if (CollectionIncludes is not null)
@@ -185,7 +241,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             if (resultContext.Values is null)
             {
                 // First call for this parent entity
-                entity = MaterializeEntity(queryContext, dataReader)!;
+                entity = MaterializeEntity(queryContext, dataReader, out var fromIdentityMap1)!;
                 if (entity is null)
                 {
                     return null;
@@ -208,6 +264,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 // include materializers no longer have collection includes, so they complete in a single
                 // call without affecting ResultReady.
                 ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
+                ProcessJsonIncludes(queryContext, dataReader, entity, fromIdentityMap1);
 
                 // Initialize collection includes. Direct collections use the outer entity as parent;
                 // flattened collections (from reference includes) obtain their parent from the provider
@@ -238,24 +295,28 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             return resultCoordinator.ResultReady ? entity : default;
         }
 
-        // Reference includes only (no collection includes). After flattening, reference include
-        // materializers never have collection includes, so they complete in a single call.
-        if (ReferenceIncludes is not null)
+        // Reference and/or JSON includes (no collection includes). These complete in a single call.
+        if (ReferenceIncludes is not null || JsonIncludes is not null)
         {
             if (resultContext.Values is null)
             {
-                entity = MaterializeEntity(queryContext, dataReader)!;
+                entity = MaterializeEntity(queryContext, dataReader, out var fromIdentityMap)!;
                 if (entity is null)
                 {
                     return null;
                 }
 
-                for (var i = 0; i < ReferenceIncludes.Count; i++)
+                if (ReferenceIncludes is not null)
                 {
-                    ReferenceIncludes[i].ResultContext.Values = null;
+                    for (var i = 0; i < ReferenceIncludes.Count; i++)
+                    {
+                        ReferenceIncludes[i].ResultContext.Values = null;
+                    }
+
+                    ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
                 }
 
-                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
+                ProcessJsonIncludes(queryContext, dataReader, entity, fromIdentityMap);
 
                 resultContext.Values = [entity];
 
@@ -271,7 +332,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         // its collection population, and we must not re-read from the reader after the first call.
         if (resultContext.Values is null)
         {
-            entity = MaterializeEntity(queryContext, dataReader)!;
+            entity = MaterializeEntity(queryContext, dataReader, out _)!;
             if (entity is not null)
             {
                 resultContext.Values = [entity];
@@ -288,8 +349,11 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     /// </summary>
     private TEntity? MaterializeEntity(
         QueryContext queryContext,
-        DbDataReader dataReader)
+        DbDataReader dataReader,
+        out bool fromIdentityMap)
     {
+        fromIdentityMap = false;
+
         // Check for null keys — needed for tracking (identity resolution) and nullable entities (LEFT JOIN)
         if (_keyColumns is not null)
         {
@@ -327,6 +391,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 var entry = queryContext.TryGetEntry(_primaryKey!, keyValues!, throwOnNullKey: true, out _);
                 if (entry is not null)
                 {
+                    fromIdentityMap = true;
                     return (TEntity)entry.Entity;
                 }
             }
@@ -335,6 +400,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         var (entity, typeInfo) = InstantiateEntity(dataReader);
 
         PopulateProperties(dataReader, entity, typeInfo.PropertyMaterializers);
+        PopulateJsonComplexProperties(queryContext, dataReader, entity);
 
         if (_isTracking)
         {
@@ -397,6 +463,140 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                     {
                         inverse.SetIsLoadedWhenNoTracking(relatedEntity);
                         include.InverseNavigationSetter?.SetClrValue(relatedEntity, entity);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Processes JSON includes for the given entity.
+    ///     Each JSON include reads a JSON column from the DbDataReader, parses it, and sets
+    ///     the navigation property on the entity with the materialized result.
+    /// </summary>
+    /// <remarks>
+    ///     This mirrors the generated shaper's <c>IncludeJsonEntityReference</c> and
+    ///     <c>IncludeJsonEntityCollection</c> runtime methods.
+    /// </remarks>
+    private void ProcessJsonIncludes(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        TEntity entity,
+        bool entityAlreadyTracked = false)
+    {
+        if (JsonIncludes is null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < JsonIncludes.Count; i++)
+        {
+            var include = JsonIncludes[i];
+            var jsonMaterializer = (RelationalJsonStructuralTypeMaterializer)include.Materializer;
+
+            // TPH guard
+            if (!include.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(entity))
+            {
+                continue;
+            }
+
+            var jsonReaderData = RelationalMaterializerFactory.ReadJsonColumn(
+                dataReader, include.ProjectionInfo.JsonColumnIndex, include.JsonStreamReader, queryContext);
+            if (jsonReaderData is null)
+            {
+                continue;
+            }
+
+            var keyValues = RelationalMaterializerFactory.ExtractJsonKeyValues(
+                dataReader, include.ProjectionInfo, include.Navigation.TargetEntityType,
+                include.IsCollection);
+
+            if (include.IsCollection)
+            {
+                // Collection include: create the collection, populate elements, fixup
+                var collectionAccessor = include.Navigation.GetCollectionAccessor()!;
+                var collection = collectionAccessor.GetOrCreate(entity!, forMaterialization: true);
+
+                object[]? childKeyValues = null;
+                if (keyValues is not null)
+                {
+                    childKeyValues = new object[keyValues.Length + 1];
+                    Array.Copy(keyValues, childKeyValues, keyValues.Length);
+                }
+
+                var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
+                var tokenType = manager.CurrentReader.TokenType;
+
+                if (tokenType is JsonTokenType.Null or not JsonTokenType.StartArray)
+                {
+                    continue;
+                }
+
+                tokenType = manager.MoveNext();
+                var index = 0;
+
+                while (tokenType != JsonTokenType.EndArray)
+                {
+                    if (childKeyValues is not null)
+                    {
+                        childKeyValues[^1] = ++index;
+                    }
+
+                    if (tokenType == JsonTokenType.StartObject)
+                    {
+                        manager.CaptureState();
+                        var element = jsonMaterializer.Materialize(queryContext, jsonReaderData, childKeyValues);
+
+                        // For tracking queries where the entity is already tracked (from identity map),
+                        // skip adding to the collection — it was already populated on first materialization.
+                        // This mirrors the generated shaper's performFixup=false for tracking entity types.
+                        if (element is not null && !entityAlreadyTracked)
+                        {
+                            collectionAccessor.AddStandalone(collection, element);
+                        }
+
+                        manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
+                        if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType.ToString()));
+                        }
+
+                        tokenType = manager.MoveNext();
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                    }
+                }
+
+                manager.CaptureState();
+            }
+            else
+            {
+                // Reference include: materialize single entity, fixup
+                var related = jsonMaterializer.Materialize(queryContext, jsonReaderData, keyValues);
+
+                // For tracking queries where the entity is already tracked, skip fixup —
+                // the navigation was already set on first materialization.
+                if (related is not null && !entityAlreadyTracked)
+                {
+                    var navSetter = ((IRuntimePropertyBase)include.Navigation).GetSetter();
+                    navSetter.SetClrValue(entity!, related);
+
+                    if (!_isTracking)
+                    {
+                        ((INavigation)include.Navigation).SetIsLoadedWhenNoTracking(entity!);
+                    }
+
+                    if (include.InverseNavigation is { IsCollection: false })
+                    {
+                        include.InverseNavigationSetter?.SetClrValue(related, entity!);
+                        if (!_isTracking)
+                        {
+                            include.InverseNavigation.SetIsLoadedWhenNoTracking(related);
+                        }
                     }
                 }
             }
@@ -589,7 +789,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                     $"Multiple concrete types ({_concreteTypes.Length}) but no discriminator column.");
             }
 
-            var discriminatorValue = dataReader.GetValue(_discriminatorColumnIndex);
+            var discriminatorValue = _discriminatorReader!.Read<object>(dataReader);
 
             if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
             {
@@ -612,6 +812,44 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     ///     The <see cref="DbDataReader" /> is passed as state per-call, so all reader instances are
     ///     immutable and safe to share across concurrent executions.
     /// </summary>
+    private void PopulateJsonComplexProperties(
+        QueryContext queryContext,
+        DbDataReader dataReader,
+        TEntity entity)
+    {
+        if (_jsonComplexProperties is null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < _jsonComplexProperties.Length; i++)
+        {
+            ref readonly var jsonProp = ref _jsonComplexProperties[i];
+            var jsonReaderData = RelationalMaterializerFactory.ReadJsonColumn(
+                dataReader, jsonProp.JsonColumnIndex, jsonProp.JsonStreamReader, queryContext);
+
+            if (jsonReaderData is not null)
+            {
+                object? value;
+
+                if (jsonProp.IsCollection)
+                {
+                    value = RelationalJsonStructuralTypeMaterializer.MaterializeCollection(
+                        queryContext, jsonReaderData, keyValues: null, jsonProp.Materializer, jsonProp.ComplexProperty);
+                }
+                else
+                {
+                    value = jsonProp.Materializer.Materialize(queryContext, jsonReaderData, keyValues: null);
+                }
+
+                if (value is not null)
+                {
+                    jsonProp.Setter.SetClrValue(entity, value);
+                }
+            }
+        }
+    }
+
     private static void PopulateProperties(DbDataReader dataReader, TEntity entity, PropertyMaterializer[] materializers)
     {
         for (var i = 0; i < materializers.Length; i++)
@@ -658,6 +896,22 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     {
         public int ColumnIndex { get; } = columnIndex;
         public Type ClrType { get; } = clrType;
+    }
+
+    private readonly struct JsonComplexPropertyInfo(
+        int jsonColumnIndex,
+        Func<DbDataReader, MemoryStream?> jsonStreamReader,
+        RelationalJsonStructuralTypeMaterializer materializer,
+        IClrPropertySetter setter,
+        bool isCollection,
+        IPropertyBase complexProperty)
+    {
+        public int JsonColumnIndex { get; } = jsonColumnIndex;
+        public Func<DbDataReader, MemoryStream?> JsonStreamReader { get; } = jsonStreamReader;
+        public RelationalJsonStructuralTypeMaterializer Materializer { get; } = materializer;
+        public IClrPropertySetter Setter { get; } = setter;
+        public bool IsCollection { get; } = isCollection;
+        public IPropertyBase ComplexProperty { get; } = complexProperty;
     }
 
     private sealed class ValueComparerEqualityComparer(ValueComparer comparer) : IEqualityComparer<object>

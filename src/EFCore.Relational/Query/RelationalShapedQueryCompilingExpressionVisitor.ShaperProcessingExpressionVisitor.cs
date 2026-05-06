@@ -3298,7 +3298,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private sealed class JsonCorrectOrderOfEntitiesForChangeTrackerValidator(SelectExpression selectExpression) : ExpressionVisitor
+        internal sealed class JsonCorrectOrderOfEntitiesForChangeTrackerValidator(SelectExpression selectExpression) : ExpressionVisitor
         {
             private bool _insideCollection;
             private bool _insideInclude;

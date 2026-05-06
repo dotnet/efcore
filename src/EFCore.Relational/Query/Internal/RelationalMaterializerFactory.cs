@@ -46,6 +46,14 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
     {
         var (select, shaper) = ((SelectExpression)shapedQueryExpression.QueryExpression, shapedQueryExpression.ShaperExpression);
 
+        // For NoTrackingWithIdentityResolution, validate that JSON entity projections are in a safe
+        // order. This mirrors the generated shaper's JsonCorrectOrderOfEntitiesForChangeTrackerValidator.
+        if (queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+        {
+            new RelationalShapedQueryCompilingExpressionVisitor.ShaperProcessingExpressionVisitor
+                .JsonCorrectOrderOfEntitiesForChangeTrackerValidator(select).Validate(shaper);
+        }
+
         if (queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery)
         {
             return CreateSplitQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
@@ -103,13 +111,19 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         ref int nextCollectionId,
         List<SplitCollectionIncludeInfo>? splitCollectionInfos = null)
     {
-        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } convert)
+        // Strip top-level Convert nodes that are just boxing/widening (e.g. Convert(entity, object)).
+        // Do NOT strip if the Convert is doing actual value conversion (e.g. string → DateTimeOffset)
+        // — those need to flow through the default/fallback expression compilation path.
+        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } convert
+            && (convert.Type == typeof(object) || convert.Type.IsAssignableFrom(convert.Operand.Type)))
         {
             shaperExpression = convert.Operand;
         }
 
         switch (shaperExpression)
         {
+            // Scalar column projection (e.g. Select(x => x.Name), or a scalar within an anonymous type).
+            // Reads a single column from the DbDataReader using the type mapping.
             case ProjectionBindingExpression scalarProjection:
             {
                 var projectionIndex = select.GetProjection(scalarProjection).GetConstantValue<object>();
@@ -149,71 +163,64 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     : (qc, reader, rc, coord) => (T?)typedReader.Read<object>(reader);
             }
 
-            case NewExpression newExpression:
+            // JSON structural type projection (e.g. Select(x => x.JsonComplexProp) or Select(x => x.OwnedJsonNav)).
+            // Reads a JSON column from the DbDataReader and materializes the structural type from the JSON stream.
+            case RelationalStructuralTypeShaperExpression
             {
-                // TODO: For JIT mode, probably better to fall through to the default case, to just compile the expression tree.
-                // But probably good to leave the optimization here for NativeAOT.
-                var invoker = ConstructorInvoker.Create(newExpression.Constructor!);
-                var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
-                for (var i = 0; i < subMaterializers.Length; i++)
-                {
-                    subMaterializers[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
-                }
-
-                var invokerArgs = new object?[subMaterializers.Length];
-
-                return ComposeWithMultiCallProtocol<T>(
-                    subMaterializers,
-                    (_, _, values) =>
-                    {
-                        values.CopyTo(invokerArgs.AsSpan());
-                        return (T?)invoker.Invoke(invokerArgs.AsSpan());
-                    });
+                ValueBufferExpression: ProjectionBindingExpression jsonPbe
+            } jsonShaper
+                when select.GetProjection(jsonPbe).GetConstantValue<object>() is JsonProjectionInfo jsonProjectionInfo:
+            {
+                return BuildTopLevelJsonMaterializer<T>(
+                    jsonShaper.StructuralType, jsonProjectionInfo, isTracking, jsonShaper.IsNullable);
             }
 
+            // JSON collection projection (e.g. Select(x => x.JsonCollectionProp)).
+            // Reads a JSON column and materializes an array of elements from a JSON array.
+            case CollectionResultExpression
+            {
+                QueryExpression: ProjectionBindingExpression jsonCollectionPbe,
+                StructuralProperty: { } jsonCollectionProperty
+            } when select.GetProjection(jsonCollectionPbe).GetConstantValue<object>() is JsonProjectionInfo jsonCollProjInfo:
+            {
+                return BuildJsonCollectionProjectionMaterializer<T>(jsonCollectionProperty, jsonCollProjInfo, isTracking);
+            }
+
+            // Entity or include projection (e.g. ctx.Blogs, ctx.Blogs.Include(b => b.Posts)).
+            // Builds a RelationalEntityMaterializer tree with reference/collection/JSON includes.
             case RelationalStructuralTypeShaperExpression:
             case IncludeExpression:
             {
-                var entityMaterializer = TryBuildMaterializerFromShaper(
-                        shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId)
-                    ?? throw new NotImplementedException(
-                        $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}'.");
+                var entityMaterializer = BuildMaterializerFromShaper(
+                    shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId);
 
                 if (typeof(T) != typeof(object))
                 {
-                    // Typed path: use GetTypedMaterializeDelegate to avoid boxing.
                     return entityMaterializer.GetTypedMaterializeDelegate<T>()!;
                 }
 
-                // Boxed path: use Materialize() returning object?.
                 return (queryCtx, reader, rc, coord) => (T?)entityMaterializer.Materialize(queryCtx, reader, rc, coord);
             }
 
+            // Single-query collection projection (e.g. Select(x => x.Posts) via correlated subquery).
+            // Uses the multi-call protocol: InitializeCollection on first call, PopulateCollection on
+            // every call, return collection when ResultReady.
             case RelationalCollectionShaperExpression collectionShaper:
-            {
                 return BuildStandaloneCollectionMaterializer<T>(collectionShaper, select, isTracking, ref nextCollectionId);
-            }
 
-            // Standalone split-query collection projection (e.g. Select(c => new { Orders = c.Orders.ToList() })).
-            // In a split query, the collection is loaded via a separate SQL query. We add it to
-            // splitCollectionInfos and return a materializer that creates the empty collection.
-            // The collection is populated in-place by PopulateSplitIncludeCollection via relatedDataLoaders,
-            // so no multi-call protocol is needed here — just create and return it immediately.
-            // InitializeSplitIncludeCollection receives the collection via ParentEntityProvider and
-            // registers it with the coordinator.
+            // Split-query collection projection (e.g. Select(c => new { Orders = c.Orders.ToList() })
+            // with AsSplitQuery). The collection is loaded via a separate SQL query; we register it
+            // with splitCollectionInfos and return an empty collection that gets populated in-place
+            // by relatedDataLoaders.
             case RelationalSplitCollectionShaperExpression splitCollectionShaper
                 when splitCollectionInfos is not null:
             {
                 var collectionId = nextCollectionId++;
 
                 var childSplitCollections = new List<SplitCollectionIncludeInfo>();
-                var childMaterializer = TryBuildMaterializerFromShaper(
+                var childMaterializer = BuildMaterializerFromShaper(
                     splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
                     isTracking, childSplitCollections, ref nextCollectionId);
-                if (childMaterializer is null)
-                {
-                    goto default; // fall through to default
-                }
 
                 var parentIdentifier = CompileIdentifierLambda(
                     splitCollectionShaper.ParentIdentifier, select);
@@ -249,16 +256,35 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     => (T?)(collectionAccessor?.Create() ?? Activator.CreateInstance(collectionType));
             }
 
+            // Anonymous/named type projection (e.g. Select(x => new { x.Id, x.Name })).
+            // Each constructor argument is materialized recursively.
+            case NewExpression newExpression:
+            {
+                // TODO: For JIT mode, probably better to fall through to the default case, to just compile the expression tree.
+                // But probably good to leave the optimization here for NativeAOT.
+                var invoker = ConstructorInvoker.Create(newExpression.Constructor!);
+                var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
+                for (var i = 0; i < subMaterializers.Length; i++)
+                {
+                    subMaterializers[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
+                }
+
+                var invokerArgs = new object?[subMaterializers.Length];
+
+                return ComposeWithMultiCallProtocol<T>(
+                    subMaterializers,
+                    (_, _, values) =>
+                    {
+                        values.CopyTo(invokerArgs.AsSpan());
+                        return (T?)invoker.Invoke(invokerArgs.AsSpan());
+                    });
+            }
+
+            // Client-evaluated expression fallback (e.g. method calls, member accesses, conditionals
+            // containing EF-specific extension nodes). Sub-expressions are extracted and materialized
+            // separately, then the remaining pure CLR expression is compiled against the values.
             default:
             {
-                // Fallback for arbitrary expression trees (e.g. client-evaluated method calls,
-                // member accesses, conditionals, etc.) that contain EF-specific extension nodes.
-                //
-                // This mirrors the generated shaper's approach: entity/include sub-expressions are
-                // extracted and materialized separately (with full multi-call protocol support),
-                // then the remaining pure CLR expression (method calls, member accesses, etc.)
-                // is compiled against the materialized entity values.
-
                 // Single-pass rewrite: replaces ProjectionBindingExpression nodes with typed reader
                 // calls and entity/include nodes with array element accesses on an entityValues
                 // parameter. Collects the original entity expressions for materializer building.
@@ -287,14 +313,10 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                 var projectionFunc = Lambda<Func<QueryContext, DbDataReader, object[], T?>>(
                     rewritten, queryContextParam, dataReaderParam, entityValuesParam).Compile();
 
-                if (subMaterializers.Length == 0)
-                {
-                    return (queryCtx, reader, rc, coord) => projectionFunc(queryCtx, reader, Array.Empty<object>());
-                }
-
-                return ComposeWithMultiCallProtocol<T>(
-                    subMaterializers,
-                    (queryCtx, reader, values) => projectionFunc(queryCtx, reader, values));
+                return subMaterializers.Length == 0
+                    ? (queryCtx, reader, rc, coord) => projectionFunc(queryCtx, reader, [])
+                    : ComposeWithMultiCallProtocol(subMaterializers, (queryCtx, reader, values)
+                        => projectionFunc(queryCtx, reader, values));
             }
         }
     }
@@ -697,7 +719,7 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
     ///     <see cref="RelationalSplitCollectionShaperExpression" /> nodes are collected into the list
     ///     instead of being added as <see cref="CollectionIncludeInfo" /> on the entity materializer.
     /// </summary>
-    private static RelationalEntityMaterializer? TryBuildMaterializerFromShaper(
+    private static RelationalEntityMaterializer BuildMaterializerFromShaper(
         Expression shaperExpression,
         SelectExpression selectExpression,
         bool isTracking,
@@ -712,20 +734,16 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                 ValueBufferExpression: ProjectionBindingExpression projectionBinding
             } shaper:
             {
-                return TryBuildEntityMaterializer(
+                return BuildEntityMaterializer(
                     entityType, projectionBinding, selectExpression, isTracking, shaper.IsNullable);
             }
 
             case IncludeExpression includeExpression:
             {
                 // Recurse into the entity expression to build the inner materializer (which may have further includes)
-                var innerMaterializer = TryBuildMaterializerFromShaper(
+                var innerMaterializer = BuildMaterializerFromShaper(
                     includeExpression.EntityExpression, selectExpression, isTracking,
                     splitCollectionInfos, ref nextCollectionId);
-                if (innerMaterializer is null)
-                {
-                    return null;
-                }
 
                 var navigation = includeExpression.Navigation;
                 var inverseNavigation = navigation.Inverse;
@@ -740,7 +758,7 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     // Reference include (many-to-one / one-to-one), with or without further nested includes.
                     // When NavigationExpression is a plain RelationalStructuralTypeShaperExpression the entity has
                     // no further includes; when it is itself an IncludeExpression the nested include tree is built
-                    // recursively by the TryBuildMaterializerFromShaper call below.
+                    // recursively by the BuildMaterializerFromShaper call below.
                     case RelationalStructuralTypeShaperExpression
                     {
                         StructuralType: IEntityType,
@@ -748,15 +766,19 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     }:
                     case IncludeExpression:
                     {
+                        // Check if this is a JSON include before attempting the column-based path.
+                        // JSON owned entities have ProjectionBindingExpressions that resolve to
+                        // JsonProjectionInfo, which BuildEntityMaterializer cannot handle.
+                        if (IsJsonIncludeNavigation(includeExpression.NavigationExpression, selectExpression))
+                        {
+                            goto default;
+                        }
+
                         var splitCountBefore = splitCollectionInfos?.Count ?? 0;
 
-                        var includedMaterializer = TryBuildMaterializerFromShaper(
+                        var includedMaterializer = BuildMaterializerFromShaper(
                             includeExpression.NavigationExpression, selectExpression, isTracking,
                             splitCollectionInfos, ref nextCollectionId);
-                        if (includedMaterializer is null)
-                        {
-                            return null;
-                        }
 
                         var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
 
@@ -798,13 +820,9 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     case RelationalCollectionShaperExpression collectionShaper
                         when splitCollectionInfos is null:
                     {
-                        var childMaterializer = TryBuildMaterializerFromShaper(
+                        var childMaterializer = BuildMaterializerFromShaper(
                             collectionShaper.InnerShaper, selectExpression, isTracking,
                             splitCollectionInfos: null, ref nextCollectionId);
-                        if (childMaterializer is null)
-                        {
-                            return null;
-                        }
 
                         var parentIdentifier = CompileIdentifierLambda(
                             collectionShaper.ParentIdentifier, selectExpression);
@@ -851,13 +869,9 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                         var collectionId = nextCollectionId++;
 
                         var childSplitCollections = new List<SplitCollectionIncludeInfo>();
-                        var childMaterializer = TryBuildMaterializerFromShaper(
+                        var childMaterializer = BuildMaterializerFromShaper(
                             splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
                             isTracking, childSplitCollections, ref nextCollectionId);
-                        if (childMaterializer is null)
-                        {
-                            return null;
-                        }
 
                         var parentIdentifier = CompileIdentifierLambda(
                             splitCollectionShaper.ParentIdentifier, selectExpression);
@@ -887,16 +901,58 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     }
 
                     default:
-                        return null;
+                    {
+                        // JSON include case: navigation expression is a RelationalStructuralTypeShaperExpression
+                        // or CollectionResultExpression with a ProjectionBindingExpression that resolves to JsonProjectionInfo.
+                        var jsonPbe = (includeExpression.NavigationExpression as CollectionResultExpression)
+                            ?.QueryExpression as ProjectionBindingExpression
+                            ?? (includeExpression.NavigationExpression as RelationalStructuralTypeShaperExpression)
+                            ?.ValueBufferExpression as ProjectionBindingExpression;
+
+                        if (jsonPbe is not null
+                            && selectExpression.GetProjection(jsonPbe).GetConstantValue<object>() is JsonProjectionInfo jsonProjectionInfo)
+                        {
+                            var targetEntityType = navigation.TargetEntityType;
+                            var jsonMaterializer = BuildJsonStructuralTypeMaterializer(
+                                targetEntityType, isTracking, nullable: true);
+
+                            // Find the JSON column type mapping for correct column reading
+                            var jsonColumnName = targetEntityType.GetContainerColumnName()!;
+                            var jsonColumn = targetEntityType.ContainingEntityType.GetViewOrTableMappings()
+                                .Select(m => m.Table.FindColumn(jsonColumnName))
+                                .FirstOrDefault(c => c is not null)
+                                ?? throw new UnreachableException(
+                                    $"Could not find JSON container column '{jsonColumnName}'.");
+
+                            var jsonColumnTypeMapping = (RelationalTypeMapping)jsonColumn.StoreTypeMapping;
+                            var jsonStreamReader = BuildJsonColumnReader(
+                                jsonColumnTypeMapping, jsonProjectionInfo.JsonColumnIndex);
+
+                            innerMaterializer.AddJsonInclude(new JsonIncludeInfo(
+                                navigation,
+                                inverseNavigation,
+                                inverseNavSetter,
+                                jsonMaterializer,
+                                jsonProjectionInfo,
+                                jsonStreamReader,
+                                navigation.IsCollection));
+
+                            return innerMaterializer;
+                        }
+
+                        throw new NotImplementedException(
+                            $"The non-generated materializer does not yet support include navigation expression type '{includeExpression.NavigationExpression.GetType().Name}'.");
+                    }
                 }
             }
 
             default:
-                return null;
+                throw new NotImplementedException(
+                    $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}'.");
         }
     }
 
-    private static RelationalEntityMaterializer? TryBuildEntityMaterializer(
+    private static RelationalEntityMaterializer BuildEntityMaterializer(
         IEntityType entityType,
         ProjectionBindingExpression projectionBinding,
         SelectExpression selectExpression,
@@ -906,20 +962,35 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         var projectionIndex = selectExpression.GetProjection(projectionBinding).GetConstantValue<object>();
         if (projectionIndex is not IDictionary<IPropertyBase, int> propertyIndexMap)
         {
-            return null;
+            throw new NotImplementedException(
+                $"The non-generated materializer does not support projection index type '{projectionIndex?.GetType().Name}' for entity type '{entityType.DisplayName()}'.");
         }
 
         foreach (var concreteType in entityType.GetConcreteDerivedTypesInclusive())
         {
             if (concreteType.ClrType.GetConstructor(Type.EmptyTypes) == null)
             {
-                return null;
+                throw new NotImplementedException(
+                    $"The non-generated materializer does not yet support entity type '{concreteType.DisplayName()}' which has no parameterless constructor.");
             }
         }
 
         var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(entityType.ClrType);
         return (RelationalEntityMaterializer)Activator.CreateInstance(
             materializerType, entityType, propertyIndexMap, isTracking, isNullable)!;
+    }
+
+    /// <summary>
+    ///     Returns whether the given include navigation expression resolves to a JSON projection
+    ///     (i.e. its <see cref="ProjectionBindingExpression" /> resolves to <see cref="JsonProjectionInfo" />).
+    /// </summary>
+    private static bool IsJsonIncludeNavigation(Expression navigationExpression, SelectExpression selectExpression)
+    {
+        var pbe = (navigationExpression as CollectionResultExpression)?.QueryExpression as ProjectionBindingExpression
+            ?? (navigationExpression as RelationalStructuralTypeShaperExpression)?.ValueBufferExpression as ProjectionBindingExpression;
+
+        return pbe is not null
+            && selectExpression.GetProjection(pbe).GetConstantValue<object>() is JsonProjectionInfo;
     }
 
     /// <summary>

@@ -22,6 +22,7 @@ public abstract class RelationalEntityMaterializer
 {
     private List<ReferenceIncludeInfo>? _referenceIncludes;
     private List<CollectionIncludeInfo>? _collectionIncludes;
+    private List<JsonIncludeInfo>? _jsonIncludes;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,8 +50,7 @@ public abstract class RelationalEntityMaterializer
     ///     avoiding boxing when the caller knows <typeparamref name="T" /> matches the entity's CLR type.
     /// </summary>
     public Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?> GetTypedMaterializeDelegate<T>()
-        => Unsafe.As<Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>>(
-            GetMaterializeDelegateCore())!;
+        => Unsafe.As<Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>>(GetMaterializeDelegateCore())!;
 
     /// <summary>
     ///     Returns the typed <c>MaterializeTyped</c> delegate as an untyped <c>Delegate</c>.
@@ -102,4 +102,19 @@ public abstract class RelationalEntityMaterializer
     /// </summary>
     public List<CollectionIncludeInfo>? CollectionIncludes
         => _collectionIncludes;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void AddJsonInclude(JsonIncludeInfo includeInfo)
+        => (_jsonIncludes ??= []).Add(includeInfo);
+
+    /// <summary>
+    ///     The JSON includes for this entity, or null if there are none.
+    /// </summary>
+    public List<JsonIncludeInfo>? JsonIncludes
+        => _jsonIncludes;
 }

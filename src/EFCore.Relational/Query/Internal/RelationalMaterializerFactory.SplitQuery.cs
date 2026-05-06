@@ -136,12 +136,12 @@ public partial class RelationalMaterializerFactory
             shaperExpression = convert.Operand;
         }
 
-        // Try the entity/include path first (handles split collections via splitCollectionInfos).
-        var entityMaterializer = TryBuildMaterializerFromShaper(
-            shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId);
-
-        if (entityMaterializer is not null)
+        // Entity/include path (handles split collections via splitCollectionInfos).
+        if (shaperExpression is RelationalStructuralTypeShaperExpression or IncludeExpression)
         {
+            var entityMaterializer = BuildMaterializerFromShaper(
+                shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId);
+
             var resultContext = new ResultContext();
             var dummyCoordinator = new SingleQueryResultCoordinator();
 
