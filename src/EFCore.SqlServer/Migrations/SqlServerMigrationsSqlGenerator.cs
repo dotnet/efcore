@@ -2895,6 +2895,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     {
                         // we create the temporal info based on the OLD table here - we want the initial state
                         var temporalTableInformation = BuildTemporalInformationFromMigrationOperation(schema, alterTableOperation.OldTable);
+
+                        // The period-column hidden flags reflect the user's intent for the NEW state of the table,
+                        // not the old state, so override them from the AlterTable operation itself when present.
+                        if (alterTableOperation[SqlServerAnnotationNames.TemporalPeriodStartHidden] is bool startHidden)
+                        {
+                            temporalTableInformation.PeriodStartHidden = startHidden;
+                        }
+
+                        if (alterTableOperation[SqlServerAnnotationNames.TemporalPeriodEndHidden] is bool endHidden)
+                        {
+                            temporalTableInformation.PeriodEndHidden = endHidden;
+                        }
+
                         temporalTableInformationMap[(tableName, rawSchema)] = temporalTableInformation;
                     }
 
