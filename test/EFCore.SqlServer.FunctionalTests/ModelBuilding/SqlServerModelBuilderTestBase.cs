@@ -1383,18 +1383,22 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Temporal_table_period_columns_can_be_made_visible_via_pair_API()
+        public virtual void Temporal_table_period_columns_can_be_made_visible_per_column()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
 
-            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb => ttb.PeriodColumnsHidden(false)));
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                ttb.HasPeriodEnd("PeriodEnd").IsHidden(false);
+            }));
             modelBuilder.FinalizeModel();
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.False(entity.GetProperty(entity.GetPeriodStartPropertyName()!).IsHidden());
-            Assert.False(entity.GetProperty(entity.GetPeriodEndPropertyName()!).IsHidden());
+            Assert.False(entity.GetProperty("PeriodStart").IsHidden());
+            Assert.False(entity.GetProperty("PeriodEnd").IsHidden());
         }
 
         [ConditionalFact]
@@ -2321,7 +2325,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodStart(Expression<Func<TEntity, DateTime>> propertyExpression);
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(Expression<Func<TEntity, DateTime>> propertyExpression);
-        public abstract TestTemporalTableBuilder<TEntity> PeriodColumnsHidden(bool hidden = true);
     }
 
     public class GenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder<TEntity> temporalTableBuilder)
@@ -2351,9 +2354,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(Expression<Func<TEntity, DateTime>> propertyExpression)
             => new(TemporalTableBuilder.HasPeriodEnd(propertyExpression));
-
-        public override TestTemporalTableBuilder<TEntity> PeriodColumnsHidden(bool hidden = true)
-            => Wrap(TemporalTableBuilder.PeriodColumnsHidden(hidden));
     }
 
     public class NonGenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder temporalTableBuilder)
@@ -2382,9 +2382,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(Expression<Func<TEntity, DateTime>> propertyExpression)
             => HasPeriodEnd(propertyExpression.GetMemberAccess().Name);
-
-        public override TestTemporalTableBuilder<TEntity> PeriodColumnsHidden(bool hidden = true)
-            => Wrap(TemporalTableBuilder.PeriodColumnsHidden(hidden));
     }
 
     public abstract class TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
@@ -2402,8 +2399,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public abstract TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(
             Expression<Func<TDependentEntity, DateTime>> propertyExpression);
-
-        public abstract TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> PeriodColumnsHidden(bool hidden = true);
     }
 
     public class GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
@@ -2439,9 +2434,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(
             Expression<Func<TDependentEntity, DateTime>> propertyExpression)
             => new(TemporalTableBuilder.HasPeriodEnd(propertyExpression));
-
-        public override TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> PeriodColumnsHidden(bool hidden = true)
-            => Wrap(TemporalTableBuilder.PeriodColumnsHidden(hidden));
     }
 
     public class NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
@@ -2476,9 +2468,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(
             Expression<Func<TDependentEntity, DateTime>> propertyExpression)
             => HasPeriodEnd(propertyExpression.GetMemberAccess().Name);
-
-        public override TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> PeriodColumnsHidden(bool hidden = true)
-            => Wrap(TemporalTableBuilder.PeriodColumnsHidden(hidden));
     }
 
     public class TestTemporalPeriodPropertyBuilder(TemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)

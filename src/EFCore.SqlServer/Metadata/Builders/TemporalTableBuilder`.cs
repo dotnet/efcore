@@ -77,23 +77,4 @@ public class TemporalTableBuilder<TEntity> : TemporalTableBuilder
     /// <returns>An object that can be used to configure the period end property.</returns>
     public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(Expression<Func<TEntity, DateTime>> propertyExpression)
         => HasPeriodEnd(Check.NotNull(propertyExpression).GetMemberAccess().Name);
-
-    /// <summary>
-    ///     Configures whether the period columns of the temporal table are defined with the HIDDEN flag,
-    ///     which excludes them from <c>SELECT *</c> results.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         The default value is <see langword="true" />, matching the behavior of EF Core releases prior to this option
-    ///         being introduced. Set to <see langword="false" /> to make the period columns visible in <c>SELECT *</c>.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-    ///         for more information and examples.
-    ///     </para>
-    /// </remarks>
-    /// <param name="hidden">A value indicating whether the period columns should be hidden.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual TemporalTableBuilder<TEntity> PeriodColumnsHidden(bool hidden = true)
-        => (TemporalTableBuilder<TEntity>)base.PeriodColumnsHidden(hidden);
 }

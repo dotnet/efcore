@@ -242,9 +242,6 @@
           "Member": "override string? ToString();"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder PeriodColumnsHidden(bool hidden = true);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder UseHistoryTable(string name);"
         },
         {
@@ -260,9 +257,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.DateTime>> propertyExpression);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> PeriodColumnsHidden(bool hidden = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name);"
@@ -3074,9 +3068,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder PeriodColumnsHidden(bool hidden = true);"
-        },
-        {
           "Member": "override string? ToString();"
         },
         {
@@ -3095,9 +3086,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPeriodStart(System.Linq.Expressions.Expression<System.Func<TEntity, System.DateTime>> propertyExpression);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> PeriodColumnsHidden(bool hidden = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalTableBuilder<TEntity> UseHistoryTable(string name);"

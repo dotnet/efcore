@@ -76,9 +76,8 @@ EXEC(N'CREATE TABLE [Customer] (
 
                     e.ToTable(tb => tb.IsTemporal(ttb =>
                     {
-                        ttb.HasPeriodStart("SystemTimeStart");
-                        ttb.HasPeriodEnd("SystemTimeEnd");
-                        ttb.PeriodColumnsHidden(false);
+                        ttb.HasPeriodStart("SystemTimeStart").IsHidden(false);
+                        ttb.HasPeriodEnd("SystemTimeEnd").IsHidden(false);
                     }));
                 }),
             model =>
@@ -128,10 +127,11 @@ EXEC(N'CREATE TABLE [Customer] (
                     e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
-                    e.ToTable(tb => tb.IsTemporal(ttb => ttb.PeriodColumnsHidden(false)));
-
-                    e.Metadata[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] = "PeriodStart";
-                    e.Metadata[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] = "PeriodEnd";
+                    e.ToTable(tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                        ttb.HasPeriodEnd("PeriodEnd").IsHidden(false);
+                    }));
                 }),
             model =>
             {

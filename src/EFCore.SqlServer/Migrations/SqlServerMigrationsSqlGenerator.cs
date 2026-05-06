@@ -1884,8 +1884,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder.Append(isPeriodStartColumn ? "START" : "END");
 
             // Defaults to true to preserve backward compatibility - the period columns have always been hidden.
-            // Set to false via TemporalPeriodPropertyBuilder.IsHidden(false) (or
-            // TemporalTableBuilder.PeriodColumnsHidden(false) which sets both period columns).
+            // Set to false via TemporalPeriodPropertyBuilder.IsHidden(false).
             var hidden = operation[SqlServerAnnotationNames.IsHidden] as bool? ?? true;
             if (hidden)
             {
