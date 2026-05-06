@@ -92,9 +92,7 @@ EXEC(N'CREATE TABLE [Customer] (
                 Assert.Collection(
                     table.Columns,
                     c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("SystemTimeEnd", c.Name),
-                    c => Assert.Equal("SystemTimeStart", c.Name));
+                    c => Assert.Equal("Name", c.Name));
             });
 
         AssertSql(
