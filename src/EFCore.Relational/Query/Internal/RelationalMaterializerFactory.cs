@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -30,10 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     for supported query shapes, producing a tree of <see cref="RelationalEntityMaterializer{TEntity}" />
 ///     instances wired together with include information.
 /// </remarks>
-public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSingletonOptions)
+public partial class RelationalMaterializerFactory(
+    ICoreSingletonOptions coreSingletonOptions,
+    IEnumerable<ISingletonInterceptor> singletonInterceptors)
 {
     private readonly bool _detailedErrorsEnabled = coreSingletonOptions.AreDetailedErrorsEnabled;
     private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
+    private readonly IInstantiationBindingInterceptor[] _bindingInterceptors =
+        singletonInterceptors.OfType<IInstantiationBindingInterceptor>().ToArray();
 
     /// <summary>
     ///     Builds a non-generated query executor for an enumerable query where <typeparamref name="TElement" />
@@ -719,7 +724,7 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
     ///     <see cref="RelationalSplitCollectionShaperExpression" /> nodes are collected into the list
     ///     instead of being added as <see cref="CollectionIncludeInfo" /> on the entity materializer.
     /// </summary>
-    private static RelationalEntityMaterializer BuildMaterializerFromShaper(
+    private RelationalEntityMaterializer BuildMaterializerFromShaper(
         Expression shaperExpression,
         SelectExpression selectExpression,
         bool isTracking,
@@ -945,13 +950,46 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                 }
             }
 
+            // FetchJoinEntity(joinShaper, targetShaper) — used for tracking many-to-many skip
+            // navigation includes. Inserted by NavigationExpandingExpressionVisitor into the Join
+            // result selector to ensure the join entity (e.g. PostTag) is materialized alongside
+            // the target entity (e.g. Tag). The method itself is an identity function that returns
+            // only the target, but both entity shapers survive in the expression tree so the
+            // generated shaper materializes both via recursive VisitExtension. We replicate that
+            // by building materializers for both and storing the join materializer on the target
+            // so it gets invoked during MaterializeEntity for tracking side effects.
+
+            // TODO: Rather than a wrapper MethodCallExpression, this should probably just be something we add on the shaper
+            // expression itself.
+            case MethodCallExpression
+            {
+                Method.Name: nameof(NavigationExpandingExpressionVisitor.FetchJoinEntity),
+                Arguments: [var joinShaper, var targetShaper]
+            }:
+            {
+                // Build the target entity materializer (this is what gets returned)
+                var targetMaterializer = BuildMaterializerFromShaper(
+                    targetShaper, selectExpression, isTracking,
+                    splitCollectionInfos, ref nextCollectionId);
+
+                // Build and store the join entity materializer so it gets materialized for tracking.
+                // The join entity is needed for the state manager to establish the many-to-many relationship.
+                var joinMaterializer = BuildMaterializerFromShaper(
+                    joinShaper, selectExpression, isTracking,
+                    splitCollectionInfos, ref nextCollectionId);
+
+                targetMaterializer.JoinEntityMaterializer = joinMaterializer;
+
+                return targetMaterializer;
+            }
+
             default:
                 throw new NotImplementedException(
-                    $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}'.");
+                    $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}': {shaperExpression}.");
         }
     }
 
-    private static RelationalEntityMaterializer BuildStructuralTypeMaterializer(
+    private RelationalEntityMaterializer BuildStructuralTypeMaterializer(
         ITypeBase structuralType,
         ProjectionBindingExpression projectionBinding,
         SelectExpression selectExpression,
@@ -965,27 +1003,9 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                 $"The non-generated materializer does not support projection index type '{projectionIndex?.GetType().Name}' for type '{structuralType.DisplayName()}'.");
         }
 
-        if (structuralType is IEntityType entityType)
-        {
-            foreach (var concreteType in entityType.GetConcreteDerivedTypesInclusive())
-            {
-                if (concreteType.ClrType.GetConstructor(Type.EmptyTypes) == null)
-                {
-                    throw new NotImplementedException(
-                        $"The non-generated materializer does not yet support entity type '{concreteType.DisplayName()}' which has no parameterless constructor.");
-                }
-            }
-        }
-        else if (structuralType.ClrType.GetConstructor(Type.EmptyTypes) == null
-            && !structuralType.ClrType.IsValueType)
-        {
-            throw new NotImplementedException(
-                $"The non-generated materializer does not yet support type '{structuralType.DisplayName()}' which has no parameterless constructor.");
-        }
-
         var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(structuralType.ClrType);
         return (RelationalEntityMaterializer)Activator.CreateInstance(
-            materializerType, structuralType, propertyIndexMap, isTracking, isNullable)!;
+            materializerType, structuralType, propertyIndexMap, isTracking, isNullable, _bindingInterceptors)!;
     }
 
     /// <summary>

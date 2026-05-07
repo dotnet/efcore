@@ -15,6 +15,16 @@ public class FactoryMethodBinding : InstantiationBinding
     private readonly MethodInfo _factoryMethod;
 
     /// <summary>
+    ///     The object instance on which the factory method is called, or <see langword="null" /> for static methods.
+    /// </summary>
+    public object? FactoryInstance => _factoryInstance;
+
+    /// <summary>
+    ///     The factory method to invoke.
+    /// </summary>
+    public MethodInfo FactoryMethod => _factoryMethod;
+
+    /// <summary>
     ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a static factory method.
     /// </summary>
     /// <param name="factoryMethod">The factory method to bind to.</param>

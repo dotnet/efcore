@@ -117,4 +117,10 @@ public abstract class RelationalEntityMaterializer
     /// </summary>
     public List<JsonIncludeInfo>? JsonIncludes
         => _jsonIncludes;
+
+    /// <summary>
+    ///     For many-to-many skip navigation collection includes: the join entity materializer
+    ///     that must be called to materialize the join entity (for tracking side effects).
+    /// </summary>
+    public RelationalEntityMaterializer? JoinEntityMaterializer { get; set; }
 }

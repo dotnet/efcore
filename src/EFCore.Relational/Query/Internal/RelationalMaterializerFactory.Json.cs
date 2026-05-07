@@ -126,6 +126,46 @@ public partial class RelationalMaterializerFactory
         bool isTracking,
         bool nullable)
     {
+        // Determine constructor binding and which properties are consumed by constructor parameters
+        var constructorBinding = structuralType.ConstructorBinding;
+        Dictionary<IProperty, int>? constructorParameterMap = null;
+        var constructorParameterCount = 0;
+
+        switch (constructorBinding)
+        {
+            // Parameterless constructor or value type default
+            case null or ConstructorBinding { ParameterBindings.Count: 0 } or DefaultValueBinding:
+                break;
+
+            // Constructor with property-bound parameters
+            case ConstructorBinding { ParameterBindings: { Count: > 0 } paramBindings }:
+            {
+                constructorParameterCount = paramBindings.Count;
+                constructorParameterMap = new Dictionary<IProperty, int>(paramBindings.Count);
+
+                for (var p = 0; p < paramBindings.Count; p++)
+                {
+                    switch (paramBindings[p])
+                    {
+                        case PropertyParameterBinding { ConsumedProperties: [IProperty property] }:
+                            constructorParameterMap[property] = p;
+                            break;
+
+                        default:
+                            throw new NotImplementedException(
+                                $"The non-generated materializer does not yet support constructor parameter "
+                                + $"binding type '{paramBindings[p].GetType().Name}' on '{structuralType.DisplayName()}'.");
+                    }
+                }
+
+                break;
+            }
+
+            default:
+                throw new UnreachableException(
+                    $"Unexpected instantiation binding type '{constructorBinding.GetType().Name}' on '{structuralType.DisplayName()}'.");
+        }
+
         // Build property handlers — a single unified list of scalar properties and nested structural types.
         var properties = new List<RelationalJsonStructuralTypeMaterializer.JsonPropertyHandler>();
 
@@ -161,13 +201,19 @@ public partial class RelationalMaterializerFactory
                 continue;
             }
 
-            var memberInfo = property.GetMemberInfo(forMaterialization: true, forSet: true);
+            var constructorParamIndex = constructorParameterMap is not null
+                && constructorParameterMap.TryGetValue(property, out var idx) ? idx : -1;
+
+            var memberInfo = constructorParamIndex < 0
+                ? property.GetMemberInfo(forMaterialization: true, forSet: true)
+                : null!; // Constructor-consumed properties don't need a setter MemberInfo
 
             properties.Add(new RelationalJsonStructuralTypeMaterializer.JsonPropertyHandler(
                 Encoding.UTF8.GetBytes(jsonPropertyName),
                 jsonReaderWriter,
                 memberInfo,
-                property.IsNullable));
+                property.IsNullable,
+                constructorParameterIndex: constructorParamIndex));
         }
 
         // Add nested structural type handlers (complex properties and owned navigations mapped to JSON)
@@ -233,14 +279,31 @@ public partial class RelationalMaterializerFactory
             }
         }
 
-        var ctor = structuralType.ClrType.GetConstructor(Type.EmptyTypes);
-        var constructorInvoker = ctor is not null ? ConstructorInvoker.Create(ctor) : null;
+        ConstructorInvoker? constructorInvoker = null;
+        switch (constructorBinding)
+        {
+            // Parameterless or value type default — use the CLR default constructor
+            case null or DefaultValueBinding:
+                var ctor = structuralType.ClrType.GetConstructor(Type.EmptyTypes);
+                constructorInvoker = ctor is not null ? ConstructorInvoker.Create(ctor) : null;
+                break;
+
+            // Constructor binding (parameterless or with parameters)
+            case ConstructorBinding { Constructor: var ctorInfo }:
+                constructorInvoker = ConstructorInvoker.Create(ctorInfo);
+                break;
+
+            default:
+                throw new UnreachableException(
+                    $"Unexpected instantiation binding type '{constructorBinding.GetType().Name}' on '{structuralType.DisplayName()}'.");
+        }
 
         return new RelationalJsonStructuralTypeMaterializer(
             structuralType,
             properties.ToArray(),
             keyPropertyMembers,
             constructorInvoker,
+            constructorParameterCount,
             isTracking,
             nullable);
     }

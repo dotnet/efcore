@@ -24,6 +24,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
     RelationalJsonStructuralTypeMaterializer.JsonPropertyHandler[] properties,
     MemberInfo[]? keyPropertyMembers,
     ConstructorInvoker? constructorInvoker,
+    int constructorParameterCount,
     bool isTracking,
     bool nullable)
 {
@@ -31,6 +32,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
     private readonly JsonPropertyHandler[] _properties = properties;
     private readonly MemberInfo[]? _keyPropertyMembers = keyPropertyMembers;
     private readonly ConstructorInvoker? _constructorInvoker = constructorInvoker;
+    private readonly int _constructorParameterCount = constructorParameterCount;
     private readonly bool _isTracking = isTracking;
     private readonly bool _nullable = nullable;
 
@@ -76,25 +78,13 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             }
         }
 
-        if (_constructorInvoker is null)
-        {
-            throw new NotImplementedException(
-                $"The non-generated materializer does not yet support type '{_structuralType.DisplayName()}' which has no parameterless constructor.");
-        }
+        Check.DebugAssert(_constructorInvoker is not null, $"No constructor invoker for type '{_structuralType.DisplayName()}'.");
 
-        var instance = _constructorInvoker.Invoke([]);
-
-        // Set key properties from keyValues (needed for change tracker fixup)
-        if (_keyPropertyMembers is not null && keyValues is not null)
-        {
-            for (var i = 0; i < _keyPropertyMembers.Length && i < keyValues.Length; i++)
-            {
-                if (_keyPropertyMembers[i] is not null)
-                {
-                    SetMemberValue(instance, _keyPropertyMembers[i], keyValues[i]);
-                }
-            }
-        }
+        // Constructor-bound: collect args during read loop, create instance after.
+        // Parameterless: create instance now and set properties directly.
+        var (instance, constructorArgs) = _constructorParameterCount > 0
+            ? ((object?)null, new object?[_constructorParameterCount])
+            : (_constructorInvoker.Invoke([]), null);
 
         // Allocate slots for nested property results that must be applied after the loop
         // (nested types need all their JSON to be read before being assigned to the parent)
@@ -131,7 +121,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
                         matched = true;
                         ProcessMatchedProperty(
                             ref manager, queryContext, jsonReaderData, keyValues,
-                            i, instance, ref nestedResults, ref shadowSnapshot);
+                            i, instance, constructorArgs, ref nestedResults, ref shadowSnapshot);
                         nextExpectedIndex = i + 1;
                         break;
                     }
@@ -157,6 +147,22 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             tokenType = manager.MoveNext();
         }
 
+        // For constructor-bound types, create the instance now that all args are collected
+        instance ??= _constructorInvoker!.Invoke(constructorArgs.AsSpan());
+
+        // For owned entity types (not complex types): set key properties from keyValues,
+        // needed for change tracker identity resolution and FK fixup.
+        if (_keyPropertyMembers is not null && keyValues is not null)
+        {
+            for (var i = 0; i < _keyPropertyMembers.Length && i < keyValues.Length; i++)
+            {
+                if (_keyPropertyMembers[i] is not null)
+                {
+                    SetMemberValue(instance!, _keyPropertyMembers[i], keyValues[i]);
+                }
+            }
+        }
+
         // Apply nested results (navigations/complex properties) via setters
         if (nestedResults is not null)
         {
@@ -164,7 +170,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             {
                 if (nestedResults[i] is not null)
                 {
-                    SetMemberValue(instance, _properties[i].MemberInfo, nestedResults[i]);
+                    SetMemberValue(instance!, _properties[i].MemberInfo, nestedResults[i]);
                 }
             }
         }
@@ -178,7 +184,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             var primaryKey = trackedEntityType.FindPrimaryKey();
             if (primaryKey is not null && !primaryKey.Properties.Any(p => p.IsShadowProperty()))
             {
-                queryContext.StartTracking(trackedEntityType, instance, shadowSnapshot ?? Snapshot.Empty);
+                queryContext.StartTracking(trackedEntityType, instance!, shadowSnapshot ?? Snapshot.Empty);
             }
         }
 
@@ -194,7 +200,8 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         JsonReaderData jsonReaderData,
         object[]? keyValues,
         int propertyIndex,
-        object instance,
+        object? instance,
+        object?[]? constructorArgs,
         ref object?[]? nestedResults,
         ref ISnapshot? shadowSnapshot)
     {
@@ -214,9 +221,17 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
                     shadowSnapshot[handler.ShadowIndex] = value;
                 }
             }
+            else if (handler.ConstructorParameterIndex >= 0)
+            {
+                // Constructor-bound property — store in args array
+                if (!(handler.IsNullable && manager.CurrentReader.TokenType == JsonTokenType.Null))
+                {
+                    constructorArgs![handler.ConstructorParameterIndex] = handler.JsonReaderWriter.FromJson(ref manager, null);
+                }
+            }
             else
             {
-                ReadScalarProperty(ref manager, handler, instance);
+                ReadScalarProperty(ref manager, handler, instance!);
             }
         }
         else
@@ -471,19 +486,27 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         /// </summary>
         public int ShadowIndex { get; } = -1;
 
+        /// <summary>
+        ///     For constructor-bound properties: the index in the constructor arguments array.
+        ///     -1 for properties set via setters.
+        /// </summary>
+        public int ConstructorParameterIndex { get; } = -1;
+
         /// <summary>Creates a handler for a scalar property.</summary>
         public JsonPropertyHandler(
             byte[] jsonNameUtf8,
             JsonValueReaderWriter jsonReaderWriter,
             MemberInfo memberInfo,
             bool isNullable,
-            int shadowIndex = -1)
+            int shadowIndex = -1,
+            int constructorParameterIndex = -1)
         {
             JsonNameUtf8 = jsonNameUtf8;
             MemberInfo = memberInfo;
             JsonReaderWriter = jsonReaderWriter;
             IsNullable = isNullable;
             ShadowIndex = shadowIndex;
+            ConstructorParameterIndex = constructorParameterIndex;
         }
 
         /// <summary>Creates a handler for a nested structural type.</summary>

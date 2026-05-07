@@ -16,6 +16,11 @@ public class ObjectArrayParameterBinding : ParameterBinding
     private readonly IReadOnlyList<ParameterBinding> _bindings;
 
     /// <summary>
+    ///     The inner parameter bindings that are combined into the object array.
+    /// </summary>
+    public IReadOnlyList<ParameterBinding> Bindings => _bindings;
+
+    /// <summary>
     ///     Creates a new <see cref="ObjectArrayParameterBinding" /> taking all the given <see cref="ParameterBinding" />
     ///     instances and combining them into one binding that will initialize an array of <see cref="object" />.
     /// </summary>
