@@ -877,12 +877,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entity);
 
         /// <summary>
-        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists. Remove the existing {conflictingMemberKind} first.
+        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a property or navigation with the same name already exists on the '{conflictingType}' type.
         /// </summary>
-        public static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingMemberKind)
+        [Obsolete("Use ConflictingPropertyOrNavigationWithKind or ConflictingPropertyOrNavigationOnBaseType instead.")]
+        public static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingType)
             => string.Format(
-                GetString("ConflictingPropertyOrNavigation", nameof(member), nameof(type), nameof(conflictingMemberKind)),
-                member, type, conflictingMemberKind);
+                GetString("ConflictingPropertyOrNavigation", nameof(member), nameof(type), nameof(conflictingType)),
+                member, type, conflictingType);
 
         /// <summary>
         ///     The property or navigation '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.
@@ -891,6 +892,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConflictingPropertyOrNavigationOnBaseType", nameof(member), nameof(type), nameof(conflictingMemberKind), nameof(conflictingType)),
                 member, type, conflictingMemberKind, conflictingType);
+
+        /// <summary>
+        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists. Remove the existing {conflictingMemberKind} first.
+        /// </summary>
+        public static string ConflictingPropertyOrNavigationWithKind(object? member, object? type, object? conflictingMemberKind)
+            => string.Format(
+                GetString("ConflictingPropertyOrNavigationWithKind", nameof(member), nameof(type), nameof(conflictingMemberKind)),
+                member, type, conflictingMemberKind);
 
         /// <summary>
         ///     The property '{entityType}.{property}' participates in several relationship chains that have conflicting conversions: '{valueConversion}' and '{conflictingValueConversion}'.

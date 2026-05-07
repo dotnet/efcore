@@ -341,9 +341,10 @@ public static class PropertyBaseExtensions
     /// <summary>
     ///     Builds the message for the diagnostic that fires when a member conflicts with an existing
     ///     member on the structural type or one of its base types. The kind of the conflicting member
-    ///     is taken straight from the runtime type name (e.g. <c>Property</c>, <c>Navigation</c>,
-    ///     <c>SkipNavigation</c>, <c>ComplexProperty</c>, <c>ServiceProperty</c>) so it stays in sync
-    ///     with the codebase without an extra mapping table.
+    ///     is humanized via <see cref="GetMemberKindString" /> so the user-facing message uses stable
+    ///     labels like "property", "complex property", "navigation", "skip navigation", or
+    ///     "service property" regardless of whether the conflicting member came from a model or a
+    ///     runtime model.
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -356,15 +357,36 @@ public static class PropertyBaseExtensions
         string newMemberName,
         IReadOnlyTypeBase owningType)
     {
-        var conflictingMemberKind = conflictingMember.GetType().Name;
+        var conflictingMemberKind = GetMemberKindString(conflictingMember);
         var owningTypeDisplayName = owningType.DisplayName();
-        var declaringTypeDisplayName = ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName();
 
-        return declaringTypeDisplayName == owningTypeDisplayName
-            ? CoreStrings.ConflictingPropertyOrNavigation(newMemberName, owningTypeDisplayName, conflictingMemberKind)
+        // Compare the actual metadata instances rather than display names to avoid false positives when
+        // two distinct types share a simple name (e.g. same name in different namespaces or hierarchies).
+        return conflictingMember.DeclaringType == owningType
+            ? CoreStrings.ConflictingPropertyOrNavigationWithKind(newMemberName, owningTypeDisplayName, conflictingMemberKind)
             : CoreStrings.ConflictingPropertyOrNavigationOnBaseType(
-                newMemberName, owningTypeDisplayName, conflictingMemberKind, declaringTypeDisplayName);
+                newMemberName,
+                owningTypeDisplayName,
+                conflictingMemberKind,
+                ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName());
     }
+
+    /// <summary>
+    ///     Returns a human-readable label for the kind of the given member (e.g. "property",
+    ///     "complex property", "navigation", "skip navigation", "service property"). Used to build
+    ///     user-facing diagnostic messages without coupling the message text to internal CLR class
+    ///     names (such as <c>RuntimeProperty</c> or <c>SkipNavigation</c>).
+    /// </summary>
+    private static string GetMemberKindString(IReadOnlyPropertyBase member)
+        => member switch
+        {
+            IReadOnlyComplexProperty => "complex property",
+            IReadOnlySkipNavigation => "skip navigation",
+            IReadOnlyNavigation => "navigation",
+            IReadOnlyServiceProperty => "service property",
+            IReadOnlyProperty => "property",
+            _ => member.GetType().Name
+        };
 
     private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
         => propertyBase.DeclaringType switch
