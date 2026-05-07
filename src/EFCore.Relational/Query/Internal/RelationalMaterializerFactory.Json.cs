@@ -131,7 +131,7 @@ public partial class RelationalMaterializerFactory
 
         foreach (var property in structuralType.GetProperties())
         {
-            if (property.IsShadowProperty() || property.IsKey())
+            if (property.IsKey())
             {
                 continue;
             }
@@ -146,6 +146,18 @@ public partial class RelationalMaterializerFactory
                 ?? property.GetTypeMapping().JsonValueReaderWriter;
             if (jsonReaderWriter is null)
             {
+                continue;
+            }
+
+            if (property.IsShadowProperty())
+            {
+                // Shadow properties have no CLR member — values go into the snapshot for tracking
+                properties.Add(new RelationalJsonStructuralTypeMaterializer.JsonPropertyHandler(
+                    Encoding.UTF8.GetBytes(jsonPropertyName),
+                    jsonReaderWriter,
+                    memberInfo: null!,
+                    property.IsNullable,
+                    shadowIndex: property.GetShadowIndex()));
                 continue;
             }
 
@@ -221,10 +233,14 @@ public partial class RelationalMaterializerFactory
             }
         }
 
+        var ctor = structuralType.ClrType.GetConstructor(Type.EmptyTypes);
+        var constructorInvoker = ctor is not null ? ConstructorInvoker.Create(ctor) : null;
+
         return new RelationalJsonStructuralTypeMaterializer(
             structuralType,
             properties.ToArray(),
             keyPropertyMembers,
+            constructorInvoker,
             isTracking,
             nullable);
     }

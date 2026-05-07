@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -22,12 +23,14 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
     ITypeBase structuralType,
     RelationalJsonStructuralTypeMaterializer.JsonPropertyHandler[] properties,
     MemberInfo[]? keyPropertyMembers,
+    ConstructorInvoker? constructorInvoker,
     bool isTracking,
     bool nullable)
 {
     private readonly ITypeBase _structuralType = structuralType;
     private readonly JsonPropertyHandler[] _properties = properties;
     private readonly MemberInfo[]? _keyPropertyMembers = keyPropertyMembers;
+    private readonly ConstructorInvoker? _constructorInvoker = constructorInvoker;
     private readonly bool _isTracking = isTracking;
     private readonly bool _nullable = nullable;
 
@@ -73,7 +76,13 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             }
         }
 
-        var instance = Activator.CreateInstance(clrType)!;
+        if (_constructorInvoker is null)
+        {
+            throw new NotImplementedException(
+                $"The non-generated materializer does not yet support type '{_structuralType.DisplayName()}' which has no parameterless constructor.");
+        }
+
+        var instance = _constructorInvoker.Invoke([]);
 
         // Set key properties from keyValues (needed for change tracker fixup)
         if (_keyPropertyMembers is not null && keyValues is not null)
@@ -90,6 +99,9 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         // Allocate slots for nested property results that must be applied after the loop
         // (nested types need all their JSON to be read before being assigned to the parent)
         object?[]? nestedResults = null;
+
+        // Shadow property values collected during the JSON read loop (for building a tracking snapshot)
+        ISnapshot? shadowSnapshot = null;
 
         // JSON property read loop — mirrors GenerateJsonPropertyReadLoop in the generated shaper.
         // Uses a single unified array of property handlers (scalar + nested objects).
@@ -119,7 +131,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
                         matched = true;
                         ProcessMatchedProperty(
                             ref manager, queryContext, jsonReaderData, keyValues,
-                            i, instance, ref nestedResults);
+                            i, instance, ref nestedResults, ref shadowSnapshot);
                         nextExpectedIndex = i + 1;
                         break;
                     }
@@ -164,9 +176,9 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         if (_isTracking && _structuralType is IEntityType trackedEntityType)
         {
             var primaryKey = trackedEntityType.FindPrimaryKey();
-            if (primaryKey is null || !primaryKey.Properties.Any(p => p.IsShadowProperty()))
+            if (primaryKey is not null && !primaryKey.Properties.Any(p => p.IsShadowProperty()))
             {
-                queryContext.StartTracking(trackedEntityType, instance, Snapshot.Empty);
+                queryContext.StartTracking(trackedEntityType, instance, shadowSnapshot ?? Snapshot.Empty);
             }
         }
 
@@ -183,7 +195,8 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         object[]? keyValues,
         int propertyIndex,
         object instance,
-        ref object?[]? nestedResults)
+        ref object?[]? nestedResults,
+        ref ISnapshot? shadowSnapshot)
     {
         ref readonly var handler = ref _properties[propertyIndex];
         manager.MoveNext();
@@ -191,7 +204,20 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         if (handler.JsonReaderWriter is not null)
         {
             // Scalar property
-            ReadScalarProperty(ref manager, handler, instance);
+            if (handler.ShadowIndex >= 0)
+            {
+                // Shadow property — store in snapshot instead of setting on instance
+                if (!(handler.IsNullable && manager.CurrentReader.TokenType == JsonTokenType.Null))
+                {
+                    var value = handler.JsonReaderWriter.FromJson(ref manager, null);
+                    shadowSnapshot ??= ((IRuntimeTypeBase)_structuralType).EmptyShadowValuesFactory();
+                    shadowSnapshot[handler.ShadowIndex] = value;
+                }
+            }
+            else
+            {
+                ReadScalarProperty(ref manager, handler, instance);
+            }
         }
         else
         {
@@ -439,17 +465,25 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         /// </summary>
         public IPropertyBase? StructuralProperty { get; }
 
+        /// <summary>
+        ///     For shadow scalar properties: the index in the shadow values snapshot.
+        ///     -1 for non-shadow properties.
+        /// </summary>
+        public int ShadowIndex { get; } = -1;
+
         /// <summary>Creates a handler for a scalar property.</summary>
         public JsonPropertyHandler(
             byte[] jsonNameUtf8,
             JsonValueReaderWriter jsonReaderWriter,
             MemberInfo memberInfo,
-            bool isNullable)
+            bool isNullable,
+            int shadowIndex = -1)
         {
             JsonNameUtf8 = jsonNameUtf8;
             MemberInfo = memberInfo;
             JsonReaderWriter = jsonReaderWriter;
             IsNullable = isNullable;
+            ShadowIndex = shadowIndex;
         }
 
         /// <summary>Creates a handler for a nested structural type.</summary>

@@ -106,29 +106,43 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
 
         // Build per-concrete-type materialization info (entity types only)
         var discriminatorProperty = entityType?.FindDiscriminatorProperty();
-        _discriminatorColumnIndex = discriminatorProperty is not null && projectionMap.TryGetValue(discriminatorProperty, out var discIdx)
-            ? discIdx
-            : -1;
-
-        if (discriminatorProperty is not null && _discriminatorColumnIndex >= 0)
+        if (discriminatorProperty is not null && projectionMap.TryGetValue(discriminatorProperty, out var discIdx))
         {
+            // TPH: discriminator is a real property in the projection map
+            _discriminatorColumnIndex = discIdx;
             var discriminatorTypeMapping = (RelationalTypeMapping)discriminatorProperty.GetTypeMapping();
             _discriminatorReader = discriminatorTypeMapping.CreateReader(_discriminatorColumnIndex);
+        }
+        else if (entityType is not null
+            && entityType.GetConcreteDerivedTypesInclusive().Count() > 1
+            && projectionMap.Count > 0)
+        {
+            // TPC/TPT: synthetic discriminator column projected after all properties
+            _discriminatorColumnIndex = projectionMap.Values.Max() + 1;
+        }
+        else
+        {
+            _discriminatorColumnIndex = -1;
         }
 
         var concreteEntityTypes = entityType?.GetConcreteDerivedTypesInclusive().ToList();
         _concreteTypes = new ConcreteTypeInfo[concreteEntityTypes?.Count ?? 1];
 
         // Set up discriminator comparison strategy
-        if (discriminatorProperty is not null && concreteEntityTypes!.Count > 1)
+        if (concreteEntityTypes is { Count: > 1 } && _discriminatorColumnIndex >= 0)
         {
-            var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
-
-            // TODO: Possible optimization: for the common case of small hierarchies (<10), just do an array with a linear scan rather
-            // than a dictionary
-            _discriminatorMap = discriminatorComparer.IsDefault()
-                ? new Dictionary<object, int>(concreteEntityTypes.Count)
-                : new Dictionary<object, int>(concreteEntityTypes.Count, new ValueComparerEqualityComparer(discriminatorComparer));
+            if (discriminatorProperty is not null)
+            {
+                var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
+                _discriminatorMap = discriminatorComparer.IsDefault()
+                    ? new Dictionary<object, int>(concreteEntityTypes.Count)
+                    : new Dictionary<object, int>(concreteEntityTypes.Count, new ValueComparerEqualityComparer(discriminatorComparer));
+            }
+            else
+            {
+                // TPC/TPT: synthetic discriminator values are always strings
+                _discriminatorMap = new Dictionary<object, int>(concreteEntityTypes.Count);
+            }
         }
 
         for (var i = 0; i < _concreteTypes.Length; i++)
@@ -839,7 +853,9 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                     $"Multiple concrete types ({_concreteTypes.Length}) but no discriminator column.");
             }
 
-            var discriminatorValue = _discriminatorReader!.Read<object>(dataReader);
+            var discriminatorValue = _discriminatorReader is not null
+                ? _discriminatorReader.Read<object>(dataReader)
+                : (object)dataReader.GetString(_discriminatorColumnIndex);
 
             if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
             {
