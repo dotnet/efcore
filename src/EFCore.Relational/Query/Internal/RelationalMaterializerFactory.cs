@@ -186,8 +186,8 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                 return BuildJsonCollectionProjectionMaterializer<T>(jsonCollectionProperty, jsonCollProjInfo, isTracking);
             }
 
-            // Entity or include projection (e.g. ctx.Blogs, ctx.Blogs.Include(b => b.Posts)).
-            // Builds a RelationalEntityMaterializer tree with reference/collection/JSON includes.
+            // Entity, complex type, or include projection (e.g. ctx.Blogs, ctx.Blogs.Include(b => b.Posts),
+            // Select(x => x.MyComplexProp)). Builds a RelationalEntityMaterializer tree.
             case RelationalStructuralTypeShaperExpression:
             case IncludeExpression:
             {
@@ -730,12 +730,11 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         {
             case RelationalStructuralTypeShaperExpression
             {
-                StructuralType: IEntityType entityType,
                 ValueBufferExpression: ProjectionBindingExpression projectionBinding
             } shaper:
             {
-                return BuildEntityMaterializer(
-                    entityType, projectionBinding, selectExpression, isTracking, shaper.IsNullable);
+                return BuildStructuralTypeMaterializer(
+                    shaper.StructuralType, projectionBinding, selectExpression, isTracking, shaper.IsNullable);
             }
 
             case IncludeExpression includeExpression:
@@ -768,7 +767,7 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
                     {
                         // Check if this is a JSON include before attempting the column-based path.
                         // JSON owned entities have ProjectionBindingExpressions that resolve to
-                        // JsonProjectionInfo, which BuildEntityMaterializer cannot handle.
+                        // JsonProjectionInfo, which BuildStructuralTypeMaterializer cannot handle.
                         if (IsJsonIncludeNavigation(includeExpression.NavigationExpression, selectExpression))
                         {
                             goto default;
@@ -952,8 +951,8 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         }
     }
 
-    private static RelationalEntityMaterializer BuildEntityMaterializer(
-        IEntityType entityType,
+    private static RelationalEntityMaterializer BuildStructuralTypeMaterializer(
+        ITypeBase structuralType,
         ProjectionBindingExpression projectionBinding,
         SelectExpression selectExpression,
         bool isTracking,
@@ -963,21 +962,30 @@ public partial class RelationalMaterializerFactory(ICoreSingletonOptions coreSin
         if (projectionIndex is not IDictionary<IPropertyBase, int> propertyIndexMap)
         {
             throw new NotImplementedException(
-                $"The non-generated materializer does not support projection index type '{projectionIndex?.GetType().Name}' for entity type '{entityType.DisplayName()}'.");
+                $"The non-generated materializer does not support projection index type '{projectionIndex?.GetType().Name}' for type '{structuralType.DisplayName()}'.");
         }
 
-        foreach (var concreteType in entityType.GetConcreteDerivedTypesInclusive())
+        if (structuralType is IEntityType entityType)
         {
-            if (concreteType.ClrType.GetConstructor(Type.EmptyTypes) == null)
+            foreach (var concreteType in entityType.GetConcreteDerivedTypesInclusive())
             {
-                throw new NotImplementedException(
-                    $"The non-generated materializer does not yet support entity type '{concreteType.DisplayName()}' which has no parameterless constructor.");
+                if (concreteType.ClrType.GetConstructor(Type.EmptyTypes) == null)
+                {
+                    throw new NotImplementedException(
+                        $"The non-generated materializer does not yet support entity type '{concreteType.DisplayName()}' which has no parameterless constructor.");
+                }
             }
         }
+        else if (structuralType.ClrType.GetConstructor(Type.EmptyTypes) == null
+            && !structuralType.ClrType.IsValueType)
+        {
+            throw new NotImplementedException(
+                $"The non-generated materializer does not yet support type '{structuralType.DisplayName()}' which has no parameterless constructor.");
+        }
 
-        var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(entityType.ClrType);
+        var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(structuralType.ClrType);
         return (RelationalEntityMaterializer)Activator.CreateInstance(
-            materializerType, entityType, propertyIndexMap, isTracking, isNullable)!;
+            materializerType, structuralType, propertyIndexMap, isTracking, isNullable)!;
     }
 
     /// <summary>

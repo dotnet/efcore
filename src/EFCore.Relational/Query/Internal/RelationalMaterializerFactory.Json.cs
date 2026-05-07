@@ -51,7 +51,7 @@ public partial class RelationalMaterializerFactory
                 return nullable
                     ? default
                     : throw new InvalidOperationException(
-                        RelationalStrings.JsonRequiredEntityWithNullJson(structuralType.DisplayName()));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(structuralType.ClrType.ShortDisplayName()));
             }
 
             var keyValues = ExtractJsonKeyValues(

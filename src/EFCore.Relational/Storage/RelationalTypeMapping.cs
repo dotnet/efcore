@@ -810,6 +810,9 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     private object? Read(DbDataReader reader, int ordinal)
     {
+        // TODO: Figure out what to do with this... 
+        // Note that some of the below are for SQLite - GetValue() returns TEXT for e.g. DateOnly,
+        // so we need to coerce M.D.Sqlite to return the right thing
         var providerType = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
 
         return Type.GetTypeCode(providerType) switch
@@ -819,13 +822,21 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
             TypeCode.Int64 => Read<long>(reader, ordinal),
             TypeCode.Int16 => Read<short>(reader, ordinal),
             TypeCode.Byte => Read<byte>(reader, ordinal),
+            TypeCode.SByte => Read<sbyte>(reader, ordinal),
             TypeCode.Boolean => Read<bool>(reader, ordinal),
             TypeCode.DateTime => Read<DateTime>(reader, ordinal),
             TypeCode.Decimal => Read<decimal>(reader, ordinal),
             TypeCode.Double => Read<double>(reader, ordinal),
             TypeCode.Single => Read<float>(reader, ordinal),
             TypeCode.Char => Read<char>(reader, ordinal),
+            TypeCode.UInt16 => Read<ushort>(reader, ordinal),
+            TypeCode.UInt32 => Read<uint>(reader, ordinal),
+            TypeCode.UInt64 => Read<ulong>(reader, ordinal),
             _ when providerType == typeof(Guid) => Read<Guid>(reader, ordinal),
+            _ when providerType == typeof(DateTimeOffset) => Read<DateTimeOffset>(reader, ordinal),
+            _ when providerType == typeof(DateOnly) => Read<DateOnly>(reader, ordinal),
+            _ when providerType == typeof(TimeOnly) => Read<TimeOnly>(reader, ordinal),
+            _ when providerType == typeof(TimeSpan) => Read<TimeSpan>(reader, ordinal),
             _ => reader.GetValue(ordinal)
         };
     }

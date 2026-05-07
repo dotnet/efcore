@@ -1,10 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Reflection;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -49,7 +47,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
                 return _nullable
                     ? null
                     : throw new InvalidOperationException(
-                        RelationalStrings.JsonRequiredEntityWithNullJson(_structuralType.DisplayName()));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(_structuralType.ClrType.ShortDisplayName()));
 
             case not JsonTokenType.StartObject:
                 throw new InvalidOperationException(
@@ -96,9 +94,9 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         // JSON property read loop — mirrors GenerateJsonPropertyReadLoop in the generated shaper.
         // Uses a single unified array of property handlers (scalar + nested objects).
         // Optimized for the common case where properties arrive in model declaration order
-        // (i.e. JSON serialized by EF): we speculatively check _properties[nextExpectedIndex]
-        // first, which gives O(1) per property when the order matches. On miss, we fall back
-        // to a full linear scan.
+        // (i.e. JSON serialized by EF): we start scanning at nextExpectedIndex, which gives
+        // O(1) per property when the order matches. On miss, we wrap around and continue
+        // scanning the remaining properties.
         var nextExpectedIndex = 0;
         tokenType = manager.MoveNext();
         while (tokenType != JsonTokenType.EndObject)
@@ -109,36 +107,21 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
                 {
                     var matched = false;
 
-                    // Fast path: check the next expected property first
-                    if (nextExpectedIndex < _properties.Length
-                        && manager.CurrentReader.ValueTextEquals(_properties[nextExpectedIndex].JsonNameUtf8))
+                    for (var j = 0; j < _properties.Length; j++)
                     {
+                        var i = (nextExpectedIndex + j) % _properties.Length;
+
+                        if (!manager.CurrentReader.ValueTextEquals(_properties[i].JsonNameUtf8))
+                        {
+                            continue;
+                        }
+
                         matched = true;
                         ProcessMatchedProperty(
                             ref manager, queryContext, jsonReaderData, keyValues,
-                            nextExpectedIndex, instance, ref nestedResults);
-                        nextExpectedIndex++;
-                    }
-                    else
-                    {
-                        // Slow path: scan all properties
-                        for (var i = 0; i < _properties.Length; i++)
-                        {
-                            if (!manager.CurrentReader.ValueTextEquals(_properties[i].JsonNameUtf8))
-                            {
-                                continue;
-                            }
-
-                            matched = true;
-                            ProcessMatchedProperty(
-                                ref manager, queryContext, jsonReaderData, keyValues,
-                                i, instance, ref nestedResults);
-
-                            // Advance expected index past this match so subsequent
-                            // properties can still hit the fast path
-                            nextExpectedIndex = i + 1;
-                            break;
-                        }
+                            i, instance, ref nestedResults);
+                        nextExpectedIndex = i + 1;
+                        break;
                     }
 
                     if (!matched)
@@ -388,10 +371,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
 
         while (tokenType != JsonTokenType.EndArray)
         {
-            if (childKeyValues is not null)
-            {
-                childKeyValues[^1] = ++index;
-            }
+            childKeyValues?[^1] = ++index;
 
             if (tokenType == JsonTokenType.StartObject)
             {
@@ -415,8 +395,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             }
             else
             {
-                throw new InvalidOperationException(
-                    CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
             }
         }
 

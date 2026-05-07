@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     </para>
 ///     <para>
 ///         Per-property setters are reused from the model's existing <see cref="IClrPropertySetter" />
-///         infrastructure (<see cref="ClrPropertySetter{TEntity, TStructural, TValue}" />). At the typed
+///         infrastructure (<see cref="ClrPropertySetter{TStructuralType, TStructural, TValue}" />). At the typed
 ///         dispatch site we cast to the concrete generic type and call the typed overload, avoiding boxing.
 ///     </para>
 ///     <para>
@@ -35,10 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///         This code is regular C# and does not need generation.
 ///     </para>
 /// </remarks>
-public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterializer
-    where TEntity : class, new()
+public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMaterializer
 {
-    private readonly IEntityType _entityType;
+    private readonly ITypeBase _structuralType;
     private readonly IKey? _primaryKey;
     private readonly KeyColumnInfo[]? _keyColumns;
     private readonly bool _isTracking;
@@ -81,13 +80,14 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public RelationalEntityMaterializer(
-        IEntityType entityType,
+        ITypeBase structuralType,
         IReadOnlyDictionary<IPropertyBase, int> projectionMap,
         bool isTracking,
         bool isNullable = false)
     {
-        _entityType = entityType;
-        var primaryKey = entityType.FindPrimaryKey();
+        _structuralType = structuralType;
+        var entityType = structuralType as IEntityType;
+        var primaryKey = entityType?.FindPrimaryKey();
         _primaryKey = isTracking ? primaryKey : null;
         _isTracking = _primaryKey is not null;
         _isNullable = isNullable;
@@ -104,8 +104,8 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             }
         }
 
-        // Build per-concrete-type materialization info
-        var discriminatorProperty = entityType.FindDiscriminatorProperty();
+        // Build per-concrete-type materialization info (entity types only)
+        var discriminatorProperty = entityType?.FindDiscriminatorProperty();
         _discriminatorColumnIndex = discriminatorProperty is not null && projectionMap.TryGetValue(discriminatorProperty, out var discIdx)
             ? discIdx
             : -1;
@@ -116,11 +116,11 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             _discriminatorReader = discriminatorTypeMapping.CreateReader(_discriminatorColumnIndex);
         }
 
-        var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-        _concreteTypes = new ConcreteTypeInfo[concreteEntityTypes.Count];
+        var concreteEntityTypes = entityType?.GetConcreteDerivedTypesInclusive().ToList();
+        _concreteTypes = new ConcreteTypeInfo[concreteEntityTypes?.Count ?? 1];
 
         // Set up discriminator comparison strategy
-        if (discriminatorProperty is not null && concreteEntityTypes.Count > 1)
+        if (discriminatorProperty is not null && concreteEntityTypes!.Count > 1)
         {
             var discriminatorComparer = discriminatorProperty.GetKeyValueComparer();
 
@@ -131,10 +131,10 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 : new Dictionary<object, int>(concreteEntityTypes.Count, new ValueComparerEqualityComparer(discriminatorComparer));
         }
 
-        for (var i = 0; i < concreteEntityTypes.Count; i++)
+        for (var i = 0; i < _concreteTypes.Length; i++)
         {
-            var concreteType = concreteEntityTypes[i];
-            var discriminatorValue = concreteType.GetDiscriminatorValue();
+            var concreteType = (ITypeBase?)concreteEntityTypes?[i] ?? structuralType;
+            var discriminatorValue = (concreteType as IEntityType)?.GetDiscriminatorValue();
 
             if (discriminatorValue is not null)
             {
@@ -144,6 +144,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             // Build property materializers for this concrete type's properties (declared + inherited)
             var properties = concreteType.GetProperties().Where(p => !p.IsShadowProperty()).ToList();
             var materializers = new List<PropertyMaterializer>(properties.Count);
+            var isComplexType = structuralType is IComplexType;
 
             foreach (var property in properties)
             {
@@ -153,16 +154,43 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 }
 
                 var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
-                var setter = ((IRuntimePropertyBase)property).MaterializationSetter;
+                // For complex types, use MemberInfo-based setters because IClrPropertySetter targets
+                // the containing entity (TStructuralType), not the complex type instance (TStructural).
+                var setter = isComplexType ? null : ((IRuntimePropertyBase)property).MaterializationSetter;
+                var memberInfo = isComplexType ? property.GetMemberInfo(forMaterialization: true, forSet: true) : null;
                 var reader = typeMapping.CreateReader(columnIndex);
 
-                materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, setter, reader));
+                materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, setter, memberInfo, reader));
             }
+
+            // Build shadow property readers for tracking (FK shadow properties, discriminators, etc.)
+            List<ShadowPropertyMaterializer>? shadowMaterializers = null;
+            if (isTracking)
+            {
+                foreach (var property in concreteType.GetProperties().Where(p => p.IsShadowProperty()))
+                {
+                    if (!projectionMap.TryGetValue(property, out var columnIndex))
+                    {
+                        continue;
+                    }
+
+                    var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
+                    var reader = typeMapping.CreateReader(columnIndex);
+
+                    shadowMaterializers ??= [];
+                    shadowMaterializers.Add(new ShadowPropertyMaterializer(
+                        columnIndex, property.IsNullable, reader, property.GetShadowIndex()));
+                }
+            }
+
+            var ctor = concreteType.ClrType.GetConstructor(Type.EmptyTypes);
 
             _concreteTypes[i] = new ConcreteTypeInfo(
                 concreteType,
                 discriminatorValue,
-                materializers.ToArray());
+                ctor is not null ? ConstructorInvoker.Create(ctor) : null,
+                materializers.ToArray(),
+                shadowMaterializers?.ToArray() ?? []);
         }
 
         // Build JSON complex property info for JSON-mapped complex properties on this entity.
@@ -195,7 +223,8 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                         complexType, isTracking, isNullable || complexProperty.IsNullable),
                     ((IRuntimePropertyBase)complexProperty).MaterializationSetter,
                     complexProperty.IsCollection,
-                    complexProperty));
+                    complexProperty,
+                    complexProperty.DeclaringType.ClrType));
             }
         }
 
@@ -203,7 +232,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     }
 
     /// <inheritdoc />
-    public override IEntityType EntityType => _entityType;
+    public override ITypeBase StructuralType => _structuralType;
 
     /// <inheritdoc />
     public override object? Materialize(
@@ -215,7 +244,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
 
     /// <inheritdoc />
     protected override Delegate GetMaterializeDelegateCore()
-        => (Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TEntity?>)MaterializeTyped;
+        => (Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TStructuralType?>)MaterializeTyped;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -223,16 +252,18 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TEntity? MaterializeTyped(
+    public TStructuralType? MaterializeTyped(
         QueryContext queryContext,
         DbDataReader dataReader,
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
     {
-        TEntity entity;
+        TStructuralType entity;
 
         if (CollectionIncludes is not null)
         {
+            Check.DebugAssert(_structuralType is IEntityType, "Collection includes are only supported for entity types.");
+
             // Collection include protocol: this method is called multiple times per parent entity.
             // On first call (resultContext.Values == null), we materialize the parent and initialize collections.
             // On subsequent calls, we populate collection elements.
@@ -244,7 +275,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 entity = MaterializeEntity(queryContext, dataReader, out var fromIdentityMap1)!;
                 if (entity is null)
                 {
-                    return null;
+                    return default;
                 }
 
                 // Store entity reference for subsequent calls (using Values as a marker + storage)
@@ -280,7 +311,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             }
             else
             {
-                entity = (TEntity)resultContext.Values[0];
+                entity = (TStructuralType)resultContext.Values[0];
             }
 
             // Populate ALL collection elements from the current row. Both direct and flattened
@@ -298,12 +329,14 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         // Reference and/or JSON includes (no collection includes). These complete in a single call.
         if (ReferenceIncludes is not null || JsonIncludes is not null)
         {
+            Check.DebugAssert(_structuralType is IEntityType, "Reference/JSON includes are only supported for entity types.");
+
             if (resultContext.Values is null)
             {
                 entity = MaterializeEntity(queryContext, dataReader, out var fromIdentityMap)!;
                 if (entity is null)
                 {
-                    return null;
+                    return default;
                 }
 
                 if (ReferenceIncludes is not null)
@@ -323,7 +356,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 return entity;
             }
 
-            return (TEntity?)resultContext.Values[0];
+            return (TStructuralType?)resultContext.Values[0];
         }
 
         // No includes at all — cache the entity in resultContext.Values on first call and use the cache on
@@ -341,13 +374,13 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             return entity;
         }
 
-        return (TEntity?)resultContext.Values[0];
+        return (TStructuralType?)resultContext.Values[0];
     }
 
     /// <summary>
     ///     Materializes the entity itself (identity resolution, instantiation, property population, tracking).
     /// </summary>
-    private TEntity? MaterializeEntity(
+    private TStructuralType? MaterializeEntity(
         QueryContext queryContext,
         DbDataReader dataReader,
         out bool fromIdentityMap)
@@ -383,7 +416,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
 
             if (hasNullKey)
             {
-                return null;
+                return default;
             }
 
             if (_isTracking)
@@ -392,19 +425,32 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 if (entry is not null)
                 {
                     fromIdentityMap = true;
-                    return (TEntity)entry.Entity;
+                    return (TStructuralType)entry.Entity;
                 }
             }
         }
 
         var (entity, typeInfo) = InstantiateEntity(dataReader);
 
-        PopulateProperties(dataReader, entity, typeInfo.PropertyMaterializers);
+        // For value types (complex types), box once and work with the boxed reference so
+        // MemberInfo.SetValue mutations are visible. Unbox after all properties are set.
+        object boxedEntity = entity!;
+        PopulateProperties(dataReader, boxedEntity, typeInfo.PropertyMaterializers);
+
+        if (typeof(TStructuralType).IsValueType)
+        {
+            entity = (TStructuralType)boxedEntity;
+        }
+
         PopulateJsonComplexProperties(queryContext, dataReader, entity);
 
         if (_isTracking)
         {
-            queryContext.StartTracking(typeInfo.EntityType, entity, Snapshot.Empty);
+            var shadowSnapshot = typeInfo.ShadowPropertyMaterializers.Length > 0
+                ? BuildShadowSnapshot(dataReader, typeInfo)
+                : Snapshot.Empty;
+
+            queryContext.StartTracking((IEntityType)typeInfo.StructuralType, entity!, shadowSnapshot);
         }
 
         return entity;
@@ -417,7 +463,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         QueryContext queryContext,
         DbDataReader dataReader,
         SingleQueryResultCoordinator resultCoordinator,
-        TEntity entity)
+        TStructuralType entity)
     {
         if (ReferenceIncludes is null)
         {
@@ -481,7 +527,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     private void ProcessJsonIncludes(
         QueryContext queryContext,
         DbDataReader dataReader,
-        TEntity entity,
+        TStructuralType entity,
         bool entityAlreadyTracked = false)
     {
         if (JsonIncludes is null)
@@ -775,13 +821,17 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         return true;
     }
 
-    private (TEntity Entity, ConcreteTypeInfo TypeInfo) InstantiateEntity(DbDataReader dataReader)
+    private (TStructuralType Entity, ConcreteTypeInfo TypeInfo) InstantiateEntity(DbDataReader dataReader)
     {
-        return _concreteTypes is [var entityType]
-            ? (new TEntity(), entityType)
+        return _concreteTypes is [var singleType]
+            ? (Instantiate(singleType), singleType)
             : InstantiateInheritanceEntity(dataReader);
 
-        (TEntity Entity, ConcreteTypeInfo TypeInfo) InstantiateInheritanceEntity(DbDataReader dataReader)
+        static TStructuralType Instantiate(in ConcreteTypeInfo typeInfo)
+            => (TStructuralType)(typeInfo.ConstructorInvoker?.Invoke([])
+                ?? Activator.CreateInstance(typeInfo.StructuralType.ClrType))!;
+
+        (TStructuralType Entity, ConcreteTypeInfo TypeInfo) InstantiateInheritanceEntity(DbDataReader dataReader)
         {
             if (_discriminatorColumnIndex < 0)
             {
@@ -794,11 +844,11 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
             if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
             {
                 ref readonly var typeInfo = ref _concreteTypes[index];
-                return ((TEntity)Activator.CreateInstance(typeInfo.EntityType.ClrType)!, typeInfo);
+                return (Instantiate(typeInfo), typeInfo);
             }
 
             throw new InvalidOperationException(
-                $"Unable to materialize entity of type '{typeof(TEntity).Name}'. "
+                $"Unable to materialize entity of type '{typeof(TStructuralType).Name}'. "
                 + $"No concrete type found for discriminator value '{discriminatorValue}'.");
         }
     }
@@ -815,7 +865,7 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
     private void PopulateJsonComplexProperties(
         QueryContext queryContext,
         DbDataReader dataReader,
-        TEntity entity)
+        TStructuralType entity)
     {
         if (_jsonComplexProperties is null)
         {
@@ -825,32 +875,32 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         for (var i = 0; i < _jsonComplexProperties.Length; i++)
         {
             ref readonly var jsonProp = ref _jsonComplexProperties[i];
+
+            // TPH guard: the complex property may be declared on a derived type
+            if (!jsonProp.DeclaringClrType.IsInstanceOfType(entity))
+            {
+                continue;
+            }
+
             var jsonReaderData = RelationalMaterializerFactory.ReadJsonColumn(
                 dataReader, jsonProp.JsonColumnIndex, jsonProp.JsonStreamReader, queryContext);
 
             if (jsonReaderData is not null)
             {
-                object? value;
-
-                if (jsonProp.IsCollection)
-                {
-                    value = RelationalJsonStructuralTypeMaterializer.MaterializeCollection(
-                        queryContext, jsonReaderData, keyValues: null, jsonProp.Materializer, jsonProp.ComplexProperty);
-                }
-                else
-                {
-                    value = jsonProp.Materializer.Materialize(queryContext, jsonReaderData, keyValues: null);
-                }
+                var value = jsonProp.IsCollection
+                    ? RelationalJsonStructuralTypeMaterializer.MaterializeCollection(
+                        queryContext, jsonReaderData, keyValues: null, jsonProp.Materializer, jsonProp.ComplexProperty)
+                    : jsonProp.Materializer.Materialize(queryContext, jsonReaderData, keyValues: null);
 
                 if (value is not null)
                 {
-                    jsonProp.Setter.SetClrValue(entity, value);
+                    jsonProp.Setter.SetClrValue(entity!, value);
                 }
             }
         }
     }
 
-    private static void PopulateProperties(DbDataReader dataReader, TEntity entity, PropertyMaterializer[] materializers)
+    private static void PopulateProperties(DbDataReader dataReader, object entity, PropertyMaterializer[] materializers)
     {
         for (var i = 0; i < materializers.Length; i++)
         {
@@ -861,35 +911,95 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
                 continue;
             }
 
-            pm.Setter.SetClrValue(entity, pm.Reader, dataReader);
+            if (pm.Setter is not null)
+            {
+                pm.Setter.SetClrValue(entity, pm.Reader, dataReader);
+            }
+            else
+            {
+                // Complex type path: use MemberInfo-based setting (handles boxed value types correctly)
+                // TODO: Consider what to do here
+                var value = pm.Reader.Read<object>(dataReader);
+                if (pm.MemberInfo is FieldInfo fieldInfo)
+                {
+                    fieldInfo.SetValue(entity, value);
+                }
+                else
+                {
+                    ((PropertyInfo)pm.MemberInfo!).SetValue(entity, value);
+                }
+            }
         }
     }
 
-    private readonly struct ConcreteTypeInfo(
-        IEntityType entityType,
-        object? discriminatorValue,
-        PropertyMaterializer[] propertyMaterializers)
+    /// <summary>
+    ///     Builds an <see cref="ISnapshot" /> containing shadow property values read from the
+    ///     <see cref="DbDataReader" />. Shadow properties include FK columns and discriminators
+    ///     that have no CLR property on the entity. These values are needed by the change tracker
+    ///     for relationship fixup (e.g. populating collection navigations via FK matching).
+    /// </summary>
+    private ISnapshot BuildShadowSnapshot(DbDataReader dataReader, in ConcreteTypeInfo typeInfo)
     {
-        public IEntityType EntityType { get; } = entityType;
+        var shadowMaterializers = typeInfo.ShadowPropertyMaterializers;
+        var snapshot = ((IRuntimeTypeBase)typeInfo.StructuralType).EmptyShadowValuesFactory();
+        for (var i = 0; i < shadowMaterializers.Length; i++)
+        {
+            ref readonly var sm = ref shadowMaterializers[i];
+
+            if (sm.IsNullable && dataReader.IsDBNull(sm.ColumnIndex))
+            {
+                continue;
+            }
+
+            snapshot[sm.ShadowIndex] = sm.Reader.Read<object>(dataReader);
+        }
+
+        return snapshot;
+    }
+
+    private readonly struct ConcreteTypeInfo(
+        ITypeBase structuralType,
+        object? discriminatorValue,
+        ConstructorInvoker? constructorInvoker,
+        PropertyMaterializer[] propertyMaterializers,
+        ShadowPropertyMaterializer[] shadowPropertyMaterializers)
+    {
+        public ITypeBase StructuralType { get; } = structuralType;
         public object? DiscriminatorValue { get; } = discriminatorValue;
+        public ConstructorInvoker? ConstructorInvoker { get; } = constructorInvoker;
         public PropertyMaterializer[] PropertyMaterializers { get; } = propertyMaterializers;
+        public ShadowPropertyMaterializer[] ShadowPropertyMaterializers { get; } = shadowPropertyMaterializers;
     }
 
     private readonly struct PropertyMaterializer(
         int columnIndex,
         bool isNullable,
-        IClrPropertySetter setter,
+        IClrPropertySetter? setter,
+        MemberInfo? memberInfo,
         ITypedValueReader<DbDataReader> reader)
     {
         public int ColumnIndex { get; } = columnIndex;
         public bool IsNullable { get; } = isNullable;
-        public IClrPropertySetter Setter { get; } = setter;
+        public IClrPropertySetter? Setter { get; } = setter;
+        public MemberInfo? MemberInfo { get; } = memberInfo;
 
         /// <summary>
         ///     The reader for this property, produced by <see cref="RelationalTypeMapping.CreateReader" />.
         ///     Immutable; the <see cref="DbDataReader" /> is passed as state per-call.
         /// </summary>
         public ITypedValueReader<DbDataReader> Reader { get; } = reader;
+    }
+
+    private readonly struct ShadowPropertyMaterializer(
+        int columnIndex,
+        bool isNullable,
+        ITypedValueReader<DbDataReader> reader,
+        int shadowIndex)
+    {
+        public int ColumnIndex { get; } = columnIndex;
+        public bool IsNullable { get; } = isNullable;
+        public ITypedValueReader<DbDataReader> Reader { get; } = reader;
+        public int ShadowIndex { get; } = shadowIndex;
     }
 
     private readonly struct KeyColumnInfo(int columnIndex, Type clrType)
@@ -904,13 +1014,15 @@ public class RelationalEntityMaterializer<TEntity> : RelationalEntityMaterialize
         RelationalJsonStructuralTypeMaterializer materializer,
         IClrPropertySetter setter,
         bool isCollection,
-        IPropertyBase complexProperty)
+        IPropertyBase complexProperty,
+        Type declaringClrType)
     {
         public int JsonColumnIndex { get; } = jsonColumnIndex;
         public Func<DbDataReader, MemoryStream?> JsonStreamReader { get; } = jsonStreamReader;
         public RelationalJsonStructuralTypeMaterializer Materializer { get; } = materializer;
         public IClrPropertySetter Setter { get; } = setter;
         public bool IsCollection { get; } = isCollection;
+        public Type DeclaringClrType { get; } = declaringClrType;
         public IPropertyBase ComplexProperty { get; } = complexProperty;
     }
 
