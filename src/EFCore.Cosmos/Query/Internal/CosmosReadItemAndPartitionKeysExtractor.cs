@@ -88,6 +88,11 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var allIdPropertiesSpecified =
             _jsonIdPropertyValues.Values.All(p => p is not null) && _jsonIdPropertyValues.Count > 0;
 
+        if (queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
+        {
+            ValidateNoWithPartitionKeyConflict(queryCompilationContext, partitionKeyProperties);
+        }
+
         // First, go over the partition key properties and lift them from the predicate to the query compilation context, as possible.
         // We do this only as long as all partition key values are provided; the moment there's a gap we stop (so if PK1 and PK3 are
         // provided but not PK2, only PK1 will be lifted out).
@@ -168,6 +173,49 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
 
             return shaper;
         }
+    }
+
+    private void ValidateNoWithPartitionKeyConflict(
+        CosmosQueryCompilationContext queryCompilationContext,
+        IReadOnlyList<IProperty> partitionKeyProperties)
+    {
+        // WithPartitionKey(...) already populated partition key values in the query compilation context.
+        // If the predicate also contains partition key comparisons, we must validate that they match; otherwise, a ReadItem
+        // optimization would execute with the WithPartitionKey partition key and ignore the conflicting predicate.
+        for (var i = 0; i < partitionKeyProperties.Count; i++)
+        {
+            var property = partitionKeyProperties[i];
+            var predicateValueExpression = _partitionKeyPropertyValues[property].ValueExpression;
+            if (predicateValueExpression is null)
+            {
+                continue;
+            }
+
+            if (queryCompilationContext.PartitionKeyPropertyValues.Count <= i)
+            {
+                // Shouldn't happen: WithPartitionKey doesn't specify enough PK components; let the existing missing-PK flow handle it.
+                break;
+            }
+
+            var withPartitionKeyValueExpression = queryCompilationContext.PartitionKeyPropertyValues[i];
+
+            if (!PartitionKeyValueExpressionsMatch(predicateValueExpression, withPartitionKeyValueExpression))
+            {
+                throw new InvalidOperationException(CosmosStrings.WithPartitionKeyConflictingPartitionKeyPredicate);
+            }
+        }
+
+        static bool PartitionKeyValueExpressionsMatch(Expression left, Expression right)
+            => (left, right) switch
+            {
+                (SqlConstantExpression { Value: var leftValue }, SqlConstantExpression { Value: var rightValue })
+                    => Equals(leftValue, rightValue),
+
+                (SqlParameterExpression { Name: var leftName }, SqlParameterExpression { Name: var rightName })
+                    => leftName == rightName,
+
+                _ => false
+            };
     }
 
     /// <summary>

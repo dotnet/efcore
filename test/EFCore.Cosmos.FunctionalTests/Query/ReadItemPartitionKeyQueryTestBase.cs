@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -284,6 +284,28 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")),
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1")
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")));
+
+    [ConditionalFact] // Issue #38238
+    public virtual async Task ReadItem_with_WithPartitionKey_and_conflicting_partition_key_predicate_throws()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1")
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == "PK2")));
+
+        Assert.Equal(CosmosStrings.WithPartitionKeyConflictingPartitionKeyPredicate, exception.Message);
+    }
+
+    [ConditionalFact] // Issue #38238
+    public virtual async Task ReadItem_with_WithPartitionKey_and_partition_key_predicate_same_parameter_does_not_throw()
+    {
+        var partitionKey = "PK1";
+
+        await AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey(partitionKey)
+                .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
+    }
 
     [ConditionalFact]
     public virtual Task ReadItem_with_WithPartitionKey_with_only_partition_key()
