@@ -3032,6 +3032,167 @@ public partial class EntityTypeTest
         Assert.Equal("__AnonymousType01Child", entityType.ShortName());
     }
 
+    [ConditionalTheory]
+    // file class MyEntity in Program.cs
+    [InlineData("<Program>F1234ABCD__MyEntity", "MyEntity")]
+    // file class declared in a file whose name itself contains "__"
+    [InlineData("<My__File>F1234ABCD__MyEntity", "MyEntity")]
+    // file class whose user-chosen name contains "__"
+    [InlineData("<Program>F1234ABCD__Foo__Bar", "Foo__Bar")]
+    // file class with generic type parameters
+    [InlineData("<Program>F1234ABCD__MyEntity<int>", "MyEntity")]
+    public void ShortName_on_file_scoped_type(string clrName, string expectedShortName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_FileScoped");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedShortName, entityType.ShortName());
+    }
+
+    [ConditionalTheory]
+    // Regular type — no `<` prefix, no transformation
+    [InlineData("Foo", "Foo")]
+    // Type whose user-chosen name contains "__" but is not file-scoped — no `<` prefix, no transformation
+    [InlineData("Foo__Bar", "Foo__Bar")]
+    // Generic type — existing logic still strips generics from the tail
+    [InlineData("MyType<int>", "MyType")]
+    // Generic type whose name contains "__"
+    [InlineData("Foo__Bar<int>", "Foo__Bar")]
+    public void ShortName_unchanged_for_regular_types(string clrName, string expectedShortName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_Regular");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedShortName, entityType.ShortName());
+    }
+
+    [ConditionalTheory]
+    // file class MyEntity in Program.cs
+    [InlineData("<Program>F1234ABCD__MyEntity", "MyEntity")]
+    // file class declared in a file whose name itself contains "__"
+    [InlineData("<My__File>F1234ABCD__MyEntity", "MyEntity")]
+    // file class whose user-chosen name contains "__"
+    [InlineData("<Program>F1234ABCD__Foo__Bar", "Foo__Bar")]
+    // file class with single generic type parameter — DisplayName preserves generics (unlike ShortName)
+    [InlineData("<Program>F1234ABCD__MyEntity<int>", "MyEntity<int>")]
+    // file class with nested generics
+    [InlineData("<Program>F1234ABCD__Wrapper<List<int>>", "Wrapper<List<int>>")]
+    // file class used as a generic argument inside another type — sentinel must be stripped from the inner position too
+    [InlineData("List<<Program>F1234ABCD__MyFileClass>", "List<MyFileClass>")]
+    // generic of generic, with a file-scoped type at the inner-inner position
+    [InlineData("List<List<<Program>F1234ABCD__Inner>>", "List<List<Inner>>")]
+    // short hex digest (Roslyn varies digest length)
+    [InlineData("<Program>F12__Foo", "Foo")]
+    // long hex digest
+    [InlineData("<Program>FABCDEF1234567890__Foo", "Foo")]
+    // file class whose user-chosen name starts with an underscore
+    [InlineData("<Program>F1234ABCD___Underscored", "_Underscored")]
+    public void DisplayName_on_file_scoped_type(string clrName, string expectedDisplayName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_FileScopedDisplay");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedDisplayName, entityType.DisplayName());
+    }
+
+    [ConditionalTheory]
+    // Regular type — no `<` prefix, no transformation
+    [InlineData("Foo", "Foo")]
+    // Type whose user-chosen name contains "__" but is not file-scoped
+    [InlineData("Foo__Bar", "Foo__Bar")]
+    // Generic type — DisplayName preserves generics (unlike ShortName)
+    [InlineData("MyType<int>", "MyType<int>")]
+    // Generic type whose name contains "__"
+    [InlineData("Foo__Bar<int>", "Foo__Bar<int>")]
+    // Anonymous-style synthesized name (`<>`) — not file-scoped, untouched by file-scoped branch
+    [InlineData("<>__AnonymousType01Child", "<>__AnonymousType01Child")]
+    // Closure display class — `<>c` prefix, not `>F`, untouched
+    [InlineData("<>c__DisplayClass0_0", "<>c__DisplayClass0_0")]
+    // Async state machine — `>d` signature, not `>F`, untouched
+    [InlineData("<MyMethod>d__0", "<MyMethod>d__0")]
+    // Local function — `>g` signature, not `>F`, untouched
+    [InlineData("<MyMethod>g__Local|0_0", "<MyMethod>g__Local|0_0")]
+    // Lowercase `f` — Roslyn anonymous-type marker, not file-scoped (`F` is uppercase). Untouched.
+    [InlineData("<Program>f1234__NotFileScoped", "<Program>f1234__NotFileScoped")]
+    public void DisplayName_unchanged_for_non_file_scoped_types(string clrName, string expectedDisplayName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_DisplayRegular");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedDisplayName, entityType.DisplayName());
+    }
+
+    [ConditionalTheory]
+    // Has `>F` signature but no `__` separator — file-scoped sentinel is incomplete, leave alone
+    [InlineData("<Program>F1234ABCD", "<Program>F1234ABCD")]
+    // `<` but no closing `>` — incomplete sentinel, leave alone
+    [InlineData("<NoClose", "<NoClose")]
+    // Empty user portion after `__` — malformed Roslyn output, but ensure we don't crash;
+    // current behavior strips to empty (matches ShortName behavior; harmless edge case)
+    [InlineData("<Program>F1234ABCD__", "")]
+    // Just `<>` — bounds check `closeAngle + 1 < name.Length` rejects this; no char follows the `>`.
+    [InlineData("<>", "<>")]
+    public void DisplayName_handles_malformed_or_incomplete_file_scoped_inputs_safely(string clrName, string expectedDisplayName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_DisplayMalformed");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedDisplayName, entityType.DisplayName());
+    }
+
+    [ConditionalFact]
+    public void DisplayName_unchanged_for_well_known_types()
+    {
+        Assert.Equal("EntityTypeTest", CreateModel().AddEntityType(typeof(EntityTypeTest)).DisplayName());
+        Assert.Equal("Customer", CreateModel().AddEntityType(typeof(Customer)).DisplayName());
+        Assert.Equal("List<Customer>", CreateModel().AddEntityType(typeof(List<Customer>)).DisplayName());
+    }
+
     private readonly IMutableModel _model = BuildModel();
 
     private IMutableEntityType DependentType
