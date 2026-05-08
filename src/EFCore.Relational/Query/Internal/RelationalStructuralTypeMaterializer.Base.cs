@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.Common;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -14,11 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 /// <remarks>
-///     Abstract base class for <see cref="RelationalEntityMaterializer{TEntity}" />.
+///     Abstract base class for <see cref="RelationalStructuralTypeMaterializer{TEntity}" />.
 ///     Holds include information and the entity type, providing a non-generic handle for
 ///     building materializer trees.
 /// </remarks>
-public abstract class RelationalEntityMaterializer
+public abstract class RelationalStructuralTypeMaterializer
 {
     private List<ReferenceIncludeInfo>? _referenceIncludes;
     private List<CollectionIncludeInfo>? _collectionIncludes;
@@ -50,7 +49,7 @@ public abstract class RelationalEntityMaterializer
     ///     avoiding boxing when the caller knows <typeparamref name="T" /> matches the entity's CLR type.
     /// </summary>
     public Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?> GetTypedMaterializeDelegate<T>()
-        => Unsafe.As<Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>>(GetMaterializeDelegateCore())!;
+        => (Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T?>)GetMaterializeDelegateCore();
 
     /// <summary>
     ///     Returns the typed <c>MaterializeTyped</c> delegate as an untyped <c>Delegate</c>.
@@ -122,5 +121,5 @@ public abstract class RelationalEntityMaterializer
     ///     For many-to-many skip navigation collection includes: the join entity materializer
     ///     that must be called to materialize the join entity (for tracking side effects).
     /// </summary>
-    public RelationalEntityMaterializer? JoinEntityMaterializer { get; set; }
+    public RelationalStructuralTypeMaterializer? JoinEntityMaterializer { get; set; }
 }

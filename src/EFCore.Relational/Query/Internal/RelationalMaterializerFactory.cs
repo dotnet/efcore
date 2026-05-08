@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <remarks>
 ///     Builds non-generated entity materializers from shaper expressions. This replaces
 ///     <see cref="RelationalShapedQueryCompilingExpressionVisitor.ShaperProcessingExpressionVisitor" />
-///     for supported query shapes, producing a tree of <see cref="RelationalEntityMaterializer{TEntity}" />
+///     for supported query shapes, producing a tree of <see cref="RelationalStructuralTypeMaterializer{TEntity}" />
 ///     instances wired together with include information.
 /// </remarks>
 public partial class RelationalMaterializerFactory(
@@ -241,7 +241,14 @@ public partial class RelationalMaterializerFactory(
 
                 if (typeof(T) != typeof(object))
                 {
-                    return entityMaterializer.GetTypedMaterializeDelegate<T>()!;
+                    // For nullable value type projections (e.g. Select(x => x.OptionalComplexProp) where the
+                    // complex type is a struct), T is Nullable<TStruct> but the materializer's internal delegate
+                    // returns TStruct (because TStructuralType? without a struct constraint doesn't produce
+                    // Nullable<T>). The delegate types are incompatible, so we go through the boxed Materialize
+                    // path which correctly handles the null check.
+                    return Nullable.GetUnderlyingType(typeof(T)) is not null
+                        ? ((queryCtx, reader, rc, coord) => (T?)entityMaterializer.Materialize(queryCtx, reader, rc, coord))
+                        : entityMaterializer.GetTypedMaterializeDelegate<T>()!;
                 }
 
                 return (queryCtx, reader, rc, coord) => (T?)entityMaterializer.Materialize(queryCtx, reader, rc, coord);
@@ -301,6 +308,14 @@ public partial class RelationalMaterializerFactory(
                     => (T?)(collectionAccessor?.Create() ?? Activator.CreateInstance(collectionType));
             }
 
+            // Value type default construction (e.g. new DateTime()). Constructor is null for
+            // parameterless value type NewExpressions; the result is always default(T).
+            case NewExpression { Constructor: null } newExpression:
+            {
+                var type = newExpression.Type;
+                return (_, _, _, _) => (T?)Activator.CreateInstance(type);
+            }
+
             // Anonymous/named type projection (e.g. Select(x => new { x.Id, x.Name })).
             // Each constructor argument is materialized recursively.
             case NewExpression newExpression:
@@ -358,10 +373,13 @@ public partial class RelationalMaterializerFactory(
                 var projectionFunc = Lambda<Func<QueryContext, DbDataReader, object[], T?>>(
                     rewritten, queryContextParam, dataReaderParam, entityValuesParam).Compile();
 
-                return subMaterializers.Length == 0
-                    ? (queryCtx, reader, rc, coord) => projectionFunc(queryCtx, reader, [])
-                    : ComposeWithMultiCallProtocol(subMaterializers, (queryCtx, reader, values)
-                        => projectionFunc(queryCtx, reader, values));
+                if (subMaterializers.Length == 0)
+                {
+                    return (queryCtx, reader, rc, coord) => projectionFunc(queryCtx, reader, []);
+                }
+
+                return ComposeWithMultiCallProtocol<T>(subMaterializers, (queryCtx, reader, values)
+                    => projectionFunc(queryCtx, reader, values));
             }
         }
     }
@@ -393,16 +411,33 @@ public partial class RelationalMaterializerFactory(
                 }
 
                 rc.Values = new object[subMaterializers.Length];
+                var anyNotReady = false;
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
+                    // Reset ResultReady before each sub-materializer so we can detect whether
+                    // THIS sub-materializer changed it to false (collection population mode).
+                    coord.ResultReady = true;
                     var result = subMaterializers[i](queryCtx, reader, subContexts[i], coord);
 
-                    // For entity materializers with collection includes, the return value may be
-                    // null (ResultReady=false during collection population), but the entity itself
-                    // is cached in subContexts[i].Values[0]. For everything else (scalars, nested
-                    // NewExpressions), the return value is the actual value.
-                    rc.Values[i] = (result ?? subContexts[i].Values?[0])!;
+                    if (result is not null)
+                    {
+                        rc.Values[i] = result;
+                    }
+                    else if (!coord.ResultReady)
+                    {
+                        // Entity materializer set ResultReady=false → collection population in
+                        // progress, entity is cached in subContexts[i].Values[0].
+                        rc.Values[i] = subContexts[i].Values?[0]!;
+                    }
+
+                    // else: ResultReady is still true — null is a legitimate result (e.g. a
+                    // conditional expression evaluating to null). Do NOT fall back to
+                    // subContexts[i].Values, which may contain unrelated cached state.
+
+                    anyNotReady |= !coord.ResultReady;
                 }
+
+                coord.ResultReady = !anyNotReady;
             }
             else
             {
@@ -449,7 +484,7 @@ public partial class RelationalMaterializerFactory(
         ///     Sub-expressions extracted during visitation (entities, includes, and scalars when in
         ///     multi-call mode). Each is replaced with a typed array access on
         ///     <c>_entityValuesParam[index]</c>. After visitation, callers build materializers for
-        ///     each entry and wire them via <see cref="ComposeWithMultiCallProtocol{T}" />.
+        ///     each entry and wire them via <c>ComposeWithMultiCallProtocol</c>.
         /// </summary>
         public List<Expression> ExtractedSubExpressions { get; } = [];
 
@@ -759,12 +794,12 @@ public partial class RelationalMaterializerFactory(
     }
 
     /// <summary>
-    ///     Recursively builds a <see cref="RelationalEntityMaterializer{TEntity}" /> from a shaper expression.
+    ///     Recursively builds a <see cref="RelationalStructuralTypeMaterializer{TEntity}" /> from a shaper expression.
     ///     When <paramref name="splitCollectionInfos" /> is non-null, operates in split-query mode:
     ///     <see cref="RelationalSplitCollectionShaperExpression" /> nodes are collected into the list
     ///     instead of being added as <see cref="CollectionIncludeInfo" /> on the entity materializer.
     /// </summary>
-    private RelationalEntityMaterializer BuildMaterializerFromShaper(
+    private RelationalStructuralTypeMaterializer BuildMaterializerFromShaper(
         Expression shaperExpression,
         SelectExpression selectExpression,
         bool isTracking,
@@ -1029,7 +1064,7 @@ public partial class RelationalMaterializerFactory(
         }
     }
 
-    private RelationalEntityMaterializer BuildStructuralTypeMaterializer(
+    private RelationalStructuralTypeMaterializer BuildStructuralTypeMaterializer(
         ITypeBase structuralType,
         ProjectionBindingExpression projectionBinding,
         SelectExpression selectExpression,
@@ -1043,8 +1078,8 @@ public partial class RelationalMaterializerFactory(
                 $"The non-generated materializer does not support projection index type '{projectionIndex?.GetType().Name}' for type '{structuralType.DisplayName()}'.");
         }
 
-        var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(structuralType.ClrType);
-        return (RelationalEntityMaterializer)Activator.CreateInstance(
+        var materializerType = typeof(RelationalStructuralTypeMaterializer<>).MakeGenericType(structuralType.ClrType);
+        return (RelationalStructuralTypeMaterializer)Activator.CreateInstance(
             materializerType, structuralType, propertyIndexMap, isTracking, isNullable, _bindingInterceptors)!;
     }
 
@@ -1068,9 +1103,9 @@ public partial class RelationalMaterializerFactory(
     ///     at the top level rather than nested inside reference include materializers.
     /// </summary>
     private static void FlattenCollectionIncludes(
-        RelationalEntityMaterializer materializer,
+        RelationalStructuralTypeMaterializer materializer,
         ResultContext materializerResultContext,
-        RelationalEntityMaterializer target)
+        RelationalStructuralTypeMaterializer target)
     {
         // First, recursively flatten collections from this materializer's own reference includes.
         if (materializer.ReferenceIncludes is not null)
@@ -1089,9 +1124,17 @@ public partial class RelationalMaterializerFactory(
             {
                 var ci = materializer.CollectionIncludes[i];
 
-                // Capture the ResultContext so the parent entity can be retrieved after
-                // ProcessReferenceIncludes has materialized it.
-                var capturedContext = materializerResultContext;
+                // If this collection was already flattened from a deeper level (e.g.
+                // Customer.Orders flattened from Customer→Order, now being flattened from
+                // Order→OrderDetail), its ParentEntityProvider already points to the correct
+                // parent (Customer). Don't override it with this level's context (Order).
+                var parentProvider = ci.ParentEntityProvider;
+                if (parentProvider is null)
+                {
+                    var capturedContext = materializerResultContext;
+                    parentProvider = () => capturedContext.Values?[0];
+                }
+
                 target.AddCollectionInclude(new CollectionIncludeInfo(
                     ci.InnerMaterializer,
                     ci.Navigation,
@@ -1106,7 +1149,7 @@ public partial class RelationalMaterializerFactory(
                     ci.SelfIdentifierValueComparers,
                     ci.CollectionId,
                     ci.IsKeylessEntityType,
-                    parentEntityProvider: () => capturedContext.Values?[0]));
+                    parentProvider));
             }
 
             materializer.ClearCollectionIncludes();

@@ -294,7 +294,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
 
     /// <summary>
     ///     Materializes a JSON array into a collection. This is the entry point for top-level collection
-    ///     complex properties on entities (called from <see cref="RelationalEntityMaterializer{TEntity}" />).
+    ///     complex properties on entities (called from <see cref="RelationalStructuralTypeMaterializer{TEntity}" />).
     /// </summary>
     public static object? MaterializeCollection(
         QueryContext queryContext,

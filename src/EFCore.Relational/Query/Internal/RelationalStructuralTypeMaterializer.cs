@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///         This code is regular C# and does not need generation.
 ///     </para>
 /// </remarks>
-public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMaterializer
+public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalStructuralTypeMaterializer
 {
     private readonly ITypeBase _structuralType;
     private readonly IKey? _primaryKey;
@@ -96,7 +96,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RelationalEntityMaterializer(
+    public RelationalStructuralTypeMaterializer(
         ITypeBase structuralType,
         IReadOnlyDictionary<IPropertyBase, int> projectionMap,
         bool isTracking,
@@ -134,25 +134,41 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
 
             if (entityType is not null)
             {
-                var table = entityType.GetViewOrTableMappings()
-                    .SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
-                    ?? entityType.GetDefaultMappings().Single().Table;
-
-                if (table.IsOptional(entityType))
+                // The table-optional existence check only applies to root entity types in table-splitting
+                // scenarios. For entities with a discriminator property (TPH), derived types (TPT/TPC),
+                // TPC entities, keyless entities, and JSON-mapped entities, the discriminator or other
+                // mechanisms handle existence detection.
+                // This mirrors GenerateMaterializationCondition in RelationalStructuralTypeShaperExpression.
+                if (entityType.FindDiscriminatorProperty() is not null
+                    || entityType.FindPrimaryKey() is null
+                    || entityType.GetRootType() != entityType
+                    || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                    || entityType.IsMappedToJson())
                 {
-                    requiredCheckProperties = entityType.GetProperties()
-                        .Where(p => !p.IsNullable && !p.IsPrimaryKey());
-
-                    var nonPrincipalSharedNonPk = entityType.GetNonPrincipalSharedNonPkProperties(table);
-                    if (nonPrincipalSharedNonPk.Count != 0
-                        && nonPrincipalSharedNonPk.All(p => p.IsNullable))
-                    {
-                        optionalCheckProperties = nonPrincipalSharedNonPk;
-                    }
+                    requiredCheckProperties = [];
                 }
                 else
                 {
-                    requiredCheckProperties = [];
+                    var table = entityType.GetViewOrTableMappings()
+                        .SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
+                        ?? entityType.GetDefaultMappings().Single().Table;
+
+                    if (table.IsOptional(entityType))
+                    {
+                        requiredCheckProperties = entityType.GetProperties()
+                            .Where(p => !p.IsNullable && !p.IsPrimaryKey());
+
+                        var nonPrincipalSharedNonPk = entityType.GetNonPrincipalSharedNonPkProperties(table);
+                        if (nonPrincipalSharedNonPk.Count != 0
+                            && nonPrincipalSharedNonPk.All(p => p.IsNullable))
+                        {
+                            optionalCheckProperties = nonPrincipalSharedNonPk;
+                        }
+                    }
+                    else
+                    {
+                        requiredCheckProperties = [];
+                    }
                 }
             }
             else
@@ -368,8 +384,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                     continue;
                 }
 
-                var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(complexType2.ClrType);
-                var complexMaterializer = (RelationalEntityMaterializer)Activator.CreateInstance(
+                var materializerType = typeof(RelationalStructuralTypeMaterializer<>).MakeGenericType(complexType2.ClrType);
+                var complexMaterializer = (RelationalStructuralTypeMaterializer)Activator.CreateInstance(
                     materializerType, complexType2, projectionMap, isTracking, complexProperty.IsNullable,
                     bindingInterceptors)!;
 
@@ -467,7 +483,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
     {
-        TStructuralType entity;
+        TStructuralType instance;
 
         if (CollectionIncludes is not null)
         {
@@ -481,14 +497,14 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
             if (resultContext.Values is null)
             {
                 // First call for this parent entity
-                entity = MaterializeEntity(queryContext, dataReader, out var fromIdentityMap1)!;
-                if (entity is null)
+                instance = MaterializeStructuralType(queryContext, dataReader, out var fromIdentityMap1)!;
+                if (instance is null)
                 {
                     return default;
                 }
 
                 // Store entity reference for subsequent calls (using Values as a marker + storage)
-                resultContext.Values = [entity];
+                resultContext.Values = [instance];
 
                 // Reset per-include result contexts: when the outer entity changes, the per-include
                 // contexts must be cleared so included materializers start fresh on the new entity.
@@ -503,8 +519,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 // Process reference includes ONCE during initialization. After flattening, reference
                 // include materializers no longer have collection includes, so they complete in a single
                 // call without affecting ResultReady.
-                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
-                ProcessJsonIncludes(queryContext, dataReader, entity, fromIdentityMap1);
+                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, instance);
+                ProcessJsonIncludes(queryContext, dataReader, instance, fromIdentityMap1);
 
                 // Initialize collection includes. Direct collections use the outer entity as parent;
                 // flattened collections (from reference includes) obtain their parent from the provider
@@ -514,13 +530,13 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                     var ci = CollectionIncludes[i];
                     var parentEntity = ci.ParentEntityProvider is not null
                         ? ci.ParentEntityProvider()
-                        : (object)entity;
+                        : (object)instance;
                     InitializeIncludeCollection(queryContext, dataReader, resultCoordinator, _isTracking, parentEntity, ci);
                 }
             }
             else
             {
-                entity = (TStructuralType)resultContext.Values[0];
+                instance = (TStructuralType)resultContext.Values[0];
             }
 
             // Populate ALL collection elements from the current row. Both direct and flattened
@@ -532,7 +548,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
             }
 
             // If ResultReady is true, return the entity; otherwise return default (MoveNext will call again)
-            return resultCoordinator.ResultReady ? entity : default;
+            return resultCoordinator.ResultReady ? instance : default;
         }
 
         // Reference and/or JSON includes (no collection includes). These complete in a single call.
@@ -542,8 +558,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
 
             if (resultContext.Values is null)
             {
-                entity = MaterializeEntity(queryContext, dataReader, out var fromIdentityMap)!;
-                if (entity is null)
+                instance = MaterializeStructuralType(queryContext, dataReader, out var fromIdentityMap)!;
+                if (instance is null)
                 {
                     return default;
                 }
@@ -555,14 +571,14 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                         ReferenceIncludes[i].ResultContext.Values = null;
                     }
 
-                    ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, entity);
+                    ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, instance);
                 }
 
-                ProcessJsonIncludes(queryContext, dataReader, entity, fromIdentityMap);
+                ProcessJsonIncludes(queryContext, dataReader, instance, fromIdentityMap);
 
-                resultContext.Values = [entity];
+                resultContext.Values = [instance];
 
-                return entity;
+                return instance;
             }
 
             return (TStructuralType?)resultContext.Values[0];
@@ -574,13 +590,13 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         // its collection population, and we must not re-read from the reader after the first call.
         if (resultContext.Values is null)
         {
-            entity = MaterializeEntity(queryContext, dataReader, out _)!;
-            if (entity is not null)
+            instance = MaterializeStructuralType(queryContext, dataReader, out _)!;
+            if (instance is not null)
             {
-                resultContext.Values = [entity];
+                resultContext.Values = [instance];
             }
 
-            return entity;
+            return instance;
         }
 
         return (TStructuralType?)resultContext.Values[0];
@@ -628,7 +644,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     /// <summary>
     ///     Materializes the entity itself (identity resolution, instantiation, property population, tracking).
     /// </summary>
-    private TStructuralType? MaterializeEntity(
+    private TStructuralType? MaterializeStructuralType(
         QueryContext queryContext,
         DbDataReader dataReader,
         out bool fromIdentityMap)
@@ -686,18 +702,25 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
             return default;
         }
 
-        var (entity, typeInfo) = InstantiateEntity(queryContext, dataReader);
+        var (instance, typeInfo) = InstantiateStructuralType(queryContext, dataReader);
+
+        // InstantiateStructuralType returns default when the discriminator column is NULL
+        // (e.g. TPT table-split dependent from a LEFT JOIN that doesn't exist).
+        if (instance is null)
+        {
+            return default;
+        }
 
         // For value types (complex types), box once and work with the boxed reference so
         // MemberInfo.SetValue mutations are visible. Unbox after all properties are set.
-        object boxedEntity = entity!;
-        PopulateProperties(dataReader, boxedEntity, typeInfo.PropertyMaterializers);
-        PopulateTableSplitComplexProperties(dataReader, boxedEntity, typeInfo.TableSplitComplexProperties);
-        PopulateJsonComplexProperties(queryContext, dataReader, boxedEntity);
+        object boxedInstance = instance!;
+        PopulateProperties(dataReader, boxedInstance, typeInfo.PropertyMaterializers);
+        PopulateTableSplitComplexProperties(dataReader, boxedInstance, typeInfo.TableSplitComplexProperties);
+        PopulateJsonComplexProperties(queryContext, dataReader, boxedInstance);
 
         if (typeof(TStructuralType).IsValueType)
         {
-            entity = (TStructuralType)boxedEntity;
+            instance = (TStructuralType)boxedInstance;
         }
 
         if (_isTracking)
@@ -706,7 +729,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 ? BuildShadowSnapshot(dataReader, typeInfo)
                 : Snapshot.Empty;
 
-            queryContext.StartTracking((IEntityType)typeInfo.StructuralType, entity!, shadowSnapshot);
+            queryContext.StartTracking((IEntityType)typeInfo.StructuralType, instance!, shadowSnapshot);
 
             // For many-to-many skip navigations: materialize the join entity so it gets tracked.
             // FetchJoinEntity is only inserted for tracking queries, so JoinEntityMaterializer
@@ -714,7 +737,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
             JoinEntityMaterializer?.Materialize(queryContext, dataReader, _joinResultContext ??= new ResultContext(), null!);
         }
 
-        return entity;
+        return instance;
     }
 
     /// <summary>
@@ -1152,7 +1175,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         }
     }
 
-    private (TStructuralType Entity, ConcreteTypeInfo TypeInfo) InstantiateEntity(
+    private (TStructuralType Instance, ConcreteTypeInfo TypeInfo) InstantiateStructuralType(
         QueryContext queryContext, DbDataReader dataReader)
     {
         return _concreteTypes is [var singleType]
@@ -1216,27 +1239,36 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 : param.Reader!.Read<object>(dataReader);
         }
 
-        (TStructuralType Entity, ConcreteTypeInfo TypeInfo) InstantiateInheritanceEntity(DbDataReader dataReader)
+        (TStructuralType Instance, ConcreteTypeInfo TypeInfo) InstantiateInheritanceEntity(DbDataReader dataReader)
         {
-            if (_discriminatorColumnIndex < 0)
+            Check.DebugAssert(
+                _discriminatorColumnIndex >= 0,
+                "Multiple concrete types but no discriminator column.");
+
+            if (!dataReader.IsDBNull(_discriminatorColumnIndex))
             {
+                var discriminatorValue = _discriminatorReader is not null
+                    ? _discriminatorReader.Read<object>(dataReader)
+                    : (object)dataReader.GetString(_discriminatorColumnIndex);
+
+                if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
+                {
+                    ref readonly var typeInfo = ref _concreteTypes[index];
+                    return (Instantiate(typeInfo, queryContext, dataReader), typeInfo);
+                }
+
                 throw new InvalidOperationException(
-                    $"Multiple concrete types ({_concreteTypes.Length}) but no discriminator column.");
+                    $"Unable to materialize entity of type '{typeof(TStructuralType).Name}'. "
+                    + $"No concrete type found for discriminator value '{discriminatorValue}'.");
             }
 
-            var discriminatorValue = _discriminatorReader is not null
-                ? _discriminatorReader.Read<object>(dataReader)
-                : (object)dataReader.GetString(_discriminatorColumnIndex);
-
-            if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
-            {
-                ref readonly var typeInfo = ref _concreteTypes[index];
-                return (Instantiate(typeInfo, queryContext, dataReader), typeInfo);
-            }
-
-            throw new InvalidOperationException(
-                $"Unable to materialize entity of type '{typeof(TStructuralType).Name}'. "
-                + $"No concrete type found for discriminator value '{discriminatorValue}'.");
+            // NULL discriminator means the base type. This only happens with TPT, where the synthetic
+            // CASE expression checks which derived-type LEFT JOIN matched; when none matched the CASE
+            // has no ELSE clause and produces NULL, indicating the base type. (TPC always has a non-null
+            // constant discriminator per UNION ALL branch, so this path is not reached for TPC.)
+            // Use the first concrete type entry, which is the base type.
+            ref readonly var baseTypeInfo = ref _concreteTypes[0];
+            return (Instantiate(baseTypeInfo, queryContext, dataReader), baseTypeInfo);
         }
     }
 
@@ -1289,7 +1321,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
 
     /// <summary>
     ///     Materializes and sets non-JSON table-split complex properties on the entity.
-    ///     Delegates to a nested <see cref="RelationalEntityMaterializer" /> for each complex type.
+    ///     Delegates to a nested <see cref="RelationalStructuralTypeMaterializer" /> for each complex type.
     /// </summary>
     private static void PopulateTableSplitComplexProperties(
         DbDataReader dataReader, object entity, TableSplitComplexPropertyInfo[] complexProperties)
@@ -1533,12 +1565,12 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     }
 
     private readonly struct TableSplitComplexPropertyInfo(
-        RelationalEntityMaterializer materializer,
+        RelationalStructuralTypeMaterializer materializer,
         IClrPropertySetter? setter,
         MemberInfo setterMemberInfo,
         bool isValueType)
     {
-        public RelationalEntityMaterializer Materializer { get; } = materializer;
+        public RelationalStructuralTypeMaterializer Materializer { get; } = materializer;
         public IClrPropertySetter? Setter { get; } = setter;
         public MemberInfo SetterMemberInfo { get; } = setterMemberInfo;
         public bool IsValueType { get; } = isValueType;

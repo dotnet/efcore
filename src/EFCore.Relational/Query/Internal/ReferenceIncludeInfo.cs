@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     The included materializer may itself have includes (ThenInclude), forming a tree.
 /// </remarks>
 public readonly struct ReferenceIncludeInfo(
-    RelationalEntityMaterializer materializer,
+    RelationalStructuralTypeMaterializer materializer,
     INavigationBase navigation,
     IClrPropertySetter navigationSetter,
     INavigationBase? inverseNavigation,
@@ -26,7 +26,7 @@ public readonly struct ReferenceIncludeInfo(
     /// <summary>
     ///     The materializer for the included (related) entity type.
     /// </summary>
-    public RelationalEntityMaterializer Materializer { get; } = materializer;
+    public RelationalStructuralTypeMaterializer Materializer { get; } = materializer;
 
     /// <summary>
     ///     Isolated <see cref="ResultContext" /> for the included materializer's own collection-include protocol.

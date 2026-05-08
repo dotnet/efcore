@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     to load the collection's child rows.
 /// </remarks>
 public sealed class SplitCollectionIncludeInfo(
-    RelationalEntityMaterializer innerMaterializer,
+    RelationalStructuralTypeMaterializer innerMaterializer,
     INavigationBase? navigation,
     INavigationBase? inverseNavigation,
     IClrPropertySetter? inverseNavigationSetter,
@@ -34,7 +34,7 @@ public sealed class SplitCollectionIncludeInfo(
     /// <summary>
     ///     The materializer for the included (child) entity type.
     /// </summary>
-    public RelationalEntityMaterializer InnerMaterializer { get; } = innerMaterializer;
+    public RelationalStructuralTypeMaterializer InnerMaterializer { get; } = innerMaterializer;
 
     /// <summary>
     ///     The collection navigation from the parent entity.
