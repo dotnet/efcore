@@ -3141,20 +3141,38 @@ public partial class EntityTypeTest
     [InlineData("<MyMethod>g__Local|0_0", "<MyMethod>g__Local|0_0")]
     // Lowercase `f` — Roslyn anonymous-type marker, not file-scoped (`F` is uppercase). Untouched.
     [InlineData("<Program>f1234__NotFileScoped", "<Program>f1234__NotFileScoped")]
-    // Has `>F` signature but no `__` separator — malformed, leave alone
-    [InlineData("<Program>F1234ABCD", "<Program>F1234ABCD")]
-    // `<` but no closing `>` — malformed, leave alone
-    [InlineData("<NoClose", "<NoClose")]
-    // Empty user portion after `__` — malformed Roslyn output, but ensure we don't crash;
-    // current behavior strips to empty (matches ShortName behavior; harmless edge case)
-    [InlineData("<Program>F1234ABCD__", "")]
-    // Length exactly 2 — guarded by `name.Length > 2`, falls through unchanged
-    [InlineData("<>", "<>")]
     public void DisplayName_unchanged_for_non_file_scoped_types(string clrName, string expectedDisplayName)
     {
         var model = CreateModel();
 
         var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_DisplayRegular");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(clrName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(clrName);
+
+        Assert.Equal(expectedDisplayName, entityType.DisplayName());
+    }
+
+    [ConditionalTheory]
+    // Has `>F` signature but no `__` separator — file-scoped sentinel is incomplete, leave alone
+    [InlineData("<Program>F1234ABCD", "<Program>F1234ABCD")]
+    // `<` but no closing `>` — incomplete sentinel, leave alone
+    [InlineData("<NoClose", "<NoClose")]
+    // Empty user portion after `__` — malformed Roslyn output, but ensure we don't crash;
+    // current behavior strips to empty (matches ShortName behavior; harmless edge case)
+    [InlineData("<Program>F1234ABCD__", "")]
+    // Just `<>` — bounds check `closeAngle + 1 < name.Length` rejects this; no char follows the `>`.
+    [InlineData("<>", "<>")]
+    public void DisplayName_handles_malformed_or_incomplete_file_scoped_inputs_safely(string clrName, string expectedDisplayName)
+    {
+        var model = CreateModel();
+
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly_DisplayMalformed");
         var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
         var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
         var typeBuilder = moduleBuilder.DefineType(clrName);

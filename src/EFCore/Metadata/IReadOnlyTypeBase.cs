@@ -90,11 +90,13 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
             return StripFileScopedTypePrefixes(ClrType.ShortDisplayName());
         }
 
+        var clrTypeDisplayName = StripFileScopedTypePrefixes(ClrType.ShortDisplayName());
+
         var shortName = Name;
         var hashIndex = shortName.IndexOf("#", StringComparison.Ordinal);
         if (hashIndex == -1)
         {
-            return Name + " (" + ClrType.ShortDisplayName() + ")";
+            return Name + " (" + clrTypeDisplayName + ")";
         }
 
         var plusIndex = shortName.LastIndexOf("+", StringComparison.Ordinal);
@@ -116,7 +118,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         }
 
         return shortName == Name
-            ? shortName + " (" + ClrType.ShortDisplayName() + ")"
+            ? shortName + " (" + clrTypeDisplayName + ")"
             : shortName;
     }
 
@@ -176,7 +178,8 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     types whose names begin with <c>&lt;</c> (async state machines <c>&lt;Method&gt;d__0</c>,
     ///     local function host classes <c>&lt;Method&gt;g__Local|0_0</c>, anonymous types
     ///     <c>&lt;&gt;f__AnonymousType</c>, closure display classes <c>&lt;&gt;c__DisplayClass</c>).
-    ///     Filenames cannot contain <c>&lt;</c> or <c>&gt;</c>, so the closing <c>&gt;</c> of a
+    ///     Roslyn's synthesized metadata pattern uses the literal <c>&lt;filename&gt;F&lt;hex&gt;__</c>
+    ///     shape; the filename portion does not contain <c>&lt;</c>, so the closing <c>&gt;</c> of a
     ///     sentinel is always the next <c>&gt;</c> after the opening <c>&lt;</c> with no
     ///     intervening <c>&lt;</c>.
     /// </remarks>
