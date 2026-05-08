@@ -25,7 +25,7 @@ public static class FromSqlQueryingEnumerable
         RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         IReadOnlyList<string> columnNames,
-        Func<QueryContext, DbDataReader, int[], T> shaper,
+        Func<QueryContext, DbDataReader, int[], T> materializer,
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
@@ -35,7 +35,7 @@ public static class FromSqlQueryingEnumerable
             relationalCommandResolver,
             readerColumns,
             columnNames,
-            shaper,
+            materializer,
             contextType,
             standAloneStateManager,
             detailedErrorsEnabled,
@@ -54,7 +54,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
     private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly IReadOnlyList<string> _columnNames;
-    private readonly Func<QueryContext, DbDataReader, int[], T> _shaper;
+    private readonly Func<QueryContext, DbDataReader, int[], T> _materializer;
     private readonly Type _contextType;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
     private readonly bool _standAloneStateManager;
@@ -72,7 +72,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         IReadOnlyList<string> columnNames,
-        Func<QueryContext, DbDataReader, int[], T> shaper,
+        Func<QueryContext, DbDataReader, int[], T> materializer,
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
@@ -82,7 +82,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
         _columnNames = columnNames;
-        _shaper = shaper;
+        _materializer = materializer;
         _contextType = contextType;
         _queryLogger = relationalQueryContext.QueryLogger;
         _standAloneStateManager = standAloneStateManager;
@@ -189,7 +189,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly IReadOnlyList<string> _columnNames;
-        private readonly Func<QueryContext, DbDataReader, int[], T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, int[], T> _materializer;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -207,7 +207,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _columnNames = queryingEnumerable._columnNames;
-            _shaper = queryingEnumerable._shaper;
+            _materializer = queryingEnumerable._materializer;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -239,7 +239,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
                 var hasNext = _dataReader!.Read();
 
                 Current = hasNext
-                    ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
+                    ? _materializer(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
                     : default!;
 
                 return hasNext;
@@ -302,7 +302,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly IReadOnlyList<string> _columnNames;
-        private readonly Func<QueryContext, DbDataReader, int[], T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, int[], T> _materializer;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -320,7 +320,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _columnNames = queryingEnumerable._columnNames;
-            _shaper = queryingEnumerable._shaper;
+            _materializer = queryingEnumerable._materializer;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -354,7 +354,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
                 var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
 
                 Current = hasNext
-                    ? _shaper(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
+                    ? _materializer(_relationalQueryContext, _dataReader.DbDataReader, _indexMap!)
                     : default!;
 
                 return hasNext;

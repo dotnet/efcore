@@ -105,7 +105,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 var keyProperty = primaryKey.Properties[i];
                 var columnIndex = projectionMap[keyProperty];
                 var typeMapping = (RelationalTypeMapping)keyProperty.GetTypeMapping();
-                _keyColumns[i] = new KeyColumnInfo(columnIndex, typeMapping.CreateReader(columnIndex));
+                _keyColumns[i] = new KeyColumnInfo(columnIndex, typeMapping.CreateReader(columnIndex), keyProperty);
             }
         }
 
@@ -251,7 +251,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 var memberInfo = isComplexType ? property.GetMemberInfo(forMaterialization: true, forSet: true) : null;
                 var reader = typeMapping.CreateReader(columnIndex);
 
-                materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, setter, memberInfo, reader));
+                materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, setter, memberInfo, reader, property));
             }
 
             // Build shadow property readers for tracking (FK shadow properties, discriminators, etc.)
@@ -495,7 +495,15 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                     break;
                 }
 
-                keyValues?[i] = keyCol.Reader.Read<object>(dataReader);
+                try
+                {
+                    keyValues?[i] = keyCol.Reader.Read<object>(dataReader);
+                }
+                catch (Exception e)
+                {
+                    ThrowReadValueException(e, dataReader,
+                        new PropertyMaterializer(keyCol.ColumnIndex, false, null, null, keyCol.Reader, keyCol.Property));
+                }
             }
 
             if (hasNullKey)
@@ -1126,25 +1134,63 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 continue;
             }
 
-            if (pm.Setter is not null)
+            try
             {
-                pm.Setter.SetClrValue(entity, pm.Reader, dataReader);
-            }
-            else
-            {
-                // Complex type path: use MemberInfo-based setting (handles boxed value types correctly)
-                // TODO: Consider what to do here
-                var value = pm.Reader.Read<object>(dataReader);
-                if (pm.MemberInfo is FieldInfo fieldInfo)
+                if (pm.Setter is not null)
                 {
-                    fieldInfo.SetValue(entity, value);
+                    pm.Setter.SetClrValue(entity, pm.Reader, dataReader);
                 }
                 else
                 {
-                    ((PropertyInfo)pm.MemberInfo!).SetValue(entity, value);
+                    // Complex type path: use MemberInfo-based setting (handles boxed value types correctly)
+                    // TODO: Consider what to do here
+                    var value = pm.Reader.Read<object>(dataReader);
+                    if (pm.MemberInfo is FieldInfo fieldInfo)
+                    {
+                        fieldInfo.SetValue(entity, value);
+                    }
+                    else
+                    {
+                        ((PropertyInfo)pm.MemberInfo!).SetValue(entity, value);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                ThrowReadValueException(e, dataReader, pm);
+            }
         }
+    }
+
+    private static void ThrowReadValueException(Exception exception, DbDataReader dataReader, in PropertyMaterializer pm)
+    {
+        var value = dataReader.GetFieldValue<object>(pm.ColumnIndex);
+
+        var expectedType = pm.Property?.ClrType ?? typeof(object);
+        var actualType = value?.GetType();
+
+        string message;
+        if (pm.Property is not null)
+        {
+            var entityType = pm.Property.DeclaringType.DisplayName();
+            var propertyName = pm.Property.Name;
+
+            message = exception is NullReferenceException || Equals(value, DBNull.Value)
+                ? RelationalStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                : exception is InvalidCastException
+                    ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
+                    : RelationalStrings.ErrorMaterializingProperty(entityType, propertyName);
+        }
+        else
+        {
+            message = exception is NullReferenceException || Equals(value, DBNull.Value)
+                ? RelationalStrings.ErrorMaterializingValueNullReference(expectedType)
+                : exception is InvalidCastException
+                    ? RelationalStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                    : RelationalStrings.ErrorMaterializingValue;
+        }
+
+        throw new InvalidOperationException(message, exception);
     }
 
     /// <summary>
@@ -1197,12 +1243,14 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         bool isNullable,
         IClrPropertySetter? setter,
         MemberInfo? memberInfo,
-        ITypedValueReader<DbDataReader> reader)
+        ITypedValueReader<DbDataReader> reader,
+        IPropertyBase? property)
     {
         public int ColumnIndex { get; } = columnIndex;
         public bool IsNullable { get; } = isNullable;
         public IClrPropertySetter? Setter { get; } = setter;
         public MemberInfo? MemberInfo { get; } = memberInfo;
+        public IPropertyBase? Property { get; } = property;
 
         /// <summary>
         ///     The reader for this property, produced by <see cref="RelationalTypeMapping.CreateReader" />.
@@ -1251,21 +1299,18 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
 
         /// <summary>Creates a reader for a service/context/entity-type constructor parameter.</summary>
         public ConstructorParameterReader(Func<QueryContext, object?> serviceResolver)
-        {
-            ServiceResolver = serviceResolver;
-        }
+            => ServiceResolver = serviceResolver;
 
         /// <summary>Creates a reader for an object array parameter (packs inner bindings into object[]).</summary>
         public ConstructorParameterReader(ConstructorParameterReader[] innerReaders)
-        {
-            InnerReaders = innerReaders;
-        }
+            => InnerReaders = innerReaders;
     }
 
-    private readonly struct KeyColumnInfo(int columnIndex, ITypedValueReader<DbDataReader> reader)
+    private readonly struct KeyColumnInfo(int columnIndex, ITypedValueReader<DbDataReader> reader, IProperty property)
     {
         public int ColumnIndex { get; } = columnIndex;
         public ITypedValueReader<DbDataReader> Reader { get; } = reader;
+        public IProperty Property { get; } = property;
     }
 
     private readonly struct JsonComplexPropertyInfo(

@@ -66,7 +66,7 @@ public partial class RelationalMaterializerFactory(
 
         if (select.IsNonComposedFromSql())
         {
-            throw new NotImplementedException("The non-generated materializer does not yet support FromSql queries.");
+            return CreateFromSqlEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
         }
 
         return CreateSingleQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
@@ -96,6 +96,46 @@ public partial class RelationalMaterializerFactory(
             relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
             readerColumns: null,
             materializer: rowMaterializer!,
+            contextType: queryCompilationContext.ContextType,
+            standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
+            detailedErrorsEnabled: _detailedErrorsEnabled,
+            threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
+    }
+
+    /// <summary>
+    ///     Builds a non-generated query executor for a non-composed FromSql query.
+    ///     FromSql queries need runtime column-index remapping because the user's SQL may return
+    ///     columns in any order. This mirrors the generated shaper's <c>FromSqlQueryingEnumerable</c> path.
+    /// </summary>
+    private Func<QueryContext, IEnumerable<TElement>> CreateFromSqlEnumerableMaterializer<TElement>(
+        RelationalQueryCompilationContext queryCompilationContext,
+        SelectExpression select,
+        Expression shaper)
+    {
+        var nextCollectionId = 0;
+        var isTracking = queryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+        var relationalCommandCache = CreateCommandCache(queryCompilationContext, select);
+
+        if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert)
+        {
+            shaper = convert.Operand;
+        }
+
+        var rowMaterializer = BuildMaterializer<TElement>(shaper, select, isTracking, ref nextCollectionId);
+
+        var columnNames = select.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToArray();
+
+        return qc => new FromSqlQueryingEnumerable<TElement>(
+            (RelationalQueryContext)qc,
+            relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
+            readerColumns: null,
+            columnNames: columnNames,
+            materializer: (queryContext, dbDataReader, indexMap) =>
+            {
+                // Wrap the DbDataReader to remap column ordinals using the FromSql index map
+                var remappedReader = new IndexRemappingDbDataReader(dbDataReader, indexMap);
+                return rowMaterializer!(queryContext, remappedReader, new ResultContext(), null!)!;
+            },
             contextType: queryCompilationContext.ContextType,
             standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
             detailedErrorsEnabled: _detailedErrorsEnabled,
@@ -157,7 +197,7 @@ public partial class RelationalMaterializerFactory(
 
                     return nullable
                         ? (qc, reader, rc, coord) => reader.IsDBNull(columnIndex) ? default : typedReader.Read<T>(reader)
-                        : (qc, reader, rc, coord) => typedReader.Read<T>(reader);
+                        : (qc, reader, rc, coord) => ReadScalarValue<T>(reader, columnIndex, typedReader);
                 }
 
                 // Boxed path: scalar within e.g. an anonymous type projection (Select(b => new { b.Age })).
@@ -165,7 +205,7 @@ public partial class RelationalMaterializerFactory(
                 // and any value converter correctly.
                 return nullable
                     ? (qc, reader, rc, coord) => reader.IsDBNull(columnIndex) ? default : (T?)typedReader.Read<object>(reader)
-                    : (qc, reader, rc, coord) => (T?)typedReader.Read<object>(reader);
+                    : (qc, reader, rc, coord) => (T?)(object?)ReadScalarValue<object>(reader, columnIndex, typedReader);
             }
 
             // JSON structural type projection (e.g. Select(x => x.JsonComplexProp) or Select(x => x.OwnedJsonNav)).
@@ -1368,5 +1408,31 @@ public partial class RelationalMaterializerFactory(
             queryExpression,
             useRelationalNulls,
             collectionParameterTranslationMode);
+    }
+
+    /// <summary>
+    ///     Reads a scalar value from the <see cref="DbDataReader" />, wrapping any exception in a
+    ///     friendly error message. Mirrors the generated shaper's try/catch around column reads.
+    /// </summary>
+    private static T ReadScalarValue<T>(DbDataReader reader, int columnIndex, ITypedValueReader<DbDataReader> typedReader)
+    {
+        try
+        {
+            return typedReader.Read<T>(reader);
+        }
+        catch (Exception e)
+        {
+            var value = reader.GetFieldValue<object>(columnIndex);
+            var expectedType = typeof(T);
+            var actualType = value?.GetType();
+
+            var message = e is NullReferenceException || Equals(value, DBNull.Value)
+                ? RelationalStrings.ErrorMaterializingValueNullReference(expectedType)
+                : e is InvalidCastException
+                    ? RelationalStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                    : RelationalStrings.ErrorMaterializingValue;
+
+            throw new InvalidOperationException(message, e);
+        }
     }
 }

@@ -151,7 +151,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _materializer;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -169,7 +169,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._materializer;
+            _materializer = queryingEnumerable._materializer;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -207,7 +207,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     {
                         _resultCoordinator.ResultReady = true;
                         _resultCoordinator.HasNext = null;
-                        Current = _shaper(
+                        Current = _materializer(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         if (_resultCoordinator.ResultReady)
                         {
@@ -227,7 +227,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                             _resultCoordinator.HasNext = false;
                             // Enumeration has ended, materialize last element
                             _resultCoordinator.ResultReady = true;
-                            Current = _shaper(
+                            Current = _materializer(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
                             break;
@@ -301,7 +301,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _materializer;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -320,7 +320,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._materializer;
+            _materializer = queryingEnumerable._materializer;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -361,7 +361,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     {
                         _resultCoordinator.ResultReady = true;
                         _resultCoordinator.HasNext = null;
-                        Current = _shaper(
+                        Current = _materializer(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         if (_resultCoordinator.ResultReady)
                         {
@@ -381,7 +381,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                             _resultCoordinator.HasNext = false;
                             // Enumeration has ended, materialize last element
                             _resultCoordinator.ResultReady = true;
-                            Current = _shaper(
+                            Current = _materializer(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
                             break;

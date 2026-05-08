@@ -109,7 +109,7 @@ public partial class RelationalMaterializerFactory
             (RelationalQueryContext)qc,
             relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
             readerColumns: null,
-            shaper: splitShaper!,
+            materializer: splitShaper!,
             relatedDataLoaders: relatedDataLoaders,
             relatedDataLoadersAsync: relatedDataLoadersAsync,
             contextType: queryCompilationContext.ContextType,

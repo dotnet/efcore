@@ -24,7 +24,7 @@ public static class SplitQueryingEnumerable
         RelationalQueryContext relationalQueryContext,
         RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
-        Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> shaper,
+        Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> materializer,
         Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
         Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoadersAsync,
         Type contextType,
@@ -35,7 +35,7 @@ public static class SplitQueryingEnumerable
             relationalQueryContext,
             relationalCommandResolver,
             readerColumns,
-            shaper,
+            materializer,
             relatedDataLoaders,
             relatedDataLoadersAsync,
             contextType,
@@ -55,7 +55,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
     private readonly RelationalQueryContext _relationalQueryContext;
     private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-    private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _shaper;
+    private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _materializer;
     private readonly Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? _relatedDataLoaders;
     private readonly Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? _relatedDataLoadersAsync;
     private readonly Type _contextType;
@@ -74,7 +74,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         RelationalQueryContext relationalQueryContext,
         RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
-        Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> shaper,
+        Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> materializer,
         Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
         Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoadersAsync,
         Type contextType,
@@ -85,7 +85,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         _relationalQueryContext = relationalQueryContext;
         _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
-        _shaper = shaper;
+        _materializer = materializer;
         _relatedDataLoaders = relatedDataLoaders;
         _relatedDataLoadersAsync = relatedDataLoadersAsync;
         _contextType = contextType;
@@ -163,7 +163,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-        private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _materializer;
         private readonly Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? _relatedDataLoaders;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -182,7 +182,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._shaper;
+            _materializer = queryingEnumerable._materializer;
             _relatedDataLoaders = queryingEnumerable._relatedDataLoaders;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
@@ -218,13 +218,13 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 if (hasNext)
                 {
                     _resultCoordinator!.ResultContext.Values = null;
-                    Current = _shaper(
+                    Current = _materializer(
                         _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                     if (_relatedDataLoaders != null)
                     {
                         _relatedDataLoaders.Invoke(
                             _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
-                        Current = _shaper(
+                        Current = _materializer(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                     }
                 }
@@ -308,7 +308,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-        private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _materializer;
         private readonly Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? _relatedDataLoaders;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -328,7 +328,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._shaper;
+            _materializer = queryingEnumerable._materializer;
             _relatedDataLoaders = queryingEnumerable._relatedDataLoadersAsync;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
@@ -366,7 +366,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 if (hasNext)
                 {
                     _resultCoordinator!.ResultContext.Values = null;
-                    Current = _shaper(
+                    Current = _materializer(
                         _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                     if (_relatedDataLoaders != null)
                     {
@@ -374,7 +374,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                                 _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
                             .ConfigureAwait(false);
                         Current =
-                            _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                            _materializer(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                     }
                 }
                 else
