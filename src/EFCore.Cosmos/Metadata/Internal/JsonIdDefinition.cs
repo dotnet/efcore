@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 public class JsonIdDefinition : IJsonIdDefinition
 {
     private static readonly bool _escapeIllegalIdCharacters =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.EscapeIllegalIdCharacters", out var enabled) && enabled;
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.EscapeIllegalCosmosIdCharacters", out var enabled) && enabled;
 
     private readonly IProperty? _discriminatorProperty;
     private readonly object? _discriminatorValue;
