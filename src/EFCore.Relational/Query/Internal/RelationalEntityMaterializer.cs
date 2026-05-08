@@ -47,6 +47,18 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     private ResultContext? _joinResultContext;
 
     /// <summary>
+    ///     For nullable structural types (table-split optional dependents or optional complex types):
+    ///     column indices of required non-PK properties that must all be non-null for the type to exist.
+    /// </summary>
+    private readonly int[]? _requiredNonPkColumnIndices;
+
+    /// <summary>
+    ///     For nullable structural types where all non-principal-shared non-PK properties are nullable:
+    ///     column indices where at least one must be non-null.
+    /// </summary>
+    private readonly int[]? _optionalNonPkColumnIndices;
+
+    /// <summary>
     ///     The concrete type infos for this entity type hierarchy. For non-TPH entities, this contains
     ///     a single entry. For TPH, it contains one entry per concrete type in the hierarchy.
     /// </summary>
@@ -75,6 +87,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     ///     Null when the entity has no JSON complex properties.
     /// </summary>
     private readonly JsonComplexPropertyInfo[]? _jsonComplexProperties;
+
+
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,6 +120,70 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 var columnIndex = projectionMap[keyProperty];
                 var typeMapping = (RelationalTypeMapping)keyProperty.GetTypeMapping();
                 _keyColumns[i] = new KeyColumnInfo(columnIndex, typeMapping.CreateReader(columnIndex), keyProperty);
+            }
+        }
+
+        // For nullable structural types (table-split optional dependents or optional complex type
+        // projections): build existence-check column indices. For entity types, the PK may share columns
+        // with the principal (always non-null), so we check non-PK properties exclusive to the dependent.
+        // This mirrors GenerateMaterializationCondition in RelationalStructuralTypeShaperExpression.
+        if (isNullable)
+        {
+            IEnumerable<IProperty> requiredCheckProperties;
+            IEnumerable<IProperty>? optionalCheckProperties = null;
+
+            if (entityType is not null)
+            {
+                var table = entityType.GetViewOrTableMappings()
+                    .SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
+                    ?? entityType.GetDefaultMappings().Single().Table;
+
+                if (table.IsOptional(entityType))
+                {
+                    requiredCheckProperties = entityType.GetProperties()
+                        .Where(p => !p.IsNullable && !p.IsPrimaryKey());
+
+                    var nonPrincipalSharedNonPk = entityType.GetNonPrincipalSharedNonPkProperties(table);
+                    if (nonPrincipalSharedNonPk.Count != 0
+                        && nonPrincipalSharedNonPk.All(p => p.IsNullable))
+                    {
+                        optionalCheckProperties = nonPrincipalSharedNonPk;
+                    }
+                }
+                else
+                {
+                    requiredCheckProperties = [];
+                }
+            }
+            else
+            {
+                // Nullable complex type (e.g. optional complex property projection)
+                requiredCheckProperties = structuralType.GetProperties().Where(p => !p.IsNullable);
+                if (!requiredCheckProperties.Any())
+                {
+                    optionalCheckProperties = structuralType.GetProperties();
+                }
+            }
+
+            var requiredIndices = requiredCheckProperties
+                .Where(p => projectionMap.ContainsKey(p))
+                .Select(p => projectionMap[p])
+                .ToArray();
+            if (requiredIndices.Length > 0)
+            {
+                _requiredNonPkColumnIndices = requiredIndices;
+            }
+
+            if (optionalCheckProperties is not null)
+            {
+                var optionalIndices = optionalCheckProperties
+                    .Where(p => projectionMap.ContainsKey(p))
+                    .Select(p => projectionMap[p])
+                    .ToArray();
+                if (optionalIndices.Length > 0)
+                {
+                    _optionalNonPkColumnIndices = optionalIndices;
+                }
             }
         }
 
@@ -274,6 +352,37 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 }
             }
 
+            // Build non-JSON table-split complex property materializers for this concrete type.
+            List<TableSplitComplexPropertyInfo>? tableSplitComplexProps = null;
+            foreach (var complexProperty in concreteType.GetComplexProperties())
+            {
+                var complexType2 = complexProperty.ComplexType;
+
+                if (complexType2.IsMappedToJson())
+                {
+                    continue;
+                }
+
+                if (!complexType2.GetProperties().Any(p => projectionMap.ContainsKey(p)))
+                {
+                    continue;
+                }
+
+                var materializerType = typeof(RelationalEntityMaterializer<>).MakeGenericType(complexType2.ClrType);
+                var complexMaterializer = (RelationalEntityMaterializer)Activator.CreateInstance(
+                    materializerType, complexType2, projectionMap, isTracking, complexProperty.IsNullable,
+                    bindingInterceptors)!;
+
+                var setterMemberInfo = complexProperty.GetMemberInfo(forMaterialization: true, forSet: true);
+                IClrPropertySetter? cpSetter = complexType2.ClrType.IsValueType
+                    ? null
+                    : ((IRuntimePropertyBase)complexProperty).MaterializationSetter;
+
+                tableSplitComplexProps ??= [];
+                tableSplitComplexProps.Add(new TableSplitComplexPropertyInfo(
+                    complexMaterializer, cpSetter, setterMemberInfo, complexType2.ClrType.IsValueType));
+            }
+
             _concreteTypes[i] = new ConcreteTypeInfo(
                 concreteType,
                 discriminatorValue,
@@ -282,7 +391,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 factoryInstance,
                 constructorParameters,
                 materializers.ToArray(),
-                shadowMaterializers?.ToArray() ?? []);
+                shadowMaterializers?.ToArray() ?? [],
+                tableSplitComplexProps?.ToArray() ?? []);
         }
 
         // Build JSON complex property info for JSON-mapped complex properties on this entity.
@@ -321,6 +431,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         }
 
         _jsonComplexProperties = jsonComplexProps?.ToArray();
+
+
     }
 
     /// <inheritdoc />
@@ -332,7 +444,12 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         DbDataReader dataReader,
         ResultContext resultContext,
         SingleQueryResultCoordinator resultCoordinator)
-        => MaterializeTyped(queryContext, dataReader, resultContext, resultCoordinator);
+        // For value types, MaterializeTyped returns default(TStructuralType) when the entity doesn't
+        // exist (nullable check), which boxes to a non-null zeroed struct. We must check existence
+        // before boxing to correctly return null.
+        => typeof(TStructuralType).IsValueType && !CheckNullableExists(dataReader)
+            ? null
+            : MaterializeTyped(queryContext, dataReader, resultContext, resultCoordinator);
 
     /// <inheritdoc />
     protected override Delegate GetMaterializeDelegateCore()
@@ -470,6 +587,45 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     }
 
     /// <summary>
+    ///     Checks whether a nullable structural type (table-split optional dependent or optional complex
+    ///     type) exists in the current row by examining non-PK columns. Returns true if the type exists
+    ///     or if no nullable check is needed. Returns false if all required columns are NULL.
+    /// </summary>
+    private bool CheckNullableExists(DbDataReader dataReader)
+    {
+        if (_requiredNonPkColumnIndices is not null)
+        {
+            for (var i = 0; i < _requiredNonPkColumnIndices.Length; i++)
+            {
+                if (dataReader.IsDBNull(_requiredNonPkColumnIndices[i]))
+                {
+                    return false;
+                }
+            }
+        }
+
+        if (_optionalNonPkColumnIndices is not null)
+        {
+            var anyNonNull = false;
+            for (var i = 0; i < _optionalNonPkColumnIndices.Length; i++)
+            {
+                if (!dataReader.IsDBNull(_optionalNonPkColumnIndices[i]))
+                {
+                    anyNonNull = true;
+                    break;
+                }
+            }
+
+            if (!anyNonNull)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
     ///     Materializes the entity itself (identity resolution, instantiation, property population, tracking).
     /// </summary>
     private TStructuralType? MaterializeEntity(
@@ -483,7 +639,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         if (_keyColumns is not null)
         {
             var hasNullKey = false;
-            object[]? keyValues = _isTracking ? new object[_keyColumns.Length] : null;
+            var keyValues = _isTracking ? new object[_keyColumns.Length] : null;
 
             for (var i = 0; i < _keyColumns.Length; i++)
             {
@@ -522,19 +678,27 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
             }
         }
 
+        // For table-split optional dependents: check non-PK columns to determine if the dependent exists.
+        // The PK may share columns with the principal (always non-null), so we check columns exclusive
+        // to the dependent. This mirrors the MaterializationCondition in the generated shaper.
+        if (!CheckNullableExists(dataReader))
+        {
+            return default;
+        }
+
         var (entity, typeInfo) = InstantiateEntity(queryContext, dataReader);
 
         // For value types (complex types), box once and work with the boxed reference so
         // MemberInfo.SetValue mutations are visible. Unbox after all properties are set.
         object boxedEntity = entity!;
         PopulateProperties(dataReader, boxedEntity, typeInfo.PropertyMaterializers);
+        PopulateTableSplitComplexProperties(dataReader, boxedEntity, typeInfo.TableSplitComplexProperties);
+        PopulateJsonComplexProperties(queryContext, dataReader, boxedEntity);
 
         if (typeof(TStructuralType).IsValueType)
         {
             entity = (TStructuralType)boxedEntity;
         }
-
-        PopulateJsonComplexProperties(queryContext, dataReader, entity);
 
         if (_isTracking)
         {
@@ -1088,7 +1252,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
     private void PopulateJsonComplexProperties(
         QueryContext queryContext,
         DbDataReader dataReader,
-        TStructuralType entity)
+        object entity)
     {
         if (_jsonComplexProperties is null)
         {
@@ -1117,8 +1281,43 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
 
                 if (value is not null)
                 {
-                    jsonProp.Setter.SetClrValue(entity!, value);
+                    jsonProp.Setter.SetClrValue(entity, value);
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Materializes and sets non-JSON table-split complex properties on the entity.
+    ///     Delegates to a nested <see cref="RelationalEntityMaterializer" /> for each complex type.
+    /// </summary>
+    private static void PopulateTableSplitComplexProperties(
+        DbDataReader dataReader, object entity, TableSplitComplexPropertyInfo[] complexProperties)
+    {
+        for (var i = 0; i < complexProperties.Length; i++)
+        {
+            ref readonly var cp = ref complexProperties[i];
+
+            var result = cp.Materializer.Materialize(queryContext: null!, dataReader, new ResultContext(), null!);
+            if (result is null)
+            {
+                continue;
+            }
+
+            if (cp.IsValueType || cp.Setter is null)
+            {
+                if (cp.SetterMemberInfo is FieldInfo fieldInfo)
+                {
+                    fieldInfo.SetValue(entity, result);
+                }
+                else
+                {
+                    ((PropertyInfo)cp.SetterMemberInfo).SetValue(entity, result);
+                }
+            }
+            else
+            {
+                cp.Setter.SetClrValue(entity, result);
             }
         }
     }
@@ -1226,7 +1425,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         object? factoryInstance,
         ConstructorParameterReader[]? constructorParameters,
         PropertyMaterializer[] propertyMaterializers,
-        ShadowPropertyMaterializer[] shadowPropertyMaterializers)
+        ShadowPropertyMaterializer[] shadowPropertyMaterializers,
+        TableSplitComplexPropertyInfo[] tableSplitComplexProperties)
     {
         public ITypeBase StructuralType { get; } = structuralType;
         public object? DiscriminatorValue { get; } = discriminatorValue;
@@ -1236,6 +1436,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         public ConstructorParameterReader[]? ConstructorParameters { get; } = constructorParameters;
         public PropertyMaterializer[] PropertyMaterializers { get; } = propertyMaterializers;
         public ShadowPropertyMaterializer[] ShadowPropertyMaterializers { get; } = shadowPropertyMaterializers;
+        public TableSplitComplexPropertyInfo[] TableSplitComplexProperties { get; } = tableSplitComplexProperties;
     }
 
     private readonly struct PropertyMaterializer(
@@ -1329,6 +1530,18 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
         public bool IsCollection { get; } = isCollection;
         public Type DeclaringClrType { get; } = declaringClrType;
         public IPropertyBase ComplexProperty { get; } = complexProperty;
+    }
+
+    private readonly struct TableSplitComplexPropertyInfo(
+        RelationalEntityMaterializer materializer,
+        IClrPropertySetter? setter,
+        MemberInfo setterMemberInfo,
+        bool isValueType)
+    {
+        public RelationalEntityMaterializer Materializer { get; } = materializer;
+        public IClrPropertySetter? Setter { get; } = setter;
+        public MemberInfo SetterMemberInfo { get; } = setterMemberInfo;
+        public bool IsValueType { get; } = isValueType;
     }
 
     private sealed class ValueComparerEqualityComparer(ValueComparer comparer) : IEqualityComparer<object>
