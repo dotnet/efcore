@@ -41,8 +41,20 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
     ///     The reader must be positioned on a <see cref="JsonTokenType.StartObject" /> token.
     ///     After this method returns, the reader is positioned on the corresponding <see cref="JsonTokenType.EndObject" />.
     /// </summary>
-    public object? Materialize(QueryContext queryContext, JsonReaderData jsonReaderData, object[]? keyValues)
+    /// <param name="queryContext">The query context.</param>
+    /// <param name="jsonReaderData">The JSON reader data to read from.</param>
+    /// <param name="keyValues">Key property values for the entity (used for identity map lookup and shadow PK population).</param>
+    /// <param name="deferredTrackingSnapshot">
+    ///     For shadow-PK entity types in tracking queries: the snapshot (including populated shadow PK values)
+    ///     that the caller must pass to <see cref="QueryContext.StartTracking" /> after establishing navigation
+    ///     relationships. Tracking before fixup would trigger <c>InitialFixup</c> with incomplete FK values.
+    ///     Null when tracking was done immediately or not needed.
+    /// </param>
+    public object? Materialize(
+        QueryContext queryContext, JsonReaderData jsonReaderData, object[]? keyValues,
+        out ISnapshot? deferredTrackingSnapshot)
     {
+        deferredTrackingSnapshot = null;
         var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
         var tokenType = manager.CurrentReader.TokenType;
 
@@ -62,7 +74,9 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
         // Create the entity/complex type instance
         var clrType = _structuralType.ClrType;
 
-        // For tracked entity types: check identity map first
+        // For tracked entity types: check identity map first.
+        // Skip for shadow-PK entities: key values may include nulls (e.g. __synthesizedOrdinal
+        // for collection elements) that haven't been populated yet.
         if (_isTracking && _structuralType is IEntityType entityType && keyValues is not null)
         {
             var primaryKey = entityType.FindPrimaryKey();
@@ -177,14 +191,41 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
 
         manager.CaptureState();
 
-        // For tracked entity types: start tracking (skip for owned types with shadow keys — those
-        // are tracked by the change tracker fixup when the owner is tracked)
+        // For tracked entity types: build snapshot and either track immediately or defer.
         if (_isTracking && _structuralType is IEntityType trackedEntityType)
         {
             var primaryKey = trackedEntityType.FindPrimaryKey();
-            if (primaryKey is not null && !primaryKey.Properties.Any(p => p.IsShadowProperty()))
+            if (primaryKey is not null)
             {
-                queryContext.StartTracking(trackedEntityType, instance!, shadowSnapshot ?? Snapshot.Empty);
+                // Populate shadow PK values from keyValues into the snapshot
+                if (keyValues is not null)
+                {
+                    for (var ki = 0; ki < primaryKey.Properties.Count && ki < keyValues.Length; ki++)
+                    {
+                        var keyProp = primaryKey.Properties[ki];
+                        if (keyProp.IsShadowProperty() && keyValues[ki] is { } keyValue)
+                        {
+                            shadowSnapshot ??= ((IRuntimeTypeBase)trackedEntityType).EmptyShadowValuesFactory();
+                            if (keyValue.GetType() != keyProp.ClrType)
+                            {
+                                keyValue = Convert.ChangeType(keyValue, keyProp.ClrType);
+                            }
+
+                            shadowSnapshot[keyProp.GetShadowIndex()] = keyValue;
+                        }
+                    }
+                }
+
+                if (primaryKey.Properties.Any(p => p.IsShadowProperty()))
+                {
+                    // Defer tracking for shadow-PK entities: the caller (ProcessJsonIncludes) will
+                    // call StartTracking after establishing navigation relationships.
+                    deferredTrackingSnapshot = shadowSnapshot ?? Snapshot.Empty;
+                }
+                else
+                {
+                    queryContext.StartTracking(trackedEntityType, instance!, shadowSnapshot ?? Snapshot.Empty);
+                }
             }
         }
 
@@ -241,7 +282,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
 
             var nestedValue = handler.IsCollection
                 ? MaterializeNestedCollection(queryContext, jsonReaderData, keyValues, handler)
-                : handler.NestedMaterializer!.Materialize(queryContext, jsonReaderData, keyValues);
+                : handler.NestedMaterializer!.Materialize(queryContext, jsonReaderData, keyValues, out _);
 
             nestedResults ??= new object?[_properties.Length];
             nestedResults[propertyIndex] = nestedValue;
@@ -299,7 +340,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             }
 
             manager.CaptureState();
-            var element = elementMaterializer.Materialize(queryContext, jsonReaderData, childKeyValues);
+            var element = elementMaterializer.Materialize(queryContext, jsonReaderData, childKeyValues, out _);
 
             if (element is not null)
             {
@@ -417,7 +458,7 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             if (tokenType == JsonTokenType.StartObject)
             {
                 manager.CaptureState();
-                var element = handler.NestedMaterializer!.Materialize(queryContext, jsonReaderData, childKeyValues);
+                var element = handler.NestedMaterializer!.Materialize(queryContext, jsonReaderData, childKeyValues, out _);
 
                 if (element is not null)
                 {

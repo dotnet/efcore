@@ -56,7 +56,7 @@ public partial class RelationalMaterializerFactory
 
             var keyValues = ExtractJsonKeyValues(
                 dataReader, jsonProjectionInfo, structuralType, isCollection: false);
-            return (T?)jsonMaterializer.Materialize(queryContext, jsonReaderData, keyValues);
+            return (T?)jsonMaterializer.Materialize(queryContext, jsonReaderData, keyValues, out _);
         };
     }
 

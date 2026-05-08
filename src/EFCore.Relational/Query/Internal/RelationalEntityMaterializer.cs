@@ -667,42 +667,39 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                     continue;
                 }
 
-                tokenType = manager.MoveNext();
                 var index = 0;
 
-                while (tokenType != JsonTokenType.EndArray)
+                for (tokenType = manager.MoveNext(); tokenType != JsonTokenType.EndArray; tokenType = manager.MoveNext())
                 {
-                    if (childKeyValues is not null)
-                    {
-                        childKeyValues[^1] = ++index;
-                    }
+                    childKeyValues?[^1] = ++index;
 
-                    if (tokenType == JsonTokenType.StartObject)
-                    {
-                        manager.CaptureState();
-                        var element = jsonMaterializer.Materialize(queryContext, jsonReaderData, childKeyValues);
-
-                        // For tracking queries where the entity is already tracked (from identity map),
-                        // skip adding to the collection — it was already populated on first materialization.
-                        // This mirrors the generated shaper's performFixup=false for tracking entity types.
-                        if (element is not null && !entityAlreadyTracked)
-                        {
-                            collectionAccessor.AddStandalone(collection, element);
-                        }
-
-                        manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
-                        if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType.ToString()));
-                        }
-
-                        tokenType = manager.MoveNext();
-                    }
-                    else
+                    if (tokenType != JsonTokenType.StartObject)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                    }
+
+                    manager.CaptureState();
+                    var element = jsonMaterializer.Materialize(
+                        queryContext, jsonReaderData, childKeyValues, out var collSnapshot);
+
+                    if (element is not null && !entityAlreadyTracked)
+                    {
+                        collectionAccessor.AddStandalone(collection, element);
+
+                        // Complete deferred tracking for shadow-PK entities after navigation fixup.
+                        if (collSnapshot is not null)
+                        {
+                            queryContext.StartTracking(
+                                include.Navigation.TargetEntityType, element, collSnapshot);
+                        }
+                    }
+
+                    manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
+                    if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType.ToString()));
                     }
                 }
 
@@ -711,7 +708,8 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
             else
             {
                 // Reference include: materialize single entity, fixup
-                var related = jsonMaterializer.Materialize(queryContext, jsonReaderData, keyValues);
+                var related = jsonMaterializer.Materialize(
+                    queryContext, jsonReaderData, keyValues, out var refSnapshot);
 
                 // For tracking queries where the entity is already tracked, skip fixup —
                 // the navigation was already set on first materialization.
@@ -732,6 +730,13 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                         {
                             include.InverseNavigation.SetIsLoadedWhenNoTracking(related);
                         }
+                    }
+
+                    // Complete deferred tracking for shadow-PK entities after navigation fixup.
+                    if (refSnapshot is not null)
+                    {
+                        queryContext.StartTracking(
+                            include.Navigation.TargetEntityType, related, refSnapshot);
                     }
                 }
             }
@@ -1100,7 +1105,7 @@ public class RelationalEntityMaterializer<TStructuralType> : RelationalEntityMat
                 var value = jsonProp.IsCollection
                     ? RelationalJsonStructuralTypeMaterializer.MaterializeCollection(
                         queryContext, jsonReaderData, keyValues: null, jsonProp.Materializer, jsonProp.ComplexProperty)
-                    : jsonProp.Materializer.Materialize(queryContext, jsonReaderData, keyValues: null);
+                    : jsonProp.Materializer.Materialize(queryContext, jsonReaderData, keyValues: null, out _);
 
                 if (value is not null)
                 {
