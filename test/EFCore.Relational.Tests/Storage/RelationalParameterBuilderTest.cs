@@ -2,15 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalParameterBuilderTest
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Can_add_type_mapped_parameter_by_type(bool nullable)
     {
         var typeMapper = (IRelationalTypeMappingSource)new TestRelationalTypeMappingSource(
@@ -21,7 +20,8 @@ public class RelationalParameterBuilderTest
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
                 typeMapper,
-                new ExceptionDetector()));
+                new ExceptionDetector(),
+                new LoggingOptions()));
 
         parameterBuilder.AddParameter(
             "InvariantName",
@@ -40,9 +40,7 @@ public class RelationalParameterBuilderTest
         Assert.Equal(nullable, parameter.IsNullable);
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public void Can_add_type_mapped_parameter_by_property(bool nullable)
     {
         var typeMapper = new TestRelationalTypeMappingSource(
@@ -58,7 +56,7 @@ public class RelationalParameterBuilderTest
         var property = model.GetEntityTypes().Single().FindProperty("MyProp");
 
         var parameterBuilder = new RelationalCommandBuilder(
-            new RelationalCommandBuilderDependencies(typeMapper, new ExceptionDetector()));
+            new RelationalCommandBuilderDependencies(typeMapper, new ExceptionDetector(), new LoggingOptions()));
 
         parameterBuilder.AddParameter(
             "InvariantName",
@@ -87,7 +85,8 @@ public class RelationalParameterBuilderTest
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
                 typeMapper,
-                new ExceptionDetector()));
+                new ExceptionDetector(),
+                new LoggingOptions()));
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",
@@ -124,7 +123,8 @@ public class RelationalParameterBuilderTest
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
                 typeMapper,
-                new ExceptionDetector()));
+                new ExceptionDetector(),
+                new LoggingOptions()));
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",

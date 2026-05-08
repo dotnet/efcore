@@ -20,6 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IConventionNavigationBase : IReadOnlyNavigationBase, IConventionPropertyBase
 {
     /// <summary>
+    ///     Gets the entity type that this navigation property will hold an instance(s) of.
+    /// </summary>
+    new IConventionEntityType TargetEntityType
+    {
+        [DebuggerStepThrough]
+        get => (IConventionEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+    }
+
+    /// <summary>
     ///     Sets a value indicating whether this navigation should be eager loaded by default.
     /// </summary>
     /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>

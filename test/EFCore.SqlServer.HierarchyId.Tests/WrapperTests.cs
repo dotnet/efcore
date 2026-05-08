@@ -7,20 +7,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class WrapperTests
 {
-    [ConditionalTheory]
-    [InlineData(null, 1)]
-    [InlineData("/", 1)]
-    [InlineData("/0.5/", 1)]
-    [InlineData("/1/", 0)]
-    [InlineData("/2/", -1)]
-    [InlineData("/1/1/", -1)]
+    [ConditionalTheory, InlineData(null, 1), InlineData("/", 1), InlineData("/0.5/", 1), InlineData("/1/", 0), InlineData("/2/", -1),
+     InlineData("/1/1/", -1)]
     public void CompareTo_works(string value, int expected)
         => Assert.Equal(expected, HierarchyId.Parse("/1/").CompareTo(HierarchyId.Parse(value)));
 
-    [ConditionalTheory]
-    [InlineData(null, false)]
-    [InlineData("/", false)]
-    [InlineData("/1/", true)]
+    [ConditionalTheory, InlineData(null, false), InlineData("/", false), InlineData("/1/", true)]
     public void Equals_works(string value, bool expected)
         => Assert.Equal(expected, HierarchyId.Parse("/1/").Equals(HierarchyId.Parse(value)));
 

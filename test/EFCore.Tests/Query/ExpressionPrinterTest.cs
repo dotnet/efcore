@@ -188,6 +188,11 @@ public class ExpressionPrinterTest
         => Assert.Equal(
             @"int[] { 1, 2, 3 }",
             _expressionPrinter.PrintExpression(
-                Expression.Constant(
-                    new[] { 1, 2, 3 })));
+                Expression.Constant(new[] { 1, 2, 3 })));
+
+    [ConditionalFact] // #35866
+    public void EnumerableQuery_Constant_printed_correctly()
+        => Assert.Equal(
+            "EnumerableQuery<int> { 1 }",
+            _expressionPrinter.PrintExpression(Expression.Constant(new[] { 1 }.AsQueryable())));
 }

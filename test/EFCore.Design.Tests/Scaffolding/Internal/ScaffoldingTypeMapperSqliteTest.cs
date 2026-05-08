@@ -9,11 +9,7 @@ public class ScaffoldingTypeMapperSqliteTest
 {
     // Native type cases...
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_text_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("text", keyOrIndex, rowVersion);
@@ -21,11 +17,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_integer_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("integer", keyOrIndex, rowVersion);
@@ -33,11 +25,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<long>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_blob_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("blob", keyOrIndex, rowVersion);
@@ -45,11 +33,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_real_column_with_abnormal_casing(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("real", keyOrIndex, rowVersion);
@@ -57,11 +41,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<double>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_text_column(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("TEXT", keyOrIndex, rowVersion);
@@ -69,11 +49,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_integer_column(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("INTEGER", keyOrIndex, rowVersion);
@@ -81,11 +57,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<long>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_blob_column(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("BLOB", keyOrIndex, rowVersion);
@@ -93,11 +65,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_real_column(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("REAL", keyOrIndex, rowVersion);
@@ -107,9 +75,7 @@ public class ScaffoldingTypeMapperSqliteTest
 
     // Type affinity cases...
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_int_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("int", isKeyOrIndex, rowVersion: false);
@@ -117,9 +83,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<long>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_bigint_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("bigint", isKeyOrIndex, rowVersion: false);
@@ -385,11 +349,7 @@ public class ScaffoldingTypeMapperSqliteTest
 
     // Unknown type cases...
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Maps_empty_type_column(bool keyOrIndex, bool rowVersion)
     {
         var mapping = CreateMapper().FindMapping("", keyOrIndex, rowVersion);
@@ -405,9 +365,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_decimal_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("decimal(18, 2)", isKeyOrIndex, rowVersion: false);
@@ -415,9 +373,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_bit_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("bit", isKeyOrIndex, rowVersion: false);
@@ -425,9 +381,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_datetime_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("datetime", isKeyOrIndex, rowVersion: false);
@@ -435,9 +389,7 @@ public class ScaffoldingTypeMapperSqliteTest
         AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Maps_datetime2_column(bool isKeyOrIndex)
     {
         var mapping = CreateMapper().FindMapping("datetime2", isKeyOrIndex, rowVersion: false);

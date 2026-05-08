@@ -70,7 +70,7 @@ public partial class ConventionDispatcher
             string name);
 
         public abstract string? OnDiscriminatorPropertySet(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder structuralTypeBuilder,
             string? name);
 
         public abstract IConventionKey? OnEntityTypePrimaryKeyChanged(

@@ -30,18 +30,16 @@ public class DbSetFinder : IDbSetFinder
         var factory = ClrPropertySetterFactory.Instance;
 
         return contextType.GetRuntimeProperties()
-            .Where(
-                p => !p.IsStatic()
-                    && !p.GetIndexParameters().Any()
-                    && p.DeclaringType != typeof(DbContext)
-                    && p.PropertyType.GetTypeInfo().IsGenericType
-                    && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+            .Where(p => !p.IsStatic()
+                && !p.GetIndexParameters().Any()
+                && p.DeclaringType != typeof(DbContext)
+                && p.PropertyType.GetTypeInfo().IsGenericType
+                && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
             .OrderBy(p => p.Name)
-            .Select(
-                p => new DbSetProperty(
-                    p.Name,
-                    p.PropertyType.GenericTypeArguments.Single(),
-                    p.SetMethod == null ? null : factory.Create(p)))
+            .Select(p => new DbSetProperty(
+                p.Name,
+                p.PropertyType.GenericTypeArguments.Single(),
+                p.SetMethod == null ? null : factory.Create(p)))
             .ToArray();
     }
 }

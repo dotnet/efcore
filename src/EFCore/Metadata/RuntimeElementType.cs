@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -15,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class RuntimeElementType : RuntimeAnnotatableBase, IElementType
 {
     private readonly bool _isNullable;
-    private readonly ValueConverter? _valueConverter;
-    private readonly ValueComparer? _valueComparer;
+    private ValueConverter? _valueConverter;
+    private ValueComparer? _valueComparer;
     private readonly JsonValueReaderWriter? _jsonValueReaderWriter;
-    private readonly CoreTypeMapping? _typeMapping;
+    private CoreTypeMapping? _typeMapping;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,11 +93,26 @@ public class RuntimeElementType : RuntimeAnnotatableBase, IElementType
         => _isNullable;
 
     /// <summary>
+    ///     Gets or sets the type mapping for this element type.
+    /// </summary>
+    /// <returns>The type mapping.</returns>
+    public virtual CoreTypeMapping TypeMapping
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _typeMapping, (IElementType)this,
+            static elementType =>
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? elementType.CollectionProperty.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(elementType)!
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+        set => _typeMapping = value;
+    }
+
+    /// <summary>
     ///     Returns the type mapping for elements of the collection.
     /// </summary>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public virtual CoreTypeMapping? FindTypeMapping()
-        => _typeMapping;
+        => TypeMapping;
 
     /// <summary>
     ///     Gets the maximum length of data that is allowed in elements of the collection. For example, if the element type is
@@ -144,12 +161,32 @@ public class RuntimeElementType : RuntimeAnnotatableBase, IElementType
         => _valueConverter;
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetValueConverter(ValueConverter converter)
+        => _valueConverter = converter;
+
+    /// <summary>
     ///     Gets the custom <see cref="ValueComparer" /> for elements of the collection.
     /// </summary>
     /// <returns>The comparer, or <see langword="null" /> if none has been set.</returns>
     [DebuggerStepThrough]
     public virtual ValueComparer? GetValueComparer()
-        => _valueComparer;
+        => _valueComparer ?? _typeMapping?.Comparer;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual ValueComparer SetComparer(ValueComparer valueComparer)
+        => _valueComparer = valueComparer;
 
     /// <summary>
     ///     Gets the type that the elements of the collection will be converted to before being sent to the database provider.
@@ -215,11 +252,6 @@ public class RuntimeElementType : RuntimeAnnotatableBase, IElementType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    ValueConverter? IReadOnlyElementType.GetValueConverter()
-        => _valueConverter;
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
     Type? IReadOnlyElementType.GetProviderClrType()
         => (Type?)this[CoreAnnotationNames.ProviderClrType];
 
@@ -227,4 +259,9 @@ public class RuntimeElementType : RuntimeAnnotatableBase, IElementType
     [DebuggerStepThrough]
     CoreTypeMapping IReadOnlyElementType.FindTypeMapping()
         => FindTypeMapping()!;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    ValueComparer IElementType.GetValueComparer()
+        => GetValueComparer()!;
 }

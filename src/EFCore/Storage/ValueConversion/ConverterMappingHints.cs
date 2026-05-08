@@ -21,7 +21,7 @@ public class ConverterMappingHints
     /// <param name="size">The suggested size of the mapped data type.</param>
     /// <param name="precision">The suggested precision of the mapped data type.</param>
     /// <param name="scale">The suggested scale of the mapped data type.</param>
-    /// <param name="unicode">Whether or not the mapped data type should support Unicode.</param>
+    /// <param name="unicode">Whether the mapped data type should support Unicode.</param>
     /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
     public ConverterMappingHints(
         int? size = null,
@@ -50,7 +50,7 @@ public class ConverterMappingHints
     public virtual ConverterMappingHints With(ConverterMappingHints? hints)
         => hints == null
             ? this
-            : hints.GetType().IsAssignableFrom(GetType())
+            : hints.GetType().IsInstanceOfType(this)
                 ? new ConverterMappingHints(
                     hints.Size ?? Size,
                     hints.Precision ?? Precision,
@@ -72,7 +72,7 @@ public class ConverterMappingHints
     public virtual ConverterMappingHints OverrideWith(ConverterMappingHints? hints)
         => hints == null
             ? this
-            : GetType().IsAssignableFrom(hints.GetType())
+            : GetType().IsInstanceOfType(hints)
                 ? new ConverterMappingHints(
                     Size ?? hints.Size,
                     Precision ?? hints.Precision,
@@ -99,7 +99,7 @@ public class ConverterMappingHints
     public virtual int? Scale { get; }
 
     /// <summary>
-    ///     Whether or not the mapped data type should support Unicode.
+    ///     Whether the mapped data type should support Unicode.
     /// </summary>
     public virtual bool? IsUnicode { get; }
 

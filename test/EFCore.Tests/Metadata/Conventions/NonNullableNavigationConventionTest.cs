@@ -238,8 +238,7 @@ public class NonNullableNavigationConventionTest
         [ForeignKey("AnotherPrincipal")]
         public int PrincipalAnotherFk { get; set; }
 
-        [ForeignKey("PrincipalFk")]
-        [InverseProperty("Dependent")]
+        [ForeignKey("PrincipalFk"), InverseProperty("Dependent")]
         public Principal? Principal { get; set; }
 
         public Principal? AnotherPrincipal { get; set; }

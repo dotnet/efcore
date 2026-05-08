@@ -85,8 +85,10 @@ public class TPTInheritanceBulkUpdatesSqliteTest(
 
         AssertExecuteUpdateSql(
             """
+@p='Animal' (Size = 6)
+
 UPDATE "Animals" AS "a0"
-SET "Name" = 'Animal'
+SET "Name" = @p
 FROM (
     SELECT "a"."Id"
     FROM "Animals" AS "a"
@@ -117,8 +119,10 @@ WHERE "a0"."Id" = "s"."Id"
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Kiwi" AS "k"
-SET "FoundOn" = 0
+SET "FoundOn" = @p
 FROM "Animals" AS "a"
 INNER JOIN "Birds" AS "b" ON "a"."Id" = "b"."Id"
 WHERE "a"."Id" = "k"."Id"
@@ -131,8 +135,10 @@ WHERE "a"."Id" = "k"."Id"
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -153,8 +159,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='Monovia' (Size = 7)
+
 UPDATE "Countries" AS "c"
-SET "Name" = 'Monovia'
+SET "Name" = @p
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
@@ -176,8 +184,10 @@ WHERE (
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Coke" AS "c"
-SET "SugarGrams" = 0
+SET "SugarGrams" = @p
 FROM "Drinks" AS "d"
 WHERE "d"."Id" = "c"."Id"
 """);
@@ -189,8 +199,10 @@ WHERE "d"."Id" = "c"."Id"
 
         AssertExecuteUpdateSql(
             """
+@p='0'
+
 UPDATE "Coke" AS "c"
-SET "SugarGrams" = 0
+SET "SugarGrams" = @p
 FROM "Drinks" AS "d"
 WHERE "d"."Id" = "c"."Id"
 """);

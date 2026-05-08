@@ -9,16 +9,15 @@ internal static class DisposableExtensions
 {
     public static ValueTask DisposeAsyncIfAvailable(this IDisposable? disposable)
     {
-        if (disposable != null)
+        switch (disposable)
         {
-            if (disposable is IAsyncDisposable asyncDisposable)
-            {
+            case null:
+                return default;
+            case IAsyncDisposable asyncDisposable:
                 return asyncDisposable.DisposeAsync();
-            }
-
-            disposable.Dispose();
+            default:
+                disposable.Dispose();
+                return default;
         }
-
-        return default;
     }
 }

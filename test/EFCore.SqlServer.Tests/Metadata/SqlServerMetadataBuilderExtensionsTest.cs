@@ -39,13 +39,12 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Null(builder.Metadata.GetValueGenerationStrategyConfigurationSource());
     }
 
-    [ConditionalTheory]
-    [InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.IdentityColumn)]
-    [InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.SequenceHiLo)]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.Sequence)]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.SequenceHiLo)]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, SqlServerValueGenerationStrategy.IdentityColumn)]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, SqlServerValueGenerationStrategy.Sequence)]
+    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.IdentityColumn),
+     InlineData(SqlServerValueGenerationStrategy.Sequence, SqlServerValueGenerationStrategy.SequenceHiLo),
+     InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.Sequence),
+     InlineData(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerValueGenerationStrategy.SequenceHiLo),
+     InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, SqlServerValueGenerationStrategy.IdentityColumn),
+     InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, SqlServerValueGenerationStrategy.Sequence)]
     public void Can_change_value_generation_strategy(SqlServerValueGenerationStrategy from, SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -73,9 +72,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(SqlServerValueGenerationStrategy.Sequence)]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
+    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.Sequence), InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void Seed_and_increment_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -109,9 +106,8 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn)]
-    [InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
+    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
+     InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void Sequence_and_schema_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -145,9 +141,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(SqlServerValueGenerationStrategy.IdentityColumn)]
-    [InlineData(SqlServerValueGenerationStrategy.Sequence)]
+    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn), InlineData(SqlServerValueGenerationStrategy.Sequence)]
     public void HiLo_sequence_and_schema_are_reset_when_changing_strategy(SqlServerValueGenerationStrategy to)
     {
         var builder = CreateBuilder();
@@ -354,7 +348,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         var modelBuilder = CreateBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
         var idProperty = entityTypeBuilder.Property(typeof(string), "Id").Metadata;
-        var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty });
+        var keyBuilder = entityTypeBuilder.HasKey([idProperty]);
 
         Assert.Null(keyBuilder.Metadata.GetIsClusteredConfigurationSource());
 
@@ -380,7 +374,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         var modelBuilder = CreateBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
         var idProperty = entityTypeBuilder.Property(typeof(int), "Id").Metadata;
-        var indexBuilder = entityTypeBuilder.HasIndex(new[] { idProperty });
+        var indexBuilder = entityTypeBuilder.HasIndex([idProperty]);
 
         Assert.Null(indexBuilder.Metadata.GetIsClusteredConfigurationSource());
 
@@ -406,7 +400,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         var modelBuilder = CreateBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(Splot));
         var idProperty = entityTypeBuilder.Property(typeof(int), "Id").Metadata;
-        var key = entityTypeBuilder.HasKey(new[] { idProperty }).Metadata;
+        var key = entityTypeBuilder.HasKey([idProperty]).Metadata;
         var relationshipBuilder = entityTypeBuilder.HasRelationship(entityTypeBuilder.Metadata, key);
 
         Assert.NotNull(relationshipBuilder.HasConstraintName("Splew"));

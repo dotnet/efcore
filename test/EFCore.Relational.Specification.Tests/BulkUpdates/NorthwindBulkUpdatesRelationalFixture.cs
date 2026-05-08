@@ -16,8 +16,7 @@ public abstract class NorthwindBulkUpdatesRelationalFixture<TModelCustomizer> : 
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-                c => c.Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning))
+        => base.AddOptions(builder).ConfigureWarnings(c => c.Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning))
             .EnableDetailedErrors();
 
     protected override bool ShouldLogCategory(string logCategory)

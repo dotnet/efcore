@@ -31,7 +31,7 @@ public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilde
     [EntityFrameworkInternal]
     public NavigationBuilder(IMutableNavigationBase navigationOrSkipNavigation)
     {
-        Check.NotNull(navigationOrSkipNavigation, nameof(navigationOrSkipNavigation));
+        Check.NotNull(navigationOrSkipNavigation);
 
         InternalNavigationBuilder = (navigationOrSkipNavigation as Navigation)?.Builder;
         InternalSkipNavigationBuilder = (navigationOrSkipNavigation as SkipNavigation)?.Builder;
@@ -61,7 +61,7 @@ public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilde
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual NavigationBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         if (InternalNavigationBuilder != null)
         {

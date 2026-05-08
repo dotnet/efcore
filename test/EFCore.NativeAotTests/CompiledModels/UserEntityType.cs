@@ -34,23 +34,22 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 sentinel: 0);
             id.SetSetter((User e, int v) => e.Id = v);
             id.SetAccessors(
-                (InternalEntityEntry e) =>
-                    ((User)e.Entity).Id == 0
+                (IInternalEntry e) =>
+                    ((User)e.Object).Id == 0
                         ? e.FlaggedAsStoreGenerated(0)
                             ? e.ReadStoreGeneratedValue<int>(0)
                             : e.FlaggedAsTemporary(0)
                                 ? e.ReadTemporaryValue<int>(0)
-                                : ((User)e.Entity).Id
-                        : ((User)e.Entity).Id,
-                (InternalEntityEntry e) =>
-                    ((User)e.Entity).Id == 0
+                                : ((User)e.Object).Id
+                        : ((User)e.Object).Id,
+                (IInternalEntry e) =>
+                    ((User)e.Object).Id == 0
                         ? e.ReadTemporaryValue<int>(0) == 0
-                            ? ((User)e.Entity).Id
+                            ? ((User)e.Object).Id
                             : e.ReadTemporaryValue<int>(0)
-                        : ((User)e.Entity).Id,
-                (InternalEntityEntry e) => e.ReadOriginalValue<int>(id, 0),
-                (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<int>(id, 0),
-                valueBuffer => valueBuffer[0]!);
+                        : ((User)e.Object).Id,
+                (IInternalEntry e) => e.ReadOriginalValue<int>(id, 0),
+                (IInternalEntry e) => e.ReadRelationshipSnapshotValue<int>(id, 0));
             id.TypeMapping = IntTypeMapping.Default;
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -63,11 +62,10 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 providerValueComparer: ValueComparer.CreateDefault<string>(favorStructuralComparisons: true));
             name.SetSetter((User e, string v) => e.Name = v);
             name.SetAccessors(
-                (InternalEntityEntry e) => ((User)e.Entity).Name,
-                (InternalEntityEntry e) => ((User)e.Entity).Name,
-                (InternalEntityEntry e) => e.ReadOriginalValue<string>(name, 1),
-                (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<string>(name, 1),
-                valueBuffer => valueBuffer[1]!);
+                (IInternalEntry e) => ((User)e.Object).Name,
+                (IInternalEntry e) => ((User)e.Object).Name,
+                (IInternalEntry e) => e.ReadOriginalValue<string>(name, 1),
+                (IInternalEntry e) => e.ReadRelationshipSnapshotValue<string>(name, 1));
             name.TypeMapping = SqlServerStringTypeMapping.Default;
             name.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 

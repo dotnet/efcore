@@ -15,8 +15,7 @@ public class NamedConnectionStringResolverTest
 
         Assert.Equal(
             RelationalStrings.NamedConnectionStringNotFound("foo"),
-            Assert.Throws<InvalidOperationException>(
-                () => resolver.ResolveConnectionString("name=foo")).Message);
+            Assert.Throws<InvalidOperationException>(() => resolver.ResolveConnectionString("name=foo")).Message);
     }
 
     [ConditionalFact]
@@ -26,8 +25,7 @@ public class NamedConnectionStringResolverTest
 
         Assert.Equal(
             RelationalStrings.NamedConnectionStringNotFound("foo"),
-            Assert.Throws<InvalidOperationException>(
-                () => resolver.ResolveConnectionString("name=foo")).Message);
+            Assert.Throws<InvalidOperationException>(() => resolver.ResolveConnectionString("name=foo")).Message);
     }
 
     [ConditionalFact]
@@ -37,8 +35,7 @@ public class NamedConnectionStringResolverTest
 
         Assert.Equal(
             RelationalStrings.NamedConnectionStringNotFound("foo"),
-            Assert.Throws<InvalidOperationException>(
-                () => resolver.ResolveConnectionString("name=foo")).Message);
+            Assert.Throws<InvalidOperationException>(() => resolver.ResolveConnectionString("name=foo")).Message);
     }
 
     [ConditionalFact]

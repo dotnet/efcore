@@ -70,9 +70,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context2.Foos.Select(e => e.Bar).ToList());
     }
 
-    [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(true, false), InlineData(true, true)]
     public virtual void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
     {
         using var context1 = CreateBackingContext("TwoDatabasesIntercept");

@@ -187,16 +187,16 @@ public class ForeignKeyIndexConvention :
             }
             else if (newBaseType != null)
             {
-                var coveringKey = baseKeys!.FirstOrDefault(
-                    k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUnique: true));
+                var coveringKey = baseKeys!.FirstOrDefault(k => AreIndexedBy(
+                    foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUnique: true));
                 if (coveringKey != null)
                 {
                     RemoveIndex(index);
                 }
                 else
                 {
-                    var coveringIndex = baseIndexes!.FirstOrDefault(
-                        i => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
+                    var coveringIndex = baseIndexes!.FirstOrDefault(i => AreIndexedBy(
+                        foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
                     if (coveringIndex != null)
                     {
                         RemoveIndex(index);
@@ -313,9 +313,8 @@ public class ForeignKeyIndexConvention :
         {
             foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
                          .SelectMany(t => t.GetDeclaredForeignKeys())
-                         .Where(
-                             fk => fk.IsUnique
-                                 && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUnique: true)))
+                         .Where(fk => fk.IsUnique
+                             && AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, coveringIndexUnique: true)))
             {
                 CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
             }

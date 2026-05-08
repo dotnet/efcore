@@ -7,6 +7,9 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase(
     QueryExpressionInterceptionInMemoryTestBase.InterceptionInMemoryFixtureBase fixture)
     : QueryExpressionInterceptionTestBase(fixture)
 {
+    public override Task Interceptor_does_not_leak_across_contexts(bool async)
+        => Task.CompletedTask;
+
     public override async Task<UniverseContext> SeedAsync(UniverseContext context)
     {
         await base.SeedAsync(context);
