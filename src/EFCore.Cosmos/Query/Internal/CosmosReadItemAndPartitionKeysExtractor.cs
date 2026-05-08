@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -88,9 +89,13 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         var allIdPropertiesSpecified =
             _jsonIdPropertyValues.Values.All(p => p is not null) && _jsonIdPropertyValues.Count > 0;
 
-        if (queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
+        // WithPartitionKey will clear _partitionKeyPropertyValues during the lift pass below; snapshot predicate partition key
+        // comparisons first so we can validate conflicts only if the query will use ReadItem (see ValidateNoWithPartitionKeyConflict).
+        var hadWithPartitionKey = queryCompilationContext.PartitionKeyPropertyValues.Count > 0;
+        Dictionary<IProperty, (Expression? ValueExpression, Expression? OriginalExpression)>? predicatePartitionKeySnapshot = null;
+        if (hadWithPartitionKey)
         {
-            ValidateNoWithPartitionKeyConflict(queryCompilationContext, partitionKeyProperties);
+            predicatePartitionKeySnapshot = new Dictionary<IProperty, (Expression?, Expression?)>(_partitionKeyPropertyValues);
         }
 
         // First, go over the partition key properties and lift them from the predicate to the query compilation context, as possible.
@@ -131,6 +136,14 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             && Unwrap(shapedQuery.ShaperExpression) is StructuralTypeShaperExpression { StructuralType: var projectedStructuralType }
             && projectedStructuralType == _entityType)
         {
+            if (hadWithPartitionKey)
+            {
+                ValidateNoWithPartitionKeyConflict(
+                    queryCompilationContext,
+                    partitionKeyProperties,
+                    predicatePartitionKeySnapshot!);
+            }
+
             return shapedQuery.UpdateQueryExpression(select.WithReadItemInfo(new ReadItemInfo(_jsonIdPropertyValues!)));
         }
 
@@ -177,7 +190,9 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
 
     private void ValidateNoWithPartitionKeyConflict(
         CosmosQueryCompilationContext queryCompilationContext,
-        IReadOnlyList<IProperty> partitionKeyProperties)
+        IReadOnlyList<IProperty> partitionKeyProperties,
+        IReadOnlyDictionary<IProperty, (Expression? ValueExpression, Expression? OriginalExpression)>
+            predicatePartitionKeyPropertyValues)
     {
         // WithPartitionKey(...) already populated partition key values in the query compilation context.
         // If the predicate also contains partition key comparisons, we must validate that they match; otherwise, a ReadItem
@@ -185,7 +200,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         for (var i = 0; i < partitionKeyProperties.Count; i++)
         {
             var property = partitionKeyProperties[i];
-            var predicateValueExpression = _partitionKeyPropertyValues[property].ValueExpression;
+            var predicateValueExpression = predicatePartitionKeyPropertyValues[property].ValueExpression;
             if (predicateValueExpression is null)
             {
                 continue;
