@@ -952,7 +952,7 @@ public partial class EntityTypeTest
         orderType.AddProperty("Customer");
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("Customer", typeof(Order).Name, typeof(Order).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind("Customer", typeof(Order).Name, "property"),
             Assert.Throws<InvalidOperationException>(() => customerForeignKey.SetDependentToPrincipal("Customer")).Message);
     }
 
@@ -970,7 +970,7 @@ public partial class EntityTypeTest
         orderType.AddServiceProperty(Order.CustomerProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Customer), nameof(Order), nameof(Order)),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Customer), nameof(Order), "service property"),
             Assert.Throws<InvalidOperationException>(() => customerForeignKey.SetDependentToPrincipal(nameof(Order.Customer))).Message);
     }
 
@@ -1154,7 +1154,7 @@ public partial class EntityTypeTest
 
         fk.SetPrincipalToDependent(SelfRef.SelfRef1Property);
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(SelfRef.SelfRef1), typeof(SelfRef).Name, typeof(SelfRef).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(SelfRef.SelfRef1), typeof(SelfRef).Name, "navigation"),
             Assert.Throws<InvalidOperationException>(() => fk.SetDependentToPrincipal(SelfRef.SelfRef1Property)).Message);
     }
 
@@ -1363,7 +1363,7 @@ public partial class EntityTypeTest
         navigation.SetForeignKey(orderProductForeignKey);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Products), typeof(Order).Name, "skip navigation"),
             Assert.Throws<InvalidOperationException>(() =>
                 orderEntity.AddSkipNavigation(
                     nameof(Order.Products), null, null, productEntity, true, false)).Message);
@@ -1388,7 +1388,7 @@ public partial class EntityTypeTest
         customerForeignKey.SetPrincipalToDependent(nameof(Order.Products));
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Products), typeof(Order).Name, "navigation"),
             Assert.Throws<InvalidOperationException>(() =>
                 orderEntity.AddSkipNavigation(
                     nameof(Order.Products), null, null, productEntity, true, false)).Message);
@@ -1410,7 +1410,7 @@ public partial class EntityTypeTest
         orderEntity.AddProperty(nameof(Order.Products));
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Products), typeof(Order).Name, "property"),
             Assert.Throws<InvalidOperationException>(() =>
                 orderEntity.AddSkipNavigation(
                     nameof(Order.Products), null, null, productEntity, true, false)).Message);
@@ -1432,7 +1432,7 @@ public partial class EntityTypeTest
         orderEntity.AddServiceProperty(Order.ProductsProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Products), typeof(Order).Name, typeof(Order).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Products), typeof(Order).Name, "service property"),
             Assert.Throws<InvalidOperationException>(() =>
                 orderEntity.AddSkipNavigation(
                     nameof(Order.Products), null, null, productEntity, true, false)).Message);
@@ -2046,7 +2046,7 @@ public partial class EntityTypeTest
         entityType.AddProperty(Customer.IdProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("Id", typeof(Customer).Name, typeof(Customer).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind("Id", typeof(Customer).Name, "property"),
             Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id")).Message);
     }
 
@@ -2064,7 +2064,7 @@ public partial class EntityTypeTest
         customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("Customer", typeof(Order).Name, typeof(Order).Name),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind("Customer", typeof(Order).Name, "navigation"),
             Assert.Throws<InvalidOperationException>(() => orderType.AddProperty("Customer")).Message);
     }
 
@@ -2082,7 +2082,7 @@ public partial class EntityTypeTest
         customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Customer), nameof(Order), nameof(Order)),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Customer), nameof(Order), "navigation"),
             Assert.Throws<InvalidOperationException>(() => orderType.AddServiceProperty(Order.CustomerProperty)).Message);
     }
 
@@ -2094,7 +2094,7 @@ public partial class EntityTypeTest
         entityType.AddProperty(Customer.OrdersProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Customer.Orders), nameof(Customer), nameof(Customer)),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Customer.Orders), nameof(Customer), "property"),
             Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.OrdersProperty)).Message);
     }
 
@@ -2112,7 +2112,7 @@ public partial class EntityTypeTest
         customerForeignKey.SetDependentToPrincipal(Order.CustomerProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Order.Customer), nameof(Order), nameof(Order)),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Order.Customer), nameof(Order), "navigation"),
             Assert.Throws<InvalidOperationException>(() => orderType.AddServiceProperty(Order.CustomerProperty)).Message);
     }
 
@@ -2124,7 +2124,7 @@ public partial class EntityTypeTest
         entityType.AddServiceProperty(Customer.OrdersProperty);
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation(nameof(Customer.Orders), nameof(Customer), nameof(Customer)),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind(nameof(Customer.Orders), nameof(Customer), "service property"),
             Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.OrdersProperty)).Message);
     }
 
@@ -2202,7 +2202,7 @@ public partial class EntityTypeTest
         entityType.AddProperty("Nation", typeof(string));
 
         Assert.Equal(
-            CoreStrings.ConflictingPropertyOrNavigation("Nation", entityType.DisplayName(), entityType.DisplayName()),
+            CoreStrings.ConflictingPropertyOrNavigationWithKind("Nation", entityType.DisplayName(), "property"),
             Assert.Throws<InvalidOperationException>(() => entityType.AddIndexerProperty("Nation", typeof(string))).Message);
 
         Assert.Equal(

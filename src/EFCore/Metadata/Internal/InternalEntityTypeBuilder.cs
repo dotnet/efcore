@@ -541,8 +541,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             if (conflictingNavigation.GetConfigurationSource() == ConfigurationSource.Explicit)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ConflictingPropertyOrNavigation(
-                        propertyName, Metadata.DisplayName(), conflictingNavigation.DeclaringEntityType.DisplayName()));
+                    conflictingNavigation.FormatConflictingMemberMessage(propertyName, Metadata));
             }
 
             var foreignKey = conflictingNavigation.ForeignKey;

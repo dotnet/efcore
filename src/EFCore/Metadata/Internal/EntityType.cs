@@ -1451,16 +1451,14 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             }
 
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                duplicateNavigation.FormatConflictingMemberMessage(name, this));
         }
 
         var duplicateProperty = FindMembersInHierarchy(name).FirstOrDefault();
         if (duplicateProperty != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(), ((IReadOnlyTypeBase)duplicateProperty.DeclaringType).DisplayName()));
+                duplicateProperty.FormatConflictingMemberMessage(name, this));
         }
 
         Check.DebugAssert(
@@ -1633,8 +1631,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         if (duplicateProperty != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(), duplicateProperty.DeclaringType.DisplayName()));
+                duplicateProperty.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)
@@ -2286,9 +2283,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         if (duplicateMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    ((IReadOnlyTypeBase)duplicateMember.DeclaringType).DisplayName()));
+                duplicateMember.FormatConflictingMemberMessage(name, this));
         }
 
         ValidateClrMember(name, memberInfo, false);

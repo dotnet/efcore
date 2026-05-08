@@ -3050,7 +3050,7 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             Assert.Equal(
-                CoreStrings.ConflictingPropertyOrNavigation("SelfRef1", nameof(SelfRef), nameof(SelfRef)),
+                CoreStrings.ConflictingPropertyOrNavigationWithKind("SelfRef1", nameof(SelfRef), "navigation"),
                 Assert.Throws<InvalidOperationException>(()
                     => modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
         }
