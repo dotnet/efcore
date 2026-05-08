@@ -877,16 +877,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entity);
 
         /// <summary>
-        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a property or navigation with the same name already exists on the '{conflictingType}' type.
-        /// </summary>
-        [Obsolete("Use ConflictingPropertyOrNavigationWithKind or ConflictingPropertyOrNavigationOnBaseType instead.")]
-        public static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingType)
-            => string.Format(
-                GetString("ConflictingPropertyOrNavigation", nameof(member), nameof(type), nameof(conflictingType)),
-                member, type, conflictingType);
-
-        /// <summary>
-        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.
+        ///     The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.
         /// </summary>
         public static string ConflictingPropertyOrNavigationOnBaseType(object? member, object? type, object? conflictingMemberKind, object? conflictingType)
             => string.Format(
@@ -894,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 member, type, conflictingMemberKind, conflictingType);
 
         /// <summary>
-        ///     The property or navigation '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists. Remove the existing {conflictingMemberKind} first.
+        ///     The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists. Remove the existing {conflictingMemberKind} first.
         /// </summary>
         public static string ConflictingPropertyOrNavigationWithKind(object? member, object? type, object? conflictingMemberKind)
             => string.Format(
