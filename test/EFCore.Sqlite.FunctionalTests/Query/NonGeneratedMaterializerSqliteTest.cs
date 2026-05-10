@@ -362,6 +362,8 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
         public int Id { get; set; }
         public string Title { get; set; } = null!;
         public List<Post> Posts { get; set; } = [];
+        public List<Contributor> Contributors { get; set; } = [];
+        public List<Sponsor> Sponsors { get; set; } = [];
     }
 
     protected class Post
@@ -372,10 +374,28 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
         public Blog? Blog { get; set; }
     }
 
+    protected class Contributor
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int BlogId { get; set; }
+        public Blog? Blog { get; set; }
+    }
+
+    protected class Sponsor
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int BlogId { get; set; }
+        public Blog? Blog { get; set; }
+    }
+
     protected class BlogPostContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs => Set<Blog>();
         public DbSet<Post> Posts => Set<Post>();
+        public DbSet<Contributor> Contributors => Set<Contributor>();
+        public DbSet<Sponsor> Sponsors => Set<Sponsor>();
     }
 
     #endregion
@@ -464,6 +484,143 @@ public class NonGeneratedMaterializerSqliteTest(NonSharedFixture fixture) : NonS
 
         Assert.Equal("Empty Blog", result.Title);
         Assert.Empty(result.Posts);
+    }
+
+    [ConditionalFact]
+    public async Task Multiple_collection_includes_no_tracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                ctx.Contributors.AddRange(
+                    new Contributor { Id = 1, Name = "Alice", Blog = blog },
+                    new Contributor { Id = 2, Name = "Bob", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Blogs
+            .Include(b => b.Posts)
+            .Include(b => b.Contributors)
+            .AsNoTracking()
+            .SingleAsync();
+
+        Assert.Equal(2, result.Posts.Count);
+        Assert.Equal(2, result.Contributors.Count);
+        Assert.Contains(result.Posts, p => p.Title == "Post 1");
+        Assert.Contains(result.Posts, p => p.Title == "Post 2");
+        Assert.Contains(result.Contributors, c => c.Name == "Alice");
+        Assert.Contains(result.Contributors, c => c.Name == "Bob");
+    }
+
+    [ConditionalFact]
+    public async Task Reference_include_then_collection_include_no_tracking_async()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                ctx.Contributors.AddRange(
+                    new Contributor { Id = 1, Name = "Alice", Blog = blog },
+                    new Contributor { Id = 2, Name = "Bob", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .Include(p => p.Blog)
+            .ThenInclude(b => b!.Contributors)
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.All(results, p =>
+        {
+            Assert.NotNull(p.Blog);
+            Assert.Equal(2, p.Blog!.Contributors.Count);
+        });
+    }
+
+    [ConditionalFact]
+    public async Task Reference_include_then_collection_include_no_tracking_sync()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                ctx.Contributors.AddRange(
+                    new Contributor { Id = 1, Name = "Alice", Blog = blog },
+                    new Contributor { Id = 2, Name = "Bob", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var results = context.Posts
+            .Include(p => p.Blog)
+            .ThenInclude(b => b!.Contributors)
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .ToList();
+
+        Assert.Equal(2, results.Count);
+        Assert.All(results, p =>
+        {
+            Assert.NotNull(p.Blog);
+            Assert.Equal(2, p.Blog!.Contributors.Count);
+        });
+    }
+
+    [ConditionalFact]
+    public async Task Reference_include_then_multiple_collection_includes_no_tracking()
+    {
+        var contextFactory = await InitializeNonSharedTest<BlogPostContext>(
+            seed: async ctx =>
+            {
+                var blog = new Blog { Id = 1, Title = "Blog 1" };
+                ctx.Posts.AddRange(
+                    new Post { Id = 1, Title = "Post 1", Blog = blog },
+                    new Post { Id = 2, Title = "Post 2", Blog = blog });
+                ctx.Contributors.AddRange(
+                    new Contributor { Id = 1, Name = "Alice", Blog = blog },
+                    new Contributor { Id = 2, Name = "Bob", Blog = blog });
+                ctx.Sponsors.AddRange(
+                    new Sponsor { Id = 1, Name = "Contoso", Blog = blog },
+                    new Sponsor { Id = 2, Name = "Northwind", Blog = blog });
+                await ctx.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Posts
+            .Include(p => p.Blog)
+            .ThenInclude(b => b!.Contributors)
+            .Include(p => p.Blog)
+            .ThenInclude(b => b!.Sponsors)
+            .AsNoTracking()
+            .OrderBy(p => p.Id)
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.All(results, p =>
+        {
+            Assert.NotNull(p.Blog);
+            Assert.Equal(2, p.Blog.Contributors.Count);
+            Assert.Equal(2, p.Blog.Sponsors.Count);
+        });
     }
 
     #endregion

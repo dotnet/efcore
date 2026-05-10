@@ -260,8 +260,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                     var group = new InternalGrouping(key);
                     do
                     {
-                        _resultCoordinator.ResultReady = true;
-                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator.RowState.BeginResult();
                         var element = _elementSelector(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         if (_resultCoordinator.ResultReady)
@@ -283,7 +282,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                                     _keyIdentifierValueComparers, keyIdentifier,
                                     _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                _resultCoordinator.HasNext = true;
+                                _resultCoordinator.RowState.MarkRowForNextResult();
                                 Current = group;
                                 break;
                             }
@@ -293,8 +292,8 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                             // End of enumeration so materialize final element if any and add it.
                             if (!_resultCoordinator.ResultReady)
                             {
-                                _resultCoordinator.HasNext = false;
-                                _resultCoordinator.ResultReady = true;
+                                _resultCoordinator.RowState.MarkNoMoreRowsForCurrentResult();
+                                _resultCoordinator.RowState.MarkResultReady();
                                 element = _elementSelector(
                                     _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
@@ -440,8 +439,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                     var group = new InternalGrouping(key);
                     do
                     {
-                        _resultCoordinator.ResultReady = true;
-                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator.RowState.BeginResult();
                         var element = _elementSelector(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         if (_resultCoordinator.ResultReady)
@@ -463,7 +461,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                                     _keyIdentifierValueComparers, keyIdentifier,
                                     _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                _resultCoordinator.HasNext = true;
+                                _resultCoordinator.RowState.MarkRowForNextResult();
                                 Current = group;
                                 break;
                             }
@@ -473,8 +471,8 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
                             // End of enumeration so materialize final element if any and add it.
                             if (!_resultCoordinator.ResultReady)
                             {
-                                _resultCoordinator.HasNext = false;
-                                _resultCoordinator.ResultReady = true;
+                                _resultCoordinator.RowState.MarkNoMoreRowsForCurrentResult();
+                                _resultCoordinator.RowState.MarkResultReady();
                                 element = _elementSelector(
                                     _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 

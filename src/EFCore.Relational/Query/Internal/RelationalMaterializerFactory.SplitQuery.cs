@@ -297,18 +297,18 @@ public partial class RelationalMaterializerFactory
         {
             var childResultContext = collectionContext.ResultContext;
 
-            while (dataReaderContext.HasNext ?? dbDataReader.Read())
+            while (dataReaderContext.HasBufferedNextRow || dataReaderContext.HasNext is null && dbDataReader.Read())
             {
                 if (!CompareIdentifiers(
                         ci.IdentifierValueComparers,
                         collectionContext.ParentIdentifier,
                         ci.ChildIdentifier(queryContext, dbDataReader)))
                 {
-                    dataReaderContext.HasNext = true;
+                    dataReaderContext.MarkRowForNextResult();
                     return;
                 }
 
-                dataReaderContext.HasNext = null;
+                dataReaderContext.MarkCurrentRowConsumed();
                 childResultContext.Values = null;
 
                 // Materialize child entity (first call inits + caches)
@@ -355,7 +355,7 @@ public partial class RelationalMaterializerFactory
                 }
             }
 
-            dataReaderContext.HasNext = false;
+            dataReaderContext.MarkReaderExhausted();
         }
     }
 
@@ -407,7 +407,7 @@ public partial class RelationalMaterializerFactory
         {
             var childResultContext = collectionContext.ResultContext;
 
-            while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(
+            while (dataReaderContext.HasBufferedNextRow || dataReaderContext.HasNext is null && await dbDataReader.ReadAsync(
                        ((RelationalQueryContext)queryContext).CancellationToken).ConfigureAwait(false))
             {
                 if (!CompareIdentifiers(
@@ -415,11 +415,11 @@ public partial class RelationalMaterializerFactory
                         collectionContext.ParentIdentifier,
                         ci.ChildIdentifier(queryContext, dbDataReader)))
                 {
-                    dataReaderContext.HasNext = true;
+                    dataReaderContext.MarkRowForNextResult();
                     return;
                 }
 
-                dataReaderContext.HasNext = null;
+                dataReaderContext.MarkCurrentRowConsumed();
                 childResultContext.Values = null;
 
                 var dummyCoord = new SingleQueryResultCoordinator();
@@ -459,7 +459,7 @@ public partial class RelationalMaterializerFactory
                 }
             }
 
-            dataReaderContext.HasNext = false;
+            dataReaderContext.MarkReaderExhausted();
         }
     }
 

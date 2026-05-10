@@ -19,9 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </remarks>
 public abstract class RelationalStructuralTypeMaterializer
 {
-    private List<ReferenceIncludeInfo>? _referenceIncludes;
-    private List<CollectionIncludeInfo>? _collectionIncludes;
-    private List<JsonIncludeInfo>? _jsonIncludes;
+    private readonly List<ReferenceIncludeInfo> _referenceIncludes = [];
+    private readonly List<CollectionIncludeInfo> _collectionIncludes = [];
+    private readonly List<JsonIncludeInfo> _jsonIncludes = [];
+    private bool _hasCollectionIncludes;
+    private bool _hasCollectionIncludesFromReferences;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +66,14 @@ public abstract class RelationalStructuralTypeMaterializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void AddReferenceInclude(ReferenceIncludeInfo includeInfo)
-        => (_referenceIncludes ??= []).Add(includeInfo);
+    {
+        _referenceIncludes.Add(includeInfo);
+
+        if (includeInfo.Materializer.HasCollectionIncludesInHierarchy)
+        {
+            _hasCollectionIncludesFromReferences = true;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +82,10 @@ public abstract class RelationalStructuralTypeMaterializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void AddCollectionInclude(CollectionIncludeInfo includeInfo)
-        => (_collectionIncludes ??= []).Add(includeInfo);
+    {
+        _collectionIncludes.Add(includeInfo);
+        _hasCollectionIncludes = true;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,24 +94,35 @@ public abstract class RelationalStructuralTypeMaterializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void ClearCollectionIncludes()
-        => _collectionIncludes = null;
+    {
+        _collectionIncludes.Clear();
+        _hasCollectionIncludes = false;
+    }
 
     /// <summary>
     ///     Whether this materializer has any collection includes (affects the multi-call protocol).
     /// </summary>
     public bool HasCollectionIncludes
-        => _collectionIncludes is { Count: > 0 };
+        => _hasCollectionIncludes;
 
     /// <summary>
-    ///     The reference includes for this entity, or null if there are none.
+    ///     Whether this materializer or any of its reference include materializers (transitively)
+    ///     have collection includes. Used to determine whether the multi-call protocol is needed
+    ///     even when the materializer itself has no direct collection includes.
     /// </summary>
-    public List<ReferenceIncludeInfo>? ReferenceIncludes
+    public bool HasCollectionIncludesInHierarchy
+        => _hasCollectionIncludes || _hasCollectionIncludesFromReferences;
+
+    /// <summary>
+    ///     The reference includes for this entity.
+    /// </summary>
+    public List<ReferenceIncludeInfo> ReferenceIncludes
         => _referenceIncludes;
 
     /// <summary>
-    ///     The collection includes for this entity, or null if there are none.
+    ///     The collection includes for this entity.
     /// </summary>
-    public List<CollectionIncludeInfo>? CollectionIncludes
+    public List<CollectionIncludeInfo> CollectionIncludes
         => _collectionIncludes;
 
     /// <summary>
@@ -109,12 +132,12 @@ public abstract class RelationalStructuralTypeMaterializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void AddJsonInclude(JsonIncludeInfo includeInfo)
-        => (_jsonIncludes ??= []).Add(includeInfo);
+        => _jsonIncludes.Add(includeInfo);
 
     /// <summary>
-    ///     The JSON includes for this entity, or null if there are none.
+    ///     The JSON includes for this entity.
     /// </summary>
-    public List<JsonIncludeInfo>? JsonIncludes
+    public List<JsonIncludeInfo> JsonIncludes
         => _jsonIncludes;
 
     /// <summary>

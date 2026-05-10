@@ -272,7 +272,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                     var group = new InternalGrouping(key);
                     do
                     {
-                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator.MarkCurrentRowConsumed();
                         _resultCoordinator!.ResultContext.Values = null;
                         var element = _elementSelector(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
@@ -293,7 +293,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                                     _keyIdentifierValueComparers, keyIdentifier,
                                     _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                _resultCoordinator.HasNext = true;
+                                _resultCoordinator.MarkRowForNextResult();
                                 Current = group;
                                 break;
                             }
@@ -455,7 +455,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                     var group = new InternalGrouping(key);
                     do
                     {
-                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator.MarkCurrentRowConsumed();
                         _resultCoordinator!.ResultContext.Values = null;
                         var element = _elementSelector(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
@@ -477,7 +477,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                                     _keyIdentifierValueComparers, keyIdentifier,
                                     _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                _resultCoordinator.HasNext = true;
+                                _resultCoordinator.MarkRowForNextResult();
                                 Current = group;
                                 break;
                             }

@@ -416,7 +416,7 @@ public partial class RelationalMaterializerFactory(
                 {
                     // Reset ResultReady before each sub-materializer so we can detect whether
                     // THIS sub-materializer changed it to false (collection population mode).
-                    coord.ResultReady = true;
+                    coord.RowState.MarkResultReady();
                     var result = subMaterializers[i](queryCtx, reader, subContexts[i], coord);
 
                     if (result is not null)
@@ -437,7 +437,14 @@ public partial class RelationalMaterializerFactory(
                     anyNotReady |= !coord.ResultReady;
                 }
 
-                coord.ResultReady = !anyNotReady;
+                if (anyNotReady)
+                {
+                    coord.RowState.MarkResultPending();
+                }
+                else
+                {
+                    coord.RowState.MarkResultReady();
+                }
             }
             else
             {
@@ -709,7 +716,7 @@ public partial class RelationalMaterializerFactory(
             return;
         }
 
-        if (resultCoordinator.HasNext == false)
+        if (resultCoordinator.RowState.IsCurrentResultReaderExhausted)
         {
             GenerateCurrentElementIfPending();
             return;
@@ -727,7 +734,7 @@ public partial class RelationalMaterializerFactory(
                     parentIdentifier(queryContext, dataReader),
                     collectionContext.ParentIdentifier))
             {
-                resultCoordinator.HasNext = true;
+                resultCoordinator.RowState.MarkRowForNextResult();
             }
 
             return;
@@ -748,12 +755,12 @@ public partial class RelationalMaterializerFactory(
                     ProcessCurrentElementRow();
                 }
 
-                resultCoordinator.ResultReady = false;
+                resultCoordinator.RowState.MarkResultPending();
                 return;
             }
 
             GenerateCurrentElementIfPending();
-            resultCoordinator.HasNext = null;
+            resultCoordinator.RowState.MarkCurrentRowConsumed();
             collectionContext.UpdateSelfIdentifier(innerKey);
         }
         else
@@ -762,12 +769,12 @@ public partial class RelationalMaterializerFactory(
         }
 
         ProcessCurrentElementRow();
-        resultCoordinator.ResultReady = false;
+        resultCoordinator.RowState.MarkResultPending();
 
         void ProcessCurrentElementRow()
         {
             var previousResultReady = resultCoordinator.ResultReady;
-            resultCoordinator.ResultReady = true;
+            resultCoordinator.RowState.MarkResultReady();
 
             var element = innerShaper(
                 queryContext, dataReader, collectionContext.ResultContext, resultCoordinator);
@@ -778,14 +785,17 @@ public partial class RelationalMaterializerFactory(
                 collectionAdd(collectionContext.Collection!, element);
             }
 
-            resultCoordinator.ResultReady &= previousResultReady;
+            if (!previousResultReady)
+            {
+                resultCoordinator.RowState.MarkResultPending();
+            }
         }
 
         void GenerateCurrentElementIfPending()
         {
             if (collectionContext.ResultContext.Values is not null)
             {
-                resultCoordinator.HasNext = false;
+                resultCoordinator.RowState.MarkNoMoreRowsForCurrentResult();
                 ProcessCurrentElementRow();
             }
 
@@ -870,14 +880,7 @@ public partial class RelationalMaterializerFactory(
                             isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null);
                         innerMaterializer.AddReferenceInclude(refInclude);
 
-                        // For single queries, flatten collection includes from the referenced entity
-                        // up to the parent. For split queries, this isn't needed — collections are
-                        // loaded via separate queries and don't participate in the multi-call protocol.
-                        if (splitCollectionInfos is null)
-                        {
-                            FlattenCollectionIncludes(includedMaterializer, refInclude.ResultContext, innerMaterializer);
-                        }
-                        else
+                        if (splitCollectionInfos is not null)
                         {
                             // For split queries, any split collections added by the recursive call
                             // need their ParentEntityProvider set to return the referenced entity
@@ -1094,66 +1097,6 @@ public partial class RelationalMaterializerFactory(
 
         return pbe is not null
             && selectExpression.GetProjection(pbe).GetConstantValue<object>() is JsonProjectionInfo;
-    }
-
-    /// <summary>
-    ///     Recursively extracts collection includes from a reference include's materializer (and any
-    ///     nested reference includes) and adds them to the <paramref name="target" /> materializer.
-    ///     This mirrors the generated shaper's behavior where all collection populations are driven
-    ///     at the top level rather than nested inside reference include materializers.
-    /// </summary>
-    private static void FlattenCollectionIncludes(
-        RelationalStructuralTypeMaterializer materializer,
-        ResultContext materializerResultContext,
-        RelationalStructuralTypeMaterializer target)
-    {
-        // First, recursively flatten collections from this materializer's own reference includes.
-        if (materializer.ReferenceIncludes is not null)
-        {
-            for (var i = 0; i < materializer.ReferenceIncludes.Count; i++)
-            {
-                var refInclude = materializer.ReferenceIncludes[i];
-                FlattenCollectionIncludes(refInclude.Materializer, refInclude.ResultContext, target);
-            }
-        }
-
-        // Then extract this materializer's direct collection includes and re-parent them.
-        if (materializer.CollectionIncludes is not null)
-        {
-            for (var i = 0; i < materializer.CollectionIncludes.Count; i++)
-            {
-                var ci = materializer.CollectionIncludes[i];
-
-                // If this collection was already flattened from a deeper level (e.g.
-                // Customer.Orders flattened from Customer→Order, now being flattened from
-                // Order→OrderDetail), its ParentEntityProvider already points to the correct
-                // parent (Customer). Don't override it with this level's context (Order).
-                var parentProvider = ci.ParentEntityProvider;
-                if (parentProvider is null)
-                {
-                    var capturedContext = materializerResultContext;
-                    parentProvider = () => capturedContext.Values?[0];
-                }
-
-                target.AddCollectionInclude(new CollectionIncludeInfo(
-                    ci.InnerMaterializer,
-                    ci.Navigation,
-                    ci.InverseNavigation,
-                    ci.InverseNavigationSetter,
-                    ci.CollectionAccessor,
-                    ci.ParentIdentifier,
-                    ci.OuterIdentifier,
-                    ci.SelfIdentifier,
-                    ci.ParentIdentifierValueComparers,
-                    ci.OuterIdentifierValueComparers,
-                    ci.SelfIdentifierValueComparers,
-                    ci.CollectionId,
-                    ci.IsKeylessEntityType,
-                    parentProvider));
-            }
-
-            materializer.ClearCollectionIncludes();
-        }
     }
 
     private static bool CompareIdentifiers(

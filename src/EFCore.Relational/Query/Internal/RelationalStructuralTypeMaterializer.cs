@@ -485,7 +485,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
     {
         TStructuralType instance;
 
-        if (CollectionIncludes is not null)
+        if (HasCollectionIncludesInHierarchy)
         {
             Check.DebugAssert(_structuralType is IEntityType, "Collection includes are only supported for entity types.");
 
@@ -493,6 +493,11 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             // On first call (resultContext.Values == null), we materialize the parent and initialize collections.
             // On subsequent calls, we populate collection elements.
             // When the parent changes or rows end, we set ResultReady = true and return the parent.
+            //
+            // HasCollectionIncludesInHierarchy is true when this materializer has direct collection includes OR
+            // when any reference include materializer (transitively) has collection includes. In the latter
+            // case, those reference materializers participate in the multi-call protocol themselves, and
+            // we re-drive them on each subsequent row (see the else branch below).
 
             if (resultContext.Values is null)
             {
@@ -506,25 +511,14 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 // Store entity reference for subsequent calls (using Values as a marker + storage)
                 resultContext.Values = [instance];
 
-                // Reset per-include result contexts: when the outer entity changes, the per-include
-                // contexts must be cleared so included materializers start fresh on the new entity.
-                if (ReferenceIncludes is not null)
-                {
-                    for (var i = 0; i < ReferenceIncludes.Count; i++)
-                    {
-                        ReferenceIncludes[i].ResultContext.Values = null;
-                    }
-                }
-
-                // Process reference includes ONCE during initialization. After flattening, reference
-                // include materializers no longer have collection includes, so they complete in a single
-                // call without affecting ResultReady.
+                // Process reference includes ONCE during initialization. Reference materializers that
+                // have their own collection includes (HasCollectionIncludesInHierarchy) will initialize and
+                // populate the first collection element themselves. Subsequent rows are driven by
+                // the re-call loop in the else branch below.
                 ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, instance);
                 ProcessJsonIncludes(queryContext, dataReader, instance, fromIdentityMap1);
 
-                // Initialize collection includes. Direct collections use the outer entity as parent;
-                // flattened collections (from reference includes) obtain their parent from the provider
-                // (which reads the entity from the reference include's ResultContext, populated above).
+                // Initialize direct collection includes.
                 for (var i = 0; i < CollectionIncludes.Count; i++)
                 {
                     var ci = CollectionIncludes[i];
@@ -537,11 +531,22 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             else
             {
                 instance = (TStructuralType)resultContext.Values[0];
+
+                // Re-drive reference includes that have collection includes in their hierarchy on each subsequent row.
+                // Reference includes without collection includes in their hierarchy completed during initialization and
+                // do not need to be called again.
+                for (var i = 0; i < ReferenceIncludes.Count; i++)
+                {
+                    var refInclude = ReferenceIncludes[i];
+                    if (refInclude.Materializer.HasCollectionIncludesInHierarchy && refInclude.ResultContext.Values is not null)
+                    {
+                        refInclude.Materializer.Materialize(
+                            queryContext, dataReader, refInclude.ResultContext, resultCoordinator);
+                    }
+                }
             }
 
-            // Populate ALL collection elements from the current row. Both direct and flattened
-            // collections are processed at the same level, using the parent entity stored in the
-            // SingleQueryCollectionContext during initialization.
+            // Populate direct collection elements from the current row.
             for (var i = 0; i < CollectionIncludes.Count; i++)
             {
                 PopulateIncludeCollection(queryContext, dataReader, resultCoordinator, CollectionIncludes[i]);
@@ -552,7 +557,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         }
 
         // Reference and/or JSON includes (no collection includes). These complete in a single call.
-        if (ReferenceIncludes is not null || JsonIncludes is not null)
+        if (ReferenceIncludes.Count > 0 || JsonIncludes.Count > 0)
         {
             Check.DebugAssert(_structuralType is IEntityType, "Reference/JSON includes are only supported for entity types.");
 
@@ -564,15 +569,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                     return default;
                 }
 
-                if (ReferenceIncludes is not null)
-                {
-                    for (var i = 0; i < ReferenceIncludes.Count; i++)
-                    {
-                        ReferenceIncludes[i].ResultContext.Values = null;
-                    }
-
-                    ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, instance);
-                }
+                ProcessReferenceIncludes(queryContext, dataReader, resultCoordinator, instance);
 
                 ProcessJsonIncludes(queryContext, dataReader, instance, fromIdentityMap);
 
@@ -749,9 +746,15 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         SingleQueryResultCoordinator resultCoordinator,
         TStructuralType entity)
     {
-        if (ReferenceIncludes is null)
+        if (ReferenceIncludes.Count == 0)
         {
             return;
+        }
+
+        // When the outer entity changes, each reference include must start with a fresh per-include context.
+        for (var i = 0; i < ReferenceIncludes.Count; i++)
+        {
+            ReferenceIncludes[i].ResultContext.Values = null;
         }
 
         for (var i = 0; i < ReferenceIncludes.Count; i++)
@@ -767,6 +770,11 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             // Each include has its own ResultContext so its collection-include protocol state
             // does not collide with the outer materializer's context (which holds a different entity type).
             var relatedEntity = include.Materializer.Materialize(queryContext, dataReader, include.ResultContext, resultCoordinator);
+
+            // If the reference materializer has collection includes in its hierarchy, it participates in the
+            // multi-call protocol and may return null when ResultReady is false. In that case,
+            // the entity was already stored in its ResultContext on the first call — use it.
+            relatedEntity ??= include.ResultContext.Values?[0];
 
             if (_isTracking && !include.IsKeylessEntityType)
             {
@@ -814,7 +822,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         TStructuralType entity,
         bool entityAlreadyTracked = false)
     {
-        if (JsonIncludes is null)
+        if (JsonIncludes.Count == 0)
         {
             return;
         }
@@ -995,7 +1003,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             return;
         }
 
-        if (resultCoordinator.HasNext == false)
+        if (resultCoordinator.RowState.IsCurrentResultReaderExhausted)
         {
             // Outer enumerator has ended — materialize last pending element
             GenerateCurrentElementIfPending();
@@ -1016,7 +1024,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                     ci.ParentIdentifier(queryContext, dataReader),
                     collectionContext.ParentIdentifier))
             {
-                resultCoordinator.HasNext = true;
+                resultCoordinator.RowState.MarkRowForNextResult();
             }
 
             return;
@@ -1039,13 +1047,13 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                     ProcessCurrentElementRow();
                 }
 
-                resultCoordinator.ResultReady = false;
+                resultCoordinator.RowState.MarkResultPending();
                 return;
             }
 
             // New element — materialize the previous one first
             GenerateCurrentElementIfPending();
-            resultCoordinator.HasNext = null;
+            resultCoordinator.RowState.MarkCurrentRowConsumed();
             collectionContext.UpdateSelfIdentifier(innerKey);
         }
         else
@@ -1055,12 +1063,12 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         }
 
         ProcessCurrentElementRow();
-        resultCoordinator.ResultReady = false;
+        resultCoordinator.RowState.MarkResultPending();
 
         void ProcessCurrentElementRow()
         {
             var previousResultReady = resultCoordinator.ResultReady;
-            resultCoordinator.ResultReady = true;
+            resultCoordinator.RowState.MarkResultReady();
 
             var relatedEntity = ci.InnerMaterializer.Materialize(
                 queryContext, dataReader, collectionContext.ResultContext, resultCoordinator);
@@ -1079,14 +1087,17 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 }
             }
 
-            resultCoordinator.ResultReady &= previousResultReady;
+            if (!previousResultReady)
+            {
+                resultCoordinator.RowState.MarkResultPending();
+            }
         }
 
         void GenerateCurrentElementIfPending()
         {
             if (collectionContext.ResultContext.Values is not null)
             {
-                resultCoordinator.HasNext = false;
+                resultCoordinator.RowState.MarkNoMoreRowsForCurrentResult();
                 ProcessCurrentElementRow();
             }
 

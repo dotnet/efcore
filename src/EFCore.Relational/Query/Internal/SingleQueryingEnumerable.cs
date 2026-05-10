@@ -205,8 +205,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 {
                     while (true)
                     {
-                        _resultCoordinator.ResultReady = true;
-                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator.RowState.BeginResult();
                         Current = _materializer(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         if (_resultCoordinator.ResultReady)
@@ -217,16 +216,16 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                         }
 
                         // If we are already pointing to next row, we don't need to call Read
-                        if (_resultCoordinator.HasNext == true)
+                        if (_resultCoordinator.RowState.HasBufferedNextRow)
                         {
                             continue;
                         }
 
                         if (!_dataReader!.Read())
                         {
-                            _resultCoordinator.HasNext = false;
+                            _resultCoordinator.RowState.MarkNoMoreRowsForCurrentResult();
                             // Enumeration has ended, materialize last element
-                            _resultCoordinator.ResultReady = true;
+                            _resultCoordinator.RowState.MarkResultReady();
                             Current = _materializer(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
@@ -359,8 +358,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 {
                     while (true)
                     {
-                        _resultCoordinator.ResultReady = true;
-                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator.RowState.BeginResult();
                         Current = _materializer(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         if (_resultCoordinator.ResultReady)
@@ -371,16 +369,16 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                         }
 
                         // If we are already pointing to next row, we don't need to call Read
-                        if (_resultCoordinator.HasNext == true)
+                        if (_resultCoordinator.RowState.HasBufferedNextRow)
                         {
                             continue;
                         }
 
                         if (!await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
                         {
-                            _resultCoordinator.HasNext = false;
+                            _resultCoordinator.RowState.MarkNoMoreRowsForCurrentResult();
                             // Enumeration has ended, materialize last element
-                            _resultCoordinator.ResultReady = true;
+                            _resultCoordinator.RowState.MarkResultReady();
                             Current = _materializer(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
