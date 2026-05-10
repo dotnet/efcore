@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -311,9 +310,9 @@ public partial class RelationalMaterializerFactory
                 dataReaderContext.MarkCurrentRowConsumed();
                 childResultContext.Values = null;
 
-                // Materialize child entity (first call inits + caches)
+                // Materialize child element (first call inits + caches)
                 var dummyCoord = new SingleQueryResultCoordinator();
-                ci.InnerMaterializer.Materialize(queryContext, dbDataReader, childResultContext, dummyCoord);
+                ci.ElementMaterializer(queryContext, dbDataReader, childResultContext, dummyCoord);
 
                 // Initialize + load nested split collections for the child
                 for (var i = 0; i < ci.ChildSplitCollections.Count; i++)
@@ -329,7 +328,7 @@ public partial class RelationalMaterializerFactory
                 }
 
                 // Second call returns the materialized child
-                var relatedEntity = ci.InnerMaterializer.Materialize(
+                var relatedEntity = ci.ElementMaterializer(
                     queryContext, dbDataReader, childResultContext, dummyCoord);
 
                 if (relatedEntity is not null)
@@ -349,8 +348,7 @@ public partial class RelationalMaterializerFactory
                     }
                     else
                     {
-                        // Standalone collection: always add directly regardless of tracking
-                        ((IList)collectionContext.Collection!).Add(relatedEntity);
+                        ci.CollectionAdd!(collectionContext.Collection!, relatedEntity);
                     }
                 }
             }
@@ -423,7 +421,7 @@ public partial class RelationalMaterializerFactory
                 childResultContext.Values = null;
 
                 var dummyCoord = new SingleQueryResultCoordinator();
-                ci.InnerMaterializer.Materialize(queryContext, dbDataReader, childResultContext, dummyCoord);
+                ci.ElementMaterializer(queryContext, dbDataReader, childResultContext, dummyCoord);
 
                 for (var i = 0; i < ci.ChildSplitCollections.Count; i++)
                 {
@@ -438,7 +436,7 @@ public partial class RelationalMaterializerFactory
                         .ConfigureAwait(false);
                 }
 
-                var relatedEntity = ci.InnerMaterializer.Materialize(
+                var relatedEntity = ci.ElementMaterializer(
                     queryContext, dbDataReader, childResultContext, dummyCoord);
 
                 if (relatedEntity is not null)
@@ -454,7 +452,7 @@ public partial class RelationalMaterializerFactory
                     }
                     else
                     {
-                        ((IList)collectionContext.Collection!).Add(relatedEntity);
+                        ci.CollectionAdd!(collectionContext.Collection!, relatedEntity);
                     }
                 }
             }

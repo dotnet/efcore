@@ -18,23 +18,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     to load the collection's child rows.
 /// </remarks>
 public sealed class SplitCollectionIncludeInfo(
-    RelationalStructuralTypeMaterializer innerMaterializer,
+    Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?> elementMaterializer,
     INavigationBase? navigation,
     INavigationBase? inverseNavigation,
     IClrPropertySetter? inverseNavigationSetter,
     IClrCollectionAccessor? collectionAccessor,
+    Action<object, object?>? collectionAdd,
     Func<QueryContext, DbDataReader, object[]> parentIdentifier,
     Func<QueryContext, DbDataReader, object[]> childIdentifier,
     IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
     int collectionId,
     Expression selectExpression,
     List<SplitCollectionIncludeInfo> childSplitCollections,
+    RelationalStructuralTypeMaterializer? innerMaterializer = null,
     Func<object?>? parentEntityProvider = null)
 {
     /// <summary>
-    ///     The materializer for the included (child) entity type.
+    ///     The materializer delegate for elements returned from the split child query.
+    ///     For include-based collections this is the structural materializer's <see cref="RelationalStructuralTypeMaterializer.Materialize" />;
+    ///     for standalone collection projections this may be a general projection materializer.
     /// </summary>
-    public RelationalStructuralTypeMaterializer InnerMaterializer { get; } = innerMaterializer;
+    public Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?> ElementMaterializer { get; }
+        = elementMaterializer;
+
+    /// <summary>
+    ///     The structural materializer for include-based split collections, or null for standalone
+    ///     split collection projections whose element shaper is not structural.
+    /// </summary>
+    public RelationalStructuralTypeMaterializer? InnerMaterializer { get; } = innerMaterializer;
 
     /// <summary>
     ///     The collection navigation from the parent entity.
@@ -55,6 +66,11 @@ public sealed class SplitCollectionIncludeInfo(
     ///     Accessor for getting/creating the collection on the parent entity.
     /// </summary>
     public IClrCollectionAccessor? CollectionAccessor { get; } = collectionAccessor;
+
+    /// <summary>
+    ///     Adds an element to a standalone collection projection, or null for include collections.
+    /// </summary>
+    public Action<object, object?>? CollectionAdd { get; } = collectionAdd;
 
     /// <summary>
     ///     Extracts parent identifier values from the main query's DbDataReader.

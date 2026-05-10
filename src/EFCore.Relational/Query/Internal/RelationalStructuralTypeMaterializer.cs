@@ -44,7 +44,6 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
     private readonly IKey? _primaryKey;
     private readonly KeyColumnInfo[]? _keyColumns;
     private readonly bool _isTracking;
-    private ResultContext? _joinResultContext;
 
     /// <summary>
     ///     For nullable structural types (table-split optional dependents or optional complex types):
@@ -686,6 +685,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 if (entry is not null)
                 {
                     fromIdentityMap = true;
+                    JoinEntityMaterializer?.Materialize(queryContext, dataReader, new ResultContext(), null!);
                     return (TStructuralType)entry.Entity;
                 }
             }
@@ -731,7 +731,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             // For many-to-many skip navigations: materialize the join entity so it gets tracked.
             // FetchJoinEntity is only inserted for tracking queries, so JoinEntityMaterializer
             // is only non-null here.
-            JoinEntityMaterializer?.Materialize(queryContext, dataReader, _joinResultContext ??= new ResultContext(), null!);
+            JoinEntityMaterializer?.Materialize(queryContext, dataReader, new ResultContext(), null!);
         }
 
         return instance;

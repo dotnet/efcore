@@ -1,18 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
-using System.Data.Common;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -35,6 +29,9 @@ public partial class RelationalMaterializerFactory(
     ICoreSingletonOptions coreSingletonOptions,
     IEnumerable<ISingletonInterceptor> singletonInterceptors)
 {
+    private static readonly MethodInfo ReadTypedValueMethod
+        = typeof(RelationalMaterializerFactory).GetTypeInfo().GetDeclaredMethod(nameof(ReadTypedValue))!;
+
     private readonly bool _detailedErrorsEnabled = coreSingletonOptions.AreDetailedErrorsEnabled;
     private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
     private readonly IInstantiationBindingInterceptor[] _bindingInterceptors =
@@ -154,16 +151,15 @@ public partial class RelationalMaterializerFactory(
         SelectExpression select,
         bool isTracking,
         ref int nextCollectionId,
-        List<SplitCollectionIncludeInfo>? splitCollectionInfos = null)
+        List<SplitCollectionIncludeInfo>? splitCollectionInfos = null,
+        Type? resultType = null)
     {
-        // Strip top-level Convert nodes that are just boxing/widening (e.g. Convert(entity, object)).
-        // Do NOT strip if the Convert is doing actual value conversion (e.g. string → DateTimeOffset)
-        // — those need to flow through the default/fallback expression compilation path.
-        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } convert
-            && (convert.Type == typeof(object) || convert.Type.IsAssignableFrom(convert.Operand.Type)))
-        {
-            shaperExpression = convert.Operand;
-        }
+        resultType ??= typeof(T);
+        Check.DebugAssert(
+            typeof(T).IsAssignableFrom(resultType),
+            $"Materializer result type '{resultType.DisplayName()}' must be assignable to '{typeof(T).DisplayName()}'.");
+
+        shaperExpression = StripIgnorableConvert(shaperExpression);
 
         switch (shaperExpression)
         {
@@ -241,6 +237,14 @@ public partial class RelationalMaterializerFactory(
 
                 if (typeof(T) != typeof(object))
                 {
+                    // Cast/convert wrappers can make TResult differ from the structural shaper CLR type
+                    // (e.g. Cast<Derived>() over a base structural shaper). In that case, use the boxed
+                    // Materialize path and let the runtime cast enforce query semantics.
+                    if (entityMaterializer.StructuralType.ClrType != typeof(T))
+                    {
+                        return (queryCtx, reader, rc, coord) => (T?)entityMaterializer.Materialize(queryCtx, reader, rc, coord);
+                    }
+
                     // For nullable value type projections (e.g. Select(x => x.OptionalComplexProp) where the
                     // complex type is a struct), T is Nullable<TStruct> but the materializer's internal delegate
                     // returns TStruct (because TStructuralType? without a struct constraint doesn't produce
@@ -258,7 +262,8 @@ public partial class RelationalMaterializerFactory(
             // Uses the multi-call protocol: InitializeCollection on first call, PopulateCollection on
             // every call, return collection when ResultReady.
             case RelationalCollectionShaperExpression collectionShaper:
-                return BuildStandaloneCollectionMaterializer<T>(collectionShaper, select, isTracking, ref nextCollectionId);
+                return BuildStandaloneCollectionMaterializer<T>(
+                    collectionShaper, select, isTracking, ref nextCollectionId, static collection => collection);
 
             // Split-query collection projection (e.g. Select(c => new { Orders = c.Orders.ToList() })
             // with AsSplitQuery). The collection is loaded via a separate SQL query; we register it
@@ -270,9 +275,9 @@ public partial class RelationalMaterializerFactory(
                 var collectionId = nextCollectionId++;
 
                 var childSplitCollections = new List<SplitCollectionIncludeInfo>();
-                var childMaterializer = BuildMaterializerFromShaper(
+                var childMaterializer = BuildMaterializer<object>(
                     splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
-                    isTracking, childSplitCollections, ref nextCollectionId);
+                    isTracking, ref nextCollectionId, childSplitCollections);
 
                 var parentIdentifier = CompileIdentifierLambda(
                     splitCollectionShaper.ParentIdentifier, select);
@@ -284,6 +289,7 @@ public partial class RelationalMaterializerFactory(
 
                 var navigation = splitCollectionShaper.Navigation;
                 var collectionAccessor = navigation?.GetCollectionAccessor();
+                var collectionAdd = CreateCollectionAddDelegate(splitCollectionShaper.ElementType);
 
                 splitCollectionInfos.Add(new SplitCollectionIncludeInfo(
                     childMaterializer,
@@ -291,6 +297,7 @@ public partial class RelationalMaterializerFactory(
                     inverseNavigation: null,
                     inverseNavigationSetter: null,
                     collectionAccessor: collectionAccessor,
+                    collectionAdd,
                     parentIdentifier,
                     childIdentifier,
                     identifierComparers,
@@ -323,21 +330,35 @@ public partial class RelationalMaterializerFactory(
                 // TODO: For JIT mode, probably better to fall through to the default case, to just compile the expression tree.
                 // But probably good to leave the optimization here for NativeAOT.
                 var invoker = ConstructorInvoker.Create(newExpression.Constructor!);
+                var parameterTypes = newExpression.Constructor.GetParameters()
+                    .Select(p => p.ParameterType)
+                    .ToArray();
                 var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
-                    subMaterializers[i] = BuildMaterializer<object>(newExpression.Arguments[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
+                    subMaterializers[i] = BuildMaterializer<object>(
+                        newExpression.Arguments[i], select, isTracking, ref nextCollectionId, splitCollectionInfos, parameterTypes[i]);
                 }
-
-                var invokerArgs = new object?[subMaterializers.Length];
 
                 return ComposeWithMultiCallProtocol<T>(
                     subMaterializers,
                     (_, _, values) =>
                     {
-                        values.CopyTo(invokerArgs.AsSpan());
+                        var invokerArgs = new object?[values.Length];
+                        values.CopyTo(invokerArgs, 0);
+
                         return (T?)invoker.Invoke(invokerArgs.AsSpan());
                     });
+            }
+
+            // Common collection terminal operators (ToList, ToArray...) over correlated collection projections.
+            // Handling these directly keeps NativeAOT on the handwritten materializer path instead of falling back to interpreted client
+            // evaluation.
+            case MethodCallExpression methodCallExpression
+                when TryGetCollectionTerminal(methodCallExpression, out var terminalCollectionShaper, out var collectionResultFinalizer):
+            {
+                return BuildStandaloneCollectionMaterializer<T>(
+                    terminalCollectionShaper, select, isTracking, ref nextCollectionId, collectionResultFinalizer);
             }
 
             // Client-evaluated expression fallback (e.g. method calls, member accesses, conditionals
@@ -364,10 +385,34 @@ public partial class RelationalMaterializerFactory(
 
                 // Build materializers for extracted sub-expressions (entities and scalars).
                 var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[rewriter.ExtractedSubExpressions.Count];
+                var splitCollectionStartIndexes = splitCollectionInfos is null ? null : new int[subMaterializers.Length];
+                object[]? currentValues = null;
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
+                    if (splitCollectionStartIndexes is not null)
+                    {
+                        splitCollectionStartIndexes[i] = splitCollectionInfos!.Count;
+                    }
+
                     subMaterializers[i] = BuildMaterializer<object>(
                         rewriter.ExtractedSubExpressions[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
+                }
+
+                if (splitCollectionStartIndexes is not null)
+                {
+                    var splitCollectionInfosLocal = splitCollectionInfos!;
+
+                    for (var i = 0; i < subMaterializers.Length; i++)
+                    {
+                        var subMaterializerIndex = i;
+                        var startIndex = splitCollectionStartIndexes[i];
+                        var endIndex = i + 1 < subMaterializers.Length ? splitCollectionStartIndexes[i + 1] : splitCollectionInfosLocal.Count;
+
+                        for (var j = startIndex; j < endIndex; j++)
+                        {
+                            splitCollectionInfosLocal[j].ParentEntityProvider ??= () => currentValues?[subMaterializerIndex];
+                        }
+                    }
                 }
 
                 var projectionFunc = Lambda<Func<QueryContext, DbDataReader, object[], T?>>(
@@ -378,8 +423,16 @@ public partial class RelationalMaterializerFactory(
                     return (queryCtx, reader, rc, coord) => projectionFunc(queryCtx, reader, []);
                 }
 
-                return ComposeWithMultiCallProtocol<T>(subMaterializers, (queryCtx, reader, values)
+                var composedMaterializer = ComposeWithMultiCallProtocol<T>(subMaterializers, (queryCtx, reader, values)
                     => projectionFunc(queryCtx, reader, values));
+
+                return (queryCtx, reader, rc, coord) =>
+                {
+                    var result = composedMaterializer(queryCtx, reader, rc, coord);
+                    currentValues = rc.Values;
+
+                    return result;
+                };
             }
         }
     }
@@ -395,14 +448,10 @@ public partial class RelationalMaterializerFactory(
         Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[] subMaterializers,
         Func<QueryContext, DbDataReader, object[], T?> resultComposer)
     {
-        var subContexts = new ResultContext[subMaterializers.Length];
-        for (var i = 0; i < subContexts.Length; i++)
-        {
-            subContexts[i] = new ResultContext();
-        }
-
         return (queryCtx, reader, rc, coord) =>
         {
+            var subContexts = rc.GetNestedResultContexts(subMaterializers.Length);
+
             if (rc.Values is null)
             {
                 for (var i = 0; i < subContexts.Length; i++)
@@ -455,7 +504,11 @@ public partial class RelationalMaterializerFactory(
                 {
                     if (subContexts[i].Values is not null)
                     {
-                        subMaterializers[i](queryCtx, reader, subContexts[i], coord);
+                        var result = subMaterializers[i](queryCtx, reader, subContexts[i], coord);
+                        if (coord.ResultReady)
+                        {
+                            rc.Values[i] = result!;
+                        }
                     }
                 }
             }
@@ -509,71 +562,6 @@ public partial class RelationalMaterializerFactory(
                     return Convert(
                         ArrayIndex(_entityValuesParam, Constant(index)),
                         projectionBinding.Type);
-                }
-
-                case ProjectionBindingExpression projectionBinding:
-                {
-                    var projectionIndex = SelectExpression.GetProjection(projectionBinding).GetConstantValue<object>();
-                    if (projectionIndex is not int columnIndex)
-                    {
-                        return base.VisitExtension(node);
-                    }
-
-                    var projection = SelectExpression.Projection[columnIndex];
-                    var nullable = projection.Expression is not ColumnExpression col || col.IsNullable;
-                    var typeMapping = (RelationalTypeMapping)projection.Expression.TypeMapping!;
-                    var getMethod = typeMapping.GetDataReaderMethod();
-
-                    Expression valueExpression = Call(
-                        getMethod.DeclaringType != typeof(DbDataReader)
-                            ? Convert(DataReaderParam, getMethod.DeclaringType!)
-                            : DataReaderParam,
-                        getMethod,
-                        Constant(columnIndex));
-
-                    valueExpression = typeMapping.CustomizeDataReaderExpression(valueExpression);
-
-                    var converter = typeMapping.Converter;
-                    if (converter is not null)
-                    {
-                        if (valueExpression.Type != converter.ProviderClrType)
-                        {
-                            valueExpression = Convert(valueExpression, converter.ProviderClrType);
-                        }
-
-                        valueExpression = ReplacingExpressionVisitor.Replace(
-                            converter.ConvertFromProviderExpression.Parameters.Single(),
-                            valueExpression,
-                            converter.ConvertFromProviderExpression.Body);
-                    }
-
-                    if (valueExpression.Type != projectionBinding.Type)
-                    {
-                        valueExpression = Convert(valueExpression, projectionBinding.Type);
-                    }
-
-                    if (nullable)
-                    {
-                        var targetType = projectionBinding.Type;
-
-                        // For non-nullable value types from nullable columns, throw
-                        // InvalidOperationException (matching Nullable<T>.Value behavior)
-                        // instead of returning default.
-                        var nullValue = targetType.IsValueType && Nullable.GetUnderlyingType(targetType) is null
-                            ? Throw(
-                                New(
-                                    typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
-                                    Constant("Nullable object must have a value.")),
-                                targetType)
-                            : (Expression)Default(targetType);
-
-                        valueExpression = Condition(
-                            Call(DataReaderParam, IsDbNullMethod, Constant(columnIndex)),
-                            nullValue,
-                            valueExpression);
-                    }
-
-                    return valueExpression;
                 }
 
                 case RelationalStructuralTypeShaperExpression or IncludeExpression
@@ -630,7 +618,8 @@ public partial class RelationalMaterializerFactory(
         RelationalCollectionShaperExpression collectionShaper,
         SelectExpression select,
         bool isTracking,
-        ref int nextCollectionId)
+        ref int nextCollectionId,
+        Func<object, object?> resultFinalizer)
     {
         var collectionId = nextCollectionId++;
 
@@ -654,12 +643,7 @@ public partial class RelationalMaterializerFactory(
         var navigation = collectionShaper.Navigation;
         var collectionAccessor = navigation?.GetCollectionAccessor();
 
-        // Build a typed add delegate: (collection, element) => ((ICollection<TElement>)collection).Add((TElement)element).
-        // This works for any ICollection<T> including HashSet<T>, unlike IList.Add.
-        var addMethod = typeof(ICollection<>).MakeGenericType(collectionShaper.ElementType)
-            .GetMethod(nameof(ICollection<object>.Add))!;
-        Action<object, object?> collectionAdd = (collection, element) =>
-            addMethod.Invoke(collection, [element]);
+        var collectionAdd = CreateCollectionAddDelegate(collectionShaper.ElementType);
 
         // Mirrors the generated shaper structure: InitializeCollection on first call,
         // PopulateCollection on every call, return collection when ResultReady.
@@ -687,7 +671,7 @@ public partial class RelationalMaterializerFactory(
                 innerElementMaterializer,
                 collectionAdd);
 
-            return resultCoordinator.ResultReady ? (T)resultContext.Values[0] : default;
+            return resultCoordinator.ResultReady ? (T?)resultFinalizer(resultContext.Values[0]) : default;
         };
     }
 
@@ -816,6 +800,8 @@ public partial class RelationalMaterializerFactory(
         List<SplitCollectionIncludeInfo>? splitCollectionInfos,
         ref int nextCollectionId)
     {
+        shaperExpression = StripIgnorableConvert(shaperExpression);
+
         switch (shaperExpression)
         {
             case RelationalStructuralTypeShaperExpression
@@ -966,17 +952,19 @@ public partial class RelationalMaterializerFactory(
                         var collectionAccessor = navigation.GetCollectionAccessor()!;
 
                         splitCollectionInfos.Add(new SplitCollectionIncludeInfo(
-                            childMaterializer,
+                            childMaterializer.Materialize,
                             navigation,
                             inverseNavigation,
                             inverseNavSetter,
                             collectionAccessor,
+                            collectionAdd: null,
                             parentIdentifier,
                             childIdentifier,
                             identifierComparers,
                             collectionId,
                             splitCollectionShaper.SelectExpression,
                             childSplitCollections,
+                            childMaterializer,
                             parentEntityProvider: null));
 
                         return innerMaterializer;
@@ -1051,12 +1039,9 @@ public partial class RelationalMaterializerFactory(
                     splitCollectionInfos, ref nextCollectionId);
 
                 // Build and store the join entity materializer so it gets materialized for tracking.
-                // The join entity is needed for the state manager to establish the many-to-many relationship.
-                var joinMaterializer = BuildMaterializerFromShaper(
+                targetMaterializer.JoinEntityMaterializer = BuildMaterializerFromShaper(
                     joinShaper, selectExpression, isTracking,
                     splitCollectionInfos, ref nextCollectionId);
-
-                targetMaterializer.JoinEntityMaterializer = joinMaterializer;
 
                 return targetMaterializer;
             }
@@ -1064,6 +1049,37 @@ public partial class RelationalMaterializerFactory(
             default:
                 throw new NotImplementedException(
                     $"The non-generated materializer does not yet support shaper expression type '{shaperExpression.GetType().Name}': {shaperExpression}.");
+        }
+    }
+
+    private static Expression StripIgnorableConvert(Expression expression)
+    {
+        while (expression is UnaryExpression
+               {
+                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+               } unaryExpression
+               && CanIgnoreConvertWrapper(unaryExpression))
+        {
+            expression = unaryExpression.Operand;
+        }
+
+        return expression;
+
+        static bool CanIgnoreConvertWrapper(UnaryExpression unaryExpression)
+        {
+            // Ignore only built-in reference/identity casts used for expression typing; these
+            // wrappers don't carry additional materialization semantics.
+            if (unaryExpression.Method is not null)
+            {
+                return false;
+            }
+
+            var operandType = unaryExpression.Operand.Type;
+            var targetType = unaryExpression.Type;
+
+            return !operandType.IsValueType
+                && !targetType.IsValueType
+                && (targetType.IsAssignableFrom(operandType) || operandType.IsAssignableFrom(targetType));
         }
     }
 
@@ -1084,6 +1100,68 @@ public partial class RelationalMaterializerFactory(
         var materializerType = typeof(RelationalStructuralTypeMaterializer<>).MakeGenericType(structuralType.ClrType);
         return (RelationalStructuralTypeMaterializer)Activator.CreateInstance(
             materializerType, structuralType, propertyIndexMap, isTracking, isNullable, _bindingInterceptors)!;
+    }
+
+    private static Action<object, object?> CreateCollectionAddDelegate(Type elementType)
+    {
+        var addMethod = typeof(ICollection<>).MakeGenericType(elementType)
+            .GetMethod(nameof(ICollection<object>.Add))!;
+
+        return (collection, element) => addMethod.Invoke(collection, [element]);
+    }
+
+    private static bool TryGetCollectionTerminal(
+        MethodCallExpression methodCallExpression,
+        [NotNullWhen(true)] out RelationalCollectionShaperExpression? collectionShaper,
+        [NotNullWhen(true)] out Func<object, object?>? resultFinalizer)
+    {
+        collectionShaper = null;
+        resultFinalizer = null;
+
+        if (methodCallExpression.Method.DeclaringType != typeof(Enumerable)
+            || !methodCallExpression.Method.IsGenericMethod
+            || methodCallExpression.Arguments is not [var source]
+            || StripIgnorableConvert(source) is not RelationalCollectionShaperExpression relationalCollectionShaper)
+        {
+            return false;
+        }
+
+        collectionShaper = relationalCollectionShaper;
+
+        switch (methodCallExpression.Method.Name)
+        {
+            case nameof(Enumerable.ToArray):
+            {
+                var terminalMethod = methodCallExpression.Method;
+                resultFinalizer = collection => terminalMethod.Invoke(null, [collection]);
+                return true;
+            }
+
+            case nameof(Enumerable.ToList):
+            {
+                var resultType = methodCallExpression.Type;
+                resultFinalizer = collection =>
+                {
+                    Check.DebugAssert(
+                        resultType.IsInstanceOfType(collection),
+                        $"Collection accumulator type '{collection.GetType().DisplayName()}' must match ToList result type '{resultType.DisplayName()}'.");
+
+                    return collection;
+                };
+
+                return true;
+            }
+
+            case nameof(Enumerable.ToHashSet) when methodCallExpression.Arguments.Count == 1:
+            {
+                var terminalMethod = methodCallExpression.Method;
+                resultFinalizer = collection => terminalMethod.Invoke(null, [collection]);
+                return true;
+            }
+
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -1155,31 +1233,63 @@ public partial class RelationalMaterializerFactory(
             if (node is ProjectionBindingExpression pbe)
             {
                 var columnIndex = (int)SelectExpression.GetProjection(pbe).GetConstantValue<object>();
-                return CreateReaderGetValue(columnIndex, pbe.Type);
+                var projectionExpression = SelectExpression.Projection[columnIndex].Expression;
+
+                return CreateReaderGetValue(
+                    columnIndex,
+                    pbe.Type,
+                    projectionExpression,
+                    projectionExpression is not ColumnExpression columnExpression || columnExpression.IsNullable);
             }
 
             return base.VisitExtension(node);
         }
 
-        private Expression CreateReaderGetValue(int columnIndex, Type targetType)
+        private Expression CreateReaderGetValue(
+            int columnIndex,
+            Type targetType,
+            SqlExpression projectionExpression,
+            bool nullable)
         {
             var indexExpr = Constant(columnIndex);
+            var typeMapping = (RelationalTypeMapping)projectionExpression.TypeMapping!;
+            Check.DebugAssert(
+                typeMapping is not null,
+                $"Projection expression '{projectionExpression}' must have a relational type mapping.");
 
-            var getFieldValueMethod = typeof(DbDataReader)
-                .GetMethod(nameof(DbDataReader.GetFieldValue))!
-                .MakeGenericMethod(targetType.UnwrapNullableType());
+            var typedReader = typeMapping.CreateReader(columnIndex);
+            Expression valueExpression = Call(
+                ReadTypedValueMethod,
+                DataReaderParam,
+                Constant(typedReader, typeof(ITypedValueReader<DbDataReader>)));
 
-            if (targetType.IsNullableType())
+            if (valueExpression.Type != targetType.UnwrapNullableType())
             {
-                return Condition(
-                    Call(DataReaderParam, IsDbNullMethod, indexExpr),
-                    Default(targetType),
-                    Convert(
-                        Call(DataReaderParam, getFieldValueMethod, indexExpr),
-                        targetType));
+                valueExpression = Convert(valueExpression, targetType.UnwrapNullableType());
             }
 
-            return Call(DataReaderParam, getFieldValueMethod, indexExpr);
+            if (nullable)
+            {
+                var nullValue = targetType.IsValueType && Nullable.GetUnderlyingType(targetType) is null
+                    ? Throw(
+                        New(
+                            typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
+                            Constant("Nullable object must have a value.")),
+                        targetType)
+                    : (Expression)Default(targetType);
+
+                if (valueExpression.Type != targetType)
+                {
+                    valueExpression = Convert(valueExpression, targetType);
+                }
+
+                return Condition(
+                    Call(DataReaderParam, IsDbNullMethod, indexExpr),
+                    nullValue,
+                    valueExpression);
+            }
+
+            return valueExpression;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -1421,4 +1531,7 @@ public partial class RelationalMaterializerFactory(
             throw new InvalidOperationException(message, e);
         }
     }
+
+    private static object? ReadTypedValue(DbDataReader reader, ITypedValueReader<DbDataReader> typedReader)
+        => typedReader.Read<object>(reader);
 }
