@@ -327,6 +327,73 @@ ALTER TABLE [People] ADD FOREIGN KEY ([SpouseId]) REFERENCES [People];
     }
 
     [ConditionalFact]
+    public virtual void AlterColumnOperation_computed_column_with_only_clr_type_change_is_noop()
+    {
+        // Regression test for #33425: when the CLR type of a property mapped to a computed column
+        // changes (e.g. int → long for a column with .HasComputedColumnSql("DATALENGTH(...)")) but
+        // the expression and IsStored are unchanged, no SQL should be emitted. SQL Server rejects
+        // ALTER COLUMN on computed columns with "Cannot alter column ... because it is 'COMPUTED'",
+        // and the underlying database column's type is derived from the expression — there is
+        // nothing to change.
+        Generate(
+            new AlterColumnOperation
+            {
+                Table = "Files",
+                Name = "FileSize",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                IsNullable = false,
+                ComputedColumnSql = "DATALENGTH([FileContents])",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    ComputedColumnSql = "DATALENGTH([FileContents])"
+                }
+            });
+
+        AssertSql("");
+    }
+
+    [ConditionalFact]
+    public virtual void AlterColumnOperation_computed_column_with_changed_expression_drops_and_adds()
+    {
+        // Regression guard: when the computed column expression itself changes, SQL Server still
+        // cannot ALTER COLUMN — but a drop+add is required to apply the new expression. This path
+        // must remain intact.
+        Generate(
+            new AlterColumnOperation
+            {
+                Table = "Files",
+                Name = "FileSize",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                IsNullable = false,
+                ComputedColumnSql = "LEN([FileContents])",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    ComputedColumnSql = "DATALENGTH([FileContents])"
+                }
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Files]') AND [c].[name] = N'FileSize');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Files] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [Files] DROP COLUMN [FileSize];
+ALTER TABLE [Files] ADD [FileSize] AS LEN([FileContents]);
+""");
+    }
+
+    [ConditionalFact]
     public virtual void AlterColumnOperation_with_identity_legacy()
     {
         Generate(
