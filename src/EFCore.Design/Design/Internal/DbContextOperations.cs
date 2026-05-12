@@ -711,6 +711,9 @@ public class DbContextOperations
         string name,
         bool throwOnEmpty)
     {
+        if (name == "*")
+            return types;
+        
         var candidates = FilterTypes(types, name, StringComparison.OrdinalIgnoreCase);
         if (candidates.Count == 0)
         {
