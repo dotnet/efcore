@@ -121,19 +121,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace My.Gnomespace.Data
+namespace My.Gnomespace.Data;
+
+[DbContext(typeof(OperationExecutorTest.GnomeContext))]
+[Migration("11112233445566_{{migrationName}}")]
+partial class {{migrationTypeName}}
 {
-    [DbContext(typeof(OperationExecutorTest.GnomeContext))]
-    [Migration("11112233445566_{{migrationName}}")]
-    partial class {{migrationTypeName}}
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
+        modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -145,22 +144,21 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace My.Gnomespace.Data
+namespace My.Gnomespace.Data;
+
+/// <inheritdoc />
+public partial class {{migrationTypeName}} : Migration
 {
     /// <inheritdoc />
-    public partial class {{migrationTypeName}} : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
 
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
 
-        }
     }
 }
 
@@ -176,22 +174,21 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace My.Gnomespace.Data
-{
-    [DbContext(typeof(OperationExecutorTest.GnomeContext))]
-    partial class GnomeContextModelSnapshot : ModelSnapshot
-    {
-        // If you encounter a merge conflict in the line below, it means you need to
-        // discard one of the migration branches and recreate its migrations on top of
-        // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-        public override string LastMigrationId => "11112233445566_{{migrationName}}";
+namespace My.Gnomespace.Data;
 
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
+[DbContext(typeof(OperationExecutorTest.GnomeContext))]
+partial class GnomeContextModelSnapshot : ModelSnapshot
+{
+    // If you encounter a merge conflict in the line below, it means you need to
+    // discard one of the migration branches and recreate its migrations on top of
+    // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
+    public override string LastMigrationId => "11112233445566_{{migrationName}}";
+
+    protected override void BuildModel(ModelBuilder modelBuilder)
+    {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
+        modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
 #pragma warning restore 612, 618
-        }
     }
 }
 
