@@ -77,7 +77,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(

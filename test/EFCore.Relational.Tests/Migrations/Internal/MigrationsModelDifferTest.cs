@@ -8370,6 +8370,35 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Seed_data_with_NFD_vs_NFC_unicode_string_is_considered_unchanged()
+    {
+        var nfcString = "Caf\u00E9";
+        var nfdString = "Cafe\u0301";
+
+        Assert.NotEqual(nfcString, nfdString);
+        Assert.Equal(nfcString, nfdString.Normalize());
+
+        Execute(
+            source => source.Entity(
+                "BusinessType",
+                x =>
+                {
+                    x.Property<int>("BusinessTypeId");
+                    x.Property<string>("WebDescription");
+                    x.HasData(new { BusinessTypeId = 28, WebDescription = nfcString });
+                }),
+            target => target.Entity(
+                "BusinessType",
+                x =>
+                {
+                    x.Property<int>("BusinessTypeId");
+                    x.Property<string>("WebDescription");
+                    x.HasData(new { BusinessTypeId = 28, WebDescription = nfdString });
+                }),
+            operations => Assert.Empty(operations));
+    }
+
+    [ConditionalFact]
     public void Change_TPT_to_TPC_with_excluded_base()
         => Execute(
             common =>

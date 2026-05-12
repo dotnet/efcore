@@ -160,15 +160,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             discriminator.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -443,7 +443,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -473,7 +473,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -527,15 +527,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -549,15 +549,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -603,15 +603,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             refTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -625,15 +625,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -687,7 +687,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -717,7 +717,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
@@ -779,7 +779,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -850,7 +850,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -921,7 +921,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -992,7 +992,7 @@ namespace TestNamespace
                     int (short v) => ((int)v),
                     short (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(

@@ -88,7 +88,7 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_string()
-        => Can_map_scalar_by_clr_type<string, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"");
+        => Can_map_scalar_by_clr_type<string, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"", "DefaultStringValueComparer");
 
     [ConditionalFact]
     public void Can_map_nullable_sbyte()
@@ -168,7 +168,7 @@ public class CosmosTypeMappingSourceTest
 
     [ConditionalFact]
     public void Can_map_nullable_string()
-        => Can_map_scalar_by_clr_type<string?, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"");
+        => Can_map_scalar_by_clr_type<string?, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"", "DefaultStringValueComparer");
 
     private void Can_map_scalar_by_clr_type<T, TReader>(T value, JTokenType tokenType, string jsonValue, string? comparerType = null)
     {
@@ -206,7 +206,7 @@ public class CosmosTypeMappingSourceTest
         Assert.Same(mapping.GetType(), mapping.Clone().GetType());
         Assert.Equal("ValueComparer<byte[]>", mapping.Comparer.GetType().ShortDisplayName());
         Assert.Equal("ValueComparer<byte[]>", mapping.KeyComparer.GetType().ShortDisplayName());
-        Assert.Equal("DefaultValueComparer<string>", mapping.ProviderValueComparer.GetType().ShortDisplayName());
+        Assert.Equal("DefaultStringValueComparer", mapping.ProviderValueComparer.GetType().ShortDisplayName());
         Assert.IsType<JsonConvertedValueReaderWriter<byte[], string>>(mapping.JsonValueReaderWriter);
         Assert.Equal("\"AQIDBAU=\"", mapping.GenerateConstant(value));
         var token = mapping.GenerateJToken(value)!;
@@ -336,7 +336,7 @@ public class CosmosTypeMappingSourceTest
         Assert.Same(mapping.GetType(), mapping.Clone().GetType());
         Assert.Equal("DefaultValueComparer<Guid>", mapping.Comparer.GetType().ShortDisplayName());
         Assert.Equal("DefaultValueComparer<Guid>", mapping.KeyComparer.GetType().ShortDisplayName());
-        Assert.Equal("DefaultValueComparer<string>", mapping.ProviderValueComparer.GetType().ShortDisplayName());
+        Assert.Equal("DefaultStringValueComparer", mapping.ProviderValueComparer.GetType().ShortDisplayName());
         Assert.IsType<JsonConvertedValueReaderWriter<Guid, string>>(mapping.JsonValueReaderWriter);
 
         Assert.Equal("\"39e5debb-8826-4996-b68d-f9c05e687a86\"", mapping.GenerateConstant(value));

@@ -183,7 +183,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<bool>(new JsonCollectionOfStructsReaderWriter<bool[], bool>(
@@ -249,7 +249,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<bool[]>(new JsonCollectionOfReferencesReaderWriter<bool[][], bool[]>(
@@ -268,7 +268,7 @@ namespace TestNamespace
                         int (bool v) => ((object)v).GetHashCode(),
                         bool (bool v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<bool>(new JsonCollectionOfStructsReaderWriter<bool[], bool>(
@@ -334,7 +334,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<bool>(new JsonCollectionOfStructsReaderWriter<List<bool>, bool>(
@@ -400,7 +400,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<bool, string>(
@@ -610,7 +610,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionOfReferencesReaderWriter<byte[][], byte[]>(
@@ -676,7 +676,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte[][]>(new JsonCollectionOfReferencesReaderWriter<byte[][][], byte[][]>(
@@ -695,7 +695,7 @@ namespace TestNamespace
                         int (byte[] v) => ((object)v).GetHashCode(),
                         byte[] (byte[] v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionOfReferencesReaderWriter<byte[][], byte[]>(
@@ -763,7 +763,7 @@ namespace TestNamespace
                     int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)v)),
                     byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<byte[], string>(
@@ -919,7 +919,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<char>(new JsonCollectionOfStructsReaderWriter<char[], char>(
@@ -985,7 +985,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<char[]>(new JsonCollectionOfReferencesReaderWriter<char[][], char[]>(
@@ -1004,7 +1004,7 @@ namespace TestNamespace
                         int (char v) => ((int)v),
                         char (char v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<char>(new JsonCollectionOfStructsReaderWriter<char[], char>(
@@ -1071,7 +1071,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<char, string>(
@@ -1173,7 +1173,7 @@ namespace TestNamespace
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<DateOnly>(new JsonCollectionOfStructsReaderWriter<DateOnly[], DateOnly>(
@@ -1240,7 +1240,7 @@ namespace TestNamespace
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<DateOnly, string>(
@@ -1342,7 +1342,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
@@ -1519,7 +1519,7 @@ namespace TestNamespace
                     int (DateTimeOffset v) => ((object)v).GetHashCode(),
                     DateTimeOffset (DateTimeOffset v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<DateTimeOffset, string>(
@@ -1629,7 +1629,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<DateTime, string>(
@@ -1779,7 +1779,7 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<decimal>(new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
@@ -1901,7 +1901,7 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<decimal, string>(
@@ -2003,7 +2003,7 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<double>(new JsonCollectionOfStructsReaderWriter<double[], double>(
@@ -2125,7 +2125,7 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<double, string>(
@@ -2227,7 +2227,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
@@ -2294,7 +2294,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
@@ -2348,7 +2348,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
@@ -2373,7 +2373,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
@@ -2429,7 +2429,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
@@ -2454,7 +2454,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
@@ -2510,7 +2510,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
@@ -2624,7 +2624,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
@@ -2691,7 +2691,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
@@ -2745,7 +2745,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
@@ -2770,7 +2770,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
@@ -2826,7 +2826,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
@@ -2851,7 +2851,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
@@ -2907,7 +2907,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
@@ -2973,7 +2973,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<List<CompiledModelTestBase.Enum32>[]>(new JsonCollectionOfReferencesReaderWriter<List<CompiledModelTestBase.Enum32>[][], List<CompiledModelTestBase.Enum32>[]>(
@@ -2994,7 +2994,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<List<CompiledModelTestBase.Enum32>>(new JsonCollectionOfReferencesReaderWriter<List<CompiledModelTestBase.Enum32>[], List<CompiledModelTestBase.Enum32>>(
@@ -3013,7 +3013,7 @@ namespace TestNamespace
                             int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v)),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
@@ -3127,7 +3127,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
@@ -3194,7 +3194,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
@@ -3248,7 +3248,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
@@ -3273,7 +3273,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
@@ -3329,7 +3329,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
@@ -3354,7 +3354,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
@@ -3410,7 +3410,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
@@ -3524,7 +3524,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
@@ -3591,7 +3591,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
@@ -3645,7 +3645,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
@@ -3670,7 +3670,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
@@ -3726,7 +3726,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
@@ -3751,7 +3751,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
@@ -3807,7 +3807,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
@@ -3873,7 +3873,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8[]>(new JsonCollectionOfReferencesReaderWriter<CompiledModelTestBase.Enum8[][], CompiledModelTestBase.Enum8[]>(
@@ -3892,7 +3892,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
@@ -4014,7 +4014,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
@@ -4116,7 +4116,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
@@ -4183,7 +4183,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
@@ -4237,7 +4237,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
@@ -4262,7 +4262,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
@@ -4318,7 +4318,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
@@ -4343,7 +4343,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
@@ -4399,7 +4399,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
@@ -4513,7 +4513,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
@@ -4580,7 +4580,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
@@ -4634,7 +4634,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
@@ -4659,7 +4659,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
@@ -4715,7 +4715,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
@@ -4740,7 +4740,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
@@ -4796,7 +4796,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
@@ -4910,7 +4910,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
@@ -4977,7 +4977,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
@@ -5031,7 +5031,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
@@ -5056,7 +5056,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
@@ -5112,7 +5112,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
@@ -5137,7 +5137,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
@@ -5193,7 +5193,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
@@ -5259,7 +5259,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64[]>(new JsonCollectionOfReferencesReaderWriter<CompiledModelTestBase.EnumU64[][], CompiledModelTestBase.EnumU64[]>(
@@ -5278,7 +5278,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
@@ -5392,7 +5392,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
@@ -5459,7 +5459,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
@@ -5513,7 +5513,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
@@ -5538,7 +5538,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
@@ -5594,7 +5594,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
@@ -5619,7 +5619,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
@@ -5675,7 +5675,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionOfStructsReaderWriter<List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
@@ -5789,7 +5789,7 @@ namespace TestNamespace
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<float>(new JsonCollectionOfStructsReaderWriter<float[], float>(
@@ -5903,7 +5903,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<Guid>(new JsonCollectionOfStructsReaderWriter<Guid[], Guid>(
@@ -5969,7 +5969,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v)))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<Guid[][]>(new JsonCollectionOfReferencesReaderWriter<List<Guid[][]>, Guid[][]>(
@@ -5990,7 +5990,7 @@ namespace TestNamespace
                         int (Guid v) => ((object)v).GetHashCode(),
                         Guid (Guid v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<Guid[]>(new JsonCollectionOfReferencesReaderWriter<Guid[][], Guid[]>(
@@ -6009,7 +6009,7 @@ namespace TestNamespace
                             int (Guid v) => ((object)v).GetHashCode(),
                             Guid (Guid v) => v)),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<Guid>(new JsonCollectionOfStructsReaderWriter<Guid[], Guid>(
@@ -6131,7 +6131,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<Guid, string>(
@@ -6185,7 +6185,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<IPAddress, string>(
@@ -6238,7 +6238,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
@@ -6263,7 +6263,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<IPAddress, string>(
@@ -6318,7 +6318,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
@@ -6343,7 +6343,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<IPAddress, string>(
@@ -6454,7 +6454,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<IPAddress, string>(
@@ -6555,7 +6555,7 @@ namespace TestNamespace
                     int (short v) => ((int)v),
                     short (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<short[], short>(
@@ -6669,7 +6669,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<int>(new JsonCollectionOfStructsReaderWriter<int[], int>(
@@ -6735,7 +6735,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<int[]>(new JsonCollectionOfReferencesReaderWriter<int[][], int[]>(
@@ -6754,7 +6754,7 @@ namespace TestNamespace
                         int (int v) => v,
                         int (int v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<int>(new JsonCollectionOfStructsReaderWriter<int[], int>(
@@ -6820,7 +6820,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<int>(new JsonCollectionOfStructsReaderWriter<List<int>, int>(
@@ -6934,7 +6934,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<long>(new JsonCollectionOfStructsReaderWriter<long[], long>(
@@ -7000,7 +7000,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v)))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<IList<long[]>>(new JsonCollectionOfReferencesReaderWriter<IList<long[]>[], IList<long[]>>(
@@ -7021,7 +7021,7 @@ namespace TestNamespace
                         int (long v) => ((object)v).GetHashCode(),
                         long (long v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<long[]>(new JsonCollectionOfReferencesReaderWriter<List<long[]>, long[]>(
@@ -7040,7 +7040,7 @@ namespace TestNamespace
                             int (long v) => ((object)v).GetHashCode(),
                             long (long v) => v)),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<long>(new JsonCollectionOfStructsReaderWriter<long[], long>(
@@ -7154,7 +7154,7 @@ namespace TestNamespace
                     int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<sbyte>(new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
@@ -7220,7 +7220,7 @@ namespace TestNamespace
                     int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v)))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<sbyte[][]>(new JsonCollectionOfReferencesReaderWriter<sbyte[][][], sbyte[][]>(
@@ -7241,7 +7241,7 @@ namespace TestNamespace
                         int (sbyte v) => ((int)v),
                         sbyte (sbyte v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<sbyte[]>(new JsonCollectionOfReferencesReaderWriter<sbyte[][], sbyte[]>(
@@ -7260,7 +7260,7 @@ namespace TestNamespace
                             int (sbyte v) => ((int)v),
                             sbyte (sbyte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<sbyte>(new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
@@ -7382,7 +7382,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<int, string>(
@@ -7438,7 +7438,7 @@ namespace TestNamespace
                     int (int? v) => ((int)v),
                     int? (int? v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<int?, string>(
@@ -7543,7 +7543,7 @@ namespace TestNamespace
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<bool?>(new JsonCollectionOfNullableStructsReaderWriter<bool?[], bool>(
@@ -7659,7 +7659,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionOfReferencesReaderWriter<byte[][], byte[]>(
@@ -7726,7 +7726,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte[][]>(new JsonCollectionOfReferencesReaderWriter<byte[][][], byte[][]>(
@@ -7745,7 +7745,7 @@ namespace TestNamespace
                         int (byte[] v) => ((object)v).GetHashCode(),
                         byte[] (byte[] v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionOfReferencesReaderWriter<byte[][], byte[]>(
@@ -7861,7 +7861,7 @@ namespace TestNamespace
                     int (char v) => ((int)v),
                     char (char v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<char?>(new JsonCollectionOfNullableStructsReaderWriter<char?[], char>(
@@ -7979,7 +7979,7 @@ namespace TestNamespace
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<DateOnly?>(new JsonCollectionOfNullableStructsReaderWriter<DateOnly?[], DateOnly>(
@@ -8097,7 +8097,7 @@ namespace TestNamespace
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<DateTime?>(new JsonCollectionOfNullableStructsReaderWriter<DateTime?[], DateTime>(
@@ -8215,7 +8215,7 @@ namespace TestNamespace
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<decimal?>(new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
@@ -8333,7 +8333,7 @@ namespace TestNamespace
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<double?>(new JsonCollectionOfNullableStructsReaderWriter<double?[], double>(
@@ -8451,7 +8451,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
@@ -8569,7 +8569,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
@@ -8637,7 +8637,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
@@ -8705,7 +8705,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum16 (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
@@ -8823,7 +8823,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
@@ -8941,7 +8941,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
@@ -9009,7 +9009,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
@@ -9077,7 +9077,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
@@ -9145,7 +9145,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?[][]>(new JsonCollectionOfReferencesReaderWriter<CompiledModelTestBase.Enum32?[][][], CompiledModelTestBase.Enum32?[][]>(
@@ -9166,7 +9166,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?[]>(new JsonCollectionOfReferencesReaderWriter<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(
@@ -9185,7 +9185,7 @@ namespace TestNamespace
                             int (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
                             CompiledModelTestBase.Enum32 (CompiledModelTestBase.Enum32 v) => v))),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
@@ -9301,7 +9301,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
@@ -9419,7 +9419,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
@@ -9487,7 +9487,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
@@ -9555,7 +9555,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum64 (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
@@ -9673,7 +9673,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
@@ -9791,7 +9791,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
@@ -9859,7 +9859,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
@@ -9927,7 +9927,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
@@ -9995,7 +9995,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?[]>(new JsonCollectionOfReferencesReaderWriter<CompiledModelTestBase.Enum8?[][], CompiledModelTestBase.Enum8?[]>(
@@ -10014,7 +10014,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.Enum8 (CompiledModelTestBase.Enum8 v) => v))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
@@ -10130,7 +10130,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
@@ -10248,7 +10248,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
@@ -10316,7 +10316,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
@@ -10384,7 +10384,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU16 (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
@@ -10502,7 +10502,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
@@ -10620,7 +10620,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
@@ -10688,7 +10688,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
@@ -10756,7 +10756,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU32 (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
@@ -10874,7 +10874,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
@@ -10992,7 +10992,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
@@ -11060,7 +11060,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
@@ -11128,7 +11128,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
@@ -11196,7 +11196,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?[]>(new JsonCollectionOfReferencesReaderWriter<CompiledModelTestBase.EnumU64?[][], CompiledModelTestBase.EnumU64?[]>(
@@ -11215,7 +11215,7 @@ namespace TestNamespace
                         int (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
                         CompiledModelTestBase.EnumU64 (CompiledModelTestBase.EnumU64 v) => v))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
@@ -11331,7 +11331,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
@@ -11449,7 +11449,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
@@ -11517,7 +11517,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
@@ -11585,7 +11585,7 @@ namespace TestNamespace
                     int (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
                     CompiledModelTestBase.EnumU8 (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonCollectionOfNullableStructsReaderWriter<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
@@ -11703,7 +11703,7 @@ namespace TestNamespace
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<float?>(new JsonCollectionOfNullableStructsReaderWriter<float?[], float>(
@@ -11821,7 +11821,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<Guid?>(new JsonCollectionOfNullableStructsReaderWriter<Guid?[], Guid>(
@@ -11889,7 +11889,7 @@ namespace TestNamespace
                     int (Guid v) => ((object)v).GetHashCode(),
                     Guid (Guid v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<Guid?[]>(new JsonCollectionOfReferencesReaderWriter<Guid?[][], Guid?[]>(
@@ -11908,7 +11908,7 @@ namespace TestNamespace
                         int (Guid v) => ((object)v).GetHashCode(),
                         Guid (Guid v) => v))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<Guid?>(new JsonCollectionOfNullableStructsReaderWriter<Guid?[], Guid>(
@@ -11975,7 +11975,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<IPAddress, string>(
@@ -12028,7 +12028,7 @@ namespace TestNamespace
                     int (IPAddress v) => ((object)v).GetHashCode(),
                     IPAddress (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
@@ -12053,7 +12053,7 @@ namespace TestNamespace
                         int (IPAddress v) => ((object)v).GetHashCode(),
                         IPAddress (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<IPAddress, string>(
@@ -12159,7 +12159,7 @@ namespace TestNamespace
                     int (short v) => ((int)v),
                     short (short v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<short?>(new JsonCollectionOfNullableStructsReaderWriter<short?[], short>(
@@ -12277,7 +12277,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<int?>(new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
@@ -12345,7 +12345,7 @@ namespace TestNamespace
                     int (int v) => v,
                     int (int v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<int?[]>(new JsonCollectionOfReferencesReaderWriter<int?[][], int?[]>(
@@ -12364,7 +12364,7 @@ namespace TestNamespace
                         int (int v) => v,
                         int (int v) => v))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<int?>(new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
@@ -12480,7 +12480,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<long?>(new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
@@ -12548,7 +12548,7 @@ namespace TestNamespace
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v))))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<long?[][]>(new JsonCollectionOfReferencesReaderWriter<List<long?[][]>, long?[][]>(
@@ -12569,7 +12569,7 @@ namespace TestNamespace
                         int (long v) => ((object)v).GetHashCode(),
                         long (long v) => v))))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<long?[]>(new JsonCollectionOfReferencesReaderWriter<long?[][], long?[]>(
@@ -12588,7 +12588,7 @@ namespace TestNamespace
                             int (long v) => ((object)v).GetHashCode(),
                             long (long v) => v))),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<long?>(new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
@@ -12704,7 +12704,7 @@ namespace TestNamespace
                     int (sbyte v) => ((int)v),
                     sbyte (sbyte v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<sbyte?>(new JsonCollectionOfNullableStructsReaderWriter<sbyte?[], sbyte>(
@@ -12773,7 +12773,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<PhysicalAddress, string>(
@@ -12826,7 +12826,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
@@ -12851,7 +12851,7 @@ namespace TestNamespace
                         int (PhysicalAddress v) => ((object)v).GetHashCode(),
                         PhysicalAddress (PhysicalAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<PhysicalAddress, string>(
@@ -12907,7 +12907,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v)))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<PhysicalAddress[][]>(new JsonCollectionOfReferencesReaderWriter<List<PhysicalAddress[][]>, PhysicalAddress[][]>(
@@ -12936,7 +12936,7 @@ namespace TestNamespace
                         int (PhysicalAddress v) => ((object)v).GetHashCode(),
                         PhysicalAddress (PhysicalAddress v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<PhysicalAddress[]>(new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[][], PhysicalAddress[]>(
@@ -12963,7 +12963,7 @@ namespace TestNamespace
                             int (PhysicalAddress v) => ((object)v).GetHashCode(),
                             PhysicalAddress (PhysicalAddress v) => v)),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
@@ -12988,7 +12988,7 @@ namespace TestNamespace
                                 int (PhysicalAddress v) => ((object)v).GetHashCode(),
                                 PhysicalAddress (PhysicalAddress v) => v),
                             providerValueComparer: new ValueComparer<string>(
-                                bool (string v1, string v2) => v1 == v2,
+                                bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                                 int (string v) => ((object)v).GetHashCode(),
                                 string (string v) => v),
                             converter: new ValueConverter<PhysicalAddress, string>(
@@ -13037,15 +13037,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableString.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),
@@ -13084,15 +13084,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableStringArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -13101,15 +13101,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     clrType: typeof(string),
@@ -13151,15 +13151,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableStringNestedCollection.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 keyComparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<string[]>(new JsonCollectionOfReferencesReaderWriter<string[][], string[]>(
@@ -13170,15 +13170,15 @@ namespace TestNamespace
                         JsonStringReaderWriter.Instance)),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v)),
                     keyComparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -13187,15 +13187,15 @@ namespace TestNamespace
                         JsonStringReaderWriter.Instance),
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         keyComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         clrType: typeof(string),
@@ -13294,7 +13294,7 @@ namespace TestNamespace
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<TimeOnly?>(new JsonCollectionOfNullableStructsReaderWriter<TimeOnly?[], TimeOnly>(
@@ -13412,7 +13412,7 @@ namespace TestNamespace
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<TimeSpan?>(new JsonCollectionOfNullableStructsReaderWriter<TimeSpan?[], TimeSpan>(
@@ -13530,7 +13530,7 @@ namespace TestNamespace
                     int (ushort v) => ((int)v),
                     ushort (ushort v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<ushort?>(new JsonCollectionOfNullableStructsReaderWriter<ushort?[], ushort>(
@@ -13648,7 +13648,7 @@ namespace TestNamespace
                     int (uint v) => ((int)v),
                     uint (uint v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<uint?>(new JsonCollectionOfNullableStructsReaderWriter<uint?[], uint>(
@@ -13766,7 +13766,7 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<ulong?>(new JsonCollectionOfNullableStructsReaderWriter<ulong?[], ulong>(
@@ -13884,7 +13884,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte?>(new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
@@ -13952,7 +13952,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte?[]>(new JsonCollectionOfReferencesReaderWriter<byte?[][], byte?[]>(
@@ -13971,7 +13971,7 @@ namespace TestNamespace
                         int (byte v) => ((int)v),
                         byte (byte v) => v))),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<byte?>(new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
@@ -14038,7 +14038,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<Uri, string>(
@@ -14091,7 +14091,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<Uri>(new JsonCollectionOfReferencesReaderWriter<Uri[], Uri>(
@@ -14116,7 +14116,7 @@ namespace TestNamespace
                         int (Uri v) => ((object)v).GetHashCode(),
                         Uri (Uri v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<Uri, string>(
@@ -14172,7 +14172,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<PhysicalAddress, string>(
@@ -14225,7 +14225,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionOfReferencesReaderWriter<PhysicalAddress[], PhysicalAddress>(
@@ -14250,7 +14250,7 @@ namespace TestNamespace
                         int (PhysicalAddress v) => ((object)v).GetHashCode(),
                         PhysicalAddress (PhysicalAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<PhysicalAddress, string>(
@@ -14360,7 +14360,7 @@ namespace TestNamespace
                     int (PhysicalAddress v) => ((object)v).GetHashCode(),
                     PhysicalAddress (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<PhysicalAddress, string>(
@@ -14405,15 +14405,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             @string.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),
@@ -14452,15 +14452,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -14469,15 +14469,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     clrType: typeof(string),
@@ -14518,15 +14518,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringNestedCollection.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 keyComparer: new ListOfReferenceTypesComparer<string[][], string[]>(new ConvertingValueComparer<string[], object>(new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<string[]>(new JsonCollectionOfReferencesReaderWriter<string[][], string[]>(
@@ -14537,15 +14537,15 @@ namespace TestNamespace
                         JsonStringReaderWriter.Instance)),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v)),
                     keyComparer: new ListOfReferenceTypesComparer<string[], string>(new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v)),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<string[], string>(
@@ -14554,15 +14554,15 @@ namespace TestNamespace
                         JsonStringReaderWriter.Instance),
                     elementMapping: InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         keyComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         providerValueComparer: new ValueComparer<string>(
-                            bool (string v1, string v2) => v1 == v2,
+                            bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                             int (string v) => ((object)v).GetHashCode(),
                             string (string v) => v),
                         clrType: typeof(string),
@@ -14603,15 +14603,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringReadOnlyCollection.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
@@ -14620,15 +14620,15 @@ namespace TestNamespace
                     JsonStringReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     keyComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     clrType: typeof(string),
@@ -14670,11 +14670,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToBoolConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<bool>(
@@ -14724,11 +14724,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToBytesConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
@@ -14778,11 +14778,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToCharConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<char>(
@@ -14832,11 +14832,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDateOnlyConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<DateOnly>(
@@ -14886,11 +14886,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDateTimeConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<DateTime>(
@@ -14940,11 +14940,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDateTimeOffsetConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<DateTimeOffset>(
@@ -14994,11 +14994,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDecimalNumberConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<decimal>(
@@ -15048,11 +15048,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToDoubleNumberConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<double>(
@@ -15102,11 +15102,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToEnumConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
@@ -15155,15 +15155,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToGuidConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 clrType: typeof(string),
@@ -15203,11 +15203,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToIntNumberConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<int>(
@@ -15257,11 +15257,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToTimeOnlyConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<TimeOnly>(
@@ -15311,11 +15311,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToTimeSpanConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<TimeSpan>(
@@ -15365,15 +15365,15 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             stringToUriConverterProperty.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<string, string>(
@@ -15474,7 +15474,7 @@ namespace TestNamespace
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<TimeOnly>(new JsonCollectionOfStructsReaderWriter<TimeOnly[], TimeOnly>(
@@ -15541,7 +15541,7 @@ namespace TestNamespace
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<TimeOnly, string>(
@@ -15698,7 +15698,7 @@ namespace TestNamespace
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<TimeSpan>(new JsonCollectionOfStructsReaderWriter<TimeSpan[], TimeSpan>(
@@ -15765,7 +15765,7 @@ namespace TestNamespace
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<TimeSpan, string>(
@@ -15922,7 +15922,7 @@ namespace TestNamespace
                     int (ushort v) => ((int)v),
                     ushort (ushort v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<ushort>(new JsonCollectionOfStructsReaderWriter<ushort[], ushort>(
@@ -16036,7 +16036,7 @@ namespace TestNamespace
                     int (uint v) => ((int)v),
                     uint (uint v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<uint>(new JsonCollectionOfStructsReaderWriter<uint[], uint>(
@@ -16150,7 +16150,7 @@ namespace TestNamespace
                     int (ulong v) => ((object)v).GetHashCode(),
                     ulong (ulong v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<ulong>(new JsonCollectionOfStructsReaderWriter<ulong[], ulong>(
@@ -16311,7 +16311,7 @@ namespace TestNamespace
                     int (byte[] v) => ((object)v).GetHashCode(),
                     byte[] (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionOfReferencesReaderWriter<List<byte[]>, byte[]>(
@@ -16377,7 +16377,7 @@ namespace TestNamespace
                     int (byte v) => ((int)v),
                     byte (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
@@ -16443,7 +16443,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<Uri, string>(
@@ -16496,7 +16496,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v)),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new CollectionToJsonStringConverter<Uri>(new JsonCollectionOfReferencesReaderWriter<Uri[], Uri>(
@@ -16521,7 +16521,7 @@ namespace TestNamespace
                         int (Uri v) => ((object)v).GetHashCode(),
                         Uri (Uri v) => v),
                     providerValueComparer: new ValueComparer<string>(
-                        bool (string v1, string v2) => v1 == v2,
+                        bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                         int (string v) => ((object)v).GetHashCode(),
                         string (string v) => v),
                     converter: new ValueConverter<Uri, string>(
@@ -16577,7 +16577,7 @@ namespace TestNamespace
                     int (Uri v) => ((object)v).GetHashCode(),
                     Uri (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
+                    bool (string v1, string v2) => string.Equals(v1, v2, StringComparison.InvariantCulture),
                     int (string v) => ((object)v).GetHashCode(),
                     string (string v) => v),
                 converter: new ValueConverter<Uri, string>(
