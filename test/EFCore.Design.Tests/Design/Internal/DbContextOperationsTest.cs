@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -237,9 +236,15 @@ public class DbContextOperationsTest
             nullable: false,
             args: [],
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
-
+    
         var contexts = operations.CreateContext("*");
-
+    
+        Assert.NotNull(contexts);
+        Assert.Equal(3, contexts.Count);
+        Assert.Contains(contexts, c => c.GetType() == typeof(BaseContext));
+        Assert.Contains(contexts, c => c.GetType() == typeof(DerivedContext));
+        Assert.Contains(contexts, c => c.GetType() == typeof(HierarchyContextFactory));
+        
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
