@@ -23,9 +23,7 @@ public class EntityEntryEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         EntityEntry entityEntry)
         : base(eventDefinition, messageGenerator)
-    {
-        EntityEntry = entityEntry;
-    }
+        => EntityEntry = entityEntry;
 
     /// <summary>
     ///     The entity entry.

@@ -241,7 +241,7 @@ public class SqliteConnectionStringBuilderTest
     [InlineData("False", false)]
     [InlineData(null, null)]
     [InlineData("", null)]
-    public void Item_converts_to_bool_on_set(object value, bool? expected)
+    public void Item_converts_to_bool_on_set(object? value, bool? expected)
     {
         var builder = new SqliteConnectionStringBuilder();
 

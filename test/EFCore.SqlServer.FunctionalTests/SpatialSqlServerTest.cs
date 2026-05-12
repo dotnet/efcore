@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SpatialSqlServerTest : SpatialTestBase<SpatialSqlServerFixture>
-{
-    public SpatialSqlServerTest(SpatialSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+[SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+public class SpatialSqlServerTest(SpatialSqlServerFixture fixture) : SpatialTestBase<SpatialSqlServerFixture>(fixture)
+{
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 }

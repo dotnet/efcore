@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class TPTManyToManyQueryRelationalFixture : ManyToManyQueryRelationalFixture
 {
     protected override string StoreName

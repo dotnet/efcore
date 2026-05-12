@@ -5,13 +5,10 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class TableSplittingSqlServerTest : TableSplittingTestBase
-{
-    public TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
+#nullable disable
 
+public class TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
+{
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
@@ -22,26 +19,26 @@ public class TableSplittingSqlServerTest : TableSplittingTestBase
         // TODO: [Name] shouldn't be selected multiple times and no joins are needed
         AssertSql(
             """
-SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [t].[Name], [t].[Active], [t].[Type], [t0].[Name], [t0].[Computed], [t0].[Description], [t0].[Engine_Discriminator], [t1].[Name], [t1].[Capacity], [t1].[FuelTank_Discriminator], [t1].[FuelType], [t1].[GrainGeometry]
+SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v2].[Name], [v2].[Active], [v2].[Type], [v4].[Name], [v4].[Computed], [v4].[Description], [v4].[Engine_Discriminator], [v6].[Name], [v6].[Capacity], [v6].[FuelTank_Discriminator], [v6].[FuelType], [v6].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]
 LEFT JOIN (
     SELECT [v1].[Name], [v1].[Active], [v1].[Type]
     FROM [Vehicles] AS [v1]
     WHERE [v1].[Active] IS NOT NULL
-) AS [t] ON [v0].[Name] = CASE
-    WHEN [t].[Active] IS NOT NULL THEN [t].[Name]
+) AS [v2] ON [v0].[Name] = CASE
+    WHEN [v2].[Active] IS NOT NULL THEN [v2].[Name]
 END
 LEFT JOIN (
-    SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator]
-    FROM [Vehicles] AS [v2]
-    WHERE [v2].[Computed] IS NOT NULL AND [v2].[Engine_Discriminator] IS NOT NULL
-) AS [t0] ON [v].[Name] = [t0].[Name]
-LEFT JOIN (
-    SELECT [v3].[Name], [v3].[Capacity], [v3].[FuelTank_Discriminator], [v3].[FuelType], [v3].[GrainGeometry]
+    SELECT [v3].[Name], [v3].[Computed], [v3].[Description], [v3].[Engine_Discriminator]
     FROM [Vehicles] AS [v3]
-    WHERE [v3].[Capacity] IS NOT NULL AND [v3].[FuelTank_Discriminator] IS NOT NULL
-) AS [t1] ON [t0].[Name] = [t1].[Name]
+    WHERE [v3].[Computed] IS NOT NULL AND [v3].[Engine_Discriminator] IS NOT NULL
+) AS [v4] ON [v].[Name] = [v4].[Name]
+LEFT JOIN (
+    SELECT [v5].[Name], [v5].[Capacity], [v5].[FuelTank_Discriminator], [v5].[FuelType], [v5].[GrainGeometry]
+    FROM [Vehicles] AS [v5]
+    WHERE [v5].[Capacity] IS NOT NULL AND [v5].[FuelTank_Discriminator] IS NOT NULL
+) AS [v6] ON [v4].[Name] = [v6].[Name]
 ORDER BY [v].[Name]
 """);
     }
@@ -171,15 +168,15 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'
 
         AssertSql(
             """
-SELECT TOP(1) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [t].[Name], [t].[Active], [t].[Type]
+SELECT TOP(1) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType], [v2].[Name], [v2].[Active], [v2].[Type]
 FROM [Vehicles] AS [v]
 LEFT JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]
 LEFT JOIN (
     SELECT [v1].[Name], [v1].[Active], [v1].[Type]
     FROM [Vehicles] AS [v1]
     WHERE [v1].[Active] IS NOT NULL
-) AS [t] ON [v0].[Name] = CASE
-    WHEN [t].[Active] IS NOT NULL THEN [t].[Name]
+) AS [v2] ON [v0].[Name] = CASE
+    WHEN [v2].[Active] IS NOT NULL THEN [v2].[Name]
 END
 WHERE [v].[Name] = N'AIM-9M Sidewinder'
 ORDER BY [v].[Name]

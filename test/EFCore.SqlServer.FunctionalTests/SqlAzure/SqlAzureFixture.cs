@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
+#nullable disable
+
 public class SqlAzureFixture : SharedStoreFixtureBase<AdventureWorksContext>
 {
     protected override string StoreName

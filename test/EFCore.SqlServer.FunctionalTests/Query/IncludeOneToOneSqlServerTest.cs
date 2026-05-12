@@ -3,13 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase<IncludeOneToOneSqlServerTest.OneToOneQuerySqlServerFixture>
 {
     public IncludeOneToOneSqlServerTest(OneToOneQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override void Include_person()
     {
@@ -62,7 +62,7 @@ LEFT JOIN [Address2] AS [a] ON [p].[Id] = [a].[PersonId]
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
+    public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase, ITestSqlLoggerFactory
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

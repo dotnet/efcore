@@ -21,4 +21,18 @@ public interface IComplexType : IReadOnlyComplexType, ITypeBase
     /// </summary>
     IEntityType ITypeBase.ContainingEntityType
         => (IEntityType)((IReadOnlyComplexType)this).ContainingEntityType;
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetPropertiesInHierarchy()
+        => GetDeclaredProperties();
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedPropertiesInHierarchy()
+        => GetFlattenedDeclaredProperties();
 }

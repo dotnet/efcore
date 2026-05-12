@@ -9,13 +9,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 ///     Used dynamically from <see cref="ConditionalTheoryAttribute" />.
 ///     Make sure to update that class if you move this type.
 /// </summary>
-public class ConditionalTheoryDiscoverer : TheoryDiscoverer
+public class ConditionalTheoryDiscoverer(IMessageSink messageSink) : TheoryDiscoverer(messageSink)
 {
-    public ConditionalTheoryDiscoverer(IMessageSink messageSink)
-        : base(messageSink)
-    {
-    }
-
     protected override IEnumerable<IXunitTestCase> CreateTestCasesForTheory(
         ITestFrameworkDiscoveryOptions discoveryOptions,
         ITestMethod testMethod,

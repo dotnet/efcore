@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
+#nullable disable
+
 public class InheritanceBase1
 {
     public int Id { get; set; }

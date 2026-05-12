@@ -72,7 +72,7 @@ public static class ExpressionExtensions
                 GetAssignBinaryExpressionType(),
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
-                new object[] { memberExpression, valueExpression },
+                [memberExpression, valueExpression],
                 null)!;
         }
 
@@ -367,7 +367,14 @@ public static class ExpressionExtensions
         bool makeNullable = true) // No shadow entities in runtime
         => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
 
-    private static Expression CreateEFPropertyExpression(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static Expression CreateEFPropertyExpression(
         Expression target,
         Type propertyDeclaringType,
         Type propertyType,
@@ -399,7 +406,7 @@ public static class ExpressionExtensions
     }
 
     private static readonly MethodInfo ObjectEqualsMethodInfo
-        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
+        = typeof(object).GetRuntimeMethod(nameof(object.Equals), [typeof(object), typeof(object)])!;
 
     /// <summary>
     ///     <para>

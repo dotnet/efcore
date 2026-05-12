@@ -168,6 +168,7 @@ public class NavigationEntryTest
     private class Cherry
     {
         public int Garcia { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int Id { get; set; }
 

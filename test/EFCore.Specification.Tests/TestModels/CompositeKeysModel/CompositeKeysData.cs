@@ -1009,7 +1009,7 @@ public abstract class CompositeKeysData : ISetSource
         l4s[8].OneToMany_Optional_Self_Inverse4 = l4s[9];
     }
 
-    public static void Seed(CompositeKeysContext context)
+    public static async Task SeedAsync(CompositeKeysContext context)
     {
         var l1s = CreateCompositeOnes();
         var l2s = CreateCompositeTwos();
@@ -1020,10 +1020,10 @@ public abstract class CompositeKeysData : ISetSource
 
         WireUpPart1(l1s, l2s, l3s, l4s);
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         WireUpPart2(l1s, l2s, l3s, l4s);
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

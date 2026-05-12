@@ -23,10 +23,9 @@ public class SqliteAggregateMethodCallTranslatorProvider : RelationalAggregateMe
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         AddTranslators(
-            new IAggregateMethodCallTranslator[]
-            {
-                new SqliteQueryableAggregateMethodTranslator(sqlExpressionFactory),
-                new SqliteStringAggregateMethodTranslator(sqlExpressionFactory)
-            });
+        [
+            new SqliteQueryableAggregateMethodTranslator(sqlExpressionFactory),
+            new SqliteStringAggregateMethodTranslator(sqlExpressionFactory)
+        ]);
     }
 }

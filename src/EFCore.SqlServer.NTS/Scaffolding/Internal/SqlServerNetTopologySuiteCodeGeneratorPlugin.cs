@@ -14,7 +14,7 @@ public class SqlServerNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGenerato
     private static readonly MethodInfo UseNetTopologySuiteMethodInfo
         = typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite),
-            new[] { typeof(SqlServerDbContextOptionsBuilder) })!;
+            [typeof(SqlServerDbContextOptionsBuilder)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

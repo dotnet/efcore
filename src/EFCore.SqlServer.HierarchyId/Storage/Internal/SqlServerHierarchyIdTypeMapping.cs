@@ -3,11 +3,9 @@
 
 using System.Data;
 using System.Data.Common;
-using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Json;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -22,7 +20,7 @@ public class SqlServerHierarchyIdTypeMapping : RelationalTypeMapping
     private const string HierarchyIdFormatConst = "hierarchyid::Parse('{0}')";
 
     private static readonly ConstructorInfo HierarchyIdConstructor
-        = typeof(HierarchyId).GetConstructor(new[] { typeof(string) })!;
+        = typeof(HierarchyId).GetConstructor([typeof(string)])!;
 
     private static readonly SqlServerHierarchyIdValueConverter ValueConverter = new();
 

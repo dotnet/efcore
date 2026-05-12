@@ -25,6 +25,7 @@ public static class CosmosEventId
     private enum Id
     {
         // Database events
+        SyncNotSupported = CoreEventId.ProviderBaseId,
 
         // Command events
         ExecutingSqlQuery = CoreEventId.ProviderBaseId + 100,
@@ -33,8 +34,27 @@ public static class CosmosEventId
         ExecutedReadItem,
         ExecutedCreateItem,
         ExecutedReplaceItem,
-        ExecutedDeleteItem
+        ExecutedDeleteItem,
+
+        // Update events
+        PrimaryKeyValueNotSet = CoreEventId.ProviderBaseId + 200,
+
+        // Model validation events
+        NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
     }
+
+    private static readonly string DatabasePrefix = DbLoggerCategory.Database.Name + ".";
+
+    /// <summary>
+    ///     Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async
+    ///     methods when using Entity Framework Core to access Azure Cosmos DB.
+    ///     See https://aka.ms/ef-cosmos-nosync for more information.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Database" /> category.
+    /// </remarks>
+    public static readonly EventId SyncNotSupported
+        = new((int)Id.SyncNotSupported, DatabasePrefix + Id.SyncNotSupported);
 
     private static readonly string CommandPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
@@ -135,4 +155,39 @@ public static class CosmosEventId
     /// </remarks>
     public static readonly EventId ExecutedDeleteItem
         = new((int)Id.ExecutedDeleteItem, CommandPrefix + Id.ExecutedDeleteItem);
+
+    private static EventId MakeValidationId(Id id)
+        => new((int)id, DbLoggerCategory.Model.Validation.Name + "." + id);
+
+    /// <summary>
+    ///     No partition key has been configured for an entity type. It is highly recommended that an appropriate partition key be defined.
+    ///     See https://aka.ms/efdocs-cosmos-partition-keys for more information.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId NoPartitionKeyDefined = MakeValidationId(Id.NoPartitionKeyDefined);
+
+    private static EventId MakeUpdateId(Id id)
+        => new((int)id, DbLoggerCategory.Update.Name + "." + id);
+
+    /// <summary>
+    ///     A property is not configured to generate values and has the CLR default or sentinel value while saving a new entity
+    ///     to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key
+    ///     values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId PrimaryKeyValueNotSet = MakeUpdateId(Id.PrimaryKeyValueNotSet);
 }

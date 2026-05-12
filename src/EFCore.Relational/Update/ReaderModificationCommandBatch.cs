@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 /// </remarks>
 public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 {
-    private readonly List<IReadOnlyModificationCommand> _modificationCommands = new();
+    private readonly List<IReadOnlyModificationCommand> _modificationCommands = [];
     private readonly int _batchHeaderLength;
     private bool _requiresTransaction = true;
     private bool _areMoreBatchesExpected;

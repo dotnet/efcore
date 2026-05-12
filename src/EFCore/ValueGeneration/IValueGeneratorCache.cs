@@ -36,8 +36,8 @@ public interface IValueGeneratorCache
     /// </param>
     /// <param name="factory">Factory to create a new value generator if one is not present in the cache.</param>
     /// <returns>The existing or newly created value generator.</returns>
-    ValueGenerator GetOrAdd(
+    ValueGenerator? GetOrAdd(
         IProperty property,
         ITypeBase typeBase,
-        Func<IProperty, ITypeBase, ValueGenerator> factory);
+        Func<IProperty, ITypeBase, ValueGenerator?> factory);
 }

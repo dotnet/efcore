@@ -24,11 +24,10 @@ public class SqlServerAggregateMethodCallTranslatorProvider : RelationalAggregat
         var typeMappingSource = dependencies.RelationalTypeMappingSource;
 
         AddTranslators(
-            new IAggregateMethodCallTranslator[]
-            {
-                new SqlServerLongCountMethodTranslator(sqlExpressionFactory),
-                new SqlServerStatisticsAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerStringAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
-            });
+        [
+            new SqlServerLongCountMethodTranslator(sqlExpressionFactory),
+            new SqlServerStatisticsAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerStringAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
+        ]);
     }
 }

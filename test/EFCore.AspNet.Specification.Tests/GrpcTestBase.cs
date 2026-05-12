@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#if !EXCLUDE_ON_MAC
+
 using Google.Protobuf.WellKnownTypes;
 using ProtoTest;
 
@@ -10,11 +12,12 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : GrpcTestBase<TFixture>.GrpcFixtureBase
 {
     protected GrpcTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+        => Fixture = fixture;
 
     protected TFixture Fixture { get; }
+
+    protected virtual bool HasForeignKeyIndexes
+        => true;
 
     protected List<EntityTypeMapping> ExpectedMappings
         => new()
@@ -28,9 +31,9 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Properties =
                 {
                     "Property: PostTag (Dictionary<string, object>).PostsInTagDataPostId (no field, int) Indexer Required PK FK AfterSave:Throw",
-                    "Property: PostTag (Dictionary<string, object>).TagsInPostDataTagId (no field, int) Indexer Required PK FK Index AfterSave:Throw",
+                    $"Property: PostTag (Dictionary<string, object>).TagsInPostDataTagId (no field, int) Indexer Required PK FK{(HasForeignKeyIndexes ? " Index" : "")} AfterSave:Throw",
                 },
-                Indexes = { "{'TagsInPostDataTagId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'TagsInPostDataTagId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: PostTag (Dictionary<string, object>) {'PostsInTagDataPostId'} -> Post {'PostId'} Required Cascade",
@@ -57,12 +60,12 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Properties =
                 {
                     "Property: Post.PostId (postId_, int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
-                    "Property: Post.AuthorId (authorId_, int) Required FK Index",
+                    $"Property: Post.AuthorId (authorId_, int) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                     "Property: Post.DateCreated (dateCreated_, Timestamp)",
                     "Property: Post.PostStat (postStat_, PostStatus) Required",
                     "Property: Post.Title (title_, string)",
                 },
-                Indexes = { "{'AuthorId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'AuthorId'} "] : [],
                 FKs = { "ForeignKey: Post {'AuthorId'} -> Author {'AuthorId'} Required Cascade ToPrincipal: PostAuthor", },
                 Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) ToPrincipal Author", },
                 SkipNavigations =
@@ -116,13 +119,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Same(post, post.TagsInPostData.Skip(1).First().PostsInTagData.First());
     }
 
-    public class GrpcContext : PoolableDbContext
+    public class GrpcContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public GrpcContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var timeStampConverter = new ValueConverter<Timestamp, DateTime>(
@@ -140,7 +138,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         protected override string StoreName
             => "GrpcTest";
 
-        protected override void Seed(GrpcContext context)
+        protected override Task SeedAsync(GrpcContext context)
         {
             var post = new Post
             {
@@ -156,7 +154,9 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
 
             context.Add(post);
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }
+
+#endif

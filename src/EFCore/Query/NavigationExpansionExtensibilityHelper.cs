@@ -11,9 +11,7 @@ public class NavigationExpansionExtensibilityHelper : INavigationExpansionExtens
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     public NavigationExpansionExtensibilityHelper(NavigationExpansionExtensibilityHelperDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

@@ -626,7 +626,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         return ownedNavigationBuilder;
     }
 
-    [return: NotNullIfNotNull("name")]
+    [return: NotNullIfNotNull(nameof(name))]
     private static IMutableDbFunction? ToFunction(string? name, IMutableEntityType entityType)
     {
         entityType.SetFunctionName(name);
@@ -650,7 +650,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         return function;
     }
 
-    [return: NotNullIfNotNull("method")]
+    [return: NotNullIfNotNull(nameof(method))]
     private static IMutableDbFunction? ToFunction(MethodInfo? method, IMutableEntityType entityType)
     {
         var name = method == null ? null : DbFunction.GetFunctionName(method);

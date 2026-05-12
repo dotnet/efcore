@@ -39,6 +39,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     private readonly Expression _cancellationTokenParameter;
     private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
     private readonly ConstantVerifyingExpressionVisitor _constantVerifyingExpressionVisitor;
+    private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ShapedQueryCompilingExpressionVisitor" /> class.
@@ -55,9 +56,12 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         _entityMaterializerInjectingExpressionVisitor =
             new EntityMaterializerInjectingExpressionVisitor(
                 dependencies.EntityMaterializerSource,
-                queryCompilationContext.QueryTrackingBehavior);
+                dependencies.LiftableConstantFactory,
+                queryCompilationContext.QueryTrackingBehavior,
+                queryCompilationContext.SupportsPrecompiledQuery);
 
         _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
+        _materializationConditionConstantLifter = new MaterializationConditionConstantLifter(dependencies.LiftableConstantFactory);
 
         if (queryCompilationContext.IsAsync)
         {
@@ -119,16 +123,23 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     }
 
     private static readonly MethodInfo SingleAsyncMethodInfo
-        = typeof(ShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-            .GetDeclaredMethods(nameof(SingleAsync))
-            .Single(mi => mi.GetParameters().Length == 2);
+        = typeof(ShapedQueryCompilingExpressionVisitor)
+            .GetMethods()
+            .Single(mi => mi.Name == nameof(SingleAsync) && mi.GetParameters().Length == 2);
 
     private static readonly MethodInfo SingleOrDefaultAsyncMethodInfo
-        = typeof(ShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-            .GetDeclaredMethods(nameof(SingleOrDefaultAsync))
-            .Single(mi => mi.GetParameters().Length == 2);
+        = typeof(ShapedQueryCompilingExpressionVisitor)
+            .GetMethods()
+            .Single(mi => mi.Name == nameof(SingleOrDefaultAsync) && mi.GetParameters().Length == 2);
 
-    private static async Task<TSource> SingleAsync<TSource>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static async Task<TSource> SingleAsync<TSource>(
         IAsyncEnumerable<TSource> asyncEnumerable,
         CancellationToken cancellationToken = default)
     {
@@ -150,7 +161,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private static async Task<TSource?> SingleOrDefaultAsync<TSource>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static async Task<TSource?> SingleOrDefaultAsync<TSource>(
         IAsyncEnumerable<TSource> asyncEnumerable,
         CancellationToken cancellationToken = default)
     {
@@ -189,7 +207,55 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     {
         VerifyNoClientConstant(expression);
 
-        return _entityMaterializerInjectingExpressionVisitor.Inject(expression);
+        var materializerExpression = _entityMaterializerInjectingExpressionVisitor.Inject(expression);
+        if (QueryCompilationContext.SupportsPrecompiledQuery)
+        {
+            materializerExpression = _materializationConditionConstantLifter.Visit(materializerExpression);
+        }
+
+        return materializerExpression;
+    }
+
+    private sealed class MaterializationConditionConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
+    {
+        private static readonly MethodInfo ServiceProviderGetService =
+            typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService), [typeof(Type)])!;
+
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+            => constantExpression switch
+            {
+                { Value: IEntityType entityTypeValue } => liftableConstantFactory.CreateLiftableConstant(
+                    constantExpression.Value,
+                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(entityTypeValue),
+                    entityTypeValue.ShortName() + "EntityType",
+                    constantExpression.Type),
+                { Value: IComplexType complexTypeValue } => liftableConstantFactory.CreateLiftableConstant(
+                    constantExpression.Value,
+                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(complexTypeValue),
+                    complexTypeValue.ShortName() + "ComplexType",
+                    constantExpression.Type),
+                { Value: IProperty propertyValue } => liftableConstantFactory.CreateLiftableConstant(
+                    constantExpression.Value,
+                    LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(propertyValue),
+                    propertyValue.Name + "Property",
+                    constantExpression.Type),
+                _ => base.VisitConstant(constantExpression)
+            };
+
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            var left = Visit(binaryExpression.Left);
+            var right = Visit(binaryExpression.Right);
+            var conversion = (LambdaExpression?)Visit(binaryExpression.Conversion);
+
+            return binaryExpression.NodeType is ExpressionType.Assign
+                && left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } initFieldMember
+                    ? initFieldMember.Assign(right)
+                    : binaryExpression.Update(left, conversion, right);
+        }
+
+        protected override Expression VisitExtension(Expression node)
+            => node is LiftableConstantExpression ? node : base.VisitExtension(node);
     }
 
     /// <summary>
@@ -199,18 +265,40 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     protected virtual void VerifyNoClientConstant(Expression expression)
         => _constantVerifyingExpressionVisitor.Visit(expression);
 
-    private sealed class ConstantVerifyingExpressionVisitor : ExpressionVisitor
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [UsedImplicitly]
+    [EntityFrameworkInternal]
+    public static Exception CreateNullKeyValueInNoTrackingQuery(
+        IEntityType entityType,
+        IReadOnlyList<IProperty> properties,
+        object?[] keyValues)
     {
-        private readonly ITypeMappingSource _typeMappingSource;
-
-        public ConstantVerifyingExpressionVisitor(ITypeMappingSource typeMappingSource)
+        var index = -1;
+        for (var i = 0; i < keyValues.Length; i++)
         {
-            _typeMappingSource = typeMappingSource;
+            if (keyValues[i] == null)
+            {
+                index = i;
+                break;
+            }
         }
 
+        var property = properties[index];
+
+        throw new InvalidOperationException(
+            CoreStrings.InvalidKeyValue(entityType.DisplayName(), property.Name));
+    }
+
+    private sealed class ConstantVerifyingExpressionVisitor(ITypeMappingSource typeMappingSource) : ExpressionVisitor
+    {
         private bool ValidConstant(ConstantExpression constantExpression)
             => constantExpression.Value == null
-                || _typeMappingSource.FindMapping(constantExpression.Type) != null
+                || typeMappingSource.FindMapping(constantExpression.Type) != null
                 || constantExpression.Value is Array { Length: 0 };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
@@ -266,13 +354,15 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private sealed class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
+    private sealed class EntityMaterializerInjectingExpressionVisitor(
+        IEntityMaterializerSource entityMaterializerSource,
+        ILiftableConstantFactory liftableConstantFactory,
+        QueryTrackingBehavior queryTrackingBehavior,
+        bool supportsPrecompiledQuery)
+        : ExpressionVisitor
     {
         private static readonly ConstructorInfo MaterializationContextConstructor
             = typeof(MaterializationContext).GetConstructors().Single(ci => ci.GetParameters().Length == 2);
-
-        private static readonly ConstructorInfo ValueBufferConstructor
-            = typeof(ValueBuffer).GetTypeInfo().DeclaredConstructors.Single(ci => ci.GetParameters().Length == 1);
 
         private static readonly PropertyInfo DbContextMemberInfo
             = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.Context))!;
@@ -289,33 +379,27 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
-                nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) })!;
+                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
 
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
-            = typeof(EntityMaterializerInjectingExpressionVisitor)
+            = typeof(ShapedQueryCompilingExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
 
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly QueryTrackingBehavior _queryTrackingBehavior;
-        private readonly bool _queryStateManager;
-        private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
-        private int _currentEntityIndex;
+        private static readonly MethodInfo EntityTypeFindPrimaryKeyMethod =
+            typeof(IEntityType).GetMethod(nameof(IEntityType.FindPrimaryKey), [])!;
 
-        public EntityMaterializerInjectingExpressionVisitor(
-            IEntityMaterializerSource entityMaterializerSource,
-            QueryTrackingBehavior queryTrackingBehavior)
-        {
-            _entityMaterializerSource = entityMaterializerSource;
-            _queryTrackingBehavior = queryTrackingBehavior;
-            _queryStateManager =
-                queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
-        }
+        private readonly bool _queryStateManager =
+            queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+
+        private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
+        private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter = new(liftableConstantFactory);
+        private int _currentEntityIndex;
 
         public Expression Inject(Expression expression)
         {
             var result = Visit(expression);
 
-            if (_queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            if (queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
                 foreach (var entityType in _visitedEntityTypes)
                 {
@@ -381,13 +465,25 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 variables.Add(entryVariable);
                 variables.Add(hasNullKeyVariable);
 
+                var resolverPrm = Parameter(typeof(MaterializerLiftableConstantContext), "c");
                 expressions.Add(
                     Assign(
                         entryVariable,
                         Call(
                             QueryCompilationContext.QueryContextParameter,
                             TryGetEntryMethodInfo,
-                            Constant(primaryKey),
+                            supportsPrecompiledQuery
+                                ? liftableConstantFactory.CreateLiftableConstant(
+                                    primaryKey,
+                                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                        Call(
+                                            LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(
+                                                typeBase, resolverPrm),
+                                            EntityTypeFindPrimaryKeyMethod),
+                                        resolverPrm),
+                                    /*typeBase.Name +*/ "key",
+                                    typeof(IKey))
+                                : Constant(primaryKey),
                             NewArrayInit(
                                 typeof(object),
                                 primaryKey.Properties
@@ -435,6 +531,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     else
                     {
                         var keyValuesVariable = Variable(typeof(object[]), "keyValues" + _currentEntityIndex);
+                        var resolverPrm = Parameter(typeof(MaterializerLiftableConstantContext), "c");
+
                         expressions.Add(
                             IfThenElse(
                                 primaryKey.Properties.Select(
@@ -457,8 +555,27 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                                     typeof(object), p.GetIndex(), p)))),
                                     Call(
                                         CreateNullKeyValueInNoTrackingQueryMethod,
-                                        Constant(typeBase),
-                                        Constant(primaryKey.Properties),
+                                        supportsPrecompiledQuery
+                                            ? liftableConstantFactory.CreateLiftableConstant(
+                                                typeBase,
+                                                LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(typeBase),
+                                                typeBase.Name + "EntityType",
+                                                typeof(IEntityType))
+                                            : Constant(typeBase),
+                                        supportsPrecompiledQuery
+                                            ? liftableConstantFactory.CreateLiftableConstant(
+                                                primaryKey.Properties,
+                                                Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                                    Property(
+                                                        Call(
+                                                            LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(
+                                                                typeBase, resolverPrm),
+                                                            EntityTypeFindPrimaryKeyMethod),
+                                                        nameof(IKey.Properties)),
+                                                    resolverPrm),
+                                                typeBase.Name + "PrimaryKeyProperties",
+                                                typeof(IReadOnlyList<IProperty>))
+                                            : Constant(primaryKey.Properties),
                                         keyValuesVariable))));
                     }
                 }
@@ -488,35 +605,48 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var variables = new List<ParameterExpression>();
 
             var shadowValuesVariable = Variable(
-                typeof(ValueBuffer),
-                "shadowValueBuffer" + _currentEntityIndex);
+                typeof(ISnapshot),
+                "shadowSnapshot" + _currentEntityIndex);
             variables.Add(shadowValuesVariable);
             expressions.Add(
                 Assign(
                     shadowValuesVariable,
-                    Constant(ValueBuffer.Empty)));
+                    supportsPrecompiledQuery
+                        ? liftableConstantFactory.CreateLiftableConstant(
+                            Snapshot.Empty,
+                            static _ => Snapshot.Empty,
+                            "emptySnapshot",
+                            typeof(ISnapshot))
+                        : Constant(Snapshot.Empty, typeof(ISnapshot))));
 
             var returnType = typeBase.ClrType;
             var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
+
+            var materializationConditionBody = ReplacingExpressionVisitor.Replace(
+                shaper.MaterializationCondition.Parameters[0],
+                valueBufferExpression,
+                shaper.MaterializationCondition.Body);
+
             var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
-            expressions.Add(
-                Assign(
-                    concreteEntityTypeVariable,
-                    ReplacingExpressionVisitor.Replace(
-                        shaper.MaterializationCondition.Parameters[0],
-                        valueBufferExpression,
-                        shaper.MaterializationCondition.Body)));
+            expressions.Add(Assign(concreteEntityTypeVariable, materializationConditionBody));
 
             var (primaryKey, concreteEntityTypes) = typeBase is IEntityType entityType
                 ? (entityType.FindPrimaryKey(), entityType.GetConcreteDerivedTypesInclusive().Cast<ITypeBase>().ToArray())
-                : (null, new[] { typeBase });
+                : (null, [typeBase]);
 
             var switchCases = new SwitchCase[concreteEntityTypes.Length];
             for (var i = 0; i < concreteEntityTypes.Length; i++)
             {
+                var concreteEntityType = concreteEntityTypes[i];
                 switchCases[i] = SwitchCase(
                     CreateFullMaterializeExpression(concreteEntityTypes[i], expressionContext),
-                    Constant(concreteEntityTypes[i], typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType)));
+                    supportsPrecompiledQuery
+                        ? liftableConstantFactory.CreateLiftableConstant(
+                            concreteEntityTypes[i],
+                            LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(concreteEntityType),
+                            concreteEntityType.ShortName() + (typeBase is IEntityType ? "EntityType" : "ComplexType"),
+                            typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType))
+                        : Constant(concreteEntityTypes[i], typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType)));
             }
 
             var materializationExpression = Switch(
@@ -572,10 +702,10 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var blockExpressions = new List<Expression>(2);
 
-            var materializer = _entityMaterializerSource
+            var materializer = entityMaterializerSource
                 .CreateMaterializeExpression(
                     new EntityMaterializerSourceParameters(
-                        concreteTypeBase, "instance", _queryTrackingBehavior), materializationContextVariable);
+                        concreteTypeBase, "instance", queryTrackingBehavior), materializationContextVariable);
 
             // TODO: Properly support shadow properties for complex types?
             if (_queryStateManager
@@ -584,27 +714,24 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 var valueBufferExpression = Call(
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);
 
-                IEnumerable<IPropertyBase> shadowProperties = runtimeEntityType.GetProperties();
-
-                if (runtimeEntityType is IEntityType concreteEntityType)
-                {
-                    shadowProperties = shadowProperties
-                        .Concat(concreteEntityType.GetNavigations())
-                        .Concat(concreteEntityType.GetSkipNavigations());
-                }
-
-                shadowProperties = shadowProperties.Where(n => n.IsShadowProperty()).OrderBy(e => e.GetShadowIndex());
+                var shadowProperties = ((IEnumerable<IPropertyBase>)runtimeEntityType.GetProperties())
+                    .Concat(runtimeEntityType.GetNavigations())
+                    .Concat(runtimeEntityType.GetSkipNavigations())
+                    .Where(n => n.IsShadowProperty())
+                    .OrderBy(e => e.GetShadowIndex());
 
                 blockExpressions.Add(
                     Assign(
                         shadowValuesVariable,
-                        New(
-                            ValueBufferConstructor,
+                        ShadowValuesFactoryFactory.Instance.CreateConstructorExpression(
+                            runtimeEntityType,
                             NewArrayInit(
                                 typeof(object),
                                 shadowProperties.Select(
-                                    p => valueBufferExpression.CreateValueBufferReadValueExpression(
-                                        typeof(object), p.GetIndex(), p))))));
+                                    p =>
+                                        Convert(
+                                            valueBufferExpression.CreateValueBufferReadValueExpression(
+                                                p.ClrType, p.GetIndex(), p), typeof(object)))))));
             }
 
             materializer = materializer.Type == returnType
@@ -613,28 +740,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             blockExpressions.Add(materializer);
 
             return Block(blockExpressions);
-        }
-
-        [UsedImplicitly]
-        private static Exception CreateNullKeyValueInNoTrackingQuery(
-            IEntityType entityType,
-            IReadOnlyList<IProperty> properties,
-            object?[] keyValues)
-        {
-            var index = -1;
-            for (var i = 0; i < keyValues.Length; i++)
-            {
-                if (keyValues[i] == null)
-                {
-                    index = i;
-                    break;
-                }
-            }
-
-            var property = properties[index];
-
-            throw new InvalidOperationException(
-                CoreStrings.InvalidKeyValue(entityType.DisplayName(), property.Name));
         }
     }
 }

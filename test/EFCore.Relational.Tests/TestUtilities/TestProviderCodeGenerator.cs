@@ -1,27 +1,22 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestProviderCodeGenerator : ProviderCodeGenerator
+public class TestProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies) : ProviderCodeGenerator(dependencies)
 {
-    public TestProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     public override MethodCallCodeFragment GenerateUseProvider(
         string connectionString,
         MethodCallCodeFragment providerOptions)
         => new(
             _useTestProviderMethodInfo,
             providerOptions == null
-                ? new object[] { connectionString }
-                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+                ? [connectionString]
+                : [connectionString, new NestedClosureCodeFragment("x", providerOptions)]);
 
     private static readonly MethodInfo _useTestProviderMethodInfo
         = typeof(TestProviderCodeGenerator).GetRuntimeMethod(
-            nameof(UseTestProvider), new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<object>) })!;
+            nameof(UseTestProvider), [typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<object>)])!;
 
     public static void UseTestProvider(
         DbContextOptionsBuilder optionsBuilder,

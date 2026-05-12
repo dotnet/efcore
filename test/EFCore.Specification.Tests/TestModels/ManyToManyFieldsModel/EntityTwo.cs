@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
+#nullable disable
+
 public class EntityTwo
 {
     public int Id;

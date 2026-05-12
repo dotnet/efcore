@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 public class CSharpUniqueNamer<T> : CSharpNamer<T>
     where T : notnull
 {
-    private readonly HashSet<string> _usedNames = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _usedNames;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,8 +23,9 @@ public class CSharpUniqueNamer<T> : CSharpNamer<T>
     public CSharpUniqueNamer(
         Func<T, string> nameGetter,
         ICSharpUtilities cSharpUtilities,
-        Func<string, string>? singularizePluralizer)
-        : this(nameGetter, null, cSharpUtilities, singularizePluralizer)
+        Func<string, string>? singularizePluralizer,
+        bool caseSensitive)
+        : this(nameGetter, null, cSharpUtilities, singularizePluralizer, caseSensitive)
     {
     }
 
@@ -38,9 +39,11 @@ public class CSharpUniqueNamer<T> : CSharpNamer<T>
         Func<T, string> nameGetter,
         IEnumerable<string>? usedNames,
         ICSharpUtilities cSharpUtilities,
-        Func<string, string>? singularizePluralizer)
+        Func<string, string>? singularizePluralizer,
+        bool caseSensitive)
         : base(nameGetter, cSharpUtilities, singularizePluralizer)
     {
+        _usedNames = new HashSet<string>(caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
         if (usedNames != null)
         {
             foreach (var name in usedNames)

@@ -61,12 +61,48 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         IStateManager stateManager,
         IEntityType entityType,
         object entity,
-        in ValueBuffer valueBuffer)
+        in ISnapshot snapshot)
     {
         StateManager = stateManager;
         EntityType = (IRuntimeEntityType)entityType;
         Entity = entity;
-        _shadowValues = EntityType.ShadowValuesFactory(valueBuffer);
+        _shadowValues = snapshot;
+        _stateData = new StateData(EntityType.PropertyCount, EntityType.NavigationCount);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public InternalEntityEntry(
+        IStateManager stateManager,
+        IEntityType entityType,
+        IDictionary<string, object?> values,
+        IEntityMaterializerSource entityMaterializerSource)
+    {
+        StateManager = stateManager;
+        EntityType = (IRuntimeEntityType)entityType;
+
+        var valuesArray = new object?[EntityType.PropertyCount];
+        var shadowPropertyValuesArray = EntityType.ShadowValuesFactory(values);
+        foreach (var property in entityType.GetFlattenedProperties())
+        {
+            var index = property.GetIndex();
+            if (index < 0)
+            {
+                continue;
+            }
+
+            valuesArray[index] = values.TryGetValue(property.Name, out var value)
+                ? value
+                : property.Sentinel;
+        }
+
+        Entity = entityType.GetOrCreateMaterializer(entityMaterializerSource)(
+            new MaterializationContext(new ValueBuffer(valuesArray), stateManager.Context));
+        _shadowValues = EntityType.ShadowValuesFactory(values);
         _stateData = new StateData(EntityType.PropertyCount, EntityType.NavigationCount);
     }
 
@@ -474,7 +510,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
                 if (service == null)
                 {
-                    (dependentServices ??= new List<IServiceProperty>()).Add(serviceProperty);
+                    (dependentServices ??= []).Add(serviceProperty);
                 }
                 else
                 {
@@ -922,8 +958,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
     private static readonly MethodInfo GetCurrentValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
-            m => m.IsGenericMethod);
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(m => m.IsGenericMethod);
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -1099,6 +1134,15 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     /// </summary>
     public object? GetOriginalValue(IPropertyBase propertyBase)
         => _originalValues.GetValue(this, (IProperty)propertyBase);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool CanHaveOriginalValue(IPropertyBase propertyBase)
+        => propertyBase.GetOriginalValueIndex() >= 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1777,13 +1821,23 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     public bool IsStoreGenerated(IProperty property)
         => (property.ValueGenerated.ForAdd()
                 && EntityState == EntityState.Added
-                && (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
+                && ((property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
+                        && GetValueType(property) != CurrentValueType.StoreGenerated)
                     || HasTemporaryValue(property)
                     || !HasExplicitValue(property)))
             || (property.ValueGenerated.ForUpdate()
                 && (EntityState is EntityState.Modified or EntityState.Deleted)
                 && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
                     || !IsModified(property)));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool HasStoreGeneratedValue(IProperty property)
+        => GetValueType(property) == CurrentValueType.StoreGenerated;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

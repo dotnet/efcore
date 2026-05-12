@@ -7,7 +7,15 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
+#nullable disable
+
+public class SqlServerMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase(
+    SqlServerTestHelpers.Instance,
+    new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
+    SqlServerTestHelpers.Instance.AddProviderOptions(
+        ((IRelationalDbContextOptionsBuilderInfrastructure)
+            new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+        .OptionsBuilder).Options)
 {
     [ConditionalFact]
     public void CreateIndexOperation_unique_online()
@@ -18,7 +26,7 @@ public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBas
                 Name = "IX_People_Name",
                 Table = "People",
                 Schema = "dbo",
-                Columns = new[] { "FirstName", "LastName" },
+                Columns = ["FirstName", "LastName"],
                 IsUnique = true,
                 [SqlServerAnnotationNames.CreatedOnline] = true
             });
@@ -38,7 +46,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
                 Name = "IX_People_Name",
                 Table = "People",
                 Schema = "dbo",
-                Columns = new[] { "FirstName", "LastName" },
+                Columns = ["FirstName", "LastName"],
                 IsUnique = true,
                 [SqlServerAnnotationNames.SortInTempDb] = true
             });
@@ -61,7 +69,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
                 Name = "IX_People_Name",
                 Table = "People",
                 Schema = "dbo",
-                Columns = new[] { "FirstName", "LastName" },
+                Columns = ["FirstName", "LastName"],
                 IsUnique = true,
                 [SqlServerAnnotationNames.DataCompression] = dataCompression
             });
@@ -219,12 +227,12 @@ ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var + '];');
 ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;
 """);
     }
@@ -254,12 +262,12 @@ ALTER TABLE [People] ADD FOREIGN KEY ([SpouseId]) REFERENCES [People];
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var + '];');
 ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
 """);
     }
@@ -288,12 +296,12 @@ ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var + '];');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
 """);
     }
@@ -323,17 +331,17 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
             {
                 Name = "IX_Person_Name",
                 Table = "Person",
-                Columns = new[] { "Name" }
+                Columns = ["Name"]
             });
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var + '];');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
 GO
 
@@ -365,17 +373,17 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
             {
                 Name = "IX_Person_Name",
                 Table = "Person",
-                Columns = new[] { "Name" }
+                Columns = ["Name"]
             });
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var + '];');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;
 GO
 
@@ -403,12 +411,12 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var + '];');
 ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
 """);
     }
@@ -587,8 +595,8 @@ END;
             """
 BEGIN
 DECLARE @db_name nvarchar(max) = DB_NAME();
-DECLARE @defaultCollation nvarchar(max) = CAST(SERVERPROPERTY('Collation') AS nvarchar(max));
-EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ' + @defaultCollation + N';');
+DECLARE @defaultCollation1 nvarchar(max) = CAST(SERVERPROPERTY('Collation') AS nvarchar(max));
+EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ' + @defaultCollation1 + N';');
 END
 
 """);
@@ -699,7 +707,7 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 
         AssertSql(
             """
-EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
+EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence', 'OBJECT';
 """);
     }
 
@@ -710,7 +718,7 @@ EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
 
         AssertSql(
             """
-EXEC sp_rename N'[dbo].[People]', N'Person';
+EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 
@@ -720,7 +728,7 @@ EXEC sp_rename N'[dbo].[People]', N'Person';
 
         AssertSql(
             """
-EXEC sp_rename N'[dbo].[People]', N'Person';
+EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 
@@ -887,7 +895,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
             new InsertDataOperation
             {
                 Table = "People",
-                Columns = new[] { "First Name" },
+                Columns = ["First Name"],
                 Values = values
             });
 
@@ -1256,12 +1264,12 @@ EXEC(N'CREATE UNIQUE INDEX [IX_Table1_Column1] ON [Table1] ([Column1]) WHERE [Co
 
         AssertSql(
             """
-DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
+DECLARE @var sysname;
+SELECT @var = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var + '];');
 EXEC(N'UPDATE [Person] SET [Name] = N'''' WHERE [Name] IS NULL');
 ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
 ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
@@ -1280,15 +1288,4 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
                 pb.Property<string>("Culture").HasColumnName("Culture");
                 pb.HasKey("FirstName", "LastName");
             });
-
-    public SqlServerMigrationsSqlGeneratorTest()
-        : base(
-            SqlServerTestHelpers.Instance,
-            new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
-            SqlServerTestHelpers.Instance.AddProviderOptions(
-                ((IRelationalDbContextOptionsBuilderInfrastructure)
-                    new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
-                .OptionsBuilder).Options)
-    {
-    }
 }

@@ -1,16 +1,15 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class InjectWhereExpressionMutator : ExpressionMutator
+public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    private ExpressionFinder _expressionFinder;
-
-    public InjectWhereExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
+    private ExpressionFinder _expressionFinder = null!;
 
     public override bool IsValid(Expression expression)
     {
@@ -28,14 +27,14 @@ public class InjectWhereExpressionMutator : ExpressionMutator
         var typeArgument = expressionToInject.Type.GetGenericArguments()[0];
         var prm = Expression.Parameter(typeArgument, "prm");
 
-        var candidateExpressions = new List<Expression> { Expression.Constant(random.Choose(new List<bool> { true, false })) };
+        var candidateExpressions = new List<Expression> { Expression.Constant(random.Choose([true, false])) };
 
         if (typeArgument == typeof(bool))
         {
             candidateExpressions.Add(prm);
         }
 
-        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod.IsStatic).ToList();
+        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod!.IsStatic).ToList();
         properties = FilterPropertyInfos(typeArgument, properties);
 
         var boolProperties = properties.Where(p => p.PropertyType == typeof(bool)).ToList();
@@ -69,7 +68,7 @@ public class InjectWhereExpressionMutator : ExpressionMutator
 
         if (IsEntityType(typeArgument))
         {
-            var entityType = Context.Model.FindEntityType(typeArgument);
+            var entityType = Context.Model.FindEntityType(typeArgument)!;
             var navigations = entityType.GetNavigations().ToList();
             var collectionNavigations = navigations.Where(n => n.IsCollection).ToList();
 
@@ -83,7 +82,7 @@ public class InjectWhereExpressionMutator : ExpressionMutator
                 candidateExpressions.Add(
                     Expression.Call(
                         any,
-                        Expression.Property(prm, collectionNavigation.PropertyInfo)));
+                        Expression.Property(prm, collectionNavigation.PropertyInfo!)));
             }
         }
 
@@ -102,18 +101,16 @@ public class InjectWhereExpressionMutator : ExpressionMutator
         return injector.Visit(expression);
     }
 
-    private class ExpressionFinder : ExpressionVisitor
+#nullable restore
+
+    private class ExpressionFinder(InjectWhereExpressionMutator mutator) : ExpressionVisitor
     {
-        private readonly InjectWhereExpressionMutator _mutator;
+        private readonly InjectWhereExpressionMutator _mutator = mutator;
 
-        public ExpressionFinder(InjectWhereExpressionMutator mutator)
-        {
-            _mutator = mutator;
-        }
+        public List<Expression> FoundExpressions { get; } = [];
 
-        public List<Expression> FoundExpressions { get; } = new();
-
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" or "Skip" or "Take" })
             {

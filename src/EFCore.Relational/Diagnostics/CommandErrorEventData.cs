@@ -57,9 +57,7 @@ public class CommandErrorEventData : CommandEndEventData, IErrorEventData
             startTime,
             duration,
             commandSource)
-    {
-        Exception = exception;
-    }
+        => Exception = exception;
 
     /// <summary>
     ///     The exception that was thrown when execution failed.

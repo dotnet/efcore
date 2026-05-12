@@ -31,6 +31,7 @@ public interface IPrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory
     /// </summary>
     /// <param name="valueBuffer">The buffer containing key values.</param>
     /// <returns>The key object, or null if any of the key values were null.</returns>
+    [Obsolete]
     object? CreateFromBuffer(ValueBuffer valueBuffer);
 
     /// <summary>

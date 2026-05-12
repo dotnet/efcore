@@ -10,6 +10,4 @@ namespace Xunit;
 [XunitTestCaseDiscoverer(
     "Microsoft.EntityFrameworkCore.TestUtilities.Xunit.ConditionalFactDiscoverer",
     "Microsoft.EntityFrameworkCore.Specification.Tests")]
-public sealed class ConditionalFactAttribute : FactAttribute
-{
-}
+public sealed class ConditionalFactAttribute : FactAttribute;
