@@ -238,7 +238,12 @@ public class DbContextOperationsTest
             args: [],
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
 
-        var contexts = operations.CreateContext("*");
+        var contexts = operations.CreateAllContexts().ToList();
+
+        Assert.Collection(
+            contexts,
+            c => Assert.IsType<BaseContext>(c),
+            c => Assert.IsType<DerivedContext>(c));
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
