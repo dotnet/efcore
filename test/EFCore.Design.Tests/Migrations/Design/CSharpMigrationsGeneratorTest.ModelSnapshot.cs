@@ -75,44 +75,43 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MyNamespace
+namespace MyNamespace;
+
+[DbContext(typeof(CSharpMigrationsGeneratorTest.MyContext))]
+partial class MySnapshot : ModelSnapshot
 {
-    [DbContext(typeof(CSharpMigrationsGeneratorTest.MyContext))]
-    partial class MySnapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
+        modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
 
-            modelBuilder.Entity("Cheese", b =>
-                {
-                    b.Property<string>("Ham")
-                        .HasColumnType("just_string(10)");
+        modelBuilder.Entity("Cheese", b =>
+            {
+                b.Property<string>("Ham")
+                    .HasColumnType("just_string(10)");
 
-                    b.Property<string>("Pickle")
-                        .HasColumnType("just_string(10)");
+                b.Property<string>("Pickle")
+                    .HasColumnType("just_string(10)");
 
-                    b.HasKey("Ham");
+                b.HasKey("Ham");
 
-                    b.ToTable("Cheese");
-                });
+                b.ToTable("Cheese");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithConstructorBinding", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("default_int_mapping");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithConstructorBinding", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("default_int_mapping");
 
-                    b.Property<Guid>("PropertyWithValueGenerator")
-                        .HasColumnType("default_guid_mapping");
+                b.Property<Guid>("PropertyWithValueGenerator")
+                    .HasColumnType("default_guid_mapping");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("EntityWithConstructorBinding");
-                });
+                b.ToTable("EntityWithConstructorBinding");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -701,15 +700,15 @@ namespace MyNamespace
                 .HasPerformanceLevel("S0"),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("AnnotationName", "AnnotationValue")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("AnnotationName", "AnnotationValue")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-            SqlServerModelBuilderExtensions.HasDatabaseMaxSize(modelBuilder, "100 MB");
-            SqlServerModelBuilderExtensions.HasServiceTierSql(modelBuilder, "'basic'");
-            SqlServerModelBuilderExtensions.HasPerformanceLevelSql(modelBuilder, "'S0'");
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.HasDatabaseMaxSize(modelBuilder, "100 MB");
+        SqlServerModelBuilderExtensions.HasServiceTierSql(modelBuilder, "'basic'");
+        SqlServerModelBuilderExtensions.HasPerformanceLevelSql(modelBuilder, "'S0'");
 """),
             o =>
             {
@@ -728,27 +727,27 @@ namespace MyNamespace
             },
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseHiLo(modelBuilder, "EntityFrameworkHiLoSequence");
+        SqlServerModelBuilderExtensions.UseHiLo(modelBuilder, "EntityFrameworkHiLoSequence");
 
-            modelBuilder.HasSequence("EntityFrameworkHiLoSequence")
-                .IncrementsBy(10);
+        modelBuilder.HasSequence("EntityFrameworkHiLoSequence")
+            .IncrementsBy(10);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"));
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
-                });
+                b.ToTable("EntityWithOneProperty", "DefaultSchema");
+            });
 """),
             o =>
             {
@@ -769,27 +768,27 @@ namespace MyNamespace
             },
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, "Sequence");
+        SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, "Sequence");
 
-            modelBuilder.HasSequence("EntityWithOnePropertySequence");
+        modelBuilder.HasSequence("EntityWithOnePropertySequence");
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[EntityWithOnePropertySequence]");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[EntityWithOnePropertySequence]");
 
-                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
-                });
+                b.ToTable("EntityWithOneProperty", "DefaultSchema");
+            });
 """),
             o =>
             {
@@ -809,12 +808,12 @@ namespace MyNamespace
             },
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("AnnotationName", "AnnotationValue")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("AnnotationName", "AnnotationValue")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 """),
             o =>
             {
@@ -1153,123 +1152,122 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.HasSequence("AnimalSequence");
+        modelBuilder.HasSequence("AnimalSequence");
 
-            modelBuilder.Entity("HumanPet", b =>
-                {
-                    b.Property<int>("HumansId")
-                        .HasColumnType("int");
+        modelBuilder.Entity("HumanPet", b =>
+            {
+                b.Property<int>("HumansId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("PetsId")
-                        .HasColumnType("int");
+                b.Property<int>("PetsId")
+                    .HasColumnType("int");
 
-                    b.HasKey("HumansId", "PetsId");
+                b.HasKey("HumansId", "PetsId");
 
-                    b.HasIndex("PetsId");
+                b.HasIndex("PetsId");
 
-                    b.ToTable("HumanPet", "DefaultSchema");
-                });
+                b.ToTable("HumanPet", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[AnimalSequence]");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[AnimalSequence]");
 
-                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable((string)null);
+                b.ToTable((string)null);
 
-                    b.UseTpcMappingStrategy();
-                });
+                b.UseTpcMappingStrategy();
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human", b =>
-                {
-                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human", b =>
+            {
+                b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
 
-                    b.Property<int?>("FavoriteAnimalId")
-                        .HasColumnType("int");
+                b.Property<int?>("FavoriteAnimalId")
+                    .HasColumnType("int");
 
-                    b.HasIndex("FavoriteAnimalId");
+                b.HasIndex("FavoriteAnimalId");
 
-                    b.ToTable("Human", "DefaultSchema");
-                });
+                b.ToTable("Human", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet", b =>
-                {
-                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet", b =>
+            {
+                b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
 
-                    b.Property<string>("Vet")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Vet")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.ToTable((string)null);
-                });
+                b.ToTable((string)null);
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat", b =>
-                {
-                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat", b =>
+            {
+                b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet");
 
-                    b.Property<string>("EducationLevel")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("EducationLevel")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Cat", "DefaultSchema");
-                });
+                b.ToTable("Cat", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog", b =>
-                {
-                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog", b =>
+            {
+                b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet");
 
-                    b.Property<string>("FavoriteToy")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FavoriteToy")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Dog", "DefaultSchema");
-                });
+                b.ToTable("Dog", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("HumanPet", b =>
-                {
-                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human", null)
-                        .WithMany()
-                        .HasForeignKey("HumansId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+        modelBuilder.Entity("HumanPet", b =>
+            {
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human", null)
+                    .WithMany()
+                    .HasForeignKey("HumansId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet", null)
-                        .WithMany()
-                        .HasForeignKey("PetsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet", null)
+                    .WithMany()
+                    .HasForeignKey("PetsId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human", b =>
-                {
-                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal", "FavoriteAnimal")
-                        .WithMany()
-                        .HasForeignKey("FavoriteAnimalId");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human", b =>
+            {
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal", "FavoriteAnimal")
+                    .WithMany()
+                    .HasForeignKey("FavoriteAnimalId");
 
-                    b.Navigation("FavoriteAnimal");
-                });
+                b.Navigation("FavoriteAnimal");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -1327,65 +1325,64 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("EducationLevel")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("EducationLevel")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Vet")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Vet")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Cats", "DefaultSchema");
-                });
+                b.ToTable("Cats", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FavoriteToy")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FavoriteToy")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Vet")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Vet")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Dogs", "DefaultSchema");
-                });
+                b.ToTable("Dogs", "DefaultSchema");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -1829,21 +1826,21 @@ namespace RootNamespace
             },
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("default")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("default")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.Property<int>("Id")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable((string)null);
-                });
+                b.ToTable((string)null);
+            });
 """),
             o =>
             {
@@ -1979,27 +1976,27 @@ namespace RootNamespace
                 .Entity("Entity").Property<int>("Id").UseHiLo(schema: "dbo"),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("dbo")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("dbo")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.HasSequence("EntityFrameworkHiLoSequence", "dbo")
-                .IncrementsBy(10);
+        modelBuilder.HasSequence("EntityFrameworkHiLoSequence", "dbo")
+            .IncrementsBy(10);
 
-            modelBuilder.Entity("Entity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Entity", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "EntityFrameworkHiLoSequence", "dbo");
+                SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "EntityFrameworkHiLoSequence", "dbo");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Entity", "dbo");
-                });
+                b.ToTable("Entity", "dbo");
+            });
 """),
             model =>
             {
@@ -2214,11 +2211,11 @@ namespace RootNamespace
             builder => builder.UseIdentityColumns(),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 """),
             o =>
             {
@@ -2234,11 +2231,11 @@ namespace RootNamespace
             builder => builder.UseIdentityColumns(5),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 5L);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 5L);
 """),
             o =>
             {
@@ -2254,11 +2251,11 @@ namespace RootNamespace
             builder => builder.UseIdentityColumns(increment: 5),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 5);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 5);
 """),
             o =>
             {
@@ -2286,24 +2283,24 @@ namespace RootNamespace
             },
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 9223372036854775807L, 5);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 9223372036854775807L, 5);
 
-            modelBuilder.Entity("Building", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Building", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 9223372036854775807L, 5);
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 9223372036854775807L, 5);
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Buildings", "DefaultSchema");
-                });
+                b.ToTable("Buildings", "DefaultSchema");
+            });
 """),
             o =>
             {
@@ -4244,60 +4241,59 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("TestOwner", "DefaultSchema");
-                });
+                b.ToTable("TestOwner", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
-                {
-                    b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", b1 =>
-                        {
-                            b1.Property<int>("TestOwnerId")
-                                .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
+            {
+                b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", b1 =>
+                    {
+                        b1.Property<int>("TestOwnerId")
+                            .HasColumnType("int");
 
-                            b1.Property<int>("Id")
-                                .HasColumnType("int");
+                        b1.Property<int>("Id")
+                            .HasColumnType("int");
 
-                            b1.Property<int>("TestEnum")
-                                .HasColumnType("int");
+                        b1.Property<int>("TestEnum")
+                            .HasColumnType("int");
 
-                            b1.HasKey("TestOwnerId", "Id");
+                        b1.HasKey("TestOwnerId", "Id");
 
-                            b1.ToTable((string)null);
+                        b1.ToTable((string)null);
 
-                            b1.ToView("OwnedView", "DefaultSchema");
+                        b1.ToView("OwnedView", "DefaultSchema");
 
-                            b1.WithOwner()
-                                .HasForeignKey("TestOwnerId");
-                        });
+                        b1.WithOwner()
+                            .HasForeignKey("TestOwnerId");
+                    });
 
-                    b.Navigation("OwnedEntities");
-                });
+                b.Navigation("OwnedEntities");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -4332,64 +4328,63 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("TestOwner", "DefaultSchema");
-                });
+                b.ToTable("TestOwner", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
-                {
-                    b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", b1 =>
-                        {
-                            b1.Property<int>("TestOwnerId")
-                                .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner", b =>
+            {
+                b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", b1 =>
+                    {
+                        b1.Property<int>("TestOwnerId")
+                            .HasColumnType("int");
 
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
+                        b1.Property<int>("Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+                        SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
 
-                            b1.Property<int>("TestEnum")
-                                .HasColumnType("int");
+                        b1.Property<int>("TestEnum")
+                            .HasColumnType("int");
 
-                            b1.HasKey("TestOwnerId", "Id");
+                        b1.HasKey("TestOwnerId", "Id");
 
-                            b1.ToTable("TestOwnee", "DefaultSchema", t =>
-                                {
-                                    t.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)");
-                                });
+                        b1.ToTable("TestOwnee", "DefaultSchema", t =>
+                            {
+                                t.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)");
+                            });
 
-                            b1.WithOwner()
-                                .HasForeignKey("TestOwnerId");
-                        });
+                        b1.WithOwner()
+                            .HasForeignKey("TestOwnerId");
+                    });
 
-                    b.Navigation("OwnedEntities");
-                });
+                b.Navigation("OwnedEntities");
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -5108,73 +5103,73 @@ namespace RootNamespace
                 .Entity<FooExtension<BarA>>(b => b.HasOne(x => x.Bar).WithOne().HasForeignKey<BarA>()),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarBase", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarBase", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                b.Property<string>("Discriminator")
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .HasColumnType("nvarchar(8)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("BarBase", "DefaultSchema");
+                b.ToTable("BarBase", "DefaultSchema");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("BarBase");
+                b.HasDiscriminator<string>("Discriminator").HasValue("BarBase");
 
-                    b.UseTphMappingStrategy();
-                });
+                b.UseTphMappingStrategy();
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA>", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("FooExtension<BarA>", "DefaultSchema");
-                });
+                b.ToTable("FooExtension<BarA>", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA", b =>
-                {
-                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarBase");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA", b =>
+            {
+                b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarBase");
 
-                    b.Property<int?>("FooExtensionId")
-                        .HasColumnType("int")
-                        .HasColumnName("FooExtension<BarA>Id");
+                b.Property<int?>("FooExtensionId")
+                    .HasColumnType("int")
+                    .HasColumnName("FooExtension<BarA>Id");
 
-                    b.HasIndex("FooExtensionId")
-                        .IsUnique()
-                        .HasFilter("[FooExtension<BarA>Id] IS NOT NULL");
+                b.HasIndex("FooExtensionId")
+                    .IsUnique()
+                    .HasFilter("[FooExtension<BarA>Id] IS NOT NULL");
 
-                    b.HasDiscriminator().HasValue("BarA");
-                });
+                b.HasDiscriminator().HasValue("BarA");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA", b =>
-                {
-                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA>", null)
-                        .WithOne("Bar")
-                        .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA", "FooExtensionId");
-                });
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA", b =>
+            {
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA>", null)
+                    .WithOne("Bar")
+                    .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA", "FooExtensionId");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA>", b =>
-                {
-                    b.Navigation("Bar");
-                });
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BarA>", b =>
+            {
+                b.Navigation("Bar");
+            });
 """),
             model =>
             {
@@ -5205,48 +5200,48 @@ namespace RootNamespace
             modelBuilder => modelBuilder.Entity<Parrot<Beak>>().OwnsOne(e => e.Child),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Parrot<Beak>", "DefaultSchema");
-                });
+                b.ToTable("Parrot<Beak>", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
-                {
-                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
-                        {
-                            b1.Property<int>("ParrotId")
-                                .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
+            {
+                b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
+                    {
+                        b1.Property<int>("ParrotId")
+                            .HasColumnType("int");
 
-                            b1.Property<string>("Name")
-                                .HasColumnType("nvarchar(max)");
+                        b1.Property<string>("Name")
+                            .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("ParrotId");
+                        b1.HasKey("ParrotId");
 
-                            b1.ToTable("Parrot<Beak>", "DefaultSchema");
+                        b1.ToTable("Parrot<Beak>", "DefaultSchema");
 
-                            b1.WithOwner()
-                                .HasForeignKey("ParrotId");
-                        });
+                        b1.WithOwner()
+                            .HasForeignKey("ParrotId");
+                    });
 
-                    b.Navigation("Child");
-                });
+                b.Navigation("Child");
+            });
 """),
             model =>
             {
@@ -5265,48 +5260,48 @@ namespace RootNamespace
             modelBuilder => modelBuilder.Entity<Parrot>().OwnsOne(e => e.Child),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Parrot", "DefaultSchema");
-                });
+                b.ToTable("Parrot", "DefaultSchema");
+            });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
-                {
-                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
-                        {
-                            b1.Property<int>("ParrotId")
-                                .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
+            {
+                b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
+                    {
+                        b1.Property<int>("ParrotId")
+                            .HasColumnType("int");
 
-                            b1.Property<string>("Name")
-                                .HasColumnType("nvarchar(max)");
+                        b1.Property<string>("Name")
+                            .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("ParrotId");
+                        b1.HasKey("ParrotId");
 
-                            b1.ToTable("Parrot", "DefaultSchema");
+                        b1.ToTable("Parrot", "DefaultSchema");
 
-                            b1.WithOwner()
-                                .HasForeignKey("ParrotId");
-                        });
+                        b1.WithOwner()
+                            .HasForeignKey("ParrotId");
+                    });
 
-                    b.Navigation("Child");
-                });
+                b.Navigation("Child");
+            });
 """),
             model =>
             {
@@ -6074,11 +6069,11 @@ namespace RootNamespace
             builder => builder.HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8),
             AddBoilerPlate(
                 """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L);
 """),
             o => Assert.Equal(8L, o.GetIdentitySeed()));
 
@@ -8644,258 +8639,257 @@ using NetTopologySuite.Geometries;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithManyProperties", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithManyProperties", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.PrimitiveCollection<string>("BoolCollection")
-                        .HasColumnType("nvarchar(max)");
+                b.PrimitiveCollection<string>("BoolCollection")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Boolean")
-                        .HasColumnType("bit");
+                b.Property<bool>("Boolean")
+                    .HasColumnType("bit");
 
-                    b.Property<byte>("Byte")
-                        .HasColumnType("tinyint");
+                b.Property<byte>("Byte")
+                    .HasColumnType("tinyint");
 
-                    b.Property<byte[]>("Bytes")
-                        .HasColumnType("varbinary(max)");
+                b.Property<byte[]>("Bytes")
+                    .HasColumnType("varbinary(max)");
 
-                    b.PrimitiveCollection<string>("BytesCollection")
-                        .HasColumnType("nvarchar(max)");
+                b.PrimitiveCollection<string>("BytesCollection")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Character")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(1)");
+                b.Property<string>("Character")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(1)");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("DateTime")
+                    .HasColumnType("datetime2");
 
-                    b.PrimitiveCollection<string>("DateTimeCollection")
-                        .HasColumnType("nvarchar(max)");
+                b.PrimitiveCollection<string>("DateTimeCollection")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset>("DateTimeOffset")
-                        .HasColumnType("datetimeoffset");
+                b.Property<DateTimeOffset>("DateTimeOffset")
+                    .HasColumnType("datetimeoffset");
 
-                    b.Property<decimal>("Decimal")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("Decimal")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("Double")
-                        .HasColumnType("float");
+                b.Property<double>("Double")
+                    .HasColumnType("float");
 
-                    b.PrimitiveCollection<string>("DoubleCollection")
-                        .HasColumnType("nvarchar(max)");
+                b.PrimitiveCollection<string>("DoubleCollection")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<short>("Enum16")
-                        .HasColumnType("smallint");
+                b.Property<short>("Enum16")
+                    .HasColumnType("smallint");
 
-                    b.Property<int>("Enum32")
-                        .HasColumnType("int");
+                b.Property<int>("Enum32")
+                    .HasColumnType("int");
 
-                    b.Property<long>("Enum64")
-                        .HasColumnType("bigint");
+                b.Property<long>("Enum64")
+                    .HasColumnType("bigint");
 
-                    b.Property<byte>("Enum8")
-                        .HasColumnType("tinyint");
+                b.Property<byte>("Enum8")
+                    .HasColumnType("tinyint");
 
-                    b.Property<short>("EnumS8")
-                        .HasColumnType("smallint");
+                b.Property<short>("EnumS8")
+                    .HasColumnType("smallint");
 
-                    b.Property<int>("EnumU16")
-                        .HasColumnType("int");
+                b.Property<int>("EnumU16")
+                    .HasColumnType("int");
 
-                    b.Property<long>("EnumU32")
-                        .HasColumnType("bigint");
+                b.Property<long>("EnumU32")
+                    .HasColumnType("bigint");
 
-                    b.Property<decimal>("EnumU64")
-                        .HasColumnType("decimal(20,0)");
+                b.Property<decimal>("EnumU64")
+                    .HasColumnType("decimal(20,0)");
 
-                    b.Property<short>("Int16")
-                        .HasColumnType("smallint");
+                b.Property<short>("Int16")
+                    .HasColumnType("smallint");
 
-                    b.Property<int>("Int32")
-                        .HasColumnType("int");
+                b.Property<int>("Int32")
+                    .HasColumnType("int");
 
-                    b.PrimitiveCollection<string>("Int32Collection")
-                        .HasColumnType("nvarchar(max)");
+                b.PrimitiveCollection<string>("Int32Collection")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("Int64")
-                        .HasColumnType("bigint");
+                b.Property<long>("Int64")
+                    .HasColumnType("bigint");
 
-                    b.Property<decimal?>("OptionalProperty")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal?>("OptionalProperty")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<short>("SignedByte")
-                        .HasColumnType("smallint");
+                b.Property<short>("SignedByte")
+                    .HasColumnType("smallint");
 
-                    b.Property<float>("Single")
-                        .HasColumnType("real");
+                b.Property<float>("Single")
+                    .HasColumnType("real");
 
-                    b.Property<Geometry>("SpatialBGeometryCollection")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBGeometryCollection")
+                    .HasColumnType("geography");
 
-                    b.Property<Geometry>("SpatialBLineString")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBLineString")
+                    .HasColumnType("geography");
 
-                    b.Property<Geometry>("SpatialBMultiLineString")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBMultiLineString")
+                    .HasColumnType("geography");
 
-                    b.Property<Geometry>("SpatialBMultiPoint")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBMultiPoint")
+                    .HasColumnType("geography");
 
-                    b.Property<Geometry>("SpatialBMultiPolygon")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBMultiPolygon")
+                    .HasColumnType("geography");
 
-                    b.Property<Geometry>("SpatialBPoint")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBPoint")
+                    .HasColumnType("geography");
 
-                    b.Property<Geometry>("SpatialBPolygon")
-                        .HasColumnType("geography");
+                b.Property<Geometry>("SpatialBPolygon")
+                    .HasColumnType("geography");
 
-                    b.Property<GeometryCollection>("SpatialCGeometryCollection")
-                        .HasColumnType("geography");
+                b.Property<GeometryCollection>("SpatialCGeometryCollection")
+                    .HasColumnType("geography");
 
-                    b.Property<LineString>("SpatialCLineString")
-                        .HasColumnType("geography");
+                b.Property<LineString>("SpatialCLineString")
+                    .HasColumnType("geography");
 
-                    b.Property<MultiLineString>("SpatialCMultiLineString")
-                        .HasColumnType("geography");
+                b.Property<MultiLineString>("SpatialCMultiLineString")
+                    .HasColumnType("geography");
 
-                    b.Property<MultiPoint>("SpatialCMultiPoint")
-                        .HasColumnType("geography");
+                b.Property<MultiPoint>("SpatialCMultiPoint")
+                    .HasColumnType("geography");
 
-                    b.Property<MultiPolygon>("SpatialCMultiPolygon")
-                        .HasColumnType("geography");
+                b.Property<MultiPolygon>("SpatialCMultiPolygon")
+                    .HasColumnType("geography");
 
-                    b.Property<Point>("SpatialCPoint")
-                        .HasColumnType("geography");
+                b.Property<Point>("SpatialCPoint")
+                    .HasColumnType("geography");
 
-                    b.Property<Polygon>("SpatialCPolygon")
-                        .HasColumnType("geography");
+                b.Property<Polygon>("SpatialCPolygon")
+                    .HasColumnType("geography");
 
-                    b.Property<string>("String")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("String")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.PrimitiveCollection<string>("StringCollection")
-                        .HasColumnType("nvarchar(max)");
+                b.PrimitiveCollection<string>("StringCollection")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<TimeSpan>("TimeSpan")
-                        .HasColumnType("time");
+                b.Property<TimeSpan>("TimeSpan")
+                    .HasColumnType("time");
 
-                    b.Property<int>("UnsignedInt16")
-                        .HasColumnType("int");
+                b.Property<int>("UnsignedInt16")
+                    .HasColumnType("int");
 
-                    b.Property<long>("UnsignedInt32")
-                        .HasColumnType("bigint");
+                b.Property<long>("UnsignedInt32")
+                    .HasColumnType("bigint");
 
-                    b.Property<decimal>("UnsignedInt64")
-                        .HasColumnType("decimal(20,0)");
+                b.Property<decimal>("UnsignedInt64")
+                    .HasColumnType("decimal(20,0)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("EntityWithManyProperties", "DefaultSchema");
+                b.ToTable("EntityWithManyProperties", "DefaultSchema");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 42,
-                            BoolCollection = "[true,false]",
-                            Boolean = true,
-                            Byte = (byte)55,
-                            Bytes = new byte[] { 44, 45 },
-                            BytesCollection = "[\"AQI=\",\"AwQ=\"]",
-                            Character = "9",
-                            DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
-                            DateTimeCollection = "[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]",
-                            DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
-                            Decimal = 50.0m,
-                            Double = 49.0,
-                            DoubleCollection = "[1.2,3.4]",
-                            Enum16 = (short)1,
-                            Enum32 = 1,
-                            Enum64 = 1L,
-                            Enum8 = (byte)1,
-                            EnumS8 = (short)-128,
-                            EnumU16 = 65535,
-                            EnumU32 = 4294967295L,
-                            EnumU64 = 1234567890123456789m,
-                            Int16 = (short)46,
-                            Int32 = 47,
-                            Int32Collection = "[1,2,3,4]",
-                            Int64 = 48L,
-                            SignedByte = (short)60,
-                            Single = 54f,
-                            SpatialBGeometryCollection = (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))"),
-                            SpatialBLineString = (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)"),
-                            SpatialBMultiLineString = (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))"),
-                            SpatialBMultiPoint = (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))"),
-                            SpatialBMultiPolygon = (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))"),
-                            SpatialBPoint = (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POINT Z(1.1 2.2 3.3)"),
-                            SpatialBPolygon = (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))"),
-                            SpatialCGeometryCollection = (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))"),
-                            SpatialCLineString = (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)"),
-                            SpatialCMultiLineString = (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))"),
-                            SpatialCMultiPoint = (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))"),
-                            SpatialCMultiPolygon = (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))"),
-                            SpatialCPoint = (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POINT Z(1.1 2.2 3.3)"),
-                            SpatialCPolygon = (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))"),
-                            String = "FortyThree",
-                            StringCollection = "[\"AB\",\"CD\"]",
-                            TimeSpan = new TimeSpan(2, 3, 52, 53, 0),
-                            UnsignedInt16 = 56,
-                            UnsignedInt32 = 57L,
-                            UnsignedInt64 = 58m
-                        },
-                        new
-                        {
-                            Id = 43,
-                            Boolean = true,
-                            Byte = (byte)55,
-                            Bytes = new byte[] { 44, 45 },
-                            Character = "9",
-                            DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
-                            DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, -1, 0, 0, 0)),
-                            Decimal = -50.0m,
-                            Double = -49.0,
-                            Enum16 = (short)1,
-                            Enum32 = 1,
-                            Enum64 = 1L,
-                            Enum8 = (byte)1,
-                            EnumS8 = (short)-128,
-                            EnumU16 = 65535,
-                            EnumU32 = 4294967295L,
-                            EnumU64 = 1234567890123456789m,
-                            Int16 = (short)-46,
-                            Int32 = -47,
-                            Int64 = -48L,
-                            SignedByte = (short)-60,
-                            Single = -54f,
-                            String = "FortyThree",
-                            TimeSpan = new TimeSpan(-2, -2, -7, -7, 0),
-                            UnsignedInt16 = 56,
-                            UnsignedInt32 = 57L,
-                            UnsignedInt64 = 58m
-                        });
-                });
+                b.HasData(
+                    new
+                    {
+                        Id = 42,
+                        BoolCollection = "[true,false]",
+                        Boolean = true,
+                        Byte = (byte)55,
+                        Bytes = new byte[] { 44, 45 },
+                        BytesCollection = "[\"AQI=\",\"AwQ=\"]",
+                        Character = "9",
+                        DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
+                        DateTimeCollection = "[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]",
+                        DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
+                        Decimal = 50.0m,
+                        Double = 49.0,
+                        DoubleCollection = "[1.2,3.4]",
+                        Enum16 = (short)1,
+                        Enum32 = 1,
+                        Enum64 = 1L,
+                        Enum8 = (byte)1,
+                        EnumS8 = (short)-128,
+                        EnumU16 = 65535,
+                        EnumU32 = 4294967295L,
+                        EnumU64 = 1234567890123456789m,
+                        Int16 = (short)46,
+                        Int32 = 47,
+                        Int32Collection = "[1,2,3,4]",
+                        Int64 = 48L,
+                        SignedByte = (short)60,
+                        Single = 54f,
+                        SpatialBGeometryCollection = (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))"),
+                        SpatialBLineString = (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)"),
+                        SpatialBMultiLineString = (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))"),
+                        SpatialBMultiPoint = (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))"),
+                        SpatialBMultiPolygon = (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))"),
+                        SpatialBPoint = (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POINT Z(1.1 2.2 3.3)"),
+                        SpatialBPolygon = (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))"),
+                        SpatialCGeometryCollection = (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))"),
+                        SpatialCLineString = (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)"),
+                        SpatialCMultiLineString = (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))"),
+                        SpatialCMultiPoint = (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))"),
+                        SpatialCMultiPolygon = (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))"),
+                        SpatialCPoint = (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POINT Z(1.1 2.2 3.3)"),
+                        SpatialCPolygon = (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))"),
+                        String = "FortyThree",
+                        StringCollection = "[\"AB\",\"CD\"]",
+                        TimeSpan = new TimeSpan(2, 3, 52, 53, 0),
+                        UnsignedInt16 = 56,
+                        UnsignedInt32 = 57L,
+                        UnsignedInt64 = 58m
+                    },
+                    new
+                    {
+                        Id = 43,
+                        Boolean = true,
+                        Byte = (byte)55,
+                        Bytes = new byte[] { 44, 45 },
+                        Character = "9",
+                        DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
+                        DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, -1, 0, 0, 0)),
+                        Decimal = -50.0m,
+                        Double = -49.0,
+                        Enum16 = (short)1,
+                        Enum32 = 1,
+                        Enum64 = 1L,
+                        Enum8 = (byte)1,
+                        EnumS8 = (short)-128,
+                        EnumU16 = 65535,
+                        EnumU32 = 4294967295L,
+                        EnumU64 = 1234567890123456789m,
+                        Int16 = (short)-46,
+                        Int32 = -47,
+                        Int64 = -48L,
+                        SignedByte = (short)-60,
+                        Single = -54f,
+                        String = "FortyThree",
+                        TimeSpan = new TimeSpan(-2, -2, -7, -7, 0),
+                        UnsignedInt16 = 56,
+                        UnsignedInt32 = 57L,
+                        UnsignedInt64 = 58m
+                    });
+            });
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -9033,11 +9027,11 @@ namespace RootNamespace
 
     protected virtual string GetHeading(bool empty = false)
         => """
-            modelBuilder
-                .HasDefaultSchema("DefaultSchema")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+        modelBuilder
+            .HasDefaultSchema("DefaultSchema")
+            .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+        SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
 """
             + (empty ? null : Environment.NewLine);
@@ -9069,17 +9063,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
 {{code}}
 #pragma warning restore 612, 618
-        }
     }
 }
 

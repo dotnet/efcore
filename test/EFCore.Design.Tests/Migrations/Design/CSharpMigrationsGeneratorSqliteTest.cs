@@ -25,19 +25,18 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable disable
 
-namespace RootNamespace
+namespace RootNamespace;
+
+[DbContext(typeof(DbContext))]
+partial class Snapshot : ModelSnapshot
 {
-    [DbContext(typeof(DbContext))]
-    partial class Snapshot : ModelSnapshot
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasDefaultSchema("DefaultSchema");
+        modelBuilder.HasDefaultSchema("DefaultSchema");
 
 {{code}}
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -55,18 +54,18 @@ namespace RootNamespace
                 });
             },
             AddBoilerPlate("""
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
-                            {
-                                b.Property<int>("Id")
-                                    .ValueGeneratedOnAdd()
-                                    .HasColumnType("INTEGER");
+                    modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
+                        {
+                            b.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
 
-                                SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
+                            SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
 
-                                b.HasKey("Id");
+                            b.HasKey("Id");
 
-                                b.ToTable("EntityWithAutoincrement", "DefaultSchema");
-                            });
+                            b.ToTable("EntityWithAutoincrement", "DefaultSchema");
+                        });
             """),
             model =>
             {
@@ -88,18 +87,18 @@ namespace RootNamespace
                 });
             },
             AddBoilerPlate("""
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithConverterPk", b =>
-                            {
-                                b.Property<int>("Id")
-                                    .ValueGeneratedOnAdd()
-                                    .HasColumnType("INTEGER");
+                    modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithConverterPk", b =>
+                        {
+                            b.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
 
-                                SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
+                            SqlitePropertyBuilderExtensions.UseAutoincrement(b.Property<int>("Id"));
 
-                                b.HasKey("Id");
+                            b.HasKey("Id");
 
-                                b.ToTable("EntityWithConverterPk", "DefaultSchema");
-                            });
+                            b.ToTable("EntityWithConverterPk", "DefaultSchema");
+                        });
             """),
             model =>
             {
@@ -121,15 +120,15 @@ namespace RootNamespace
                 });
             },
             AddBoilerPlate("""
-                        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
-                            {
-                                b.Property<int>("Id")
-                                    .HasColumnType("INTEGER");
+                    modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTestBase+EntityWithAutoincrement", b =>
+                        {
+                            b.Property<int>("Id")
+                                .HasColumnType("INTEGER");
 
-                                b.HasKey("Id");
+                            b.HasKey("Id");
 
-                                b.ToTable("EntityWithAutoincrement", "DefaultSchema");
-                            });
+                            b.ToTable("EntityWithAutoincrement", "DefaultSchema");
+                        });
             """, usingMetadata: false),
             model =>
             {

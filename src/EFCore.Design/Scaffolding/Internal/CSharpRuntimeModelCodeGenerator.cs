@@ -216,9 +216,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         mainBuilder
@@ -330,12 +329,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -355,9 +348,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         var className = GetModelClassName(contextType);
@@ -413,12 +405,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -440,9 +426,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         var className = GetModelClassName(contextType);
@@ -625,12 +610,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder.AppendLine("}");
 
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
-
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
@@ -727,9 +706,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!string.IsNullOrEmpty(@namespace))
         {
             mainBuilder
-                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
-                .AppendLine("{");
-            mainBuilder.Indent();
+                .Append("namespace ").Append(_code.Namespace(@namespace)).AppendLine(";")
+                .AppendLine();
         }
 
         AddNamespace(typeof(EntityFrameworkInternalAttribute), namespaces);
@@ -779,12 +757,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         mainBuilder.AppendLine("}");
-
-        if (!string.IsNullOrEmpty(@namespace))
-        {
-            mainBuilder.DecrementIndent();
-            mainBuilder.AppendLine("}");
-        }
 
         return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
