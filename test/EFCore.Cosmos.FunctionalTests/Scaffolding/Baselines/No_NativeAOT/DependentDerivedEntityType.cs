@@ -8,47 +8,46 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+[EntityFrameworkInternal]
+public partial class DependentDerivedEntityType
 {
-    [EntityFrameworkInternal]
-    public partial class DependentDerivedEntityType
+    public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
-        {
-            var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<byte?>",
-                typeof(CompiledModelTestBase.DependentDerived<byte?>),
-                baseEntityType,
-                discriminatorProperty: "EnumDiscriminator",
-                discriminatorValue: CompiledModelTestBase.Enum1.Two,
-                propertyCount: 2);
+        var runtimeEntityType = model.AddEntityType(
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<byte?>",
+            typeof(CompiledModelTestBase.DependentDerived<byte?>),
+            baseEntityType,
+            discriminatorProperty: "EnumDiscriminator",
+            discriminatorValue: CompiledModelTestBase.Enum1.Two,
+            propertyCount: 2);
 
-            var data = runtimeEntityType.AddProperty(
-                "Data",
-                typeof(string),
-                propertyInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true,
-                maxLength: 20,
-                unicode: false);
+        var data = runtimeEntityType.AddProperty(
+            "Data",
+            typeof(string),
+            propertyInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(CompiledModelTestBase.DependentDerived<byte?>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true,
+            maxLength: 20,
+            unicode: false);
 
-            var money = runtimeEntityType.AddProperty(
-                "Money",
-                typeof(decimal),
-                precision: 9,
-                scale: 3,
-                sentinel: 0m);
+        var money = runtimeEntityType.AddProperty(
+            "Money",
+            typeof(decimal),
+            precision: 9,
+            scale: 3,
+            sentinel: 0m);
 
-            return runtimeEntityType;
-        }
-
-        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
-        {
-            runtimeEntityType.AddAnnotation("DiscriminatorMappingComplete", false);
-
-            Customize(runtimeEntityType);
-        }
-
-        static partial void Customize(RuntimeEntityType runtimeEntityType);
+        return runtimeEntityType;
     }
+
+    public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+    {
+        runtimeEntityType.AddAnnotation("DiscriminatorMappingComplete", false);
+
+        Customize(runtimeEntityType);
+    }
+
+    static partial void Customize(RuntimeEntityType runtimeEntityType);
 }

@@ -6,43 +6,42 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace Scaffolding
+namespace Scaffolding;
+
+[DbContext(typeof(DbContext))]
+public partial class DbContextModel : RuntimeModel
 {
-    [DbContext(typeof(DbContext))]
-    public partial class DbContextModel : RuntimeModel
+    private static readonly bool _useOldBehavior31751 =
+        System.AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31751", out var enabled31751) && enabled31751;
+
+    static DbContextModel()
     {
-        private static readonly bool _useOldBehavior31751 =
-            System.AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31751", out var enabled31751) && enabled31751;
+        var model = new DbContextModel();
 
-        static DbContextModel()
+        if (_useOldBehavior31751)
         {
-            var model = new DbContextModel();
+            model.Initialize();
+        }
+        else
+        {
+            var thread = new System.Threading.Thread(RunInitialization, 10 * 1024 * 1024);
+            thread.Start();
+            thread.Join();
 
-            if (_useOldBehavior31751)
+            void RunInitialization()
             {
                 model.Initialize();
             }
-            else
-            {
-                var thread = new System.Threading.Thread(RunInitialization, 10 * 1024 * 1024);
-                thread.Start();
-                thread.Join();
-
-                void RunInitialization()
-                {
-                    model.Initialize();
-                }
-            }
-
-            model.Customize();
-            _instance = (DbContextModel)model.FinalizeModel();
         }
 
-        private static DbContextModel _instance;
-        public static IModel Instance => _instance;
-
-        partial void Initialize();
-
-        partial void Customize();
+        model.Customize();
+        _instance = (DbContextModel)model.FinalizeModel();
     }
+
+    private static DbContextModel _instance;
+    public static IModel Instance => _instance;
+
+    partial void Initialize();
+
+    partial void Customize();
 }
