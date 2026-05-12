@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -214,6 +215,30 @@ public class DbContextOperationsTest
             contexts,
             c => Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(c).FactoryUsed),
             c => Assert.Equal(nameof(DerivedContext), Assert.IsType<DerivedContext>(c).FactoryUsed));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public void CreateContext_with_wildcard_returns_all_contexts()
+    {
+        var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            args: [],
+            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
+
+        var contexts = operations.CreateContext("*");
 
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
