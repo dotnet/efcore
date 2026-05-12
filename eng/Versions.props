@@ -18,11 +18,12 @@
 
     <!--
       Upper bound for NuGet dependency version ranges on packages built from this repo.
-      Calculated as (major+1).0.0-0, where the -0 pre-release suffix ensures that pre-release
+      Calculated as (major+1).0.0-a, where the -a pre-release suffix ensures that pre-release
       versions of the next major (like 12.0.0-preview1) are excluded, since in NuGet SemVer 2.0
-      ordering 12.0.0-preview1 > 12.0.0-0.
+      ordering 12.0.0-preview1 > 12.0.0-a. Note that NuGet requires the numeric portion of a
+      pre-release label to not start with 0, so a non-numeric label is used here.
     -->
-    <NextMajorVersion>$([MSBuild]::Add($([System.Version]::Parse('$(VersionPrefix)').Major), 1)).0.0-0</NextMajorVersion>
+    <NextMajorVersion>$([MSBuild]::Add($([System.Version]::Parse('$(VersionPrefix)').Major), 1)).0.0-a</NextMajorVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(ShouldUseLiveRoslyn)' != 'true'">
