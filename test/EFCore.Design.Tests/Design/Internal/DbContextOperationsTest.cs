@@ -237,14 +237,13 @@ public class DbContextOperationsTest
             args: [],
             new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
     
-        var contexts = operations.CreateContext("*");
+        var contexts = operations.CreateAllContexts().ToList();
     
-        Assert.NotNull(contexts);
-        Assert.Equal(3, contexts.Count);
-        Assert.Contains(contexts, c => c.GetType() == typeof(BaseContext));
-        Assert.Contains(contexts, c => c.GetType() == typeof(DerivedContext));
-        Assert.Contains(contexts, c => c.GetType() == typeof(HierarchyContextFactory));
-        
+        Assert.Collection(
+            contexts,
+            c => Assert.IsType<BaseContext>(c),
+            c => Assert.IsType<DerivedContext>(c));
+    
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
         Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
