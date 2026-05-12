@@ -975,7 +975,7 @@ namespace My.Gnomespace.Data
     }
 
     private static string ExtractNamespace(string migrationMigrationCode)
-        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10);
+        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10).TrimEnd(';');
 
     // [ConditionalTheory]
     // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath")]
