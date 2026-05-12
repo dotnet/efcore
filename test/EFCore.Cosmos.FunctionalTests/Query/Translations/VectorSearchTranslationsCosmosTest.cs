@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
+[CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
 public class VectorSearchTranslationsCosmosTest : IClassFixture<VectorSearchTranslationsCosmosTest.VectorSearchFixture>
 {
     public VectorSearchTranslationsCosmosTest(VectorSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -67,7 +68,6 @@ FROM root c
     }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task OrderBy_VectorDistance_bytes_memory()
     {
         await using var context = CreateContext();
@@ -90,7 +90,6 @@ ORDER BY VectorDistance(c["Bytes"], @p)
     }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task OrderBy_VectorDistance_bytes_array()
     {
         await using var context = CreateContext();
@@ -113,7 +112,6 @@ ORDER BY VectorDistance(c["BytesArray"], @p)
     }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task OrderBy_VectorDistance_sbyte()
     {
         await using var context = CreateContext();
@@ -258,7 +256,6 @@ FROM root c
     }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task RRF_with_two_Vector_distance_functions_in_OrderBy()
     {
         await using var context = CreateContext();
@@ -396,19 +393,15 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                 b.HasKey(e => e.Id);
                 b.HasPartitionKey(e => e.Publisher);
 
+                b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.Flat);
+
+                b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
+                b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
                 b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
-
-                if (!TestEnvironment.IsLinuxEmulator)
-                {
-                    b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.DiskANN);
-                    b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.DiskANN);
-                    b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.DiskANN);
-                    b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.DiskANN);
-
-                    b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
-                    b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
-                    b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
-                }
 
                 b.OwnsOne(
                     x => x.OwnedReference, bb =>
@@ -416,11 +409,7 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                         bb.OwnsOne(
                             x => x.NestedOwned, bbb =>
                             {
-                                if (!TestEnvironment.IsLinuxEmulator)
-                                {
-                                    bbb.HasIndex(x => x.NestedSingles).IsVectorIndex(VectorIndexType.DiskANN);
-                                }
-
+                                bbb.HasIndex(x => x.NestedSingles).IsVectorIndex(VectorIndexType.Flat);
                                 bbb.Property(x => x.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10);
                             });
 

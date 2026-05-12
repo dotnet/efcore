@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -17,7 +17,6 @@ public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.Hybri
     protected HybridSearchFixture Fixture { get; }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Rrf_with_FullTextScore_and_VectorDistance()
     {
         await using var context = CreateContext();
@@ -41,7 +40,6 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
     }
 
     [ConditionalFact]
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public virtual async Task Rrf_with_FullTextScore_and_VectorDistance_with_weights()
     {
         await using var context = CreateContext();
@@ -131,28 +129,20 @@ ORDER BY RANK RRF(FullTextScore(c["Owned"]["AnotherDescription"], "beaver"), Vec
                 b.Property(x => x.Description).EnableFullTextSearch();
                 b.HasIndex(x => x.Description).IsFullTextIndex();
 
+                b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.Flat);
+                b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.Flat);
+
+                b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
+                b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
+                b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
                 b.Property(e => e.SinglesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
-
-                if (!TestEnvironment.IsLinuxEmulator)
-                {
-                    b.HasIndex(e => e.SinglesArray).IsVectorIndex(VectorIndexType.DiskANN);
-                    b.HasIndex(e => e.Bytes).IsVectorIndex(VectorIndexType.DiskANN);
-                    b.HasIndex(e => e.SBytes).IsVectorIndex(VectorIndexType.DiskANN);
-                    b.HasIndex(e => e.BytesArray).IsVectorIndex(VectorIndexType.DiskANN);
-
-                    b.Property(e => e.Bytes).IsVectorProperty(DistanceFunction.Cosine, 10);
-                    b.Property(e => e.SBytes).IsVectorProperty(DistanceFunction.DotProduct, 10);
-                    b.Property(e => e.BytesArray).IsVectorProperty(DistanceFunction.Cosine, 10);
-                }
 
                 b.OwnsOne(
                     x => x.Owned, bb =>
                     {
-                        if (!TestEnvironment.IsLinuxEmulator)
-                        {
-                            bb.HasIndex(e => e.Singles).IsVectorIndex(VectorIndexType.DiskANN);
-                        }
-
+                        bb.HasIndex(e => e.Singles).IsVectorIndex(VectorIndexType.Flat);
                         bb.Property(e => e.Singles).IsVectorProperty(DistanceFunction.Cosine, 10);
 
                         bb.Property(x => x.AnotherDescription).EnableFullTextSearch();
