@@ -90,7 +90,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             _jsonIdPropertyValues.Values.All(p => p is not null) && _jsonIdPropertyValues.Count > 0;
 
         // WithPartitionKey will clear _partitionKeyPropertyValues during the lift pass below; snapshot predicate partition key
-        // comparisons first so we can validate conflicts only if the query will use ReadItem (see ValidateNoWithPartitionKeyConflict).
+        // comparisons first so we can validate conflicts against WithPartitionKey even when the query does not use ReadItem.
         var hadWithPartitionKey = queryCompilationContext.PartitionKeyPropertyValues.Count > 0;
         Dictionary<IProperty, (Expression? ValueExpression, Expression? OriginalExpression)>? predicatePartitionKeySnapshot = null;
         if (hadWithPartitionKey)
@@ -121,6 +121,14 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             }
         }
 
+        if (hadWithPartitionKey && predicatePartitionKeySnapshot is not null)
+        {
+            ValidateNoWithPartitionKeyConflict(
+                queryCompilationContext,
+                partitionKeyProperties,
+                predicatePartitionKeySnapshot);
+        }
+
         // Now, attempt to also transform the query to ReadItem form; this is only possible if all JSON ID properties were compared in the
         // predicate, and *all* partition key values are specified(in the predicate or via WithPartitionKey)
         if (_isPredicateCompatibleWithReadItem
@@ -136,14 +144,6 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             && Unwrap(shapedQuery.ShaperExpression) is StructuralTypeShaperExpression { StructuralType: var projectedStructuralType }
             && projectedStructuralType == _entityType)
         {
-            if (hadWithPartitionKey)
-            {
-                ValidateNoWithPartitionKeyConflict(
-                    queryCompilationContext,
-                    partitionKeyProperties,
-                    predicatePartitionKeySnapshot!);
-            }
-
             return shapedQuery.UpdateQueryExpression(select.WithReadItemInfo(new ReadItemInfo(_jsonIdPropertyValues!)));
         }
 
@@ -214,23 +214,60 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
 
             var withPartitionKeyValueExpression = queryCompilationContext.PartitionKeyPropertyValues[i];
 
-            if (!PartitionKeyValueExpressionsMatch(predicateValueExpression, withPartitionKeyValueExpression))
+            if (!PartitionKeySqlValuesMatch(
+                    predicateValueExpression,
+                    withPartitionKeyValueExpression,
+                    property))
             {
                 throw new InvalidOperationException(CosmosStrings.WithPartitionKeyConflictingPartitionKeyPredicate);
             }
         }
+    }
 
-        static bool PartitionKeyValueExpressionsMatch(Expression left, Expression right)
-            => (left, right) switch
+    private static bool PartitionKeySqlValuesMatch(Expression left, Expression right, IProperty partitionKeyProperty)
+    {
+        if (ReferenceEquals(left, right))
+        {
+            return true;
+        }
+
+        left = UnwrapPartitionKeySqlExpression(left);
+        right = UnwrapPartitionKeySqlExpression(right);
+
+        if (ReferenceEquals(left, right))
+        {
+            return true;
+        }
+
+        if (left is SqlExpression sqlLeft && right is SqlExpression sqlRight && sqlLeft.Equals(sqlRight))
+        {
+            return true;
+        }
+
+        var comparer = partitionKeyProperty.GetValueComparer();
+
+        switch (left, right)
+        {
+            case (SqlConstantExpression { Value: var leftValue }, SqlConstantExpression { Value: var rightValue }):
+                return comparer.Equals(leftValue, rightValue);
+
+            case (SqlParameterExpression { Name: var leftName }, SqlParameterExpression { Name: var rightName }):
+                return leftName == rightName;
+
+            default:
+                return false;
+        }
+
+        static Expression UnwrapPartitionKeySqlExpression(Expression expression)
+        {
+            while (expression is SqlUnaryExpression { OperatorType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary
+                && unary.Operand is SqlExpression operand)
             {
-                (SqlConstantExpression { Value: var leftValue }, SqlConstantExpression { Value: var rightValue })
-                    => Equals(leftValue, rightValue),
+                expression = operand;
+            }
 
-                (SqlParameterExpression { Name: var leftName }, SqlParameterExpression { Name: var rightName })
-                    => leftName == rightName,
-
-                _ => false
-            };
+            return expression;
+        }
     }
 
     /// <summary>
@@ -383,7 +420,8 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                 // call. Note that this is always considered a compatible comparison for ReadItem.
                 if (propertyName == property.GetJsonPropertyName()
                     && _partitionKeyPropertyValues.TryGetValue(property, out var previousValues)
-                    && (previousValues.ValueExpression is null || previousValues.Equals(propertyValue)))
+                    && (previousValues.ValueExpression is null
+                        || PartitionKeySqlValuesMatch(previousValues.ValueExpression, propertyValue, property)))
                 {
                     _partitionKeyPropertyValues[property] = (ValueExpression: propertyValue, OriginalExpression: originalExpression);
                     return;
