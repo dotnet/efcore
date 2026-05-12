@@ -749,17 +749,14 @@ public class DbContextOperations
     }
 
     private static Dictionary<Type, Func<DbContext>?> FilterTypes(
-        Dictionary<Type, Func<DbContext>?> types,
-        string name,
-        StringComparison comparisonType)
-    {
-        if (name == "*")
-            return types;
-
-        return types
+    Dictionary<Type, Func<DbContext>?> types,
+    string name,
+    StringComparison comparisonType)
+    => name == "*" 
+        ? types 
+        : types
             .Where(t => string.Equals(t.Key.Name, name, comparisonType)
                 || string.Equals(t.Key.FullName, name, comparisonType)
                 || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
             .ToDictionary();
-    }
 }
