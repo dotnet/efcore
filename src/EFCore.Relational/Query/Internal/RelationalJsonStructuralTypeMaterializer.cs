@@ -3,7 +3,9 @@
 
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -26,7 +28,9 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
     ConstructorInvoker? constructorInvoker,
     int constructorParameterCount,
     bool isTracking,
-    bool nullable)
+    bool nullable,
+    IMaterializationInterceptor? materializationInterceptor = null,
+    QueryTrackingBehavior? queryTrackingBehavior = null)
 {
     private readonly ITypeBase _structuralType = structuralType;
     private readonly JsonPropertyHandler[] _properties = properties;
@@ -35,6 +39,8 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
     private readonly int _constructorParameterCount = constructorParameterCount;
     private readonly bool _isTracking = isTracking;
     private readonly bool _nullable = nullable;
+    private readonly IMaterializationInterceptor? _materializationInterceptor = materializationInterceptor;
+    private readonly QueryTrackingBehavior? _queryTrackingBehavior = queryTrackingBehavior;
 
     /// <summary>
     ///     Materializes a single instance of the structural type from the current position in the JSON stream.
@@ -161,32 +167,65 @@ internal sealed class RelationalJsonStructuralTypeMaterializer(
             tokenType = manager.MoveNext();
         }
 
-        // For constructor-bound types, create the instance now that all args are collected
-        instance ??= _constructorInvoker!.Invoke(constructorArgs.AsSpan());
+        MaterializationInterceptionData? materializationData = null;
+        InterceptionResult<object> creatingResult = default;
 
-        // For owned entity types (not complex types): set key properties from keyValues,
-        // needed for change tracker identity resolution and FK fixup.
-        if (_keyPropertyMembers is not null && keyValues is not null)
+        if (_materializationInterceptor is not null
+            && _structuralType is IEntityType interceptedEntityType)
         {
-            for (var i = 0; i < _keyPropertyMembers.Length && i < keyValues.Length; i++)
+            materializationData = new MaterializationInterceptionData(
+                new MaterializationContext(default, queryContext.Context),
+                interceptedEntityType,
+                _queryTrackingBehavior,
+                []);
+
+            creatingResult = _materializationInterceptor.CreatingInstance(materializationData.Value, default);
+        }
+
+        // For constructor-bound types, create the instance now that all args are collected
+        instance = creatingResult.HasResult
+            ? creatingResult.Result
+            : instance ?? _constructorInvoker!.Invoke(constructorArgs.AsSpan());
+
+        if (materializationData is { } createdMaterializationData)
+        {
+            instance = _materializationInterceptor!.CreatedInstance(createdMaterializationData, instance!);
+        }
+
+        var initializationSuppressed = materializationData is { } initializingMaterializationData
+            && _materializationInterceptor!.InitializingInstance(initializingMaterializationData, instance!, default).IsSuppressed;
+
+        if (!initializationSuppressed)
+        {
+            // For owned entity types (not complex types): set key properties from keyValues,
+            // needed for change tracker identity resolution and FK fixup.
+            if (_keyPropertyMembers is not null && keyValues is not null)
             {
-                if (_keyPropertyMembers[i] is not null)
+                for (var i = 0; i < _keyPropertyMembers.Length && i < keyValues.Length; i++)
                 {
-                    SetMemberValue(instance!, _keyPropertyMembers[i], keyValues[i]);
+                    if (_keyPropertyMembers[i] is not null)
+                    {
+                        SetMemberValue(instance!, _keyPropertyMembers[i], keyValues[i]);
+                    }
+                }
+            }
+
+            // Apply nested results (navigations/complex properties) via setters
+            if (nestedResults is not null)
+            {
+                for (var i = 0; i < _properties.Length; i++)
+                {
+                    if (nestedResults[i] is not null)
+                    {
+                        SetMemberValue(instance!, _properties[i].MemberInfo, nestedResults[i]);
+                    }
                 }
             }
         }
 
-        // Apply nested results (navigations/complex properties) via setters
-        if (nestedResults is not null)
+        if (materializationData is { } initializedMaterializationData)
         {
-            for (var i = 0; i < _properties.Length; i++)
-            {
-                if (nestedResults[i] is not null)
-                {
-                    SetMemberValue(instance!, _properties[i].MemberInfo, nestedResults[i]);
-                }
-            }
+            instance = _materializationInterceptor!.InitializedInstance(initializedMaterializationData, instance!);
         }
 
         manager.CaptureState();

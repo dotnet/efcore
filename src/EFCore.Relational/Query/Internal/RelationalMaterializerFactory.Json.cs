@@ -28,7 +28,8 @@ public partial class RelationalMaterializerFactory
             throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
         }
 
-        var jsonMaterializer = BuildJsonStructuralTypeMaterializer(structuralType, isTracking, nullable);
+        var jsonMaterializer = BuildJsonStructuralTypeMaterializer(
+            structuralType, isTracking, nullable, _materializationInterceptor, null);
 
         // Find the JSON column type mapping for correct reading
         var jsonColumnName = structuralType.GetContainerColumnName()!;
@@ -82,7 +83,8 @@ public partial class RelationalMaterializerFactory
             throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
         }
 
-        var elementMaterializer = BuildJsonStructuralTypeMaterializer(elementStructuralType, isTracking, isNullable);
+        var elementMaterializer = BuildJsonStructuralTypeMaterializer(
+            elementStructuralType, isTracking, isNullable, _materializationInterceptor, null);
 
         var jsonColumnName = elementStructuralType.GetContainerColumnName()!;
         var containingEntityType = elementStructuralType.ContainingEntityType;
@@ -124,7 +126,9 @@ public partial class RelationalMaterializerFactory
     internal static RelationalJsonStructuralTypeMaterializer BuildJsonStructuralTypeMaterializer(
         ITypeBase structuralType,
         bool isTracking,
-        bool nullable)
+        bool nullable,
+        IMaterializationInterceptor? materializationInterceptor = null,
+        QueryTrackingBehavior? queryTrackingBehavior = null)
     {
         // Determine constructor binding and which properties are consumed by constructor parameters
         var constructorBinding = structuralType.ConstructorBinding;
@@ -246,7 +250,9 @@ public partial class RelationalMaterializerFactory
             var innerMaterializer = BuildJsonStructuralTypeMaterializer(
                 nestedStructuralType,
                 isTracking,
-                nullable || isStructuralPropertyNullable);
+                nullable || isStructuralPropertyNullable,
+                materializationInterceptor,
+                queryTrackingBehavior);
 
             var nestedMemberInfo = nestedProperty.GetMemberInfo(forMaterialization: true, forSet: true);
 
@@ -305,7 +311,9 @@ public partial class RelationalMaterializerFactory
             constructorInvoker,
             constructorParameterCount,
             isTracking,
-            nullable);
+            nullable,
+            materializationInterceptor,
+            queryTrackingBehavior);
     }
 
     /// <summary>

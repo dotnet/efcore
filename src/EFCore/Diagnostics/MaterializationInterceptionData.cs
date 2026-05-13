@@ -99,7 +99,9 @@ public readonly struct MaterializationInterceptionData
     /// <param name="property">The property.</param>
     /// <returns>The property value.</returns>
     public T GetPropertyValue<T>(IPropertyBase property)
-        => ((Func<MaterializationContext, T>)_valueAccessor[property].TypedAccessor)(_materializationContext);
+        => _valueAccessor[property].TypedAccessor is Func<MaterializationContext, T> typedAccessor
+            ? typedAccessor(_materializationContext)
+            : (T)_valueAccessor[property].Accessor(_materializationContext)!;
 
     /// <summary>
     ///     Gets the property value for the given property.

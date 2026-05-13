@@ -44,6 +44,8 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
     private readonly IKey? _primaryKey;
     private readonly KeyColumnInfo[]? _keyColumns;
     private readonly bool _isTracking;
+    private readonly QueryTrackingBehavior? _queryTrackingBehavior;
+    private readonly IMaterializationInterceptor? _materializationInterceptor;
 
     /// <summary>
     ///     For nullable structural types (table-split optional dependents or optional complex types):
@@ -87,8 +89,6 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
     /// </summary>
     private readonly JsonComplexPropertyInfo[]? _jsonComplexProperties;
 
-
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -100,9 +100,13 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         IReadOnlyDictionary<IPropertyBase, int> projectionMap,
         bool isTracking,
         bool isNullable = false,
-        IInstantiationBindingInterceptor[]? bindingInterceptors = null)
+        QueryTrackingBehavior? queryTrackingBehavior = null,
+        IInstantiationBindingInterceptor[]? bindingInterceptors = null,
+        IMaterializationInterceptor? materializationInterceptor = null)
     {
         _structuralType = structuralType;
+        _queryTrackingBehavior = queryTrackingBehavior;
+        _materializationInterceptor = materializationInterceptor;
         var entityType = structuralType as IEntityType;
         var primaryKey = entityType?.FindPrimaryKey();
         _primaryKey = isTracking ? primaryKey : null;
@@ -271,6 +275,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             object? factoryInstance = null;
             ConstructorParameterReader[]? constructorParameters = null;
             HashSet<IPropertyBase>? consumedProperties = null;
+            var hasServiceParameterBindings = false;
 
             switch (constructorBinding)
             {
@@ -282,7 +287,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                     {
                         constructorParameters = new ConstructorParameterReader[paramBindings.Count];
                         consumedProperties = [];
-                        BuildParameterReaders(paramBindings, projectionMap, concreteType,
+                        hasServiceParameterBindings = BuildParameterReaders(paramBindings, projectionMap, concreteType,
                             constructorParameters, consumedProperties);
                     }
 
@@ -299,7 +304,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
 
                     constructorParameters = new ConstructorParameterReader[paramBindings.Count];
                     consumedProperties = [];
-                    BuildParameterReaders(paramBindings, projectionMap, concreteType,
+                    hasServiceParameterBindings = BuildParameterReaders(paramBindings, projectionMap, concreteType,
                         constructorParameters, consumedProperties);
 
                     break;
@@ -319,30 +324,75 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                         + $"'{constructorBinding!.GetType().Name}' on '{concreteType.DisplayName()}'.");
             }
 
-            // Build property materializers for this concrete type's properties (declared + inherited),
-            // excluding properties consumed by the constructor
-            var properties = concreteType.GetProperties().Where(p => !p.IsShadowProperty()).ToList();
-            var materializers = new List<PropertyMaterializer>(properties.Count);
+            List<ServicePropertyMaterializer>? serviceMaterializers = null;
+            List<InterceptionAccessor>? interceptionAccessors = null;
+            var buildInterceptionAccessors = materializationInterceptor is not null && concreteType is IEntityType;
+            var hasServiceInterceptionAccessors = false;
+            if (concreteType is IEntityType concreteEntityType)
+            {
+                foreach (var serviceProperty in concreteEntityType.GetServiceProperties())
+                {
+                    var serviceReader = CreateServiceParameterReader(serviceProperty.ParameterBinding);
+                    if (buildInterceptionAccessors)
+                    {
+                        interceptionAccessors ??= [];
+                        interceptionAccessors.Add(new InterceptionAccessor(
+                            serviceProperty,
+                            -1,
+                            false,
+                            null,
+                            serviceReader));
+                        hasServiceInterceptionAccessors = true;
+                    }
+
+                    if (consumedProperties is not null && consumedProperties.Contains(serviceProperty))
+                    {
+                        continue;
+                    }
+
+                    serviceMaterializers ??= [];
+                    serviceMaterializers.Add(new ServicePropertyMaterializer(
+                        ((IRuntimePropertyBase)serviceProperty).MaterializationSetter,
+                        serviceReader,
+                        serviceProperty));
+                }
+            }
+
+            var properties = concreteType.GetProperties().ToList();
+            var nonShadowProperties = properties.Where(p => !p.IsShadowProperty()).ToList();
+            var materializers = new List<PropertyMaterializer>(nonShadowProperties.Count);
             var isComplexType = structuralType is IComplexType;
 
             foreach (var property in properties)
             {
-                if (consumedProperties is not null && consumedProperties.Contains(property))
-                {
-                    continue;
-                }
-
                 if (!projectionMap.TryGetValue(property, out var columnIndex))
                 {
                     continue;
                 }
 
                 var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
+                var reader = typeMapping.CreateReader(columnIndex);
+                if (buildInterceptionAccessors)
+                {
+                    interceptionAccessors ??= [];
+                    interceptionAccessors.Add(new InterceptionAccessor(
+                        property,
+                        columnIndex,
+                        property.IsNullable,
+                        reader,
+                        null));
+                }
+
+                if (property.IsShadowProperty()
+                    || consumedProperties is not null && consumedProperties.Contains(property))
+                {
+                    continue;
+                }
+
                 // For complex types, use MemberInfo-based setters because IClrPropertySetter targets
                 // the containing entity (TStructuralType), not the complex type instance (TStructural).
                 var setter = isComplexType ? null : ((IRuntimePropertyBase)property).MaterializationSetter;
                 var memberInfo = isComplexType ? property.GetMemberInfo(forMaterialization: true, forSet: true) : null;
-                var reader = typeMapping.CreateReader(columnIndex);
 
                 materializers.Add(new PropertyMaterializer(columnIndex, property.IsNullable, setter, memberInfo, reader, property));
             }
@@ -386,7 +436,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 var materializerType = typeof(RelationalStructuralTypeMaterializer<>).MakeGenericType(complexType2.ClrType);
                 var complexMaterializer = (RelationalStructuralTypeMaterializer)Activator.CreateInstance(
                     materializerType, complexType2, projectionMap, isTracking, complexProperty.IsNullable,
-                    bindingInterceptors)!;
+                    queryTrackingBehavior, bindingInterceptors, materializationInterceptor)!;
 
                 var setterMemberInfo = complexProperty.GetMemberInfo(forMaterialization: true, forSet: true);
                 IClrPropertySetter? cpSetter = complexType2.ClrType.IsValueType
@@ -407,7 +457,13 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 constructorParameters,
                 materializers.ToArray(),
                 shadowMaterializers?.ToArray() ?? [],
-                tableSplitComplexProps?.ToArray() ?? []);
+                serviceMaterializers?.ToArray() ?? [],
+                tableSplitComplexProps?.ToArray() ?? [],
+                interceptionAccessors?.ToArray() ?? [],
+                serviceMaterializers is { Count: > 0 },
+                hasServiceParameterBindings,
+                interceptionAccessors is { Count: > 0 },
+                hasServiceInterceptionAccessors);
         }
 
         // Build JSON complex property info for JSON-mapped complex properties on this entity.
@@ -437,7 +493,8 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                     projectionIndex,
                     jsonStreamReader,
                     RelationalMaterializerFactory.BuildJsonStructuralTypeMaterializer(
-                        complexType, isTracking, isNullable || complexProperty.IsNullable),
+                        complexType, isTracking, isNullable || complexProperty.IsNullable,
+                        materializationInterceptor, queryTrackingBehavior),
                     ((IRuntimePropertyBase)complexProperty).MaterializationSetter,
                     complexProperty.IsCollection,
                     complexProperty,
@@ -447,7 +504,126 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
 
         _jsonComplexProperties = jsonComplexProps?.ToArray();
 
+        bool BuildParameterReaders(
+            IReadOnlyList<ParameterBinding> paramBindings,
+            IReadOnlyDictionary<IPropertyBase, int> projectionMap,
+            ITypeBase concreteType,
+            ConstructorParameterReader[] constructorParameters,
+            HashSet<IPropertyBase> consumedProperties)
+        {
+            var hasServiceParameterBindings = false;
 
+            for (var p = 0; p < paramBindings.Count; p++)
+            {
+                foreach (var consumedProperty in paramBindings[p].ConsumedProperties)
+                {
+                    consumedProperties.Add(consumedProperty);
+                }
+
+                constructorParameters[p] = ResolveBinding(paramBindings[p]);
+            }
+
+            return hasServiceParameterBindings;
+
+            ConstructorParameterReader ResolveBinding(ParameterBinding binding)
+            {
+                switch (binding)
+                {
+                    case PropertyParameterBinding { ConsumedProperties: [IProperty property] }:
+                        if (!projectionMap.TryGetValue(property, out var columnIndex))
+                        {
+                            throw new InvalidOperationException(
+                                $"Constructor parameter for property '{property.Name}' on "
+                                + $"'{concreteType.DisplayName()}' is not in the projection map.");
+                        }
+
+                        var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
+                        return new ConstructorParameterReader(
+                            columnIndex, property.IsNullable, typeMapping.CreateReader(columnIndex));
+
+                    case ServiceParameterBinding serviceBinding:
+                        hasServiceParameterBindings = true;
+                        return new ConstructorParameterReader(
+                            CreateServiceParameterReader(serviceBinding));
+
+                    case ObjectArrayParameterBinding arrayBinding:
+                        var innerReaders = new ConstructorParameterReader[arrayBinding.Bindings.Count];
+                        for (var j = 0; j < arrayBinding.Bindings.Count; j++)
+                        {
+                            innerReaders[j] = ResolveBinding(arrayBinding.Bindings[j]);
+                        }
+
+                        return new ConstructorParameterReader(innerReaders);
+
+                    default:
+                        throw new NotImplementedException(
+                            $"The non-generated materializer does not yet support constructor parameter "
+                            + $"binding type '{binding.GetType().Name}' on '{concreteType.DisplayName()}'.");
+                }
+            }
+        }
+
+        ServiceParameterReader CreateServiceParameterReader(ServiceParameterBinding binding)
+        {
+            return binding switch
+            {
+                ContextParameterBinding
+                    => new ServiceParameterReader(
+                        binding.ParameterType,
+                        binding.ServiceType,
+                        (QueryContext queryContext, ITypeBase _, ref ServiceInstanceState? _, ServiceParameterReader reader)
+                            => reader.ServiceType == typeof(DbContext) || reader.ServiceType.IsInstanceOfType(queryContext.Context)
+                                ? queryContext.Context
+                                : null),
+
+                EntityTypeParameterBinding
+                    => new ServiceParameterReader(
+                        binding.ParameterType,
+                        binding.ServiceType,
+                        (QueryContext _, ITypeBase structuralType, ref ServiceInstanceState? _, ServiceParameterReader _) => structuralType),
+
+                DependencyInjectionMethodParameterBinding methodBinding
+                    => new ServiceParameterReader(
+                        methodBinding.ParameterType,
+                        methodBinding.ServiceType,
+                        (QueryContext queryContext, ITypeBase _, ref ServiceInstanceState? serviceInstances, ServiceParameterReader reader) =>
+                        {
+                            var service = GetOrAddServiceInstance(queryContext, ref serviceInstances, reader.ServiceType);
+
+                            return service is null
+                                ? null
+                                : reader.Method!.CreateDelegate(reader.ParameterType, service);
+                        },
+                        methodBinding.Method),
+
+                DependencyInjectionParameterBinding
+                    => new ServiceParameterReader(
+                        binding.ParameterType,
+                        binding.ServiceType,
+                        (QueryContext queryContext, ITypeBase _, ref ServiceInstanceState? serviceInstances, ServiceParameterReader reader)
+                            => GetOrAddServiceInstance(queryContext, ref serviceInstances, reader.ServiceType)),
+
+                _ => throw new NotImplementedException(
+                    $"The non-generated materializer does not yet support service parameter binding type '{binding.GetType().Name}'.")
+            };
+
+            static object? GetOrAddServiceInstance(
+                QueryContext queryContext,
+                ref ServiceInstanceState? serviceInstances,
+                Type serviceType)
+            {
+                serviceInstances ??= new ServiceInstanceState();
+                var instances = serviceInstances.Instances ??= [];
+
+                if (!instances.TryGetValue(serviceType, out var service))
+                {
+                    service = ((IInfrastructure<IServiceProvider>)queryContext.Context).Instance.GetService(serviceType);
+                    instances.Add(serviceType, service);
+                }
+
+                return service;
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -699,7 +875,10 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             return default;
         }
 
-        var (instance, typeInfo) = InstantiateStructuralType(queryContext, dataReader);
+        var instantiation = InstantiateStructuralType(queryContext, dataReader);
+        var instance = instantiation.Instance;
+        var typeInfo = instantiation.TypeInfo;
+        var serviceInstances = instantiation.ServiceInstances;
 
         // InstantiateStructuralType returns default when the discriminator column is NULL
         // (e.g. TPT table-split dependent from a LEFT JOIN that doesn't exist).
@@ -711,13 +890,35 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         // For value types (complex types), box once and work with the boxed reference so
         // MemberInfo.SetValue mutations are visible. Unbox after all properties are set.
         object boxedInstance = instance!;
-        PopulateProperties(dataReader, boxedInstance, typeInfo.PropertyMaterializers);
-        PopulateTableSplitComplexProperties(dataReader, boxedInstance, typeInfo.TableSplitComplexProperties);
-        PopulateJsonComplexProperties(queryContext, dataReader, boxedInstance);
+        if (instantiation.MaterializationData is not { } materializationData
+            || !_materializationInterceptor!.InitializingInstance(materializationData, boxedInstance, default).IsSuppressed)
+        {
+            PopulateProperties(dataReader, boxedInstance, typeInfo.PropertyMaterializers);
+            PopulateTableSplitComplexProperties(dataReader, boxedInstance, typeInfo.TableSplitComplexProperties);
+            PopulateJsonComplexProperties(queryContext, dataReader, boxedInstance);
+            if (typeInfo.HasServiceProperties)
+            {
+                PopulateServiceProperties(
+                    queryContext, boxedInstance, typeInfo.ServicePropertyMaterializers,
+                    ref serviceInstances, typeInfo.StructuralType);
+            }
+
+            if (serviceInstances?.Instances is { Count: > 0 })
+            {
+                InjectServices(
+                    queryContext, boxedInstance, typeInfo.StructuralType,
+                    serviceInstances, _queryTrackingBehavior);
+            }
+        }
 
         if (typeof(TStructuralType).IsValueType)
         {
             instance = (TStructuralType)boxedInstance;
+        }
+
+        if (instantiation.MaterializationData is { } initializedMaterializationData)
+        {
+            instance = (TStructuralType)_materializationInterceptor!.InitializedInstance(initializedMaterializationData, instance!);
         }
 
         if (_isTracking)
@@ -732,6 +933,217 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             // FetchJoinEntity is only inserted for tracking queries, so JoinEntityMaterializer
             // is only non-null here.
             JoinEntityMaterializer?.Materialize(queryContext, dataReader, new ResultContext(), null!);
+        }
+
+        StructuralTypeInstantiationResult InstantiateStructuralType(
+            QueryContext queryContext, DbDataReader dataReader)
+        {
+            return _concreteTypes is [var singleType]
+                ? Instantiate(singleType, queryContext, dataReader, _queryTrackingBehavior, _materializationInterceptor)
+                : InstantiateInheritanceEntity(dataReader);
+
+            static StructuralTypeInstantiationResult Instantiate(
+                in ConcreteTypeInfo typeInfo,
+                QueryContext queryContext,
+                DbDataReader dataReader,
+                QueryTrackingBehavior? queryTrackingBehavior,
+                IMaterializationInterceptor? materializationInterceptor)
+            {
+                var serviceInstances = materializationInterceptor is not null && typeInfo.HasServiceInterceptionAccessors
+                    ? new ServiceInstanceState()
+                    : null;
+                MaterializationInterceptionData? materializationData = null;
+                InterceptionResult<object> creatingResult = default;
+
+                if (materializationInterceptor is not null
+                    && typeInfo.StructuralType is IEntityType entityType)
+                {
+                    materializationData = new MaterializationInterceptionData(
+                        new MaterializationContext(default, queryContext.Context),
+                        entityType,
+                        queryTrackingBehavior,
+                        typeInfo.HasInterceptionAccessors
+                            ? CreateAccessorDictionary(typeInfo, queryContext, dataReader, serviceInstances)
+                            : []);
+
+                    creatingResult = materializationInterceptor.CreatingInstance(materializationData.Value, default);
+                }
+
+                var instance = creatingResult.HasResult
+                    ? (TStructuralType)creatingResult.Result
+                    : CreateInstance(typeInfo, queryContext, dataReader, ref serviceInstances);
+
+                if (materializationData is { } createdMaterializationData)
+                {
+                    instance = (TStructuralType)materializationInterceptor!.CreatedInstance(createdMaterializationData, instance!);
+                }
+
+                return new StructuralTypeInstantiationResult(instance, typeInfo, serviceInstances, materializationData);
+            }
+
+            static TStructuralType CreateInstance(
+                in ConcreteTypeInfo typeInfo,
+                QueryContext queryContext,
+                DbDataReader dataReader,
+                ref ServiceInstanceState? serviceInstances)
+            {
+                TStructuralType instance;
+
+                if (typeInfo.ConstructorParameters is { } ctorParams)
+                {
+                    var args = new object?[ctorParams.Length];
+                    for (var i = 0; i < ctorParams.Length; i++)
+                    {
+                        args[i] = ResolveParameterValue(
+                            ref ctorParams[i], queryContext, dataReader, typeInfo.StructuralType, ref serviceInstances);
+                    }
+
+                    instance = typeInfo.FactoryMethodInvoker is null
+                        ? (TStructuralType)typeInfo.ConstructorInvoker!.Invoke(args.AsSpan())
+                        : (TStructuralType)typeInfo.FactoryMethodInvoker.Invoke(typeInfo.FactoryInstance, args.AsSpan())!;
+                }
+                else
+                {
+                    instance = (TStructuralType)(typeInfo.ConstructorInvoker?.Invoke([])
+                        ?? Activator.CreateInstance(typeInfo.StructuralType.ClrType))!;
+                }
+
+                return instance;
+            }
+
+            static Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)> CreateAccessorDictionary(
+                in ConcreteTypeInfo typeInfo,
+                QueryContext queryContext,
+                DbDataReader dataReader,
+                ServiceInstanceState? serviceInstances)
+            {
+                var dictionary = new Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>();
+                var structuralType = typeInfo.StructuralType;
+                for (var i = 0; i < typeInfo.InterceptionAccessors.Length; i++)
+                {
+                    var accessor = typeInfo.InterceptionAccessors[i];
+                    Func<MaterializationContext, object?> objectAccessor = _
+                        => GetValue(accessor, queryContext, dataReader, structuralType, serviceInstances);
+
+                    dictionary.Add(accessor.Property, (objectAccessor, objectAccessor));
+                }
+
+                return dictionary;
+
+                static object? GetValue(
+                    in InterceptionAccessor accessor,
+                    QueryContext queryContext,
+                    DbDataReader dataReader,
+                    ITypeBase structuralType,
+                    ServiceInstanceState? serviceInstances)
+                {
+                    if (accessor.ServiceReader is { } serviceParameterReader)
+                    {
+                        Check.DebugAssert(serviceInstances is not null, "Expected service instance state for service accessor.");
+
+                        return serviceParameterReader.Resolve(queryContext, structuralType, ref serviceInstances);
+                    }
+
+                    return accessor.IsNullable && dataReader.IsDBNull(accessor.ColumnIndex)
+                        ? null
+                        : accessor.Reader!.Read<object>(dataReader);
+                }
+            }
+
+            static object? ResolveParameterValue(
+                ref ConstructorParameterReader param,
+                QueryContext queryContext,
+                DbDataReader dataReader,
+                ITypeBase structuralType,
+                ref ServiceInstanceState? serviceInstances)
+            {
+                if (param.InnerReaders is { } innerReaders)
+                {
+                    // ObjectArrayParameterBinding: pack inner values into object[]
+                    var innerArgs = new object?[innerReaders.Length];
+                    for (var j = 0; j < innerReaders.Length; j++)
+                    {
+                        innerArgs[j] = ResolveParameterValue(
+                            ref innerReaders[j], queryContext, dataReader, structuralType, ref serviceInstances);
+                    }
+
+                    return innerArgs;
+                }
+
+                if (param.ServiceReader is { } serviceReader)
+                {
+                    return serviceReader.Resolve(queryContext, structuralType, ref serviceInstances);
+                }
+
+                return param.IsNullable && dataReader.IsDBNull(param.ColumnIndex)
+                    ? null
+                    : param.Reader!.Read<object>(dataReader);
+            }
+
+            StructuralTypeInstantiationResult InstantiateInheritanceEntity(DbDataReader dataReader)
+            {
+                Check.DebugAssert(
+                    _discriminatorColumnIndex >= 0,
+                    "Multiple concrete types but no discriminator column.");
+
+                if (!dataReader.IsDBNull(_discriminatorColumnIndex))
+                {
+                    var discriminatorValue = _discriminatorReader is not null
+                        ? _discriminatorReader.Read<object>(dataReader)
+                        : (object)dataReader.GetString(_discriminatorColumnIndex);
+
+                    if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
+                    {
+                        ref readonly var typeInfo = ref _concreteTypes[index];
+                        return Instantiate(typeInfo, queryContext, dataReader, _queryTrackingBehavior, _materializationInterceptor);
+                    }
+
+                    throw new InvalidOperationException(
+                        $"Unable to materialize entity of type '{typeof(TStructuralType).Name}'. "
+                        + $"No concrete type found for discriminator value '{discriminatorValue}'.");
+                }
+
+                // NULL discriminator means the base type. This only happens with TPT, where the synthetic
+                // CASE expression checks which derived-type LEFT JOIN matched; when none matched the CASE
+                // has no ELSE clause and produces NULL, indicating the base type. (TPC always has a non-null
+                // constant discriminator per UNION ALL branch, so this path is not reached for TPC.)
+                // Use the first concrete type entry, which is the base type.
+                ref readonly var baseTypeInfo = ref _concreteTypes[0];
+                return Instantiate(baseTypeInfo, queryContext, dataReader, _queryTrackingBehavior, _materializationInterceptor);
+            }
+        }
+
+        static void PopulateServiceProperties(
+            QueryContext queryContext,
+            object entity,
+            ServicePropertyMaterializer[] materializers,
+            ref ServiceInstanceState? serviceInstances,
+            ITypeBase structuralType)
+        {
+            for (var i = 0; i < materializers.Length; i++)
+            {
+                ref readonly var materializer = ref materializers[i];
+                var service = materializer.Reader.Resolve(queryContext, structuralType, ref serviceInstances);
+                materializer.Setter.SetClrValue(entity, service);
+            }
+        }
+
+        static void InjectServices(
+            QueryContext queryContext,
+            object entity,
+            ITypeBase structuralType,
+            ServiceInstanceState serviceInstances,
+            QueryTrackingBehavior? queryTrackingBehavior)
+        {
+            Check.DebugAssert(serviceInstances.Instances is not null, "Expected resolved service instances.");
+
+            foreach (var service in serviceInstances.Instances.Values)
+            {
+                if (service is IInjectableService injectableService)
+                {
+                    injectableService.Injected(queryContext.Context, entity, queryTrackingBehavior, structuralType);
+                }
+            }
         }
 
         return instance;
@@ -797,10 +1209,17 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 {
                     include.NavigationSetter.SetClrValue(entity, relatedEntity);
 
-                    if (include.InverseNavigation is { IsCollection: false } inverse)
+                    if (include.InverseNavigation is not null)
                     {
-                        inverse.SetIsLoadedWhenNoTracking(relatedEntity);
-                        include.InverseNavigationSetter?.SetClrValue(relatedEntity, entity);
+                        if (include.InverseNavigation.IsCollection)
+                        {
+                            include.InverseNavigationCollectionAccessor?.Add(relatedEntity, entity, forMaterialization: true);
+                        }
+                        else
+                        {
+                            include.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                            include.InverseNavigationSetter?.SetClrValue(relatedEntity, entity);
+                        }
                     }
                 }
             }
@@ -1122,168 +1541,6 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
     }
 
     /// <summary>
-    ///     Resolves parameter bindings into <see cref="ConstructorParameterReader" /> entries.
-    ///     Handles <see cref="PropertyParameterBinding" />, <see cref="ContextParameterBinding" />,
-    ///     <see cref="EntityTypeParameterBinding" />, <see cref="DependencyInjectionParameterBinding" />,
-    ///     and <see cref="ObjectArrayParameterBinding" />.
-    /// </summary>
-    private static void BuildParameterReaders(
-        IReadOnlyList<ParameterBinding> paramBindings,
-        IReadOnlyDictionary<IPropertyBase, int> projectionMap,
-        ITypeBase concreteType,
-        ConstructorParameterReader[] constructorParameters,
-        HashSet<IPropertyBase> consumedProperties)
-    {
-        for (var p = 0; p < paramBindings.Count; p++)
-        {
-            constructorParameters[p] = ResolveBinding(paramBindings[p]);
-        }
-
-        ConstructorParameterReader ResolveBinding(ParameterBinding binding)
-        {
-            switch (binding)
-            {
-                case PropertyParameterBinding { ConsumedProperties: [IProperty property] }:
-                    if (!projectionMap.TryGetValue(property, out var columnIndex))
-                    {
-                        throw new InvalidOperationException(
-                            $"Constructor parameter for property '{property.Name}' on "
-                            + $"'{concreteType.DisplayName()}' is not in the projection map.");
-                    }
-
-                    var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
-                    consumedProperties.Add(property);
-                    return new ConstructorParameterReader(
-                        columnIndex, property.IsNullable, typeMapping.CreateReader(columnIndex));
-
-                case ContextParameterBinding:
-                    return new ConstructorParameterReader(static qc => qc.Context);
-
-                case EntityTypeParameterBinding:
-                    var capturedType = concreteType;
-                    return new ConstructorParameterReader(_ => capturedType);
-
-                case DependencyInjectionParameterBinding diBinding:
-                    var serviceType = diBinding.ServiceType;
-                    return new ConstructorParameterReader(
-                        qc => ((IInfrastructure<IServiceProvider>)qc.Context).Instance.GetService(serviceType));
-
-                case ObjectArrayParameterBinding arrayBinding:
-                    // Recursively resolve inner bindings; packed into object[] at materialization time
-                    var innerReaders = new ConstructorParameterReader[arrayBinding.Bindings.Count];
-                    for (var j = 0; j < arrayBinding.Bindings.Count; j++)
-                    {
-                        innerReaders[j] = ResolveBinding(arrayBinding.Bindings[j]);
-                    }
-
-                    return new ConstructorParameterReader(innerReaders);
-
-                default:
-                    throw new NotImplementedException(
-                        $"The non-generated materializer does not yet support constructor parameter "
-                        + $"binding type '{binding.GetType().Name}' on '{concreteType.DisplayName()}'.");
-            }
-        }
-    }
-
-    private (TStructuralType Instance, ConcreteTypeInfo TypeInfo) InstantiateStructuralType(
-        QueryContext queryContext, DbDataReader dataReader)
-    {
-        return _concreteTypes is [var singleType]
-            ? (Instantiate(singleType, queryContext, dataReader), singleType)
-            : InstantiateInheritanceEntity(dataReader);
-
-        static TStructuralType Instantiate(in ConcreteTypeInfo typeInfo, QueryContext queryContext, DbDataReader dataReader)
-        {
-            if (typeInfo.ConstructorParameters is { } ctorParams)
-            {
-                var args = new object?[ctorParams.Length];
-                for (var i = 0; i < ctorParams.Length; i++)
-                {
-                    args[i] = ResolveParameterValue(ref ctorParams[i], queryContext, dataReader);
-                }
-
-                var instance = typeInfo.FactoryMethodInvoker is null
-                    ? (TStructuralType)typeInfo.ConstructorInvoker!.Invoke(args.AsSpan())
-                    : (TStructuralType)typeInfo.FactoryMethodInvoker.Invoke(typeInfo.FactoryInstance, args.AsSpan())!;
-
-                // After entity creation, attach injectable services (e.g. ILazyLoader).
-                // This mirrors AddAttachServiceExpressions in the generated shaper.
-                for (var i = 0; i < args.Length; i++)
-                {
-                    if (args[i] is IInjectableService injectableService)
-                    {
-                        injectableService.Injected(
-                            queryContext.Context, instance!, null, typeInfo.StructuralType);
-                    }
-                }
-
-                return instance;
-            }
-
-            return (TStructuralType)(typeInfo.ConstructorInvoker?.Invoke([])
-                ?? Activator.CreateInstance(typeInfo.StructuralType.ClrType))!;
-        }
-
-        static object? ResolveParameterValue(
-            ref ConstructorParameterReader param, QueryContext queryContext, DbDataReader dataReader)
-        {
-            if (param.InnerReaders is { } innerReaders)
-            {
-                // ObjectArrayParameterBinding: pack inner values into object[]
-                var innerArgs = new object?[innerReaders.Length];
-                for (var j = 0; j < innerReaders.Length; j++)
-                {
-                    innerArgs[j] = ResolveParameterValue(ref innerReaders[j], queryContext, dataReader);
-                }
-
-                return innerArgs;
-            }
-
-            if (param.ServiceResolver is not null)
-            {
-                return param.ServiceResolver(queryContext);
-            }
-
-            return param.IsNullable && dataReader.IsDBNull(param.ColumnIndex)
-                ? null
-                : param.Reader!.Read<object>(dataReader);
-        }
-
-        (TStructuralType Instance, ConcreteTypeInfo TypeInfo) InstantiateInheritanceEntity(DbDataReader dataReader)
-        {
-            Check.DebugAssert(
-                _discriminatorColumnIndex >= 0,
-                "Multiple concrete types but no discriminator column.");
-
-            if (!dataReader.IsDBNull(_discriminatorColumnIndex))
-            {
-                var discriminatorValue = _discriminatorReader is not null
-                    ? _discriminatorReader.Read<object>(dataReader)
-                    : (object)dataReader.GetString(_discriminatorColumnIndex);
-
-                if (_discriminatorMap!.TryGetValue(discriminatorValue, out var index))
-                {
-                    ref readonly var typeInfo = ref _concreteTypes[index];
-                    return (Instantiate(typeInfo, queryContext, dataReader), typeInfo);
-                }
-
-                throw new InvalidOperationException(
-                    $"Unable to materialize entity of type '{typeof(TStructuralType).Name}'. "
-                    + $"No concrete type found for discriminator value '{discriminatorValue}'.");
-            }
-
-            // NULL discriminator means the base type. This only happens with TPT, where the synthetic
-            // CASE expression checks which derived-type LEFT JOIN matched; when none matched the CASE
-            // has no ELSE clause and produces NULL, indicating the base type. (TPC always has a non-null
-            // constant discriminator per UNION ALL branch, so this path is not reached for TPC.)
-            // Use the first concrete type entry, which is the base type.
-            ref readonly var baseTypeInfo = ref _concreteTypes[0];
-            return (Instantiate(baseTypeInfo, queryContext, dataReader), baseTypeInfo);
-        }
-    }
-
-    /// <summary>
     ///     Reads and sets all mapped properties on <paramref name="entity" /> from the current row.
     ///     Each <see cref="PropertyMaterializer.Reader" /> is produced by
     ///     <see cref="RelationalTypeMapping.CreateReader" /> and is either a
@@ -1469,7 +1726,13 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         ConstructorParameterReader[]? constructorParameters,
         PropertyMaterializer[] propertyMaterializers,
         ShadowPropertyMaterializer[] shadowPropertyMaterializers,
-        TableSplitComplexPropertyInfo[] tableSplitComplexProperties)
+        ServicePropertyMaterializer[] servicePropertyMaterializers,
+        TableSplitComplexPropertyInfo[] tableSplitComplexProperties,
+        InterceptionAccessor[] interceptionAccessors,
+        bool hasServiceProperties,
+        bool hasServiceParameterBindings,
+        bool hasInterceptionAccessors,
+        bool hasServiceInterceptionAccessors)
     {
         public ITypeBase StructuralType { get; } = structuralType;
         public object? DiscriminatorValue { get; } = discriminatorValue;
@@ -1479,7 +1742,44 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         public ConstructorParameterReader[]? ConstructorParameters { get; } = constructorParameters;
         public PropertyMaterializer[] PropertyMaterializers { get; } = propertyMaterializers;
         public ShadowPropertyMaterializer[] ShadowPropertyMaterializers { get; } = shadowPropertyMaterializers;
+        public ServicePropertyMaterializer[] ServicePropertyMaterializers { get; } = servicePropertyMaterializers;
         public TableSplitComplexPropertyInfo[] TableSplitComplexProperties { get; } = tableSplitComplexProperties;
+        public InterceptionAccessor[] InterceptionAccessors { get; } = interceptionAccessors;
+        public bool HasServiceProperties { get; } = hasServiceProperties;
+        public bool HasServiceParameterBindings { get; } = hasServiceParameterBindings;
+        public bool HasInterceptionAccessors { get; } = hasInterceptionAccessors;
+        public bool HasServiceInterceptionAccessors { get; } = hasServiceInterceptionAccessors;
+    }
+
+    private readonly struct StructuralTypeInstantiationResult(
+        TStructuralType instance,
+        ConcreteTypeInfo typeInfo,
+        ServiceInstanceState? serviceInstances,
+        MaterializationInterceptionData? materializationData)
+    {
+        public TStructuralType Instance { get; } = instance;
+        public ConcreteTypeInfo TypeInfo { get; } = typeInfo;
+        public ServiceInstanceState? ServiceInstances { get; } = serviceInstances;
+        public MaterializationInterceptionData? MaterializationData { get; } = materializationData;
+    }
+
+    private sealed class ServiceInstanceState
+    {
+        public Dictionary<Type, object?>? Instances { get; set; }
+    }
+
+    private readonly struct InterceptionAccessor(
+        IPropertyBase property,
+        int columnIndex,
+        bool isNullable,
+        ITypedValueReader<DbDataReader>? reader,
+        ServiceParameterReader? serviceReader)
+    {
+        public IPropertyBase Property { get; } = property;
+        public int ColumnIndex { get; } = columnIndex;
+        public bool IsNullable { get; } = isNullable;
+        public ITypedValueReader<DbDataReader>? Reader { get; } = reader;
+        public ServiceParameterReader? ServiceReader { get; } = serviceReader;
     }
 
     private readonly struct PropertyMaterializer(
@@ -1515,6 +1815,36 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         public int ShadowIndex { get; } = shadowIndex;
     }
 
+    private readonly struct ServicePropertyMaterializer(
+        IClrPropertySetter setter,
+        ServiceParameterReader reader,
+        IServiceProperty property)
+    {
+        public IClrPropertySetter Setter { get; } = setter;
+        public ServiceParameterReader Reader { get; } = reader;
+        public IServiceProperty Property { get; } = property;
+    }
+
+    private readonly struct ServiceParameterReader(
+        Type parameterType,
+        Type serviceType,
+        ServiceParameterResolver resolver,
+        MethodInfo? method = null)
+    {
+        public Type ParameterType { get; } = parameterType;
+        public Type ServiceType { get; } = serviceType;
+        public MethodInfo? Method { get; } = method;
+
+        public object? Resolve(QueryContext queryContext, ITypeBase structuralType, ref ServiceInstanceState? serviceInstances)
+            => resolver(queryContext, structuralType, ref serviceInstances, this);
+    }
+
+    private delegate object? ServiceParameterResolver(
+        QueryContext queryContext,
+        ITypeBase structuralType,
+        ref ServiceInstanceState? serviceInstances,
+        ServiceParameterReader reader);
+
     private readonly struct ConstructorParameterReader
     {
         public int ColumnIndex { get; }
@@ -1525,7 +1855,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         ///     For service/context/entity-type bindings: a delegate that resolves the value at materialization time.
         ///     When non-null, <see cref="Reader"/> is unused.
         /// </summary>
-        public Func<QueryContext, object?>? ServiceResolver { get; }
+        public ServiceParameterReader? ServiceReader { get; }
 
         /// <summary>
         ///     For <see cref="ObjectArrayParameterBinding"/>: inner readers whose resolved values
@@ -1542,8 +1872,8 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         }
 
         /// <summary>Creates a reader for a service/context/entity-type constructor parameter.</summary>
-        public ConstructorParameterReader(Func<QueryContext, object?> serviceResolver)
-            => ServiceResolver = serviceResolver;
+        public ConstructorParameterReader(ServiceParameterReader serviceReader)
+            => ServiceReader = serviceReader;
 
         /// <summary>Creates a reader for an object array parameter (packs inner bindings into object[]).</summary>
         public ConstructorParameterReader(ConstructorParameterReader[] innerReaders)
