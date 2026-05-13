@@ -18,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class RelationalQueryCompilationContext : QueryCompilationContext
 {
+    private readonly ExpressionPrinter _expressionPrinter = new();
+
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalQueryCompilationContext" /> class.
     /// </summary>
@@ -73,6 +75,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     public override Func<QueryContext, IEnumerable<TElement>> CreateEnumerableQueryExecutor<TElement>(Expression query)
     {
         var postprocessedQuery = TranslateQuery(query);
+        Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, postprocessedQuery);
+
         var runtimeParameterPopulators = GetRuntimeParameterPopulators();
 
         if (postprocessedQuery is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery)
@@ -94,6 +98,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     public override Func<QueryContext, TResult> CreateSingleValueQueryExecutor<TResult>(Expression query)
     {
         var postprocessedQuery = TranslateQuery(query);
+        Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, postprocessedQuery);
+
         var runtimeParameterPopulators = GetRuntimeParameterPopulators();
 
         switch (postprocessedQuery)
@@ -153,6 +159,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     public override Func<QueryContext, Task<TResult>> CreateSingleValueAsyncQueryExecutor<TResult>(Expression query)
     {
         var postprocessedQuery = TranslateQuery(query);
+        Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, postprocessedQuery);
+
         var runtimeParameterPopulators = GetRuntimeParameterPopulators();
 
         switch (postprocessedQuery)
@@ -201,10 +209,9 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
 
     private Expression TranslateQuery(Expression query)
     {
-        var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, new ExpressionPrinter(), query);
-        var interceptedQuery = queryAndEventData.Query;
+        var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
 
-        var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(interceptedQuery);
+        var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(queryAndEventData.Query);
         var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
         return Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
     }
