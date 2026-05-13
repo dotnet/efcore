@@ -1339,7 +1339,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 // the navigation was already set on first materialization.
                 if (related is not null && !entityAlreadyTracked)
                 {
-                    var navSetter = ((IRuntimePropertyBase)include.Navigation).GetSetter();
+                    var navSetter = ((IRuntimePropertyBase)include.Navigation).MaterializationSetter;
                     navSetter.SetClrValue(entity!, related);
 
                     if (!_isTracking)

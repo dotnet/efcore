@@ -877,7 +877,7 @@ public partial class RelationalMaterializerFactory(
                 IClrCollectionAccessor? inverseNavCollectionAccessor = null;
                 if (inverseNavigation is { IsCollection: false })
                 {
-                    inverseNavSetter = ((IRuntimePropertyBase)inverseNavigation).GetSetter();
+                    inverseNavSetter = ((IRuntimePropertyBase)inverseNavigation).MaterializationSetter;
                 }
                 else if (inverseNavigation is { IsCollection: true })
                 {
@@ -911,7 +911,7 @@ public partial class RelationalMaterializerFactory(
                             includeExpression.NavigationExpression, selectExpression, isTracking, queryTrackingBehavior,
                             splitCollectionInfos, ref nextCollectionId);
 
-                        var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
+                        var navSetter = ((IRuntimePropertyBase)navigation).MaterializationSetter;
 
                         var refInclude = new ReferenceIncludeInfo(
                             includedMaterializer,
