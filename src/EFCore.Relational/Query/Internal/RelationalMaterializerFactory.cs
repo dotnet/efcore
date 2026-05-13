@@ -308,6 +308,7 @@ public partial class RelationalMaterializerFactory(
                     navigation: null, // standalone — not an include
                     inverseNavigation: null,
                     inverseNavigationSetter: null,
+                    inverseNavigationCollectionAccessor: null,
                     collectionAccessor: collectionAccessor,
                     collectionAdd,
                     parentIdentifier,
@@ -316,6 +317,7 @@ public partial class RelationalMaterializerFactory(
                     collectionId,
                     splitCollectionShaper.SelectExpression,
                     childSplitCollections,
+                    setLoaded: false,
                     parentEntityProvider: null));
 
                 // Create and return the empty collection. It will be populated in-place by
@@ -940,6 +942,7 @@ public partial class RelationalMaterializerFactory(
                             navigation,
                             inverseNavigation,
                             inverseNavSetter,
+                            inverseNavCollectionAccessor,
                             collectionAccessor,
                             parentIdentifier,
                             outerIdentifier,
@@ -948,7 +951,8 @@ public partial class RelationalMaterializerFactory(
                             outerComparers,
                             selfComparers,
                             collectionId,
-                            isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null));
+                            isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null,
+                            includeExpression.SetLoaded));
 
                         return innerMaterializer;
                     }
@@ -979,6 +983,7 @@ public partial class RelationalMaterializerFactory(
                             navigation,
                             inverseNavigation,
                             inverseNavSetter,
+                            inverseNavCollectionAccessor,
                             collectionAccessor,
                             collectionAdd: null,
                             parentIdentifier,
@@ -987,6 +992,7 @@ public partial class RelationalMaterializerFactory(
                             collectionId,
                             splitCollectionShaper.SelectExpression,
                             childSplitCollections,
+                            includeExpression.SetLoaded,
                             childMaterializer,
                             parentEntityProvider: null));
 

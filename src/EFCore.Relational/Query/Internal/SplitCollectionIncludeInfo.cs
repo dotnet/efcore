@@ -7,21 +7,22 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
+///     Describes a split-query collection include.
+/// </summary>
+/// <remarks>
+///     Unlike <see cref="CollectionIncludeInfo" /> (used for single-query), this carries its own
+///     <see cref="CommandCache" /> for executing a separate SQL query to load the collection's child rows.
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </summary>
-/// <remarks>
-///     Describes a split-query collection include. Unlike <see cref="CollectionIncludeInfo" /> (used for
-///     single-query), this carries its own <see cref="CommandCache" /> for executing a separate SQL query
-///     to load the collection's child rows.
 /// </remarks>
 public sealed class SplitCollectionIncludeInfo(
     Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?> elementMaterializer,
     INavigationBase? navigation,
     INavigationBase? inverseNavigation,
     IClrPropertySetter? inverseNavigationSetter,
+    IClrCollectionAccessor? inverseNavigationCollectionAccessor,
     IClrCollectionAccessor? collectionAccessor,
     Action<object, object?>? collectionAdd,
     Func<QueryContext, DbDataReader, object[]> parentIdentifier,
@@ -30,6 +31,7 @@ public sealed class SplitCollectionIncludeInfo(
     int collectionId,
     Expression selectExpression,
     List<SplitCollectionIncludeInfo> childSplitCollections,
+    bool setLoaded,
     RelationalStructuralTypeMaterializer? innerMaterializer = null,
     Func<object?>? parentEntityProvider = null)
 {
@@ -61,6 +63,11 @@ public sealed class SplitCollectionIncludeInfo(
     ///     The setter for the inverse navigation, or null if inverse is a collection or doesn't exist.
     /// </summary>
     public IClrPropertySetter? InverseNavigationSetter { get; } = inverseNavigationSetter;
+
+    /// <summary>
+    ///     The collection accessor for the inverse navigation, or null if inverse is a reference or doesn't exist.
+    /// </summary>
+    public IClrCollectionAccessor? InverseNavigationCollectionAccessor { get; } = inverseNavigationCollectionAccessor;
 
     /// <summary>
     ///     Accessor for getting/creating the collection on the parent entity.
@@ -101,6 +108,11 @@ public sealed class SplitCollectionIncludeInfo(
     ///     Any nested split collections within the child entity.
     /// </summary>
     public List<SplitCollectionIncludeInfo> ChildSplitCollections { get; } = childSplitCollections;
+
+    /// <summary>
+    ///     Whether materializing this include should mark the navigation as loaded.
+    /// </summary>
+    public bool SetLoaded { get; } = setLoaded;
 
     /// <summary>
     ///     Pre-built command cache for the split collection's SQL query.

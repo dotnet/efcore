@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
+///     Describes a reference Include on an entity being materialized.
+/// </summary>
+/// <remarks>
+///     The included materializer may itself have includes (ThenInclude), forming a tree.
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </summary>
-/// <remarks>
-///     Describes a reference (non-collection) Include on an entity being materialized.
-///     The included materializer may itself have includes (ThenInclude), forming a tree.
 /// </remarks>
 public readonly struct ReferenceIncludeInfo(
     RelationalStructuralTypeMaterializer materializer,

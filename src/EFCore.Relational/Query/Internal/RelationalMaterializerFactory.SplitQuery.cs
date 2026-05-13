@@ -248,11 +248,11 @@ public partial class RelationalMaterializerFactory
             && ci.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(parentEntity))
         {
             // Include-based: set up navigation loading and get/create the collection on the entity
-            if (isTracking)
+            if (ci.SetLoaded && isTracking)
             {
                 queryContext.SetNavigationIsLoaded(parentEntity, ci.Navigation);
             }
-            else
+            else if (ci.SetLoaded)
             {
                 ci.Navigation.SetIsLoadedWhenNoTracking(parentEntity);
             }
@@ -362,11 +362,20 @@ public partial class RelationalMaterializerFactory
                         // also performs fixup, but explicit addition ensures the collection is correct
                         // even in complex reference-include chains where fixup may not fire for
                         // already-tracked entities.
-                        ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: false);
-                        if (!isTracking && ci.InverseNavigation is { IsCollection: false })
+                        ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: isTracking ? false : true);
+                        if (!isTracking)
                         {
-                            ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
-                            ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                            switch (ci.InverseNavigation)
+                            {
+                                case { IsCollection: true }:
+                                    ci.InverseNavigationCollectionAccessor?.Add(relatedEntity, parent!, forMaterialization: true);
+                                    break;
+
+                                case { IsCollection: false }:
+                                    ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
+                                    ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                                    break;
+                            }
                         }
                     }
                     else
@@ -466,11 +475,20 @@ public partial class RelationalMaterializerFactory
                 {
                     if (ci.Navigation is not null)
                     {
-                        ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: false);
-                        if (!isTracking && ci.InverseNavigation is { IsCollection: false })
+                        ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: isTracking ? false : true);
+                        if (!isTracking)
                         {
-                            ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
-                            ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                            switch (ci.InverseNavigation)
+                            {
+                                case { IsCollection: true }:
+                                    ci.InverseNavigationCollectionAccessor?.Add(relatedEntity, parent!, forMaterialization: true);
+                                    break;
+
+                                case { IsCollection: false }:
+                                    ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
+                                    ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                                    break;
+                            }
                         }
                     }
                     else

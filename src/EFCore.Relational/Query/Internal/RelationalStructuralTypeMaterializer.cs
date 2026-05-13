@@ -1382,13 +1382,16 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         if (parentEntity is not null
             && includeInfo.Navigation.DeclaringEntityType.ClrType.IsInstanceOfType(parentEntity))
         {
-            if (isTracking && !includeInfo.IsKeylessEntityType)
+            if (includeInfo.SetLoaded)
             {
-                queryContext.SetNavigationIsLoaded(parentEntity, includeInfo.Navigation);
-            }
-            else
-            {
-                includeInfo.Navigation.SetIsLoadedWhenNoTracking(parentEntity);
+                if (isTracking && !includeInfo.IsKeylessEntityType)
+                {
+                    queryContext.SetNavigationIsLoaded(parentEntity, includeInfo.Navigation);
+                }
+                else
+                {
+                    includeInfo.Navigation.SetIsLoadedWhenNoTracking(parentEntity);
+                }
             }
 
             collection = includeInfo.CollectionAccessor.GetOrCreate(parentEntity, forMaterialization: true);
@@ -1497,11 +1500,17 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 collectionContext.ResultContext.Values = null;
                 if (!_isTracking || ci.IsKeylessEntityType)
                 {
-                    ci.CollectionAccessor.Add(parent, relatedEntity!, forMaterialization: false);
-                    if (ci.InverseNavigation is { IsCollection: false })
+                    ci.CollectionAccessor.Add(parent, relatedEntity!, forMaterialization: true);
+                    switch (ci.InverseNavigation)
                     {
-                        ci.InverseNavigationSetter?.SetClrValue(relatedEntity!, parent);
-                        ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity!);
+                        case { IsCollection: true }:
+                            ci.InverseNavigationCollectionAccessor?.Add(relatedEntity!, parent, forMaterialization: true);
+                            break;
+
+                        case { IsCollection: false }:
+                            ci.InverseNavigationSetter?.SetClrValue(relatedEntity!, parent);
+                            ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity!);
+                            break;
                     }
                 }
             }

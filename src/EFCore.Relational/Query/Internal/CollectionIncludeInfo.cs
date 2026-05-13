@@ -8,20 +8,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
+///     Describes a collection Include on an entity being materialized.
+/// </summary>
+/// <remarks>
+///     The included materializer may itself have includes (ThenInclude), forming a tree.
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </summary>
-/// <remarks>
-///     Describes a collection (one-to-many) Include on an entity being materialized.
-///     The included materializer may itself have includes (ThenInclude), forming a tree.
 /// </remarks>
 public readonly struct CollectionIncludeInfo(
     RelationalStructuralTypeMaterializer innerMaterializer,
     INavigationBase navigation,
     INavigationBase? inverseNavigation,
     IClrPropertySetter? inverseNavigationSetter,
+    IClrCollectionAccessor? inverseNavigationCollectionAccessor,
     IClrCollectionAccessor collectionAccessor,
     Func<QueryContext, DbDataReader, object[]> parentIdentifier,
     Func<QueryContext, DbDataReader, object[]> outerIdentifier,
@@ -31,6 +32,7 @@ public readonly struct CollectionIncludeInfo(
     IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
     int collectionId,
     bool isKeylessEntityType,
+    bool setLoaded,
     Func<object?>? parentEntityProvider = null)
 {
     /// <summary>
@@ -52,6 +54,11 @@ public readonly struct CollectionIncludeInfo(
     ///     The setter for the inverse navigation, or null if inverse is a collection or doesn't exist.
     /// </summary>
     public IClrPropertySetter? InverseNavigationSetter { get; } = inverseNavigationSetter;
+
+    /// <summary>
+    ///     The collection accessor for the inverse navigation, or null if inverse is a reference or doesn't exist.
+    /// </summary>
+    public IClrCollectionAccessor? InverseNavigationCollectionAccessor { get; } = inverseNavigationCollectionAccessor;
 
     /// <summary>
     ///     Accessor for getting/creating the collection on the parent entity.
@@ -97,6 +104,11 @@ public readonly struct CollectionIncludeInfo(
     ///     Whether the navigation's declaring entity type is keyless.
     /// </summary>
     public bool IsKeylessEntityType { get; } = isKeylessEntityType;
+
+    /// <summary>
+    ///     Whether materializing this include should mark the navigation as loaded.
+    /// </summary>
+    public bool SetLoaded { get; } = setLoaded;
 
     /// <summary>
     ///     Optional provider for the parent entity of this collection. When non-null, this collection
