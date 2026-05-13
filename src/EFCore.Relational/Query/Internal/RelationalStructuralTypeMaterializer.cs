@@ -445,6 +445,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
 
                 var setterMemberInfo = complexProperty.GetMemberInfo(forMaterialization: true, forSet: true);
                 IClrPropertySetter? cpSetter = complexType2.ClrType.IsValueType
+                    || isComplexType
                     ? null
                     : ((IRuntimePropertyBase)complexProperty).MaterializationSetter;
 
