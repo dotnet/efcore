@@ -44,6 +44,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
     private readonly IKey? _primaryKey;
     private readonly KeyColumnInfo[]? _keyColumns;
     private readonly bool _isTracking;
+    private readonly bool _queryStateManager;
     private readonly QueryTrackingBehavior? _queryTrackingBehavior;
     private readonly IMaterializationInterceptor? _materializationInterceptor;
 
@@ -109,11 +110,13 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         _materializationInterceptor = materializationInterceptor;
         var entityType = structuralType as IEntityType;
         var primaryKey = entityType?.FindPrimaryKey();
-        _primaryKey = isTracking ? primaryKey : null;
-        _isTracking = _primaryKey is not null;
+        var queryStateManager = isTracking || queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+        _primaryKey = queryStateManager ? primaryKey : null;
+        _isTracking = isTracking;
+        _queryStateManager = _primaryKey is not null;
 
         // Build key column info — needed for tracking (identity resolution) and for nullable entities (null detection)
-        if (primaryKey is not null && (isTracking || isNullable))
+        if (primaryKey is not null && (queryStateManager || isNullable))
         {
             _keyColumns = new KeyColumnInfo[primaryKey.Properties.Count];
 
@@ -401,7 +404,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
 
             // Build shadow property readers for tracking (FK shadow properties, discriminators, etc.)
             List<ShadowPropertyMaterializer>? shadowMaterializers = null;
-            if (isTracking)
+            if (queryStateManager)
             {
                 foreach (var property in concreteType.GetProperties().Where(p => p.IsShadowProperty()))
                 {
@@ -829,7 +832,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         if (_keyColumns is not null)
         {
             var hasNullKey = false;
-            var keyValues = _isTracking ? new object[_keyColumns.Length] : null;
+            var keyValues = _queryStateManager ? new object[_keyColumns.Length] : null;
 
             for (var i = 0; i < _keyColumns.Length; i++)
             {
@@ -857,7 +860,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
                 return default;
             }
 
-            if (_isTracking)
+            if (_queryStateManager)
             {
                 var entry = queryContext.TryGetEntry(_primaryKey!, keyValues!, throwOnNullKey: true, out _);
                 if (entry is not null)
@@ -923,7 +926,7 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
             instance = (TStructuralType)_materializationInterceptor!.InitializedInstance(initializedMaterializationData, instance!);
         }
 
-        if (_isTracking)
+        if (_queryStateManager)
         {
             var shadowSnapshot = typeInfo.ShadowPropertyMaterializers.Length > 0
                 ? BuildShadowSnapshot(dataReader, typeInfo)

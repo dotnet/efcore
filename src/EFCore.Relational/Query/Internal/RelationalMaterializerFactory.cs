@@ -54,14 +54,20 @@ public partial class RelationalMaterializerFactory(
     {
         var (select, shaper) = ((SelectExpression)shapedQueryExpression.QueryExpression, shapedQueryExpression.ShaperExpression);
 
-        // For NoTrackingWithIdentityResolution, validate that JSON entity projections are in a safe
-        // order. This mirrors the generated shaper's JsonCorrectOrderOfEntitiesForChangeTrackerValidator.
-        if (queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+        switch (queryCompilationContext.QueryTrackingBehavior)
         {
-            new RelationalShapedQueryCompilingExpressionVisitor.ShaperProcessingExpressionVisitor
-                .JsonCorrectOrderOfEntitiesForChangeTrackerValidator(select).Validate(shaper);
-        }
+            // Ensure no owned entities are being projected out without their owner (in a tracking query)
+            case QueryTrackingBehavior.TrackAll:
+                OwnedEntityTrackingValidator.Validate(shaper);
+                break;
 
+            // For NoTrackingWithIdentityResolution, validate that JSON entity projections are in a safe
+            // order. This mirrors the generated shaper's JsonCorrectOrderOfEntitiesForChangeTrackerValidator.
+            case QueryTrackingBehavior.NoTrackingWithIdentityResolution:
+                new RelationalShapedQueryCompilingExpressionVisitor.ShaperProcessingExpressionVisitor
+                    .JsonCorrectOrderOfEntitiesForChangeTrackerValidator(select).Validate(shaper);
+                break;
+        }
         return StripIgnorableConvert(shaper) switch
         {
             RelationalGroupByResultExpression groupByResultExpression
@@ -1225,6 +1231,40 @@ public partial class RelationalMaterializerFactory(
             default:
                 return false;
         }
+    }
+
+    private sealed class OwnedEntityTrackingValidator : ExpressionVisitor
+    {
+        private readonly HashSet<IEntityType> _visitedEntityTypes = [];
+
+        public static void Validate(Expression shaper)
+        {
+            var validator = new OwnedEntityTrackingValidator();
+            validator.Visit(shaper);
+
+            foreach (var entityType in validator._visitedEntityTypes)
+            {
+                if (entityType.FindOwnership() is { } ownership
+                    && !validator.ContainsOwner(ownership.PrincipalEntityType))
+                {
+                    throw new InvalidOperationException(CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner);
+                }
+            }
+        }
+
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType })
+            {
+                _visitedEntityTypes.Add(entityType);
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
+
+        private bool ContainsOwner(IEntityType? owner)
+            => owner is not null
+                && (_visitedEntityTypes.Any(owner.IsAssignableFrom) || ContainsOwner(owner.BaseType));
     }
 
     /// <summary>
