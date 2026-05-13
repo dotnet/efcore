@@ -348,14 +348,38 @@ public partial class RelationalMaterializerFactory(
                     .Select(p => p.ParameterType)
                     .ToArray();
                 var subMaterializers = new Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, object?>[newExpression.Arguments.Count];
+                var splitCollectionStartIndexes = splitCollectionInfos is null ? null : new int[subMaterializers.Length];
+                object[]? currentValues = null;
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
+                    if (splitCollectionStartIndexes is not null)
+                    {
+                        splitCollectionStartIndexes[i] = splitCollectionInfos!.Count;
+                    }
+
                     subMaterializers[i] = BuildMaterializer<object>(
                         newExpression.Arguments[i], select, isTracking, queryTrackingBehavior,
                         ref nextCollectionId, splitCollectionInfos, parameterTypes[i]);
                 }
 
-                return ComposeWithMultiCallProtocol<T>(
+                if (splitCollectionStartIndexes is not null)
+                {
+                    var splitCollectionInfosLocal = splitCollectionInfos!;
+
+                    for (var i = 0; i < subMaterializers.Length; i++)
+                    {
+                        var subMaterializerIndex = i;
+                        var startIndex = splitCollectionStartIndexes[i];
+                        var endIndex = i + 1 < subMaterializers.Length ? splitCollectionStartIndexes[i + 1] : splitCollectionInfosLocal.Count;
+
+                        for (var j = startIndex; j < endIndex; j++)
+                        {
+                            splitCollectionInfosLocal[j].ParentEntityProvider ??= () => currentValues?[subMaterializerIndex];
+                        }
+                    }
+                }
+
+                var composedMaterializer = ComposeWithMultiCallProtocol<T>(
                     subMaterializers,
                     (_, _, values) =>
                     {
@@ -364,6 +388,14 @@ public partial class RelationalMaterializerFactory(
 
                         return (T?)invoker.Invoke(invokerArgs.AsSpan());
                     });
+
+                return (queryCtx, reader, rc, coord) =>
+                {
+                    var result = composedMaterializer(queryCtx, reader, rc, coord);
+                    currentValues = rc.Values;
+
+                    return result;
+                };
             }
 
             // Common collection terminal operators (ToList, ToArray...) over correlated collection projections.

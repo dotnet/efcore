@@ -199,7 +199,7 @@ public partial class RelationalMaterializerFactory
 
                 for (var j = startIndex; j < endIndex; j++)
                 {
-                    splitCollectionInfos[j].ParentEntityProvider = () => argResults[argIndex];
+                    splitCollectionInfos[j].ParentEntityProvider ??= () => argResults[argIndex];
                 }
             }
 
@@ -341,7 +341,9 @@ public partial class RelationalMaterializerFactory
                 for (var i = 0; i < ci.ChildSplitCollections.Count; i++)
                 {
                     var childCi = ci.ChildSplitCollections[i];
-                    var childEntity = childResultContext.Values?[0];
+                    var childEntity = childCi.ParentEntityProvider is not null
+                        ? childCi.ParentEntityProvider()
+                        : childResultContext.Values?[0];
 
                     InitializeSplitIncludeCollection(
                         queryContext, dbDataReader, resultCoordinator, isTracking, childEntity, childCi);
@@ -354,33 +356,30 @@ public partial class RelationalMaterializerFactory
                 var relatedEntity = ci.ElementMaterializer(
                     queryContext, dbDataReader, childResultContext, dummyCoord);
 
-                if (relatedEntity is not null)
+                if (ci.Navigation is null)
                 {
-                    if (ci.Navigation is not null)
+                    ci.CollectionAdd!(collectionContext.Collection!, relatedEntity);
+                }
+                else if (relatedEntity is not null)
+                {
+                    // Always add to the collection — for tracking queries, the change tracker
+                    // also performs fixup, but explicit addition ensures the collection is correct
+                    // even in complex reference-include chains where fixup may not fire for
+                    // already-tracked entities.
+                    ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: isTracking ? false : true);
+                    if (!isTracking)
                     {
-                        // Always add to the collection — for tracking queries, the change tracker
-                        // also performs fixup, but explicit addition ensures the collection is correct
-                        // even in complex reference-include chains where fixup may not fire for
-                        // already-tracked entities.
-                        ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: isTracking ? false : true);
-                        if (!isTracking)
+                        switch (ci.InverseNavigation)
                         {
-                            switch (ci.InverseNavigation)
-                            {
-                                case { IsCollection: true }:
-                                    ci.InverseNavigationCollectionAccessor?.Add(relatedEntity, parent!, forMaterialization: true);
-                                    break;
+                            case { IsCollection: true }:
+                                ci.InverseNavigationCollectionAccessor?.Add(relatedEntity, parent!, forMaterialization: true);
+                                break;
 
-                                case { IsCollection: false }:
-                                    ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
-                                    ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                                    break;
-                            }
+                            case { IsCollection: false }:
+                                ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
+                                ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                                break;
                         }
-                    }
-                    else
-                    {
-                        ci.CollectionAdd!(collectionContext.Collection!, relatedEntity);
                     }
                 }
             }
@@ -458,7 +457,9 @@ public partial class RelationalMaterializerFactory
                 for (var i = 0; i < ci.ChildSplitCollections.Count; i++)
                 {
                     var childCi = ci.ChildSplitCollections[i];
-                    var childEntity = childResultContext.Values?[0];
+                    var childEntity = childCi.ParentEntityProvider is not null
+                        ? childCi.ParentEntityProvider()
+                        : childResultContext.Values?[0];
 
                     InitializeSplitIncludeCollection(
                         queryContext, dbDataReader, resultCoordinator, isTracking, childEntity, childCi);
@@ -471,29 +472,26 @@ public partial class RelationalMaterializerFactory
                 var relatedEntity = ci.ElementMaterializer(
                     queryContext, dbDataReader, childResultContext, dummyCoord);
 
-                if (relatedEntity is not null)
+                if (ci.Navigation is null)
                 {
-                    if (ci.Navigation is not null)
+                    ci.CollectionAdd!(collectionContext.Collection!, relatedEntity);
+                }
+                else if (relatedEntity is not null)
+                {
+                    ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: isTracking ? false : true);
+                    if (!isTracking)
                     {
-                        ci.CollectionAccessor!.Add(parent!, relatedEntity, forMaterialization: isTracking ? false : true);
-                        if (!isTracking)
+                        switch (ci.InverseNavigation)
                         {
-                            switch (ci.InverseNavigation)
-                            {
-                                case { IsCollection: true }:
-                                    ci.InverseNavigationCollectionAccessor?.Add(relatedEntity, parent!, forMaterialization: true);
-                                    break;
+                            case { IsCollection: true }:
+                                ci.InverseNavigationCollectionAccessor?.Add(relatedEntity, parent!, forMaterialization: true);
+                                break;
 
-                                case { IsCollection: false }:
-                                    ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
-                                    ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                                    break;
-                            }
+                            case { IsCollection: false }:
+                                ci.InverseNavigationSetter?.SetClrValue(relatedEntity, parent);
+                                ci.InverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
+                                break;
                         }
-                    }
-                    else
-                    {
-                        ci.CollectionAdd!(collectionContext.Collection!, relatedEntity);
                     }
                 }
             }
