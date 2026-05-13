@@ -711,9 +711,6 @@ public class DbContextOperations
         string name,
         bool throwOnEmpty)
     {
-        if (name == "*")
-            return types;
-
         var candidates = FilterTypes(types, name, StringComparison.OrdinalIgnoreCase);
         if (candidates.Count == 0)
         {
@@ -756,9 +753,6 @@ public class DbContextOperations
         string name,
         StringComparison comparisonType)
     {
-        if (name == "*")
-            return types;
-
         return types
             .Where(t => string.Equals(t.Key.Name, name, comparisonType)
                 || string.Equals(t.Key.FullName, name, comparisonType)

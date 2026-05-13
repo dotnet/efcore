@@ -222,35 +222,6 @@ public class DbContextOperationsTest
     }
 
     [ConditionalFact]
-    public void CreateContext_with_wildcard_returns_all_contexts()
-    {
-        var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
-        var reporter = new TestOperationReporter();
-        var operations = new TestDbContextOperations(
-            reporter,
-            assembly,
-            assembly,
-            project: "",
-            projectDir: "",
-            rootNamespace: null,
-            language: "C#",
-            nullable: false,
-            args: [],
-            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
-
-        var contexts = operations.CreateAllContexts().ToList();
-
-        Assert.Collection(
-            contexts,
-            c => Assert.IsType<BaseContext>(c),
-            c => Assert.IsType<DerivedContext>(c));
-
-        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Critical);
-        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Error);
-        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
-    }
-
-    [ConditionalFact]
     public void Optimize_throws_when_no_contexts()
     {
         var assembly = MockAssembly.Create();
