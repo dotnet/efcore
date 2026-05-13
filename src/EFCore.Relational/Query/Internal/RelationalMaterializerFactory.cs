@@ -90,7 +90,8 @@ public partial class RelationalMaterializerFactory(
             shaper = convert.Operand;
         }
 
-        var rowMaterializer = BuildMaterializer<TElement>(shaper, select, isTracking, ref nextCollectionId);
+        var rowMaterializer = BuildMaterializer<TElement>(
+            shaper, select, isTracking, queryCompilationContext.QueryTrackingBehavior, ref nextCollectionId);
 
         return qc => new SingleQueryingEnumerable<TElement>(
             (RelationalQueryContext)qc,
@@ -122,7 +123,8 @@ public partial class RelationalMaterializerFactory(
             shaper = convert.Operand;
         }
 
-        var rowMaterializer = BuildMaterializer<TElement>(shaper, select, isTracking, ref nextCollectionId);
+        var rowMaterializer = BuildMaterializer<TElement>(
+            shaper, select, isTracking, queryCompilationContext.QueryTrackingBehavior, ref nextCollectionId);
 
         var columnNames = select.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToArray();
 
@@ -154,6 +156,7 @@ public partial class RelationalMaterializerFactory(
         Expression shaperExpression,
         SelectExpression select,
         bool isTracking,
+        QueryTrackingBehavior? queryTrackingBehavior,
         ref int nextCollectionId,
         List<SplitCollectionIncludeInfo>? splitCollectionInfos = null,
         Type? resultType = null)
@@ -237,7 +240,7 @@ public partial class RelationalMaterializerFactory(
             case IncludeExpression:
             {
                 var entityMaterializer = BuildMaterializerFromShaper(
-                    shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId);
+                    shaperExpression, select, isTracking, queryTrackingBehavior, splitCollectionInfos, ref nextCollectionId);
 
                 if (typeof(T) != typeof(object))
                 {
@@ -267,7 +270,8 @@ public partial class RelationalMaterializerFactory(
             // every call, return collection when ResultReady.
             case RelationalCollectionShaperExpression collectionShaper:
                 return BuildStandaloneCollectionMaterializer<T>(
-                    collectionShaper, select, isTracking, ref nextCollectionId, static collection => collection);
+                    collectionShaper, select, isTracking, queryTrackingBehavior,
+                    ref nextCollectionId, static collection => collection);
 
             // Split-query collection projection (e.g. Select(c => new { Orders = c.Orders.ToList() })
             // with AsSplitQuery). The collection is loaded via a separate SQL query; we register it
@@ -281,7 +285,7 @@ public partial class RelationalMaterializerFactory(
                 var childSplitCollections = new List<SplitCollectionIncludeInfo>();
                 var childMaterializer = BuildMaterializer<object>(
                     splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
-                    isTracking, ref nextCollectionId, childSplitCollections);
+                    isTracking, queryTrackingBehavior, ref nextCollectionId, childSplitCollections);
 
                 var parentIdentifier = CompileIdentifierLambda(
                     splitCollectionShaper.ParentIdentifier, select);
@@ -341,7 +345,8 @@ public partial class RelationalMaterializerFactory(
                 for (var i = 0; i < subMaterializers.Length; i++)
                 {
                     subMaterializers[i] = BuildMaterializer<object>(
-                        newExpression.Arguments[i], select, isTracking, ref nextCollectionId, splitCollectionInfos, parameterTypes[i]);
+                        newExpression.Arguments[i], select, isTracking, queryTrackingBehavior,
+                        ref nextCollectionId, splitCollectionInfos, parameterTypes[i]);
                 }
 
                 return ComposeWithMultiCallProtocol<T>(
@@ -362,7 +367,8 @@ public partial class RelationalMaterializerFactory(
                 when TryGetCollectionTerminal(methodCallExpression, out var terminalCollectionShaper, out var collectionResultFinalizer):
             {
                 return BuildStandaloneCollectionMaterializer<T>(
-                    terminalCollectionShaper, select, isTracking, ref nextCollectionId, collectionResultFinalizer);
+                    terminalCollectionShaper, select, isTracking, queryTrackingBehavior,
+                    ref nextCollectionId, collectionResultFinalizer);
             }
 
             // Client-evaluated expression fallback (e.g. method calls, member accesses, conditionals
@@ -399,7 +405,8 @@ public partial class RelationalMaterializerFactory(
                     }
 
                     subMaterializers[i] = BuildMaterializer<object>(
-                        rewriter.ExtractedSubExpressions[i], select, isTracking, ref nextCollectionId, splitCollectionInfos);
+                        rewriter.ExtractedSubExpressions[i], select, isTracking, queryTrackingBehavior,
+                        ref nextCollectionId, splitCollectionInfos);
                 }
 
                 if (splitCollectionStartIndexes is not null)
@@ -622,13 +629,14 @@ public partial class RelationalMaterializerFactory(
         RelationalCollectionShaperExpression collectionShaper,
         SelectExpression select,
         bool isTracking,
+        QueryTrackingBehavior? queryTrackingBehavior,
         ref int nextCollectionId,
         Func<object, object?> resultFinalizer)
     {
         var collectionId = nextCollectionId++;
 
         var innerElementMaterializer = BuildMaterializer<object>(
-            collectionShaper.InnerShaper, select, isTracking, ref nextCollectionId);
+            collectionShaper.InnerShaper, select, isTracking, queryTrackingBehavior, ref nextCollectionId);
 
         var parentIdentifier = CompileIdentifierLambda(collectionShaper.ParentIdentifier, select);
         var outerIdentifier = CompileIdentifierLambda(collectionShaper.OuterIdentifier, select);
@@ -801,6 +809,7 @@ public partial class RelationalMaterializerFactory(
         Expression shaperExpression,
         SelectExpression selectExpression,
         bool isTracking,
+        QueryTrackingBehavior? queryTrackingBehavior,
         List<SplitCollectionIncludeInfo>? splitCollectionInfos,
         ref int nextCollectionId)
     {
@@ -814,22 +823,27 @@ public partial class RelationalMaterializerFactory(
             } shaper:
             {
                 return BuildStructuralTypeMaterializer(
-                    shaper.StructuralType, projectionBinding, selectExpression, isTracking, shaper.IsNullable);
+                    shaper.StructuralType, projectionBinding, selectExpression, isTracking, shaper.IsNullable, queryTrackingBehavior);
             }
 
             case IncludeExpression includeExpression:
             {
                 // Recurse into the entity expression to build the inner materializer (which may have further includes)
                 var innerMaterializer = BuildMaterializerFromShaper(
-                    includeExpression.EntityExpression, selectExpression, isTracking,
+                    includeExpression.EntityExpression, selectExpression, isTracking, queryTrackingBehavior,
                     splitCollectionInfos, ref nextCollectionId);
 
                 var navigation = includeExpression.Navigation;
                 var inverseNavigation = navigation.Inverse;
                 IClrPropertySetter? inverseNavSetter = null;
+                IClrCollectionAccessor? inverseNavCollectionAccessor = null;
                 if (inverseNavigation is { IsCollection: false })
                 {
                     inverseNavSetter = ((IRuntimePropertyBase)inverseNavigation).GetSetter();
+                }
+                else if (inverseNavigation is { IsCollection: true })
+                {
+                    inverseNavCollectionAccessor = inverseNavigation.GetCollectionAccessor();
                 }
 
                 switch (includeExpression.NavigationExpression)
@@ -856,7 +870,7 @@ public partial class RelationalMaterializerFactory(
                         var splitCountBefore = splitCollectionInfos?.Count ?? 0;
 
                         var includedMaterializer = BuildMaterializerFromShaper(
-                            includeExpression.NavigationExpression, selectExpression, isTracking,
+                            includeExpression.NavigationExpression, selectExpression, isTracking, queryTrackingBehavior,
                             splitCollectionInfos, ref nextCollectionId);
 
                         var navSetter = ((IRuntimePropertyBase)navigation).GetSetter();
@@ -867,6 +881,7 @@ public partial class RelationalMaterializerFactory(
                             navSetter,
                             inverseNavigation,
                             inverseNavSetter,
+                            inverseNavCollectionAccessor,
                             isKeylessEntityType: navigation.DeclaringEntityType.FindPrimaryKey() is null);
                         innerMaterializer.AddReferenceInclude(refInclude);
 
@@ -894,7 +909,7 @@ public partial class RelationalMaterializerFactory(
                     {
                         var childMaterializer = BuildMaterializerFromShaper(
                             collectionShaper.InnerShaper, selectExpression, isTracking,
-                            splitCollectionInfos: null, ref nextCollectionId);
+                            queryTrackingBehavior, splitCollectionInfos: null, ref nextCollectionId);
 
                         var parentIdentifier = CompileIdentifierLambda(
                             collectionShaper.ParentIdentifier, selectExpression);
@@ -943,7 +958,7 @@ public partial class RelationalMaterializerFactory(
                         var childSplitCollections = new List<SplitCollectionIncludeInfo>();
                         var childMaterializer = BuildMaterializerFromShaper(
                             splitCollectionShaper.InnerShaper, splitCollectionShaper.SelectExpression,
-                            isTracking, childSplitCollections, ref nextCollectionId);
+                            isTracking, queryTrackingBehavior, childSplitCollections, ref nextCollectionId);
 
                         var parentIdentifier = CompileIdentifierLambda(
                             splitCollectionShaper.ParentIdentifier, selectExpression);
@@ -1039,12 +1054,12 @@ public partial class RelationalMaterializerFactory(
             {
                 // Build the target entity materializer (this is what gets returned)
                 var targetMaterializer = BuildMaterializerFromShaper(
-                    targetShaper, selectExpression, isTracking,
+                    targetShaper, selectExpression, isTracking, queryTrackingBehavior,
                     splitCollectionInfos, ref nextCollectionId);
 
                 // Build and store the join entity materializer so it gets materialized for tracking.
                 targetMaterializer.JoinEntityMaterializer = BuildMaterializerFromShaper(
-                    joinShaper, selectExpression, isTracking,
+                    joinShaper, selectExpression, isTracking, queryTrackingBehavior,
                     splitCollectionInfos, ref nextCollectionId);
 
                 return targetMaterializer;
@@ -1092,7 +1107,8 @@ public partial class RelationalMaterializerFactory(
         ProjectionBindingExpression projectionBinding,
         SelectExpression selectExpression,
         bool isTracking,
-        bool isNullable)
+        bool isNullable,
+        QueryTrackingBehavior? queryTrackingBehavior)
     {
         var projectionIndex = selectExpression.GetProjection(projectionBinding).GetConstantValue<object>();
         if (projectionIndex is not IDictionary<IPropertyBase, int> propertyIndexMap)
@@ -1103,7 +1119,8 @@ public partial class RelationalMaterializerFactory(
 
         var materializerType = typeof(RelationalStructuralTypeMaterializer<>).MakeGenericType(structuralType.ClrType);
         return (RelationalStructuralTypeMaterializer)Activator.CreateInstance(
-            materializerType, structuralType, propertyIndexMap, isTracking, isNullable, _bindingInterceptors)!;
+            materializerType, structuralType, propertyIndexMap, isTracking, isNullable,
+            queryTrackingBehavior, _bindingInterceptors)!;
     }
 
     private static Action<object, object?> CreateCollectionAddDelegate(Type elementType)
@@ -1575,7 +1592,8 @@ public partial class RelationalMaterializerFactory(
         var nextCollectionId = 0;
 
         var keyMaterializer = BuildMaterializer<TKey>(
-            groupByResultExpression.KeyShaper, select, isTracking, ref nextCollectionId);
+            groupByResultExpression.KeyShaper, select, isTracking,
+            queryCompilationContext.QueryTrackingBehavior, ref nextCollectionId);
         var keyIdentifier = CompileIdentifierLambda(groupByResultExpression.KeyIdentifier, select);
         var keyIdentifierValueComparers = groupByResultExpression.KeyIdentifierValueComparers
             .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
@@ -1612,7 +1630,8 @@ public partial class RelationalMaterializerFactory(
         }
 
         var elementMaterializer = BuildMaterializer<TElement>(
-            groupByResultExpression.ElementShaper, select, isTracking, ref nextCollectionId);
+            groupByResultExpression.ElementShaper, select, isTracking,
+            queryCompilationContext.QueryTrackingBehavior, ref nextCollectionId);
 
         return qc => (IEnumerable<TGrouping>)(object)new GroupBySingleQueryingEnumerable<TKey, TElement>(
             (RelationalQueryContext)qc,

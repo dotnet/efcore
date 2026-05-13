@@ -66,7 +66,8 @@ public partial class RelationalMaterializerFactory
         var splitCollectionInfos = new List<SplitCollectionIncludeInfo>();
         var nextCollectionId = 0;
         var entityMaterializer = BuildSplitEntityMaterializer(
-            shaper, select, isTracking, splitCollectionInfos, ref nextCollectionId);
+            shaper, select, isTracking, queryCompilationContext.QueryTrackingBehavior,
+            splitCollectionInfos, ref nextCollectionId);
 
         // Build the shaper delegate that wraps the entity materializer.
         // When there are collections (relatedDataLoaders non-null), the shaper is called twice per row:
@@ -146,6 +147,7 @@ public partial class RelationalMaterializerFactory
         Expression shaperExpression,
         SelectExpression select,
         bool isTracking,
+        QueryTrackingBehavior? queryTrackingBehavior,
         List<SplitCollectionIncludeInfo> splitCollectionInfos,
         ref int nextCollectionId)
     {
@@ -158,7 +160,7 @@ public partial class RelationalMaterializerFactory
         if (shaperExpression is RelationalStructuralTypeShaperExpression or IncludeExpression)
         {
             var entityMaterializer = BuildMaterializerFromShaper(
-                shaperExpression, select, isTracking, splitCollectionInfos, ref nextCollectionId);
+                shaperExpression, select, isTracking, queryTrackingBehavior, splitCollectionInfos, ref nextCollectionId);
 
             var resultContext = new ResultContext();
             var dummyCoordinator = new SingleQueryResultCoordinator();
@@ -182,7 +184,8 @@ public partial class RelationalMaterializerFactory
             {
                 argSplitStartIndices[i] = splitCollectionInfos.Count;
                 argMaterializers[i] = BuildSplitEntityMaterializer(
-                    newExpression.Arguments[i], select, isTracking, splitCollectionInfos, ref nextCollectionId);
+                    newExpression.Arguments[i], select, isTracking, queryTrackingBehavior,
+                    splitCollectionInfos, ref nextCollectionId);
             }
 
             // Set ParentEntityProvider on each split collection to read from its arg materializer's result.
@@ -215,7 +218,8 @@ public partial class RelationalMaterializerFactory
         }
 
         // For other shaper types (scalars, method calls, etc.)
-        var materializer = BuildMaterializer<object>(shaperExpression, select, isTracking, ref nextCollectionId, splitCollectionInfos);
+        var materializer = BuildMaterializer<object>(
+            shaperExpression, select, isTracking, queryTrackingBehavior, ref nextCollectionId, splitCollectionInfos);
         var rc = new ResultContext();
         var coord = new SingleQueryResultCoordinator();
 

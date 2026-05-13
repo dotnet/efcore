@@ -21,6 +21,7 @@ public readonly struct ReferenceIncludeInfo(
     IClrPropertySetter navigationSetter,
     INavigationBase? inverseNavigation,
     IClrPropertySetter? inverseNavigationSetter,
+    IClrCollectionAccessor? inverseNavigationCollectionAccessor,
     bool isKeylessEntityType)
 {
     /// <summary>
@@ -54,6 +55,11 @@ public readonly struct ReferenceIncludeInfo(
     ///     The setter for the inverse navigation, or null if inverse is a collection or doesn't exist.
     /// </summary>
     public IClrPropertySetter? InverseNavigationSetter { get; } = inverseNavigationSetter;
+
+    /// <summary>
+    ///     The collection accessor for the inverse navigation, or null if inverse is a reference or doesn't exist.
+    /// </summary>
+    public IClrCollectionAccessor? InverseNavigationCollectionAccessor { get; } = inverseNavigationCollectionAccessor;
 
     /// <summary>
     ///     Whether the navigation's declaring entity type is keyless (has no primary key).
