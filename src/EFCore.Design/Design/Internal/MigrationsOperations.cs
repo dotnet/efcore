@@ -217,6 +217,29 @@ public class MigrationsOperations
         string? connectionString,
         string? contextType)
     {
+        // Fix wildcard * issue #38254
+        if (contextType == "*")
+        {
+            var contexts = _contextOperations.CreateAllContexts();
+                foreach (var item in contexts)
+                {
+                    using (item)
+                    {
+                        if (connectionString is not null)
+                        item.Database.SetConnectionString(connectionString);
+
+                        var services = _servicesBuilder.Build(item);
+                        EnsureServices(services);
+
+                        var migrator = services.GetRequiredService<IMigrator>();
+                        migrator.Migrate(targetMigration);
+                    }
+                }
+
+            _reporter.WriteInformation(DesignStrings.Done);
+            return;
+        }
+
         using (var context = _contextOperations.CreateContext(contextType))
         {
             if (connectionString != null)
