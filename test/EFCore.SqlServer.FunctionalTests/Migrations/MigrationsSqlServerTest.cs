@@ -2097,11 +2097,7 @@ CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
 
         AssertSql(
             """
-DROP INDEX [IX_People_X] ON [People];
-""",
-            //
-            """
-CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);
+CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]) WITH (DROP_EXISTING = ON);
 """);
     }
 
@@ -2111,11 +2107,74 @@ CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);
 
         AssertSql(
             """
-DROP INDEX [IX_People_X_Y_Z] ON [People];
-""",
-            //
+CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]) WITH (DROP_EXISTING = ON);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Alter_index_fill_factor_uses_drop_existing()
+    {
+        // Regression test for #35067: when only an index facet (fill factor here) changes, the
+        // migration must collapse the differ's Drop+Create pair into a single CREATE INDEX
+        // ... WITH (DROP_EXISTING = ON), which lets queries continue using the old index while the
+        // new one is being built.
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name").IsRequired();
+                    e.HasIndex("Name").HasFillFactor(80);
+                }),
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name").IsRequired();
+                    e.HasIndex("Name").HasFillFactor(90);
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal(90, index[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
             """
-CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
+CREATE INDEX [IX_People_Name] ON [People] ([Name]) WITH (FILLFACTOR = 90, DROP_EXISTING = ON);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Alter_index_filter_uses_drop_existing()
+    {
+        // Changing the index filter must also collapse to CREATE INDEX ... WITH (DROP_EXISTING = ON).
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasIndex("Name").HasFilter("[Name] IS NOT NULL");
+                }),
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasIndex("Name").HasFilter("[Name] IS NOT NULL AND [Name] <> N''");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("([Name] IS NOT NULL AND [Name]<>N'')", index.Filter);
+            });
+
+        AssertSql(
+            """
+CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND [Name] <> N'' WITH (DROP_EXISTING = ON);
 """);
     }
 

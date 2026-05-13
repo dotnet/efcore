@@ -2191,6 +2191,15 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             });
         }
 
+        // When this CreateIndexOperation was rewritten from a Drop+Create pair (an index facet
+        // changed and the index needs to be recreated), emit DROP_EXISTING = ON so SQL Server
+        // atomically replaces the index without leaving the table un-indexed during the rebuild.
+        // See #35067.
+        if (operation[SqlServerAnnotationNames.UseDropExisting] is true)
+        {
+            options.Add("DROP_EXISTING = ON");
+        }
+
         // Vector index options.
         // Note that the metric facet is mandatory, and used to determine if the index is a vector index.
         if (operation[SqlServerAnnotationNames.VectorIndexMetric] is string vectorMetric)
@@ -2723,6 +2732,79 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         return _variableCounter == 0 ? variableName : variableName + _variableCounter;
     }
 
+    private IReadOnlyList<MigrationOperation> RewriteDropAndCreateIndexAsDropExisting(
+        IReadOnlyList<MigrationOperation> migrationOperations)
+    {
+        // The differ produces a DropIndexOperation + CreateIndexOperation pair when an index facet
+        // changes (e.g. fill factor, sort order, uniqueness, filter, columns). On SQL Server the
+        // pair can be collapsed into a single `CREATE INDEX ... WITH (DROP_EXISTING = ON)` which
+        // is more efficient: queries can continue using the old index while the new one is being
+        // built, instead of going un-indexed during the drop. See #35067.
+        //
+        // The rewrite is limited to non-special indexes (no memory-optimized, full-text or vector
+        // index, since those use different syntax/restrictions).
+
+        // Short-circuit when no DropIndex+CreateIndex pair is possible.
+        if (!migrationOperations.OfType<DropIndexOperation>().Any()
+            || !migrationOperations.OfType<CreateIndexOperation>().Any())
+        {
+            return migrationOperations;
+        }
+
+        // Map (Name, Table, Schema) → DropIndexOperation, only for drops we may collapse.
+        var dropsByIdentity = new Dictionary<(string Name, string Table, string? Schema), DropIndexOperation>();
+        foreach (var dropOperation in migrationOperations.OfType<DropIndexOperation>())
+        {
+            if (dropOperation.Table is null)
+            {
+                continue;
+            }
+
+            dropsByIdentity[(dropOperation.Name, dropOperation.Table, dropOperation.Schema)] = dropOperation;
+        }
+
+        // Identify the drops we are going to collapse and mark the matching creates.
+        var dropsToRemove = new HashSet<DropIndexOperation>();
+        foreach (var createOperation in migrationOperations.OfType<CreateIndexOperation>())
+        {
+            if (createOperation.Table is null
+                || !dropsByIdentity.TryGetValue(
+                    (createOperation.Name, createOperation.Table, createOperation.Schema), out var dropOperation))
+            {
+                continue;
+            }
+
+            // Skip special index types that don't support DROP_EXISTING.
+            if (createOperation[SqlServerAnnotationNames.FullTextIndex] is not null
+                || createOperation[SqlServerAnnotationNames.VectorIndexMetric] is not null
+                || IsMemoryOptimized(createOperation, model: null, createOperation.Schema, createOperation.Table))
+            {
+                continue;
+            }
+
+            createOperation.AddAnnotation(SqlServerAnnotationNames.UseDropExisting, true);
+            dropsToRemove.Add(dropOperation);
+        }
+
+        if (dropsToRemove.Count == 0)
+        {
+            return migrationOperations;
+        }
+
+        var resultOperations = new List<MigrationOperation>(migrationOperations.Count - dropsToRemove.Count);
+        foreach (var migrationOperation in migrationOperations)
+        {
+            if (migrationOperation is DropIndexOperation dropOperation && dropsToRemove.Contains(dropOperation))
+            {
+                continue;
+            }
+
+            resultOperations.Add(migrationOperation);
+        }
+
+        return resultOperations;
+    }
+
     private IReadOnlyList<MigrationOperation> FixLegacyTemporalAnnotations(IReadOnlyList<MigrationOperation> migrationOperations)
     {
         // short-circuit for non-temporal migrations (which is the majority)
@@ -2856,6 +2938,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationsSqlGenerationOptions options)
     {
         migrationOperations = FixLegacyTemporalAnnotations(migrationOperations);
+        migrationOperations = RewriteDropAndCreateIndexAsDropExisting(migrationOperations);
 
         var operations = new List<MigrationOperation>();
         var availableSchemas = new List<string>();
