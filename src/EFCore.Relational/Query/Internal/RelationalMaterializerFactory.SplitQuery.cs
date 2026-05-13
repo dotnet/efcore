@@ -26,6 +26,35 @@ public partial class RelationalMaterializerFactory
         var isTracking = queryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
         var relationalCommandCache = CreateCommandCache(queryCompilationContext, select);
 
+        var splitShaper = BuildSplitQueryShaper<TElement>(
+            queryCompilationContext,
+            select,
+            shaper,
+            isTracking,
+            out var relatedDataLoaders,
+            out var relatedDataLoadersAsync);
+
+        return qc => new SplitQueryingEnumerable<TElement>(
+            (RelationalQueryContext)qc,
+            relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
+            readerColumns: null,
+            materializer: splitShaper!,
+            relatedDataLoaders: relatedDataLoaders,
+            relatedDataLoadersAsync: relatedDataLoadersAsync,
+            contextType: queryCompilationContext.ContextType,
+            standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
+            detailedErrorsEnabled: _detailedErrorsEnabled,
+            threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
+    }
+
+    private Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TElement?> BuildSplitQueryShaper<TElement>(
+        RelationalQueryCompilationContext queryCompilationContext,
+        SelectExpression select,
+        Expression shaper,
+        bool isTracking,
+        out Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
+        out Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoadersAsync)
+    {
         if (shaper is UnaryExpression { NodeType: ExpressionType.Convert } convert)
         {
             shaper = convert.Operand;
@@ -77,8 +106,8 @@ public partial class RelationalMaterializerFactory
         }
 
         // Build relatedDataLoaders: for each split collection, execute a separate query and populate.
-        Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders = null;
-        Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoadersAsync = null;
+        relatedDataLoaders = null;
+        relatedDataLoadersAsync = null;
 
         if (splitCollectionInfos.Count > 0)
         {
@@ -104,17 +133,7 @@ public partial class RelationalMaterializerFactory
             };
         }
 
-        return qc => new SplitQueryingEnumerable<TElement>(
-            (RelationalQueryContext)qc,
-            relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
-            readerColumns: null,
-            materializer: splitShaper!,
-            relatedDataLoaders: relatedDataLoaders,
-            relatedDataLoadersAsync: relatedDataLoadersAsync,
-            contextType: queryCompilationContext.ContextType,
-            standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
-            detailedErrorsEnabled: _detailedErrorsEnabled,
-            threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
+        return splitShaper;
     }
 
     /// <summary>

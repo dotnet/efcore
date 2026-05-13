@@ -2,11 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -32,6 +32,9 @@ public partial class RelationalMaterializerFactory(
     private static readonly MethodInfo ReadTypedValueMethod
         = typeof(RelationalMaterializerFactory).GetTypeInfo().GetDeclaredMethod(nameof(ReadTypedValue))!;
 
+    private static readonly MethodInfo CreateGroupByEnumerableMaterializerMethod
+        = typeof(RelationalMaterializerFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGroupByEnumerableMaterializer))!;
+
     private readonly bool _detailedErrorsEnabled = coreSingletonOptions.AreDetailedErrorsEnabled;
     private readonly bool _threadSafetyChecksEnabled = coreSingletonOptions.AreThreadSafetyChecksEnabled;
     private readonly IInstantiationBindingInterceptor[] _bindingInterceptors =
@@ -39,8 +42,7 @@ public partial class RelationalMaterializerFactory(
 
     /// <summary>
     ///     Builds a non-generated query executor for an enumerable query where <typeparamref name="TElement" />
-    ///     is the element type directly. This eliminates the need for <c>MakeGenericMethod</c>, making the
-    ///     entire path NativeAOT-compatible.
+    ///     is the element type directly.
     /// </summary>
     public Func<QueryContext, IEnumerable<TElement>> CreateEnumerableMaterializer<TElement>(
         RelationalQueryCompilationContext queryCompilationContext,
@@ -56,17 +58,19 @@ public partial class RelationalMaterializerFactory(
                 .JsonCorrectOrderOfEntitiesForChangeTrackerValidator(select).Validate(shaper);
         }
 
-        if (queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery)
+        return StripIgnorableConvert(shaper) switch
         {
-            return CreateSplitQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
-        }
+            RelationalGroupByResultExpression groupByResultExpression
+                => CreateFinalGroupByEnumerableMaterializer<TElement>(queryCompilationContext, select, groupByResultExpression),
 
-        if (select.IsNonComposedFromSql())
-        {
-            return CreateFromSqlEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
-        }
+            _ when queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery
+                => CreateSplitQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper),
 
-        return CreateSingleQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper);
+            _ when select.IsNonComposedFromSql()
+                => CreateFromSqlEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper),
+
+            _ => CreateSingleQueryEnumerableMaterializer<TElement>(queryCompilationContext, select, shaper)
+        };
     }
 
     /// <summary>
@@ -1534,4 +1538,94 @@ public partial class RelationalMaterializerFactory(
 
     private static object? ReadTypedValue(DbDataReader reader, ITypedValueReader<DbDataReader> typedReader)
         => typedReader.Read<object>(reader);
+
+    private Func<QueryContext, IEnumerable<TElement>> CreateFinalGroupByEnumerableMaterializer<TElement>(
+        RelationalQueryCompilationContext queryCompilationContext,
+        SelectExpression select,
+        RelationalGroupByResultExpression groupByResultExpression)
+    {
+        // Final GroupBy executes through GroupBySingleQueryingEnumerable<TKey, TElement> or
+        // GroupBySplitQueryingEnumerable<TKey, TElement>, both of which require the key and element types as
+        // generic arguments. This method only has the grouping type statically, so extracting those arguments
+        // requires runtime generic construction, which NativeAOT does not support.
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new NotSupportedException(RelationalStrings.FinalGroupByNotSupportedInNativeAot);
+        }
+
+        var groupingType = groupByResultExpression.Type;
+        Check.DebugAssert(
+            groupingType.IsGenericType && groupingType.GetGenericTypeDefinition() == typeof(IGrouping<,>),
+            $"Final GroupBy result type '{groupingType.DisplayName()}' must be an IGrouping type.");
+
+        var groupingTypeArguments = groupingType.GetGenericArguments();
+
+        return (Func<QueryContext, IEnumerable<TElement>>)CreateGroupByEnumerableMaterializerMethod
+            .MakeGenericMethod(typeof(TElement), groupingTypeArguments[0], groupingTypeArguments[1])
+            .Invoke(this, [queryCompilationContext, select, groupByResultExpression])!;
+    }
+
+    private Func<QueryContext, IEnumerable<TGrouping>> CreateGroupByEnumerableMaterializer<TGrouping, TKey, TElement>(
+        RelationalQueryCompilationContext queryCompilationContext,
+        SelectExpression select,
+        RelationalGroupByResultExpression groupByResultExpression)
+    {
+        var relationalCommandCache = CreateCommandCache(queryCompilationContext, select);
+        var isTracking = queryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll;
+        var nextCollectionId = 0;
+
+        var keyMaterializer = BuildMaterializer<TKey>(
+            groupByResultExpression.KeyShaper, select, isTracking, ref nextCollectionId);
+        var keyIdentifier = CompileIdentifierLambda(groupByResultExpression.KeyIdentifier, select);
+        var keyIdentifierValueComparers = groupByResultExpression.KeyIdentifierValueComparers
+            .Select<ValueComparer, Func<object, object, bool>>(vc => (a, b) => vc.Equals(a, b))
+            .ToArray();
+
+        TKey KeySelector(QueryContext queryContext, DbDataReader dataReader)
+            => keyMaterializer(queryContext, dataReader, new ResultContext(), new SingleQueryResultCoordinator())!;
+
+        if (queryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery)
+        {
+            var splitShaper = BuildSplitQueryShaper<TElement>(
+                queryCompilationContext,
+                select,
+                groupByResultExpression.ElementShaper,
+                isTracking,
+                out var relatedDataLoaders,
+                out var relatedDataLoadersAsync);
+
+            return qc => (IEnumerable<TGrouping>)(object)new GroupBySplitQueryingEnumerable<TKey, TElement>(
+                (RelationalQueryContext)qc,
+                relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
+                readerColumns: null,
+                keySelector: KeySelector,
+                keyIdentifier: keyIdentifier,
+                keyIdentifierValueComparers: keyIdentifierValueComparers,
+                elementSelector: (queryContext, dataReader, resultContext, resultCoordinator)
+                    => splitShaper(queryContext, dataReader, resultContext, resultCoordinator)!,
+                relatedDataLoaders: relatedDataLoaders,
+                relatedDataLoadersAsync: relatedDataLoadersAsync,
+                contextType: queryCompilationContext.ContextType,
+                standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
+                detailedErrorsEnabled: _detailedErrorsEnabled,
+                threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
+        }
+
+        var elementMaterializer = BuildMaterializer<TElement>(
+            groupByResultExpression.ElementShaper, select, isTracking, ref nextCollectionId);
+
+        return qc => (IEnumerable<TGrouping>)(object)new GroupBySingleQueryingEnumerable<TKey, TElement>(
+            (RelationalQueryContext)qc,
+            relationalCommandResolver: parameters => relationalCommandCache.GetRelationalCommandTemplate(parameters),
+            readerColumns: null,
+            keySelector: KeySelector,
+            keyIdentifier: keyIdentifier,
+            keyIdentifierValueComparers: keyIdentifierValueComparers,
+            elementSelector: (queryContext, dataReader, resultContext, resultCoordinator)
+                => elementMaterializer(queryContext, dataReader, resultContext, resultCoordinator)!,
+            contextType: queryCompilationContext.ContextType,
+            standAloneStateManager: queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution,
+            detailedErrorsEnabled: _detailedErrorsEnabled,
+            threadSafetyChecksEnabled: _threadSafetyChecksEnabled);
+    }
 }

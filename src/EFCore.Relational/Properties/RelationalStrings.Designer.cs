@@ -1106,6 +1106,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expressionType, valueType);
 
         /// <summary>
+        ///     Final GroupBy queries are not supported when publishing with NativeAOT. Insert 'AsEnumerable' before the final 'GroupBy' call.
+        /// </summary>
+        public static string FinalGroupByNotSupportedInNativeAot
+            => GetString("FinalGroupByNotSupportedInNativeAot");
+
+        /// <summary>
         ///     The grouping key '{keySelector}' is of type '{keyType}' which is not valid key.
         /// </summary>
         public static string InvalidKeySelectorForGroupBy(object? keySelector, object? keyType)
