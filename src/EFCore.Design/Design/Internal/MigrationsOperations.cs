@@ -73,6 +73,27 @@ public class MigrationsOperations
         string? @namespace,
         bool dryRun)
     {
+        if (contextType == "*")
+        {
+            var contexts = _contextOperations.CreateAllContexts();
+            List<MigrationFiles> filesList = new();
+
+            foreach(var item in contexts)
+            {
+                using (item)
+                {
+                    var _service = PrepareForMigration(name, item);
+                    using var _scope = _service.CreateScope();
+                    var (_, _files) =
+                        CreateScaffoldedMigration(name, outputDir, @namespace, dryRun, _scope.ServiceProvider);
+
+                    filesList.Add(_files);
+                }
+            }
+
+            return filesList.Last();
+        }
+
         using var context = _contextOperations.CreateContext(contextType);
         var services = PrepareForMigration(name, context);
 
@@ -217,6 +238,30 @@ public class MigrationsOperations
         string? connectionString,
         string? contextType)
     {
+        if (contextType == "*")
+        {
+            var contexts = _contextOperations.CreateAllContexts();
+
+            foreach (var context in contexts)
+            {
+                using (context)
+                {
+                    if (connectionString != null)
+                        context.Database.SetConnectionString(connectionString);
+
+                    var services = _servicesBuilder.Build(context);
+                    EnsureServices(services);
+
+                    var migrator = services.GetRequiredService<IMigrator>();
+                    migrator.Migrate(targetMigration);
+                }
+            }
+
+            _reporter.WriteInformation(DesignStrings.Done);
+
+            return;
+        }
+
         using (var context = _contextOperations.CreateContext(contextType))
         {
             if (connectionString != null)
