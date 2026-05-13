@@ -5,10 +5,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocMiscellaneousQuerySqliteTest : AdHocMiscellaneousQueryRelationalTestBase
+public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
+
+    protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
+        DbContextOptionsBuilder optionsBuilder,
+        ParameterTranslationMode parameterizedCollectionMode)
+    {
+        new SqliteDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
+
+        return optionsBuilder;
+    }
 
     protected override Task Seed2951(Context2951 context)
         => context.Database.ExecuteSqlRawAsync(
@@ -81,5 +90,59 @@ FROM "Prices" AS "p"
 SELECT ef_avg("p"."NullableDecimalColumn")
 FROM "Prices" AS "p"
 """);
+    }
+
+    public override async Task Check_inlined_constants_redacting(bool async, bool enableSensitiveDataLogging)
+    {
+        await base.Check_inlined_constants_redacting(async, enableSensitiveDataLogging);
+
+        if (!enableSensitiveDataLogging)
+        {
+            AssertSql(
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE "t"."Id" IN (?, ?, ?)
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT CAST(? AS INTEGER) AS "Value" UNION ALL VALUES (?), (?)) AS "i"
+    WHERE "i"."Value" = "t"."Id")
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE ? = "t"."Id"
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE "t"."Id" IN (1, 2, 3)
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (2), (3)) AS "i"
+    WHERE "i"."Value" = "t"."Id")
+""",
+                //
+                """
+SELECT "t"."Id", "t"."Name"
+FROM "TestEntities" AS "t"
+WHERE 1 = "t"."Id"
+""");
+        }
     }
 }

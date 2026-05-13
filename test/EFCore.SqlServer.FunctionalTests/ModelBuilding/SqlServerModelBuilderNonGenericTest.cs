@@ -19,6 +19,12 @@ public class SqlServerModelBuilderNonGenericTest : SqlServerModelBuilderTestBase
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
+    public class SqlServerNonGenericComplexCollection(SqlServerModelBuilderFixture fixture) : SqlServerComplexCollection(fixture)
+    {
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new NonGenericTestModelBuilder(Fixture, configure);
+    }
+
     public class SqlServerNonGenericInheritance(SqlServerModelBuilderFixture fixture) : SqlServerInheritance(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)

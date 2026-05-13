@@ -50,10 +50,12 @@ public sealed record RelationalParameterBasedSqlProcessorDependencies
     public RelationalParameterBasedSqlProcessorDependencies(
         ISqlExpressionFactory sqlExpressionFactory,
         IRelationalTypeMappingSource typeMappingSource,
+        ISqlGenerationHelper sqlGenerationHelper,
         IParameterNameGeneratorFactory parameterNameGeneratorFactory)
     {
         SqlExpressionFactory = sqlExpressionFactory;
         TypeMappingSource = typeMappingSource;
+        SqlGenerationHelper = sqlGenerationHelper;
         ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
     }
 
@@ -66,6 +68,11 @@ public sealed record RelationalParameterBasedSqlProcessorDependencies
     ///     Relational type mapping source.
     /// </summary>
     public IRelationalTypeMappingSource TypeMappingSource { get; init; }
+
+    /// <summary>
+    ///     SQL generation helper.
+    /// </summary>
+    public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
     /// <summary>
     ///     Parameter name generator factory.

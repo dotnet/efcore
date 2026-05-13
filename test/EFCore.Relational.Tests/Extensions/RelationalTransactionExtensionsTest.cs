@@ -44,8 +44,7 @@ public class RelationalTransactionExtensionsTest
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(
-                () => transaction.GetDbTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(() => transaction.GetDbTransaction()).Message);
     }
 
     private class NonRelationalTransaction : IDbContextTransaction

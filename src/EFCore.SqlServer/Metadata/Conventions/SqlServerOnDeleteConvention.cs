@@ -62,9 +62,8 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
     private DeleteBehavior? ProcessSkipNavigations(IEnumerable<IConventionSkipNavigation> skipNavigations)
     {
         var skipNavigation = skipNavigations
-            .FirstOrDefault(
-                s => s.Inverse != null
-                    && IsMappedToSameTable(s.DeclaringEntityType, s.TargetEntityType));
+            .FirstOrDefault(s => s.Inverse != null
+                && IsMappedToSameTable(s.DeclaringEntityType, s.TargetEntityType));
 
         if (skipNavigation != null
             && skipNavigation.ForeignKey != null)

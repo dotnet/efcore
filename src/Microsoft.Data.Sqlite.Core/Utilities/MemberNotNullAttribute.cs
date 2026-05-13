@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if !NET5_0_OR_GREATER
-
 namespace System.Diagnostics.CodeAnalysis
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]

@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class PhoneNumberType
 {
     public PhoneNumberType()
-    {
-        PersonPhone = new HashSet<PersonPhone>();
-    }
+        => PersonPhone = new HashSet<PersonPhone>();
 
     public int PhoneNumberTypeID { get; set; }
     public DateTime ModifiedDate { get; set; }

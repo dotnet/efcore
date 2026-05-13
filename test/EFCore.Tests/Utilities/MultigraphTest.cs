@@ -99,7 +99,7 @@ public class MultigraphTest
         graph.AddVertex(vertexTwo);
 
         Assert.Equal(2, graph.Vertices.Count());
-        Assert.Equal(2, graph.Vertices.Intersect(new[] { vertexOne, vertexTwo }).Count());
+        Assert.Equal(2, graph.Vertices.Intersect([vertexOne, vertexTwo]).Count());
     }
 
     [ConditionalFact]
@@ -111,11 +111,11 @@ public class MultigraphTest
 
         var graph = new Multigraph<Vertex, Edge>();
 
-        graph.AddVertices(new[] { vertexOne, vertexTwo });
-        graph.AddVertices(new[] { vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo]);
+        graph.AddVertices([vertexTwo, vertexThree]);
 
         Assert.Equal(3, graph.Vertices.Count());
-        Assert.Equal(3, graph.Vertices.Intersect(new[] { vertexOne, vertexTwo, vertexThree }).Count());
+        Assert.Equal(3, graph.Vertices.Intersect([vertexOne, vertexTwo, vertexThree]).Count());
     }
 
     [ConditionalFact]
@@ -128,13 +128,13 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo });
+        graph.AddVertices([vertexOne, vertexTwo]);
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
         graph.AddEdge(vertexOne, vertexTwo, edgeTwo);
 
         Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
         Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Count());
-        Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo }).Count());
+        Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect([edgeOne, edgeTwo]).Count());
     }
 
     [ConditionalFact]
@@ -149,16 +149,16 @@ public class MultigraphTest
         var edgeThree = new Edge { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
         graph.AddEdge(vertexOne, vertexThree, edgeTwo);
         graph.AddEdge(vertexTwo, vertexThree, edgeThree);
 
         Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Count());
-        Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Intersect(new[] { vertexTwo, vertexThree }).Count());
+        Assert.Equal(2, graph.GetOutgoingNeighbors(vertexOne).Intersect([vertexTwo, vertexThree]).Count());
 
         Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Count());
-        Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Intersect(new[] { vertexOne, vertexTwo }).Count());
+        Assert.Equal(2, graph.GetIncomingNeighbors(vertexThree).Intersect([vertexOne, vertexTwo]).Count());
     }
 
     [ConditionalFact]
@@ -169,11 +169,11 @@ public class MultigraphTest
         var vertexThree = new Vertex { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         var result = graph.TopologicalSort();
         Assert.Equal(3, result.Count());
-        Assert.Equal(3, result.Intersect(new[] { vertexOne, vertexTwo, vertexThree }).Count());
+        Assert.Equal(3, result.Intersect([vertexOne, vertexTwo, vertexThree]).Count());
     }
 
     [ConditionalFact]
@@ -187,7 +187,7 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         // 2-> {1}
         graph.AddEdge(vertexTwo, vertexOne, edgeOne);
@@ -211,7 +211,7 @@ public class MultigraphTest
         var edgeThree = new Edge { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         // 1 -> {2, 3}
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
@@ -239,11 +239,10 @@ public class MultigraphTest
 
         Assert.Equal(
             [vertexOne],
-            graph.TopologicalSort(
-                (from, to, edges) =>
-                    (from == vertexOne)
-                    && (to == vertexOne)
-                    && (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
+            graph.TopologicalSort((from, to, edges) =>
+                (from == vertexOne)
+                && (to == vertexOne)
+                && (edges.Intersect([edgeOne]).Count() == 1)).ToArray());
     }
 
     [ConditionalFact]
@@ -258,7 +257,7 @@ public class MultigraphTest
         var edgeThree = new Edge { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         // 1 -> {2}
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
@@ -269,11 +268,10 @@ public class MultigraphTest
 
         Assert.Equal(
             [vertexOne, vertexTwo, vertexThree],
-            graph.TopologicalSort(
-                (from, to, edges) =>
-                    (from == vertexThree)
-                    && (to == vertexOne)
-                    && (edges.Single() == edgeThree)).ToArray());
+            graph.TopologicalSort((from, to, edges) =>
+                (from == vertexThree)
+                && (to == vertexOne)
+                && (edges.Single() == edgeThree)).ToArray());
     }
 
     [ConditionalFact]
@@ -293,7 +291,7 @@ public class MultigraphTest
         var edgeSix = new Edge { Id = 6 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree, vertexFour, vertexFive });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree, vertexFour, vertexFive]);
 
         // 1 -> {2, 4}
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
@@ -309,12 +307,11 @@ public class MultigraphTest
 
         Assert.Equal(
             [vertexTwo, vertexThree, vertexOne, vertexFour, vertexFive],
-            graph.TopologicalSort(
-                (from, to, edges) =>
-                {
-                    var edge = edges.Single();
-                    return (edge == edgeOne) || (edge == edgeSix);
-                }).ToArray());
+            graph.TopologicalSort((from, to, edges) =>
+            {
+                var edge = edges.Single();
+                return (edge == edgeOne) || (edge == edgeSix);
+            }).ToArray());
     }
 
     [ConditionalFact]
@@ -329,7 +326,7 @@ public class MultigraphTest
         var edgeThree = new Edge { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         // 1 -> {2}
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
@@ -359,7 +356,7 @@ public class MultigraphTest
         var edgeThree = new Edge { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         // 1 -> {2}
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
@@ -383,13 +380,13 @@ public class MultigraphTest
         Assert.Equal(3, cycleData.Count());
 
         Assert.Equal(vertexTwo, cycleData[vertexOne].Item2);
-        Assert.Equal(new[] { edgeOne }, cycleData[vertexOne].Item3);
+        Assert.Equal([edgeOne], cycleData[vertexOne].Item3);
 
         Assert.Equal(vertexThree, cycleData[vertexTwo].Item2);
-        Assert.Equal(new[] { edgeTwo }, cycleData[vertexTwo].Item3);
+        Assert.Equal([edgeTwo], cycleData[vertexTwo].Item3);
 
         Assert.Equal(vertexOne, cycleData[vertexThree].Item2);
-        Assert.Equal(new[] { edgeThree }, cycleData[vertexThree].Item3);
+        Assert.Equal([edgeThree], cycleData[vertexThree].Item3);
     }
 
     [ConditionalFact]
@@ -404,7 +401,7 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>((v1, v2) => Comparer<int>.Default.Compare(v1.Id, v2.Id));
-        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+        graph.AddVertices([vertexFour, vertexThree, vertexTwo, vertexOne]);
 
         // 1 -> {3}
         graph.AddEdge(vertexOne, vertexThree, edgeOne);
@@ -428,7 +425,7 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+        graph.AddVertices([vertexFour, vertexThree, vertexTwo, vertexOne]);
 
         // 1 -> {3}
         graph.AddEdge(vertexOne, vertexThree, edgeOne);
@@ -454,7 +451,7 @@ public class MultigraphTest
         var edgeThree = new Edge { Id = 3 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree]);
 
         // 1 -> {2}
         graph.AddEdge(vertexOne, vertexTwo, edgeOne);
@@ -478,13 +475,13 @@ public class MultigraphTest
         Assert.Equal(3, cycleData.Count());
 
         Assert.Equal(vertexTwo, cycleData[vertexOne].Item2);
-        Assert.Equal(new[] { edgeOne }, cycleData[vertexOne].Item3);
+        Assert.Equal([edgeOne], cycleData[vertexOne].Item3);
 
         Assert.Equal(vertexThree, cycleData[vertexTwo].Item2);
-        Assert.Equal(new[] { edgeTwo }, cycleData[vertexTwo].Item3);
+        Assert.Equal([edgeTwo], cycleData[vertexTwo].Item3);
 
         Assert.Equal(vertexOne, cycleData[vertexThree].Item2);
-        Assert.Equal(new[] { edgeThree }, cycleData[vertexThree].Item3);
+        Assert.Equal([edgeThree], cycleData[vertexThree].Item3);
     }
 
     [ConditionalFact]
@@ -503,7 +500,7 @@ public class MultigraphTest
         var edgeFour = new Edge { Id = 4 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexOne, vertexTwo, vertexThree, vertexFour });
+        graph.AddVertices([vertexOne, vertexTwo, vertexThree, vertexFour]);
 
         // 2 -> {1}
         graph.AddEdge(vertexTwo, vertexOne, edgeOne);
@@ -529,10 +526,10 @@ public class MultigraphTest
         Assert.Equal(2, cycleData.Count);
 
         Assert.Equal(vertexFour, cycleData[vertexThree].Item2);
-        Assert.Equal(new[] { edgeFour }, cycleData[vertexThree].Item3);
+        Assert.Equal([edgeFour], cycleData[vertexThree].Item3);
 
         Assert.Equal(vertexThree, cycleData[vertexFour].Item2);
-        Assert.Equal(new[] { edgeThree }, cycleData[vertexFour].Item3);
+        Assert.Equal([edgeThree], cycleData[vertexFour].Item3);
     }
 
     [ConditionalFact]
@@ -613,15 +610,15 @@ public class MultigraphTest
             graph.BatchingTopologicalSort().SelectMany(e => e).Select(e => e.Name).ToArray());
 
         Assert.Equal(
-            new[] { entityTypeA, entityTypeB, entityTypeC },
+            [entityTypeA, entityTypeB, entityTypeC],
             graph.Vertices);
 
         Assert.Equal(
-            new[] { entityTypeC },
+            [entityTypeC],
             graph.GetOutgoingNeighbors(entityTypeA));
 
         Assert.Equal(
-            new[] { entityTypeA },
+            [entityTypeA],
             graph.GetOutgoingNeighbors(entityTypeB));
 
         Assert.Equal(
@@ -851,7 +848,7 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>((v1, v2) => Comparer<int>.Default.Compare(v1.Id, v2.Id));
-        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+        graph.AddVertices([vertexFour, vertexThree, vertexTwo, vertexOne]);
 
         // 1 -> {3}
         graph.AddEdge(vertexOne, vertexThree, edgeOne);
@@ -875,7 +872,7 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>();
-        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+        graph.AddVertices([vertexFour, vertexThree, vertexTwo, vertexOne]);
 
         // 1 -> {3}
         graph.AddEdge(vertexOne, vertexThree, edgeOne);
@@ -899,7 +896,7 @@ public class MultigraphTest
         var edgeTwo = new Edge { Id = 2 };
 
         var graph = new Multigraph<Vertex, Edge>((v1, v2) => Comparer<int>.Default.Compare(v1.Id, v2.Id));
-        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+        graph.AddVertices([vertexFour, vertexThree, vertexTwo, vertexOne]);
 
         // 1 -> {3}
         graph.AddEdge(vertexOne, vertexThree, edgeOne, requiresBatchingBoundary: true);

@@ -22,7 +22,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         IReadOnlyDictionary<PropertyInfo, AddColumnOperation> columnMap)
         : base(operation)
     {
-        Check.NotNull(columnMap, nameof(columnMap));
+        Check.NotNull(columnMap);
 
         _columnMap = columnMap;
     }
@@ -75,9 +75,9 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         ReferentialAction onUpdate = ReferentialAction.NoAction,
         ReferentialAction onDelete = ReferentialAction.NoAction)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(columns, nameof(columns));
-        Check.NotEmpty(principalTable, nameof(principalTable));
+        Check.NotEmpty(name);
+        Check.NotNull(columns);
+        Check.NotEmpty(principalTable);
 
         var operation = new AddForeignKeyOperation
         {
@@ -106,8 +106,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         string name,
         Expression<Func<TColumns, object>> columns)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(columns, nameof(columns));
+        Check.NotEmpty(name);
+        Check.NotNull(columns);
 
         var operation = new AddPrimaryKeyOperation
         {
@@ -132,8 +132,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         string name,
         Expression<Func<TColumns, object>> columns)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(columns, nameof(columns));
+        Check.NotEmpty(name);
+        Check.NotNull(columns);
 
         var operation = new AddUniqueConstraintOperation
         {
@@ -157,8 +157,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         string name,
         string sql)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(sql, nameof(sql));
+        Check.NotEmpty(name);
+        Check.NotNull(sql);
 
         var operation = new AddCheckConstraintOperation
         {
@@ -178,7 +178,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
     /// <param name="name">The annotation name.</param>
     /// <param name="value">The annotation value.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
-    public new virtual CreateTableBuilder<TColumns> Annotation(string name, object value)
+    public new virtual CreateTableBuilder<TColumns> Annotation(string name, object? value)
         => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 
     private string[] Map(LambdaExpression columns)

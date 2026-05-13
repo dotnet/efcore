@@ -483,11 +483,11 @@ WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT DISTINCT [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[FoundOn]
 FROM (
-    SELECT TOP(@__p_0) [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+    SELECT TOP(@p) [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
     FROM [Animals] AS [a]
     ORDER BY [a].[Species]
 ) AS [a0]

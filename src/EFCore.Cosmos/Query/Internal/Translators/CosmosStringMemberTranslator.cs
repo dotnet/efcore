@@ -30,7 +30,7 @@ public class CosmosStringMemberTranslator(ISqlExpressionFactory sqlExpressionFac
         {
             return sqlExpressionFactory.Function(
                 "LENGTH",
-                new[] { instance! },
+                [instance!],
                 returnType);
         }
 

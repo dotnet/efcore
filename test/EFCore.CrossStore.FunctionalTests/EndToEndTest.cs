@@ -64,11 +64,8 @@ public abstract class EndToEndTest(CrossStoreFixture fixture) : IAsyncLifetime
     public async Task InitializeAsync()
         => TestStore = await Fixture.CreateTestStoreAsync(TestStoreFactory, "CrossStoreTest");
 
-    public Task DisposeAsync()
-    {
-        TestStore.Dispose();
-        return Task.CompletedTask;
-    }
+    public async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }
 
 public class InMemoryEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>

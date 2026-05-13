@@ -125,7 +125,7 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual SplitTableBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         InternalMappingFragment.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

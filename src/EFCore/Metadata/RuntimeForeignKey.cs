@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -22,8 +21,8 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     private readonly bool _isRequiredDependent;
     private readonly bool _isOwnership;
 
+    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     private IDependentKeyValueFactory? _dependentKeyValueFactory;
-    private Func<IDependentsMap>? _dependentsMapFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -267,7 +266,6 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
         => _dependentKeyValueFactory!;
 
-    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
     IDependentKeyValueFactory IRuntimeForeignKey.DependentKeyValueFactory
     {
@@ -278,14 +276,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
         set => _dependentKeyValueFactory = value;
     }
 
-    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
-    Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory
-    {
-        [DebuggerStepThrough]
-        get => _dependentsMapFactory!;
-
-        [DebuggerStepThrough]
-        set => _dependentsMapFactory = value;
-    }
+    [field: AllowNull, MaybeNull]
+    Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory { get; set; } = null!;
 }

@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class AdHocMapper : IAdHocMapper
 {
-    private ConventionSet? _conventionSet;
-
     /// <summary>
     ///     Do not call this constructor directly from either provider or application code as it may change
     ///     as new dependencies are added. Instead, use this type in your constructor so that an instance
@@ -76,8 +74,9 @@ public class AdHocMapper : IAdHocMapper
         return conventionSet;
     }
 
+    [field: AllowNull, MaybeNull]
     private ConventionSet ConventionSet
-        => (_conventionSet ??= BuildConventionSet());
+        => (field ??= BuildConventionSet());
 
     /// <inheritdoc />
     public virtual RuntimeEntityType GetOrAddEntityType(Type clrType)

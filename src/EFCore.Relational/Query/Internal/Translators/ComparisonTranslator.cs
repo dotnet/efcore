@@ -61,15 +61,14 @@ public class ComparisonTranslator : IMethodCallTranslator
                 && right != null)
             {
                 return _sqlExpressionFactory.Case(
-                    new[]
-                    {
+                    [
                         new CaseWhenClause(
                             _sqlExpressionFactory.Equal(left, right), _sqlExpressionFactory.Constant(0)),
                         new CaseWhenClause(
                             _sqlExpressionFactory.GreaterThan(left, right), _sqlExpressionFactory.Constant(1)),
                         new CaseWhenClause(
                             _sqlExpressionFactory.LessThan(left, right), _sqlExpressionFactory.Constant(-1))
-                    },
+                    ],
                     null);
             }
         }

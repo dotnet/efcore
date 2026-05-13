@@ -303,8 +303,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                             : commandIndex];
 
                     Check.DebugAssert(
-                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                        "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
                     command.PropagateResults(reader);
 
@@ -374,8 +373,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                             : commandIndex];
 
                     Check.DebugAssert(
-                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                        "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
                     command.PropagateResults(reader);
 
@@ -412,8 +410,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
         {
             Check.DebugAssert(
-                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                "ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
             expectedRowsAffected++;
         }
@@ -456,8 +453,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
         {
             Check.DebugAssert(
-                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                "ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly));
 
             expectedRowsAffected++;
         }

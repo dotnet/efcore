@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -407,7 +406,7 @@ public class ExpressionPrinter : ExpressionVisitor
             }
 
             var expressions = blockExpression.Expressions.Count > 0
-                ? blockExpression.Expressions.Except(new[] { blockExpression.Result })
+                ? blockExpression.Expressions.Except([blockExpression.Result])
                 : blockExpression.Expressions;
 
             foreach (var expression in expressions)
@@ -469,7 +468,9 @@ public class ExpressionPrinter : ExpressionVisitor
                 printable.Print(this);
                 break;
 
-            case IQueryable queryable:
+            // EnumerableQuery is returned by AsQueryable(), and can be a constant as a result of funcletization.
+            // We need to print these as a regular enumerable as it doesn't represent a query tree.
+            case IQueryable queryable and not EnumerableQuery:
                 Visit(queryable.Expression);
                 break;
 

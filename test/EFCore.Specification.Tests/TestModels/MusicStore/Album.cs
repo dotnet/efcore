@@ -17,25 +17,19 @@ public class Album
 
     public int ArtistId { get; set; }
 
-    [Required]
-    [StringLength(160, MinimumLength = 2)]
+    [Required, StringLength(160, MinimumLength = 2)]
     public string Title { get; set; }
 
-    [Required]
-    [Range(0.01, 100.00)]
-    [DataType(DataType.Currency)]
-    [Column(TypeName = "decimal(18,2)")]
+    [Required, Range(0.01, 100.00), DataType(DataType.Currency), Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
 
-    [Display(Name = "Album Art URL")]
-    [StringLength(1024)]
+    [Display(Name = "Album Art URL"), StringLength(1024)]
     public string AlbumArtUrl { get; set; }
 
     public virtual Genre Genre { get; set; }
     public virtual Artist Artist { get; set; }
     public virtual List<OrderDetail> OrderDetails { get; set; }
 
-    [ScaffoldColumn(false)]
-    [Required]
+    [ScaffoldColumn(false), Required]
     public DateTime Created { get; set; } = DateTime.UtcNow;
 }

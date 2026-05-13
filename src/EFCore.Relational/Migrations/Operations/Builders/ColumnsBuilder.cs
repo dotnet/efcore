@@ -18,7 +18,7 @@ public class ColumnsBuilder
     /// <param name="createTableOperation">The operation.</param>
     public ColumnsBuilder(CreateTableOperation createTableOperation)
     {
-        Check.NotNull(createTableOperation, nameof(createTableOperation));
+        Check.NotNull(createTableOperation);
 
         _createTableOperation = createTableOperation;
     }

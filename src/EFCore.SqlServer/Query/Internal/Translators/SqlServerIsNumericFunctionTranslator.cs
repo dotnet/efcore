@@ -43,9 +43,9 @@ public class SqlServerIsNumericFunctionTranslator : IMethodCallTranslator
             ? _sqlExpressionFactory.Equal(
                 _sqlExpressionFactory.Function(
                     "ISNUMERIC",
-                    new[] { arguments[1] },
+                    [arguments[1]],
                     nullable: false,
-                    argumentsPropagateNullability: new[] { false },
+                    argumentsPropagateNullability: Statics.FalseArrays[1],
                     typeof(int)),
                 _sqlExpressionFactory.Constant(1))
             : null;

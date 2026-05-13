@@ -170,12 +170,11 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     /// <param name="model">The model.</param>
     /// <returns>The namespaces.</returns>
     protected virtual IEnumerable<string> GetNamespaces(IModel model)
-        => model.GetEntityTypes().SelectMany(
-                e => GetNamespaces(e)
-                    .Concat(
-                        e.GetDeclaredComplexProperties().Any()
-                            ? Model.DefaultPropertyBagType.GetNamespaces()
-                            : Enumerable.Empty<string>()))
+        => model.GetEntityTypes().SelectMany(e => GetNamespaces(e)
+                .Concat(
+                    e.GetDeclaredComplexProperties().Any()
+                        ? Model.DefaultPropertyBagType.GetNamespaces()
+                        : []))
             .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
     private IEnumerable<string> GetNamespaces(ITypeBase typeBase)
@@ -276,11 +275,10 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     }
 
     private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
-        => items.SelectMany(
-            i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
-                .Where(a => a.Value != null)
-                .Select(a => new { Annotatable = i, Annotation = a })
-                .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value!.GetType()).GetNamespaces()));
+        => items.SelectMany(i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
+            .Where(a => a.Value != null)
+            .Select(a => new { Annotatable = i, Annotation = a })
+            .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value!.GetType()).GetNamespaces()));
 
     private ValueConverter? FindValueConverter(IProperty property)
         => property.GetTypeMapping().Converter;

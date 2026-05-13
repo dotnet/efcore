@@ -153,8 +153,7 @@ public class MonsterContext<
 
         modelBuilder.Entity<TSuspiciousActivity>();
         modelBuilder.Entity<TLastLogin>().HasKey(e => e.Username);
-        modelBuilder.Entity<TMessage>().HasKey(
-            e => new { e.MessageId, e.FromUsername });
+        modelBuilder.Entity<TMessage>().HasKey(e => new { e.MessageId, e.FromUsername });
 
         modelBuilder.Entity<TOrderNote>().HasKey(e => e.NoteId);
 
@@ -166,171 +165,151 @@ public class MonsterContext<
 
         modelBuilder.Entity<TLicense>().HasKey(e => e.Name);
 
-        modelBuilder.Entity<TAnOrder>(
-            b =>
-            {
-                b.HasMany(e => (IEnumerable<TOrderLine>)e.OrderLines).WithOne(e => (TAnOrder)e.Order)
-                    .HasForeignKey(e => e.OrderId);
+        modelBuilder.Entity<TAnOrder>(b =>
+        {
+            b.HasMany(e => (IEnumerable<TOrderLine>)e.OrderLines).WithOne(e => (TAnOrder)e.Order)
+                .HasForeignKey(e => e.OrderId);
 
-                b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
-                    .HasPrincipalKey(e => e.AlternateId);
+            b.HasMany(e => (IEnumerable<TOrderNote>)e.Notes).WithOne(e => (TAnOrder)e.Order)
+                .HasPrincipalKey(e => e.AlternateId);
 
-                b.OwnsOne(e => (TConcurrencyInfo)e.Concurrency).Property(c => c.Token).IsConcurrencyToken();
-            });
+            b.OwnsOne(e => (TConcurrencyInfo)e.Concurrency).Property(c => c.Token).IsConcurrencyToken();
+        });
 
-        modelBuilder.Entity<TOrderQualityCheck>(
-            b =>
-            {
-                b.HasKey(e => e.OrderId);
+        modelBuilder.Entity<TOrderQualityCheck>(b =>
+        {
+            b.HasKey(e => e.OrderId);
 
-                b.HasOne(e => (TAnOrder)e.Order).WithOne()
-                    .HasForeignKey<TOrderQualityCheck>(e => e.OrderId)
-                    .HasPrincipalKey<TAnOrder>(e => e.AlternateId);
-            });
+            b.HasOne(e => (TAnOrder)e.Order).WithOne()
+                .HasForeignKey<TOrderQualityCheck>(e => e.OrderId)
+                .HasPrincipalKey<TAnOrder>(e => e.AlternateId);
+        });
 
-        modelBuilder.Entity<TProduct>(
-            b =>
-            {
-                b.HasMany(e => (IEnumerable<TProductReview>)e.Reviews).WithOne(e => (TProduct)e.Product);
-                b.HasMany(e => (IEnumerable<TBarcode>)e.Barcodes).WithOne(e => (TProduct)e.Product);
-                b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
-                b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
-                    .HasForeignKey<TProductDetail>(e => e.ProductId);
+        modelBuilder.Entity<TProduct>(b =>
+        {
+            b.HasMany(e => (IEnumerable<TProductReview>)e.Reviews).WithOne(e => (TProduct)e.Product);
+            b.HasMany(e => (IEnumerable<TBarcode>)e.Barcodes).WithOne(e => (TProduct)e.Product);
+            b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
+            b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
+                .HasForeignKey<TProductDetail>(e => e.ProductId);
 
-                b.OwnsOne(e => (TConcurrencyInfo)e.ComplexConcurrency).Property(c => c.Token).IsConcurrencyToken();
+            b.OwnsOne(e => (TConcurrencyInfo)e.ComplexConcurrency).Property(c => c.Token).IsConcurrencyToken();
 
-                b.OwnsOne(
-                    e => (TAuditInfo)e.NestedComplexConcurrency,
-                    ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
+            b.OwnsOne(
+                e => (TAuditInfo)e.NestedComplexConcurrency,
+                ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
 
-                b.OwnsOne(e => (TDimensions)e.Dimensions);
+            b.OwnsOne(e => (TDimensions)e.Dimensions);
 
-                b.Ignore(e => e.Suppliers);
-            });
+            b.Ignore(e => e.Suppliers);
+        });
 
-        modelBuilder.Entity<TOrderLine>(
-            b =>
-            {
-                b.HasKey(
-                    e => new { e.OrderId, e.ProductId });
+        modelBuilder.Entity<TOrderLine>(b =>
+        {
+            b.HasKey(e => new { e.OrderId, e.ProductId });
 
-                b.HasOne(e => (TProduct)e.Product).WithMany().HasForeignKey(e => e.ProductId);
-            });
+            b.HasOne(e => (TProduct)e.Product).WithMany().HasForeignKey(e => e.ProductId);
+        });
 
-        modelBuilder.Entity<TSupplier>(
-            b =>
-            {
-                b.HasOne(e => (TSupplierLogo)e.Logo).WithOne().HasForeignKey<TSupplierLogo>(e => e.SupplierId);
-                b.Ignore(e => e.Products);
-            });
+        modelBuilder.Entity<TSupplier>(b =>
+        {
+            b.HasOne(e => (TSupplierLogo)e.Logo).WithOne().HasForeignKey<TSupplierLogo>(e => e.SupplierId);
+            b.Ignore(e => e.Products);
+        });
 
-        modelBuilder.Entity<TCustomer>(
-            b =>
-            {
-                b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TCustomer)e.Customer);
-                b.HasMany(e => (IEnumerable<TLogin>)e.Logins).WithOne(e => (TCustomer)e.Customer);
-                b.HasOne(e => (TCustomerInfo)e.Info).WithOne().HasForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
+        modelBuilder.Entity<TCustomer>(b =>
+        {
+            b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TCustomer)e.Customer);
+            b.HasMany(e => (IEnumerable<TLogin>)e.Logins).WithOne(e => (TCustomer)e.Customer);
+            b.HasOne(e => (TCustomerInfo)e.Info).WithOne().HasForeignKey<TCustomerInfo>(e => e.CustomerInfoId);
 
-                b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
-                    .HasForeignKey<TCustomer>(e => e.HusbandId);
+            b.HasOne(e => (TCustomer)e.Husband).WithOne(e => (TCustomer)e.Wife)
+                .HasForeignKey<TCustomer>(e => e.HusbandId);
 
-                b.OwnsOne(
-                    e => (TAuditInfo)e.Auditing,
-                    ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
-                b.OwnsOne(
-                    e => (TContactDetails)e.ContactInfo,
-                    cb =>
-                    {
-                        cb.OwnsOne(c => (TPhone)c.HomePhone);
-                        cb.OwnsOne(c => (TPhone)c.MobilePhone);
-                        cb.OwnsOne(c => (TPhone)c.WorkPhone);
-                    });
-            });
+            b.OwnsOne(
+                e => (TAuditInfo)e.Auditing,
+                ab => ab.OwnsOne(a => (TConcurrencyInfo)a.Concurrency).Property(c => c.Token).IsConcurrencyToken());
+            b.OwnsOne(
+                e => (TContactDetails)e.ContactInfo,
+                cb =>
+                {
+                    cb.OwnsOne(c => (TPhone)c.HomePhone);
+                    cb.OwnsOne(c => (TPhone)c.MobilePhone);
+                    cb.OwnsOne(c => (TPhone)c.WorkPhone);
+                });
+        });
 
-        modelBuilder.Entity<TComplaint>(
-            b =>
-            {
-                b.HasOne(e => (TCustomer)e.Customer)
-                    .WithMany()
-                    .HasForeignKey(e => e.CustomerId);
+        modelBuilder.Entity<TComplaint>(b =>
+        {
+            b.HasOne(e => (TCustomer)e.Customer)
+                .WithMany()
+                .HasForeignKey(e => e.CustomerId);
 
-                b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
-                    .HasPrincipalKey<TComplaint>(e => e.AlternateId);
-            });
+            b.HasOne(e => (TResolution)e.Resolution).WithOne(e => (TComplaint)e.Complaint)
+                .HasPrincipalKey<TComplaint>(e => e.AlternateId);
+        });
 
-        modelBuilder.Entity<TProductPhoto>(
-            b =>
-            {
-                b.HasKey(
-                    e => new { e.PhotoId, e.ProductId });
+        modelBuilder.Entity<TProductPhoto>(b =>
+        {
+            b.HasKey(e => new { e.PhotoId, e.ProductId });
 
-                b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
-                    .HasForeignKey(
-                        e => new { e.PhotoId, e.ProductId })
-                    .HasPrincipalKey(
-                        e => new { e.PhotoId, e.ProductId });
-            });
+            b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductPhoto)e.Photo)
+                .HasForeignKey(e => new { e.PhotoId, e.ProductId })
+                .HasPrincipalKey(e => new { e.PhotoId, e.ProductId });
+        });
 
-        modelBuilder.Entity<TProductReview>(
-            b =>
-            {
-                b.HasKey(
-                    e => new { e.ReviewId, e.ProductId });
+        modelBuilder.Entity<TProductReview>(b =>
+        {
+            b.HasKey(e => new { e.ReviewId, e.ProductId });
 
-                b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
-                    .HasForeignKey(
-                        e => new { e.ReviewId, e.ProductId })
-                    .HasPrincipalKey(
-                        e => new { e.ReviewId, e.ProductId });
-            });
+            b.HasMany(e => (IEnumerable<TProductWebFeature>)e.Features).WithOne(e => (TProductReview)e.Review)
+                .HasForeignKey(e => new { e.ReviewId, e.ProductId })
+                .HasPrincipalKey(e => new { e.ReviewId, e.ProductId });
+        });
 
-        modelBuilder.Entity<TLogin>(
-            b =>
-            {
-                var key = b.HasKey(e => e.Username);
+        modelBuilder.Entity<TLogin>(b =>
+        {
+            var key = b.HasKey(e => e.Username);
 
-                b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
-                    .HasForeignKey(e => e.FromUsername);
+            b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
+                .HasForeignKey(e => e.FromUsername);
 
-                b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
-                    .HasForeignKey(e => e.ToUsername);
+            b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
+                .HasForeignKey(e => e.ToUsername);
 
-                b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
-                    .HasForeignKey(e => e.Username);
+            b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
+                .HasForeignKey(e => e.Username);
 
-                var entityType = b.Metadata;
-                var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity));
-                activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username"), key.Metadata, entityType);
+            var entityType = b.Metadata;
+            var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity));
+            activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username"), key.Metadata, entityType);
 
-                b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
-                    .HasForeignKey<TLastLogin>(e => e.Username);
-            });
+            b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
+                .HasForeignKey<TLastLogin>(e => e.Username);
+        });
 
-        modelBuilder.Entity<TPasswordReset>(
-            b =>
-            {
-                b.HasKey(
-                    e => new { e.ResetNo, e.Username });
+        modelBuilder.Entity<TPasswordReset>(b =>
+        {
+            b.HasKey(e => new { e.ResetNo, e.Username });
 
-                b.HasOne(e => (TLogin)e.Login).WithMany()
-                    .HasForeignKey(e => e.Username)
-                    .HasPrincipalKey(e => e.AlternateUsername);
-            });
+            b.HasOne(e => (TLogin)e.Login).WithMany()
+                .HasForeignKey(e => e.Username)
+                .HasPrincipalKey(e => e.AlternateUsername);
+        });
 
         modelBuilder.Entity<TPageView>().HasOne(e => (TLogin)e.Login).WithMany()
             .HasForeignKey(e => e.Username);
 
-        modelBuilder.Entity<TBarcode>(
-            b =>
-            {
-                b.HasKey(e => e.Code);
+        modelBuilder.Entity<TBarcode>(b =>
+        {
+            b.HasKey(e => e.Code);
 
-                b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
-                    .HasForeignKey(e => e.ExpectedCode);
+            b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
+                .HasForeignKey(e => e.ExpectedCode);
 
-                b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
-                    .HasForeignKey<TBarcodeDetail>(e => e.Code);
-            });
+            b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
+                .HasForeignKey<TBarcodeDetail>(e => e.Code);
+        });
 
         modelBuilder.Entity<TIncorrectScan>().HasOne(e => (TBarcode)e.ActualBarcode).WithMany()
             .HasForeignKey(e => e.ActualCode);
@@ -342,51 +321,45 @@ public class MonsterContext<
 
         modelBuilder.Entity<TComputerDetail>().OwnsOne(cd => (TDimensions)cd.Dimensions);
 
-        modelBuilder.Entity<TDriver>(
-            b =>
-            {
-                b.HasKey(e => e.Name);
-                b.HasOne(e => (TLicense)e.License).WithOne(e => (TDriver)e.Driver)
-                    .HasPrincipalKey<TDriver>(e => e.Name);
-            });
+        modelBuilder.Entity<TDriver>(b =>
+        {
+            b.HasKey(e => e.Name);
+            b.HasOne(e => (TLicense)e.License).WithOne(e => (TDriver)e.Driver)
+                .HasPrincipalKey<TDriver>(e => e.Name);
+        });
 
-        modelBuilder.Entity<TSmartCard>(
-            b =>
-            {
-                b.HasKey(e => e.Username);
+        modelBuilder.Entity<TSmartCard>(b =>
+        {
+            b.HasKey(e => e.Username);
 
-                b.HasOne(e => (TLogin)e.Login).WithOne()
-                    .HasForeignKey<TSmartCard>(e => e.Username);
+            b.HasOne(e => (TLogin)e.Login).WithOne()
+                .HasForeignKey<TSmartCard>(e => e.Username);
 
-                b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
-                    .HasForeignKey<TLastLogin>(e => e.SmartcardUsername);
-            });
+            b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
+                .HasForeignKey<TLastLogin>(e => e.SmartcardUsername);
+        });
 
-        modelBuilder.Entity<TRsaToken>(
-            b =>
-            {
-                b.HasKey(e => e.Serial);
-                b.HasOne(e => (TLogin)e.Login).WithOne()
-                    .HasForeignKey<TRsaToken>(e => e.Username);
-            });
+        modelBuilder.Entity<TRsaToken>(b =>
+        {
+            b.HasKey(e => e.Serial);
+            b.HasOne(e => (TLogin)e.Login).WithOne()
+                .HasForeignKey<TRsaToken>(e => e.Username);
+        });
 
         // TODO: Many-to-many
         //modelBuilder.Entity<TSupplier>().ForeignKeys(fk => fk.HasForeignKey<TProduct>(e => e.SupplierId));
 
-        modelBuilder.Entity<TBackOrderLine>(
-            bb => bb.HasOne(b => (TSupplier)b.Supplier)
-                .WithMany(s => (ICollection<TBackOrderLine>)s.BackOrderLines)
-                .HasForeignKey(e => e.SupplierId));
+        modelBuilder.Entity<TBackOrderLine>(bb => bb.HasOne(b => (TSupplier)b.Supplier)
+            .WithMany(s => (ICollection<TBackOrderLine>)s.BackOrderLines)
+            .HasForeignKey(e => e.SupplierId));
 
-        modelBuilder.Entity<TDiscontinuedProduct>(
-            db => db.HasOne(d => (TProduct)d.ReplacedBy)
-                .WithMany(p => (ICollection<TDiscontinuedProduct>)p.Replaces)
-                .HasForeignKey(e => e.ReplacementProductId));
+        modelBuilder.Entity<TDiscontinuedProduct>(db => db.HasOne(d => (TProduct)d.ReplacedBy)
+            .WithMany(p => (ICollection<TDiscontinuedProduct>)p.Replaces)
+            .HasForeignKey(e => e.ReplacementProductId));
 
-        modelBuilder.Entity<TProductPageView>(
-            pb => pb.HasOne(p => (TProduct)p.Product)
-                .WithMany()
-                .HasForeignKey(e => e.ProductId));
+        modelBuilder.Entity<TProductPageView>(pb => pb.HasOne(p => (TProduct)p.Product)
+            .WithMany()
+            .HasForeignKey(e => e.ProductId));
     }
 
     public override Task SeedUsingFKs()
