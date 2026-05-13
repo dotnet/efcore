@@ -132,56 +132,58 @@ public class RelationalStructuralTypeMaterializer<TStructuralType> : RelationalS
         // This mirrors GenerateMaterializationCondition in RelationalStructuralTypeShaperExpression.
         if (isNullable)
         {
-            IEnumerable<IProperty> requiredCheckProperties;
+            IEnumerable<IProperty> requiredCheckProperties = [];
             IEnumerable<IProperty>? optionalCheckProperties = null;
 
-            if (entityType is not null)
+            switch (structuralType)
             {
+                case IEntityType nullableEntityType when nullableEntityType.FindPrimaryKey() is null:
+                    optionalCheckProperties = nullableEntityType.GetProperties();
+                    break;
+
                 // The table-optional existence check only applies to root entity types in table-splitting
                 // scenarios. For entities with a discriminator property (TPH), derived types (TPT/TPC),
-                // TPC entities, keyless entities, and JSON-mapped entities, the discriminator or other
-                // mechanisms handle existence detection.
+                // TPC entities, and JSON-mapped entities, the discriminator or other mechanisms handle
+                // existence detection.
                 // This mirrors GenerateMaterializationCondition in RelationalStructuralTypeShaperExpression.
-                if (entityType.FindDiscriminatorProperty() is not null
-                    || entityType.FindPrimaryKey() is null
-                    || entityType.GetRootType() != entityType
-                    || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
-                    || entityType.IsMappedToJson())
-                {
-                    requiredCheckProperties = [];
-                }
-                else
-                {
-                    var table = entityType.GetViewOrTableMappings()
-                        .SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
-                        ?? entityType.GetDefaultMappings().Single().Table;
+                case IEntityType nullableEntityType
+                    when nullableEntityType.FindDiscriminatorProperty() is not null
+                         || nullableEntityType.GetRootType() != nullableEntityType
+                         || nullableEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                         || nullableEntityType.IsMappedToJson():
+                    break;
 
-                    if (table.IsOptional(entityType))
+                case IEntityType nullableEntityType:
+                    var table = nullableEntityType.GetViewOrTableMappings()
+                        .SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
+                        ?? nullableEntityType.GetDefaultMappings().Single().Table;
+
+                    if (table.IsOptional(nullableEntityType))
                     {
-                        requiredCheckProperties = entityType.GetProperties()
+                        requiredCheckProperties = nullableEntityType.GetProperties()
                             .Where(p => !p.IsNullable && !p.IsPrimaryKey());
 
-                        var nonPrincipalSharedNonPk = entityType.GetNonPrincipalSharedNonPkProperties(table);
+                        var nonPrincipalSharedNonPk = nullableEntityType.GetNonPrincipalSharedNonPkProperties(table);
                         if (nonPrincipalSharedNonPk.Count != 0
                             && nonPrincipalSharedNonPk.All(p => p.IsNullable))
                         {
                             optionalCheckProperties = nonPrincipalSharedNonPk;
                         }
                     }
-                    else
+
+                    break;
+
+                case IComplexType complexType:
+                    requiredCheckProperties = complexType.GetProperties().Where(p => !p.IsNullable);
+                    if (!requiredCheckProperties.Any())
                     {
-                        requiredCheckProperties = [];
+                        optionalCheckProperties = complexType.GetProperties();
                     }
-                }
-            }
-            else
-            {
-                // Nullable complex type (e.g. optional complex property projection)
-                requiredCheckProperties = structuralType.GetProperties().Where(p => !p.IsNullable);
-                if (!requiredCheckProperties.Any())
-                {
-                    optionalCheckProperties = structuralType.GetProperties();
-                }
+
+                    break;
+
+                default:
+                    throw new UnreachableException();
             }
 
             var requiredIndices = requiredCheckProperties
