@@ -163,26 +163,93 @@ internal static class EmitDelta
 
         var typeAdded = type.IsNew;
         var typeRemoved = type.IsRemoved;
+        var stageTag = FormatStageTag(type.Stage);
 
         if (typeRemoved)
         {
-            lines.Add($"- {type.Type}");
+            lines.Add($"- {stageTag}{type.Type}");
         }
         else if (typeAdded)
         {
-            lines.Add($"+ {type.Type}");
+            lines.Add($"+ {stageTag}{type.Type}");
+        }
+        else if (type.PreviousType != null && type.PreviousType != type.Type)
+        {
+            lines.Add($"- {stageTag}{type.PreviousType}");
+            lines.Add($"+ {stageTag}{type.Type}");
         }
         else
         {
-            lines.Add($"  {type.Type}");
+            lines.Add($"  {stageTag}{type.Type}");
         }
 
         AppendStageDiffLine(lines, type.Removals, '-');
         AppendStageDiffLine(lines, type.Additions, '+');
         AppendGroupedDiffMembers(lines, type);
 
-        return $"```diff{Environment.NewLine}{string.Join(Environment.NewLine, lines)}{Environment.NewLine}```{Environment.NewLine}";
+        var wrapped = lines.SelectMany(WrapDiffLine);
+        return $"```diff{Environment.NewLine}{string.Join(Environment.NewLine, wrapped)}{Environment.NewLine}```{Environment.NewLine}";
     }
+
+    private const int MaxDiffLineLength = 160;
+
+    private static IEnumerable<string> WrapDiffLine(string line)
+    {
+        if (line.Length <= MaxDiffLineLength)
+        {
+            yield return line;
+            yield break;
+        }
+
+        var prefix = line.Length >= 2 ? line[..2] : "  ";
+        var content = line.Length >= 2 ? line[2..] : line;
+        const string continuationIndent = "    ";
+        var firstMax = MaxDiffLineLength - prefix.Length;
+        var contMax = MaxDiffLineLength - prefix.Length - continuationIndent.Length;
+
+        var isFirst = true;
+        while (content.Length > (isFirst ? firstMax : contMax))
+        {
+            var max = isFirst ? firstMax : contMax;
+            var breakAt = FindWrapBreak(content, max);
+            var chunk = content[..breakAt].TrimEnd();
+            yield return isFirst ? prefix + chunk : prefix + continuationIndent + chunk;
+            content = content[breakAt..].TrimStart();
+            isFirst = false;
+        }
+
+        if (content.Length > 0)
+        {
+            yield return isFirst ? prefix + content : prefix + continuationIndent + content;
+        }
+    }
+
+    private static int FindWrapBreak(string value, int maxLen)
+    {
+        if (value.Length <= maxLen)
+        {
+            return value.Length;
+        }
+
+        // Prefer breaking right after a comma to keep type lists readable.
+        var commaIdx = value.LastIndexOf(',', maxLen - 1);
+        if (commaIdx > 0 && commaIdx + 1 < value.Length && value[commaIdx + 1] == ' ')
+        {
+            return commaIdx + 2;
+        }
+
+        var spaceIdx = value.LastIndexOf(' ', maxLen - 1);
+        if (spaceIdx > 0)
+        {
+            return spaceIdx + 1;
+        }
+
+        // No good break point — break at the limit so we still wrap.
+        return maxLen;
+    }
+
+    private static string FormatStageTag(ApiStage stage)
+        => stage != ApiStage.Stable ? $"[{stage}] " : string.Empty;
 
     private static void AppendStageDiffLine(List<string> lines, ApiType? changeSet, char prefix)
     {
@@ -257,7 +324,8 @@ internal static class EmitDelta
 
         foreach (var member in members.OrderBy(m => GetMemberName(m.Member), StringComparer.Ordinal).ThenBy(m => m.Member, StringComparer.Ordinal))
         {
-            entries.Add((GetMemberName(member.Member), $"{prefix} {member.Member}"));
+            var stageTag = FormatStageTag(member.Stage);
+            entries.Add((GetMemberName(member.Member), $"{prefix} {stageTag}{member.Member}"));
         }
     }
 
