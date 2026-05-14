@@ -8,4 +8,13 @@
     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
 
+  <!-- Use the Arcade SDK XUnitV3 test runner stack (xunit.v3 + Microsoft.Testing.Platform) for
+       executable test projects. xUnit v3 requires test projects to be stand-alone executables;
+       Microsoft.Testing.Platform.MSBuild handles the OutputType=Exe switch via
+       IsTestingPlatformApplication, but setting it explicitly here keeps things obvious. -->
+  <PropertyGroup Condition="'$(IsUnitTestProject)' == 'true'">
+    <TestRunnerName>XUnitV3</TestRunnerName>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
 </Project>
