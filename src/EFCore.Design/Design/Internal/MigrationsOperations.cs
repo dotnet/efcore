@@ -221,12 +221,20 @@ public class MigrationsOperations
         if (contextType == "*")
         {
             var contexts = _contextOperations.CreateAllContexts();
+
+            if (!contexts.Any())
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
+
                 foreach (var item in contexts)
                 {
                     using (item)
                     {
                         if (connectionString is not null)
-                        item.Database.SetConnectionString(connectionString);
+                        {
+                            item.Database.SetConnectionString(connectionString);
+                        }
 
                         var services = _servicesBuilder.Build(item);
                         EnsureServices(services);
@@ -242,7 +250,7 @@ public class MigrationsOperations
 
         using (var context = _contextOperations.CreateContext(contextType))
         {
-            if (connectionString != null)
+            if (connectionString is not null)
             {
                 context.Database.SetConnectionString(connectionString);
             }

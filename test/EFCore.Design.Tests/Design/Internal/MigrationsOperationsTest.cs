@@ -89,8 +89,9 @@ public class MigrationsOperationsTest
     public void UpdateDatabase_with_wildcard_context_runs_for_all_contexts()
     {
         var assembly = MockAssembly.Create([typeof(AssemblyTestContext), typeof(TestContext)]);
+        var reporter = new TestOperationReporter();
         var operations = new TestMigrationsOperations(
-            new TestOperationReporter(),
+            reporter,
             assembly,
             assembly,
             "projectDir",
@@ -100,6 +101,8 @@ public class MigrationsOperationsTest
             args: []);
 
         operations.UpdateDatabase(null, null, "*");
+
+        Assert.Contains(reporter.Messages, m => m.Contains(DesignStrings.Done));
     }
 
     private class TestContext : DbContext;
