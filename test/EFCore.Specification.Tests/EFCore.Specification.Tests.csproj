@@ -46,7 +46,6 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,10 +63,12 @@
   <ItemGroup>
     <PackageReference Include="NetTopologySuite" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" />
-    <!-- Workaround for https://github.com/dotnet/arcade/issues/13798 -->
-    <PackageReference Include="xunit.assert" VersionOverride="$(XUnitVersion)" />
-    <PackageReference Include="xunit.core" VersionOverride="$(XUnitVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" VersionOverride="$(XUnitRunnerVisualstudioVersion)" />
+    <!-- xunit.v3.core / xunit.v3.assert versions are flowed through Arcade's XUnitV3 targets,
+         but only when IsTestProject=true. This shipped library project sets IsTestProject=false,
+         so we reference the packages explicitly. -->
+    <PackageReference Include="xunit.v3.core" VersionOverride="$(XUnitV3Version)" />
+    <PackageReference Include="xunit.v3.assert" VersionOverride="$(XUnitV3Version)" />
+    <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
