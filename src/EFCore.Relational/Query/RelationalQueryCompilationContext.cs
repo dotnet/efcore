@@ -210,7 +210,6 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     private Expression TranslateQuery(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
-
         var preprocessedQuery = Dependencies.QueryTranslationPreprocessorFactory.Create(this).Process(queryAndEventData.Query);
         var translatedQuery = Dependencies.QueryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
         return Dependencies.QueryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
